@@ -3,66 +3,31 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { DeployInfo } from "@/components/common/DeployInfo";
 import {
-  LayoutDashboard,
   Users,
   FlaskConical,
-  Ticket,
-  Network,
-  BarChart3,
   Briefcase,
-  Bot,
-  Bell,
-  Search,
   LogOut,
-  GitBranch,
   Database,
-  Building2,
-  GraduationCap,
-  Brain,
-  Cpu,
-  AlertTriangle,
-  ListChecks,
-  Activity,
-  Sparkles,
-  ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
+  ChevronRight,
+  Search,
+  Sparkles,
 } from "lucide-react";
 
 const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[] = [
-  {
-    group: "Operations",
-    items: [
-      { to: "/admin", label: "Command Center", icon: LayoutDashboard },
-      { to: "/admin/intelligence", label: "Intelligence", icon: Brain },
-      { to: "/admin/infrastructure", label: "Infrastructure", icon: Cpu },
-      { to: "/admin/notifications", label: "Notifications", icon: Bell },
-    ],
-  },
   {
     group: "People",
     items: [
       { to: "/admin/users", label: "Users", icon: Users },
       { to: "/admin/recruiters", label: "Recruiters", icon: Briefcase },
-      { to: "/admin/institutions", label: "Institutions", icon: GraduationCap },
     ],
   },
   {
-    group: "Engineering",
+    group: "Content",
     items: [
       { to: "/admin/labs", label: "Labs", icon: FlaskConical },
-      { to: "/admin/sprints", label: "Sprint Templates", icon: GitBranch },
-      { to: "/admin/tickets", label: "Tickets", icon: Ticket },
       { to: "/admin/questions", label: "Question Bank", icon: Database },
-      { to: "/admin/incidents", label: "Incident Rooms", icon: AlertTriangle },
-    ],
-  },
-  {
-    group: "Platform",
-    items: [
-      { to: "/admin/collaboration", label: "Collaboration Hub", icon: Network },
-      { to: "/admin/ai-mentor", label: "AI Mentor", icon: Bot },
-      { to: "/admin/reports", label: "Reports", icon: BarChart3 },
     ],
   },
 ];
@@ -172,11 +137,6 @@ export function AdminShell({
           ))}
         </nav>
         <div className="p-2 border-t border-border">
-          {!collapsed && (
-            <div className="flex items-center gap-2 px-2 py-2 mb-1 text-xs text-muted-foreground">
-              <Activity className="h-3.5 w-3.5 text-success" /> All systems operational
-            </div>
-          )}
           <button
             onClick={() => {
               logout();
@@ -252,15 +212,6 @@ export function AdminShell({
             >
               <Sparkles className="h-4 w-4" />
             </button>
-            <Link
-              to="/admin/notifications"
-              className="relative grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground"
-            >
-              <Bell className="h-4 w-4" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 grid place-items-center rounded-full bg-destructive text-[9px] text-destructive-foreground font-bold">
-                3
-              </span>
-            </Link>
             <div className="flex items-center gap-2 text-sm">
               <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-ui text-primary-foreground text-xs font-semibold">
                 {user?.name?.[0] ?? "A"}
@@ -366,5 +317,3 @@ export function Badge({
     </span>
   );
 }
-
-export { ListChecks };
