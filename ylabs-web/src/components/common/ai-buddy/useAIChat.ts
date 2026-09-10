@@ -24,10 +24,32 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
   const persistenceKey = config?.persistenceKey;
 
   useEffect(() => {
-    if (persistenceKey) {
+    const storageKey = persistenceKey ? `ai-mentor-session-${persistenceKey}` : 'ai-mentor-session-default';
+
+    const initSession = async () => {
       setMessages([]);
       setSessionId(null);
-    }
+      
+      const savedSessionId = localStorage.getItem(storageKey);
+      if (savedSessionId) {
+        try {
+          const data = await yhubApiAuthUtil.get<{ id: string, messages: ChatMessage[] }>(`/sessions/${savedSessionId}/`);
+          if (data && data.id) {
+            setSessionId(data.id);
+            if (data.messages && Array.isArray(data.messages)) {
+              setMessages(data.messages);
+            }
+          } else {
+            localStorage.removeItem(storageKey);
+          }
+        } catch (e) {
+          console.warn('Failed to load saved session', e);
+          localStorage.removeItem(storageKey);
+        }
+      }
+    };
+    
+    initSession();
   }, [persistenceKey]);
 
   useEffect(() => {
@@ -86,6 +108,8 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
 
       if (response?.id) {
         setSessionId(response.id);
+        const storageKey = persistenceKey ? `ai-mentor-session-${persistenceKey}` : 'ai-mentor-session-default';
+        localStorage.setItem(storageKey, response.id);
         return response.id;
       }
     } catch (error) {
@@ -188,6 +212,11 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
               } else if (data.done) {
                 isStreamingDone = true;
                 finalData = data;
+              } else if (data.error) {
+                console.error("Backend sent error in stream:", data.error);
+                setMessages((m) => m.map(msg => msg.id === assistantMsgId ? { ...msg, content: 'Error: ' + data.error } : msg));
+                isStreamingDone = true;
+                setActiveStream(null);
               }
             } catch (e) { console.error("Parse error:", e); }
           }
@@ -207,12 +236,54 @@ const useAIChat = (config?: { getContext?: () => string; persistenceKey?: string
     }
   }, [ensureSession, getContext, agents]);
 
+  const startNewChat = useCallback(() => {
+    const storageKey = persistenceKey ? `ai-mentor-session-${persistenceKey}` : 'ai-mentor-session-default';
+    localStorage.removeItem(storageKey);
+    setSessionId(null);
+    setMessages([]);
+  }, [persistenceKey]);
+
+  const [sessionHistory, setSessionHistory] = useState<any[]>([]);
+
+  const fetchHistory = useCallback(async () => {
+    try {
+      const data = await yhubApiAuthUtil.get<any[]>('/sessions/');
+      if (Array.isArray(data)) {
+        setSessionHistory(data);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch session history', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  const loadSession = useCallback(async (id: string) => {
+    const storageKey = persistenceKey ? `ai-mentor-session-${persistenceKey}` : 'ai-mentor-session-default';
+    try {
+      const data = await yhubApiAuthUtil.get<{ id: string, messages: ChatMessage[] }>(`/sessions/${id}/`);
+      if (data && data.id) {
+        setSessionId(data.id);
+        localStorage.setItem(storageKey, data.id);
+        setMessages(data.messages || []);
+      }
+    } catch (e) {
+      console.warn('Failed to load session', e);
+    }
+  }, [persistenceKey]);
+
   return {
     messages,
     sendMessage,
     isLoading,
     suggestedPrompts,
     activeStream,
+    startNewChat,
+    sessionHistory,
+    fetchHistory,
+    loadSession,
   };
 };
 

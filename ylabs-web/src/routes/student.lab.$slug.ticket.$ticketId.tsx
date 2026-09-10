@@ -3219,7 +3219,8 @@ export function TicketIDE({
                   {sidePanel === "preview"
                     ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} /></div>
                     : <SideMentor
-                        chatTitle={`${ticket.title || "Ticket"} - AI Mentor`}
+                        chatTitle={`${labTitle} - Sprint ${sprintNo} - Ticket ${ticketNo}`}
+                        persistenceKey={`ticket-${ticket.id}`}
                         contextGetter={() => `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\nCurrent Code:\n${Object.entries(files).map(([name, content]) => `File: ${name}\n${content}`).join('\n\n')}`}
                       />}
                 </div>
@@ -6310,12 +6311,14 @@ export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: {
   );
 }
 
-function SideMentor({ contextGetter, chatTitle }: { contextGetter: () => string; chatTitle?: string }) {
-  const { messages, isLoading, sendMessage, suggestedPrompts, activeStream } = useAIChat({
+function SideMentor({ contextGetter, chatTitle, persistenceKey }: { contextGetter: () => string; chatTitle?: string; persistenceKey?: string }) {
+  const { messages, isLoading, sendMessage, suggestedPrompts, activeStream, startNewChat, sessionHistory, fetchHistory, loadSession } = useAIChat({
     getContext: contextGetter,
     chatTitle,
+    persistenceKey,
   });
   const [input, setInput] = useState("");
+  const [showHistory, setShowHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -6330,77 +6333,126 @@ function SideMentor({ contextGetter, chatTitle }: { contextGetter: () => string;
 
   return (
     <div className="flex flex-1 min-h-0 flex-col gap-2 p-3 bg-editor-panel text-foreground w-full overflow-hidden">
-      <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin">
-        {messages.length === 0 && !activeStream && (
-          <div className="flex">
-            <div className="max-w-[90%] rounded-md px-3 py-2 text-[13px] bg-accent text-foreground">
-              Hi! I'm your AI mentor. I can give Socratic hints — what are you stuck on?
-            </div>
-          </div>
-        )}
-        {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.message_type === "user" ? "justify-end" : ""}`}>
-            <div
-              className={`max-w-[90%] rounded-md px-3 py-2 text-[13px] ${m.message_type === "user" ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"} overflow-hidden`}
-            >
-              {m.message_type === "user" ? (
-                <div className="whitespace-pre-wrap">{m.content}</div>
-              ) : (
-                <div className="prose prose-sm dark:prose-invert max-w-full break-words [&>p]:mb-2 [&>p]:last:mb-0 [&>ul]:my-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:my-2 [&>ol]:list-decimal [&>ol]:pl-4">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {m.content}
-                  </ReactMarkdown>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-        {isLoading && (!messages.length || messages[messages.length - 1].message_type !== "assistant") && (
-          <div className="flex">
-            <div className="max-w-[90%] rounded-md px-3 py-2 text-[13px] bg-accent text-foreground animate-pulse">
-              Thinking...
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-      
-      {suggestedPrompts.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-1">
-          {suggestedPrompts.map((s) => (
-            <button
-              key={s}
-              onClick={() => {
-                if (!isLoading) {
-                  sendMessage(s);
-                }
-              }}
-              disabled={isLoading}
-              className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-accent disabled:opacity-50 transition-colors"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
-      
-      <div className="flex gap-2 pt-1 shrink-0">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          disabled={isLoading}
-          placeholder="Ask AI mentor..."
-          className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 text-xs outline-none focus:border-primary disabled:opacity-50 transition-colors min-w-0"
-        />
-        <button 
-          onClick={send} 
-          disabled={isLoading || !input.trim()} 
-          className="rounded-md bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors shrink-0"
+      <div className="flex justify-between items-center shrink-0 pb-1 border-b border-border/40">
+        <button
+          onClick={() => {
+            if (!showHistory) fetchHistory();
+            setShowHistory(!showHistory);
+          }}
+          className={`text-[11px] flex items-center transition-colors ${showHistory ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          Ask
+          <Clock className="w-3 h-3 mr-1" /> History
+        </button>
+        <button
+          onClick={() => {
+            setShowHistory(false);
+            startNewChat();
+          }}
+          className="text-[11px] flex items-center text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <RotateCcw className="w-3 h-3 mr-1" /> New Chat
         </button>
       </div>
+
+      {showHistory ? (
+        <div className="flex-1 overflow-y-auto space-y-2 pr-2 scrollbar-thin mt-2">
+          <div className="text-xs font-semibold text-muted-foreground mb-3">Previous Chats</div>
+          {sessionHistory.length === 0 ? (
+            <div className="text-xs text-muted-foreground italic">No past chats found.</div>
+          ) : (
+            sessionHistory.map((session: any) => (
+              <button
+                key={session.id}
+                onClick={() => {
+                  loadSession(session.id);
+                  setShowHistory(false);
+                }}
+                className="w-full text-left p-2.5 rounded-md border border-border/50 hover:bg-accent hover:border-border transition-colors group"
+              >
+                <div className="text-[12px] font-medium text-foreground truncate">{session.title || 'AI Mentor Chat'}</div>
+                <div className="text-[10px] text-muted-foreground mt-1.5 flex justify-between items-center">
+                  <span>{new Date(session.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                  <span className="bg-background px-1.5 py-0.5 rounded border border-border/50">{session.message_count || 0} msgs</span>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      ) : (
+        <>
+          <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin">
+            {messages.length === 0 && !activeStream && (
+              <div className="flex">
+                <div className="max-w-[90%] rounded-md px-3 py-2 text-[13px] bg-accent text-foreground">
+                  Hi! I'm your AI mentor. I can give Socratic hints — what are you stuck on?
+                </div>
+              </div>
+            )}
+            {messages.map((m, i) => (
+              <div key={i} className={`flex ${m.message_type === "user" ? "justify-end" : ""}`}>
+                <div
+                  className={`max-w-[90%] rounded-md px-3 py-2 text-[13px] ${m.message_type === "user" ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"} overflow-hidden`}
+                >
+                  {m.message_type === "user" ? (
+                    <div className="whitespace-pre-wrap">{m.content}</div>
+                  ) : (
+                    <div className="prose prose-sm dark:prose-invert max-w-full break-words [&>p]:mb-2 [&>p]:last:mb-0 [&>ul]:my-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:my-2 [&>ol]:list-decimal [&>ol]:pl-4">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {m.content}
+                      </ReactMarkdown>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            {isLoading && (!messages.length || messages[messages.length - 1].message_type !== "assistant") && (
+              <div className="flex">
+                <div className="max-w-[90%] rounded-md px-3 py-2 text-[13px] bg-accent text-foreground animate-pulse">
+                  Thinking...
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          
+          {suggestedPrompts.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-1">
+              {suggestedPrompts.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => {
+                    if (!isLoading) {
+                      sendMessage(s);
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-accent disabled:opacity-50 transition-colors"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+          
+          <div className="flex gap-2 pt-1 shrink-0">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && send()}
+              disabled={isLoading}
+              placeholder="Ask AI mentor..."
+              className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 text-xs outline-none focus:border-primary disabled:opacity-50 transition-colors min-w-0"
+            />
+            <button 
+              onClick={send} 
+              disabled={isLoading || !input.trim()} 
+              className="rounded-md bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors shrink-0"
+            >
+              Ask
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
