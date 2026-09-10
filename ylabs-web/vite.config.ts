@@ -47,19 +47,17 @@ export default defineConfig({
       },
       rollupOptions: {
         external: [
-          'react-native-fs',
-          'react-native',
-          'react-native-fetch-blob',
+          // 'react-native-fs',
+          // 'react-native',
+          // 'react-native-fetch-blob',
         ],
-        output: {},
-      },
-      chunkSizeWarningLimit: 1000,
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true,
+        output: {
+          manualChunks: undefined, // Disable manual chunk splitting for faster builds
         },
       },
+      chunkSizeWarningLimit: 1000,
+      minify: 'esbuild', // Use esbuild instead of terser for faster builds
+      terserOptions: undefined, // Not used when minify is esbuild
       reportCompressedSize: false,
       sourcemap: false,
     },
