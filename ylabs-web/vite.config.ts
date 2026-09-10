@@ -10,7 +10,8 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
 export default defineConfig({
   tanstackStart: {
-    server: { entry: "server" },
+    // Disable SSR for faster builds - client-side rendering only
+    ssr: false,
   },
   vite: {
     resolve: {

@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Multi-stage build for YLabs React frontend (TanStack Start SSR)
+# Multi-stage build for YLabs React frontend (static export, no SSR)
 # BuildKit is required: DOCKER_BUILDKIT=1
 
 # ── base: install dependencies (cached layer) ─────────────────────────────────
@@ -18,7 +18,7 @@ COPY . .
 EXPOSE 3000
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
 
-# ── build: compile SSR bundle (for dev/QA on EC2) ───────────────────────────────
+# ── build: compile static bundle (for dev/QA on EC2) ─────────────────────────────
 FROM base AS build
 ARG VITE_BACKEND_API_BASE_URL
 ARG VITE_YHUB_BACKEND_API_BASE_URL
@@ -40,12 +40,12 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
 COPY . .
 RUN npm run build
 
-# ── serve: Node.js SSR server (for dev/QA on EC2) ─────────────────────────────────
-FROM node:20-alpine AS serve
+# ── serve: Nginx static server (for dev/QA on EC2) ─────────────────────────────────
+FROM nginx:alpine AS serve
 WORKDIR /app
-RUN apk add --no-cache curl
-COPY --from=build /app/.output /app/.output
-COPY --from=build /app/package.json /app/package.json
-COPY --from=build /app/node_modules /app/node_modules
+# Copy custom nginx config for SPA routing
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+# Copy built static files
+COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 3000
-CMD ["node", ".output/server/index.mjs"]
+CMD ["nginx", "-g", "daemon off;"]
