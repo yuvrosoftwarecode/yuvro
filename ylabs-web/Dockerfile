@@ -10,7 +10,7 @@ RUN apk add --no-cache curl
 COPY package.json package-lock.json ./
 # npm ci is faster and uses the lock file exactly; cache mount avoids re-downloading
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --prefer-offline
+    npm ci
 
 # ── development: Vite dev server with HMR ────────────────────────────────────
 FROM base AS development

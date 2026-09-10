@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apk add --no-cache curl
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --prefer-offline
+    npm ci
 
 # ── development ───────────────────────────────────────────────────────────────
 FROM base AS development
