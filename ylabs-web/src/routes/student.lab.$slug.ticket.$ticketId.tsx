@@ -952,6 +952,58 @@ export function StudentTicketView({
   return <TicketIDE slug={slug} ticket={ticket} previewOverride={previewOverride ?? null} />;
 }
 
+/**
+ * Computes a deterministic dynamic port in [10000, 55000) for a given candidate session identifier.
+ */
+export function getCandidatePort(candidateKey: string, basePort = 10000, range = 45000): number {
+  if (!candidateKey) return 8000;
+  let hash = 0;
+  for (let i = 0; i < candidateKey.length; i++) {
+    hash = (hash << 5) - hash + candidateKey.charCodeAt(i);
+    hash |= 0;
+  }
+  return basePort + (Math.abs(hash) % range);
+}
+
+/**
+ * Injects or replaces the port in a startup command with the dynamic candidate port.
+ */
+export function adaptStartupCommandPort(cmd: string | undefined | null, port: number): string | undefined {
+  if (!cmd) return undefined;
+  let res = cmd.trim();
+
+  // 1. If Django runserver is present:
+  if (res.includes("runserver")) {
+    if (res.includes("0.0.0.0:")) {
+      res = res.replace(/0\.0\.0\.0:\d{4,5}/g, `0.0.0.0:${port}`);
+    } else if (/127\.0\.0\.1:\d{4,5}/.test(res)) {
+      res = res.replace(/127\.0\.0\.1:\d{4,5}/g, `0.0.0.0:${port}`);
+    } else if (/:\d{4,5}/.test(res)) {
+      res = res.replace(/:\d{4,5}/g, `:${port}`);
+    } else {
+      res = res + ` 0.0.0.0:${port}`;
+    }
+    return res;
+  }
+
+  // 2. If an explicit host:port or :port is in the command:
+  if (/(?:0\.0\.0\.0|127\.0\.0\.1|localhost):(\d{4,5})/.test(res)) {
+    return res.replace(/(0\.0\.0\.0|127\.0\.0\.1|localhost):\d{4,5}/g, `$1:${port}`);
+  }
+
+  // 3. If --port <number> or -p <number> is in the command:
+  if (/(--port|-p)\s+(\d{4,5})/.test(res)) {
+    return res.replace(/(--port|-p)\s+\d{4,5}/g, `$1 ${port}`);
+  }
+
+  // 4. If trailing port number is present (e.g. "... 8000"):
+  if (/\s+(\d{4,5})$/.test(res)) {
+    return res.replace(/\s+\d{4,5}$/, ` ${port}`);
+  }
+
+  return res;
+}
+
 export function TicketIDE({
   slug,
   ticket,
@@ -1009,6 +1061,22 @@ export function TicketIDE({
   }, [user]);
   const labId = slug;
   const sprintId = ticket.id?.toString() ?? "0";
+
+  const candidateKey = useMemo(() => {
+    if (isRecruiterPreview) return "preview_recruiter";
+    const userIdentifier = userId || (typeof window !== "undefined" ? (sessionStorage.getItem(`eval_user_${evaluationId}`) || "anon") : "anon");
+    const evalIdentifier = evaluationId || "direct";
+    const labIdentifier = slug || ticket?.id || "lab";
+    return `${userIdentifier}_${evalIdentifier}_${labIdentifier}`;
+  }, [userId, evaluationId, slug, ticket?.id, isRecruiterPreview]);
+
+  const candidatePort = useMemo(() => getCandidatePort(candidateKey), [candidateKey]);
+
+  const computedStartupCommand = useMemo(() => {
+    return adaptStartupCommandPort(ticket?.startup_command, candidatePort);
+  }, [ticket?.startup_command, candidatePort]);
+
+  const previewPort = candidatePort;
   const [wsLoaded, setWsLoaded] = useState(false);
   const submissionsEndpoint = isEvaluationMode ? "/skill_evaluation/lab-submissions/" : "/lab/submissions/";
   const submissionsIdField = isEvaluationMode ? "lab_question" : "lab_sprint_ticket";
@@ -2455,15 +2523,6 @@ export function TicketIDE({
     );
   }
 
-  let computedStartupCommand = ticket.startup_command;
-  if (computedStartupCommand && computedStartupCommand.includes("runserver") && !computedStartupCommand.includes("0.0.0.0")) {
-    computedStartupCommand = computedStartupCommand + " 0.0.0.0:8010";
-  }
-
-  const previewPort = computedStartupCommand
-    ? parseInt(computedStartupCommand.match(/(\d{4,5})\s*$/)?.[1] ?? "8000", 10)
-    : 8000;
-
   return (
     <div className="h-screen flex-1 min-h-0 flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
@@ -3203,7 +3262,7 @@ export function TicketIDE({
                 </div>
                 <div className="flex-1 overflow-hidden p-0 min-w-0 min-h-0 flex flex-col">
                   {sidePanel === "preview"
-                    ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} /></div>
+                    ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} previewPort={previewPort} /></div>
                     : <SideMentor
                         chatTitle={`${labTitle} - Sprint ${sprintNo} - Ticket ${ticketNo}`}
                         persistenceKey={`ticket-${ticket.id}`}
@@ -4049,20 +4108,25 @@ function QualityView({ code }: { code: string }) {
 
 function WebPreview({ port = 8000 }: { port?: number }) {
   const executorBase = (import.meta.env.VITE_CODE_EXECUTOR_BASE_URL || "http://localhost:8009").replace(/\/$/, "");
-  // In local dev, the workspace process IS accessible on localhost.
-  // In deployed environments, route through the code executor proxy so the
-  // browser doesn't try to connect to a port on its own machine.
-  const isLocalhost = executorBase.includes("localhost") || executorBase.includes("127.0.0.1");
-  const url = isLocalhost
-    ? `http://localhost:${port}`
-    : `${executorBase}/workspace/preview?port=${port}`;
+  const [iframeKey, setIframeKey] = useState(0);
+  const url = `${executorBase}/workspace/preview?port=${port}`;
   return (
     <div className="flex h-full w-full bg-white flex-col rounded border">
-      <div className="flex items-center gap-2 border-b p-2 text-xs text-gray-500">
-        <Globe className="h-3.5 w-3.5" />
-        <span className="font-mono">{isLocalhost ? `http://localhost:${port}` : `Preview (port ${port})`}</span>
+      <div className="flex items-center justify-between border-b p-2 text-xs text-gray-500">
+        <div className="flex items-center gap-2">
+          <Globe className="h-3.5 w-3.5 text-primary" />
+          <span className="font-mono text-neutral-800 font-medium">http://localhost:{port}</span>
+        </div>
+        <button
+          onClick={() => setIframeKey((k) => k + 1)}
+          className="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[11px] text-gray-600 hover:bg-gray-100"
+          title="Refresh preview"
+        >
+          <RotateCcw className="h-3 w-3" />
+          <span>Reload</span>
+        </button>
       </div>
-      <iframe src={url} className="w-full flex-1" title={`Preview on port ${port}`} />
+      <iframe key={iframeKey} src={url} className="w-full flex-1" title={`Preview on port ${port}`} />
     </div>
   );
 }
@@ -4093,13 +4157,13 @@ function PreviewView() {
   );
 }
 
-function SidePreview({ device, kit, files, activeFile, startupCommand }: { device: "Mobile" | "Tablet" | "Desktop"; kit: Kit; files: Record<string, string>; activeFile: string; startupCommand?: string }) {
+function SidePreview({ device, kit, files, activeFile, startupCommand, previewPort: directPreviewPort }: { device: "Mobile" | "Tablet" | "Desktop"; kit: Kit; files: Record<string, string>; activeFile: string; startupCommand?: string; previewPort?: number }) {
   const w = device === "Mobile" ? 375 : device === "Tablet" ? 768 : "100%";
 
-  // Extract port from startup command, e.g. "runserver 0.0.0.0:8000" -> 8000
-  const previewPort = startupCommand
+  // Extract port from startup command or direct previewPort
+  const previewPort = directPreviewPort ?? (startupCommand
     ? parseInt(startupCommand.match(/(\d{4,5})\s*$/)?.[1] ?? "8000", 10)
-    : 8000;
+    : 8000);
 
   // If startup_command exists, show web preview (for Django, Flask, Node, etc.)
   const body = startupCommand ? <WebPreview port={previewPort} /> :
