@@ -45,14 +45,35 @@ Instead of full access, create an inline policy with minimal permissions:
             "Resource": "arn:aws:s3:::yuvro-dev/*"
         },
         {
+            "Sid": "EC2AMIRead",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeImages"
+            ],
+            "Resource": "*"
+        },
+        {
             "Sid": "EC2Instances",
             "Effect": "Allow",
             "Action": [
                 "ec2:DescribeInstances",
-                "ec2:StartInstances",
-                "ec2:StopInstances"
+                "ec2:DescribeInstanceStatus",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeVpcs",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeVolumes"
             ],
             "Resource": "*"
+        },
+        {
+            "Sid": "EC2InstanceActions",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:StartInstances",
+                "ec2:StopInstances",
+                "ec2:TerminateInstances"
+            ],
+            "Resource": "arn:aws:ec2:ap-south-1:878235034597:instance/*"
         },
         {
             "Sid": "RDS",
