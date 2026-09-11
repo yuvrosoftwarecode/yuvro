@@ -43,23 +43,19 @@ jobs:
       with:
         version: 1.8.0
     
-    - name: Configure SSH
+    - name: Configure SSH key
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.DEPLOY_EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/yuvro-dev.pem
         chmod 400 ~/.ssh/yuvro-dev.pem
-        echo "Host *" > ~/.ssh/config
-        echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-        echo "  ConnectTimeout 10" >> ~/.ssh/config
-        echo "  ServerAliveInterval 60" >> ~/.ssh/config
-        echo "  ServerAliveCountMax 30" >> ~/.ssh/config
+        echo "SSH key configured"
     
     - name: Deploy to EC2
       env:
         DEPLOY_ENV: dev
         DEPLOY_BRANCH: ${{ inputs.deploy_branch }}
         DEPLOY_APP: ${{ inputs.deploy_app }}
-        SSH_KEY_PATH: ~/.ssh/yuvro-dev.pem
+        SSH_KEY_PATH: /home/runner/.ssh/yuvro-dev.pem
       run: |
         echo "🚀 Deploying $DEPLOY_APP to dev [branch=$DEPLOY_BRANCH]..."
         
