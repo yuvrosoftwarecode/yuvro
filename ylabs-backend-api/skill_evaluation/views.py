@@ -60,9 +60,18 @@ def get_emails_list(emails):
     return []
 
 class EvaluationViewSet(viewsets.ModelViewSet):
-    queryset = Evaluation.objects.prefetch_related('sections').all()
     serializer_class = EvaluationSerializer
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        qs = Evaluation.objects.prefetch_related('sections').all().order_by('-created_at')
+        if self.action == 'list':
+            user = self.request.user
+            if user and user.is_authenticated:
+                qs = qs.filter(created_by=user)
+            else:
+                qs = qs.none()
+        return qs
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -94,10 +103,12 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         return Response(data)
     
     def perform_create(self, serializer):
-        User = get_user_model()
-        user = User.objects.first()
-        if not user:
-            user = User.objects.create(username="default_recruiter", email="default@example.com")
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            User = get_user_model()
+            user = User.objects.first()
+            if not user:
+                user = User.objects.create(username="default_recruiter", email="default@example.com")
         instance = serializer.save(created_by=user)
         if instance.is_published and instance.candidate_invited_emails:
             self.send_invitation_emails(instance, instance.candidate_invited_emails)

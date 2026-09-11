@@ -13,6 +13,7 @@ export interface RegisterRequest {
   username: string;
   password: string;
   password_confirm: string;
+  roles?: Record<string, string>;
 }
 
 class AuthService {
@@ -61,6 +62,25 @@ class AuthService {
   async register(data: RegisterRequest): Promise<LoginResponse> {
     const response = await yhubApiAuthUtil.post<LoginResponse>(
       "/auth/register/?product=ylabs",
+      data,
+    );
+
+    localStorage.setItem("access", response.access);
+    localStorage.setItem("refresh", response.refresh);
+    restApiAuthUtil.setAuthToken(response.access);
+    yhubApiAuthUtil.setAuthToken(response.access);
+    ycodeApiAuthUtil.setAuthToken(response.access);
+
+    return response;
+  }
+
+  async fetchCompanies(): Promise<any[]> {
+    return await restApiUtil.get<any[]>("/recruiter/companies/");
+  }
+
+  async registerRecruiter(data: any): Promise<LoginResponse> {
+    const response = await restApiUtil.post<LoginResponse>(
+      "/recruiter/register/",
       data,
     );
 

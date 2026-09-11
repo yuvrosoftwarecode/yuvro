@@ -28,7 +28,7 @@ def register_user_in_yhub(email, username, password, first_name, last_name, role
         response = requests.post(url, json=payload, timeout=10)
         
         if response.status_code in (200, 201):
-            return True
+            return response.json()
             
         # Try to extract a meaningful error message
 
