@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, APIRouter, WebSocket, WebSocketDisconnect, Query
+from fastapi import FastAPI, HTTPException, UploadFile, File, APIRouter, WebSocket, WebSocketDisconnect, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -2927,13 +2927,16 @@ import urllib.request as _urllib_req
 import urllib.error as _urllib_err
 import socket as _socket
 
-def _preview_host() -> str:
-    """Return the best host to reach workspace processes from inside this container."""
-    # Try host.docker.internal first (set via extra_hosts: host-gateway)
+def _preview_hosts() -> list:
+    """Return candidates to reach workspace processes."""
+    hosts = ["127.0.0.1", "localhost"]
     try:
-        return _socket.gethostbyname("host.docker.internal")
+        host_ip = _socket.gethostbyname("host.docker.internal")
+        if host_ip not in hosts:
+            hosts.append(host_ip)
     except _socket.gaierror:
-        return "localhost"
+        pass
+    return hosts
 
 @workspace_router.get("/preview")
 @workspace_router.get("/preview/{subpath:path}")
@@ -2942,19 +2945,93 @@ async def workspace_preview_proxy(
     subpath: str = "",
 ):
     target_path = "/" + subpath if subpath else "/"
-    host = _preview_host()
-    target_url = f"http://{host}:{port}{target_path}"
-    try:
-        with _urllib_req.urlopen(_urllib_req.Request(target_url), timeout=10) as resp:
-            content = resp.read()
-            ctype = resp.headers.get("Content-Type", "text/html")
-            from fastapi.responses import Response
-            return Response(content=content, media_type=ctype)
-    except _urllib_err.URLError:
-        raise HTTPException(
-            status_code=503,
-            detail=f"Preview unavailable — no process listening on port {port}"
-        )
+    last_err = None
+    for host in _preview_hosts():
+        target_url = f"http://{host}:{port}{target_path}"
+        try:
+            with _urllib_req.urlopen(_urllib_req.Request(target_url), timeout=5) as resp:
+                content = resp.read()
+                ctype = resp.headers.get("Content-Type", "text/html")
+                from fastapi.responses import Response
+                response = Response(content=content, media_type=ctype)
+                response.set_cookie(
+                    key="preview_port",
+                    value=str(port),
+                    path="/",
+                    samesite="lax",
+                    max_age=3600,
+                )
+                return response
+        except Exception as e:
+            last_err = e
+            continue
+
+    raise HTTPException(
+        status_code=503,
+        detail=f"Preview unavailable — no process listening on port {port} (last error: {last_err})"
+    )
+
+
+@app.middleware("http")
+async def preview_cookie_proxy_middleware(request: Request, call_next):
+    """Proxy sub-requests from preview iframes (e.g. /swagger/schema/, /static/*, /api/*) using the preview_port cookie."""
+    path = request.url.path
+    if (
+        path == "/health"
+        or path == "/"
+        or path.startswith("/workspace")
+        or path.startswith("/execute")
+        or path.startswith("/api/v1/proctoring")
+        or path.startswith("/plagiarism")
+        or path.startswith("/supported-languages")
+        or path.startswith("/docs")
+        or path.startswith("/openapi.json")
+    ):
+        return await call_next(request)
+
+    port_str = request.cookies.get("preview_port") or request.query_params.get("port")
+    if port_str and port_str.isdigit():
+        port = int(port_str)
+        query_string = str(request.url.query)
+        subpath = path + (f"?{query_string}" if query_string else "")
+        body = await request.body()
+        req_headers = dict(request.headers)
+
+        for host in _preview_hosts():
+            target_url = f"http://{host}:{port}{subpath}"
+            try:
+                forward_headers = {
+                    k: v for k, v in req_headers.items()
+                    if k.lower() not in ["content-length", "host"]
+                }
+                forward_headers["host"] = f"localhost:{port}"
+                req = _urllib_req.Request(
+                    target_url,
+                    data=body if body else None,
+                    headers=forward_headers,
+                    method=request.method,
+                )
+                with _urllib_req.urlopen(req, timeout=10) as resp:
+                    resp_body = resp.read()
+                    ctype = resp.headers.get("Content-Type", "application/json")
+                    from fastapi.responses import Response
+                    return Response(
+                        content=resp_body,
+                        status_code=resp.status,
+                        media_type=ctype,
+                    )
+            except _urllib_err.HTTPError as he:
+                err_body = he.read()
+                from fastapi.responses import Response
+                return Response(
+                    content=err_body,
+                    status_code=he.code,
+                    media_type=he.headers.get("Content-Type", "application/json"),
+                )
+            except Exception:
+                continue
+
+    return await call_next(request)
 
 
 app.include_router(workspace_router)
