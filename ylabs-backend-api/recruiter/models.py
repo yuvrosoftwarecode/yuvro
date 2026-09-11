@@ -34,6 +34,7 @@ class CompanyRecruiter(BaseTimestampedAdminModel):
         related_name="recruiters",
     )
     notification_config = models.JSONField(default=dict, blank=True)
+    is_self_signup = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("user", "company")

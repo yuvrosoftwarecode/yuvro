@@ -25,6 +25,7 @@ export interface CompanyRecruiter {
   company: Company;
   notification_config?: any;
   created_at?: string;
+  is_self_signup?: boolean;
 }
 
 export const recruiterApi = {

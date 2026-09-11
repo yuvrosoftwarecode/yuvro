@@ -38,7 +38,7 @@ class CompanyRecruiterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CompanyRecruiter
-        fields = ("id", "user", "company", "company_id", "notification_config", "created_at", "updated_at")
+        fields = ("id", "user", "company", "company_id", "notification_config", "created_at", "updated_at", "is_self_signup")
         read_only_fields = ("id", "created_at", "updated_at")
 
 
@@ -48,6 +48,7 @@ class CompanyRecruiterCreateSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     company_id = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())
+    is_self_signup = serializers.BooleanField(required=False, default=False)
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -271,7 +272,8 @@ class RecruiterSelfRegistrationSerializer(serializers.Serializer):
                 CompanyRecruiter.objects.create(
                     user=user,
                     company=company,
-                    created_by=user
+                    created_by=user,
+                    is_self_signup=True
                 )
 
                 # Return the yhub_response which contains the tokens!

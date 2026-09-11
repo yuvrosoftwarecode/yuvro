@@ -766,13 +766,25 @@ function RecruitersPage() {
           color="primary"
           icon={Briefcase}
         />
-        <KpiCard label="Profiles viewed (7d)" value="14,892" color="ui" />
-        <KpiCard label="Reports downloaded" value="3,182" color="success" />
-        <KpiCard label="Shortlists created" value="612" color="warning" />
+        <KpiCard 
+          label="Self Signups" 
+          value={recruiters.filter(r => r.is_self_signup).length.toString()} 
+          color="ui" 
+        />
+        <KpiCard 
+          label="Admin Invited" 
+          value={recruiters.filter(r => !r.is_self_signup).length.toString()} 
+          color="success" 
+        />
+        <KpiCard 
+          label="Companies" 
+          value={companies.length.toString()} 
+          color="warning" 
+        />
       </div>
 
       <Panel
-        title="Recruiter activity"
+        title="Recruiters list"
         action={
           <AddRecruiterDialog onAdd={loadData} companies={companies} recruiters={recruiters} />
         }
@@ -784,9 +796,8 @@ function RecruitersPage() {
                 {[
                   "Recruiter",
                   "Company",
-                  "Profiles viewed",
-                  "Reports downloaded",
-                  "Shortlists",
+                  "Signup Source",
+                  "Role",
                   "Status",
                   "Actions",
                 ].map((h) => (
@@ -799,13 +810,13 @@ function RecruitersPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <td colSpan={6} className="text-center py-8 text-muted-foreground">
                     <Loader2 className="h-5 w-5 animate-spin mx-auto" />
                   </td>
                 </tr>
               ) : recruiters.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <td colSpan={6} className="text-center py-8 text-muted-foreground">
                     No recruiters found
                   </td>
                 </tr>
@@ -814,11 +825,17 @@ function RecruitersPage() {
                   <tr key={r.id} className="border-t border-border/40 hover:bg-accent/30">
                     <td className="px-3 py-2.5 font-medium">
                       {r.user.first_name} {r.user.last_name}
+                      <div className="text-xs text-muted-foreground font-normal">{r.user.email}</div>
                     </td>
-                    <td className="px-3 py-2.5">{r.company?.name}</td>
-                    <td className="px-3 py-2.5 font-mono">0</td>
-                    <td className="px-3 py-2.5 font-mono">0</td>
-                    <td className="px-3 py-2.5 font-mono">0</td>
+                    <td className="px-3 py-2.5">{r.company?.name || "-"}</td>
+                    <td className="px-3 py-2.5">
+                      <Badge tone={r.is_self_signup ? "ui" : "muted"}>
+                        {r.is_self_signup ? "Website" : "Admin"}
+                      </Badge>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <span className="capitalize">{r.user.role}</span>
+                    </td>
                     <td className="px-3 py-2.5">
                       <Badge tone={r.user.is_active ? "success" : "muted"}>
                         {r.user.is_active ? "verified" : "pending"}
