@@ -5,6 +5,33 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      deploy_env:
+        description: 'Deploy environment (dev, staging, prod)'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      deploy_app:
+        description: 'App to deploy (all, ycode, ycampus, ylabs, yhub, code-executor)'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - ycode
+          - ycampus
+          - ylabs
+          - yhub
+          - code-executor
+      branch:
+        description: 'Git branch to deploy'
+        required: true
+        default: 'main'
 
 jobs:
   backend-tests:
@@ -153,3 +180,44 @@ jobs:
     - name: Cleanup
       if: always()
       run: docker compose down -v
+
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy_env == 'dev'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up AWS CLI
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-south-1
+    
+    - name: Set up OpenTofu
+      uses: opentofu/setup-opentofu@v1
+      with:
+        version: 1.8.0
+    
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/yuvro-dev.pem
+        chmod 400 ~/.ssh/yuvro-dev.pem
+    
+    - name: Deploy to EC2
+      env:
+        DEPLOY_ENV: dev
+        DEPLOY_BRANCH: ${{ inputs.branch }}
+        DEPLOY_APP: ${{ inputs.deploy_app }}
+        SSH_KEY_PATH: ~/.ssh/yuvro-dev.pem
+      run: |
+        if [ "$DEPLOY_APP" = "all" ]; then
+          make deploy-all
+        elif [ "$DEPLOY_APP" = "code-executor" ]; then
+          make deploy-code-executor
+        else
+          make deploy-$DEPLOY_APP
+        fi

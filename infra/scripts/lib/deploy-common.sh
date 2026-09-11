@@ -157,15 +157,16 @@ compose_files_for() {
     local app="${1:-all}"
     local base="-f docker-compose.yuvro.yml"
     case "$app" in
-        ycode)   echo "$base -f docker-compose.ycode.yml   -f docker-compose.dev.yml" ;;
+        ycode)   echo "$base -f docker-compose.ycode.yml -f docker-compose.dev.yml" ;;
         ycampus) echo "$base -f docker-compose.ycampus.yml -f docker-compose.dev.yml" ;;
-        ylabs)   echo "$base -f docker-compose.ylabs.yml   -f docker-compose.dev.yml" ;;
-        yhub)    echo "$base -f docker-compose.yhub.yml    -f docker-compose.dev.yml" ;;
+        ylabs)   echo "$base -f docker-compose.ylabs.yml -f docker-compose.dev.yml" ;;
+        yhub)    echo "$base -f docker-compose.yhub.yml -f docker-compose.dev.yml" ;;
         code-executor) echo "-f docker-compose.code-executor.yml" ;;
         all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.code-executor.yml -f docker-compose.dev.yml" ;;
     esac
 }
 
+# Filter services to exclude db containers for dev deployments (EC2 uses RDS)
 services_for() {
     case "${1:-all}" in
         ycode)   echo "ycode-backend ycode-frontend" ;;
@@ -173,7 +174,7 @@ services_for() {
         ylabs)   echo "ylabs-backend ylabs-frontend" ;;
         yhub)    echo "yhub-backend" ;;
         code-executor) echo "yuvro-code-executor" ;;
-        all|*)   echo "" ;;
+        all|*)   echo "ycode-backend ycode-frontend ycampus-backend ycampus-frontend ylabs-backend ylabs-frontend yhub-backend yuvro-code-executor" ;;
     esac
 }
 
