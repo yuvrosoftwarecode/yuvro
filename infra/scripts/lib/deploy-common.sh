@@ -20,8 +20,8 @@ elapsed_since() { local s=$(( $(date +%s) - $1 ));                printf "%dm%02
 
 # ── config (callers may override before sourcing) ─────────────────────────────
 AWS_REGION="${AWS_REGION:-ap-south-1}"
-SSH_KEY_PATH="${SSH_KEY_PATH:-$HOME/.ssh/ycode-dev.pem}"
-KEY_PAIR_NAME="${KEY_PAIR_NAME:-ycode-dev}"
+SSH_KEY_PATH="${SSH_KEY_PATH:-$HOME/.ssh/yuvro-dev.pem}"
+KEY_PAIR_NAME="${KEY_PAIR_NAME:-yuvro-dev}"
 MAX_RETRIES="${MAX_RETRIES:-60}"
 RETRY_DELAY="${RETRY_DELAY:-10}"
 OPENTOFU_DIR="${OPENTOFU_DIR:-}"   # set by caller relative to PROJECT_ROOT
@@ -449,16 +449,6 @@ docker compose $compose_args up -d --remove-orphans --force-recreate $services
 echo "   ✓ up  [\$(( \$(date +%s)-T1 ))s]"
 
 docker compose $compose_args ps
-
-# ── fixtures ─────────────────────────────────────────────────────────────────
-echo "── fixtures — waiting 20s ──────────────────────────"
-sleep 20
-for c in $fixture_containers; do
-    name=\$(echo "\$c" | sed 's/yuvro-//;s/-backend-1//')
-    echo "   loading: \$name"
-    docker exec "\$c" python manage.py setup_fixtures_data 2>&1 | tail -5 \
-        || echo "   ⚠ \$name: already loaded or failed"
-done
 
 echo ""
 echo "✅ [$app] done  [total \$(elapsed_s)]"

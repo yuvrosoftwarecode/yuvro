@@ -26,7 +26,7 @@ Install these tools before running any commands:
 |------|---------|
 | OpenTofu | https://opentofu.org/docs/intro/install/ |
 | AWS CLI | `brew install awscli` |
-| SSH key | `~/.ssh/ycode-dev.pem` (chmod 400) |
+| SSH key | `~/.ssh/yuvro-dev.pem` (chmod 400) |
 
 Configure AWS credentials:
 ```bash
@@ -85,7 +85,7 @@ tofu output -raw ycampus_db_endpoint # YCampus RDS endpoint (sensitive)
 | Resource | Value |
 |----------|-------|
 | Region | ap-south-1 (Mumbai) |
-| EC2 IP | 13.233.42.136 |
+| EC2 IP | 3.108.115.67 |
 | EC2 Instance ID | i-088875ccdf6bc6175 |
 | VPC | vpc-0893533f938d45e9d |
 | S3 Bucket | yuvro-dev |
@@ -150,13 +150,14 @@ DEPLOY_BRANCH=main make deploy-yhub
 
 ```
 infra/scripts/
-├── lib/deploy-common.sh     # shared functions (source of truth)
-├── deploy-all.sh            # deploys all services
-├── deploy-ycode.sh          # deploys ycode only
-├── deploy-ycampus.sh        # deploys ycampus only
-├── deploy-ylabs.sh          # deploys ylabs only
-├── deploy-yhub.sh           # deploys yhub only
-└── deploy-dev-auto.sh       # legacy — delegates to deploy-all.sh
+├── lib/deploy-common.sh        # shared functions (source of truth)
+├── deploy-all.sh               # deploys all services
+├── deploy-ycode.sh             # deploys ycode only
+├── deploy-ycampus.sh           # deploys ycampus only
+├── deploy-ylabs.sh             # deploys ylabs only
+├── deploy-yhub.sh              # deploys yhub only
+├── deploy-code-executor.sh     # deploys code-executor only
+├── runFixtures.sh              # runs fixtures on EC2
 ```
 
 ---
@@ -166,33 +167,34 @@ infra/scripts/
 ### Connect to EC2
 
 ```bash
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67
 ```
 
 ### One-off remote commands
 
 ```bash
 # Run any command on EC2
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "cd yuvro && <command>"
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 "cd yuvro && <command>"
 
 # Example: check running containers
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "docker ps"
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 "docker ps"
 
 # Example: view ylabs backend logs
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 \
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 \
   "cd yuvro && docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml -f docker-compose.dev.yml logs -f ylabs-backend"
 ```
 
 ### View all service logs
 
 ```bash
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 "
   cd yuvro && docker compose \
     -f docker-compose.yuvro.yml \
     -f docker-compose.ycode.yml \
     -f docker-compose.ycampus.yml \
     -f docker-compose.ylabs.yml \
     -f docker-compose.yhub.yml \
+    -f docker-compose.code-executor.yml \
     -f docker-compose.dev.yml \
     logs -f
 "
@@ -203,7 +205,7 @@ ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "
 ```bash
 # Replace <service> with: ycode-backend, ycampus-backend, ylabs-backend, yhub-backend,
 #                         ycode-frontend, ycampus-frontend, ylabs-frontend, yuvro-code-executor
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 \
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 \
   "cd yuvro && docker logs -f --tail=100 yuvro-<service>-1"
 ```
 
@@ -214,7 +216,7 @@ ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 \
 ### Run on all services (dev EC2)
 
 ```bash
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "
+ssh -i ~/.ssh/yuvro-dev.pem ubuntu@13.233.42.136 "
   for app in ycode ycampus ylabs yhub; do
     echo \"=== \$app ===\"
     docker exec yuvro-\${app}-backend-1 python manage.py setup_fixtures_data 2>&1 | tail -5
@@ -222,34 +224,44 @@ ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "
 "
 ```
 
-### Run for a specific service
+### Run for a specific service (EC2)
 
 ```bash
 # YLabs
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 \
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 \
   "docker exec yuvro-ylabs-backend-1 python manage.py setup_fixtures_data"
 
 # YHub
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 \
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 \
   "docker exec yuvro-yhub-backend-1 python manage.py setup_fixtures_data"
 
 # YCode
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 \
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 \
   "docker exec yuvro-ycode-backend-1 python manage.py setup_fixtures_data"
 
 # YCampus
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 \
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 \
   "docker exec yuvro-ycampus-backend-1 python manage.py setup_fixtures_data"
+
+# Code Executor (no fixtures to load)
 ```
 
-### Run via Make (local docker)
+### Run via Make (all environments)
 
 ```bash
+# Local (DEPLOY_ENV=local)
 make setup-fixtures-data              # all services
 make setup-fixtures-data-ylabs        # ylabs only
 make setup-fixtures-data-yhub         # yhub only
 make setup-fixtures-data-ycode        # ycode only
 make setup-fixtures-data-ycampus      # ycampus only
+
+# AWS EC2 (DEPLOY_ENV=dev)
+DEPLOY_ENV=dev make setup-fixtures-data              # all services on EC2
+DEPLOY_ENV=dev make setup-fixtures-data-ylabs        # ylabs only on EC2
+DEPLOY_ENV=dev make setup-fixtures-data-ycode        # ycode only on EC2
+DEPLOY_ENV=dev make setup-fixtures-data-ycampus      # ycampus only on EC2
+DEPLOY_ENV=dev make setup-fixtures-data-yhub         # yhub only on EC2
 ```
 
 ---
@@ -259,17 +271,19 @@ make setup-fixtures-data-ycampus      # ycampus only
 ### Run Django management commands on EC2
 
 ```bash
-# Django shell
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 \
+# Django shell (YLabs)
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 \
   "docker exec -it yuvro-ylabs-backend-1 python manage.py shell"
 
-# Run migrations manually
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 \
+# Run migrations manually (YLabs)
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 \
   "docker exec yuvro-ylabs-backend-1 python manage.py migrate"
 
-# Create superuser
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 \
+# Create superuser (YLabs)
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 \
   "docker exec -it yuvro-ylabs-backend-1 python manage.py createsuperuser"
+
+# Replace ylabs with ycode, ycampus, yhub, or yuvro-code-executor as needed
 ```
 
 ### Reset databases (local only — uses Docker volumes)
@@ -285,7 +299,7 @@ make db-reset            # reset all DBs
 ### Connect to RDS directly from EC2
 
 ```bash
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67
 
 # Then from inside EC2 (requires psql installed):
 # YHub
@@ -293,6 +307,12 @@ psql postgresql://yhub_admin:ChangeMe123!DevPassword@dev-yhub-db.ctie88aqw5oa.ap
 
 # YLabs
 psql postgresql://ylabs_admin:ChangeMe123!DevPassword@dev-ylabs-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com:5432/ylabs
+
+# YCode
+psql postgresql://ycode_admin:ChangeMe123!DevPassword@dev-ycode-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com:5432/ycode
+
+# YCampus
+psql postgresql://ycampus_admin:ChangeMe123!DevPassword@dev-ycampus-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com:5432/ycampus
 ```
 
 ---
@@ -328,21 +348,25 @@ https://backend-dev.yuvrolabs.com/api/docs/
 ### Check container status on EC2
 
 ```bash
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
+ssh -i ~/.ssh/yuvro-dev.pem ubuntu@13.233.42.136 "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
 ```
 
 ### Check nginx config
 
 ```bash
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "sudo nginx -t"
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "sudo systemctl status nginx"
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 "sudo nginx -t"
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 "sudo systemctl status nginx"
 ```
 
 ### Reload nginx after config change
 
 ```bash
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "
-  sudo cp yuvro/infra/nginx/yuvro-dev.conf /etc/nginx/sites-available/yuvro-dev
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 "
+  sudo cp /home/ubuntu/yuvro/ylabs-web/nginx.ec2.conf /etc/nginx/sites-available/yuvro-ylabs.conf
+  sudo cp /home/ubuntu/yuvro/ycode-web/nginx.ec2.conf /etc/nginx/sites-available/yuvro-ycode.conf
+  sudo cp /home/ubuntu/yuvro/ycampus-web/nginx.ec2.conf /etc/nginx/sites-available/yuvro-ycampus.conf
+  sudo cp /home/ubuntu/yuvro/yhub-backend-api/nginx.ec2.conf /etc/nginx/sites-available/yuvro-yhub.conf
+  sudo cp /home/ubuntu/yuvro/yuvro-code-executer/nginx.ec2.conf /etc/nginx/sites-available/yuvro-code-executor.conf
   sudo nginx -t && sudo systemctl reload nginx
 "
 ```
@@ -350,7 +374,7 @@ ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "
 ### Restart a specific service
 
 ```bash
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 "
   cd yuvro && docker compose \
     -f docker-compose.yuvro.yml \
     -f docker-compose.ylabs.yml \
@@ -362,13 +386,13 @@ ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "
 ### Disk usage
 
 ```bash
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "df -h && docker system df"
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 "df -h && docker system df"
 ```
 
 ### Free up disk space
 
 ```bash
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 "
   docker image prune -f
   docker builder prune -f --keep-storage 5GB
 "
@@ -404,11 +428,11 @@ The deploy script automatically:
 vim yhub-backend-api/.env.dev-secrets
 
 # 2. SCP to EC2
-scp -i ~/.ssh/ycode-dev.pem yhub-backend-api/.env.dev-secrets \
-  ubuntu@13.233.42.136:/home/ubuntu/yuvro/yhub-backend-api/.env.dev-secrets
+scp -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no yhub-backend-api/.env.dev-secrets \
+  ubuntu@3.108.115.67:/home/ubuntu/yuvro/yhub-backend-api/.env.dev-secrets
 
 # 3. Restart the backend to pick up the new env
-ssh -i ~/.ssh/ycode-dev.pem ubuntu@13.233.42.136 "
+ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubuntu@3.108.115.67 "
   cd yuvro && docker compose \
     -f docker-compose.yuvro.yml -f docker-compose.yhub.yml -f docker-compose.dev.yml \
     up -d --force-recreate yhub-backend
