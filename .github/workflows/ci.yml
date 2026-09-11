@@ -1,23 +1,18 @@
-name: CI/CD Pipeline
+name: Deploy to EC2 Dev
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
   workflow_dispatch:
     inputs:
-      deploy_env:
-        description: 'Deploy environment (dev, staging, prod)'
+      deploy_branch:
+        description: 'Git branch to deploy to EC2 dev'
         required: true
-        default: 'dev'
+        default: 'main'
         type: choice
         options:
-          - dev
-          - staging
-          - prod
+          - main
+          - develop
       deploy_app:
-        description: 'App to deploy (all, ycode, ycampus, ylabs, yhub, code-executor)'
+        description: 'App to deploy'
         required: true
         default: 'all'
         type: choice
@@ -28,163 +23,10 @@ on:
           - ylabs
           - yhub
           - code-executor
-      branch:
-        description: 'Git branch to deploy'
-        required: true
-        default: 'main'
 
 jobs:
-  backend-tests:
-    runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_yc_app
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-        
-    - name: Cache pip dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('yc-backend-api/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    
-    - name: Install dependencies
-      working-directory: ./yc-backend-api
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        
-    - name: Run Black formatting check
-      working-directory: ./yc-backend-api
-      run: black . --check --diff
-      
-    - name: Run Flake8 linting
-      working-directory: ./yc-backend-api
-      run: flake8 .
-      
-    - name: Run Django tests
-      working-directory: ./yc-backend-api
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_yc_app
-        SECRET_KEY: test-secret-key
-        DEBUG: 1
-      run: |
-        python manage.py migrate
-        python manage.py test
-
-  frontend-tests:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: yc-web/package-lock.json
-        
-    - name: Install dependencies
-      working-directory: ./yc-web
-      run: npm ci
-      
-    - name: Run Prettier formatting check
-      working-directory: ./yc-web
-      run: npm run format:check
-      
-    - name: Run ESLint
-      working-directory: ./yc-web
-      run: npm run lint
-      
-    - name: Run tests
-      working-directory: ./yc-web
-      run: npm test -- --run
-      
-    - name: Build application
-      working-directory: ./yc-web
-      run: npm run build
-
-  docker-build:
-    runs-on: ubuntu-latest
-    needs: [backend-tests, frontend-tests]
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      
-    - name: Build backend Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: ./yc-backend-api
-        push: false
-        tags: yc-backend:test
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        
-    - name: Build frontend Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: ./yc-web
-        push: false
-        tags: yc-frontend:test
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-  integration-test:
-    runs-on: ubuntu-latest
-    needs: [docker-build]
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Start services with Docker Compose
-      run: |
-        docker compose up -d --build
-        sleep 30
-        
-    - name: Check service health
-      run: |
-        # Check if backend is responding
-        curl -f http://localhost:8000/api/health/ || exit 1
-        
-        # Check if frontend is serving content
-        curl -f http://localhost:3000/ || exit 1
-        
-    - name: Run integration tests
-      run: |
-        # Add integration test commands here
-        echo "Integration tests would run here"
-        
-    - name: Cleanup
-      if: always()
-      run: docker compose down -v
-
   deploy-dev:
     runs-on: ubuntu-latest
-    needs: [backend-tests, frontend-tests]
-    if: github.event_name == 'workflow_dispatch' && inputs.deploy_env == 'dev'
     
     steps:
     - uses: actions/checkout@v4
@@ -215,7 +57,7 @@ jobs:
     - name: Deploy to EC2
       env:
         DEPLOY_ENV: dev
-        DEPLOY_BRANCH: ${{ inputs.branch }}
+        DEPLOY_BRANCH: ${{ inputs.deploy_branch }}
         DEPLOY_APP: ${{ inputs.deploy_app }}
         SSH_KEY_PATH: ~/.ssh/yuvro-dev.pem
       run: |
