@@ -8,9 +8,9 @@ FROM node:20-alpine AS base
 WORKDIR /app
 RUN apk add --no-cache curl
 COPY package.json package-lock.json ./
-# npm ci is faster and uses the lock file exactly; cache mount avoids re-downloading
+# npm install with cache mount for faster rebuilds
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci
+    npm install
 
 # ── development: Vite dev server with HMR ────────────────────────────────────
 FROM base AS development
