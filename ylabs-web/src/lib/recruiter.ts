@@ -278,7 +278,11 @@ function mapFrontendToBackend(fe: Evaluation): any {
 
 export async function listEvaluations(): Promise<Evaluation[]> {
   try {
-    const res = await fetch(`${API_BASE}/evaluations/`);
+    const res = await fetch(`${API_BASE}/evaluations/`, {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("access")}`,
+      },
+    });
     if (!res.ok) return [];
     const data = await res.json();
     return data.map(mapBackendToFrontend);
@@ -333,7 +337,9 @@ export async function syncMockInterviews(e: Evaluation): Promise<Evaluation> {
 
 export async function getEvaluation(id: string): Promise<Evaluation | undefined> {
   try {
-    const res = await fetch(`${API_BASE}/evaluations/${id}/`);
+    const res = await fetch(`${API_BASE}/evaluations/${id}/`, {
+      headers: { "Authorization": `Bearer ${localStorage.getItem("access")}` }
+    });
     if (!res.ok) return undefined;
     const data = await res.json();
     const fe = mapBackendToFrontend(data);
@@ -345,7 +351,9 @@ export async function getEvaluation(id: string): Promise<Evaluation | undefined>
 
 export async function getEvaluationSubmissions(id: string): Promise<any[]> {
   try {
-    const res = await fetch(`${API_BASE}/evaluations/${id}/submissions/`);
+    const res = await fetch(`${API_BASE}/evaluations/${id}/submissions/`, {
+      headers: { "Authorization": `Bearer ${localStorage.getItem("access")}` }
+    });
     if (!res.ok) return [];
     return await res.json();
   } catch {
@@ -360,13 +368,19 @@ export async function saveEvaluation(e: Evaluation): Promise<Evaluation | undefi
     if (e.id === "draft") {
       res = await fetch(`${API_BASE}/evaluations/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("access")}` 
+        },
         body: JSON.stringify(payload),
       });
     } else {
       res = await fetch(`${API_BASE}/evaluations/${e.id}/`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("access")}` 
+        },
         body: JSON.stringify(payload),
       });
     }
@@ -427,7 +441,10 @@ export function clearDraftLocally(id: string) {
 
 export async function deleteEvaluation(id: string) {
   try {
-    await fetch(`${API_BASE}/evaluations/${id}/`, { method: "DELETE" });
+    await fetch(`${API_BASE}/evaluations/${id}/`, { 
+      method: "DELETE",
+      headers: { "Authorization": `Bearer ${localStorage.getItem("access")}` }
+    });
   } catch {}
 }
 
@@ -438,7 +455,10 @@ export async function duplicateEvaluation(id: string): Promise<Evaluation | unde
   payload.title = payload.title + " (Copy)";
   const res = await fetch(`${API_BASE}/evaluations/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("access")}` 
+    },
     body: JSON.stringify(payload),
   });
   const data = await res.json();
@@ -603,7 +623,10 @@ export function evaluationTotals(e: Evaluation) {
 export async function fetchFollowUps(evaluationId: string): Promise<any> {
   try {
     const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/follow_ups/`, {
-      headers: { "Content-Type": "application/json" }
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("access")}` 
+      }
     });
     if (!res.ok) return null;
     return await res.json();
@@ -617,7 +640,10 @@ export async function saveFollowUps(evaluationId: string, data: any): Promise<an
   try {
     const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/follow_ups/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("access")}` 
+      },
       body: JSON.stringify(data)
     });
     if (!res.ok) {
@@ -636,7 +662,10 @@ export async function inviteCandidates(evaluationId: string, emails: string[], s
   try {
     const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/invite/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("access")}` 
+      },
       body: JSON.stringify({ emails, subject, body })
     });
     if (!res.ok) {
@@ -656,7 +685,10 @@ export async function generateSharedReportLink(evaluationId: string, candidateEm
   try {
     const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/generate_share_link/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("access")}`
+      },
       body: JSON.stringify({ candidate_email: candidateEmail })
     });
     if (!res.ok) return null;

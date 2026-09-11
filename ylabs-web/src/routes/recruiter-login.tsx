@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowRight, Eye, EyeOff, KeyRound, ShieldCheck } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, KeyRound, ShieldCheck, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import authService from "@/services/authService";
 
 export const Route = createFileRoute("/recruiter-login")({
   head: () => ({
@@ -21,25 +22,35 @@ function RecruiterLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const enter = () => {
-    const dummyUser = {
-      id: "demo-recruiter-id",
-      email: "recruiter@yuvrolabs.com",
-      username: "recruiter",
-      first_name: "Riya",
-      last_name: "Recruiter",
-      roles: {
-        ylabs: "recruiter"
-      }
-    };
-    login(dummyUser as any, "dummy-token-123");
-    nav({ to: "/recruiter" });
+  const enter = async () => {
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      setError("");
+      const response = await authService.login(email, password);
+      login(response.user, response.access);
+      nav({ to: "/recruiter" });
+    } catch (err: any) {
+      setError(err?.message || "Invalid credentials. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     enter();
+  };
+
+  const handleSSO = () => {
+    alert("SSO is not configured for this domain.");
   };
 
   return (
@@ -58,7 +69,7 @@ function RecruiterLoginPage() {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-6xl gap-16 px-6 py-16 lg:grid-cols-2 lg:py-24">
+      <main className="mx-auto grid max-w-6xl gap-12 px-6 py-8 lg:grid-cols-2 lg:py-12">
         {/* Left — editorial copy */}
         <section className="flex flex-col justify-center">
           <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#6B6B6B]">Recruiter Workspace</div>
@@ -88,7 +99,7 @@ function RecruiterLoginPage() {
 
         {/* Right — login card */}
         <section className="flex items-center">
-          <div className="w-full rounded-2xl border border-black/10 bg-white p-8">
+          <div className="w-full rounded-2xl border border-black/10 bg-white p-6">
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#6B6B6B]">Sign in</div>
@@ -99,7 +110,13 @@ function RecruiterLoginPage() {
               </div>
             </div>
 
-            <form onSubmit={submit} className="mt-8 space-y-5">
+            <form onSubmit={submit} className="mt-5 space-y-3">
+              {error && (
+                <div className="rounded-md bg-red-50 p-2 text-sm text-red-600 border border-red-100">
+                  {error}
+                </div>
+              )}
+              
               <div>
                 <label className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6B6B6B]">Company Email</label>
                 <input
@@ -107,24 +124,29 @@ function RecruiterLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
-                  className="mt-2 w-full rounded-md border border-black/15 bg-white px-3.5 py-2.5 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A]"
+                  required
+                  disabled={loading}
+                  className="mt-1.5 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
                 />
               </div>
 
               <div>
                 <label className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6B6B6B]">Password</label>
-                <div className="relative mt-2">
+                <div className="relative mt-1.5">
                   <input
                     type={show ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full rounded-md border border-black/15 bg-white px-3.5 py-2.5 pr-10 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A]"
+                    required
+                    disabled={loading}
+                    className="w-full rounded-md border border-black/15 bg-white px-3 py-2 pr-9 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
                   />
                   <button
                     type="button"
                     onClick={() => setShow((s) => !s)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-[#6B6B6B] hover:text-[#0A0A0A]"
+                    disabled={loading}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-1 text-[#6B6B6B] hover:text-[#0A0A0A] disabled:opacity-50"
                     aria-label="Toggle password visibility"
                   >
                     {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -134,13 +156,30 @@ function RecruiterLoginPage() {
 
               <button
                 type="submit"
-                className="group inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#0A0A0A] px-4 py-3 text-[14px] font-medium text-white transition hover:bg-black"
+                disabled={loading}
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#0A0A0A] px-4 py-2.5 text-[14px] font-medium text-white transition hover:bg-black disabled:opacity-70"
               >
-                Sign In
-                <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Sign In
+                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                  </>
+                )}
               </button>
 
-              <div className="relative py-1">
+              <div className="text-center">
+                <span className="text-[13px] text-[#6B6B6B]">Don't have an account? </span>
+                <Link to="/recruiter-signup" className="text-[13px] font-medium text-[#0A0A0A] hover:underline">
+                  Sign up
+                </Link>
+              </div>
+
+              <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-black/10" />
                 </div>
@@ -153,16 +192,13 @@ function RecruiterLoginPage() {
 
               <button
                 type="button"
-                onClick={enter}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-black/15 bg-white px-4 py-3 text-[14px] font-medium text-[#0A0A0A] transition hover:border-[#0A0A0A]"
+                onClick={handleSSO}
+                disabled={loading}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-black/15 bg-white px-4 py-2 text-[14px] font-medium text-[#0A0A0A] transition hover:border-[#0A0A0A] disabled:opacity-50"
               >
                 <KeyRound className="h-4 w-4" />
                 Continue with SSO
               </button>
-
-              <p className="pt-2 text-center font-mono text-[10px] uppercase tracking-[0.14em] text-[#6B6B6B]">
-                Dummy login — any input enters the workspace
-              </p>
             </form>
           </div>
         </section>
@@ -170,3 +206,4 @@ function RecruiterLoginPage() {
     </div>
   );
 }
+

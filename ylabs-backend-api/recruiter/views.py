@@ -1,12 +1,13 @@
-from rest_framework import viewsets, mixins, status
+from rest_framework import viewsets, mixins, status, generics
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from .models import Company, CompanyRecruiter
 from .serializers import (
     CompanySerializer,
     CompanyRecruiterSerializer,
     CompanyRecruiterCreateSerializer,
     CompanyRecruiterUpdateSerializer,
+    RecruiterSelfRegistrationSerializer
 )
 from .services import delete_user_in_yhub
 
@@ -14,10 +15,23 @@ from .services import delete_user_in_yhub
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all().order_by("-created_at")
     serializer_class = CompanySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        user = self.request.user if self.request.user.is_authenticated else None
+        serializer.save(created_by=user)
+
+
+class RecruiterSelfRegistrationAPIView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = RecruiterSelfRegistrationSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # Create company/recruiter and return the YHub response directly (with tokens)
+        response_data = serializer.save()
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 class CompanyRecruiterViewSet(viewsets.ModelViewSet):

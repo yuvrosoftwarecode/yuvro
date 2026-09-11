@@ -70,14 +70,26 @@ function UsersPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KpiCard
           label="Total users"
-          value="1,284,991"
-          delta="+12.4% MoM"
+          value={users.length.toString()}
+          delta="All time"
           color="primary"
           icon={Users}
         />
-        <KpiCard label="Active (24h)" value="48,127" delta="+3.2%" color="success" />
-        <KpiCard label="New signups" value="2,418" delta="last 24h" color="ui" />
-        <KpiCard label="Suspended" value="62" delta="-4 this week" color="warning" />
+        <KpiCard 
+          label="Active" 
+          value={users.filter(u => u.status === 'active').length.toString()} 
+          color="success" 
+        />
+        <KpiCard 
+          label="Admins" 
+          value={users.filter(u => u.role === 'Admin').length.toString()} 
+          color="ui" 
+        />
+        <KpiCard 
+          label="Suspended" 
+          value={users.filter(u => u.status === 'suspended').length.toString()} 
+          color="warning" 
+        />
       </div>
 
       <div className="rounded-xl border border-border/60 bg-card/40 backdrop-blur overflow-hidden">

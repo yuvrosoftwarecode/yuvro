@@ -63,6 +63,13 @@ class ProductJWTAuthentication(JWTAuthentication):
             username = validated_token.get("username", str(user_id))
             email = validated_token.get("email", "")
             
+            if email:
+                existing_user = User.objects.filter(email=email).first()
+                if existing_user:
+                    # Update local ID to match YHub ID if possible, or just return it
+                    # (Can't easily change PK if it has relations, so we just return it)
+                    return existing_user
+            
             roles = validated_token.get("roles", {})
             local_role = roles.get("ylabs", "student")
 

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudentRouteImport } from './routes/student'
+import { Route as RecruiterSignupRouteImport } from './routes/recruiter-signup'
 import { Route as RecruiterLoginRouteImport } from './routes/recruiter-login'
 import { Route as RecruiterRouteImport } from './routes/recruiter'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -66,6 +67,11 @@ import { Route as StudentCollaborationSprintIdReportIndividualRouteImport } from
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecruiterSignupRoute = RecruiterSignupRouteImport.update({
+  id: '/recruiter-signup',
+  path: '/recruiter-signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecruiterLoginRoute = RecruiterLoginRouteImport.update({
@@ -351,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
+  '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
@@ -403,6 +410,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/pricing': typeof PricingRoute
   '/recruiter-login': typeof RecruiterLoginRoute
+  '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
@@ -458,6 +466,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
+  '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
@@ -515,6 +524,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/recruiter'
     | '/recruiter-login'
+    | '/recruiter-signup'
     | '/student'
     | '/admin/labs'
     | '/admin/questions'
@@ -567,6 +577,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/pricing'
     | '/recruiter-login'
+    | '/recruiter-signup'
     | '/student'
     | '/admin/questions'
     | '/admin/recruiters'
@@ -621,6 +632,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/recruiter'
     | '/recruiter-login'
+    | '/recruiter-signup'
     | '/student'
     | '/admin/labs'
     | '/admin/questions'
@@ -677,6 +689,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   RecruiterRoute: typeof RecruiterRouteWithChildren
   RecruiterLoginRoute: typeof RecruiterLoginRoute
+  RecruiterSignupRoute: typeof RecruiterSignupRoute
   StudentRoute: typeof StudentRouteWithChildren
   GithubCallbackRoute: typeof GithubCallbackRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
@@ -690,6 +703,13 @@ declare module '@tanstack/react-router' {
       path: '/student'
       fullPath: '/student'
       preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recruiter-signup': {
+      id: '/recruiter-signup'
+      path: '/recruiter-signup'
+      fullPath: '/recruiter-signup'
+      preLoaderRoute: typeof RecruiterSignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recruiter-login': {
@@ -1269,6 +1289,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   RecruiterRoute: RecruiterRouteWithChildren,
   RecruiterLoginRoute: RecruiterLoginRoute,
+  RecruiterSignupRoute: RecruiterSignupRoute,
   StudentRoute: StudentRouteWithChildren,
   GithubCallbackRoute: GithubCallbackRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,

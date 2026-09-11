@@ -38,7 +38,7 @@ class CompanyRecruiterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CompanyRecruiter
-        fields = ("id", "user", "company", "company_id", "notification_config", "created_at", "updated_at")
+        fields = ("id", "user", "company", "company_id", "notification_config", "created_at", "updated_at", "is_self_signup")
         read_only_fields = ("id", "created_at", "updated_at")
 
 
@@ -48,6 +48,7 @@ class CompanyRecruiterCreateSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     company_id = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())
+    is_self_signup = serializers.BooleanField(required=False, default=False)
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -174,3 +175,109 @@ class CompanyRecruiterUpdateSerializer(serializers.Serializer):
         instance.company = validated_data.get("company_id", instance.company)
         instance.save()
         return instance
+
+class RecruiterSelfRegistrationSerializer(serializers.Serializer):
+    first_name = serializers.CharField(max_length=150)
+    last_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    
+    # Existing company
+    company_id = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all(), required=False, allow_null=True)
+    
+    # New company
+    new_company_name = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    new_company_website = serializers.URLField(required=False, allow_blank=True)
+    new_company_domain = serializers.CharField(max_length=255, required=False, allow_blank=True)
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
+
+    def validate(self, attrs):
+        company_id = attrs.get("company_id")
+        new_company_name = attrs.get("new_company_name")
+        
+        if not company_id and not new_company_name:
+            raise serializers.ValidationError("You must either select a company or provide a new company name.")
+            
+        if company_id and new_company_name:
+            raise serializers.ValidationError("Please provide either an existing company or a new company, not both.")
+
+        if new_company_name and Company.objects.filter(name__iexact=new_company_name).exists():
+            raise serializers.ValidationError("A company with this name already exists. Please select it from the list.")
+            
+        return attrs
+
+    def create(self, validated_data):
+        email = validated_data["email"]
+        first_name = validated_data["first_name"]
+        last_name = validated_data.get("last_name", "")
+        password = validated_data["password"]
+        
+        company = validated_data.get("company_id")
+        new_company_name = validated_data.get("new_company_name")
+        new_company_website = validated_data.get("new_company_website")
+        new_company_domain = validated_data.get("new_company_domain")
+
+        # 1. Generate username from email
+        username = email.split("@")[0]
+        original_username = username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{original_username}{counter}"
+            counter += 1
+
+        # 2. Register user in YHub
+        try:
+            yhub_response = register_user_in_yhub(email, username, password, first_name, last_name, roles={"ylabs": "recruiter"})
+        except ValueError as e:
+            raise serializers.ValidationError({"yhub_error": str(e)})
+        except Exception as e:
+            raise serializers.ValidationError({"yhub_error": "YHub integration failed. Please try again."})
+
+        # 3. Create local transaction
+        try:
+            with transaction.atomic():
+                yhub_user_id = yhub_response.get("user", {}).get("id")
+                
+                user = User(
+                    email=email,
+                    username=username,
+                    first_name=first_name,
+                    last_name=last_name,
+                    role="recruiter"
+                )
+                if yhub_user_id:
+                    user.id = yhub_user_id
+                    
+                user.set_password(password)
+                user.save()
+
+                profile = getattr(user, 'profile', None)
+                if profile:
+                    profile.full_name = f"{first_name} {last_name}".strip()
+                    profile.title = "Recruiter"
+                    profile.save()
+
+                if new_company_name:
+                    company = Company.objects.create(
+                        name=new_company_name,
+                        website=new_company_website,
+                        domain=new_company_domain,
+                        created_by=user
+                    )
+                
+                CompanyRecruiter.objects.create(
+                    user=user,
+                    company=company,
+                    created_by=user,
+                    is_self_signup=True
+                )
+
+                # Return the yhub_response which contains the tokens!
+                return yhub_response
+        except Exception as e:
+            delete_user_in_yhub(email)
+            raise e
