@@ -189,11 +189,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up AWS CLI
+    - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ secrets.DEPLOY_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-south-1
     
     - name: Set up OpenTofu
@@ -201,11 +201,16 @@ jobs:
       with:
         version: 1.8.0
     
-    - name: Set up SSH key
+    - name: Configure SSH
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/yuvro-dev.pem
+        echo "${{ secrets.DEPLOY_EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/yuvro-dev.pem
         chmod 400 ~/.ssh/yuvro-dev.pem
+        echo "Host *" > ~/.ssh/config
+        echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+        echo "  ConnectTimeout 10" >> ~/.ssh/config
+        echo "  ServerAliveInterval 60" >> ~/.ssh/config
+        echo "  ServerAliveCountMax 30" >> ~/.ssh/config
     
     - name: Deploy to EC2
       env:
@@ -214,6 +219,8 @@ jobs:
         DEPLOY_APP: ${{ inputs.deploy_app }}
         SSH_KEY_PATH: ~/.ssh/yuvro-dev.pem
       run: |
+        echo "🚀 Deploying $DEPLOY_APP to dev [branch=$DEPLOY_BRANCH]..."
+        
         if [ "$DEPLOY_APP" = "all" ]; then
           make deploy-all
         elif [ "$DEPLOY_APP" = "code-executor" ]; then
@@ -221,3 +228,5 @@ jobs:
         else
           make deploy-$DEPLOY_APP
         fi
+        
+        echo "✅ Deployment complete!"
