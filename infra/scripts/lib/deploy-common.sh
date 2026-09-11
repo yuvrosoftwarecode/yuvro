@@ -20,8 +20,8 @@ elapsed_since() { local s=$(( $(date +%s) - $1 ));                printf "%dm%02
 
 # ── config (callers may override before sourcing) ─────────────────────────────
 AWS_REGION="${AWS_REGION:-ap-south-1}"
-SSH_KEY_PATH="${SSH_KEY_PATH:-$HOME/.ssh/ycode-dev.pem}"
-KEY_PAIR_NAME="${KEY_PAIR_NAME:-ycode-dev}"
+SSH_KEY_PATH="${SSH_KEY_PATH:-$HOME/.ssh/yuvro-dev.pem}"
+KEY_PAIR_NAME="${KEY_PAIR_NAME:-yuvro-dev}"
 MAX_RETRIES="${MAX_RETRIES:-60}"
 RETRY_DELAY="${RETRY_DELAY:-10}"
 OPENTOFU_DIR="${OPENTOFU_DIR:-}"   # set by caller relative to PROJECT_ROOT
@@ -157,15 +157,16 @@ compose_files_for() {
     local app="${1:-all}"
     local base="-f docker-compose.yuvro.yml"
     case "$app" in
-        ycode)   echo "$base -f docker-compose.ycode.yml   -f docker-compose.dev.yml" ;;
+        ycode)   echo "$base -f docker-compose.ycode.yml -f docker-compose.dev.yml" ;;
         ycampus) echo "$base -f docker-compose.ycampus.yml -f docker-compose.dev.yml" ;;
-        ylabs)   echo "$base -f docker-compose.ylabs.yml   -f docker-compose.dev.yml" ;;
-        yhub)    echo "$base -f docker-compose.yhub.yml    -f docker-compose.dev.yml" ;;
+        ylabs)   echo "$base -f docker-compose.ylabs.yml -f docker-compose.dev.yml" ;;
+        yhub)    echo "$base -f docker-compose.yhub.yml -f docker-compose.dev.yml" ;;
         code-executor) echo "-f docker-compose.code-executor.yml" ;;
         all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.code-executor.yml -f docker-compose.dev.yml" ;;
     esac
 }
 
+# Filter services to exclude db containers for dev deployments (EC2 uses RDS)
 services_for() {
     case "${1:-all}" in
         ycode)   echo "ycode-backend ycode-frontend" ;;
@@ -173,7 +174,7 @@ services_for() {
         ylabs)   echo "ylabs-backend ylabs-frontend" ;;
         yhub)    echo "yhub-backend" ;;
         code-executor) echo "yuvro-code-executor" ;;
-        all|*)   echo "" ;;
+        all|*)   echo "ycode-backend ycode-frontend ycampus-backend ycampus-frontend ylabs-backend ylabs-frontend yhub-backend yuvro-code-executor" ;;
     esac
 }
 
@@ -449,16 +450,6 @@ docker compose $compose_args up -d --remove-orphans --force-recreate $services
 echo "   ✓ up  [\$(( \$(date +%s)-T1 ))s]"
 
 docker compose $compose_args ps
-
-# ── fixtures ─────────────────────────────────────────────────────────────────
-echo "── fixtures — waiting 20s ──────────────────────────"
-sleep 20
-for c in $fixture_containers; do
-    name=\$(echo "\$c" | sed 's/yuvro-//;s/-backend-1//')
-    echo "   loading: \$name"
-    docker exec "\$c" python manage.py setup_fixtures_data 2>&1 | tail -5 \
-        || echo "   ⚠ \$name: already loaded or failed"
-done
 
 echo ""
 echo "✅ [$app] done  [total \$(elapsed_s)]"
