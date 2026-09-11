@@ -57,25 +57,25 @@
 :root {
   --radius: 0.625rem;
   /* Light theme — clean, soft slate/indigo */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.2 0 0);
+  --background: oklch(0.985 0.003 260);
+  --foreground: oklch(0.22 0.02 260);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0 0);
+  --card-foreground: oklch(0.22 0.02 260);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.02 260);
-  --primary: var(--eval-orange, #f97316);
-  --primary-foreground: #ffffff;
+  --primary: oklch(0.58 0.18 255);
+  --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.96 0.01 260);
   --secondary-foreground: oklch(0.28 0.02 260);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.96 0 0);
-  --accent-foreground: oklch(0.2 0 0);
+  --muted: oklch(0.96 0.008 260);
+  --muted-foreground: oklch(0.5 0.02 260);
+  --accent: oklch(0.94 0.02 260);
+  --accent-foreground: oklch(0.25 0.03 260);
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.91 0 0);
-  --input: oklch(0.93 0 0);
-  --ring: var(--eval-orange, #f97316);
+  --border: oklch(0.91 0.008 260);
+  --input: oklch(0.93 0.008 260);
+  --ring: oklch(0.58 0.18 255);
 
   --success: oklch(0.62 0.16 150);
   --warning: oklch(0.7 0.16 75);
@@ -113,19 +113,19 @@
   --card-foreground: oklch(0.96 0.005 260);
   --popover: oklch(0.2 0.02 260);
   --popover-foreground: oklch(0.96 0.005 260);
-  --primary: var(--eval-orange, #f97316);
-  --primary-foreground: #ffffff;
+  --primary: oklch(0.72 0.18 250);
+  --primary-foreground: oklch(0.15 0.02 260);
   --secondary: oklch(0.26 0.02 260);
   --secondary-foreground: oklch(0.96 0.005 260);
   --muted: oklch(0.24 0.018 260);
   --muted-foreground: oklch(0.68 0.02 260);
-  --accent: oklch(0.2 0 0);
-  --accent-foreground: oklch(0.96 0 0);
+  --accent: oklch(0.3 0.04 260);
+  --accent-foreground: oklch(0.96 0.005 260);
   --destructive: oklch(0.65 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(0.28 0.02 260);
   --input: oklch(0.26 0.02 260);
-  --ring: var(--eval-orange, #f97316);
+  --ring: oklch(0.72 0.18 250);
 
   --success: oklch(0.74 0.17 150);
   --warning: oklch(0.8 0.16 80);
@@ -247,7 +247,7 @@
   --rec-fg: #f5f5f5;
   --rec-fg-soft: #d4d4d4;
   --rec-muted: #a3a3a3;
-  --rec-muted-2: #737373;
+  --rec-muted-2: #a3a3a3;
   --rec-border: rgba(255, 255, 255, 0.05);
   --rec-border-strong: rgba(255, 255, 255, 0.1);
   --rec-overlay-1: rgba(255, 255, 255, 0.02);
@@ -343,21 +343,39 @@
   background-color: rgba(168, 50, 50, 0.1) !important;
 }
 
+.recruiter-theme .bg-neutral-50,
+.recruiter-theme .bg-neutral-50\/60,
+.recruiter-theme .bg-neutral-100 {
+  background-color: var(--rec-overlay-1) !important;
+}
+.recruiter-theme .hover\:bg-neutral-50:hover,
+.recruiter-theme .hover\:bg-neutral-100:hover,
+.recruiter-theme .hover\:bg-neutral-200:hover {
+  background-color: var(--rec-overlay-2) !important;
+}
+
 /* --- Borders + dividers --- */
+.recruiter-theme .border-neutral-100,
+.recruiter-theme .border-neutral-200,
 .recruiter-theme .border-white\/5 {
   border-color: var(--rec-border) !important;
 }
+.recruiter-theme .border-neutral-300,
 .recruiter-theme .border-white\/10 {
   border-color: var(--rec-border-strong) !important;
 }
 .recruiter-theme .hover\:border-white\/15:hover {
   border-color: var(--rec-border-strong) !important;
 }
+.recruiter-theme .divide-neutral-100 > :not([hidden]) ~ :not([hidden]),
+.recruiter-theme .divide-neutral-200 > :not([hidden]) ~ :not([hidden]),
 .recruiter-theme .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
   border-color: var(--rec-border) !important;
 }
 
 /* --- Text --- */
+.recruiter-theme .text-neutral-800,
+.recruiter-theme .text-neutral-900,
 .recruiter-theme .text-neutral-100,
 .recruiter-theme .text-neutral-200 {
   color: var(--rec-fg) !important;
@@ -375,6 +393,18 @@
 .recruiter-theme .bg-\[\#111217\] .text-white,
 .recruiter-theme [style*="background"].text-white {
   color: #ffffff !important;
+}
+
+.dark .recruiter-theme .dark\:bg-white,
+.dark .recruiter-theme .dark\:bg-white.text-white,
+.dark .recruiter-theme .dark\:bg-white .text-white,
+.dark .recruiter-theme .dark\:text-neutral-900 {
+  color: #09090b !important;
+}
+
+.dark .recruiter-theme .dark\:hover\:bg-neutral-200:hover {
+  background-color: #e5e5e5 !important;
+  color: #09090b !important;
 }
 
 .recruiter-theme .text-neutral-300 {
@@ -560,13 +590,17 @@
   border-color: var(--eval-text);
 }
 
-/* Primary buttons → Yuvro orange in dark */
-.dark .eval-theme .bg-neutral-900 {
-  background-color: var(--eval-orange) !important;
-  color: var(--eval-orange-fg) !important;
+/* Primary buttons in dark mode */
+.dark .eval-theme .dark\:bg-white {
+  background-color: #ffffff !important;
+  color: #09090b !important;
 }
-.dark .eval-theme .hover\:bg-neutral-800:hover {
-  background-color: var(--eval-orange-hover) !important;
+.dark .eval-theme .dark\:text-neutral-900 {
+  color: #09090b !important;
+}
+.dark .eval-theme .dark\:hover\:bg-neutral-200:hover {
+  background-color: #e5e5e5 !important;
+  color: #09090b !important;
 }
 .dark .eval-theme .disabled\:bg-neutral-300:disabled {
   background-color: rgba(255, 255, 255, 0.08) !important;

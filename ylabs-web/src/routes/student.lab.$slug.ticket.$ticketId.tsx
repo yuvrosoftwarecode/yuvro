@@ -23,6 +23,9 @@ import codeExecutorService from "@/services/codeExecutorService";
 import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
 import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { TopNav } from "@/components/TopNav";
+import useAIChat from "@/components/common/ai-buddy/useAIChat";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { evaluationService } from "@/services/evaluationService";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs } from "@/lib/dummy";
@@ -2181,6 +2184,7 @@ export function TicketIDE({
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: ticketScore ? ticketScore.passed : 0
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
@@ -2188,6 +2192,7 @@ export function TicketIDE({
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: ticketScore ? ticketScore.passed : 0
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -2206,6 +2211,7 @@ export function TicketIDE({
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: ticketScore ? ticketScore.passed : 0
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
@@ -2213,6 +2219,7 @@ export function TicketIDE({
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: ticketScore ? ticketScore.passed : 0
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -2224,51 +2231,31 @@ export function TicketIDE({
     }
 
     if (isReal && ticket.tasks && ticket.tasks.length > 0) {
-      setTab("problem");
-      setLeftCollapsed(false);
       setSubmitting(true);
-      let passedCount = 0;
-      const promises = ticket.tasks.map(async (task: any, idx: number) => {
-        const taskSlug = task.task_slug || `task-${idx}`;
-        const scoringRules: Record<string, any> = task.scoring_rules ?? {};
-        const reqCmd = "git";
-        setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
-        try {
-          const { evaluateTask } = await import("@/services/workspaceService");
-          const result = await evaluateTask(userId, labId, sprintId, reqCmd, taskSlug, scoringRules, evaluationId);
-          setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
-          if (result.passed) passedCount++;
-        } catch (err: any) {
-          setEvalResult((prev) => ({
-            ...prev,
-            [taskSlug]: { passed: false, reason: err.message },
-          }));
-        } finally {
-          setEvaluating((prev) => ({ ...prev, [taskSlug]: false }));
-        }
-      });
-      await Promise.all(promises);
-      setTicketScore({ passed: passedCount, total: ticket.tasks.length });
-      setSubmitting(false);
+      const report = extractTasksReport(ticket, taskExecutionData, executionOutput || output, evalResult, ticketScore);
+      const computedScore = report.totalScore;
       
-      if (isReal && slug !== "knowledge") {
+      if (slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
-            }).catch(console.error);
+              score: computedScore
+            }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
-            }).catch(console.error);
+              score: computedScore
+            }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
+        setSubmitting(false);
         if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
@@ -2309,6 +2296,7 @@ export function TicketIDE({
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: next.filter(t => t.pass).length * 20
             }).catch(console.error);
           } else {
             api.post(submissionsEndpoint, {
@@ -2316,6 +2304,7 @@ export function TicketIDE({
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
+              score: next.filter(t => t.pass).length * 20
             }).catch(console.error);
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -2476,7 +2465,7 @@ export function TicketIDE({
     : 8000;
 
   return (
-    <div className="h-full flex-1 min-h-0 flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex-1 min-h-0 flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {!previewOverride && !isEvaluationMode && (
@@ -2553,7 +2542,7 @@ export function TicketIDE({
               AI Mentor
             </button>
           )}
-          {ticket.ticket_type !== 'database' && ticket.ticket_type !== 'web' && (
+          {/* {ticket.ticket_type !== 'database' && ticket.ticket_type !== 'web' && (
             <select
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
@@ -2567,7 +2556,7 @@ export function TicketIDE({
                 </option>
               ))}
             </select>
-          )}
+          )} */}
           <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
             <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
           </button>
@@ -3170,7 +3159,7 @@ export function TicketIDE({
             )}
             {sidePanel && (
               <aside
-                className="flex flex-col bg-editor-panel min-w-0"
+                className="flex flex-col bg-editor-panel min-w-0 min-h-0 overflow-hidden"
                 style={{
                   flex:
                     sideWidth != null
@@ -3212,10 +3201,19 @@ export function TicketIDE({
                     ✕
                   </button>
                 </div>
-                <div className="flex-1 overflow-auto scrollbar-thin p-3 text-xs min-w-0">
+                <div className="flex-1 overflow-hidden p-0 min-w-0 min-h-0 flex flex-col">
                   {sidePanel === "preview"
-                    ? <SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} />
-                    : <SideMentor onAsk={(q) => showToast(`Mentor: ${q}`)} />}
+                    ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} /></div>
+                    : <SideMentor
+                        chatTitle={`${labTitle} - Sprint ${sprintNo} - Ticket ${ticketNo}`}
+                        persistenceKey={`ticket-${ticket.id}`}
+                        contextGetter={() => `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\nCurrent Code:\n${Object.entries(files).map(([name, content]) => `File: ${name}\n${content}`).join('\n\n')}`}
+                        activeFile={activeFile}
+                        onApplyCode={(code) => {
+                          updateCode(code);
+                          showToast(`Applied code to ${activeFile}`);
+                        }}
+                      />}
                 </div>
               </aside>
             )}
@@ -4226,72 +4224,6 @@ function DjangoTodoApp() {
       <p className="mt-3 text-[10px] uppercase tracking-wider text-gray-400">
         POST /todos/ · CSRF protected
       </p>
-    </div>
-  );
-}
-
-function SideMentor({ onAsk }: { onAsk: (q: string) => void }) {
-  const [msgs, setMsgs] = useState<{ role: "ai" | "me"; text: string }[]>([
-    {
-      role: "ai",
-      text: "Hi! I'm your AI mentor. I can give Socratic hints — what are you stuck on?",
-    },
-  ]);
-  const [input, setInput] = useState("");
-  const send = () => {
-    if (!input.trim()) return;
-    const q = input.trim();
-    setMsgs((m) => [
-      ...m,
-      { role: "me", text: q },
-      {
-        role: "ai",
-        text: `Think about what type each value should be. Try declaring an \`int\` and a \`double\`, then cast between them. What happens when you narrow \`3.99\` to \`int\`?`,
-      },
-    ]);
-    onAsk(q);
-    setInput("");
-  };
-  return (
-    <div className="flex h-full flex-col gap-2">
-      <div className="flex-1 space-y-2 overflow-auto pr-1">
-        {msgs.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "me" ? "justify-end" : ""}`}>
-            <div
-              className={`max-w-[85%] rounded-md px-2.5 py-1.5 text-[12px] ${m.role === "me" ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"}`}
-            >
-              {m.text}
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-wrap gap-1">
-        {["Explain this error", "Give a hint", "Review my code", "Why is my test failing?"].map(
-          (s) => (
-            <button
-              key={s}
-              onClick={() => {
-                setInput(s);
-              }}
-              className="rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-accent"
-            >
-              {s}
-            </button>
-          ),
-        )}
-      </div>
-      <div className="flex gap-1">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="Ask AI mentor…"
-          className="flex-1 rounded border bg-background px-2 py-1.5 text-xs outline-none focus:border-primary"
-        />
-        <button onClick={send} className="rounded bg-primary px-3 text-xs text-primary-foreground">
-          Ask
-        </button>
-      </div>
     </div>
   );
 }
@@ -6365,6 +6297,509 @@ export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: {
             </div>
           )}
         </div>
+      )}
+    </div>
+  );
+}
+
+function parseAgentResponse(content: string, activeFile?: string) {
+  const codeBlockRegex = /```(?:[a-zA-Z0-9_-]+)?\s*([\s\S]*?)```/g;
+  const matches = [...content.matchAll(codeBlockRegex)];
+
+  // Filter out code blocks that are just the file name (e.g. ```text\nmain.py\n```)
+  const validBlocks = matches
+    .map((m) => m[1]?.trim())
+    .filter((c) => c && c !== activeFile && !c.endsWith(".py") && c.length > 5);
+
+  const mainCode =
+    validBlocks.length > 0
+      ? validBlocks[validBlocks.length - 1]
+      : matches.length > 0
+      ? matches[matches.length - 1][1]?.trim()
+      : "";
+
+  let explanation = content.replace(codeBlockRegex, "").trim();
+  
+  // Clean up greetings, conversational fluff, and markdown headers
+  explanation = explanation
+    .replace(/^#+\s+.*$/gm, "")
+    .replace(/^Hello\s+[^,!\n]+[,!]\s*/i, "")
+    .replace(/^Hi\s+[^,!\n]+[,!]\s*/i, "")
+    .replace(/^Okay,?\s+[^,!\n]+[,!]\s*/i, "")
+    .replace(/^Sure,?\s+[^,!\n]+[,!]\s*/i, "")
+    .replace(/^Certainly,?\s+[^,!\n]+[,!]\s*/i, "")
+    .replace(/Here'?s the code you'?ll need for.*$/im, "")
+    .replace(/Here is the (?:solution|code).*$/im, "")
+    .trim();
+
+  if (!explanation) {
+    explanation = `Updated ${activeFile || "file"} with the required code.`;
+  }
+
+  return { mainCode, explanation, hasCode: !!mainCode };
+}
+
+function AgentChangeCard({
+  fileName,
+  explanation,
+  code,
+  onReapply,
+}: {
+  fileName: string;
+  explanation: string;
+  code: string;
+  onReapply?: () => void;
+}) {
+  const [showCode, setShowCode] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="rounded-xl border border-border/70 bg-card/70 backdrop-blur-xs p-3 text-left space-y-2.5 my-1.5 shadow-xs">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded-md bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20">
+            <Check className="w-3 h-3" />
+          </div>
+          <span className="text-[12px] font-semibold text-foreground flex items-center gap-1.5 font-mono">
+            <FileCode2 className="w-3.5 h-3.5 text-muted-foreground" />
+            {fileName}
+          </span>
+        </div>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+          Updated
+        </span>
+      </div>
+
+      <div className="text-[12px] text-muted-foreground leading-relaxed pl-0.5">
+        {explanation}
+      </div>
+
+      {code && (
+        <div className="pt-0.5 border-t border-border/40">
+          <div className="flex items-center justify-between text-[11px] pt-1.5">
+            <button
+              type="button"
+              onClick={() => setShowCode(!showCode)}
+              className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 font-medium transition-colors"
+            >
+              <ChevronRight className={`w-3 h-3 transition-transform duration-150 ${showCode ? "rotate-90" : ""}`} />
+              {showCode ? "Hide code" : "View code"}
+            </button>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+            >
+              {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+              <span>{copied ? "Copied" : "Copy"}</span>
+            </button>
+          </div>
+
+          {showCode && (
+            <div className="mt-2 rounded-lg border border-border/50 bg-[#18181b] p-2.5 overflow-x-auto custom-scrollbar max-h-56">
+              <pre className="font-mono text-[11px] leading-relaxed text-zinc-200 whitespace-pre">
+                <code>{code}</code>
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MentorCodeBlock({
+  code,
+  language,
+  activeFile,
+  onApplyCode,
+  isAgentMode,
+}: {
+  code: string;
+  language: string;
+  activeFile?: string;
+  onApplyCode?: (code: string) => void;
+  isAgentMode?: boolean;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [applied, setApplied] = useState(false);
+
+  // If it's just the filename or tiny snippet, render as clean inline code
+  if (!code.trim() || code.trim() === activeFile || (code.trim().endsWith(".py") && code.trim().length < 20)) {
+    return (
+      <code className="bg-muted/80 px-1.5 py-0.5 rounded font-mono text-[11px] text-primary">
+        {code}
+      </code>
+    );
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleApply = () => {
+    if (onApplyCode) {
+      onApplyCode(code);
+      setApplied(true);
+      setTimeout(() => setApplied(false), 2000);
+    }
+  };
+
+  const targetLabel = activeFile ? `Apply to ${activeFile}` : "Apply";
+
+  return (
+    <div className="relative group/code rounded-lg overflow-hidden my-2 border border-border/70 bg-[#18181b] dark:bg-[#121214] shadow-xs text-left font-sans">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-[#222226] dark:bg-[#1a1a1e] border-b border-border/40 text-[11px] select-none">
+        <div className="flex items-center gap-2">
+          <span className="font-mono font-semibold uppercase tracking-wider text-muted-foreground text-[10px]">
+            {language || "code"}
+          </span>
+          {isAgentMode && (
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <Zap className="w-2.5 h-2.5" /> Auto-Applied
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={handleCopy}
+            type="button"
+            className="flex items-center gap-1 px-2 py-0.5 rounded text-[10.5px] text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+            title="Copy code"
+          >
+            {copied ? (
+              <>
+                <Check className="w-3 h-3 text-emerald-400" />
+                <span className="text-emerald-400 text-[10px]">Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3 h-3" />
+                <span className="text-[10px]">Copy</span>
+              </>
+            )}
+          </button>
+          {onApplyCode && !isAgentMode && (
+            <button
+              onClick={handleApply}
+              type="button"
+              className={`flex items-center gap-1 px-2.5 py-0.5 rounded text-[10.5px] font-medium transition-all shadow-xs ${
+                applied
+                  ? "bg-emerald-600 text-white"
+                  : "bg-primary hover:bg-primary/90 text-primary-foreground"
+              }`}
+              title={targetLabel}
+            >
+              {applied ? (
+                <>
+                  <Check className="w-3 h-3" />
+                  <span className="text-[10px]">Applied ✓</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3 h-3" />
+                  <span className="text-[10px]">{targetLabel}</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="p-3 overflow-x-auto custom-scrollbar max-h-[300px]">
+        <pre className="font-mono text-[11.5px] leading-relaxed text-zinc-100 whitespace-pre">
+          <code>{code}</code>
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+function SideMentor({
+  contextGetter,
+  chatTitle,
+  persistenceKey,
+  activeFile,
+  onApplyCode,
+}: {
+  contextGetter: () => string;
+  chatTitle?: string;
+  persistenceKey?: string;
+  activeFile?: string;
+  onApplyCode?: (code: string) => void;
+}) {
+  const [mentorMode, setMentorMode] = useState<"chat" | "agent">("chat");
+  const autoAppliedRef = useRef<Set<string>>(new Set());
+
+  const dynamicContextGetter = useCallback(() => {
+    const baseContext = contextGetter ? contextGetter() : "";
+    if (mentorMode === "agent") {
+      return `${baseContext}\n\n[MODE: AGENT]\nYou are operating in AGENT mode. When writing or editing code for ${activeFile || 'the active file'}:
+1. Start with a very concise 1-2 sentence description of what was changed.
+2. Provide the complete updated code inside a single code block (\`\`\`<language> ... \`\`\`).
+Do NOT output extra code blocks for file names or extra boilerplate. The code will be directly applied to ${activeFile || 'the active file'}.`;
+    }
+    return `${baseContext}\n\n[MODE: CHAT]\nYou are operating in CHAT mentor mode. Give Socratic hints, explanations, and guidance step-by-step.`;
+  }, [contextGetter, mentorMode, activeFile]);
+
+  const { messages, isLoading, sendMessage, suggestedPrompts, activeStream, startNewChat, sessionHistory, fetchHistory, loadSession } = useAIChat({
+    getContext: dynamicContextGetter,
+    chatTitle,
+    persistenceKey,
+  });
+  const [input, setInput] = useState("");
+  const [showHistory, setShowHistory] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, activeStream]);
+
+  // In Agent mode, automatically apply code from the latest assistant message
+  useEffect(() => {
+    if (mentorMode !== "agent" || !onApplyCode || isLoading) return;
+
+    const assistantMessages = messages.filter((m) => m.message_type === "assistant");
+    const latestAssistant = assistantMessages[assistantMessages.length - 1];
+    if (!latestAssistant || !latestAssistant.content) return;
+    if (autoAppliedRef.current.has(latestAssistant.id)) return;
+
+    const { mainCode, hasCode } = parseAgentResponse(latestAssistant.content, activeFile);
+    if (hasCode && mainCode) {
+      autoAppliedRef.current.add(latestAssistant.id);
+      onApplyCode(mainCode);
+    }
+  }, [messages, isLoading, mentorMode, onApplyCode, activeFile]);
+
+  const send = () => {
+    if (!input.trim() || isLoading) return;
+    sendMessage(input.trim());
+    setInput("");
+  };
+
+  return (
+    <div className="flex flex-1 min-h-0 flex-col gap-2 p-3 bg-editor-panel text-foreground w-full overflow-hidden">
+      <div className="flex justify-between items-center shrink-0 pb-1.5 border-b border-border/40 gap-2">
+        {/* Mode switcher: Chat vs Agent */}
+        <div className="flex items-center gap-0.5 bg-muted/60 p-0.5 rounded-lg border border-border/50">
+          <button
+            type="button"
+            onClick={() => setMentorMode("chat")}
+            className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-all ${
+              mentorMode === "chat"
+                ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <MessageSquare className="w-3 h-3" />
+            Chat
+          </button>
+          <button
+            type="button"
+            onClick={() => setMentorMode("agent")}
+            className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-all ${
+              mentorMode === "agent"
+                ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            title="Agent mode: Automatically updates the active file when code is generated"
+          >
+            <Zap className={`w-3 h-3 ${mentorMode === "agent" ? "text-amber-300" : ""}`} />
+            Agent
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              if (!showHistory) fetchHistory();
+              setShowHistory(!showHistory);
+            }}
+            className={`text-[11px] flex items-center transition-colors ${showHistory ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            <Clock className="w-3 h-3 mr-1" /> History
+          </button>
+          <button
+            onClick={() => {
+              setShowHistory(false);
+              startNewChat();
+            }}
+            className="text-[11px] flex items-center text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <RotateCcw className="w-3 h-3 mr-1" /> New Chat
+          </button>
+        </div>
+      </div>
+
+      {showHistory ? (
+        <div className="flex-1 overflow-y-auto space-y-2 pr-2 scrollbar-thin mt-2">
+          <div className="text-xs font-semibold text-muted-foreground mb-3">Previous Chats</div>
+          {sessionHistory.length === 0 ? (
+            <div className="text-xs text-muted-foreground italic">No past chats found.</div>
+          ) : (
+            sessionHistory.map((session: any) => (
+              <button
+                key={session.id}
+                onClick={() => {
+                  loadSession(session.id);
+                  setShowHistory(false);
+                }}
+                className="w-full text-left p-2.5 rounded-md border border-border/50 hover:bg-accent hover:border-border transition-colors group"
+              >
+                <div className="text-[12px] font-medium text-foreground truncate">{session.title || 'AI Mentor Chat'}</div>
+                <div className="text-[10px] text-muted-foreground mt-1.5 flex justify-between items-center">
+                  <span>{new Date(session.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                  <span className="bg-background px-1.5 py-0.5 rounded border border-border/50">{session.message_count || 0} msgs</span>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      ) : (
+        <>
+          <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin">
+            {messages.length === 0 && !activeStream && (
+              <div className="flex">
+                <div className="max-w-[90%] rounded-md px-3 py-2 text-[13px] bg-accent text-foreground">
+                  {mentorMode === "agent"
+                    ? `⚡ Agent Mode active. Tell me what changes or code to write for ${activeFile || 'your file'}, and I will directly update it!`
+                    : "Hi! I'm your AI mentor. I can give Socratic hints — what are you stuck on?"}
+                </div>
+              </div>
+            )}
+            {messages.map((m, i) => {
+              const isStreaming = !!(activeStream && activeStream.id === m.id);
+              const displayContent = isStreaming ? `${activeStream!.content}` : m.content;
+
+              if (m.message_type === "assistant" && mentorMode === "agent" && !isStreaming) {
+                const { mainCode, explanation, hasCode } = parseAgentResponse(displayContent, activeFile);
+                if (hasCode) {
+                  return (
+                    <div key={i} className="flex">
+                      <div className="w-full">
+                        <AgentChangeCard
+                          fileName={activeFile || "main.py"}
+                          explanation={explanation}
+                          code={mainCode}
+                          onReapply={() => onApplyCode && onApplyCode(mainCode)}
+                        />
+                      </div>
+                    </div>
+                  );
+                }
+              }
+
+              return (
+                <div key={i} className={`flex ${m.message_type === "user" ? "justify-end" : ""}`}>
+                  <div
+                    className={`max-w-[95%] rounded-md px-3 py-2 text-[13px] ${m.message_type === "user" ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"} overflow-hidden`}
+                  >
+                    {m.message_type === "user" ? (
+                      <div className="whitespace-pre-wrap">{m.content}</div>
+                    ) : (
+                      <div className="prose prose-sm dark:prose-invert max-w-full break-words [&>p]:mb-2 [&>p]:last:mb-0 [&>ul]:my-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:my-2 [&>ol]:list-decimal [&>ol]:pl-4">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            code({ node, inline, className, children, ...props }: any) {
+                              const match = /language-(\w+)/.exec(className || "");
+                              const codeString = String(children).replace(/\n$/, "");
+                              if (inline) {
+                                return (
+                                  <code className="bg-background/80 px-1.5 py-0.5 rounded font-mono text-[11px] text-primary" {...props}>
+                                    {children}
+                                  </code>
+                                );
+                              }
+                              return (
+                                <MentorCodeBlock
+                                  code={codeString}
+                                  language={match?.[1] || "text"}
+                                  activeFile={activeFile}
+                                  onApplyCode={onApplyCode}
+                                  isAgentMode={mentorMode === "agent"}
+                                />
+                              );
+                            },
+                          }}
+                        >
+                          {displayContent}
+                        </ReactMarkdown>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            {isLoading && (!messages.length || messages[messages.length - 1].message_type !== "assistant") && (
+              <div className="flex">
+                <div className="max-w-[90%] rounded-md px-3 py-2 text-[13px] bg-accent text-foreground animate-pulse">
+                  {mentorMode === "agent" ? "Agent is coding..." : "Thinking..."}
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          
+          {suggestedPrompts.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-1">
+              {suggestedPrompts.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => {
+                    if (!isLoading) {
+                      sendMessage(s);
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-accent disabled:opacity-50 transition-colors"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+          
+          <div className="flex gap-2 pt-1 shrink-0">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && send()}
+              disabled={isLoading}
+              placeholder={
+                mentorMode === "agent"
+                  ? `Instruct Agent to update ${activeFile || 'file'}...`
+                  : "Ask AI mentor..."
+              }
+              className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 text-xs outline-none focus:border-primary disabled:opacity-50 transition-colors min-w-0"
+            />
+            <button 
+              onClick={send} 
+              disabled={isLoading || !input.trim()} 
+              className={`rounded-md px-3.5 py-1.5 text-xs font-medium transition-colors shrink-0 flex items-center gap-1 ${
+                mentorMode === "agent"
+                  ? "bg-amber-600 hover:bg-amber-500 text-white"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90"
+              } disabled:opacity-50`}
+            >
+              {mentorMode === "agent" ? (
+                <>
+                  <Zap className="w-3 h-3" />
+                  Run
+                </>
+              ) : (
+                "Ask"
+              )}
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

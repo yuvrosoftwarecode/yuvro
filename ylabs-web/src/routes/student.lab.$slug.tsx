@@ -1143,7 +1143,7 @@ function LabDashboard() {
               </div>
             </div>
 
-            <div className="rounded-xl border bg-card p-4">
+            {/* <div className="rounded-xl border bg-card p-4">
               <div className="mb-2 flex items-center justify-between">
                 <div className="text-sm font-medium">Lab leaderboard</div>
                 <span className="text-xs text-muted-foreground">#15 / 1,250</span>
@@ -1163,9 +1163,9 @@ function LabDashboard() {
               <Link to="/student/leaderboard" className="mt-3 block text-xs text-primary">
                 View full leaderboard →
               </Link>
-            </div>
+            </div> */}
 
-            <div className="rounded-xl border bg-card p-4">
+            {/* <div className="rounded-xl border bg-card p-4">
               <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
                 AI suggestions
@@ -1190,7 +1190,7 @@ function LabDashboard() {
                   body="Ready for advanced challenges."
                 />
               </div>
-            </div>
+            </div> */}
 
             <div className="rounded-xl border bg-card p-4">
               <div className="mb-2 text-sm font-medium">Milestones</div>

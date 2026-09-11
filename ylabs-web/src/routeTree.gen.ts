@@ -26,7 +26,6 @@ import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentLeaderboardRouteImport } from './routes/student.leaderboard'
 import { Route as StudentForumRouteImport } from './routes/student.forum'
 import { Route as StudentDashboardRouteImport } from './routes/student.dashboard'
-import { Route as StudentCollaborationRouteImport } from './routes/student.collaboration'
 import { Route as StudentCertificatesRouteImport } from './routes/student.certificates'
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
 import { Route as RecruiterSettingsRouteImport } from './routes/recruiter.settings'
@@ -40,26 +39,12 @@ import { Route as EvaluationOtpRouteImport } from './routes/evaluation.otp'
 import { Route as EvaluationInstructionsRouteImport } from './routes/evaluation.instructions'
 import { Route as EvaluationCompleteRouteImport } from './routes/evaluation.complete'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
-import { Route as AdminTicketsRouteImport } from './routes/admin.tickets'
-import { Route as AdminSprintsRouteImport } from './routes/admin.sprints'
-import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminRecruitersRouteImport } from './routes/admin.recruiters'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
-import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminLabsRouteImport } from './routes/admin.labs'
-import { Route as AdminIntelligenceRouteImport } from './routes/admin.intelligence'
-import { Route as AdminInstitutionsRouteImport } from './routes/admin.institutions'
-import { Route as AdminInfrastructureRouteImport } from './routes/admin.infrastructure'
-import { Route as AdminIncidentsRouteImport } from './routes/admin.incidents'
-import { Route as AdminCollaborationRouteImport } from './routes/admin.collaboration'
-import { Route as AdminAiMentorRouteImport } from './routes/admin.ai-mentor'
-import { Route as StudentCollaborationIndexRouteImport } from './routes/student.collaboration.index'
 import { Route as RecruiterEvaluationsIndexRouteImport } from './routes/recruiter.evaluations.index'
 import { Route as AdminLabsIndexRouteImport } from './routes/admin.labs.index'
 import { Route as StudentLabSlugRouteImport } from './routes/student.lab.$slug'
-import { Route as StudentCollaborationSquadsRouteImport } from './routes/student.collaboration.squads'
-import { Route as StudentCollaborationConnectionsRouteImport } from './routes/student.collaboration.connections'
-import { Route as StudentCollaborationBrowseRouteImport } from './routes/student.collaboration.browse'
 import { Route as SharedReportTokenRouteImport } from './routes/shared.report.$token'
 import { Route as ResetPasswordUidb64TokenRouteImport } from './routes/reset-password.$uidb64.$token'
 import { Route as RecruiterEvaluationsIdRouteImport } from './routes/recruiter.evaluations.$id'
@@ -163,11 +148,6 @@ const StudentDashboardRoute = StudentDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => StudentRoute,
 } as any)
-const StudentCollaborationRoute = StudentCollaborationRouteImport.update({
-  id: '/collaboration',
-  path: '/collaboration',
-  getParentRoute: () => StudentRoute,
-} as any)
 const StudentCertificatesRoute = StudentCertificatesRouteImport.update({
   id: '/certificates',
   path: '/certificates',
@@ -233,21 +213,6 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminTicketsRoute = AdminTicketsRouteImport.update({
-  id: '/tickets',
-  path: '/tickets',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSprintsRoute = AdminSprintsRouteImport.update({
-  id: '/sprints',
-  path: '/sprints',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminReportsRoute = AdminReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminRecruitersRoute = AdminRecruitersRouteImport.update({
   id: '/recruiters',
   path: '/recruiters',
@@ -258,52 +223,11 @@ const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
   path: '/questions',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminLabsRoute = AdminLabsRouteImport.update({
   id: '/labs',
   path: '/labs',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminIntelligenceRoute = AdminIntelligenceRouteImport.update({
-  id: '/intelligence',
-  path: '/intelligence',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminInstitutionsRoute = AdminInstitutionsRouteImport.update({
-  id: '/institutions',
-  path: '/institutions',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminInfrastructureRoute = AdminInfrastructureRouteImport.update({
-  id: '/infrastructure',
-  path: '/infrastructure',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminIncidentsRoute = AdminIncidentsRouteImport.update({
-  id: '/incidents',
-  path: '/incidents',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminCollaborationRoute = AdminCollaborationRouteImport.update({
-  id: '/collaboration',
-  path: '/collaboration',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAiMentorRoute = AdminAiMentorRouteImport.update({
-  id: '/ai-mentor',
-  path: '/ai-mentor',
-  getParentRoute: () => AdminRoute,
-} as any)
-const StudentCollaborationIndexRoute =
-  StudentCollaborationIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => StudentCollaborationRoute,
-  } as any)
 const RecruiterEvaluationsIndexRoute =
   RecruiterEvaluationsIndexRouteImport.update({
     id: '/evaluations/',
@@ -320,24 +244,6 @@ const StudentLabSlugRoute = StudentLabSlugRouteImport.update({
   path: '/lab/$slug',
   getParentRoute: () => StudentRoute,
 } as any)
-const StudentCollaborationSquadsRoute =
-  StudentCollaborationSquadsRouteImport.update({
-    id: '/squads',
-    path: '/squads',
-    getParentRoute: () => StudentCollaborationRoute,
-  } as any)
-const StudentCollaborationConnectionsRoute =
-  StudentCollaborationConnectionsRouteImport.update({
-    id: '/connections',
-    path: '/connections',
-    getParentRoute: () => StudentCollaborationRoute,
-  } as any)
-const StudentCollaborationBrowseRoute =
-  StudentCollaborationBrowseRouteImport.update({
-    id: '/browse',
-    path: '/browse',
-    getParentRoute: () => StudentCollaborationRoute,
-  } as any)
 const SharedReportTokenRoute = SharedReportTokenRouteImport.update({
   id: '/shared/report/$token',
   path: '/shared/report/$token',
@@ -366,9 +272,9 @@ const AdminLabsNewRoute = AdminLabsNewRouteImport.update({
 } as any)
 const StudentCollaborationSprintIdRoute =
   StudentCollaborationSprintIdRouteImport.update({
-    id: '/sprint/$id',
-    path: '/sprint/$id',
-    getParentRoute: () => StudentCollaborationRoute,
+    id: '/collaboration/sprint/$id',
+    path: '/collaboration/sprint/$id',
+    getParentRoute: () => StudentRoute,
   } as any)
 const RecruiterEvaluationsIdWorkspaceRoute =
   RecruiterEvaluationsIdWorkspaceRouteImport.update({
@@ -446,19 +352,9 @@ export interface FileRoutesByFullPath {
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
   '/student': typeof StudentRouteWithChildren
-  '/admin/ai-mentor': typeof AdminAiMentorRoute
-  '/admin/collaboration': typeof AdminCollaborationRoute
-  '/admin/incidents': typeof AdminIncidentsRoute
-  '/admin/infrastructure': typeof AdminInfrastructureRoute
-  '/admin/institutions': typeof AdminInstitutionsRoute
-  '/admin/intelligence': typeof AdminIntelligenceRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
-  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/sprints': typeof AdminSprintsRoute
-  '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
@@ -472,7 +368,6 @@ export interface FileRoutesByFullPath {
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/certificates': typeof StudentCertificatesRoute
-  '/student/collaboration': typeof StudentCollaborationRouteWithChildren
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
@@ -485,13 +380,9 @@ export interface FileRoutesByFullPath {
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
-  '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
-  '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
-  '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
   '/student/lab/$slug': typeof StudentLabSlugRouteWithChildren
   '/admin/labs/': typeof AdminLabsIndexRoute
   '/recruiter/evaluations/': typeof RecruiterEvaluationsIndexRoute
-  '/student/collaboration/': typeof StudentCollaborationIndexRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
@@ -513,18 +404,8 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/recruiter-login': typeof RecruiterLoginRoute
   '/student': typeof StudentRouteWithChildren
-  '/admin/ai-mentor': typeof AdminAiMentorRoute
-  '/admin/collaboration': typeof AdminCollaborationRoute
-  '/admin/incidents': typeof AdminIncidentsRoute
-  '/admin/infrastructure': typeof AdminInfrastructureRoute
-  '/admin/institutions': typeof AdminInstitutionsRoute
-  '/admin/intelligence': typeof AdminIntelligenceRoute
-  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/sprints': typeof AdminSprintsRoute
-  '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
@@ -550,13 +431,9 @@ export interface FileRoutesByTo {
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
-  '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
-  '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
-  '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
   '/student/lab/$slug': typeof StudentLabSlugRouteWithChildren
   '/admin/labs': typeof AdminLabsIndexRoute
   '/recruiter/evaluations': typeof RecruiterEvaluationsIndexRoute
-  '/student/collaboration': typeof StudentCollaborationIndexRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
@@ -582,19 +459,9 @@ export interface FileRoutesById {
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
   '/student': typeof StudentRouteWithChildren
-  '/admin/ai-mentor': typeof AdminAiMentorRoute
-  '/admin/collaboration': typeof AdminCollaborationRoute
-  '/admin/incidents': typeof AdminIncidentsRoute
-  '/admin/infrastructure': typeof AdminInfrastructureRoute
-  '/admin/institutions': typeof AdminInstitutionsRoute
-  '/admin/intelligence': typeof AdminIntelligenceRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
-  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
-  '/admin/reports': typeof AdminReportsRoute
-  '/admin/sprints': typeof AdminSprintsRoute
-  '/admin/tickets': typeof AdminTicketsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
@@ -608,7 +475,6 @@ export interface FileRoutesById {
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/certificates': typeof StudentCertificatesRoute
-  '/student/collaboration': typeof StudentCollaborationRouteWithChildren
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
@@ -621,13 +487,9 @@ export interface FileRoutesById {
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
-  '/student/collaboration/browse': typeof StudentCollaborationBrowseRoute
-  '/student/collaboration/connections': typeof StudentCollaborationConnectionsRoute
-  '/student/collaboration/squads': typeof StudentCollaborationSquadsRoute
   '/student/lab/$slug': typeof StudentLabSlugRouteWithChildren
   '/admin/labs/': typeof AdminLabsIndexRoute
   '/recruiter/evaluations/': typeof RecruiterEvaluationsIndexRoute
-  '/student/collaboration/': typeof StudentCollaborationIndexRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
@@ -654,19 +516,9 @@ export interface FileRouteTypes {
     | '/recruiter'
     | '/recruiter-login'
     | '/student'
-    | '/admin/ai-mentor'
-    | '/admin/collaboration'
-    | '/admin/incidents'
-    | '/admin/infrastructure'
-    | '/admin/institutions'
-    | '/admin/intelligence'
     | '/admin/labs'
-    | '/admin/notifications'
     | '/admin/questions'
     | '/admin/recruiters'
-    | '/admin/reports'
-    | '/admin/sprints'
-    | '/admin/tickets'
     | '/admin/users'
     | '/evaluation/complete'
     | '/evaluation/instructions'
@@ -680,7 +532,6 @@ export interface FileRouteTypes {
     | '/recruiter/settings'
     | '/student/analytics'
     | '/student/certificates'
-    | '/student/collaboration'
     | '/student/dashboard'
     | '/student/forum'
     | '/student/leaderboard'
@@ -693,13 +544,9 @@ export interface FileRouteTypes {
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
     | '/shared/report/$token'
-    | '/student/collaboration/browse'
-    | '/student/collaboration/connections'
-    | '/student/collaboration/squads'
     | '/student/lab/$slug'
     | '/admin/labs/'
     | '/recruiter/evaluations/'
-    | '/student/collaboration/'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
     | '/recruiter/evaluations/$id/workspace'
@@ -721,18 +568,8 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/recruiter-login'
     | '/student'
-    | '/admin/ai-mentor'
-    | '/admin/collaboration'
-    | '/admin/incidents'
-    | '/admin/infrastructure'
-    | '/admin/institutions'
-    | '/admin/intelligence'
-    | '/admin/notifications'
     | '/admin/questions'
     | '/admin/recruiters'
-    | '/admin/reports'
-    | '/admin/sprints'
-    | '/admin/tickets'
     | '/admin/users'
     | '/evaluation/complete'
     | '/evaluation/instructions'
@@ -758,13 +595,9 @@ export interface FileRouteTypes {
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
     | '/shared/report/$token'
-    | '/student/collaboration/browse'
-    | '/student/collaboration/connections'
-    | '/student/collaboration/squads'
     | '/student/lab/$slug'
     | '/admin/labs'
     | '/recruiter/evaluations'
-    | '/student/collaboration'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
     | '/recruiter/evaluations/$id/workspace'
@@ -789,19 +622,9 @@ export interface FileRouteTypes {
     | '/recruiter'
     | '/recruiter-login'
     | '/student'
-    | '/admin/ai-mentor'
-    | '/admin/collaboration'
-    | '/admin/incidents'
-    | '/admin/infrastructure'
-    | '/admin/institutions'
-    | '/admin/intelligence'
     | '/admin/labs'
-    | '/admin/notifications'
     | '/admin/questions'
     | '/admin/recruiters'
-    | '/admin/reports'
-    | '/admin/sprints'
-    | '/admin/tickets'
     | '/admin/users'
     | '/evaluation/complete'
     | '/evaluation/instructions'
@@ -815,7 +638,6 @@ export interface FileRouteTypes {
     | '/recruiter/settings'
     | '/student/analytics'
     | '/student/certificates'
-    | '/student/collaboration'
     | '/student/dashboard'
     | '/student/forum'
     | '/student/leaderboard'
@@ -828,13 +650,9 @@ export interface FileRouteTypes {
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
     | '/shared/report/$token'
-    | '/student/collaboration/browse'
-    | '/student/collaboration/connections'
-    | '/student/collaboration/squads'
     | '/student/lab/$slug'
     | '/admin/labs/'
     | '/recruiter/evaluations/'
-    | '/student/collaboration/'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
     | '/recruiter/evaluations/$id/workspace'
@@ -986,13 +804,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentDashboardRouteImport
       parentRoute: typeof StudentRoute
     }
-    '/student/collaboration': {
-      id: '/student/collaboration'
-      path: '/collaboration'
-      fullPath: '/student/collaboration'
-      preLoaderRoute: typeof StudentCollaborationRouteImport
-      parentRoute: typeof StudentRoute
-    }
     '/student/certificates': {
       id: '/student/certificates'
       path: '/certificates'
@@ -1084,27 +895,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/tickets': {
-      id: '/admin/tickets'
-      path: '/tickets'
-      fullPath: '/admin/tickets'
-      preLoaderRoute: typeof AdminTicketsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/sprints': {
-      id: '/admin/sprints'
-      path: '/sprints'
-      fullPath: '/admin/sprints'
-      preLoaderRoute: typeof AdminSprintsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/reports': {
-      id: '/admin/reports'
-      path: '/reports'
-      fullPath: '/admin/reports'
-      preLoaderRoute: typeof AdminReportsRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/recruiters': {
       id: '/admin/recruiters'
       path: '/recruiters'
@@ -1119,68 +909,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminQuestionsRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/notifications': {
-      id: '/admin/notifications'
-      path: '/notifications'
-      fullPath: '/admin/notifications'
-      preLoaderRoute: typeof AdminNotificationsRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/labs': {
       id: '/admin/labs'
       path: '/labs'
       fullPath: '/admin/labs'
       preLoaderRoute: typeof AdminLabsRouteImport
       parentRoute: typeof AdminRoute
-    }
-    '/admin/intelligence': {
-      id: '/admin/intelligence'
-      path: '/intelligence'
-      fullPath: '/admin/intelligence'
-      preLoaderRoute: typeof AdminIntelligenceRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/institutions': {
-      id: '/admin/institutions'
-      path: '/institutions'
-      fullPath: '/admin/institutions'
-      preLoaderRoute: typeof AdminInstitutionsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/infrastructure': {
-      id: '/admin/infrastructure'
-      path: '/infrastructure'
-      fullPath: '/admin/infrastructure'
-      preLoaderRoute: typeof AdminInfrastructureRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/incidents': {
-      id: '/admin/incidents'
-      path: '/incidents'
-      fullPath: '/admin/incidents'
-      preLoaderRoute: typeof AdminIncidentsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/collaboration': {
-      id: '/admin/collaboration'
-      path: '/collaboration'
-      fullPath: '/admin/collaboration'
-      preLoaderRoute: typeof AdminCollaborationRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/ai-mentor': {
-      id: '/admin/ai-mentor'
-      path: '/ai-mentor'
-      fullPath: '/admin/ai-mentor'
-      preLoaderRoute: typeof AdminAiMentorRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/student/collaboration/': {
-      id: '/student/collaboration/'
-      path: '/'
-      fullPath: '/student/collaboration/'
-      preLoaderRoute: typeof StudentCollaborationIndexRouteImport
-      parentRoute: typeof StudentCollaborationRoute
     }
     '/recruiter/evaluations/': {
       id: '/recruiter/evaluations/'
@@ -1202,27 +936,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/student/lab/$slug'
       preLoaderRoute: typeof StudentLabSlugRouteImport
       parentRoute: typeof StudentRoute
-    }
-    '/student/collaboration/squads': {
-      id: '/student/collaboration/squads'
-      path: '/squads'
-      fullPath: '/student/collaboration/squads'
-      preLoaderRoute: typeof StudentCollaborationSquadsRouteImport
-      parentRoute: typeof StudentCollaborationRoute
-    }
-    '/student/collaboration/connections': {
-      id: '/student/collaboration/connections'
-      path: '/connections'
-      fullPath: '/student/collaboration/connections'
-      preLoaderRoute: typeof StudentCollaborationConnectionsRouteImport
-      parentRoute: typeof StudentCollaborationRoute
-    }
-    '/student/collaboration/browse': {
-      id: '/student/collaboration/browse'
-      path: '/browse'
-      fullPath: '/student/collaboration/browse'
-      preLoaderRoute: typeof StudentCollaborationBrowseRouteImport
-      parentRoute: typeof StudentCollaborationRoute
     }
     '/shared/report/$token': {
       id: '/shared/report/$token'
@@ -1261,10 +974,10 @@ declare module '@tanstack/react-router' {
     }
     '/student/collaboration/sprint/$id': {
       id: '/student/collaboration/sprint/$id'
-      path: '/sprint/$id'
+      path: '/collaboration/sprint/$id'
       fullPath: '/student/collaboration/sprint/$id'
       preLoaderRoute: typeof StudentCollaborationSprintIdRouteImport
-      parentRoute: typeof StudentCollaborationRoute
+      parentRoute: typeof StudentRoute
     }
     '/recruiter/evaluations/$id/workspace': {
       id: '/recruiter/evaluations/$id/workspace'
@@ -1388,37 +1101,17 @@ const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
-  AdminAiMentorRoute: typeof AdminAiMentorRoute
-  AdminCollaborationRoute: typeof AdminCollaborationRoute
-  AdminIncidentsRoute: typeof AdminIncidentsRoute
-  AdminInfrastructureRoute: typeof AdminInfrastructureRoute
-  AdminInstitutionsRoute: typeof AdminInstitutionsRoute
-  AdminIntelligenceRoute: typeof AdminIntelligenceRoute
   AdminLabsRoute: typeof AdminLabsRouteWithChildren
-  AdminNotificationsRoute: typeof AdminNotificationsRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminRecruitersRoute: typeof AdminRecruitersRoute
-  AdminReportsRoute: typeof AdminReportsRoute
-  AdminSprintsRoute: typeof AdminSprintsRoute
-  AdminTicketsRoute: typeof AdminTicketsRoute
   AdminUsersRoute: typeof AdminUsersRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminAiMentorRoute: AdminAiMentorRoute,
-  AdminCollaborationRoute: AdminCollaborationRoute,
-  AdminIncidentsRoute: AdminIncidentsRoute,
-  AdminInfrastructureRoute: AdminInfrastructureRoute,
-  AdminInstitutionsRoute: AdminInstitutionsRoute,
-  AdminIntelligenceRoute: AdminIntelligenceRoute,
   AdminLabsRoute: AdminLabsRouteWithChildren,
-  AdminNotificationsRoute: AdminNotificationsRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminRecruitersRoute: AdminRecruitersRoute,
-  AdminReportsRoute: AdminReportsRoute,
-  AdminSprintsRoute: AdminSprintsRoute,
-  AdminTicketsRoute: AdminTicketsRoute,
   AdminUsersRoute: AdminUsersRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
 }
@@ -1488,50 +1181,6 @@ const RecruiterRouteWithChildren = RecruiterRoute._addFileChildren(
   RecruiterRouteChildren,
 )
 
-interface StudentCollaborationSprintIdRouteChildren {
-  StudentCollaborationSprintIdWorkspaceRoute: typeof StudentCollaborationSprintIdWorkspaceRoute
-  StudentCollaborationSprintIdReportIndividualRoute: typeof StudentCollaborationSprintIdReportIndividualRoute
-  StudentCollaborationSprintIdReportTeamRoute: typeof StudentCollaborationSprintIdReportTeamRoute
-  StudentCollaborationSprintIdTicketTicketIdRoute: typeof StudentCollaborationSprintIdTicketTicketIdRoute
-}
-
-const StudentCollaborationSprintIdRouteChildren: StudentCollaborationSprintIdRouteChildren =
-  {
-    StudentCollaborationSprintIdWorkspaceRoute:
-      StudentCollaborationSprintIdWorkspaceRoute,
-    StudentCollaborationSprintIdReportIndividualRoute:
-      StudentCollaborationSprintIdReportIndividualRoute,
-    StudentCollaborationSprintIdReportTeamRoute:
-      StudentCollaborationSprintIdReportTeamRoute,
-    StudentCollaborationSprintIdTicketTicketIdRoute:
-      StudentCollaborationSprintIdTicketTicketIdRoute,
-  }
-
-const StudentCollaborationSprintIdRouteWithChildren =
-  StudentCollaborationSprintIdRoute._addFileChildren(
-    StudentCollaborationSprintIdRouteChildren,
-  )
-
-interface StudentCollaborationRouteChildren {
-  StudentCollaborationBrowseRoute: typeof StudentCollaborationBrowseRoute
-  StudentCollaborationConnectionsRoute: typeof StudentCollaborationConnectionsRoute
-  StudentCollaborationSquadsRoute: typeof StudentCollaborationSquadsRoute
-  StudentCollaborationIndexRoute: typeof StudentCollaborationIndexRoute
-  StudentCollaborationSprintIdRoute: typeof StudentCollaborationSprintIdRouteWithChildren
-}
-
-const StudentCollaborationRouteChildren: StudentCollaborationRouteChildren = {
-  StudentCollaborationBrowseRoute: StudentCollaborationBrowseRoute,
-  StudentCollaborationConnectionsRoute: StudentCollaborationConnectionsRoute,
-  StudentCollaborationSquadsRoute: StudentCollaborationSquadsRoute,
-  StudentCollaborationIndexRoute: StudentCollaborationIndexRoute,
-  StudentCollaborationSprintIdRoute:
-    StudentCollaborationSprintIdRouteWithChildren,
-}
-
-const StudentCollaborationRouteWithChildren =
-  StudentCollaborationRoute._addFileChildren(StudentCollaborationRouteChildren)
-
 interface StudentLabSlugTicketTicketIdRouteChildren {
   StudentLabSlugTicketTicketIdReviewRoute: typeof StudentLabSlugTicketTicketIdReviewRoute
 }
@@ -1560,26 +1209,51 @@ const StudentLabSlugRouteWithChildren = StudentLabSlugRoute._addFileChildren(
   StudentLabSlugRouteChildren,
 )
 
+interface StudentCollaborationSprintIdRouteChildren {
+  StudentCollaborationSprintIdWorkspaceRoute: typeof StudentCollaborationSprintIdWorkspaceRoute
+  StudentCollaborationSprintIdReportIndividualRoute: typeof StudentCollaborationSprintIdReportIndividualRoute
+  StudentCollaborationSprintIdReportTeamRoute: typeof StudentCollaborationSprintIdReportTeamRoute
+  StudentCollaborationSprintIdTicketTicketIdRoute: typeof StudentCollaborationSprintIdTicketTicketIdRoute
+}
+
+const StudentCollaborationSprintIdRouteChildren: StudentCollaborationSprintIdRouteChildren =
+  {
+    StudentCollaborationSprintIdWorkspaceRoute:
+      StudentCollaborationSprintIdWorkspaceRoute,
+    StudentCollaborationSprintIdReportIndividualRoute:
+      StudentCollaborationSprintIdReportIndividualRoute,
+    StudentCollaborationSprintIdReportTeamRoute:
+      StudentCollaborationSprintIdReportTeamRoute,
+    StudentCollaborationSprintIdTicketTicketIdRoute:
+      StudentCollaborationSprintIdTicketTicketIdRoute,
+  }
+
+const StudentCollaborationSprintIdRouteWithChildren =
+  StudentCollaborationSprintIdRoute._addFileChildren(
+    StudentCollaborationSprintIdRouteChildren,
+  )
+
 interface StudentRouteChildren {
   StudentAnalyticsRoute: typeof StudentAnalyticsRoute
   StudentCertificatesRoute: typeof StudentCertificatesRoute
-  StudentCollaborationRoute: typeof StudentCollaborationRouteWithChildren
   StudentDashboardRoute: typeof StudentDashboardRoute
   StudentForumRoute: typeof StudentForumRoute
   StudentLeaderboardRoute: typeof StudentLeaderboardRoute
   StudentProfileRoute: typeof StudentProfileRoute
   StudentLabSlugRoute: typeof StudentLabSlugRouteWithChildren
+  StudentCollaborationSprintIdRoute: typeof StudentCollaborationSprintIdRouteWithChildren
 }
 
 const StudentRouteChildren: StudentRouteChildren = {
   StudentAnalyticsRoute: StudentAnalyticsRoute,
   StudentCertificatesRoute: StudentCertificatesRoute,
-  StudentCollaborationRoute: StudentCollaborationRouteWithChildren,
   StudentDashboardRoute: StudentDashboardRoute,
   StudentForumRoute: StudentForumRoute,
   StudentLeaderboardRoute: StudentLeaderboardRoute,
   StudentProfileRoute: StudentProfileRoute,
   StudentLabSlugRoute: StudentLabSlugRouteWithChildren,
+  StudentCollaborationSprintIdRoute:
+    StudentCollaborationSprintIdRouteWithChildren,
 }
 
 const StudentRouteWithChildren =
@@ -1603,13 +1277,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

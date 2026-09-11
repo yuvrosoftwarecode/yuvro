@@ -89,13 +89,13 @@ function AuthPage() {
           <div className="flex rounded-lg border border-border bg-card/50 p-1 text-sm">
             <button
               onClick={() => setTab("signin")}
-              className={`flex-1 rounded-md py-2 transition ${tab === "signin" ? "bg-gradient-to-r from-primary to-ui text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex-1 rounded-md py-2 transition ${tab === "signin" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
             >
               Sign In
             </button>
             <button
               onClick={() => setTab("signup")}
-              className={`flex-1 rounded-md py-2 transition ${tab === "signup" ? "bg-gradient-to-r from-primary to-ui text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+              className={`flex-1 rounded-md py-2 transition ${tab === "signup" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
             >
               Create Account
             </button>
@@ -277,7 +277,7 @@ function SignInForm() {
       )}
       <button
         type="submit"
-        className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-primary to-ui px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/50 transition"
+        className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/30 hover:opacity-90 transition"
       >
         Sign In <ArrowRight className="h-4 w-4" />
       </button>
@@ -412,7 +412,7 @@ function SignUpForm() {
       )}
       <button
         type="submit"
-        className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-primary to-ui px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/50 transition"
+        className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/30 hover:opacity-90 transition"
       >
         Create Account <ArrowRight className="h-4 w-4" />
       </button>

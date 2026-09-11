@@ -161,7 +161,8 @@ compose_files_for() {
         ycampus) echo "$base -f docker-compose.ycampus.yml -f docker-compose.dev.yml" ;;
         ylabs)   echo "$base -f docker-compose.ylabs.yml   -f docker-compose.dev.yml" ;;
         yhub)    echo "$base -f docker-compose.yhub.yml    -f docker-compose.dev.yml" ;;
-        all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.dev.yml" ;;
+        code-executor) echo "-f docker-compose.code-executor.yml" ;;
+        all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.code-executor.yml -f docker-compose.dev.yml" ;;
     esac
 }
 
@@ -171,6 +172,7 @@ services_for() {
         ycampus) echo "ycampus-backend ycampus-frontend" ;;
         ylabs)   echo "ylabs-backend ylabs-frontend" ;;
         yhub)    echo "yhub-backend" ;;
+        code-executor) echo "yuvro-code-executor" ;;
         all|*)   echo "" ;;
     esac
 }
@@ -181,6 +183,7 @@ fixture_containers_for() {
         ycampus) echo "yuvro-ycampus-backend-1" ;;
         ylabs)   echo "yuvro-ylabs-backend-1" ;;
         yhub)    echo "yuvro-yhub-backend-1" ;;
+        code-executor) echo "" ;;
         all|*)   echo "yuvro-ycode-backend-1 yuvro-ycampus-backend-1 yuvro-ylabs-backend-1 yuvro-yhub-backend-1" ;;
     esac
 }
@@ -254,15 +257,49 @@ wire_secrets() {
 
 # ── copy secrets to EC2 ────────────────────────────────────────────────────────
 
+# Secrets, nginx config, and domains for each app
+app_secrets_for() {
+    local app="${1:-all}"
+    case "$app" in
+        ycode)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets" ;;
+        ycampus) echo "ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets" ;;
+        ylabs)   echo "ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets" ;;
+        yhub)    echo "yhub-backend-api/.env.dev-secrets" ;;
+        code-executor) echo "yuvro-code-executer/.env.dev-secrets" ;;
+        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets yuvro-code-executer/.env.dev-secrets" ;;
+    esac
+}
+
+app_domains_for() {
+    local app="${1:-all}"
+    case "$app" in
+        ycode)   echo "code-dev.yuvro.ai backend-code-dev.yuvro.ai" ;;
+        ycampus) echo "campus-dev.yuvro.ai backend-campus-dev.yuvro.ai" ;;
+        ylabs)   echo "dev.yuvrolabs.com backend-dev.yuvrolabs.com" ;;
+        yhub)    echo "backend-hub-dev.yuvro.ai" ;;
+        all|*)   echo "code-dev.yuvro.ai campus-dev.yuvro.ai dev.yuvrolabs.com backend-code-dev.yuvro.ai backend-campus-dev.yuvro.ai backend-dev.yuvrolabs.com backend-hub-dev.yuvro.ai code-executer-dev.yuvro.ai" ;;
+    esac
+}
+
+app_nginx_config_for() {
+    local app="${1:-all}"
+    case "$app" in
+        ycode)   echo "ycode-web/nginx.ec2.conf" ;;
+        ycampus) echo "ycampus-web/nginx.ec2.conf" ;;
+        ylabs)   echo "ylabs-web/nginx.ec2.conf" ;;
+        yhub)    echo "yhub-backend-api/nginx.ec2.conf" ;;
+        code-executor) echo "yuvro-code-executer/nginx.ec2.conf" ;;
+        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf yuvro-code-executer/nginx.ec2.conf" ;;
+    esac
+}
+
 copy_secrets_to_ec2() {
     local ip=$1
+    local app="${2:-all}"
     print_step "Copying secrets to EC2..."
-    for sf in \
-        ycode-backend-api/.env.dev-secrets  ycampus-backend-api/.env.dev-secrets \
-        yhub-backend-api/.env.dev-secrets   ylabs-backend-api/.env.dev-secrets \
-        ycode-web/.env.dev-secrets          ycampus-web/.env.dev-secrets \
-        ylabs-web/.env.dev-secrets          yuvro-code-executer/.env.dev-secrets
-    do
+    local secrets
+    secrets="$(app_secrets_for "$app")"
+    for sf in $secrets; do
         local local_path="$PROJECT_ROOT/$sf"
         if [ -f "$local_path" ]; then
             ssh_ec2 "ubuntu@$ip" "mkdir -p /home/ubuntu/yuvro/$(dirname "$sf")"
@@ -291,8 +328,8 @@ run_deploy() {
     scp_ec2 "$HOME/.ssh/ycode-ec2-github" "ubuntu@$ip:/home/ubuntu/.ssh/github_deploy_key"
 
     # Wire + copy secrets
-    wire_secrets
-    copy_secrets_to_ec2 "$ip"
+    wire_secrets "$app"
+    copy_secrets_to_ec2 "$ip" "$app"
 
     # Read Vite Google IDs
     local vite_google="" ycampus_google="" ylabs_google=""
@@ -341,6 +378,7 @@ done
 
 # ── build args ───────────────────────────────────────────────────────────────
 export YCODE_VITE_BACKEND_API_BASE_URL="https://backend-code-dev.yuvro.ai/api"
+export VITE_YHUB_BACKEND_API_BASE_URL="https://backend-hub-dev.yuvro.ai/api"
 export YCODE_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
 export YCAMPUS_VITE_BACKEND_API_BASE_URL="https://backend-campus-dev.yuvro.ai/api"
 export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
@@ -407,16 +445,10 @@ echo "── docker up [$app] ────────────────�
 T1=\$(date +%s)
 docker network create executor    2>/dev/null || true
 docker network create yuvro_ylabs 2>/dev/null || true
-docker compose $compose_args up -d --force-recreate $services
+docker compose $compose_args up -d --remove-orphans --force-recreate $services
 echo "   ✓ up  [\$(( \$(date +%s)-T1 ))s]"
 
 docker compose $compose_args ps
-
-# ── nginx ────────────────────────────────────────────────────────────────────
-sudo cp infra/nginx/yuvro-dev.conf /etc/nginx/sites-available/yuvro-dev
-sudo nginx -t && sudo systemctl reload nginx \
-    && echo "   ✓ nginx reloaded" \
-    || echo "   ⚠ nginx config error"
 
 # ── fixtures ─────────────────────────────────────────────────────────────────
 echo "── fixtures — waiting 20s ──────────────────────────"
@@ -435,11 +467,11 @@ DEPLOY_EOF
     print_success "[$app] deployed  [total elapsed: $(elapsed)]"
 }
 
-# ── nginx + certbot ────────────────────────────────────────────────────────────
+# ── nginx + certbot (base setup - no app-specific logic) ────────────────────────────
 
-setup_nginx() {
+setup_nginx_base() {
     local ip=$1
-    print_header "Setting up Nginx + SSL"
+    print_header "Setting up Nginx + SSL (base)"
 
     ssh_ec2 "ubuntu@$ip" bash << 'NINST'
 set -e
@@ -447,47 +479,18 @@ command -v nginx  &>/dev/null || sudo apt-get install -y nginx certbot python3-c
 command -v make   &>/dev/null || sudo apt-get install -y make -q
 sudo mkdir -p /var/www/certbot
 sudo rm -f /etc/nginx/sites-enabled/default
-sudo ln -sf /etc/nginx/sites-available/yuvro-dev /etc/nginx/sites-enabled/yuvro-dev 2>/dev/null || true
 echo "✓ nginx + certbot ready"
 NINST
 
-    scp_ec2 "$PROJECT_ROOT/infra/nginx/yuvro-dev.conf" "ubuntu@$ip:/tmp/yuvro-nginx-https.conf"
+    print_success "Nginx + SSL base ready"
+}
 
-    ssh_ec2 "ubuntu@$ip" bash << 'CERTBOT'
-DOMAINS=( "code-dev.yuvro.ai" "campus-dev.yuvro.ai" "backend-code-dev.yuvro.ai"
-          "backend-campus-dev.yuvro.ai" "code-executer-dev.yuvro.ai"
-          "backend-hub-dev.yuvro.ai" "backend-dev.yuvrolabs.com" "dev.yuvrolabs.com" )
-CERT_EMAIL="rohith@yuvro.ai"
-
-ALL=true
-for d in "${DOMAINS[@]}"; do [ -d "/etc/letsencrypt/live/$d" ] || { ALL=false; break; }; done
-
-if [ "$ALL" = "true" ]; then
-    echo "✓ All certs exist — skipping certbot"
-else
-    sudo python3 -c "
-ds=['code-dev.yuvro.ai','campus-dev.yuvro.ai','backend-code-dev.yuvro.ai',
-    'backend-campus-dev.yuvro.ai','code-executer-dev.yuvro.ai',
-    'backend-hub-dev.yuvro.ai','backend-dev.yuvrolabs.com','dev.yuvrolabs.com']
-c=''.join(f'''server{{listen 80;server_name {d};location /.well-known/acme-challenge/{{root /var/www/certbot;}}location /{{return 301 https://\$host\$request_uri;}}}}\n''' for d in ds)
-open('/etc/nginx/sites-available/yuvro-dev','w').write(c)
-"
-    sudo nginx -t && sudo systemctl reload nginx || sudo systemctl restart nginx
-    for d in "${DOMAINS[@]}"; do
-        [ -d "/etc/letsencrypt/live/$d" ] && echo "✓ exists: $d" && continue
-        sudo certbot certonly --webroot --webroot-path /var/www/certbot \
-            --non-interactive --agree-tos --email "$CERT_EMAIL" -d "$d" 2>&1 \
-            && echo "✓ cert: $d" || echo "⚠ certbot failed: $d"
-    done
-fi
-
-sudo cp /tmp/yuvro-nginx-https.conf /etc/nginx/sites-available/yuvro-dev
-sudo nginx -t && sudo systemctl reload nginx && echo "✓ HTTPS config active" || echo "⚠ nginx error"
-CRON="0 3 * * * certbot renew --quiet --deploy-hook 'systemctl reload nginx'"
-( sudo crontab -l 2>/dev/null | grep -v 'certbot renew'; echo "$CRON" ) | sudo crontab -
-CERTBOT
-
-    print_success "Nginx + SSL ready"
+# App-specific nginx setup functions (to be defined in each deploy script)
+setup_nginx() {
+    local ip=$1 app="${2:-all}"
+    # Default implementation - can be overridden by app-specific scripts
+    print_info "Using default nginx setup for $app"
+    setup_nginx_base "$ip"
 }
 
 # ── summary ────────────────────────────────────────────────────────────────────
@@ -558,6 +561,6 @@ ensure_infra_and_deploy() {
     wait_for_ssh    "$ip"
     wait_for_docker "$ip"
     run_deploy      "$ip" "$REPO_URL" "$app" "$branch"
-    setup_nginx     "$ip"
+    setup_nginx     "$ip" "$app"
     show_summary    "$ip" "$app"
 }

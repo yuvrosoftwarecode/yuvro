@@ -24,6 +24,7 @@ urlpatterns = [
     path("api/lab/", include("lab.urls")),
     path("api/skill_evaluation/", include("skill_evaluation.urls")),
     path("api/recruiter/", include("recruiter.urls")),
+    path("api/mock/", include("mock_apis.urls")),
 ]
 
 if settings.DEBUG:
