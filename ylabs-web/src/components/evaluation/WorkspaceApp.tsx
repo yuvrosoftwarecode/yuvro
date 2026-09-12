@@ -8,7 +8,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { TicketIDE } from "@/routes/student.lab.$slug.ticket.$ticketId";
 import ProctoringGate, { ProctoringData } from "@/components/evaluation/ProctoringGate";
 import { useProctoring } from "@/hooks/useProctoring";
-import { getGlobalProctoringData } from "@/utils/proctoringStore";
+import { getGlobalProctoringData, setGlobalProctoringData } from "@/utils/proctoringStore";
 // Extracted from route file to fix code-split warning
 
 
@@ -308,6 +308,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const tabSwitches = useRef(0);
 
   const [proctoringData, setProctoringData] = useState<ProctoringData | null>(getGlobalProctoringData());
+  const [mediaDisabled, setMediaDisabled] = useState(false);
   
   const activeSection = useMemo(() => appSections.find(s => s.id === section), [appSections, section]);
   const proctoringConfig = activeSection?.proctoring || {};
@@ -346,6 +347,33 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       }
     }
   }, [proctoringData, logActivity]);
+
+  useEffect(() => {
+    if (!anySectionNeedsProctoring) return;
+    
+    if (!proctoringData || !proctoringData.cameraStream) {
+       setMediaDisabled(true);
+       return;
+    }
+    
+    const stream = proctoringData.cameraStream;
+    const checkMedia = () => {
+      let disabled = false;
+      const vTracks = stream.getVideoTracks();
+      if (vTracks.length === 0 || vTracks.some(t => t.readyState === 'ended' || !t.enabled)) {
+        disabled = true;
+      }
+      const aTracks = stream.getAudioTracks();
+      if (aTracks.length > 0 && aTracks.some(t => t.readyState === 'ended' || !t.enabled)) {
+        disabled = true;
+      }
+      setMediaDisabled(disabled);
+    };
+
+    const intervalId = setInterval(checkMedia, 1500);
+    checkMedia();
+    return () => clearInterval(intervalId);
+  }, [anySectionNeedsProctoring, proctoringData]);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -607,10 +635,6 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     }
   }, [anySectionNeedsProctoring, proctoringData, isPreviewMode, nav, evaluationId]);
 
-  if (anySectionNeedsProctoring && !proctoringData && !isPreviewMode) {
-    return null;
-  }
-
   const candidateContextString = useMemo(() => {
     let contextParts: string[] = [];
     for (const sec of appSections) {
@@ -651,6 +675,44 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     }
     return contextParts.join("\n\n");
   }, [appSections, answers, labSubmissionsData]);
+
+  if (anySectionNeedsProctoring && !proctoringData && !isPreviewMode) {
+    return null;
+  }
+
+  const handleResumeMedia = async () => {
+    try {
+      const newStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      const currentData = getGlobalProctoringData() || { photoBlob: null, screenshotBlob: null, screenStream: null, cameraStream: null };
+      const newData = { ...currentData, cameraStream: newStream };
+      setGlobalProctoringData(newData);
+      setProctoringData(newData);
+      setMediaDisabled(false);
+    } catch (err) {
+      alert("Failed to access camera/microphone. Please ensure permissions are granted.");
+    }
+  };
+
+  if (mediaDisabled) {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-neutral-900 flex flex-col items-center justify-center text-white">
+        <div className="max-w-md text-center p-8 bg-neutral-800 rounded-xl shadow-2xl">
+          <div className="text-4xl mb-4">📷</div>
+          <h2 className="text-xl font-bold mb-2">Camera or Microphone Disabled</h2>
+          <p className="text-neutral-300 mb-6 text-sm">
+            Please turn on your camera and microphone to continue the evaluation. 
+            If you have denied permissions, you may need to allow them in your browser settings.
+          </p>
+          <button 
+            onClick={handleResumeMedia} 
+            className="bg-white text-neutral-900 px-6 py-2 rounded-md font-medium text-sm hover:bg-neutral-200"
+          >
+            Resume Evaluation
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 antialiased">
