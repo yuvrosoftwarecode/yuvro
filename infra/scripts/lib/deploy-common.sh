@@ -325,8 +325,12 @@ run_deploy() {
 
     print_header "Deploying [$app] on branch [$branch]"
 
-    # Copy GitHub deploy key
-    scp_ec2 "$HOME/.ssh/ycode-ec2-github" "ubuntu@$ip:/home/ubuntu/.ssh/github_deploy_key"
+    # Copy GitHub deploy key (skip if not available)
+    if [ -f "$HOME/.ssh/ycode-ec2-github" ]; then
+        scp_ec2 "$HOME/.ssh/ycode-ec2-github" "ubuntu@$ip:/home/ubuntu/.ssh/github_deploy_key"
+    else
+        print_info "GitHub deploy key not found, skipping"
+    fi
 
     # Wire + copy secrets
     wire_secrets "$app"
