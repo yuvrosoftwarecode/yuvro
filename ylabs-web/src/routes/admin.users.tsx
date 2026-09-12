@@ -12,17 +12,29 @@ function UsersPage() {
   const [q, setQ] = useState("");
   const [role, setRole] = useState("All");
   const [users, setUsers] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [stats, setStats] = useState({ total: 0, active: 0, admins: 0, suspended: 0 });
+  const [loading, setLoading] = useState(true);
+  const pageSize = 20;
 
   useEffect(() => {
     async function fetchUsers() {
+      setLoading(true);
       try {
-        const response = await restApiAuthUtil.get<any[]>("/auth/users/");
-        const mappedUsers = response.map((u, i) => {
+        const queryRole = role === "All" ? "" : role;
+        const response = await restApiAuthUtil.get<any>(
+          `/auth/users/?page=${page}&page_size=${pageSize}&search=${encodeURIComponent(q)}&role=${encodeURIComponent(queryRole)}`
+        );
+        
+        const mappedUsers = (response.results || []).map((u: any, i: number) => {
           let userRole = "Student";
           if (u.role === "admin") {
             userRole = "Admin";
           } else if (u.role === "developer") {
             userRole = "Mentor";
+          } else if (u.role === "recruiter") {
+            userRole = "Recruiter";
           }
 
           return {
@@ -37,20 +49,27 @@ function UsersPage() {
             status: u.is_active ? "active" : "suspended",
           };
         });
+        
         setUsers(mappedUsers);
+        setTotalCount(response.count || 0);
+        if (response.stats) {
+          setStats(response.stats);
+        }
       } catch (err) {
         console.error("Failed to fetch users from backend", err);
+      } finally {
+        setLoading(false);
       }
     }
-    fetchUsers();
-  }, []);
+    
+    const timeout = setTimeout(() => {
+      fetchUsers();
+    }, 300);
+    
+    return () => clearTimeout(timeout);
+  }, [page, q, role]);
 
-  const filtered = users.filter(
-    (u) =>
-      (role === "All" || u.role === role) &&
-      (u.name.toLowerCase().includes(q.toLowerCase()) ||
-        u.email.toLowerCase().includes(q.toLowerCase())),
-  );
+  const filtered = users; // The filtering is now handled in the backend!
 
   return (
     <AdminShell
@@ -70,24 +89,24 @@ function UsersPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KpiCard
           label="Total users"
-          value={users.length.toString()}
+          value={loading ? "-" : stats.total.toString()}
           delta="All time"
           color="primary"
           icon={Users}
         />
         <KpiCard 
           label="Active" 
-          value={users.filter(u => u.status === 'active').length.toString()} 
+          value={loading ? "-" : stats.active.toString()} 
           color="success" 
         />
         <KpiCard 
           label="Admins" 
-          value={users.filter(u => u.role === 'Admin').length.toString()} 
+          value={loading ? "-" : stats.admins.toString()} 
           color="ui" 
         />
         <KpiCard 
           label="Suspended" 
-          value={users.filter(u => u.status === 'suspended').length.toString()} 
+          value={loading ? "-" : stats.suspended.toString()} 
           color="warning" 
         />
       </div>
@@ -98,14 +117,20 @@ function UsersPage() {
             <Search className="h-3.5 w-3.5 text-muted-foreground" />
             <input
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(1);
+              }}
               placeholder="Search by name or email"
               className="bg-transparent outline-none flex-1"
             />
           </div>
           <select
             value={role}
-            onChange={(e) => setRole(e.target.value)}
+            onChange={(e) => {
+              setRole(e.target.value);
+              setPage(1);
+            }}
             className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5"
           >
             <option>All</option>
@@ -117,7 +142,7 @@ function UsersPage() {
             <Filter className="h-3.5 w-3.5" /> More filters
           </button>
           <span className="ml-auto text-xs text-muted-foreground">
-            {filtered.length.toLocaleString()} of {users.length} shown
+            Showing {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, totalCount)} of {totalCount}
           </span>
         </div>
         <div className="overflow-x-auto">
@@ -181,10 +206,22 @@ function UsersPage() {
           </table>
         </div>
         <div className="flex items-center justify-between p-3 text-xs text-muted-foreground border-t border-border/60">
-          <span>Page 1 of 25,699</span>
+          <span>Page {page} of {Math.ceil(totalCount / pageSize) || 1}</span>
           <div className="flex items-center gap-1">
-            <button className="px-2 py-1 rounded border border-border hover:bg-accent">Prev</button>
-            <button className="px-2 py-1 rounded border border-border hover:bg-accent">Next</button>
+            <button 
+              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50"
+              disabled={page <= 1}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+            >
+              Prev
+            </button>
+            <button 
+              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50"
+              disabled={page >= Math.ceil(totalCount / pageSize)}
+              onClick={() => setPage(p => p + 1)}
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>

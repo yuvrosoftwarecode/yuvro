@@ -60,3 +60,22 @@ def delete_user_in_yhub(email):
             logger.info(f"Successfully rolled back (deleted) user {email} in YHub.")
     except Exception as e:
         logger.error(f"Error rolling back user in YHub for email {email}: {str(e)}")
+
+def verify_otp_in_yhub(email, otp, resource_id="recruiter_signup"):
+    url = f"{get_yhub_url()}/api/auth/public_check_otp/"
+    payload = {
+        "email": email,
+        "otp": otp,
+        "resource_id": resource_id,
+        "resource_type": "signup"
+    }
+    
+    try:
+        response = requests.post(url, json=payload, timeout=5)
+        if response.status_code == 200:
+            return True
+        logger.warning(f"OTP verification failed: {response.text}")
+        return False
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network error calling YHub OTP check: {str(e)}")
+        return False
