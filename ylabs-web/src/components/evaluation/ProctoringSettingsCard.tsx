@@ -43,8 +43,8 @@ const ProctoringSettingsCard: React.FC<ProctoringSettingsCardProps> = ({
                         onCheckedChange={(v) => onChange({ 
                             ...proctoring, 
                             enableProctoring: v,
-                            enableCopyPaste: v ? true : proctoring.enableCopyPaste,
-                            tabSwitchAllowed: v ? true : proctoring.tabSwitchAllowed 
+                            enableCopyPaste: v ? false : proctoring.enableCopyPaste,
+                            tabSwitchAllowed: v ? false : proctoring.tabSwitchAllowed 
                         })}
                     />
                 </div>

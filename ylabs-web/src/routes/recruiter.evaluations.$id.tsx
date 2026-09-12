@@ -324,6 +324,7 @@ function EvaluationWorkspace() {
                   kind: "labs",
                   title: "Engineering Labs",
                   labs: [],
+                  proctoring: { enableProctoring: true, enableCopyPaste: false, tabSwitchAllowed: false, tabSwitchLimit: 3 },
                 });
               else if (kind === "assessment")
                 x.sections.push({
@@ -331,6 +332,7 @@ function EvaluationWorkspace() {
                   kind: "assessment",
                   title: "Knowledge Assessment",
                   questions: [],
+                  proctoring: { enableProctoring: true, enableCopyPaste: false, tabSwitchAllowed: false, tabSwitchLimit: 3 },
                 });
               else
                 x.sections.push({
@@ -340,6 +342,7 @@ function EvaluationWorkspace() {
                   duration: 15,
                   mode: "Automatic",
                   questions: [],
+                  proctoring: { enableProctoring: true, enableCopyPaste: false, tabSwitchAllowed: false, tabSwitchLimit: 3 },
                 });
             });
             setAddSectionOpen(false);

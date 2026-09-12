@@ -235,6 +235,29 @@ def internal_delete_user(request):
 
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
+def public_check_otp(request):
+    email = request.data.get('email')
+    resource_id = request.data.get('resource_id')
+    resource_type = request.data.get('resource_type', 'contest')
+    otp = request.data.get('otp')
+    
+    if not email or not otp or not resource_id:
+        return Response({"error": "Email, resource_id, and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    otp_record = RegistrationOTP.objects.filter(
+        email=email, 
+        resource_id=resource_id, 
+        resource_type=resource_type
+    ).first()
+    
+    if otp_record and str(otp_record.otp) == str(otp) and otp_record.is_valid():
+        otp_record.delete()
+        return Response({"status": "success", "message": "OTP is valid"})
+        
+    return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
 def public_verify_otp(request):
     email = request.data.get('email')
     contest_id = request.data.get('contest_id')

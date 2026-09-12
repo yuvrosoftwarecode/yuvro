@@ -189,6 +189,8 @@ class RecruiterSelfRegistrationSerializer(serializers.Serializer):
     new_company_name = serializers.CharField(max_length=255, required=False, allow_blank=True)
     new_company_website = serializers.URLField(required=False, allow_blank=True)
     new_company_domain = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    
+    otp = serializers.CharField(max_length=6)
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -198,6 +200,8 @@ class RecruiterSelfRegistrationSerializer(serializers.Serializer):
     def validate(self, attrs):
         company_id = attrs.get("company_id")
         new_company_name = attrs.get("new_company_name")
+        email = attrs.get("email")
+        otp = attrs.get("otp")
         
         if not company_id and not new_company_name:
             raise serializers.ValidationError("You must either select a company or provide a new company name.")
@@ -207,6 +211,11 @@ class RecruiterSelfRegistrationSerializer(serializers.Serializer):
 
         if new_company_name and Company.objects.filter(name__iexact=new_company_name).exists():
             raise serializers.ValidationError("A company with this name already exists. Please select it from the list.")
+            
+        # Verify OTP
+        from .services import verify_otp_in_yhub
+        if not verify_otp_in_yhub(email, otp):
+            raise serializers.ValidationError({"otp": "Invalid or expired OTP."})
             
         return attrs
 

@@ -93,6 +93,15 @@ class AuthService {
     return response;
   }
 
+  async sendRegistrationOtp(email: string, title: string = "Recruiter Registration"): Promise<any> {
+    return await yhubApiAuthUtil.post(`/auth/public_send_otp/`, {
+      email,
+      resource_id: "recruiter_signup",
+      resource_type: "signup",
+      contest_title: title,
+    });
+  }
+
   async loginWithGoogle(token: string): Promise<LoginResponse> {
     const response = await yhubApiAuthUtil.post<LoginResponse>("/auth/google/?product=ylabs", {
       token,
