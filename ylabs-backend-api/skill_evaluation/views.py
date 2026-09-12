@@ -13,6 +13,7 @@ import time
 
 from .models import (
     Evaluation,
+    EvaluationStatus,
     LabQuestionBank,
     UserEvaluationSubmission,
     DiscussionMode,
@@ -110,7 +111,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             if not user:
                 user = User.objects.create(username="default_recruiter", email="default@example.com")
         instance = serializer.save(created_by=user)
-        if instance.is_published and instance.candidate_invited_emails:
+        if (instance.status == EvaluationStatus.PUBLISHED or instance.is_published) and instance.candidate_invited_emails:
             self.send_invitation_emails(instance, instance.candidate_invited_emails)
 
     def perform_update(self, serializer):
@@ -118,7 +119,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         old_emails = set(get_emails_list(old_instance.candidate_invited_emails))
         instance = serializer.save()
         
-        if instance.is_published and instance.candidate_invited_emails:
+        if (instance.status == EvaluationStatus.PUBLISHED or instance.is_published) and instance.candidate_invited_emails:
             new_emails = set(get_emails_list(instance.candidate_invited_emails)) - old_emails
             if new_emails:
                 self.send_invitation_emails(instance, new_emails)

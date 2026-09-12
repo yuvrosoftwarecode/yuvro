@@ -45,6 +45,11 @@ class DiscussionMode(models.TextChoices):
     HYBRID = "HYBRID", "Hybrid"
 
 
+class EvaluationStatus(models.TextChoices):
+    DRAFT = "DRAFT", "Draft"
+    PUBLISHED = "PUBLISHED", "Published"
+
+
 class Evaluation(BaseTimestampedAdminModel):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -58,8 +63,22 @@ class Evaluation(BaseTimestampedAdminModel):
     )
     maximum_attempts = models.PositiveIntegerField(default=1)
     expiry_datetime = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=EvaluationStatus.choices,
+        default=EvaluationStatus.DRAFT,
+    )
     is_published = models.BooleanField(default=False)
     settings = models.JSONField(default=dict, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.status == EvaluationStatus.PUBLISHED:
+            self.is_published = True
+        elif self.is_published and self.status == EvaluationStatus.DRAFT:
+            self.status = EvaluationStatus.PUBLISHED
+        else:
+            self.is_published = (self.status == EvaluationStatus.PUBLISHED)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

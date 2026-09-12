@@ -190,7 +190,11 @@ function mapBackendToFrontend(be: any): Evaluation {
     id: be.id,
     title: be.title || "Untitled Evaluation",
     domain: (be.domain === "OTHER" ? "" : be.domain) as any,
-    status: be.is_published ? "published" : "draft",
+    status: be.status
+      ? (be.status.toLowerCase() as "published" | "draft")
+      : be.is_published
+      ? "published"
+      : "draft",
     createdAt: be.created_at ? new Date(be.created_at).getTime() : Date.now(),
     candidatesInvited: be.candidate_invited_emails?.length || 0,
     candidatesCompleted: 0,
@@ -240,6 +244,7 @@ function mapFrontendToBackend(fe: Evaluation): any {
   return {
     title: fe.title,
     domain: fe.domain || "OTHER",
+    status: fe.status === "published" ? "PUBLISHED" : "DRAFT",
     is_published: fe.status === "published",
     settings: fe.settings || {},
     candidate_invited_emails:

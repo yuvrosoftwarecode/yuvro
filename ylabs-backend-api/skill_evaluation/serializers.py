@@ -124,9 +124,16 @@ class EvaluationSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'is_public', 'domain', 
             'candidate_invited_emails', 'experience_level', 
-            'maximum_attempts', 'expiry_datetime', 'is_published', 
+            'maximum_attempts', 'expiry_datetime', 'status', 'is_published', 
             'settings', 'sections', 'created_at', 'updated_at'
         ]
+
+    def to_internal_value(self, data):
+        if hasattr(data, 'copy'):
+            data = data.copy()
+        if 'status' in data and isinstance(data['status'], str):
+            data['status'] = data['status'].upper()
+        return super().to_internal_value(data)
 
     def create(self, validated_data):
         sections_data = validated_data.pop('sections', [])

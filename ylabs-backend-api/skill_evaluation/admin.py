@@ -18,7 +18,7 @@ from .models import (
 @admin.register(Evaluation)
 class EvaluationAdmin(admin.ModelAdmin):
     list_display = [f.name for f in Evaluation._meta.fields]
-    list_filter = ("domain", "experience_level", "is_public", "is_published")
+    list_filter = ("domain", "experience_level", "status", "is_public", "is_published")
     search_fields = ("title", "description")
     ordering = ("-created_at",)
 
