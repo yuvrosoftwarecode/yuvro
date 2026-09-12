@@ -27,6 +27,7 @@ from mockinterviews.dynamic_engine.models import (
     AssessmentEvent,
     InterviewStatus as DynamicInterviewStatus,
     UnifiedAssessmentPayload,
+    sanitize_null_bytes,
 )
 from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
 from mockinterviews.dynamic_engine.reporting import InterviewReportService
@@ -303,7 +304,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 )
                 dyn_session = DynamicInterviewSession.from_create_request(req)
 
-            submission.session_state = dyn_session.model_dump(mode='json')
+            submission.session_state = sanitize_null_bytes(dyn_session.model_dump(mode='json'))
             submission.save(update_fields=['session_state'])
             
             greeting = f"Hello! I'm your AI interviewer today. We'll be discussing the {mock_interview.title} role. To start, could you please introduce yourself?"
@@ -384,7 +385,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 force_new = (status_code == 'skip')
                 question = engine.next_question(dyn_session, force_new=force_new)
                 
-                submission.session_state = dyn_session.model_dump(mode='json')
+                submission.session_state = sanitize_null_bytes(dyn_session.model_dump(mode='json'))
                 submission.save(update_fields=['session_state'])
                 
                 if chat_session:
@@ -1187,7 +1188,7 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 dyn_session_dict = dyn_session.model_dump(mode='json')
                 dyn_session_dict['report_bundle'] = response_data
                 dyn_session_dict['report'] = report_bundle.vitarka_report.model_dump(mode='json')
-                submission.session_state = dyn_session_dict
+                submission.session_state = sanitize_null_bytes(dyn_session_dict)
                 submission.marks = report_bundle.overall_report.overall_score * 10
                 submission.status = MockInterviewSubmission.STATUS_COMPLETED
                 submission.save(update_fields=['session_state', 'marks', 'status'])
@@ -1288,7 +1289,7 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
         try:
             event = AssessmentEvent.model_validate(request.data.get('event', {}))
             ingest_response = engine.ingest_event(dyn_session, event)
-            submission.session_state = dyn_session.model_dump(mode='json')
+            submission.session_state = sanitize_null_bytes(dyn_session.model_dump(mode='json'))
             submission.save(update_fields=['session_state'])
             return Response({
                 "status": "success",

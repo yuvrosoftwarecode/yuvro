@@ -788,7 +788,7 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
                 
                 # Evaluate session via Dynamic Engine
                 if mock_submission.session_state:
-                    from mockinterviews.dynamic_engine.models import InterviewSession as DynSession, InterviewStatus as DynStatus
+                    from mockinterviews.dynamic_engine.models import InterviewSession as DynSession, InterviewStatus as DynStatus, sanitize_null_bytes
                     from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
                     from mockinterviews.dynamic_engine.reporting import InterviewReportService
                     from mockinterviews.dynamic_engine.llm import OpenAIInterviewLLM
@@ -807,7 +807,7 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
                         vitarka_dict = bundle.vitarka_report.model_dump(mode='json')
                         dyn_session_dict['report_bundle'] = bundle_dict
                         dyn_session_dict['report'] = vitarka_dict
-                        mock_submission.session_state = dyn_session_dict
+                        mock_submission.session_state = sanitize_null_bytes(dyn_session_dict)
                         mock_submission.marks = bundle.overall_report.overall_score * 10
                     except Exception as e:
                         import logging

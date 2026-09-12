@@ -301,13 +301,20 @@ function CandidateWorkspace() {
     });
   }
 
-  const liveLabsScore = sectionScoresMap["engineering_labs"] ?? (
-    liveLabsReport?.overall_score != null
-      ? Math.round(liveLabsReport.overall_score * 10)
-      : (liveLabsReport?.tests_total && liveLabsReport.tests_total > 0
-          ? Math.round((liveLabsReport.tests_passed / liveLabsReport.tests_total) * 100)
-          : candidate.labsScore)
+  const liveLabsHasNoAttempts = (
+    (liveLabsReport?.tests_total && liveLabsReport.tests_total > 0 && (!liveLabsReport.tests_passed || liveLabsReport.tests_passed === 0)) ||
+    (liveLabsReport?.risks?.some((r: string) => r.includes("No lab tests were executed")) && liveLabsReport?.risks?.some((r: string) => r.includes("No verified implementation code")))
   );
+
+  const liveLabsScore = liveLabsHasNoAttempts
+    ? 0
+    : (sectionScoresMap["engineering_labs"] ?? (
+        liveLabsReport?.overall_score != null
+          ? Math.round(liveLabsReport.overall_score * 10)
+          : (liveLabsReport?.tests_total && liveLabsReport.tests_total > 0
+              ? Math.round((liveLabsReport.tests_passed / liveLabsReport.tests_total) * 100)
+              : candidate.labsScore)
+      ));
 
   const liveAssessmentScore = sectionScoresMap["knowledge_assessment"] ?? (
     liveKnowledgeReport?.score_percent != null
@@ -317,16 +324,18 @@ function CandidateWorkspace() {
           : candidate.assessmentScore)
   );
 
-  const liveVitarkaScore = sectionScoresMap["vitarka"] ?? (
+  const liveVitarkaScore = sectionScoresMap["vitarka"] ?? sectionScoresMap["vitarka_interview"] ?? (
     vitarkaSubmission?.marks != null
       ? vitarkaSubmission.marks
       : (liveVitarkaReport?.overall_score != null ? Math.round(liveVitarkaReport.overall_score * 10) : candidate.vitarkaScore)
   );
 
   const computedEci = Math.round(liveLabsScore * 0.45 + liveAssessmentScore * 0.3 + liveVitarkaScore * 0.25);
-  const liveOverallScore = liveOverallReport?.overall_score != null
-    ? Math.round(liveOverallReport.overall_score * 10)
-    : computedEci;
+  const liveOverallScore = (liveLabsScore === 0 && liveAssessmentScore === 0 && liveVitarkaScore === 0)
+    ? 0
+    : (liveOverallReport?.overall_score != null
+        ? Math.round(liveOverallReport.overall_score * 10)
+        : computedEci);
 
   const displayCandidate = {
     ...candidate,
@@ -391,24 +400,24 @@ function CandidateWorkspace() {
     try {
       const { downloadCandidateReportPdf } = await import("@/lib/candidateReportPdf");
       downloadCandidateReportPdf({
-        name: candidate.name,
-        email: candidate.email,
-        phone: candidate.phone,
-        college: candidate.college,
-        company: candidate.company,
-        experience: candidate.experience,
-        eci: candidate.eci,
-        recommendation: candidate.recommendation,
+        name: displayCandidate.name,
+        email: displayCandidate.email,
+        phone: displayCandidate.phone,
+        college: displayCandidate.college,
+        company: displayCandidate.company,
+        experience: displayCandidate.experience,
+        eci: displayCandidate.eci,
+        recommendation: displayCandidate.recommendation,
         confidence: detail.confidence,
-        labsScore: candidate.labsScore,
-        assessmentScore: candidate.assessmentScore,
-        vitarkaScore: candidate.vitarkaScore,
+        labsScore: displayCandidate.labsScore,
+        assessmentScore: displayCandidate.assessmentScore,
+        vitarkaScore: displayCandidate.vitarkaScore,
         strengths: detail.strengths,
         weaknesses: detail.weaknesses,
         aiSummary: detail.aiSummary,
         nextStep: detail.nextStep,
         evaluationTitle: ev?.title || "Evaluation Report",
-        summary: buildEvaluationSummary(candidate, hasLabs, hasAssessment, hasVitarka),
+        summary: buildEvaluationSummary(displayCandidate, hasLabs, hasAssessment, hasVitarka),
       });
       act("download", "Downloaded candidate report (PDF)");
       notify("Report downloaded as PDF");
@@ -418,11 +427,11 @@ function CandidateWorkspace() {
     }
   };
   const downloadResume = () => {
-    const blob = new Blob([resumeText(candidate, detail)], { type: "text/plain" });
+    const blob = new Blob([resumeText(displayCandidate, detail)], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${candidate.name.replace(/\s+/g, "-")}-resume.txt`;
+    a.download = `${displayCandidate.name.replace(/\s+/g, "-")}-resume.txt`;
     a.click();
     URL.revokeObjectURL(url);
     act("download", "Downloaded resume");
@@ -713,22 +722,6 @@ export function OverviewPane({
         hasAssessment={hasAssessment}
         hasVitarka={hasVitarka}
       />
-
-      <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
-        <div className="text-[11px] uppercase tracking-widest text-neutral-500">
-          Skills identified
-        </div>
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {candidate.skills.map((s) => (
-            <span
-              key={s}
-              className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[12px] text-neutral-200"
-            >
-              {s}
-            </span>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
@@ -762,14 +755,18 @@ function SummaryBlock({
       </div>
       <p className="mt-3 text-[13px] leading-relaxed text-neutral-300">{stripUuids(summary)}</p>
       <div className="mt-4 text-[10px] uppercase tracking-widest text-neutral-500">Strengths</div>
-      <ul className="mt-1.5 space-y-1">
-        {strengths.map((s) => (
-          <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
-            <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400" />
-            {stripUuids(s)}
-          </li>
-        ))}
-      </ul>
+      {strengths.length > 0 ? (
+        <ul className="mt-1.5 space-y-1">
+          {strengths.map((s) => (
+            <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
+              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400" />
+              {stripUuids(s)}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-1.5 text-[12px] text-neutral-400">None identified</p>
+      )}
       <div className="mt-4 text-[10px] uppercase tracking-widest text-neutral-500">Area to explore</div>
       <div className="mt-1.5 flex gap-2 text-[12px] text-neutral-300">
         <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
@@ -813,13 +810,18 @@ function EvaluationSummary({
   const gridClass = activeCount === 3 ? "md:grid-cols-3" : activeCount === 2 ? "md:grid-cols-2" : "md:grid-cols-1";
 
   // Use dynamic content if available
-  const rawOverallText = overallReport?.executive_summary || vitarkaReport?.executive_summary || data.overallText;
+  const isAllZero = overall === 0 || (candidate.labsScore === 0 && candidate.assessmentScore === 0 && candidate.vitarkaScore === 0);
+  const rawOverallText = isAllZero
+    ? `Overall evaluation for ${candidate.name || "the candidate"} recorded 0 passing tests, no submitted code, and no interview responses. Aggregate score: 0/10. Recommendation: Do not proceed.`
+    : (overallReport?.executive_summary || vitarkaReport?.executive_summary || data.overallText);
   const overallText = stripUuids(rawOverallText, candidate.name || "the candidate");
-  const overallStrengths = (overallReport?.strengths && overallReport.strengths.length > 0)
-    ? overallReport.strengths.map((s: string) => stripUuids(s, candidate.name))
-    : (vitarkaReport?.strengths && vitarkaReport.strengths.length > 0)
-      ? vitarkaReport.strengths.map((s: string) => stripUuids(s, candidate.name))
-      : data.overallStrengths;
+  const overallStrengths = isAllZero
+    ? []
+    : (overallReport?.strengths && overallReport.strengths.length > 0)
+      ? overallReport.strengths.map((s: string) => stripUuids(s, candidate.name)).filter((s: string) => !s.includes("Submitted verified code across") || candidate.labsScore > 0)
+      : (vitarkaReport?.strengths && vitarkaReport.strengths.length > 0)
+        ? vitarkaReport.strengths.map((s: string) => stripUuids(s, candidate.name))
+        : data.overallStrengths;
   const overallExplore = (overallReport?.risks && overallReport.risks.length > 0)
     ? overallReport.risks.map((s: string) => stripUuids(s, candidate.name))
     : (vitarkaReport?.risks && vitarkaReport.risks.length > 0)
@@ -836,8 +838,8 @@ function EvaluationSummary({
             <SummaryBlock
               title="Engineering Labs"
               score={candidate.labsScore}
-              summary={labsReport?.markdown ? "Candidate implementation and test execution analyzed across submitted lab scenarios." : data.blocks[0]?.summary || "Engineering labs evaluation."}
-              strengths={labsReport?.strengths && labsReport.strengths.length > 0 ? labsReport.strengths : data.blocks[0]?.strengths || []}
+              summary={candidate.labsScore === 0 ? "Candidate did not submit code changes or pass any automated tests." : (labsReport?.markdown ? "Candidate implementation and test execution analyzed across submitted lab scenarios." : data.blocks[0]?.summary || "Engineering labs evaluation.")}
+              strengths={candidate.labsScore === 0 ? [] : (labsReport?.strengths?.filter((s: string) => !s.includes("Submitted verified code across") || candidate.labsScore > 0) || [])}
               explore={labsReport?.risks?.[0] || data.blocks[0]?.explore || "Error handling and edge cases"}
             />
           )}
@@ -845,8 +847,8 @@ function EvaluationSummary({
             <SummaryBlock
               title="Assessment"
               score={candidate.assessmentScore}
-              summary={knowledgeReport ? `Candidate answered ${knowledgeReport.correct_count || 0}/${knowledgeReport.question_count || 0} questions correctly.` : data.blocks[hasLabs ? 1 : 0]?.summary || "Knowledge assessment evaluation."}
-              strengths={knowledgeReport?.strengths && knowledgeReport.strengths.length > 0 ? knowledgeReport.strengths : data.blocks[hasLabs ? 1 : 0]?.strengths || []}
+              summary={knowledgeReport ? (knowledgeReport.score_percent === 0 ? "Candidate answered 0 knowledge questions correctly." : `Candidate answered ${knowledgeReport.correct_count || 0}/${knowledgeReport.question_count || 0} questions correctly.`) : data.blocks[hasLabs ? 1 : 0]?.summary || "Knowledge assessment evaluation."}
+              strengths={knowledgeReport ? (knowledgeReport.strengths || []) : (candidate.assessmentScore === 0 ? [] : data.blocks[hasLabs ? 1 : 0]?.strengths || [])}
               explore={knowledgeReport?.risks?.[0] || data.blocks[hasLabs ? 1 : 0]?.explore || "System design"}
             />
           )}
@@ -854,8 +856,8 @@ function EvaluationSummary({
             <SummaryBlock
               title="Vitarka AI"
               score={candidate.vitarkaScore}
-              summary={vitarkaReport?.executive_summary || data.blocks[data.blocks.length - 1]?.summary || "AI technical discussion evaluation."}
-              strengths={vitarkaReport?.strengths && vitarkaReport.strengths.length > 0 ? vitarkaReport.strengths : data.blocks[data.blocks.length - 1]?.strengths || []}
+              summary={vitarkaReport?.executive_summary || (candidate.vitarkaScore === 0 ? "Candidate did not provide responses during the Vitarka AI technical discussion." : data.blocks[data.blocks.length - 1]?.summary || "AI technical discussion evaluation.")}
+              strengths={vitarkaReport ? (vitarkaReport.strengths || []) : (candidate.vitarkaScore === 0 ? [] : data.blocks[data.blocks.length - 1]?.strengths || [])}
               explore={vitarkaReport?.risks?.[0] || data.blocks[data.blocks.length - 1]?.explore || "Detailed technical probing"}
             />
           )}
@@ -879,25 +881,33 @@ function EvaluationSummary({
         <div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             <div className="text-[10px] uppercase tracking-widest text-neutral-500">Strengths</div>
-            <ul className="mt-1.5 space-y-1">
-              {overallStrengths.map((s: string) => (
-                <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
-                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400" />
-                  {s}
-                </li>
-              ))}
-            </ul>
+            {overallStrengths.length > 0 ? (
+              <ul className="mt-1.5 space-y-1">
+                {overallStrengths.map((s: string) => (
+                  <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-1.5 text-[12px] text-neutral-400">None identified</p>
+            )}
           </div>
           <div>
             <div className="text-[10px] uppercase tracking-widest text-neutral-500">Areas to explore</div>
-            <ul className="mt-1.5 space-y-1">
-              {overallExplore.map((s: string) => (
-                <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
-                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
-                  {s}
-                </li>
-              ))}
-            </ul>
+            {overallExplore.length > 0 ? (
+              <ul className="mt-1.5 space-y-1">
+                {overallExplore.map((s: string) => (
+                  <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-1.5 text-[12px] text-neutral-400">None identified</p>
+            )}
           </div>
         </div>
       </div>
@@ -964,7 +974,7 @@ export function LabsPane({
         <SectionHeading>Engineering Labs</SectionHeading>
         {labsReport?.overall_score != null && (
           <span className="text-[12px] font-medium text-emerald-400">
-            Section Score: {Math.round(labsReport.overall_score * 10)}/100
+            Section Score: {candidate.labsScore === 0 ? 0 : Math.round(labsReport.overall_score * 10)}/100
           </span>
         )}
       </div>
@@ -978,13 +988,15 @@ export function LabsPane({
                 <span>Time: <strong className="text-white">{Math.round(labsReport.total_time_seconds / 60)}m</strong></span>
               )}
             </div>
-            {labsReport.strengths && labsReport.strengths.length > 0 && (
+            {labsReport.strengths && labsReport.strengths.length > 0 && candidate.labsScore > 0 && (
               <span className="text-emerald-400 text-[11px]">✓ {labsReport.strengths[0]}</span>
             )}
           </div>
           {labsReport.risks && labsReport.risks.length > 0 && (
             <div className="text-[11px] text-amber-400/90 border-t border-white/5 pt-2">
-              Note: {labsReport.risks.join(" · ")}
+              Note: {labsReport.risks
+                .filter((r: string) => candidate.labsScore > 0 || (!r.toLowerCase().includes("sensitive") && !r.toLowerCase().includes("framework") && !r.toLowerCase().includes("performance")))
+                .join(" · ")}
             </div>
           )}
         </div>
@@ -2162,34 +2174,32 @@ function StickySidebar({
 // ============ Lab drawer ============
 
 export function generateMockLabAttempt(lab: any, labSub: any) {
+  const score = labSub?.score ?? 0;
+  const timeTaken = labSub?.minutes_solved ?? 0;
+  const tasksCompleted = labSub?.tasks_completed ?? (score > 0 ? 1 : 0);
+  const tasksTotal = lab.tasks?.length ?? 1;
+
   return {
-    id: lab.id || "mock-id",
+    id: lab.id || "lab",
     title: lab.title || lab.name || "Engineering Lab",
     domain: lab.domain || "Backend",
-    score: labSub?.score ?? 85,
-    timeTaken: labSub?.minutes_solved ?? 45,
+    score: score,
+    timeTaken: timeTaken,
     timeLimit: lab.duration_minutes ?? lab.duration ?? 60,
-    tasksCompleted: 4,
-    tasksTotal: 5,
-    files: [
-      { path: "src/index.ts", changes: 12, kind: "modified" },
-      { path: "src/utils.ts", changes: 5, kind: "created" }
-    ],
-    gitCommits: [
-      { sha: "a1b2c3d", message: "Initial commit", time: "10:00 AM" },
-      { sha: "e4f5g6h", message: "Fix bug", time: "10:30 AM" }
-    ],
-    consoleLogs: ["[INFO] Starting app...", "[INFO] App running on port 3000"],
-    execOutput: ["Tests passed: 4/5", "Coverage: 80%"],
-    problemStatement: lab.description || "Implement a backend service...",
-    strengths: ["Good use of types", "Clean architecture"],
-    weaknesses: ["Missing some edge case handling"],
-    suggestions: ["Add more unit tests"],
-    aiVerdict: "Strong",
+    tasksCompleted: tasksCompleted,
+    tasksTotal: tasksTotal,
+    files: [],
+    gitCommits: [],
+    consoleLogs: labSub?.solution_output ? [labSub.solution_output] : [],
+    execOutput: score > 0 ? [`Score: ${score}%`] : ["No test execution output recorded."],
+    problemStatement: lab.description || "Engineering Lab assignment.",
+    strengths: score > 0 ? ["Submitted passing implementation"] : [],
+    weaknesses: score === 0 ? ["No passing solution submitted"] : [],
+    suggestions: score === 0 ? ["Attempt test verification before submitting"] : [],
+    aiVerdict: score >= 70 ? "Strong" : score > 0 ? "Needs Review" : "Needs Work",
     timeline: [
       { t: 0, label: "Started" },
-      { t: 15, label: "First commit" },
-      { t: 45, label: "Submitted" }
+      { t: timeTaken, label: "Submitted" }
     ]
   } as any;
 }

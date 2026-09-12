@@ -870,10 +870,10 @@ setup-fixtures-data:
 		echo "Loading fixtures on EC2 for all apps..."; \
 		bash infra/scripts/run-fixtures.sh; \
 	else \
-		@$(MAKE) -f Makefile.yhub load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
-		@$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
-		@$(MAKE) -f Makefile.ylabs load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
-		@$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.yhub load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.ylabs load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
 
 setup-fixtures-data-ycode:
@@ -881,7 +881,7 @@ setup-fixtures-data-ycode:
 		echo "Loading fixtures for YCode on EC2..."; \
 		bash infra/scripts/runFixtures.sh ycode; \
 	else \
-		@$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
 
 setup-fixtures-data-ycampus:
@@ -889,7 +889,7 @@ setup-fixtures-data-ycampus:
 		echo "Loading fixtures for YCampus on EC2..."; \
 		bash infra/scripts/runFixtures.sh ycampus; \
 	else \
-		@$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
 
 setup-fixtures-data-yhub:
@@ -897,7 +897,7 @@ setup-fixtures-data-yhub:
 		echo "Loading fixtures for YHub on EC2..."; \
 		bash infra/scripts/runFixtures.sh yhub; \
 	else \
-		@$(MAKE) -f Makefile.yhub load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.yhub load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
 
 setup-fixtures-data-ylabs:
@@ -905,7 +905,7 @@ setup-fixtures-data-ylabs:
 		echo "Loading fixtures for YLabs on EC2..."; \
 		bash infra/scripts/runFixtures.sh ylabs; \
 	else \
-		@$(MAKE) -f Makefile.ylabs load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.ylabs load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
 
 load-courses-ycode:

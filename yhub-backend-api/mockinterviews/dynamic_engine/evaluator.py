@@ -102,6 +102,52 @@ class InterviewEvaluator:
         self.rubric_version = rubric_version or self.DEFAULT_RUBRIC_VERSION
 
     def evaluate(self, session: InterviewSession) -> InterviewEvaluation:
+        # Zero-gating: If candidate answered no questions, entire interview is unattempted
+        if len(session.answers) == 0:
+            scores = [
+                CompetencyScore(
+                    competency=comp,
+                    score=0,
+                    evidence=[
+                        EvaluationEvidence(
+                            source="system",
+                            reference_id="unattempted",
+                            note="Candidate did not provide any responses during the interview.",
+                        )
+                    ],
+                    guidance="No interview answers were provided to evaluate this competency.",
+                )
+                for comp in Competency
+            ]
+            competency_coverages = [
+                CompetencyCoverage(
+                    competency=comp,
+                    evidence_count=0,
+                    status="missing",
+                    score=0,
+                    suggested_probe=COVERAGE_PROBES[comp],
+                )
+                for comp in Competency
+            ]
+            coverage = EvaluationCoverage(
+                session_id=session.id,
+                rubric_version=self.rubric_version,
+                covered_competencies=0,
+                total_competencies=len(Competency),
+                coverage_percent=0.0,
+                competencies=competency_coverages,
+            )
+            return InterviewEvaluation(
+                session_id=session.id,
+                rubric_version=self.rubric_version,
+                overall_score=0.0,
+                scores=scores,
+                coverage=coverage,
+                summary="The candidate did not answer any questions during the Vitarka interview session. Evidence coverage is 0/13 competencies (0.0%). Overall score: 0.0/10.",
+                strengths=[],
+                risks=["Candidate did not provide any responses during the interview."],
+            )
+
         evidence_by_competency, adjustments = self._collect_evidence(session)
         scores = self._scores_from_evidence(evidence_by_competency, adjustments)
         coverage = self._coverage_from_scores(session.id, scores)
@@ -313,15 +359,15 @@ class InterviewEvaluator:
             raw_score = 5 + min(3, len(evidence)) + adjustments[competency]
             guidance = "Supported by observed assessment behaviour and interview answers."
         else:
-            raw_score = 3
+            raw_score = 0
             evidence = [
                 EvaluationEvidence(
                     source="system",
                     reference_id="not_observed",
-                    note="No direct evidence captured for this competency yet.",
+                    note="No direct evidence captured for this competency.",
                 )
             ]
-            guidance = "Collect targeted follow-up evidence before making a strong hiring signal."
+            guidance = "No evidence observed for this competency."
 
         return CompetencyScore(
             competency=competency,

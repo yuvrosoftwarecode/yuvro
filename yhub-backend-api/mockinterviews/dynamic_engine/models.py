@@ -16,6 +16,18 @@ def new_id(prefix: str) -> str:
     return f"{prefix}_{uuid4().hex[:16]}"
 
 
+def sanitize_null_bytes(val: Any) -> Any:
+    if isinstance(val, str):
+        return val.replace("\x00", "").replace("\u0000", "").replace("\\u0000", "")
+    if isinstance(val, dict):
+        return {sanitize_null_bytes(k): sanitize_null_bytes(v) for k, v in val.items()}
+    if isinstance(val, list):
+        return [sanitize_null_bytes(item) for item in val]
+    if isinstance(val, tuple):
+        return tuple(sanitize_null_bytes(item) for item in val)
+    return val
+
+
 class InterviewMode(StrEnum):
     AUTOMATIC = "automatic"
     HYBRID = "hybrid"
@@ -173,6 +185,13 @@ class UnifiedAssessmentPayload(BaseModel):
     interviewer_questions: list[Any] = Field(default_factory=list)
     drafted_questions: list[Any] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("candidate_context", mode="before")
+    @classmethod
+    def sanitize_candidate_context(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            return sanitize_null_bytes(value)
+        return value
 
     @model_validator(mode="after")
     def validate_payload_identity(self) -> "UnifiedAssessmentPayload":

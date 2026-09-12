@@ -406,7 +406,15 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 try:
                     subprocess.run(["git", "add", "-A", "-N"], cwd=user_dir, check=True, capture_output=True)
                     diff_output = subprocess.check_output(
-                        ["git", "diff", "HEAD"], 
+                        [
+                            "git", "diff", "HEAD", "--", ".",
+                            ":(exclude)*.sqlite3", ":(exclude)*.db", ":(exclude)*.sqlite",
+                            ":(exclude)*.db-journal", ":(exclude)*.db-wal", ":(exclude)*.dbsqlite3",
+                            ":(exclude)*.zip", ":(exclude)*.tar", ":(exclude)*.gz",
+                            ":(exclude)*.pyc", ":(exclude)*__pycache__*",
+                            ":(exclude)*.log", ":(exclude).bash_history",
+                            ":(exclude)README.md", ":(exclude).gitignore", ":(exclude)requirements.txt"
+                        ], 
                         cwd=user_dir,
                         stderr=subprocess.DEVNULL
                     ).decode()

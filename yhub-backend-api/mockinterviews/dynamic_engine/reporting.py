@@ -36,19 +36,29 @@ class InterviewReportService:
 
     def create_report(self, session: InterviewSession) -> InterviewReport:
         evaluation = self.evaluator.evaluate(session)
-        narrative = (
-            self.llm_client.generate_report_narrative(session, evaluation)
-            if self.llm_client is not None
-            else None
-        )
-        recommendation = (
-            narrative.recommendation if narrative is not None else self._recommendation(evaluation)
-        )
-        executive_summary = (
-            narrative.executive_summary if narrative is not None else self._executive_summary(session, evaluation)
-        )
-        strengths = narrative.strengths[:5] if narrative is not None else evaluation.strengths
-        risks = narrative.risks[:5] if narrative is not None else evaluation.risks
+        if len(session.answers) == 0:
+            recommendation = "Do not proceed"
+            name = self._display_name(session)
+            executive_summary = (
+                f"{name} completed an interview session without submitting any answers. "
+                "No technical, problem-solving, or communication signals were observed."
+            )
+            strengths = []
+            risks = ["Candidate did not provide any responses during the interview."]
+        else:
+            narrative = (
+                self.llm_client.generate_report_narrative(session, evaluation)
+                if self.llm_client is not None
+                else None
+            )
+            recommendation = (
+                narrative.recommendation if narrative is not None else self._recommendation(evaluation)
+            )
+            executive_summary = (
+                narrative.executive_summary if narrative is not None else self._executive_summary(session, evaluation)
+            )
+            strengths = narrative.strengths[:5] if narrative is not None else evaluation.strengths
+            risks = narrative.risks[:5] if narrative is not None else evaluation.risks
         competency_summaries = [
             ReportCompetencySummary(
                 competency=score.competency,
@@ -179,11 +189,18 @@ class InterviewReportService:
         total_time_seconds = sum(item.time_spent_seconds or 0 for item in lab_items)
         tests_passed = sum(item.tests_passed or 0 for item in lab_items)
         tests_total = sum(item.tests_total or 0 for item in lab_items)
+        if not tests_passed or tests_passed == 0:
+            # If candidate passed 0 tests across all labs, section score must be strictly 0.0
+            if any(item.score == 0.0 for item in lab_items) or not any(item.score and item.score > 0 for item in lab_items):
+                overall_score = 0.0
         strengths = self._unique(
             strength
             for item in lab_items
             for strength in item.strengths
-        )[:5]
+        )
+        if not tests_passed or tests_passed == 0 or overall_score == 0.0:
+            strengths = [s for s in strengths if not s.startswith("Submitted verified code")]
+        strengths = strengths[:5]
         risks = self._unique(risk for item in lab_items for risk in item.risks)[:5]
         if not lab_items:
             risks.append("No engineering lab payload was available for section-level scoring.")
@@ -241,27 +258,38 @@ class InterviewReportService:
         risks = []
         if tests_total and tests_passed == tests_total:
             strengths.append(f"Passed all {tests_total} lab tests.")
+        elif tests_total and tests_passed and tests_passed > 0:
+            strengths.append(f"Passed {tests_passed}/{tests_total} lab tests.")
         elif tests_total:
-            risks.append(f"Only {tests_passed or 0}/{tests_total} lab tests passed.")
-        if changed_files:
-            strengths.append(f"Submitted code evidence across {len(changed_files)} files.")
+            risks.append(f"Passed 0/{tests_total} lab tests.")
         else:
-            risks.append("No file-level implementation evidence was detected.")
-        if terminal_commands_run:
+            risks.append("No lab tests were executed.")
+
+        is_snapshot = (
+            (code_insights or {}).get("code_diff_format") == "workspace_snapshot_json"
+            or bool((code_insights or {}).get("is_workspace_snapshot"))
+            or source.get("code_diff_format") == "workspace_snapshot_json"
+        )
+        if score and score > 0 and tests_passed and tests_passed > 0 and changed_files and not is_snapshot:
+            strengths.append(f"Submitted verified code across {len(changed_files)} file(s).")
+        else:
+            risks.append("No verified implementation code was submitted.")
+
+        if terminal_commands_run and terminal_commands_run > 0:
             strengths.append(f"Used {terminal_commands_run} terminal commands during the lab.")
-        if errors_encountered:
+        if errors_encountered and errors_encountered > 0:
             risks.append(f"Encountered {errors_encountered} errors during the lab.")
-        if code_insights:
+        if code_insights and score and score > 0:
             risks.extend(self._as_list(code_insights.get("performance_concerns"))[:2])
             risks.extend(self._as_list(code_insights.get("security_concerns"))[:2])
             risks.extend(self._as_list(code_insights.get("candidate_correctness_concerns"))[:2])
 
         title = str(source.get("title") or source.get("lab_id") or "Engineering Lab")
         file_summary = ", ".join(changed_files[:5]) if changed_files else "no changed files detected"
-        summary = (
-            f"{title} captured {file_summary}. "
-            f"Score: {score}/10." if score is not None else f"{title} has insufficient scoring evidence."
-        )
+        if score and score > 0:
+            summary = f"{title} captured {file_summary}. Score: {score}/10."
+        else:
+            summary = f"{title} had no passing tests or verified candidate submissions. Score: 0/10."
 
         return EngineeringLabReportItem(
             lab_id=str(source.get("lab_id")) if source.get("lab_id") else None,
@@ -304,10 +332,12 @@ class InterviewReportService:
             strengths.append("Strong knowledge assessment performance.")
         elif score_percent is not None and score_percent < 60:
             risks.append("Knowledge assessment score is below the expected threshold.")
-        if correct_count:
+        if correct_count and correct_count > 0:
             strengths.append(f"Answered {correct_count} question(s) correctly.")
+        else:
+            risks.append("Candidate answered 0 knowledge questions correctly.")
         missed = len(question_items) - correct_count
-        if missed > 0:
+        if missed > 0 and correct_count and correct_count > 0:
             risks.append(f"Missed or partially missed {missed} knowledge question(s).")
         if not question_items:
             risks.append("No knowledge assessment questions were available for section-level scoring.")
@@ -434,11 +464,17 @@ class InterviewReportService:
             ]
         )[:6]
         name = self._display_name(session)
-        executive_summary = (
-            f"Overall evaluation for {name} combines engineering labs, "
-            f"knowledge assessment, and Vitarka interview evidence. Aggregate score: "
-            f"{overall_score}/10. Recommendation: {recommendation}."
-        )
+        if overall_score == 0.0:
+            executive_summary = (
+                f"Overall evaluation for {name} recorded 0 passing tests, no submitted code, "
+                f"and no interview responses. Aggregate score: 0.0/10. Recommendation: Do not proceed."
+            )
+        else:
+            executive_summary = (
+                f"Overall evaluation for {name} combines engineering labs, "
+                f"knowledge assessment, and Vitarka interview evidence. Aggregate score: "
+                f"{overall_score}/10. Recommendation: {recommendation}."
+            )
         markdown = self._overall_markdown(
             session=session,
             overall_score=overall_score,
@@ -612,15 +648,29 @@ class InterviewReportService:
         changed_files: list[str],
         code_insights: dict[str, Any] | None,
     ) -> float | None:
-        if tests_total:
-            base = ((tests_passed or 0) / tests_total) * 10
+        additions = self._as_int((code_insights or {}).get("additions")) or 0
+        deletions = self._as_int((code_insights or {}).get("deletions")) or 0
+        notable_lines = (code_insights or {}).get("notable_added_lines") or []
+        is_snapshot = (
+            (code_insights or {}).get("code_diff_format") == "workspace_snapshot_json"
+            or bool((code_insights or {}).get("is_workspace_snapshot"))
+        )
+        has_actual_code_changes = not is_snapshot and ((additions + deletions > 0) or bool(notable_lines))
+
+        if tests_total and tests_total > 0:
+            if not tests_passed or tests_passed == 0:
+                return 0.0
+            base = (tests_passed / tests_total) * 10
+        elif tests_passed and tests_passed > 0:
+            base = min(10.0, tests_passed * 3.3)
+        elif has_actual_code_changes:
+            base = 5.0
         elif changed_files or code_insights:
-            base = 6.5
+            # Files existed in workspace snapshot, but candidate made zero additions/deletions/submissions
+            return 0.0
         else:
             return None
 
-        if changed_files:
-            base = max(base, 6.0)
         if code_insights and code_insights.get("framework_choices"):
             base += 0.4
         if code_insights and code_insights.get("performance_concerns"):
@@ -631,7 +681,7 @@ class InterviewReportService:
             base -= 0.8
         if errors_encountered:
             base -= min(2.0, errors_encountered * 0.35)
-        return round(max(0, min(10, base)), 1)
+        return round(max(0.0, min(10.0, base)), 1)
 
     def _knowledge_feedback(
         self,

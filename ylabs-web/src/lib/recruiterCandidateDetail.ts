@@ -37,7 +37,7 @@ export interface LabAttempt {
   strengths: string[];
   weaknesses: string[];
   suggestions: string[];
-  aiVerdict: "Excellent" | "Strong" | "Good" | "Needs Work";
+  aiVerdict: "Excellent" | "Strong" | "Good" | "Needs Work" | "Not Attempted";
   timeline: { t: number; label: string }[];
 }
 
@@ -350,27 +350,27 @@ export function getCandidateDetail(c: Candidate): CandidateDetail {
     const drift = Math.floor((r() - 0.5) * 20);
     const score = Math.max(30, Math.min(100, c.labsScore + drift));
     const tasksTotal = 3 + Math.floor(r() * 3);
-    const tasksCompleted = Math.max(
-      1,
+    const tasksCompleted = c.labsScore === 0 ? 0 : Math.max(
+      0,
       Math.min(tasksTotal, Math.round((score / 100) * tasksTotal + (r() - 0.5))),
     );
     const timeLimit = 20 + Math.floor(r() * 20);
-    const timeTaken = Math.max(
+    const timeTaken = c.labsScore === 0 ? 0 : Math.max(
       6,
       Math.min(timeLimit + 8, Math.round(timeLimit * (0.6 + r() * 0.6))),
     );
-    const files = Array.from({ length: 3 + Math.floor(r() * 3) }, () => ({
+    const files = c.labsScore === 0 ? [] : Array.from({ length: 3 + Math.floor(r() * 3) }, () => ({
       path: pick(r, FILE_POOL),
       changes: 1 + Math.floor(r() * 40),
       kind: (r() < 0.7 ? "modified" : r() < 0.9 ? "created" : "deleted") as
         "modified" | "created" | "deleted",
     }));
-    const gitCommits = Array.from({ length: 2 + Math.floor(r() * 3) }, () => ({
+    const gitCommits = c.labsScore === 0 ? [] : Array.from({ length: 2 + Math.floor(r() * 3) }, () => ({
       sha: Math.random().toString(16).slice(2, 9),
       message: pick(r, COMMIT_MSGS),
       time: `${Math.floor(r() * timeTaken)}m in`,
     }));
-    const consoleLogs = Array.from({ length: 4 + Math.floor(r() * 4) }, () =>
+    const consoleLogs = c.labsScore === 0 ? [] : Array.from({ length: 4 + Math.floor(r() * 4) }, () =>
       pick(r, CONSOLE_LOGS),
     );
     return {
@@ -385,38 +385,53 @@ export function getCandidateDetail(c: Candidate): CandidateDetail {
       files,
       gitCommits,
       consoleLogs,
-      execOutput: [
-        "› build … ok",
-        `› tests … ${tasksCompleted}/${tasksTotal} passed`,
-        score >= 80 ? "› lint … 0 issues" : "› lint … 3 warnings",
-      ],
+      execOutput: c.labsScore === 0
+        ? [
+            "› build … not started",
+            "› tests … 0/0 passed",
+          ]
+        : [
+            "› build … ok",
+            `› tests … ${tasksCompleted}/${tasksTotal} passed`,
+            score >= 80 ? "› lint … 0 issues" : "› lint … 3 warnings",
+          ],
       problemStatement: statement,
       strengths:
-        score >= 80
-          ? [
-              "Diagnosed root cause quickly",
-              "Wrote a regression test before shipping",
-              "Clear commit hygiene",
-            ]
-          : ["Reached a partial fix", "Kept commits scoped"],
+        score === 0
+          ? []
+          : score >= 80
+            ? [
+                "Diagnosed root cause quickly",
+                "Wrote a regression test before shipping",
+                "Clear commit hygiene",
+              ]
+            : ["Reached a partial fix", "Kept commits scoped"],
       weaknesses:
-        score >= 80
-          ? ["Missed an edge case around currency rounding"]
-          : ["Skipped test coverage", "Did not document assumptions"],
-      suggestions: [
-        "Add contract tests at the API boundary",
-        "Instrument correlation ids across services",
-      ],
+        score === 0
+          ? ["No code modifications or test submissions detected."]
+          : score >= 80
+            ? ["Missed an edge case around currency rounding"]
+            : ["Skipped test coverage", "Did not document assumptions"],
+      suggestions:
+        score === 0
+          ? ["Attempt lab requirements and run automated tests."]
+          : [
+              "Add contract tests at the API boundary",
+              "Instrument correlation ids across services",
+            ],
       aiVerdict:
-        score >= 90 ? "Excellent" : score >= 78 ? "Strong" : score >= 65 ? "Good" : "Needs Work",
-      timeline: [
-        { t: 0, label: "Opened lab" },
-        { t: Math.floor(timeTaken * 0.15), label: "Read problem statement" },
-        { t: Math.floor(timeTaken * 0.35), label: "Reproduced issue locally" },
-        { t: Math.floor(timeTaken * 0.65), label: "First passing test" },
-        { t: Math.floor(timeTaken * 0.9), label: "Refactor + docs" },
-        { t: timeTaken, label: "Submitted" },
-      ],
+        score === 0 ? "Not Attempted" : score >= 90 ? "Excellent" : score >= 78 ? "Strong" : score >= 65 ? "Good" : "Needs Work",
+      timeline:
+        score === 0
+          ? [{ t: 0, label: "Lab not attempted" }]
+          : [
+              { t: 0, label: "Opened lab" },
+              { t: Math.floor(timeTaken * 0.15), label: "Read problem statement" },
+              { t: Math.floor(timeTaken * 0.35), label: "Reproduced issue locally" },
+              { t: Math.floor(timeTaken * 0.65), label: "First passing test" },
+              { t: Math.floor(timeTaken * 0.9), label: "Refactor + docs" },
+              { t: timeTaken, label: "Submitted" },
+            ],
     };
   });
 
@@ -425,9 +440,9 @@ export function getCandidateDetail(c: Candidate): CandidateDetail {
   const assessment: AssessmentSubsection[] = assessNames.slice(0, nSubs).map((name) => {
     const bank = ASSESS_BANK[name] ?? ASSESS_BANK.Java;
     const drift = (r() - 0.5) * 20;
-    const targetPct = Math.max(0.4, Math.min(1, (c.assessmentScore + drift) / 100));
+    const targetPct = c.assessmentScore === 0 ? 0 : Math.max(0.4, Math.min(1, (c.assessmentScore + drift) / 100));
     const questions: AssessmentQ[] = bank.map((b, i) => {
-      const correct = r() < targetPct;
+      const correct = c.assessmentScore === 0 ? false : r() < targetPct;
       const chosen = correct
         ? b.correct
         : (b.correct + 1 + Math.floor(r() * (b.opts.length - 1))) % b.opts.length;
@@ -437,7 +452,7 @@ export function getCandidateDetail(c: Candidate): CandidateDetail {
         correctAnswer: b.opts[b.correct],
         explanation: b.explain,
         correct,
-        seconds: 20 + Math.floor(r() * 90),
+        seconds: c.assessmentScore === 0 ? 0 : 20 + Math.floor(r() * 90),
         difficulty: (["Easy", "Medium", "Hard"] as const)[i % 3],
       };
     });
@@ -446,28 +461,30 @@ export function getCandidateDetail(c: Candidate): CandidateDetail {
   });
 
   const vitarkaSignals: VitarkaSignal[] = [
-    { label: "Communication", score: clamp(c.vitarkaScore + roll(r, 8)) },
-    { label: "Problem Solving", score: clamp(c.vitarkaScore + roll(r, 8)) },
-    { label: "Technical Depth", score: clamp((c.vitarkaScore + c.labsScore) / 2 + roll(r, 6)) },
-    { label: "Architecture", score: clamp(c.vitarkaScore + roll(r, 12) - 4) },
-    { label: "Confidence", score: clamp(c.vitarkaScore + roll(r, 8)) },
-    { label: "Leadership", score: clamp(c.vitarkaScore + roll(r, 10) - 6) },
-    { label: "Business Understanding", score: clamp(c.vitarkaScore + roll(r, 10)) },
+    { label: "Communication", score: c.vitarkaScore === 0 ? 0 : clamp(c.vitarkaScore + roll(r, 8)) },
+    { label: "Problem Solving", score: c.vitarkaScore === 0 ? 0 : clamp(c.vitarkaScore + roll(r, 8)) },
+    { label: "Technical Depth", score: c.vitarkaScore === 0 ? 0 : clamp((c.vitarkaScore + c.labsScore) / 2 + roll(r, 6)) },
+    { label: "Architecture", score: c.vitarkaScore === 0 ? 0 : clamp(c.vitarkaScore + roll(r, 12) - 4) },
+    { label: "Confidence", score: c.vitarkaScore === 0 ? 0 : clamp(c.vitarkaScore + roll(r, 8)) },
+    { label: "Leadership", score: c.vitarkaScore === 0 ? 0 : clamp(c.vitarkaScore + roll(r, 10) - 6) },
+    { label: "Business Understanding", score: c.vitarkaScore === 0 ? 0 : clamp(c.vitarkaScore + roll(r, 10)) },
   ];
-  const vitarkaOverall = Math.round(
+  const vitarkaOverall = c.vitarkaScore === 0 ? 0 : Math.round(
     vitarkaSignals.reduce((a, s) => a + s.score, 0) / vitarkaSignals.length,
   );
   const transcript: VitarkaTranscriptLine[] = [];
-  let clock = 0;
-  for (let i = 0; i < 5; i++) {
-    transcript.push({ speaker: "AI", text: VITARKA_QUESTIONS[i], time: fmtClock(clock) });
-    clock += 30 + Math.floor(r() * 40);
-    transcript.push({ speaker: "Candidate", text: VITARKA_ANSWERS[i], time: fmtClock(clock) });
-    clock += 90 + Math.floor(r() * 120);
+  if (c.vitarkaScore > 0) {
+    let clock = 0;
+    for (let i = 0; i < 5; i++) {
+      transcript.push({ speaker: "AI", text: VITARKA_QUESTIONS[i], time: fmtClock(clock) });
+      clock += 30 + Math.floor(r() * 40);
+      transcript.push({ speaker: "Candidate", text: VITARKA_ANSWERS[i], time: fmtClock(clock) });
+      clock += 90 + Math.floor(r() * 120);
+    }
   }
 
   const rec = c.recommendation;
-  const strengths = pickN(
+  const strengths = c.eci === 0 ? [] : pickN(
     r,
     [
       "Excellent debugging methodology under pressure",
@@ -479,7 +496,7 @@ export function getCandidateDetail(c: Candidate): CandidateDetail {
     ],
     3,
   );
-  const weaknesses = pickN(
+  const weaknesses = c.eci === 0 ? ["No passing submissions or interview activity recorded across sections."] : pickN(
     r,
     [
       "Occasionally over-indexes on the first hypothesis",
@@ -490,15 +507,18 @@ export function getCandidateDetail(c: Candidate): CandidateDetail {
     ],
     2,
   );
-  const summary = `Candidate demonstrated ${rec === "Strong Hire" ? "exceptional" : rec === "Hire" ? "strong" : rec === "Maybe" ? "solid but uneven" : "below-bar"} engineering behaviour across the evaluation. Labs performance was ${c.labsScore >= 80 ? "consistently high" : c.labsScore >= 65 ? "reliable" : "inconsistent"}, assessment coverage was ${c.assessmentScore >= 80 ? "wide and accurate" : "focused on core topics"}, and the Vitarka discussion showed ${vitarkaOverall >= 80 ? "clear articulation and depth" : "room for sharper reasoning"}.`;
-  const nextStep =
-    rec === "Strong Hire"
+  const summary = c.eci === 0
+    ? "Candidate did not record passing scores, submissions, or interview responses across the evaluation."
+    : `Candidate demonstrated ${rec === "Strong Hire" ? "exceptional" : rec === "Hire" ? "strong" : rec === "Maybe" ? "solid but uneven" : "below-bar"} engineering behaviour across the evaluation. Labs performance was ${c.labsScore >= 80 ? "consistently high" : c.labsScore >= 65 ? "reliable" : "inconsistent"}, assessment coverage was ${c.assessmentScore >= 80 ? "wide and accurate" : "focused on core topics"}, and the Vitarka discussion showed ${vitarkaOverall >= 80 ? "clear articulation and depth" : "room for sharper reasoning"}.`;
+  const nextStep = c.eci === 0
+    ? "Do not proceed — Candidate did not complete or pass evaluation requirements."
+    : (rec === "Strong Hire"
       ? NEXT_STEPS[0]
       : rec === "Hire"
         ? NEXT_STEPS[1]
         : rec === "Maybe"
           ? NEXT_STEPS[2]
-          : NEXT_STEPS[4];
+          : NEXT_STEPS[4]);
 
   const ecIBreakdown = [
     {
@@ -518,18 +538,20 @@ export function getCandidateDetail(c: Candidate): CandidateDetail {
     },
     {
       label: "Debugging signal",
-      contribution: c.labsScore >= 85 ? "Excellent" : c.labsScore >= 70 ? "Strong" : "Average",
-      kind: "neu" as const,
+      contribution: c.labsScore === 0 ? "No lab activity" : c.labsScore >= 85 ? "Excellent" : c.labsScore >= 70 ? "Strong" : "Average",
+      kind: (c.labsScore === 0 ? "neg" : "neu") as "pos" | "neg" | "neu",
     },
     {
       label: "Architecture signal",
       contribution:
-        vitarkaSignals[3].score >= 80
-          ? "Strong"
-          : vitarkaSignals[3].score >= 65
-            ? "Reasonable"
-            : "Minor gaps",
-      kind: "neu" as const,
+        c.vitarkaScore === 0
+          ? "No interview responses"
+          : vitarkaSignals[3].score >= 80
+            ? "Strong"
+            : vitarkaSignals[3].score >= 65
+              ? "Reasonable"
+              : "Minor gaps",
+      kind: (c.vitarkaScore === 0 ? "neg" : "neu") as "pos" | "neg" | "neu",
     },
   ];
 
