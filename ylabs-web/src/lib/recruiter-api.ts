@@ -45,8 +45,8 @@ export const recruiterApi = {
     return await restApiAuthUtil.delete(`/recruiter/companies/${id}/`);
   },
 
-  fetchRecruiters: async (): Promise<CompanyRecruiter[]> => {
-    return await restApiAuthUtil.get<CompanyRecruiter[]>("/recruiter/recruiters/");
+  fetchRecruiters: async (page = 1, pageSize = 20): Promise<{ count: number; results: CompanyRecruiter[] }> => {
+    return await restApiAuthUtil.get<{ count: number; results: CompanyRecruiter[] }>(`/recruiter/recruiters/?page=${page}&page_size=${pageSize}`);
   },
 
   createRecruiter: async (data: any): Promise<CompanyRecruiter> => {

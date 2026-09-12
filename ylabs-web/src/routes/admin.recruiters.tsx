@@ -717,14 +717,19 @@ function RecruitersPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadData = async () => {
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 20;
+
+  const loadData = async (currentPage: number) => {
     setLoading(true);
     try {
-      const [recs, comps] = await Promise.all([
-        recruiterApi.fetchRecruiters(),
+      const [recsData, comps] = await Promise.all([
+        recruiterApi.fetchRecruiters(currentPage, pageSize),
         recruiterApi.fetchCompanies(),
       ]);
-      setRecruiters(Array.isArray(recs) ? recs : []);
+      setRecruiters(recsData.results || []);
+      setTotalCount(recsData.count || 0);
       setCompanies(Array.isArray(comps) ? comps : []);
     } catch (err: any) {
       toast.error("Failed to load data");
@@ -734,15 +739,15 @@ function RecruitersPage() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData(page);
+  }, [page]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this recruiter?")) return;
     try {
       await recruiterApi.deleteRecruiter(id);
       toast.success("Recruiter deleted successfully");
-      loadData();
+      loadData(page);
     } catch (err: any) {
       toast.error(err.response?.data?.detail || "Failed to delete recruiter");
     }
@@ -754,31 +759,31 @@ function RecruitersPage() {
       breadcrumb={["People", "Recruiters"]}
       right={
         <div className="flex items-center gap-2">
-          <ManageCompaniesDialog onUpdate={loadData} companies={companies} />
-          <AddCompanyDialog onAdd={loadData} companies={companies} />
+          <ManageCompaniesDialog onUpdate={() => loadData(page)} companies={companies} />
+          <AddCompanyDialog onAdd={() => loadData(page)} companies={companies} />
         </div>
       }
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KpiCard
           label="Active recruiters"
-          value={recruiters.length.toString()}
+          value={loading ? "-" : totalCount.toString()}
           color="primary"
           icon={Briefcase}
         />
         <KpiCard 
           label="Self Signups" 
-          value={recruiters.filter(r => r.is_self_signup).length.toString()} 
+          value={loading ? "-" : (recruiters.filter(r => r.is_self_signup).length.toString() + (totalCount > recruiters.length ? '+' : ''))} 
           color="ui" 
         />
         <KpiCard 
           label="Admin Invited" 
-          value={recruiters.filter(r => !r.is_self_signup).length.toString()} 
+          value={loading ? "-" : (recruiters.filter(r => !r.is_self_signup).length.toString() + (totalCount > recruiters.length ? '+' : ''))} 
           color="success" 
         />
         <KpiCard 
           label="Companies" 
-          value={companies.length.toString()} 
+          value={loading ? "-" : companies.length.toString()} 
           color="warning" 
         />
       </div>
@@ -786,7 +791,7 @@ function RecruitersPage() {
       <Panel
         title="Recruiters list"
         action={
-          <AddRecruiterDialog onAdd={loadData} companies={companies} recruiters={recruiters} />
+          <AddRecruiterDialog onAdd={() => loadData(page)} companies={companies} recruiters={recruiters} />
         }
       >
         <div className="overflow-x-auto">
@@ -844,7 +849,7 @@ function RecruitersPage() {
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-1">
                         <EditRecruiterDialog
-                          onUpdate={loadData}
+                          onUpdate={() => loadData(page)}
                           companies={companies}
                           recruiter={r}
                           recruiters={recruiters}
@@ -864,6 +869,28 @@ function RecruitersPage() {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="flex items-center justify-between p-3 text-xs text-muted-foreground border-t border-border/60">
+          <span>
+            Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of {totalCount} recruiters
+          </span>
+          <div className="flex items-center gap-1">
+            <button 
+              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50"
+              disabled={page <= 1}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+            >
+              Prev
+            </button>
+            <span className="px-2">Page {page} of {Math.ceil(totalCount / pageSize) || 1}</span>
+            <button 
+              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50"
+              disabled={page >= Math.ceil(totalCount / pageSize)}
+              onClick={() => setPage(p => p + 1)}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </Panel>
     </AdminShell>
