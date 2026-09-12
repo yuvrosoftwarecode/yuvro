@@ -660,23 +660,23 @@ function buildTimeline(c: Candidate) {
     {
       icon: "labs",
       label: "Engineering Labs submitted",
-      time: rel(safeTime(anchor - 4 * d)),
-      done: submitted || (c.rawSubmission?.lab_submissions?.length > 0),
-      tone: submitted || (c.rawSubmission?.lab_submissions?.length > 0) ? ("success" as const) : "neutral",
+      time: (submitted && !(c.rawSubmission?.lab_submissions?.length > 0)) ? "Not submitted" : (c.rawSubmission?.lab_submissions?.length > 0 ? rel(safeTime(anchor - 4 * d)) : "pending"),
+      done: c.rawSubmission?.lab_submissions?.length > 0,
+      tone: c.rawSubmission?.lab_submissions?.length > 0 ? ("success" as const) : "neutral",
     },
     {
       icon: "assess",
       label: "Knowledge Assessment submitted",
-      time: rel(safeTime(anchor - 3 * d)),
-      done: submitted || (c.rawSubmission?.knowledge_submissions?.length > 0),
-      tone: submitted || (c.rawSubmission?.knowledge_submissions?.length > 0) ? ("success" as const) : "neutral",
+      time: (submitted && !(c.rawSubmission?.knowledge_submissions?.length > 0)) ? "Not submitted" : (c.rawSubmission?.knowledge_submissions?.length > 0 ? rel(safeTime(anchor - 3 * d)) : "pending"),
+      done: c.rawSubmission?.knowledge_submissions?.length > 0,
+      tone: c.rawSubmission?.knowledge_submissions?.length > 0 ? ("success" as const) : "neutral",
     },
     {
       icon: "chat",
       label: "Vitarka discussion completed",
-      time: rel(safeTime(anchor - 2 * d)),
-      done: submitted || c.vitarkaScore > 0,
-      tone: submitted || c.vitarkaScore > 0 ? ("success" as const) : "neutral",
+      time: (submitted && !(c.vitarkaScore > 0)) ? "Not submitted" : (c.vitarkaScore > 0 ? rel(safeTime(anchor - 2 * d)) : "pending"),
+      done: c.vitarkaScore > 0,
+      tone: c.vitarkaScore > 0 ? ("success" as const) : "neutral",
     },
     {
       icon: "check",
@@ -954,14 +954,25 @@ export async function loadTimelineEvents(evId: string, email: string): Promise<T
 
     const completedMap = new Map(completed.map(e => [e.label, e]));
     
+    const isFinished = completedMap.has("Evaluation finished");
+    const sectionMilestones = [
+      "Engineering Labs submitted",
+      "Knowledge Assessment submitted",
+      "Vitarka discussion completed",
+    ];
+
     const fullTimeline = MILESTONES.map(m => {
       if (completedMap.has(m)) {
         return completedMap.get(m)!;
       } else {
+        let timeLabel = "pending";
+        if (isFinished && sectionMilestones.includes(m)) {
+          timeLabel = "Not submitted";
+        }
         return {
           id: m,
           label: m,
-          time: "pending",
+          time: timeLabel,
           done: false,
           tone: "neutral" as const,
         };
