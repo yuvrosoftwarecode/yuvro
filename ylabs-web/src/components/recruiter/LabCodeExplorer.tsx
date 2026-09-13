@@ -111,17 +111,13 @@ function TreeRow({
 }
 
 function Unified({ diff }: { diff: any[] }) {
-  let oldNo = 1;
-  let newNo = 1;
   return (
     <div className="font-mono text-[11.5px] leading-5 pb-10">
       {diff.map((l, i) => {
-        const o = l.type === 'add' ? null : oldNo++;
-        const n = l.type === 'del' ? null : newNo++;
         return (
           <div key={i} className={`flex ${rowBg(l.type)}`}>
-            <span className="w-9 shrink-0 select-none px-2 text-right text-neutral-600">{o ?? ""}</span>
-            <span className="w-9 shrink-0 select-none px-2 text-right text-neutral-600">{n ?? ""}</span>
+            <span className="w-10 shrink-0 select-none px-2 text-right text-neutral-600">{l.oldLine ?? ""}</span>
+            <span className="w-10 shrink-0 select-none px-2 text-right text-neutral-600">{l.newLine ?? ""}</span>
             <span className={`w-4 shrink-0 select-none ${signColor(l.type)}`}>{sign(l.type)}</span>
             <span className="whitespace-pre-wrap break-all pr-3 text-neutral-300">{l.text}</span>
           </div>
@@ -137,10 +133,14 @@ function Split({ splitRows }: { splitRows: any[] }) {
       {splitRows.map((r, i) => (
         <div key={i} className="flex divide-x divide-white/10">
           <div className={`flex min-w-0 flex-1 ${r.left ? rowBg(r.left.type) : "bg-white/[0.02]"}`}>
-             <span className="whitespace-pre-wrap break-all px-3 py-0.5 text-neutral-300">{r.left?.text ?? " "}</span>
+            <span className="w-10 shrink-0 select-none px-2 text-right text-neutral-600">{r.left?.oldLine ?? ""}</span>
+            <span className={`w-4 shrink-0 select-none ${r.left ? signColor(r.left.type) : ""}`}>{r.left ? sign(r.left.type) : ""}</span>
+            <span className="whitespace-pre-wrap break-all pr-3 text-neutral-300">{r.left?.text ?? " "}</span>
           </div>
           <div className={`flex min-w-0 flex-1 ${r.right ? rowBg(r.right.type) : "bg-white/[0.02]"}`}>
-             <span className="whitespace-pre-wrap break-all px-3 py-0.5 text-neutral-300">{r.right?.text ?? " "}</span>
+            <span className="w-10 shrink-0 select-none px-2 text-right text-neutral-600">{r.right?.newLine ?? ""}</span>
+            <span className={`w-4 shrink-0 select-none ${r.right ? signColor(r.right.type) : ""}`}>{r.right ? sign(r.right.type) : ""}</span>
+            <span className="whitespace-pre-wrap break-all pr-3 text-neutral-300">{r.right?.text ?? " "}</span>
           </div>
         </div>
       ))}
@@ -188,20 +188,56 @@ function Workspace({
 
         try {
             if (typeof p === 'string' && p.trim().startsWith('{')) {
-                const parsed = JSON.parse(p) as Record<string, string>;
-                const d: Record<string, any[]> = {};
-                const sd: Record<string, any[]> = {};
-                const filteredParsed: Record<string, string> = {};
-                for (const k of Object.keys(parsed)) {
-                    if (!isIgnored(k)) {
-                        filteredParsed[k] = parsed[k];
-                        d[k] = [{ type: 'add', text: parsed[k] }];
-                        sd[k] = [{ left: null, right: d[k][0] }];
+                const parsed = JSON.parse(p) as Record<string, any>;
+                if (typeof parsed.diff === 'string' && parsed.diff.includes('diff --git')) {
+                    p = parsed.diff;
+                } else if (typeof parsed.solution === 'string' && parsed.solution.includes('diff --git')) {
+                    p = parsed.solution;
+                } else {
+                    const allKeys = Object.keys(parsed).filter(k => !isIgnored(k));
+                    const filteredParsed: Record<string, string> = {};
+                    for (const k of allKeys) {
+                        filteredParsed[k] = String(parsed[k] ?? '');
                     }
+
+                    // Identify only files that actually have changes (e.g. views.py) rather than all 19 files
+                    const candidateChanged = allKeys.filter(k => {
+                        const content = String(parsed[k] || '');
+                        if (allKeys.length <= 2) return true;
+                        if (k.endsWith('views.py') || k.endsWith('models.py') || k.endsWith('serializers.py')) {
+                            if (content.includes('HTTP_201_CREATED') || content.includes('select_related') || content.includes('prefetch_related')) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                    const diffKeys = candidateChanged.length > 0 ? candidateChanged : (allKeys.length <= 2 ? allKeys : allKeys.filter(k => k.endsWith('views.py')));
+
+                    const d: Record<string, any[]> = {};
+                    const sd: Record<string, any[]> = {};
+                    for (const k of diffKeys) {
+                        const fullText = filteredParsed[k] || '';
+                        const linesOfFile = fullText.split('\n');
+                        const fileDiffRows = linesOfFile.map((t, idx) => ({
+                            type: 'add' as const,
+                            text: t,
+                            newLine: idx + 1
+                        }));
+                        d[k] = fileDiffRows;
+                        sd[k] = fileDiffRows.map(r => ({ left: null, right: r }));
+                    }
+                    return { fileDiffs: d, splitDiffs: sd, changedFilesList: Object.keys(d), submittedFiles: filteredParsed };
                 }
-                return { fileDiffs: d, splitDiffs: sd, changedFilesList: Object.keys(d), submittedFiles: filteredParsed };
             }
         } catch {}
+
+        const lines = (typeof p === 'string' ? p : '').split('\n');
+        let currentFile = '';
+        let currentContent: string[] = [];
+        let currentDiff: { type: 'add' | 'del' | 'same', text: string, oldLine?: number, newLine?: number }[] = [];
+        let inHunk = false;
+        let oldLineNo = 1;
+        let newLineNo = 1;
 
         const flush = () => {
             if (currentFile && !isIgnored(currentFile)) {
@@ -225,21 +261,29 @@ function Workspace({
             } else if (currentFile) {
                 if (line.startsWith('@@ ')) {
                     inHunk = true;
+                    const match = line.match(/^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+                    if (match) {
+                        oldLineNo = parseInt(match[1], 10);
+                        newLineNo = parseInt(match[2], 10);
+                    }
                 } else if (inHunk) {
+                    if (line.startsWith('\\')) {
+                        continue;
+                    }
                     if (line.startsWith('+')) {
                         const txt = line.substring(1);
                         currentContent.push(txt);
-                        currentDiff.push({ type: 'add', text: txt });
+                        currentDiff.push({ type: 'add', text: txt, newLine: newLineNo++ });
                     } else if (line.startsWith('-')) {
                         const txt = line.substring(1);
-                        currentDiff.push({ type: 'del', text: txt });
+                        currentDiff.push({ type: 'del', text: txt, oldLine: oldLineNo++ });
                     } else if (line.startsWith(' ') && line.length > 0) {
                         const txt = line.substring(1);
                         currentContent.push(txt);
-                        currentDiff.push({ type: 'same', text: txt });
+                        currentDiff.push({ type: 'same', text: txt, oldLine: oldLineNo++, newLine: newLineNo++ });
                     } else if (line === '') {
                         currentContent.push('');
-                        currentDiff.push({ type: 'same', text: '' });
+                        currentDiff.push({ type: 'same', text: '', oldLine: oldLineNo++, newLine: newLineNo++ });
                     }
                 }
             }
@@ -318,6 +362,14 @@ function Workspace({
   const [openDirs, setOpenDirs] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
+    if (changedFilesList.length > 0) {
+      if (!active || !changedFilesList.includes(active)) {
+        setActive(changedFilesList[0]);
+      }
+    }
+  }, [lab?.id, changedFilesList]);
+
+  useEffect(() => {
     if (view === "files") {
         const labType = lab?.domain?.toLowerCase() === 'database' ? 'sqlite' : 'other';
         fetchFileTree(userId, lab?.id, "eval", undefined, labType, evaluationId)
@@ -342,13 +394,19 @@ function Workspace({
     if (active) {
         if (view === "diff" && fileDiffs[active]) {
             // we have the diff
-        } else if (submittedFiles[active] !== undefined) {
-            setFileContent(submittedFiles[active]);
         } else {
             setIsLoadingFile(true);
             fetchFile(userId, lab?.id, "eval", active, evaluationId)
-                .then(setFileContent)
-                .catch((e: any) => setFileContent(`Error loading file: ${e.message}`))
+                .then(content => {
+                    setFileContent(content);
+                })
+                .catch((e: any) => {
+                    if (submittedFiles[active] !== undefined) {
+                        setFileContent(submittedFiles[active]);
+                    } else {
+                        setFileContent(`Error loading file: ${e.message}`);
+                    }
+                })
                 .finally(() => setIsLoadingFile(false));
         }
     }

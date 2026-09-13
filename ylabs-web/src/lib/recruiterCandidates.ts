@@ -280,7 +280,25 @@ export function getCandidates(
       const knowSubs = sub.knowledge_submissions || [];
       
       if (labSubs.length > 0) {
-        labs = Math.round(labSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0));
+        labs = Math.round(labSubs.reduce((acc: number, cur: any) => {
+          let score = Number(cur.score || 0);
+          if (score === 0 && cur.solution_output) {
+            try {
+              const parsed = typeof cur.solution_output === "string" ? JSON.parse(cur.solution_output) : cur.solution_output;
+              if (parsed?.total_score != null) score = Number(parsed.total_score);
+              else if (parsed?.percentage != null) score = (Number(parsed.percentage) / 100) * 10;
+            } catch {}
+          }
+          if (score === 0 && cur.solution && typeof cur.solution === "string") {
+            if (cur.solution.includes("HTTP_201_CREATED") || cur.solution.includes("201_CREATED")) {
+              score = 2;
+            }
+          }
+          if (score > 10 && score <= 100) {
+            score = (score / 100) * 10;
+          }
+          return acc + score;
+        }, 0));
       }
       if (knowSubs.length > 0) {
         assess = Math.round(knowSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0));

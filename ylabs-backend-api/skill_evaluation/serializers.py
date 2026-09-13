@@ -205,6 +205,55 @@ class UserLabQuestionBankSubmissionSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('user',)
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        sol = (data.get('solution') or '').strip()
+        if not sol or sol.startswith('{') or "@@ -1," not in sol:
+            try:
+                import os, subprocess
+                from django.conf import settings
+                user_dir = os.path.join(
+                    settings.WORKSPACES_ROOT,
+                    "evaluation",
+                    str(instance.evaluation_id),
+                    "users",
+                    str(instance.user_id),
+                    "labs",
+                    str(instance.lab_question_id)
+                )
+                if os.path.exists(user_dir):
+                    subprocess.run(["git", "add", "-A", "-N"], cwd=user_dir, check=True, capture_output=True)
+                    diff_output = subprocess.check_output(
+                        [
+                            "git", "diff", "-U99999", "HEAD", "--", ".",
+                            ":(exclude)*.sqlite3", ":(exclude)*.db", ":(exclude)*.sqlite",
+                            ":(exclude)*.db-journal", ":(exclude)*.db-wal", ":(exclude)*.dbsqlite3",
+                            ":(exclude)*.zip", ":(exclude)*.tar", ":(exclude)*.gz",
+                            ":(exclude)*.pyc", ":(exclude)*__pycache__*",
+                            ":(exclude)*.log", ":(exclude)*bash_history*",
+                            ":(exclude)README.md", ":(exclude).gitignore", ":(exclude)requirements.txt"
+                        ],
+                        cwd=user_dir,
+                        stderr=subprocess.DEVNULL
+                    ).decode()
+                    if diff_output and diff_output.strip():
+                        data['solution'] = diff_output
+                        instance.solution = diff_output
+                        instance.save(update_fields=['solution'])
+            except Exception:
+                pass
+
+        if not data.get('minutes_solved') and instance.created_at and instance.updated_at:
+            delta = instance.updated_at - instance.created_at
+            if delta.total_seconds() >= 30:
+                calc_min = max(1, round(delta.total_seconds() / 60))
+                data['minutes_solved'] = calc_min
+                if instance.minutes_solved == 0:
+                    instance.minutes_solved = calc_min
+                    instance.save(update_fields=['minutes_solved'])
+
+        return data
+
 class UserKnowledgeAssessmentSubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserKnowledgeAssessmentSubmission

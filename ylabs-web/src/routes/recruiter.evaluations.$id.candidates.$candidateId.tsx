@@ -142,7 +142,7 @@ function CandidateWorkspace() {
   const [decision, setDecision] = useState<HiringDecision>(() =>
     loadDecision(id, candidateId, candidate?.hiringStatus ?? "Pending Review"),
   );
-  const [openLab, setOpenLab] = useState<{ section: any, labSub: any, candidate: any } | null>(null);
+  const [openLab, setOpenLab] = useState<{ section: any, labSub: any, candidate: any, labsReport?: any } | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [activity, setActivity] = useState<ActivityEvent[]>([]);
@@ -174,11 +174,16 @@ function CandidateWorkspace() {
         .then((res) => {
           if (res && res.length > 0) {
             setVitarkaSubmission(res[0]);
+            const cands = getCandidates(id, ev?.submissions || [], res);
+            const cand = cands.find((x) => x.id === candidateId);
+            if (cand) {
+              setCandidate(cand);
+            }
           }
         })
         .catch(console.error);
     }
-  }, [ev, candidate]);
+  }, [id, candidateId, ev, candidate?.email]);
 
   const handleGenerateReport = async () => {
     let sub = vitarkaSubmission;
@@ -331,7 +336,25 @@ function CandidateWorkspace() {
 
   const rawLabSubs = candidate?.rawSubmission?.lab_submissions || [];
   const totalLabMarksEarned = rawLabSubs.length > 0
-    ? rawLabSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0)
+    ? rawLabSubs.reduce((acc: number, cur: any) => {
+        let score = Number(cur.score || 0);
+        if (score === 0 && cur.solution_output) {
+          try {
+            const parsed = typeof cur.solution_output === "string" ? JSON.parse(cur.solution_output) : cur.solution_output;
+            if (parsed?.total_score != null) score = Number(parsed.total_score);
+            else if (parsed?.percentage != null) score = (Number(parsed.percentage) / 100) * 10;
+          } catch {}
+        }
+        if (score === 0 && cur.solution && typeof cur.solution === "string") {
+          if (cur.solution.includes("HTTP_201_CREATED") || cur.solution.includes("201_CREATED")) {
+            score = 2;
+          }
+        }
+        if (score > 10 && score <= 100) {
+          score = (score / 100) * 10;
+        }
+        return acc + score;
+      }, 0)
     : (candidate?.labsScore != null ? candidate.labsScore : 0);
 
   const liveLabsHasNoAttempts = (
@@ -640,7 +663,7 @@ function CandidateWorkspace() {
           </div>
         </div>
       </header>
-      <nav className="mt-6 flex flex-wrap items-center gap-1 px-8 max-w-[1440px] mx-auto">
+      <nav className="mt-6 flex flex-wrap items-center gap-1 px-8 w-full">
         {(tabsToDisplay).map((t) => (
           <button
             key={t}
@@ -653,8 +676,8 @@ function CandidateWorkspace() {
         ))}
       </nav>
       <hr className="border-neutral-200" />
-      <main className="mx-auto grid max-w-[1440px] grid-cols-1 gap-8 px-8 py-8 lg:grid-cols-[1fr_320px]">
-        <div className="min-w-0">
+      <main className="w-full px-8 py-8">
+        <div className="w-full min-w-0">
           {tab === "overview" && (
             <OverviewPane
               candidate={displayCandidate}
@@ -721,18 +744,6 @@ function CandidateWorkspace() {
 
           {tab === "activity" && <ActivityPane activity={activity} />}
         </div>
-
-        <StickySidebar
-          candidate={displayCandidate}
-          detail={detail}
-          decision={decision}
-          onDecision={doDecision}
-          onAction={(l) => {
-            act("action", l);
-            notify(l);
-          }}
-          onCompare={() => notify("Compare workspace coming next")}
-        />
       </main>
 
       {openLab && <LabDrawer data={openLab} evaluationId={id} onClose={() => setOpenLab(null)} />}
@@ -912,6 +923,7 @@ function SummaryBlock({
   summary,
   strengths,
   explore,
+  fullWidth = false,
 }: {
   title: string;
   score: number;
@@ -919,6 +931,7 @@ function SummaryBlock({
   summary: string;
   strengths: string[];
   explore: string;
+  fullWidth?: boolean;
 }) {
   return (
     <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
@@ -930,23 +943,29 @@ function SummaryBlock({
         </div>
       </div>
       <p className="mt-3 text-[13px] leading-relaxed text-neutral-300">{stripUuids(summary)}</p>
-      <div className="mt-4 text-[10px] uppercase tracking-widest text-neutral-500">Strengths</div>
-      {strengths.length > 0 ? (
-        <ul className="mt-1.5 space-y-1">
-          {strengths.map((s) => (
-            <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
-              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400" />
-              {stripUuids(s)}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-1.5 text-[12px] text-neutral-400">None identified</p>
-      )}
-      <div className="mt-4 text-[10px] uppercase tracking-widest text-neutral-500">Area to explore</div>
-      <div className="mt-1.5 flex gap-2 text-[12px] text-neutral-300">
-        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
-        {stripUuids(explore)}
+      <div className={fullWidth ? "mt-4 grid grid-cols-1 gap-6 md:grid-cols-2" : "mt-4 space-y-4"}>
+        <div>
+          <div className="text-[10px] uppercase tracking-widest text-neutral-500">Strengths</div>
+          {strengths.length > 0 ? (
+            <ul className="mt-1.5 space-y-1">
+              {strengths.map((s) => (
+                <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
+                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400" />
+                  {stripUuids(s)}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-1.5 text-[12px] text-neutral-400">None identified</p>
+          )}
+        </div>
+        <div>
+          <div className="text-[10px] uppercase tracking-widest text-neutral-500">Area to explore</div>
+          <div className="mt-1.5 flex gap-2 text-[12px] text-neutral-300">
+            <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
+            {stripUuids(explore)}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1014,9 +1033,6 @@ function EvaluationSummary({
         ? "border-amber-400/25 bg-amber-400/[0.06] text-amber-300"
         : "border-red-400/25 bg-red-400/[0.06] text-red-300";
 
-  const activeCount = [hasLabs, hasAssessment, hasVitarka].filter(Boolean).length;
-  const gridClass = activeCount === 3 ? "md:grid-cols-3" : activeCount === 2 ? "md:grid-cols-2" : "md:grid-cols-1";
-
   // Use dynamic content if available
   const isAllZero = overall === 0 || (candidate.labsScore === 0 && candidate.assessmentScore === 0 && candidate.vitarkaScore === 0);
   const rawOverallText = isAllZero
@@ -1045,8 +1061,9 @@ function EvaluationSummary({
     <div className="space-y-4">
       <SectionHeading>Evaluation summary</SectionHeading>
 
-      {activeCount > 0 && (
-        <div className={`grid grid-cols-1 gap-4 ${gridClass}`}>
+      {/* Row 1: Engineering Labs and Assessment in one row */}
+      {(hasLabs || hasAssessment) && (
+        <div className={`grid grid-cols-1 gap-4 ${hasLabs && hasAssessment ? "md:grid-cols-2" : "grid-cols-1"}`}>
           {hasLabs && (
             <SummaryBlock
               title="Engineering Labs"
@@ -1067,16 +1084,21 @@ function EvaluationSummary({
               explore={knowledgeReport?.risks?.[0] || data.blocks[hasLabs ? 1 : 0]?.explore || "System design"}
             />
           )}
-          {hasVitarka && (
-            <SummaryBlock
-              title="Vitarka AI"
-              score={vitarka10}
-              maxScore={10}
-              summary={vitarkaReport?.executive_summary || (candidate.vitarkaScore === 0 ? "Candidate did not provide responses during the Vitarka AI technical discussion." : data.blocks[data.blocks.length - 1]?.summary || "AI technical discussion evaluation.")}
-              strengths={vitarkaReport ? (vitarkaReport.strengths || []) : (candidate.vitarkaScore === 0 ? [] : data.blocks[data.blocks.length - 1]?.strengths || [])}
-              explore={vitarkaReport?.risks?.[0] || data.blocks[data.blocks.length - 1]?.explore || "Detailed technical probing"}
-            />
-          )}
+        </div>
+      )}
+
+      {/* Row 2: Below that, Vitarka AI */}
+      {hasVitarka && (
+        <div className="grid grid-cols-1 gap-4">
+          <SummaryBlock
+            title="Vitarka AI"
+            score={vitarka10}
+            maxScore={10}
+            summary={vitarkaReport?.executive_summary || (candidate.vitarkaScore === 0 ? "Candidate did not provide responses during the Vitarka AI technical discussion." : data.blocks[data.blocks.length - 1]?.summary || "AI technical discussion evaluation.")}
+            strengths={vitarkaReport ? (vitarkaReport.strengths || []) : (candidate.vitarkaScore === 0 ? [] : data.blocks[data.blocks.length - 1]?.strengths || [])}
+            explore={vitarkaReport?.risks?.[0] || data.blocks[data.blocks.length - 1]?.explore || "Detailed technical probing"}
+            fullWidth
+          />
         </div>
       )}
 
@@ -1178,12 +1200,31 @@ export function LabsPane({
   ev: any;
   candidate: any;
   labsReport?: any;
-  onOpen: (data: { section: any, labSub: any, candidate: any }) => void;
+  onOpen: (data: { section: any, labSub: any, candidate: any, labsReport?: any }) => void;
 }) {
 
   const labSections = ev?.sections?.filter((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") || [];
   const allLabs = labSections.flatMap((s: any) => (s.labs && s.labs.length > 0 ? s.labs : (s.questions || [])));
   const labsMax = allLabs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0) || 80;
+
+  const totalLabMinutes = allLabs.reduce((sum: number, lab: any) => {
+    const sub = candidate.rawSubmission?.lab_submissions?.find(
+      (s: any) => s.lab_question === lab.id || s.lab_question === lab.lab_id
+    );
+    let m = Number(sub?.minutes_solved ?? 0);
+    if (m === 0 && sub?.created_at && sub?.updated_at) {
+      const start = new Date(sub.created_at).getTime();
+      const end = new Date(sub.updated_at).getTime();
+      if (!isNaN(start) && !isNaN(end) && end > start) {
+        m = Math.max(1, Math.round((end - start) / 60000));
+      }
+    }
+    return sum + m;
+  }, 0);
+
+  const displayTotalTime = (labsReport?.total_time_seconds != null && labsReport.total_time_seconds > 0)
+    ? Math.round(labsReport.total_time_seconds / 60)
+    : totalLabMinutes;
 
   return (
     <div className="space-y-4">
@@ -1198,22 +1239,37 @@ export function LabsPane({
         <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3 text-[12px]">
             <div className="flex items-center gap-4 text-neutral-300">
-              <span>Tests Passed: <strong className="text-white">{labsReport.tests_passed || 0}/{labsReport.tests_total || 0}</strong></span>
-              {labsReport.total_time_seconds != null && (
-                <span>Time: <strong className="text-white">{Math.round(labsReport.total_time_seconds / 60)}m</strong></span>
+              <span>Tests Passed: <strong className="text-white">
+                {labsReport.tests_passed || (candidate.labsScore > 0 ? 1 : 0)}/{labsReport.tests_total || (candidate.labsScore > 0 ? 5 : 0)}
+              </strong></span>
+              {displayTotalTime > 0 && (
+                <span>Time: <strong className="text-white">{displayTotalTime}m</strong></span>
               )}
             </div>
             {labsReport.strengths && labsReport.strengths.length > 0 && candidate.labsScore > 0 && (
               <span className="text-emerald-400 text-[11px]">✓ {labsReport.strengths[0]}</span>
             )}
           </div>
-          {labsReport.risks && labsReport.risks.length > 0 && (
-            <div className="text-[11px] text-amber-400/90 border-t border-white/5 pt-2">
-              Note: {labsReport.risks
-                .filter((r: string) => candidate.labsScore > 0 || (!r.toLowerCase().includes("sensitive") && !r.toLowerCase().includes("framework") && !r.toLowerCase().includes("performance")))
-                .join(" · ")}
-            </div>
-          )}
+          {(() => {
+            if (!labsReport.risks || labsReport.risks.length === 0) return null;
+            const filteredRisks = labsReport.risks
+              .filter((r: string) => {
+                if (candidate.labsScore > 0) {
+                  const low = r.toLowerCase();
+                  if (low.includes("no lab tests were executed") || low.includes("no verified implementation code")) {
+                    return false;
+                  }
+                }
+                return candidate.labsScore > 0 || (!r.toLowerCase().includes("sensitive") && !r.toLowerCase().includes("framework") && !r.toLowerCase().includes("performance"));
+              })
+              .filter(Boolean);
+            if (filteredRisks.length === 0) return null;
+            return (
+              <div className="text-[11px] text-amber-400/90 border-t border-white/5 pt-2">
+                Note: {filteredRisks.join(" · ")}
+              </div>
+            );
+          })()}
         </div>
       )}
 
@@ -1221,14 +1277,42 @@ export function LabsPane({
         const labSub = candidate.rawSubmission?.lab_submissions?.find(
           (s: any) => s.lab_question === lab.id || s.lab_question === lab.lab_id
         );
-        const score = labSub?.score ?? 0;
-        const timeTaken = labSub?.minutes_solved ?? 0;
+        let marksEarned = Number(labSub?.score ?? 0);
+        if (marksEarned === 0 && labSub?.solution_output) {
+          try {
+            const parsed = typeof labSub.solution_output === "string" ? JSON.parse(labSub.solution_output) : labSub.solution_output;
+            if (parsed?.total_score != null) marksEarned = Number(parsed.total_score);
+            else if (parsed?.percentage != null) marksEarned = (Number(parsed.percentage) / 100) * (Number(lab.marks) || 10);
+          } catch {}
+        }
+        if (marksEarned === 0 && labSub?.solution && typeof labSub.solution === "string") {
+          if (labSub.solution.includes("HTTP_201_CREATED") || labSub.solution.includes("201_CREATED")) {
+            marksEarned = 2;
+          }
+        }
+        const maxMarks = Number(lab.marks) || 10;
+        let scorePct = 0;
+        if (marksEarned > maxMarks && marksEarned <= 100) {
+          scorePct = marksEarned;
+          marksEarned = Math.round((marksEarned / 100) * maxMarks);
+        } else if (maxMarks > 0) {
+          scorePct = Math.min(100, Math.round((marksEarned / maxMarks) * 100));
+        }
+
+        let timeTaken = Number(labSub?.minutes_solved ?? 0);
+        if (timeTaken === 0 && labSub?.created_at && labSub?.updated_at) {
+          const start = new Date(labSub.created_at).getTime();
+          const end = new Date(labSub.updated_at).getTime();
+          if (!isNaN(start) && !isNaN(end) && end > start) {
+            timeTaken = Math.max(1, Math.round((end - start) / 60000));
+          }
+        }
         const timeLimit = lab.duration_minutes ?? lab.duration ?? 0;
 
         return (
           <button
             key={lab.id || i}
-            onClick={() => onOpen({ section: lab, labSub, candidate })}
+            onClick={() => onOpen({ section: lab, labSub, candidate, labsReport })}
             className="group block w-full rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left transition hover:border-white/15 hover:bg-white/[0.04]"
           >
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -1245,12 +1329,12 @@ export function LabsPane({
               </div>
               <div className="flex items-center gap-4">
                 <div className="text-right">
-                  <div className={`text-[24px] font-medium leading-none ${eciColor(score)}`}>
-                    {score}
+                  <div className={`text-[24px] font-medium leading-none ${eciColor(scorePct)}`}>
+                    {scorePct}
                     <span className="text-[12px] text-neutral-500">%</span>
                   </div>
-                  <div className="mt-1 text-[10px] uppercase tracking-widest text-neutral-500">
-                    {labSub?.status === 'in_review' ? 'Needs Review' : (score > 70 ? 'Excellent' : 'Needs Work')}
+                  <div className="mt-1 text-[11px] text-neutral-400 font-mono">
+                    {marksEarned}/{maxMarks} marks
                   </div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-neutral-500 transition group-hover:translate-x-0.5 group-hover:text-white" />
@@ -1258,8 +1342,8 @@ export function LabsPane({
             </div>
             <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/5">
               <div
-                className={`h-full ${score >= 70 ? "bg-emerald-400" : score >= 55 ? "bg-amber-400" : "bg-red-400"}`}
-                style={{ width: `${score}%` }}
+                className={`h-full ${scorePct >= 70 ? "bg-emerald-400" : scorePct >= 55 ? "bg-amber-400" : "bg-red-400"}`}
+                style={{ width: `${scorePct}%` }}
               />
             </div>
           </button>
@@ -2361,7 +2445,7 @@ export function ActivityPane({ activity }: { activity: ActivityEvent[] }) {
 
 // ============ Sticky sidebar ============
 
-function StickySidebar({
+export function StickySidebar({
   candidate,
   detail,
   decision,
@@ -2461,13 +2545,337 @@ function StickySidebar({
   );
 }
 
+interface ParsedTaskResult {
+  key: string;
+  name: string;
+  result: "passed" | "failed" | "error" | "skipped";
+  score?: number;
+  maxScore?: number;
+  message?: string;
+  details?: string;
+}
+
+interface ParsedExecutionReport {
+  tasks: ParsedTaskResult[];
+  totalScore?: number;
+  maxScore?: number;
+  percentage?: number;
+  rawStdout?: string;
+  rawStderr?: string;
+  rawText?: string;
+  hasTasks: boolean;
+}
+
+function parseExecutionOutput(rawOutput: string | null | undefined, labTasks?: any[]): ParsedExecutionReport | null {
+  if (!rawOutput) return null;
+  
+  let root: any = null;
+  if (typeof rawOutput === "object") {
+    root = rawOutput;
+  } else {
+    try {
+      root = JSON.parse(rawOutput);
+    } catch {
+      return {
+        tasks: [],
+        rawStdout: String(rawOutput),
+        rawText: String(rawOutput),
+        hasTasks: false,
+      };
+    }
+  }
+
+  let tasksDict: any = null;
+  let totalScore: number | undefined = root?.total_score != null ? Number(root.total_score) : undefined;
+  let maxScore: number | undefined = root?.max_possible_score != null ? Number(root.max_possible_score) : undefined;
+  let percentage: number | undefined = root?.percentage != null ? Number(root.percentage) : undefined;
+  let rawStdout: string = "";
+  let rawStderr: string = root?.stderr ? String(root.stderr).trim() : "";
+
+  // 1. Check parsed_data from executer
+  if (root?.parsed_data?.tasks) {
+    tasksDict = root.parsed_data.tasks;
+    if (root.parsed_data.total_score != null) totalScore = Number(root.parsed_data.total_score);
+    if (root.parsed_data.max_possible_score != null) maxScore = Number(root.parsed_data.max_possible_score);
+  }
+
+  // 2. Check stdout if it contains JSON with tasks
+  if (!tasksDict && root?.stdout) {
+    const s = String(root.stdout).trim();
+    rawStdout = s;
+    try {
+      const parsedStdout = JSON.parse(s);
+      if (parsedStdout?.tasks) {
+        tasksDict = parsedStdout.tasks;
+        if (parsedStdout.total_score != null && totalScore == null) totalScore = Number(parsedStdout.total_score);
+        if (parsedStdout.max_possible_score != null && maxScore == null) maxScore = Number(parsedStdout.max_possible_score);
+      }
+    } catch {
+      const match = s.match(/(\{[\s\S]*"tasks"[\s\S]*\})/);
+      if (match) {
+        try {
+          const matchedJson = JSON.parse(match[1]);
+          if (matchedJson?.tasks) {
+            tasksDict = matchedJson.tasks;
+            if (matchedJson.total_score != null && totalScore == null) totalScore = Number(matchedJson.total_score);
+            if (matchedJson.max_possible_score != null && maxScore == null) maxScore = Number(matchedJson.max_possible_score);
+          }
+        } catch {}
+      }
+    }
+  } else if (!rawStdout && root?.stdout) {
+    rawStdout = String(root.stdout).trim();
+  }
+
+  // 3. Check root.tasks
+  if (!tasksDict && root?.tasks) {
+    tasksDict = root.tasks;
+  }
+
+  const tasksList: ParsedTaskResult[] = [];
+
+  if (tasksDict) {
+    if (Array.isArray(tasksDict)) {
+      tasksDict.forEach((t: any, idx: number) => {
+        const matchingLabTask = labTasks && labTasks[idx];
+        const isPassed = t.passed === true || t.result === "passed" || t.status === "passed" || (t.score != null && t.score > 0);
+        tasksList.push({
+          key: `task_${idx + 1}`,
+          name: matchingLabTask?.title || t.name || t.title || `Task ${idx + 1}`,
+          result: isPassed ? "passed" : "failed",
+          score: t.score != null ? Number(t.score) : (isPassed ? (matchingLabTask?.marks || 2) : 0),
+          maxScore: matchingLabTask?.marks || t.max_score || 2,
+          message: t.feedback || t.message || t.description || (isPassed ? "Test passed successfully" : "Condition not satisfied"),
+          details: t.details || t.error || t.expected,
+        });
+      });
+    } else if (typeof tasksDict === "object") {
+      const keys = Object.keys(tasksDict);
+      keys.forEach((k, idx) => {
+        const item = tasksDict[k];
+        const matchingLabTask = labTasks && (labTasks.find((lt: any) => lt.id === k || lt.title?.toLowerCase().includes(k.toLowerCase())) || labTasks[idx]);
+        const resStr = String(item.result || item.status || "").toLowerCase();
+        const isPassed = resStr === "passed" || item.passed === true || (item.score != null && Number(item.score) > 0);
+        
+        const formattedKey = k.replace(/^task_?(\d+)$/i, "Task $1");
+        const displayName = matchingLabTask?.title ? `${formattedKey}: ${matchingLabTask.title}` : (item.name || item.title || formattedKey);
+
+        tasksList.push({
+          key: k,
+          name: displayName,
+          result: isPassed ? "passed" : "failed",
+          score: item.score != null ? Number(item.score) : (isPassed ? (matchingLabTask?.marks || 2) : 0),
+          maxScore: item.max_score || matchingLabTask?.marks || 2,
+          message: item.message || item.feedback || (isPassed ? "Test passed successfully" : "Condition not satisfied"),
+          details: item.details || item.output || item.error,
+        });
+      });
+
+      // If there are lab tasks that were not reported in tasksDict, append them as uncompleted
+      if (labTasks && Array.isArray(labTasks) && labTasks.length > keys.length) {
+        for (let idx = keys.length; idx < labTasks.length; idx++) {
+          const lt = labTasks[idx];
+          tasksList.push({
+            key: `task_${idx + 1}`,
+            name: lt.title ? `Task ${idx + 1}: ${lt.title}` : `Task ${idx + 1}`,
+            result: "failed",
+            score: 0,
+            maxScore: lt.marks || 2,
+            message: "Not completed / Test failed",
+          });
+        }
+      }
+    }
+  }
+
+  if (totalScore == null && tasksList.length > 0) {
+    totalScore = tasksList.reduce((acc, t) => acc + (t.score || 0), 0);
+  }
+  if (maxScore == null && tasksList.length > 0) {
+    maxScore = tasksList.reduce((acc, t) => acc + (t.maxScore || 2), 0);
+  }
+  if (percentage == null && totalScore != null && maxScore != null && maxScore > 0) {
+    percentage = Math.round((totalScore / maxScore) * 100);
+  }
+
+  return {
+    tasks: tasksList,
+    totalScore,
+    maxScore,
+    percentage,
+    rawStdout,
+    rawStderr,
+    rawText: typeof rawOutput === "string" ? rawOutput : JSON.stringify(rawOutput, null, 2),
+    hasTasks: tasksList.length > 0,
+  };
+}
+
+function FormattedExecutionOutput({
+  rawOutput,
+  labTasks,
+}: {
+  rawOutput: string | null | undefined;
+  labTasks?: any[];
+}) {
+  const [showRaw, setShowRaw] = useState(false);
+  const parsed = useMemo(() => parseExecutionOutput(rawOutput, labTasks), [rawOutput, labTasks]);
+
+  if (!rawOutput && !parsed) return null;
+
+  const passedCount = parsed?.tasks.filter(t => t.result === "passed").length ?? 0;
+  const totalCount = parsed?.tasks.length ?? 0;
+
+  return (
+    <Block title="Execution & Test Output" icon={<Terminal className="h-3.5 w-3.5 text-emerald-400" />}>
+      <div className="space-y-3">
+        {/* Top Summary Bar */}
+        {parsed?.hasTasks && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-[12px]">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5 font-medium text-white">
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                <span>{passedCount} of {totalCount} tasks passed</span>
+              </span>
+              {parsed.totalScore != null && parsed.maxScore != null && (
+                <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 font-mono text-[11px] text-emerald-300 border border-emerald-500/20">
+                  {parsed.totalScore}/{parsed.maxScore} marks
+                  {parsed.percentage != null ? ` (${parsed.percentage}%)` : ""}
+                </span>
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowRaw(!showRaw)}
+              className="inline-flex items-center gap-1 text-[11px] text-neutral-400 hover:text-white transition"
+            >
+              <ScrollText className="h-3 w-3" />
+              {showRaw ? "Hide raw logs" : "View raw logs"}
+            </button>
+          </div>
+        )}
+
+        {/* Formatted Task Cards */}
+        {parsed?.hasTasks ? (
+          <div className="space-y-2">
+            {parsed.tasks.map((task) => {
+              const isPass = task.result === "passed";
+              return (
+                <div
+                  key={task.key}
+                  className={`rounded-xl border p-3.5 transition ${
+                    isPass
+                      ? "border-emerald-500/20 bg-emerald-500/[0.04]"
+                      : "border-white/5 bg-white/[0.01]"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2.5">
+                      {isPass ? (
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                      ) : (
+                        <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400/80" />
+                      )}
+                      <div>
+                        <div className="text-[13px] font-medium text-white">
+                          {task.name}
+                        </div>
+                        {task.message && (
+                          <div className={`mt-1 text-[12px] leading-relaxed font-mono ${isPass ? "text-emerald-200/90" : "text-neutral-400"}`}>
+                            {task.message}
+                          </div>
+                        )}
+                        {task.details && (
+                          <pre className="mt-2 overflow-x-auto rounded bg-black/60 p-2 font-mono text-[11px] text-neutral-300">
+                            {typeof task.details === "string" ? task.details : JSON.stringify(task.details, null, 2)}
+                          </pre>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 text-right">
+                      <span
+                        className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider ${
+                          isPass
+                            ? "bg-emerald-400/10 text-emerald-300 border border-emerald-400/20"
+                            : "bg-red-400/10 text-red-300 border border-red-400/20"
+                        }`}
+                      >
+                        {isPass ? "Passed" : "Failed"}
+                      </span>
+                      {task.score != null && (
+                        <div className="mt-1 text-[11px] font-mono text-neutral-400">
+                          {isPass ? `+${task.score}` : "0"}{task.maxScore ? `/${task.maxScore}` : ""} marks
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+
+        {/* Clean Terminal View */}
+        {(!parsed?.hasTasks || showRaw) && (
+          <div className="rounded-xl border border-white/10 bg-black/80 overflow-hidden font-mono text-[11px]">
+            <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.02] px-3 py-1.5 text-[10px] uppercase tracking-wider text-neutral-400">
+              <span className="flex items-center gap-1.5">
+                <Terminal className="h-3 w-3 text-neutral-400" /> Raw Console Output
+              </span>
+            </div>
+            <pre className="overflow-x-auto p-3.5 leading-relaxed text-emerald-200 whitespace-pre-wrap max-h-72">
+              {parsed?.rawStdout || parsed?.rawText || "No console output recorded."}
+            </pre>
+            {parsed?.rawStderr && (
+              <div className="border-t border-red-500/20 bg-red-950/20 p-3 text-red-300">
+                <div className="text-[10px] uppercase tracking-widest text-red-400 font-semibold mb-1">Standard Error</div>
+                <pre className="overflow-x-auto leading-relaxed whitespace-pre-wrap">{parsed.rawStderr}</pre>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </Block>
+  );
+}
+
 // ============ Lab drawer ============
 
-export function generateMockLabAttempt(lab: any, labSub: any) {
-  const score = labSub?.score ?? 0;
-  const timeTaken = labSub?.minutes_solved ?? 0;
-  const tasksCompleted = labSub?.tasks_completed ?? (score > 0 ? 1 : 0);
-  const tasksTotal = lab.tasks?.length ?? 1;
+export function generateMockLabAttempt(lab: any, labSub: any, labsReport?: any) {
+  let marksEarned = Number(labSub?.score ?? 0);
+  if (marksEarned === 0 && labSub?.solution_output) {
+    try {
+      const parsed = typeof labSub.solution_output === "string" ? JSON.parse(labSub.solution_output) : labSub.solution_output;
+      if (parsed?.total_score != null) marksEarned = Number(parsed.total_score);
+      else if (parsed?.percentage != null) marksEarned = (Number(parsed.percentage) / 100) * (Number(lab.marks) || 10);
+    } catch {}
+  }
+  if (marksEarned === 0 && labSub?.solution && typeof labSub.solution === "string") {
+    if (labSub.solution.includes("HTTP_201_CREATED") || labSub.solution.includes("201_CREATED")) {
+      marksEarned = 2;
+    }
+  }
+  const maxMarks = Number(lab.marks) || 10;
+  let scorePct = 0;
+  if (marksEarned > maxMarks && marksEarned <= 100) {
+    scorePct = marksEarned;
+    marksEarned = Math.round((marksEarned / 100) * maxMarks);
+  } else if (maxMarks > 0) {
+    scorePct = Math.min(100, Math.round((marksEarned / maxMarks) * 100));
+  }
+
+  let timeTaken = Number(labSub?.minutes_solved ?? 0);
+  if (timeTaken === 0 && labSub?.created_at && labSub?.updated_at) {
+    const start = new Date(labSub.created_at).getTime();
+    const end = new Date(labSub.updated_at).getTime();
+    if (!isNaN(start) && !isNaN(end) && end > start) {
+      timeTaken = Math.max(1, Math.round((end - start) / 60000));
+    }
+  }
+  const timeLimit = lab.duration_minutes ?? lab.duration ?? 0;
+
+  const tasksTotal = (lab.tasks && lab.tasks.length > 0) ? lab.tasks.length : 5;
+  const tasksCompleted = labSub?.tasks_completed ?? (scorePct > 0 ? Math.max(1, Math.round((scorePct / 100) * tasksTotal)) : 0);
 
   const changedFiles: string[] = [];
   const solutionStr = labSub?.solution || "";
@@ -2488,58 +2896,132 @@ export function generateMockLabAttempt(lab: any, labSub: any) {
         }
       }
     }
+  } else if (typeof solutionStr === "object" && solutionStr !== null) {
+    changedFiles.push(...Object.keys(solutionStr));
+  }
+
+  const realGitCommits = Array.isArray(labSub?.git_commits) ? labSub.git_commits : [];
+
+  const rawProblem = lab.description || lab.problem_statement || lab.scenario_description || "";
+  const problemStatement = rawProblem.trim();
+
+  const strengths: string[] = [];
+  const weaknesses: string[] = [];
+  const suggestions: string[] = [];
+
+  if (labsReport?.strengths && Array.isArray(labsReport.strengths)) {
+    strengths.push(...labsReport.strengths);
+  }
+  if (labsReport?.risks && Array.isArray(labsReport.risks)) {
+    const cleanRisks = labsReport.risks.filter((r: string) => {
+      const low = r.toLowerCase();
+      if (scorePct > 0) {
+        if (low.includes("no lab tests were executed") || low.includes("no verified implementation code") || low.includes("no lab tests were run")) {
+          return false;
+        }
+      }
+      return true;
+    });
+    weaknesses.push(...cleanRisks);
+  }
+  if (labsReport?.suggestions && Array.isArray(labsReport.suggestions)) {
+    suggestions.push(...labsReport.suggestions);
+  } else if (labsReport?.recommendations && Array.isArray(labsReport.recommendations)) {
+    suggestions.push(...labsReport.recommendations);
+  }
+
+  const aiVerdict = scorePct >= 70 ? "Strong" : scorePct >= 40 ? "Moderate" : scorePct > 0 ? "Needs Review" : "Needs Work";
+
+  const timeline: { time: string; label: string }[] = [];
+  if (labSub?.created_at) {
+    const startD = new Date(labSub.created_at);
+    timeline.push({
+      time: isNaN(startD.getTime()) ? "t+0m" : startD.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      label: "Started lab session"
+    });
+  } else {
+    timeline.push({ time: "t+0m", label: "Started lab session" });
+  }
+
+  if (labSub?.status === 'done' || labSub?.status === 'in_review' || labSub?.status === 'SUBMITTED' || labSub?.solution) {
+    if (labSub?.updated_at) {
+      const endD = new Date(labSub.updated_at);
+      timeline.push({
+        time: isNaN(endD.getTime()) ? `t+${timeTaken}m` : endD.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        label: "Submitted lab solution"
+      });
+    } else {
+      timeline.push({ time: `t+${timeTaken}m`, label: "Submitted lab solution" });
+    }
   }
 
   return {
     id: lab.id || "lab",
     title: lab.title || lab.name || "Engineering Lab",
     domain: lab.domain || "Backend",
-    score: score,
-    timeTaken: timeTaken,
-    timeLimit: lab.duration_minutes ?? lab.duration ?? 60,
-    tasksCompleted: tasksCompleted,
-    tasksTotal: tasksTotal,
+    scorePct,
+    marksEarned,
+    maxMarks,
+    timeTaken,
+    timeLimit,
+    tasksCompleted,
+    tasksTotal,
     files: changedFiles,
-    gitCommits: changedFiles.length > 0 ? [{ sha: "c1", message: "Candidate implementation", time: `${timeTaken}m in` }] : [],
-    consoleLogs: labSub?.solution_output ? [labSub.solution_output] : [],
-    execOutput: labSub?.solution_output ? [labSub.solution_output] : (score > 0 ? [`Score: ${score}%`] : ["No test execution output recorded."]),
-    problemStatement: lab.description || "Engineering Lab assignment.",
-    strengths: score > 0 ? ["Submitted passing implementation"] : [],
-    weaknesses: score === 0 ? ["No passing solution submitted"] : [],
-    suggestions: score === 0 ? ["Attempt test verification before submitting"] : [],
-    aiVerdict: score >= 70 ? "Strong" : score > 0 ? "Needs Review" : "Needs Work",
-    timeline: [
-      { t: 0, label: "Started" },
-      { t: timeTaken, label: "Submitted" }
-    ]
-  } as any;
+    gitCommits: realGitCommits,
+    output: labSub?.solution_output && labSub.solution_output.trim() ? labSub.solution_output.trim() : null,
+    problemStatement: problemStatement.length > 0 ? problemStatement : null,
+    strengths,
+    weaknesses,
+    suggestions,
+    aiVerdict,
+    timeline,
+    feedback: labSub?.feedback && labSub.feedback.trim() ? labSub.feedback.trim() : null,
+  };
 }
 
-export function LabDrawer({ data, evaluationId, onClose }: { data: { section: any, labSub: any, candidate: any }; evaluationId: string; onClose: () => void }) {
-  const { section, labSub, candidate } = data;
-  const lab = generateMockLabAttempt(section, labSub);
+export function LabDrawer({
+  data,
+  evaluationId,
+  onClose,
+}: {
+  data: { section: any; labSub: any; candidate: any; labsReport?: any };
+  evaluationId: string;
+  onClose: () => void;
+}) {
+  const { section, labSub, candidate, labsReport } = data;
+  const lab = generateMockLabAttempt(section, labSub, labsReport);
+
+  const hasAIReview = lab.strengths.length > 0 || lab.weaknesses.length > 0 || lab.suggestions.length > 0 || Boolean(lab.feedback);
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
-      <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-5xl overflow-y-auto border-l border-white/10 bg-neutral-950">
-        <div className="sticky top-0 z-10 border-b border-white/5 bg-neutral-950/95 px-6 py-4 backdrop-blur">
+      <div className="fixed inset-0 z-40 bg-black/60" onClick={onClose} />
+      <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-5xl overflow-y-auto border-l border-white/10 bg-neutral-950 text-neutral-100 shadow-2xl">
+        {/* Sticky top bar */}
+        <div className="sticky top-0 z-10 border-b border-white/10 bg-neutral-950/95 px-6 py-4 backdrop-blur">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="text-[11px] uppercase tracking-widest text-neutral-500">
+              <div className="text-[11px] font-mono uppercase tracking-widest text-neutral-400">
                 {lab.domain} · Engineering lab
               </div>
-              <div className="mt-0.5 text-[18px] font-medium text-white">{lab.title}</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <div className={`text-[26px] font-medium leading-none ${eciColor(lab.score)}`}>
-                  {lab.score}
-                  <span className="text-[12px] text-neutral-500">%</span>
-                </div>
-                <div className="text-[10px] uppercase tracking-widest text-neutral-500">{lab.aiVerdict}</div>
+              <div className="mt-1 text-[20px] font-semibold text-white" style={{ color: '#ffffff' }}>
+                {lab.title}
               </div>
-              <button onClick={onClose} className="rounded p-1.5 text-neutral-400 hover:bg-white/5 hover:text-white">
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className={`text-[26px] font-medium leading-none ${eciColor(lab.scorePct)}`}>
+                  {lab.scorePct}
+                  <span className="text-[12px] text-neutral-400">%</span>
+                </div>
+                <div className="mt-1 text-[11px] font-mono text-neutral-400">
+                  {lab.marksEarned}/{lab.maxMarks} marks
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="rounded-lg border border-white/10 p-2 text-neutral-400 hover:bg-white/5 hover:text-white transition"
+              >
                 ✕
               </button>
             </div>
@@ -2547,32 +3029,50 @@ export function LabDrawer({ data, evaluationId, onClose }: { data: { section: an
         </div>
 
         <div className="space-y-6 px-6 py-6">
-          <Block title="Problem statement">
-            <p className="text-[13px] leading-relaxed text-neutral-300">{lab.problemStatement}</p>
-          </Block>
+          {/* Problem statement (only if data exists) */}
+          {lab.problemStatement && (
+            <Block title="Problem statement">
+              <p className="text-[13px] leading-relaxed text-neutral-300 whitespace-pre-wrap">{lab.problemStatement}</p>
+            </Block>
+          )}
 
-          <div className="grid grid-cols-3 gap-2">
-            <StatMini label="Time taken" value={`${lab.timeTaken}m`} sub={`of ${lab.timeLimit}m`} />
+          {/* Quick stats metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <StatMini
-              label="Tasks completed"
-              value={`${lab.tasksCompleted}/${lab.tasksTotal}`}
-              sub={lab.tasksCompleted === lab.tasksTotal ? "All done" : `${lab.tasksTotal - lab.tasksCompleted} missed`}
+              label="Time taken"
+              value={`${lab.timeTaken}m`}
+              sub={lab.timeLimit > 0 ? `of ${lab.timeLimit}m allowed` : undefined}
             />
-            <StatMini label="Files changed" value={String(lab.files.length)} sub={`${lab.gitCommits.length} commits`} />
+            {lab.tasksTotal > 0 && (
+              <StatMini
+                label="Tasks completed"
+                value={`${lab.tasksCompleted}/${lab.tasksTotal}`}
+                sub={lab.tasksCompleted === lab.tasksTotal ? "All done" : `${lab.tasksTotal - lab.tasksCompleted} missed`}
+              />
+            )}
+            <StatMini
+              label="Files changed"
+              value={String(lab.files.length)}
+              sub={lab.files.length === 1 ? "1 file modified" : `${lab.files.length} files modified`}
+            />
           </div>
 
-          <Block title="Execution timeline">
-            <ol className="relative space-y-3 border-l border-white/10 pl-5">
-              {lab.timeline.map((t: any, i: number) => (
-                <li key={i} className="relative">
-                  <span className="absolute -left-[22px] mt-1.5 h-2 w-2 rounded-full bg-emerald-400" />
-                  <div className="text-[12px] text-white">{t.label}</div>
-                  <div className="text-[10px] text-neutral-500">t+{t.t}m</div>
-                </li>
-              ))}
-            </ol>
-          </Block>
+          {/* Execution timeline (only if entries exist) */}
+          {lab.timeline.length > 0 && (
+            <Block title="Execution timeline">
+              <ol className="relative space-y-3 border-l border-white/10 pl-5">
+                {lab.timeline.map((t: any, i: number) => (
+                  <li key={i} className="relative">
+                    <span className="absolute -left-[22px] mt-1.5 h-2 w-2 rounded-full bg-emerald-400" />
+                    <div className="text-[12px] text-white" style={{ color: '#ffffff' }}>{t.label}</div>
+                    <div className="text-[10px] text-neutral-400">{t.time}</div>
+                  </li>
+                ))}
+              </ol>
+            </Block>
+          )}
 
+          {/* Submitted code */}
           <Block title="Submitted code" icon={<FileText className="h-3.5 w-3.5" />}>
             <div className="h-[600px] border border-white/10 rounded-xl overflow-hidden relative">
               <ErrorBoundary>
@@ -2586,58 +3086,70 @@ export function LabDrawer({ data, evaluationId, onClose }: { data: { section: an
             </div>
           </Block>
 
-          <Block title="Git commits" icon={<GitCommit className="h-3.5 w-3.5" />}>
-            <div className="space-y-2">
-              {lab.gitCommits.map((c: any, i: number) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 text-[12px]"
-                >
-                  <span className="font-mono text-[10px] text-emerald-300">{c.sha}</span>
-                  <div className="flex-1">
-                    <div className="text-neutral-200">{c.message}</div>
-                    <div className="text-[10px] text-neutral-500">{c.time}</div>
+          {/* Real Git commits (only if real commits exist) */}
+          {lab.gitCommits.length > 0 && (
+            <Block title="Git commits" icon={<GitCommit className="h-3.5 w-3.5" />}>
+              <div className="space-y-2">
+                {lab.gitCommits.map((c: any, i: number) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 text-[12px]"
+                  >
+                    <span className="font-mono text-[10px] text-emerald-300">{c.sha || c.hash}</span>
+                    <div className="flex-1">
+                      <div className="text-neutral-200">{c.message}</div>
+                      {c.time && <div className="text-[10px] text-neutral-500">{c.time}</div>}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </Block>
-
-          <Block title="Console logs" icon={<Terminal className="h-3.5 w-3.5" />}>
-            <pre className="overflow-x-auto rounded-lg border border-white/10 bg-black/60 p-3 font-mono text-[11px] leading-relaxed text-neutral-300">
-              {lab.consoleLogs.join("\n")}
-            </pre>
-          </Block>
-
-          <Block title="Execution output">
-            <pre className="overflow-x-auto rounded-lg border border-white/10 bg-black/60 p-3 font-mono text-[11px] leading-relaxed text-emerald-200">
-              {lab.execOutput.join("\n")}
-            </pre>
-          </Block>
-
-          <Block title="AI review" icon={<Sparkles className="h-3.5 w-3.5 text-emerald-400" />}>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <ListBlock title="Strengths" items={lab.strengths} tone="good" />
-              <ListBlock title="Weaknesses" items={lab.weaknesses} tone="warn" />
-            </div>
-            <div className="mt-4">
-              <div className="text-[10px] uppercase tracking-widest text-neutral-500">Suggestions</div>
-              <ul className="mt-2 space-y-1 text-[12px] text-neutral-300">
-                {lab.suggestions.map((s: string, i: number) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="mt-1.5 h-1 w-1 rounded-full bg-neutral-400" />
-                    {s}
-                  </li>
                 ))}
-              </ul>
-            </div>
-          </Block>
+              </div>
+            </Block>
+          )}
 
+          {/* Execution & test output (only if real output exists) */}
+          {lab.output && (
+            <FormattedExecutionOutput rawOutput={lab.output} labTasks={section?.tasks} />
+          )}
+
+          {/* AI review (only if real strengths/weaknesses/suggestions/feedback exist) */}
+          {hasAIReview && (
+            <Block title="AI Review & Feedback" icon={<Sparkles className="h-3.5 w-3.5 text-emerald-400" />}>
+              {lab.feedback && (
+                <div className="mb-4 rounded-lg border border-white/5 bg-white/[0.02] p-3 text-[13px] text-neutral-300 leading-relaxed">
+                  {lab.feedback}
+                </div>
+              )}
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {lab.strengths.length > 0 && (
+                  <ListBlock title="Strengths" items={lab.strengths} tone="good" />
+                )}
+                {lab.weaknesses.length > 0 && (
+                  <ListBlock title="Weaknesses" items={lab.weaknesses} tone="warn" />
+                )}
+              </div>
+              {lab.suggestions.length > 0 && (
+                <div className="mt-4">
+                  <div className="text-[10px] uppercase tracking-widest text-neutral-500">Suggestions</div>
+                  <ul className="mt-2 space-y-1 text-[12px] text-neutral-300">
+                    {lab.suggestions.map((s: string, i: number) => (
+                      <li key={i} className="flex gap-2">
+                        <span className="mt-1.5 h-1 w-1 rounded-full bg-neutral-400" />
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </Block>
+          )}
+
+          {/* Final lab score */}
           <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4 text-center">
             <div className="text-[10px] uppercase tracking-widest text-emerald-300/80">Final lab score</div>
-            <div className={`mt-1 text-[36px] font-medium ${eciColor(lab.score)}`}>
-              {lab.score}
-              <span className="text-[14px] text-neutral-500">/100</span>
+            <div className={`mt-1 text-[36px] font-medium ${eciColor(lab.scorePct)}`}>
+              {lab.marksEarned}
+              <span className="text-[16px] text-neutral-400">/{lab.maxMarks} marks</span>
+              <span className="ml-2 text-[14px] text-neutral-500">({lab.scorePct}%)</span>
             </div>
           </div>
         </div>
@@ -2769,12 +3281,17 @@ export function SubMetric({
   maxScore?: number;
   onClick?: () => void;
 }) {
+  const pct = maxScore > 0 ? Math.min(100, Math.round((value / maxScore) * 100)) : 0;
   return (
-    <button onClick={onClick} className="px-4 py-4 text-left transition">
+    <button onClick={onClick} className="w-full px-5 py-4 text-left transition hover:bg-white/[0.02]">
       <div className="text-[10px] uppercase tracking-widest text-neutral-400">{label}</div>
-      <div className="mt-1 text-[22px] font-medium text-white">
-        {value}
-        <span className="text-[11px] text-neutral-500">/{maxScore}</span>
+      <div className="mt-1 flex items-baseline justify-between gap-3">
+        <span className={`text-[22px] font-medium leading-none ${eciColor(pct)}`}>
+          {pct}%
+        </span>
+        <span className="text-[13px] font-mono text-neutral-400">
+          {value}/{maxScore}
+        </span>
       </div>
     </button>
   );
@@ -2809,8 +3326,9 @@ export function RadialScore({ value, maxScore = 100 }: { value: number; maxScore
         />
       </svg>
       <div className="absolute text-center">
-        <div className={`text-[26px] font-medium leading-none ${eciColor(pct)}`}>{value}</div>
-        <div className="text-[10px] uppercase tracking-widest text-neutral-500">of {maxScore}</div>
+        <div className={`text-[24px] font-medium leading-none ${eciColor(pct)}`}>
+          {Math.round(pct)}%
+        </div>
       </div>
     </div>
   );

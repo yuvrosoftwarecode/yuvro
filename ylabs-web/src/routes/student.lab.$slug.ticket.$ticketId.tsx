@@ -2239,20 +2239,25 @@ export function TicketIDE({
   async function handleSubmit() {
     if (isReal) {
       const filesToSave = getFilesToSave();
-      Promise.all(
-        Object.keys(filesToSave).map(p => wsWriteFile(userId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
-      ).catch(console.error);
+      try {
+        await Promise.all(
+          Object.keys(filesToSave).map(p => wsWriteFile(userId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
+        );
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     if (isAnySql) {
       setSubmitting(true);
+      const computedSqlScore = ticketScore ? ticketScore.passed : 0;
       if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
-              score: ticketScore ? ticketScore.passed : 0
+              score: computedSqlScore
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
@@ -2260,26 +2265,27 @@ export function TicketIDE({
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
-              score: ticketScore ? ticketScore.passed : 0
+              score: computedSqlScore
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedSqlScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedSqlScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }
 
     if (isUi && uiDiffResult) {
       setSubmitting(true);
+      const computedUiScore = ticketScore ? ticketScore.passed : 0;
       if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
-              score: ticketScore ? ticketScore.passed : 0
+              score: computedUiScore
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
@@ -2287,13 +2293,13 @@ export function TicketIDE({
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               [submissionsStatusField]: "in_review",
               solution: JSON.stringify(getFilesToSave()),
-              score: ticketScore ? ticketScore.passed : 0
+              score: computedUiScore
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedUiScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedUiScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }

@@ -371,16 +371,23 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         lab_id = request.data.get('lab_id')
         status_val = request.data.get('status', 'in_review')
         solution = request.data.get('solution', '')
-        minutes_solved = request.data.get('minutes_solved', 0)
-        
-        if not lab_id:
-            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        try:
-            lab = LabQuestionBank.objects.get(id=lab_id)
-        except LabQuestionBank.DoesNotExist:
-            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
-            
+        minutes_solved = request.data.get('minutes_solved')
+        if not minutes_solved:
+            existing = UserLabQuestionBankSubmission.objects.filter(
+                user=request.user, evaluation=evaluation, lab_question=lab
+            ).first()
+            if existing and existing.created_at:
+                import django.utils.timezone as tz
+                delta = tz.now() - existing.created_at
+                minutes_solved = max(1, round(delta.total_seconds() / 60))
+            else:
+                minutes_solved = 0
+        else:
+            try:
+                minutes_solved = int(minutes_solved)
+            except (ValueError, TypeError):
+                minutes_solved = 0
+
         score_val = request.data.get('score')
         defaults = {
             'status': status_val,
@@ -416,7 +423,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     subprocess.run(["git", "add", "-A", "-N"], cwd=user_dir, check=True, capture_output=True)
                     diff_output = subprocess.check_output(
                         [
-                            "git", "diff", "HEAD", "--", ".",
+                            "git", "diff", "-U99999", "HEAD", "--", ".",
                             ":(exclude)*.sqlite3", ":(exclude)*.db", ":(exclude)*.sqlite",
                             ":(exclude)*.db-journal", ":(exclude)*.db-wal", ":(exclude)*.dbsqlite3",
                             ":(exclude)*.zip", ":(exclude)*.tar", ":(exclude)*.gz",
@@ -429,7 +436,9 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     ).decode()
                     if diff_output:
                         submission.solution = diff_output
-                        submission.save(update_fields=['solution'])
+                        if submission.score == 0 and ("HTTP_201_CREATED" in diff_output or "201_CREATED" in diff_output):
+                            submission.score = 2
+                        submission.save(update_fields=['solution', 'score'])
                 except Exception as e:
                     logger = logging.getLogger(__name__)
                     logger.warning(f"Failed to generate git diff for lab {lab.id}: {e}")
@@ -480,7 +489,9 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                         if response.status_code == 200:
                             result_data = response.json()
                             submission.solution_output = json.dumps(result_data)
-                            submission.score = int(result_data.get("percentage", 0))
+                            calc_score = int(result_data.get("percentage", 0))
+                            if calc_score > 0 or submission.score == 0:
+                                submission.score = calc_score
                             submission.save(update_fields=['solution_output', 'score'])
                     except Exception as e:
                         logger = logging.getLogger(__name__)
@@ -499,7 +510,12 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                         if response.status_code == 200:
                             result_data = response.json()
                             submission.solution_output = json.dumps(result_data)
-                            submission.score = int(result_data.get("percentage", result_data.get("total_score", 0)))
+                            calc_score = result_data.get("total_score")
+                            if calc_score is None:
+                                calc_score = result_data.get("percentage", 0)
+                            calc_score = int(calc_score)
+                            if calc_score > 0 or submission.score == 0:
+                                submission.score = calc_score
                             submission.save(update_fields=['solution_output', 'score'])
                     except Exception as e:
                         logger = logging.getLogger(__name__)
@@ -885,7 +901,47 @@ class UserLabQuestionBankSubmissionViewSet(viewsets.ModelViewSet):
         return UserLabQuestionBankSubmission.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        instance = serializer.save(user=self.request.user)
+        self._ensure_git_diff(instance)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        self._ensure_git_diff(instance)
+
+    def _ensure_git_diff(self, instance):
+        if not instance.evaluation_id or not instance.lab_question_id:
+            return
+        user_dir = os.path.join(
+            settings.WORKSPACES_ROOT,
+            "evaluation",
+            str(instance.evaluation_id),
+            "users",
+            str(instance.user_id),
+            "labs",
+            str(instance.lab_question_id)
+        )
+        if os.path.exists(user_dir):
+            import subprocess
+            try:
+                subprocess.run(["git", "add", "-A", "-N"], cwd=user_dir, check=True, capture_output=True)
+                diff_output = subprocess.check_output(
+                    [
+                        "git", "diff", "-U99999", "HEAD", "--", ".",
+                        ":(exclude)*.sqlite3", ":(exclude)*.db", ":(exclude)*.sqlite",
+                        ":(exclude)*.db-journal", ":(exclude)*.db-wal", ":(exclude)*.dbsqlite3",
+                        ":(exclude)*.zip", ":(exclude)*.tar", ":(exclude)*.gz",
+                        ":(exclude)*.pyc", ":(exclude)*__pycache__*",
+                        ":(exclude)*.log", ":(exclude)*bash_history*",
+                        ":(exclude)README.md", ":(exclude).gitignore", ":(exclude)requirements.txt"
+                    ],
+                    cwd=user_dir,
+                    stderr=subprocess.DEVNULL
+                ).decode()
+                if diff_output and diff_output.strip():
+                    instance.solution = diff_output
+                    instance.save(update_fields=['solution'])
+            except Exception:
+                pass
 
 from .models import CandidateNote
 from .serializers import CandidateNoteSerializer, CandidateTimelineEventSerializer
