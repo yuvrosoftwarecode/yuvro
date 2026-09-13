@@ -273,6 +273,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [taskState, setTaskState] = useState<Record<string, Set<number>>>({});
   
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
+  const [activeDiscussionQuestion, setActiveDiscussionQuestion] = useState<string | null>(null);
   const [labSubmissionsData, setLabSubmissionsData] = useState<any[]>([]);
 
   useEffect(() => {
@@ -320,6 +321,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     assessmentType: "skill_evaluation",
     enabled: !!proctoringConfig.enableProctoring,
     questionId: activeQuestionId || openLab || section || undefined,
+    questionTitle: activeDiscussionQuestion || undefined,
     mediaStream: proctoringData?.cameraStream,
     screenStream: proctoringData?.screenStream,
     tabSwitchThreshold: proctoringConfig.tabSwitchLimit || 3,
@@ -860,6 +862,8 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   mockInterviewId={meta.mockInterviewId}
                   candidateContext={candidateContextString}
                   onEnd={() => setModal({ kind: "end-discussion" })}
+                  onQuestionChange={(q) => setActiveDiscussionQuestion(q)}
+                  onSessionStart={(sId) => logActivity('vitarka_session_started', { session_id: sId })}
                 />
               );
             }
@@ -870,6 +874,8 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               mockInterviewId={appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")?.description ? JSON.parse(appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")!.description || "{}").mockInterviewId : ""}
               candidateContext={candidateContextString}
               onEnd={() => setModal({ kind: "end-discussion" })}
+              onQuestionChange={(q) => setActiveDiscussionQuestion(q)}
+              onSessionStart={(sId) => logActivity('vitarka_session_started', { session_id: sId })}
             />
           )}
         </main>

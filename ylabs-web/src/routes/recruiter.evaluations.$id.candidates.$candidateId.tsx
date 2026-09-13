@@ -572,7 +572,7 @@ function CandidateWorkspace() {
               }}
             />
           )}
-          {tab === "proctoring" && <CandidateAnalyticsViewer candidate={candidate} evaluation={ev} />}
+          {tab === "proctoring" && <CandidateAnalyticsViewer candidate={candidate} evaluation={ev} vitarkaSubmission={vitarkaSubmission} />}
           {tab === "resume" && (
             <ResumePane candidate={candidate} detail={detail} onDownload={downloadResume} />
           )}
@@ -1908,7 +1908,7 @@ export function TimelinePane({ events, detail, isDemo, hasLabs, hasAssessment, h
                 {t.label}
               </div>
               <div className="text-[11px] text-neutral-500">
-                {t.done ? t.time : "pending"}
+                {t.time}
               </div>
             </li>
           ))}

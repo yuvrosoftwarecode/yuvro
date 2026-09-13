@@ -10,9 +10,10 @@ const BACKEND_API_BASE = import.meta.env.VITE_BACKEND_API_BASE_URL
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface ProctoringConfig {
     assessmentId: string;
-    assessmentType: 'skill-tests' | 'contests' | 'mock-interviews' | 'job-tests' | 'certification-exams';
+    assessmentType: 'skill-tests' | 'contests' | 'mock-interviews' | 'job-tests' | 'certification-exams' | 'skill_evaluation' | string;
     enabled: boolean;
     questionId?: string;
+    questionTitle?: string;
     mediaStream?: MediaStream | null;
     screenStream?: MediaStream | null;
     tabSwitchThreshold?: number;
@@ -30,6 +31,7 @@ export const useProctoring = ({
     assessmentType,
     enabled,
     questionId,
+    questionTitle,
     mediaStream,
     screenStream,
     enableCopyPaste,
@@ -43,10 +45,12 @@ export const useProctoring = ({
     const onViolationRef = useRef(onViolation);
     const onAutoSubmitRef = useRef(onAutoSubmit);
     const questionIdRef = useRef(questionId);
+    const questionTitleRef = useRef(questionTitle);
 
     useEffect(() => { onViolationRef.current = onViolation; }, [onViolation]);
     useEffect(() => { onAutoSubmitRef.current = onAutoSubmit; }, [onAutoSubmit]);
     useEffect(() => { questionIdRef.current = questionId; }, [questionId]);
+    useEffect(() => { questionTitleRef.current = questionTitle; }, [questionTitle]);
     
     const pauseFsRef = useRef(pauseFullscreenChecks);
     useEffect(() => { pauseFsRef.current = pauseFullscreenChecks; }, [pauseFullscreenChecks]);
@@ -58,11 +62,12 @@ export const useProctoring = ({
 
     // ── Core logActivity ──────────────────────────────────────────────────────
     const logActivity = useCallback(async (activityType: string, metaData: any = {}, explicitBlob?: Blob | null) => {
-        if (!enabled) return null;
+        if (!enabled && activityType !== 'vitarka_session_started') return null;
 
         try {
             const url = `/skill_evaluation/evaluations/${assessmentId}/log_activity/`;
             const activeQuestionId = metaData.question_id || questionIdRef.current;
+            const activeQuestionTitle = metaData.question_title || questionTitleRef.current;
             const timestamp = new Date().toISOString();
             
             const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
@@ -79,6 +84,7 @@ export const useProctoring = ({
 
             const submissionLevelTypes = ['passport_photo_captured', 'initial_screenshot_captured'];
             const shouldSendQuestionId = activeQuestionId && !submissionLevelTypes.includes(activityType);
+            const shouldSendQuestionTitle = activeQuestionTitle && !submissionLevelTypes.includes(activityType);
 
             let response;
             if (blob || screenBlob) {
@@ -87,6 +93,7 @@ export const useProctoring = ({
                 formData.append('meta_data', JSON.stringify(metaData));
                 formData.append('timestamp', timestamp);
                 if (shouldSendQuestionId) formData.append('question_id', activeQuestionId);
+                if (shouldSendQuestionTitle) formData.append('question_title', activeQuestionTitle);
                 
                 if (blob) {
                     formData.append('snapshot', blob, 'snapshot.png');
@@ -102,6 +109,7 @@ export const useProctoring = ({
                     meta_data: metaData,
                     timestamp: timestamp,
                     ...(shouldSendQuestionId && { question_id: activeQuestionId }),
+                    ...(shouldSendQuestionTitle && { question_title: activeQuestionTitle }),
                 };
                 response = await restApiAuthUtil.post(url, payload) as any;
             }
@@ -124,7 +132,7 @@ export const useProctoring = ({
     useEffect(() => {
         if (!enabled) return;
         const handleVisibilityChange = async () => {
-            if (tabSwitchAllowed !== false) return; // Ignore if allowed
+            if (tabSwitchAllowed === true) return; // Ignore if explicitly allowed
             if (document.hidden) {
                 await logActivity('tab_switched', { type: 'hidden' });
             } else {
@@ -178,7 +186,7 @@ export const useProctoring = ({
         if (!enabled) return;
 
         const handleCopy = (e: ClipboardEvent) => {
-            if (enableCopyPaste !== false) return;
+            if (enableCopyPaste === true) return;
             e.preventDefault();
             let selectedText = window.getSelection()?.toString() || '';
             if (!selectedText && document.activeElement instanceof HTMLTextAreaElement) {
@@ -190,7 +198,7 @@ export const useProctoring = ({
             onViolationRef.current?.('copy_detected');
         };
         const handlePaste = (e: ClipboardEvent) => {
-            if (enableCopyPaste !== false) return;
+            if (enableCopyPaste === true) return;
             e.preventDefault();
             const pastedText = e.clipboardData?.getData('text') || '';
             const method = shortcutAttemptRef.current === 'v' ? 'keyboard_shortcut' : 'direct';
@@ -198,7 +206,7 @@ export const useProctoring = ({
             onViolationRef.current?.('paste_detected');
         };
         const handleCut = (e: ClipboardEvent) => {
-            if (enableCopyPaste !== false) return;
+            if (enableCopyPaste === true) return;
             e.preventDefault();
             let selectedText = window.getSelection()?.toString() || '';
             if (!selectedText && document.activeElement instanceof HTMLTextAreaElement) {
@@ -210,7 +218,7 @@ export const useProctoring = ({
             onViolationRef.current?.('cut_detected');
         };
         const handleContextMenu = (e: MouseEvent) => {
-            if (enableCopyPaste !== false) return;
+            if (enableCopyPaste === true) return;
             e.preventDefault();
             logActivity('right_click_detected', { method: 'direct', x: e.clientX, y: e.clientY });
             onViolationRef.current?.('right_click_detected');
@@ -364,12 +372,12 @@ export const useProctoring = ({
 
             // ── Ctrl+C/V/X/A/P/S (Copy, Paste, Cut, Select all, Print, Save) ───
             if (ctrlOrMeta && !shift && ['c','v','x'].includes(key)) {
-                if (enableCopyPaste === false) {
+                if (enableCopyPaste !== true) {
                     shortcutAttemptRef.current = key;
                     setTimeout(() => { shortcutAttemptRef.current = null; }, 100);
                 }
             } else if (ctrlOrMeta && !shift && ['a','p','s'].includes(key)) {
-                if (enableCopyPaste === false) {
+                if (enableCopyPaste !== true) {
                     blocked = true;
                     
                     if (key === 'a') {
@@ -512,7 +520,9 @@ export const useProctoring = ({
                     formData.append('activity_type', 'snapshot');
                     formData.append('timestamp', new Date().toISOString());
                     const activeQId = questionIdRef.current;
+                    const activeQTitle = questionTitleRef.current;
                     if (activeQId) formData.append('question_id', activeQId);
+                    if (activeQTitle) formData.append('question_title', activeQTitle);
 
                     const url = `/skill_evaluation/evaluations/${assessmentId}/log_activity/`;
                     try {
