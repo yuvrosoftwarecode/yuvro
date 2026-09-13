@@ -448,6 +448,8 @@ class InterviewReport(BaseModel):
     status: InterviewStatus
     rubric_version: str
     overall_score: float = Field(..., ge=0, le=10)
+    scaled_score: float | None = None
+    max_score: float | None = None
     coverage: EvaluationCoverage
     recommendation: str
     executive_summary: str

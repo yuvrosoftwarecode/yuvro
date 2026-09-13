@@ -14,6 +14,9 @@ export interface ReportInput {
   labsScore: number;
   assessmentScore: number;
   vitarkaScore: number;
+  labsMaxScore?: number;
+  assessmentMaxScore?: number;
+  discussionMaxScore?: number;
   strengths: string[];
   weaknesses: string[];
   aiSummary: string;
@@ -75,9 +78,9 @@ export function buildCandidateReportPdf(d: ReportInput) {
   // Score cards
   const cards: [string, string][] = [
     ["Capability Index", `${d.eci}/100`],
-    ["Engineering Labs", `${d.labsScore}`],
-    ["Assessment", `${d.assessmentScore}`],
-    ["Vitarka AI", `${d.vitarkaScore}`],
+    ["Engineering Labs", `${d.labsScore}/${d.labsMaxScore ?? 80}`],
+    ["Assessment", `${d.assessmentScore}/${d.assessmentMaxScore ?? 30}`],
+    ["Vitarka AI", `${d.vitarkaScore}/${d.discussionMaxScore ?? 25}`],
   ];
   const gap = 12;
   const cw = (W - M * 2 - gap * (cards.length - 1)) / cards.length;

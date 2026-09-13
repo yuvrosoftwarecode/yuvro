@@ -10,10 +10,12 @@ export function VitarkaInterviewScreen({
   mockInterviewId,
   onEnd,
   candidateContext,
+  discussionMaxScore,
 }: {
   mockInterviewId: string;
   onEnd: () => void;
   candidateContext?: string;
+  discussionMaxScore?: number;
 }) {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [conversation, setConversation] = useState<Message[]>([]);
@@ -124,6 +126,8 @@ export function VitarkaInterviewScreen({
           sequential: true,
           force: true,
           candidate_context: candidateContext,
+          discussion_max_score: discussionMaxScore,
+          max_score: discussionMaxScore,
         },
       );
       setSessionInfo({
@@ -136,7 +140,8 @@ export function VitarkaInterviewScreen({
       speakText(firstQ);
     } catch (err) {
       console.error("Failed to start interview", err);
-      alert("Failed to initialize interview.");
+      setInterviewState("initial");
+      alert("Failed to initialize interview. Please check your connection and try again.");
     }
   };
 

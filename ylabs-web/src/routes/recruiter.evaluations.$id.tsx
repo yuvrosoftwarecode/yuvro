@@ -341,6 +341,8 @@ function EvaluationWorkspace() {
                   title: "Engineering Discussion",
                   duration: 15,
                   mode: "Automatic",
+                  marks: 25,
+                  max_score: 25,
                   questions: [],
                   proctoring: { enableProctoring: true, enableCopyPaste: false, tabSwitchAllowed: false, tabSwitchLimit: 3 },
                 });
@@ -844,13 +846,14 @@ function DiscussionSectionBody({
 }) {
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div>
           <div className="text-[11px] uppercase tracking-widest text-neutral-500">Duration</div>
           <div className="mt-1 flex items-center gap-2">
             {[10, 15, 20, 30].map((d) => (
               <button
                 key={d}
+                type="button"
                 onClick={() => onChange({ ...section, duration: d })}
                 className={`rounded-md border px-2.5 py-1 text-[12px] ${section.duration === d ? "border-amber-400/40 bg-amber-400/10 text-amber-300" : "border-white/10 text-neutral-400 hover:text-white"}`}
               >
@@ -867,6 +870,7 @@ function DiscussionSectionBody({
             {(["Custom", "Automatic", "Hybrid"] as const).map(mode => (
               <button 
                 key={mode} 
+                type="button"
                 onClick={() => {
                   let updatedQuestions = section.questions;
                   if (mode === "Automatic") {
@@ -879,6 +883,35 @@ function DiscussionSectionBody({
                 {mode}
               </button>
             ))}
+          </div>
+        </div>
+        <div>
+          <div className="text-[11px] uppercase tracking-widest text-neutral-500">
+            Max Score
+          </div>
+          <div className="mt-1 flex items-center gap-2">
+            {[20, 25, 30, 40].map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => onChange({ ...section, marks: m, max_score: m })}
+                className={`rounded-md border px-2.5 py-1 text-[12px] ${(section.marks ?? section.max_score ?? 25) === m ? "border-amber-400/40 bg-amber-400/10 text-amber-300" : "border-white/10 text-neutral-400 hover:text-white"}`}
+              >
+                {m}
+              </button>
+            ))}
+            <input
+              type="number"
+              min={1}
+              max={100}
+              value={section.marks ?? section.max_score ?? 25}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || 0;
+                onChange({ ...section, marks: val, max_score: val });
+              }}
+              className="w-16 rounded-md border border-white/10 bg-black/40 px-2 py-1 text-[12px] text-white outline-none focus:border-amber-400/40 text-center"
+              placeholder="Custom"
+            />
           </div>
         </div>
       </div>

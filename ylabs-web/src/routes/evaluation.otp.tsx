@@ -85,8 +85,10 @@ function OtpPage() {
     setErr(null);
     try {
       const verifyRes = await evaluationService.verifyRegistrationOtp(evaluationId, email, otp, firstName, lastName);
-      if (verifyRes.access_token) {
-        authService.setAuthToken(verifyRes.access_token);
+      const accessToken = verifyRes.access_token || verifyRes.access;
+      const refreshToken = verifyRes.refresh_token || verifyRes.refresh;
+      if (accessToken) {
+        authService.setAuthToken(accessToken, refreshToken);
         
         let resumeUrl: string | undefined;
         if (tempResumeFile) {
@@ -100,7 +102,7 @@ function OtpPage() {
           }
         }
 
-        await evaluationService.registerPublicEvaluation(evaluationId, verifyRes.access_token, resumeUrl);
+        await evaluationService.registerPublicEvaluation(evaluationId, accessToken, resumeUrl);
 
         window.location.href = `/evaluation/proctoring?e=${evaluationId}`;
       } else {

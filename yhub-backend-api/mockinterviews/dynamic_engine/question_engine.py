@@ -64,8 +64,40 @@ UNKNOWN_ANSWER_PATTERNS = {
     "i do not know",
     "no idea",
     "not sure",
-    "pass",
+    "dont know much",
+    "don't know much",
+    "do not know much",
+    "cant answer",
+    "can't answer",
+    "cannot answer",
+    "not much idea",
+    "dont know much regarding this",
+    "don't know much regarding this",
+    "do not know much regarding this",
+    "dont know much about this",
+    "don't know much about this",
+    "do not know much about this",
+    "just want to check how you will generate report",
+}
+
+SKIP_OR_TOPIC_CHANGE_PATTERNS = {
+    "next topic",
+    "move to next topic",
+    "move to the next topic",
+    "can we move to the next topic",
+    "can we move",
+    "move on",
+    "let's move on",
+    "lets move on",
+    "next question",
+    "don't want to discuss",
+    "dont want to discuss",
+    "do not want to discuss",
+    "not want to discuss",
+    "no voice response recorded",
+    "no answer",
     "skip",
+    "pass",
 }
 
 
@@ -93,7 +125,7 @@ class DynamicQuestionEngine:
         self,
         llm_client: InterviewLLM | None = None,
         code_analyzer: CodeInsightExtractor | None = None,
-        max_followups_per_topic: int = 3,
+        max_followups_per_topic: int = 2,
     ) -> None:
         self.llm_client = llm_client
         self.code_analyzer = code_analyzer or CodeInsightExtractor()
@@ -263,6 +295,15 @@ class DynamicQuestionEngine:
             fallback_question.metadata["rejected_llm_prompt"] = self._compact(generated.prompt, 220)
             return fallback_question
 
+        retired_files = session.metadata.get("retired_files", [])
+        if retired_files:
+            gen_lower = generated.prompt.lower()
+            if any(f.lower() in gen_lower or f.rsplit("/", 1)[-1].lower() in gen_lower for f in retired_files):
+                fallback_question.metadata["generation_provider"] = "deterministic_fallback_retired_guard"
+                fallback_question.metadata["llm_retired_rejected"] = True
+                fallback_question.metadata["rejected_llm_prompt"] = self._compact(generated.prompt, 220)
+                return fallback_question
+
         if not self._llm_prompt_preserves_grounding(session, fallback_question, generated.prompt):
             fallback_question.metadata["generation_provider"] = "deterministic_fallback_grounding_guard"
             fallback_question.metadata["llm_grounding_rejected"] = True
@@ -374,7 +415,8 @@ class DynamicQuestionEngine:
             raise ValueError(f"question_id {question_id!r} does not belong to session {session.id}")
 
         answer_metadata = dict(metadata or {})
-        answer_metadata.setdefault("answer_quality", self._classify_answer(answer_text))
+        quality = self._classify_answer(answer_text)
+        answer_metadata.setdefault("answer_quality", quality)
         answer = CandidateAnswer(
             question_id=question_id,
             answer_text=answer_text,
@@ -384,6 +426,37 @@ class DynamicQuestionEngine:
         session.answers.append(answer)
         if session.current_question_id == question_id:
             session.current_question_id = None
+
+        question = next((q for q in session.questions if q.id == question_id), None)
+        if question:
+            topic_key = self._topic_key_for_question(question)
+            retired_topics = session.metadata.setdefault("retired_topics", [])
+            retired_files = session.metadata.setdefault("retired_files", [])
+
+            event = self._event_for_question(session, question)
+            changed_files = []
+            if event and isinstance(event.details.get("code_insights"), dict):
+                changed_files = event.details["code_insights"].get("changed_files", [])
+
+            if quality == "skip_requested":
+                if topic_key and topic_key not in retired_topics:
+                    retired_topics.append(topic_key)
+                for f in changed_files:
+                    if f not in retired_files:
+                        retired_files.append(f)
+            elif quality == "unknown" and question.metadata.get("unknown_recovery"):
+                if topic_key and topic_key not in retired_topics:
+                    retired_topics.append(topic_key)
+                for f in changed_files:
+                    if f not in retired_files:
+                        retired_files.append(f)
+            elif self._topic_limit_reached(session, topic_key):
+                if topic_key and topic_key not in retired_topics:
+                    retired_topics.append(topic_key)
+                for f in changed_files:
+                    if f not in retired_files:
+                        retired_files.append(f)
+
         session.touch()
         return answer
 
@@ -606,7 +679,13 @@ class DynamicQuestionEngine:
             return None
         if self._has_follow_up_for_answer(session, answer.id):
             return None
-        if self._topic_limit_reached(session, self._topic_key_for_question(question)):
+        topic_key = self._topic_key_for_question(question)
+        if topic_key in session.metadata.get("retired_topics", []):
+            return None
+        if self._topic_limit_reached(session, topic_key):
+            return None
+        quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
+        if quality == "skip_requested":
             return None
         if self._is_unknown_answer(answer) or question.evidence_event_ids or len(answer.answer_text.split()) < 18:
             return answer
@@ -675,12 +754,17 @@ class DynamicQuestionEngine:
         exclude_signatures: set[str] | None = None,
     ) -> InterviewQuestion | None:
         excluded = exclude_signatures or set()
+        retired_topics = session.metadata.get("retired_topics", [])
+        retired_files = session.metadata.get("retired_files", [])
         for event in self._ranked_code_events(session):
             code_insights = event.details.get("code_insights")
             if not isinstance(code_insights, dict):
                 continue
             topic_key = f"code:{event.id}"
-            if self._topic_limit_reached(session, topic_key):
+            if topic_key in retired_topics or self._topic_limit_reached(session, topic_key):
+                continue
+            changed = code_insights.get("changed_files", [])
+            if changed and all(f in retired_files for f in changed):
                 continue
             for axis in code_insights.get("question_axes", []):
                 signature = f"code-probe:{event.id}:{axis}"
@@ -1030,33 +1114,42 @@ class DynamicQuestionEngine:
 
     def _classify_answer(self, answer_text: str) -> str:
         normalized = self._normalize_answer(answer_text)
+        if not normalized or normalized == "no voice response recorded":
+            return "skip_requested"
+        if any(pattern in normalized for pattern in SKIP_OR_TOPIC_CHANGE_PATTERNS):
+            return "skip_requested"
         if normalized in UNKNOWN_ANSWER_PATTERNS:
             return "unknown"
         if any(pattern in normalized for pattern in UNKNOWN_ANSWER_PATTERNS) and len(
             normalized.split()
-        ) <= 8:
+        ) <= 18:
             return "unknown"
         if len(normalized.split()) < 8:
             return "thin"
         return "substantive"
 
     def _is_unknown_answer(self, answer: CandidateAnswer) -> bool:
-        if answer.metadata.get("answer_quality") == "unknown":
-            return True
-        return self._classify_answer(answer.answer_text) == "unknown"
+        quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
+        return quality in {"unknown", "skip_requested"}
 
     def _should_reframe_unknown_answer(
         self,
         session: InterviewSession,
         answer: CandidateAnswer,
     ) -> bool:
-        if not self._is_unknown_answer(answer):
+        quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
+        if quality == "skip_requested":
+            return False
+        if quality != "unknown":
             return False
         if self._has_follow_up_for_answer(session, answer.id):
             return False
         question = self._question_for_answer(session, answer)
         if question is None:
             return True
+        topic_key = self._topic_key_for_question(question)
+        if topic_key in session.metadata.get("retired_topics", []):
+            return False
         return not question.metadata.get("unknown_recovery")
 
     def _unknown_answer_recovery_question(

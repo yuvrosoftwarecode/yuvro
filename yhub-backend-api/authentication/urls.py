@@ -11,6 +11,7 @@ urlpatterns = [
     path("public_send_otp/", views.public_send_otp, name="public_send_otp"),
     path("public_check_otp/", views.public_check_otp, name="public_check_otp"),
     path("public_verify_otp/", views.public_verify_otp, name="public_verify_otp"),
+    path("recover_candidate_session/", views.recover_candidate_session, name="recover_candidate_session"),
     path("logout/", views.logout_view, name="logout"),
     path(
         "token/refresh/", views.CustomTokenRefreshView.as_view(), name="token_refresh"

@@ -47,6 +47,9 @@ class UnifiedPayloadAdapter:
                 "candidate_context_excerpt": self._compact_text(payload.candidate_context, 1200),
                 "knowledge_assessment": self._assessment_summary(report_sources["knowledge_assessment"]),
                 "payload_report_sources": report_sources,
+                **({
+                    "discussion_max_score": report_sources["discussion_max_score"]
+                } if report_sources.get("discussion_max_score") is not None else {}),
                 **payload.metadata,
             },
         )
@@ -149,6 +152,7 @@ class UnifiedPayloadAdapter:
         return {
             "engineering_labs": labs,
             "knowledge_assessment": knowledge or self._empty_knowledge_assessment(),
+            "discussion_max_score": parsed_context.get("discussion_max_score"),
             "candidate_context": {
                 "present": bool(payload.candidate_context),
                 "engineering_lab_count": len(parsed_labs),
@@ -354,9 +358,16 @@ class UnifiedPayloadAdapter:
         sanitized_context = (context or "").replace("\x00", "").replace("\u0000", "")
         if not sanitized_context.strip():
             return {}
+        disc_match = re.search(
+            r"Vitarka\s+Discussion\s+Max\s+Score:\s*(?P<max>\d+(?:\.\d+)?)",
+            sanitized_context,
+            re.IGNORECASE,
+        )
+        discussion_max_score = self._as_float(disc_match.group("max")) if disc_match else None
         return {
             "engineering_labs": self._parse_context_labs(sanitized_context),
             "knowledge_assessment": self._parse_context_knowledge_assessment(sanitized_context),
+            "discussion_max_score": discussion_max_score,
         }
 
     def _parse_context_labs(self, context: str) -> list[dict[str, Any]]:

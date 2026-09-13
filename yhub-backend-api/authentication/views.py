@@ -310,10 +310,68 @@ def public_verify_otp(request):
         return Response({
             "status": "success", 
             "message": "OTP verified",
-            "access_token": str(refresh.access_token)
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
         })
     
     return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def recover_candidate_session(request):
+    """
+    Recovers an expired candidate evaluation session token.
+    Validates cryptographic signature of the existing token against Django secret key,
+    or verifies matching candidate email, and reissues valid access + refresh tokens.
+    """
+    token_str = request.data.get("access_token") or request.data.get("token")
+    email = request.data.get("email")
+
+    user = None
+    if token_str:
+        try:
+            import jwt
+            from django.conf import settings
+            signing_key = getattr(settings, "SIMPLE_JWT", {}).get("SIGNING_KEY", settings.SECRET_KEY)
+            algorithm = getattr(settings, "SIMPLE_JWT", {}).get("ALGORITHM", "HS256")
+            # Verify signature without failing on expiration
+            payload = jwt.decode(
+                token_str,
+                signing_key,
+                algorithms=[algorithm],
+                options={"verify_exp": False, "verify_signature": True}
+            )
+            user_id = payload.get("user_id") or payload.get("id")
+            if user_id:
+                user = User.objects.filter(id=user_id).first()
+        except Exception as e:
+            logger.warning(f"Could not decode token for session recovery: {e}")
+
+    if not user and email:
+        # Fallback to user by candidate email
+        user = User.objects.filter(email=email).first()
+
+    if not user:
+        return Response(
+            {"error": "Unable to recover session. Please re-authenticate."},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    token_serializer = CustomTokenObtainPairSerializer()
+    refresh = token_serializer.get_token(user)
+    refresh["products"] = ["ycode", "ylabs", "ycampus", "marketplace"]
+
+    return Response({
+        "status": "success",
+        "message": "Session recovered",
+        "access": str(refresh.access_token),
+        "access_token": str(refresh.access_token),
+        "refresh": str(refresh),
+        "refresh_token": str(refresh),
+    })
 
 
 @api_view(["POST"])

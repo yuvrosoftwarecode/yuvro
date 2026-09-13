@@ -153,6 +153,8 @@ export interface DiscussionSection {
   questions: PredefinedQuestion[];
   mockInterviewId?: string;
   proctoring?: ProctoringConfig;
+  marks?: number;
+  max_score?: number;
 }
 export type Section = LabsSection | AssessmentSection | DiscussionSection;
 
@@ -213,6 +215,7 @@ function mapBackendToFrontend(be: any): Evaluation {
         try {
           meta = JSON.parse(s.description || "{}");
         } catch {}
+        const marks = meta.marks ?? meta.max_score ?? 25;
         return {
           id: s.id || newUid(),
           kind: "discussion",
@@ -221,6 +224,8 @@ function mapBackendToFrontend(be: any): Evaluation {
           mode: meta.mode || "Automatic",
           questions: s.questions || [],
           mockInterviewId: meta.mockInterviewId,
+          marks,
+          max_score: marks,
           proctoring
         };
       } else {
@@ -257,10 +262,13 @@ function mapFrontendToBackend(fe: Evaluation): any {
       } else if (s.kind === "discussion") {
         type = "VITARKA_AI_INTERVIEW";
         qs = s.questions || [];
+        const marks = s.marks ?? s.max_score ?? 25;
         desc = JSON.stringify({
           duration: s.duration,
           mode: s.mode || "Automatic",
           mockInterviewId: s.mockInterviewId,
+          marks,
+          max_score: marks,
         });
       }
 
@@ -615,6 +623,7 @@ export function evaluationTotals(e: Evaluation) {
     } else if (s.kind === "discussion") {
       discussion += s.duration;
       minutes += s.duration;
+      marks += (s.marks ?? s.max_score ?? 25);
     }
   }
   return { minutes, marks, labs, questions, discussion, sections: e.sections.length };

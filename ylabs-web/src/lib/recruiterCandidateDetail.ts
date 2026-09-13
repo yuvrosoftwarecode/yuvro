@@ -339,8 +339,16 @@ const CITIES = [
 
 const cache = new Map<string, CandidateDetail>();
 
-export function getCandidateDetail(c: Candidate): CandidateDetail {
-  const cached = cache.get(c.id);
+export function getCandidateDetail(
+  c: Candidate,
+  sectionMaxScores?: {
+    labsMaxScore?: number;
+    assessmentMaxScore?: number;
+    discussionMaxScore?: number;
+  }
+): CandidateDetail {
+  const cacheKey = `${c.id}:${c.labsScore}:${c.assessmentScore}:${c.vitarkaScore}:${c.eci}:${sectionMaxScores?.labsMaxScore}:${sectionMaxScores?.assessmentMaxScore}:${sectionMaxScores?.discussionMaxScore}`;
+  const cached = cache.get(cacheKey);
   if (cached) return cached;
   const r = rng(hash(c.id + ":detail"));
 
@@ -520,25 +528,29 @@ export function getCandidateDetail(c: Candidate): CandidateDetail {
           ? NEXT_STEPS[2]
           : NEXT_STEPS[4]);
 
+  const labsMax = sectionMaxScores?.labsMaxScore ?? 80;
+  const assessMax = sectionMaxScores?.assessmentMaxScore ?? 30;
+  const vitarkaMax = sectionMaxScores?.discussionMaxScore ?? 25;
+
   const ecIBreakdown = [
     {
       label: "Engineering Labs",
-      contribution: `+${Math.round(c.labsScore * 0.45)} of a possible 45`,
-      kind: (c.labsScore >= 70 ? "pos" : "neg") as "pos" | "neg",
+      contribution: `+${c.labsScore} of a possible ${labsMax}`,
+      kind: (c.labsScore / labsMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
     },
     {
       label: "Knowledge Assessment",
-      contribution: `+${Math.round(c.assessmentScore * 0.3)} of a possible 30`,
-      kind: (c.assessmentScore >= 70 ? "pos" : "neg") as "pos" | "neg",
+      contribution: `+${c.assessmentScore} of a possible ${assessMax}`,
+      kind: (c.assessmentScore / assessMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
     },
     {
       label: "Vitarka Discussion",
-      contribution: `+${Math.round(c.vitarkaScore * 0.25)} of a possible 25`,
-      kind: (c.vitarkaScore >= 70 ? "pos" : "neg") as "pos" | "neg",
+      contribution: `+${c.vitarkaScore} of a possible ${vitarkaMax}`,
+      kind: (c.vitarkaScore / vitarkaMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
     },
     {
       label: "Debugging signal",
-      contribution: c.labsScore === 0 ? "No lab activity" : c.labsScore >= 85 ? "Excellent" : c.labsScore >= 70 ? "Strong" : "Average",
+      contribution: c.labsScore === 0 ? "No lab activity" : c.labsScore >= (labsMax * 0.85) ? "Excellent" : c.labsScore >= (labsMax * 0.7) ? "Strong" : "Average",
       kind: (c.labsScore === 0 ? "neg" : "neu") as "pos" | "neg" | "neu",
     },
     {
@@ -625,7 +637,7 @@ export function getCandidateDetail(c: Candidate): CandidateDetail {
     resume,
     timeline,
   };
-  cache.set(c.id, detail);
+  cache.set(cacheKey, detail);
   return detail;
 }
 
@@ -647,7 +659,7 @@ function fmtClock(s: number) {
     r = s % 60;
   return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
 }
-function buildTimeline(c: Candidate) {
+function buildTimeline(c: Candidate): CandidateDetail["timeline"] {
   const submitted = c.status === "Submitted" || c.status === "Completed";
   const shortlisted =
     c.hiringStatus === "Shortlisted" ||
@@ -677,63 +689,63 @@ function buildTimeline(c: Candidate) {
       label: "Candidate started evaluation",
       time: rel(safeTime(anchor - 5 * d)),
       done: c.status !== "Not Started",
-      tone: "success" as const,
+      tone: "good" as const,
     },
     {
       icon: "labs",
       label: "Engineering Labs submitted",
       time: rel(safeTime(anchor - 4 * d)),
       done: submitted || (c.rawSubmission?.lab_submissions?.length > 0),
-      tone: submitted || (c.rawSubmission?.lab_submissions?.length > 0) ? ("success" as const) : "neutral",
+      tone: (submitted || (c.rawSubmission?.lab_submissions?.length > 0) ? "good" : "neutral") as "good" | "neutral",
     },
     {
       icon: "assess",
       label: "Knowledge Assessment submitted",
       time: rel(safeTime(anchor - 3 * d)),
       done: submitted || (c.rawSubmission?.knowledge_submissions?.length > 0),
-      tone: submitted || (c.rawSubmission?.knowledge_submissions?.length > 0) ? ("success" as const) : "neutral",
+      tone: (submitted || (c.rawSubmission?.knowledge_submissions?.length > 0) ? "good" : "neutral") as "good" | "neutral",
     },
     {
       icon: "chat",
       label: "Vitarka discussion completed",
       time: rel(safeTime(anchor - 2 * d)),
       done: submitted || c.vitarkaScore > 0,
-      tone: submitted || c.vitarkaScore > 0 ? ("success" as const) : "neutral",
+      tone: (submitted || c.vitarkaScore > 0 ? "good" : "neutral") as "good" | "neutral",
     },
     {
       icon: "check",
       label: "Evaluation finished",
       time: rel(safeTime(anchor - d)),
       done: submitted,
-      tone: submitted ? ("success" as const) : "neutral",
+      tone: (submitted ? "good" : "neutral") as "good" | "neutral",
     },
     {
       icon: "eye",
       label: "Recruiter viewed profile",
       time: rel(safeTime(anchor + d)),
       done: submitted, // Assume viewed if submitted in this mock
-      tone: submitted ? ("success" as const) : "neutral",
+      tone: (submitted ? "good" : "neutral") as "good" | "neutral",
     },
     {
       icon: "star",
       label: "Shortlisted",
       time: rel(safeTime(anchor + 2 * d)),
       done: shortlisted,
-      tone: shortlisted ? ("success" as const) : "neutral",
+      tone: (shortlisted ? "good" : "neutral") as "good" | "neutral",
     },
     {
       icon: "cal",
       label: "Interview scheduled",
       time: rel(safeTime(anchor + 3 * d)),
       done: interview,
-      tone: interview ? ("success" as const) : "neutral",
+      tone: (interview ? "good" : "neutral") as "good" | "neutral",
     },
     {
       icon: "offer",
       label: "Offer sent",
       time: rel(safeTime(anchor + 4 * d)),
       done: c.hiringStatus === "Selected",
-      tone: (c.hiringStatus === "Selected") ? ("success" as const) : "neutral",
+      tone: (c.hiringStatus === "Selected" ? "good" : "neutral") as "good" | "neutral",
     },
     { icon: "x", label: "Rejected", time: rel(safeTime(anchor + 2 * d)), done: rejected, tone: "warn" as const },
   ].filter((item) => !(item.icon === "x" && !rejected));

@@ -260,6 +260,17 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 if engine_mode == DynMode.HYBRID and len(recruiter_qs) > 2:
                     recruiter_qs = recruiter_qs[:2]
 
+            disc_max_val = request.data.get('discussion_max_score') or request.data.get('max_score')
+            session_metadata = {
+                "mock_interview_id": mock_interview.id,
+                "selected_duration": selected_duration or 0,
+            }
+            if disc_max_val is not None:
+                try:
+                    session_metadata["discussion_max_score"] = float(disc_max_val)
+                except (ValueError, TypeError):
+                    pass
+
             if candidate_context_frontend:
                 adapter = UnifiedPayloadAdapter()
                 dynamic_payload = UnifiedAssessmentPayload.model_validate({
@@ -278,10 +289,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                         "requirements": mock_interview.required_skills,
                     },
                     "recruiter_questions": recruiter_qs,
-                    "metadata": {
-                        "mock_interview_id": mock_interview.id,
-                        "selected_duration": selected_duration or 0,
-                    },
+                    "metadata": session_metadata,
                 })
                 req = adapter.to_create_request(dynamic_payload)
                 dyn_session = DynamicInterviewSession.from_create_request(req)
@@ -300,7 +308,8 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                         resume=context_text,
                         job_description=mock_interview.description
                     ),
-                    recruiter_questions=recruiter_qs
+                    recruiter_questions=recruiter_qs,
+                    metadata=session_metadata,
                 )
                 dyn_session = DynamicInterviewSession.from_create_request(req)
 
@@ -1179,17 +1188,24 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                     llm_client=OpenAIInterviewLLM.from_settings(settings),
                 )
                 report_bundle = reporter.create_report_bundle(dyn_session)
-                response_data = report_bundle.model_dump(mode='json')
+                disc_scaled = (
+                    report_bundle.vitarka_report.scaled_score
+                    if report_bundle.vitarka_report.scaled_score is not None
+                    else round((report_bundle.vitarka_report.overall_score / 10.0) * (report_bundle.vitarka_report.max_score or 25.0), 1)
+                )
                 response_data.update({
                     "overall_score": report_bundle.overall_report.overall_score,
                     "recommendation": report_bundle.overall_report.recommendation,
                     "markdown": report_bundle.overall_report.markdown,
+                    "scaled_score": disc_scaled,
+                    "discussion_max_score": report_bundle.vitarka_report.max_score,
+                    "marks": disc_scaled,
                 })
                 dyn_session_dict = dyn_session.model_dump(mode='json')
                 dyn_session_dict['report_bundle'] = response_data
                 dyn_session_dict['report'] = report_bundle.vitarka_report.model_dump(mode='json')
                 submission.session_state = sanitize_null_bytes(dyn_session_dict)
-                submission.marks = report_bundle.overall_report.overall_score * 10
+                submission.marks = disc_scaled
                 submission.status = MockInterviewSubmission.STATUS_COMPLETED
                 submission.save(update_fields=['session_state', 'marks', 'status'])
                 return Response(response_data)

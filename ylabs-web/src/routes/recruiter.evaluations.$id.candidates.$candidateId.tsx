@@ -45,7 +45,7 @@ import {
   Loader2,
   RefreshCw,
 } from "lucide-react";
-import { getCandidates } from "@/lib/recruiterCandidates";
+import { getCandidates, type Recommendation } from "@/lib/recruiterCandidates";
 import { buildEvaluationSummary } from "@/lib/evaluationSummary";
 import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnalyticsViewer";
 import { LabCodeExplorer } from "@/components/recruiter/LabCodeExplorer";
@@ -227,7 +227,7 @@ function CandidateWorkspace() {
         ...res,
         report_bundle: res.report_bundle || res,
         report: res.vitarka_report || res.report || res,
-        marks: ((res.overall_report?.overall_score || res.overall_score || 0) * 10),
+        marks: res.scaled_score ?? res.marks ?? ((res.overall_report?.overall_score || res.overall_score || 0) * 10),
         status: "completed",
       }));
       notify("Evaluation report generated successfully");
@@ -287,6 +287,34 @@ function CandidateWorkspace() {
     );
   }
 
+  const hasLabs = ev?.sections?.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") ?? true;
+  const hasAssessment = ev?.sections?.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT") ?? true;
+  const hasVitarka = ev?.sections?.some((s: any) => s.kind === "discussion" || s.kind === "vitarka" || s.type === "VITARKA_AI_INTERVIEW") ?? true;
+
+  const labsSec = ev?.sections?.find((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS");
+  const labsMaxScore = (labsSec?.labs && labsSec.labs.length > 0)
+    ? labsSec.labs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+    : (labsSec?.questions && labsSec.questions.length > 0)
+      ? labsSec.questions.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+      : (labsSec?.marks ?? 80);
+
+  const assessSec = ev?.sections?.find((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT");
+  const assessmentMaxScore = (assessSec?.questions && assessSec.questions.length > 0)
+    ? assessSec.questions.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0)
+    : (assessSec?.marks ?? 30);
+
+  const discSec = ev?.sections?.find(
+    (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
+  );
+  let discMetaMarks: number | undefined;
+  if (discSec?.description) {
+    try {
+      const parsed = JSON.parse(discSec.description);
+      discMetaMarks = parsed.marks ?? parsed.max_score ?? parsed.discussionMaxScore;
+    } catch {}
+  }
+  const discussionMaxScore = discSec?.marks ?? discSec?.max_score ?? discMetaMarks ?? 25;
+
   const liveBundle = vitarkaSubmission?.report_bundle || vitarkaSubmission?.session_state?.report_bundle;
   const liveVitarkaReport = liveBundle?.vitarka_report || vitarkaSubmission?.report || vitarkaSubmission?.session_state?.report;
   const liveOverallReport = liveBundle?.overall_report;
@@ -296,65 +324,144 @@ function CandidateWorkspace() {
   if (liveOverallReport?.section_scores && Array.isArray(liveOverallReport.section_scores)) {
     liveOverallReport.section_scores.forEach((s: any) => {
       if (s.score != null) {
-        sectionScoresMap[s.section] = Math.round(s.score * 10);
+        sectionScoresMap[s.section] = s.score;
       }
     });
   }
 
+  const rawLabSubs = candidate?.rawSubmission?.lab_submissions || [];
+  const totalLabMarksEarned = rawLabSubs.length > 0
+    ? rawLabSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0)
+    : (candidate?.labsScore != null ? candidate.labsScore : 0);
+
   const liveLabsHasNoAttempts = (
-    (liveLabsReport?.tests_total && liveLabsReport.tests_total > 0 && (!liveLabsReport.tests_passed || liveLabsReport.tests_passed === 0)) ||
-    (liveLabsReport?.risks?.some((r: string) => r.includes("No lab tests were executed")) && liveLabsReport?.risks?.some((r: string) => r.includes("No verified implementation code")))
+    totalLabMarksEarned === 0 && (
+      (liveLabsReport?.tests_total && liveLabsReport.tests_total > 0 && (!liveLabsReport.tests_passed || liveLabsReport.tests_passed === 0)) ||
+      (liveLabsReport?.risks?.some((r: string) => r.includes("No lab tests were executed")) && liveLabsReport?.risks?.some((r: string) => r.includes("No verified implementation code")))
+    )
   );
 
-  const liveLabsScore = liveLabsHasNoAttempts
-    ? 0
-    : (sectionScoresMap["engineering_labs"] ?? (
-        liveLabsReport?.overall_score != null
-          ? Math.round(liveLabsReport.overall_score * 10)
-          : (liveLabsReport?.tests_total && liveLabsReport.tests_total > 0
-              ? Math.round((liveLabsReport.tests_passed / liveLabsReport.tests_total) * 100)
-              : candidate.labsScore)
-      ));
+  const liveLabsScore = totalLabMarksEarned > 0
+    ? Math.min(totalLabMarksEarned, labsMaxScore)
+    : (liveLabsHasNoAttempts
+        ? 0
+        : (candidate?.labsScore != null && candidate.labsScore > 0
+            ? Math.min(candidate.labsScore, labsMaxScore)
+            : (liveLabsReport?.overall_score != null
+                ? Math.round((liveLabsReport.overall_score / 10) * labsMaxScore)
+                : (liveLabsReport?.tests_total && liveLabsReport.tests_total > 0
+                    ? Math.round((liveLabsReport.tests_passed / liveLabsReport.tests_total) * labsMaxScore)
+                    : 0))));
 
-  const liveAssessmentScore = sectionScoresMap["knowledge_assessment"] ?? (
-    liveKnowledgeReport?.score_percent != null
-      ? Math.round(liveKnowledgeReport.score_percent)
-      : (liveKnowledgeReport?.question_count && liveKnowledgeReport.question_count > 0
-          ? Math.round((liveKnowledgeReport.correct_count / liveKnowledgeReport.question_count) * 100)
-          : candidate.assessmentScore)
+  const rawKnowledgeSubs = candidate?.rawSubmission?.knowledge_submissions || [];
+  let computedKnowledgeMarks = 0;
+  rawKnowledgeSubs.forEach((sub: any) => {
+    if (sub.score) {
+      computedKnowledgeMarks += Number(sub.score);
+    } else if (sub.answers && Array.isArray(sub.answers)) {
+      const sec = ev?.sections?.find((s: any) => (s.id || s.section_id) === sub.section);
+      const qMap = new Map((sec?.questions || []).map((q: any) => [String(q.id), q]));
+      sub.answers.forEach((ans: any) => {
+        const q: any = qMap.get(String(ans.question_id || ans.question));
+        const marks = Number(q?.marks || 1);
+        if (ans.is_correct) {
+          computedKnowledgeMarks += marks;
+        } else if (q) {
+          const optsArray = q.mcq_options || q.options || [];
+          let userOpt = ans.selected_option !== undefined ? ans.selected_option : ans.selected_options;
+          if (userOpt !== undefined && userOpt !== null && optsArray.length > 0) {
+            let uIndices = Array.isArray(userOpt) ? userOpt.map(Number) : [Number(userOpt)];
+            let corrIndices = optsArray.map((o: any, i: number) => o.is_correct ? i : -1).filter((i: number) => i !== -1);
+            if (corrIndices.length > 0 && uIndices.length === corrIndices.length && [...uIndices].sort().every((v, idx) => v === [...corrIndices].sort()[idx])) {
+              computedKnowledgeMarks += marks;
+            }
+          }
+        }
+      });
+    }
+  });
+
+  const totalKnowledgeMarksEarned = computedKnowledgeMarks > 0
+    ? computedKnowledgeMarks
+    : (candidate?.assessmentScore != null ? candidate.assessmentScore : 0);
+
+  const liveAssessmentScore = (
+    totalKnowledgeMarksEarned > 0
+      ? Math.min(totalKnowledgeMarksEarned, assessmentMaxScore)
+      : (liveKnowledgeReport?.total_score != null && liveKnowledgeReport.total_score > 0
+          ? Math.min(Number(liveKnowledgeReport.total_score), assessmentMaxScore)
+          : (liveKnowledgeReport?.score_percent != null
+              ? Math.round((liveKnowledgeReport.score_percent / 100) * assessmentMaxScore)
+              : (liveKnowledgeReport?.question_count && liveKnowledgeReport.question_count > 0
+                  ? Math.round((liveKnowledgeReport.correct_count / liveKnowledgeReport.question_count) * assessmentMaxScore)
+                  : (candidate?.assessmentScore != null ? Math.min(candidate.assessmentScore, assessmentMaxScore) : 0))))
   );
 
-  const liveVitarkaScore = sectionScoresMap["vitarka"] ?? sectionScoresMap["vitarka_interview"] ?? (
-    vitarkaSubmission?.marks != null
-      ? vitarkaSubmission.marks
-      : (liveVitarkaReport?.overall_score != null ? Math.round(liveVitarkaReport.overall_score * 10) : candidate.vitarkaScore)
+  const liveVitarkaScore = (
+    liveVitarkaReport?.scaled_score != null
+      ? liveVitarkaReport.scaled_score
+      : (vitarkaSubmission?.marks != null
+          ? vitarkaSubmission.marks
+          : (liveVitarkaReport?.overall_score != null
+              ? Math.round((liveVitarkaReport.overall_score / 10) * discussionMaxScore)
+              : (candidate?.vitarkaScore != null && candidate.vitarkaScore <= discussionMaxScore
+                  ? candidate.vitarkaScore
+                  : Math.round(((candidate?.vitarkaScore || 0) / 100) * discussionMaxScore))))
   );
 
-  const computedEci = Math.round(liveLabsScore * 0.45 + liveAssessmentScore * 0.3 + liveVitarkaScore * 0.25);
+  const totalEarned = (hasLabs ? liveLabsScore : 0) + (hasAssessment ? liveAssessmentScore : 0) + (hasVitarka ? liveVitarkaScore : 0);
+  const totalPossible = (hasLabs ? labsMaxScore : 0) + (hasAssessment ? assessmentMaxScore : 0) + (hasVitarka ? discussionMaxScore : 0);
+  const computedEci = totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : 0;
   const liveOverallScore = (liveLabsScore === 0 && liveAssessmentScore === 0 && liveVitarkaScore === 0)
     ? 0
-    : (liveOverallReport?.overall_score != null
-        ? Math.round(liveOverallReport.overall_score * 10)
-        : computedEci);
+    : totalEarned;
+
+  // Normalize AI recommendation from report or calculate from overall score
+  const scorePct = totalPossible > 0 ? (totalEarned / totalPossible) * 100 : (candidate?.eci ?? 0);
+  const scoreRec: Recommendation =
+    scorePct >= 75 ? "Strong Hire" : scorePct >= 60 ? "Hire" : scorePct >= 45 ? "Maybe" : "Reject";
+
+  const normalizeRec = (raw?: string): Recommendation | null => {
+    if (!raw) return null;
+    const s = raw.toLowerCase().trim();
+    if (s.includes("strong")) return "Strong Hire";
+    if ((s.includes("proceed") || s.includes("hire")) && !s.includes("not")) return "Hire";
+    if (s.includes("review") || s.includes("maybe") || s.includes("hold") || s.includes("gem")) return "Maybe";
+    if (s.includes("not") || s.includes("reject")) return "Reject";
+    return null;
+  };
+
+  const isOverallReportStale = (
+    liveLabsScore > 0 &&
+    (liveOverallReport?.section_scores?.find((s: any) => s.section === "engineering_labs")?.score === 0 ||
+     (liveOverallReport?.overall_score != null && liveOverallReport.overall_score <= 1.5))
+  );
+
+  const canonicalRecommendation: Recommendation =
+    (!isOverallReportStale && normalizeRec(liveOverallReport?.recommendation)) ||
+    (!hasLabs && !hasAssessment && normalizeRec(liveVitarkaReport?.recommendation)) ||
+    candidate?.recommendation ||
+    scoreRec;
 
   const displayCandidate = {
     ...candidate,
     labsScore: liveLabsScore,
     assessmentScore: liveAssessmentScore,
     vitarkaScore: liveVitarkaScore,
-    eci: liveOverallScore,
-    recommendation: liveOverallReport?.recommendation || (liveVitarkaReport?.recommendation
-      ? (liveVitarkaReport.recommendation.toLowerCase().includes("strong")
-          ? "Strong Hire"
-          : liveVitarkaReport.recommendation.toLowerCase().includes("proceed")
-            ? "Hire"
-            : liveVitarkaReport.recommendation.toLowerCase().includes("review")
-              ? "Maybe"
-              : "Reject")
-      : candidate.recommendation),
+    totalEarned,
+    totalPossible,
+    labsMaxScore,
+    assessmentMaxScore,
+    discussionMaxScore,
+    eci: totalEarned,
+    recommendation: canonicalRecommendation,
   };
 
-  const detail = getCandidateDetail(displayCandidate);
+  const detail = getCandidateDetail(displayCandidate, {
+    labsMaxScore,
+    assessmentMaxScore,
+    discussionMaxScore,
+  });
   const notify = (m: string) => setToast(m);
   const act = async (kind: string, text: string) => {
     if (!candidate?.email) return;
@@ -392,10 +499,6 @@ function CandidateWorkspace() {
       notify("Copy failed");
     }
   };
-  const hasLabs = ev?.sections?.some((s: any) => s.kind === "labs" || s.kind === "lab");
-  const hasAssessment = ev?.sections?.some((s: any) => s.kind === "assessment" || s.kind === "knowledge");
-  const hasVitarka = ev?.sections?.some((s: any) => s.kind === "discussion" || s.kind === "vitarka");
-
   const downloadReport = async () => {
     try {
       const { downloadCandidateReportPdf } = await import("@/lib/candidateReportPdf");
@@ -412,6 +515,9 @@ function CandidateWorkspace() {
         labsScore: displayCandidate.labsScore,
         assessmentScore: displayCandidate.assessmentScore,
         vitarkaScore: displayCandidate.vitarkaScore,
+        labsMaxScore,
+        assessmentMaxScore,
+        discussionMaxScore,
         strengths: detail.strengths,
         weaknesses: detail.weaknesses,
         aiSummary: detail.aiSummary,
@@ -561,6 +667,9 @@ function CandidateWorkspace() {
               hasLabs={hasLabs}
               hasAssessment={hasAssessment}
               hasVitarka={hasVitarka}
+              labsMaxScore={labsMaxScore}
+              assessmentMaxScore={assessmentMaxScore}
+              discussionMaxScore={discussionMaxScore}
             />
           )}
           {tab === "labs" && <LabsPane ev={ev} candidate={displayCandidate} labsReport={liveLabsReport} onOpen={setOpenLab} />}
@@ -650,6 +759,9 @@ export function OverviewPane({
   hasLabs,
   hasAssessment,
   hasVitarka,
+  labsMaxScore = 80,
+  assessmentMaxScore = 30,
+  discussionMaxScore = 25,
 }: {
   candidate: ReturnType<typeof getCandidates>[number];
   detail: ReturnType<typeof getCandidateDetail>;
@@ -661,6 +773,9 @@ export function OverviewPane({
   hasLabs: boolean;
   hasAssessment: boolean;
   hasVitarka: boolean;
+  labsMaxScore?: number;
+  assessmentMaxScore?: number;
+  discussionMaxScore?: number;
 }) {
   const activeCount = [hasLabs, hasAssessment, hasVitarka].filter(Boolean).length;
   const gridClass = activeCount === 3 ? "grid-cols-3" : activeCount === 2 ? "grid-cols-2" : "grid-cols-1";
@@ -670,13 +785,19 @@ export function OverviewPane({
       {/* ECI premium card */}
       <div className="overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-br from-white/[0.04] to-transparent">
         <div className="flex flex-wrap items-center gap-6 p-6">
-          <RadialScore value={candidate.eci} />
+          <RadialScore
+            value={candidate.totalEarned ?? candidate.eci}
+            maxScore={candidate.totalPossible ?? (labsMaxScore + assessmentMaxScore + discussionMaxScore)}
+          />
           <div className="min-w-[180px]">
             <div className="text-[11px] uppercase tracking-widest text-neutral-500">
               Engineering Capability
             </div>
-            <div className="mt-1 text-[24px] font-medium text-white">
-              {ecIVerdict(candidate.eci)}
+            <div className="mt-1 flex items-baseline gap-1.5 text-[24px] font-medium text-white">
+              <span>{candidate.totalEarned ?? candidate.eci}</span>
+              <span className="text-[14px] text-neutral-500">
+                / {candidate.totalPossible ?? (labsMaxScore + assessmentMaxScore + discussionMaxScore)}
+              </span>
             </div>
             <div className="mt-0.5 text-[13px] text-neutral-400">
               Recommendation: <span className="text-white">{candidate.recommendation}</span>
@@ -705,9 +826,9 @@ export function OverviewPane({
         </div>
         {activeCount > 0 && (
           <div className={`grid ${gridClass} gap-px bg-white/5 divide-x divide-black/10`}>
-            {hasLabs && <SubMetric label="Engineering Labs" value={candidate.labsScore} onClick={onGotoLabs} />}
-            {hasAssessment && <SubMetric label="Knowledge Assessment" value={candidate.assessmentScore} />}
-            {hasVitarka && <SubMetric label="Vitarka Discussion" value={candidate.vitarkaScore} onClick={onGotoVit} />}
+            {hasLabs && <SubMetric label="Engineering Labs" value={candidate.labsScore} maxScore={labsMaxScore} onClick={onGotoLabs} />}
+            {hasAssessment && <SubMetric label="Knowledge Assessment" value={candidate.assessmentScore} maxScore={assessmentMaxScore} />}
+            {hasVitarka && <SubMetric label="Vitarka Discussion" value={candidate.vitarkaScore} maxScore={discussionMaxScore} onClick={onGotoVit} />}
           </div>
         )}
       </div>
@@ -721,25 +842,80 @@ export function OverviewPane({
         hasLabs={hasLabs}
         hasAssessment={hasAssessment}
         hasVitarka={hasVitarka}
+        labsMaxScore={labsMaxScore}
+        assessmentMaxScore={assessmentMaxScore}
+        discussionMaxScore={discussionMaxScore}
       />
     </div>
   );
 }
 
+export function normalizeGenderNeutralPronouns(text: string): string {
+  if (!text || typeof text !== "string") return text || "";
+  return text
+    .replace(/\bHe's\b/g, "They're")
+    .replace(/\bhe's\b/g, "they're")
+    .replace(/\bShe's\b/g, "They're")
+    .replace(/\bshe's\b/g, "they're")
+    .replace(/\bHe'd\b/g, "They'd")
+    .replace(/\bhe'd\b/g, "they'd")
+    .replace(/\bShe'd\b/g, "They'd")
+    .replace(/\bshe'd\b/g, "they'd")
+    .replace(/\bHe'll\b/g, "They'll")
+    .replace(/\bhe'll\b/g, "they'll")
+    .replace(/\bShe'll\b/g, "They'll")
+    .replace(/\bshe'll\b/g, "they'll")
+    .replace(/\bHimself\b/g, "Themselves")
+    .replace(/\bhimself\b/g, "themselves")
+    .replace(/\bHerself\b/g, "Themselves")
+    .replace(/\bherself\b/g, "themselves")
+    .replace(/\bHe has\b/g, "They have")
+    .replace(/\bhe has\b/g, "they have")
+    .replace(/\bShe has\b/g, "They have")
+    .replace(/\bshe has\b/g, "they have")
+    .replace(/\bHe is\b/g, "They are")
+    .replace(/\bhe is\b/g, "they are")
+    .replace(/\bShe is\b/g, "They are")
+    .replace(/\bshe is\b/g, "they are")
+    .replace(/\bHe was\b/g, "They were")
+    .replace(/\bhe was\b/g, "they were")
+    .replace(/\bShe was\b/g, "They were")
+    .replace(/\bshe was\b/g, "they were")
+    .replace(/\bHe does\b/g, "They do")
+    .replace(/\bhe does\b/g, "they do")
+    .replace(/\bShe does\b/g, "They do")
+    .replace(/\bshe does\b/g, "they do")
+    .replace(/\bHe\b/g, "They")
+    .replace(/\bhe\b/g, "they")
+    .replace(/\bShe\b/g, "They")
+    .replace(/\bshe\b/g, "they")
+    .replace(/\bHim\b/g, "Them")
+    .replace(/\bhim\b/g, "them")
+    .replace(/\bHis\b/g, "Their")
+    .replace(/\bhis\b/g, "their")
+    .replace(/\bHers\b/g, "Theirs")
+    .replace(/\bhers\b/g, "theirs")
+    .replace(/\bHer\b/g, "Their")
+    .replace(/\bher\b/g, "their");
+}
+
 function stripUuids(text: string, replacement: string = "the candidate"): string {
   if (!text || typeof text !== "string") return text;
-  return text.replace(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g, replacement);
+  const withoutUuids = text.replace(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g, replacement);
+  return normalizeGenderNeutralPronouns(withoutUuids);
 }
 
 function SummaryBlock({
   title,
   score,
+  maxScore = 10,
   summary,
   strengths,
   explore,
 }: {
   title: string;
   score: number;
+  maxScore?: number;
   summary: string;
   strengths: string[];
   explore: string;
@@ -750,7 +926,7 @@ function SummaryBlock({
         <div className="text-[11px] uppercase tracking-widest text-neutral-500">{title}</div>
         <div className="text-[13px] font-medium text-white">
           {score}
-          <span className="text-neutral-500">/100</span>
+          <span className="text-neutral-500">/{maxScore}</span>
         </div>
       </div>
       <p className="mt-3 text-[13px] leading-relaxed text-neutral-300">{stripUuids(summary)}</p>
@@ -784,6 +960,9 @@ function EvaluationSummary({
   hasLabs,
   hasAssessment,
   hasVitarka,
+  labsMaxScore = 80,
+  assessmentMaxScore = 30,
+  discussionMaxScore = 25,
 }: {
   candidate: { name: string; labsScore: number; assessmentScore: number; vitarkaScore: number; eci: number; recommendation?: string };
   vitarkaReport?: any;
@@ -792,10 +971,42 @@ function EvaluationSummary({
   hasLabs: boolean;
   hasAssessment: boolean;
   hasVitarka: boolean;
+  labsMaxScore?: number;
+  assessmentMaxScore?: number;
+  discussionMaxScore?: number;
 }) {
   const data = buildEvaluationSummary(candidate, hasLabs, hasAssessment, hasVitarka);
   const overall = candidate.eci;
-  const verdict = candidate.recommendation || (overall >= 75 ? "Shortlisted" : overall >= 60 ? "Hold" : "Rejected");
+  const labsReport = reportBundle?.engineering_labs_report;
+  const knowledgeReport = reportBundle?.knowledge_assessment_report;
+
+  const labs10 = candidate.labsScore > 0
+    ? Number(((candidate.labsScore / (labsMaxScore || 80)) * 10).toFixed(1))
+    : (labsReport?.overall_score != null ? labsReport.overall_score : 0);
+
+  const assessment10 = knowledgeReport?.score_percent != null
+    ? Number((knowledgeReport.score_percent / 10).toFixed(1))
+    : (candidate.assessmentScore > 0 ? Number(((candidate.assessmentScore / (assessmentMaxScore || 30)) * 10).toFixed(1)) : 0);
+
+  const vitarka10 = vitarkaReport?.overall_score != null
+    ? vitarkaReport.overall_score
+    : (candidate.vitarkaScore > 0 ? Number(((candidate.vitarkaScore / (discussionMaxScore || 25)) * 10).toFixed(1)) : 0);
+
+  const activeWeights = (hasLabs ? 0.35 : 0) + (hasAssessment ? 0.25 : 0) + (hasVitarka ? 0.40 : 0);
+  const liveWeighted10 = activeWeights > 0
+    ? Number((((hasLabs ? labs10 * 0.35 : 0) + (hasAssessment ? assessment10 * 0.25 : 0) + (hasVitarka ? vitarka10 * 0.40 : 0)) / activeWeights).toFixed(1))
+    : (overall > 0 ? Number((overall / 10).toFixed(1)) : 0);
+
+  const isOverallReportStale = (
+    candidate.labsScore > 0 &&
+    (overallReport?.overall_score != null && overallReport.overall_score <= 1.5)
+  );
+
+  const overall10 = (!isOverallReportStale && overallReport?.overall_score != null)
+    ? overallReport.overall_score
+    : liveWeighted10;
+
+  const verdict = candidate.recommendation || (overall10 >= 7.5 ? "Strong Hire" : overall10 >= 6.0 ? "Hire" : overall10 >= 4.0 ? "Maybe" : "Reject");
   const verdictTone =
     verdict.toLowerCase().includes("strong") || verdict.toLowerCase().includes("shortlist") || verdict.toLowerCase().includes("hire")
       ? "border-emerald-400/25 bg-emerald-400/[0.06] text-emerald-300"
@@ -803,17 +1014,16 @@ function EvaluationSummary({
         ? "border-amber-400/25 bg-amber-400/[0.06] text-amber-300"
         : "border-red-400/25 bg-red-400/[0.06] text-red-300";
 
-  const labsReport = reportBundle?.engineering_labs_report;
-  const knowledgeReport = reportBundle?.knowledge_assessment_report;
-
   const activeCount = [hasLabs, hasAssessment, hasVitarka].filter(Boolean).length;
   const gridClass = activeCount === 3 ? "md:grid-cols-3" : activeCount === 2 ? "md:grid-cols-2" : "md:grid-cols-1";
 
   // Use dynamic content if available
   const isAllZero = overall === 0 || (candidate.labsScore === 0 && candidate.assessmentScore === 0 && candidate.vitarkaScore === 0);
   const rawOverallText = isAllZero
-    ? `Overall evaluation for ${candidate.name || "the candidate"} recorded 0 passing tests, no submitted code, and no interview responses. Aggregate score: 0/10. Recommendation: Do not proceed.`
-    : (overallReport?.executive_summary || vitarkaReport?.executive_summary || data.overallText);
+    ? `Overall evaluation for ${candidate.name || "the candidate"} recorded 0 passing tests, no submitted code, and no interview responses. Aggregate score: 0/10. Recommendation: Reject.`
+    : (!isOverallReportStale && overallReport?.executive_summary
+        ? overallReport.executive_summary
+        : `Overall evaluation for ${candidate.name || "the candidate"} combines engineering labs, knowledge assessment, and Vitarka interview evidence. Aggregate score: ${overall10}/10. Recommendation: ${verdict}.`);
   const overallText = stripUuids(rawOverallText, candidate.name || "the candidate");
   const overallStrengths = isAllZero
     ? []
@@ -822,11 +1032,14 @@ function EvaluationSummary({
       : (vitarkaReport?.strengths && vitarkaReport.strengths.length > 0)
         ? vitarkaReport.strengths.map((s: string) => stripUuids(s, candidate.name))
         : data.overallStrengths;
-  const overallExplore = (overallReport?.risks && overallReport.risks.length > 0)
+  const rawRisks = (overallReport?.risks && overallReport.risks.length > 0)
     ? overallReport.risks.map((s: string) => stripUuids(s, candidate.name))
     : (vitarkaReport?.risks && vitarkaReport.risks.length > 0)
       ? vitarkaReport.risks.map((s: string) => stripUuids(s, candidate.name))
       : data.overallExplore;
+  const overallExplore = rawRisks.filter((r: string) =>
+    candidate.labsScore === 0 || (!r.toLowerCase().includes("no lab tests were executed") && !r.toLowerCase().includes("no verified implementation code"))
+  );
 
   return (
     <div className="space-y-4">
@@ -837,7 +1050,8 @@ function EvaluationSummary({
           {hasLabs && (
             <SummaryBlock
               title="Engineering Labs"
-              score={candidate.labsScore}
+              score={labs10}
+              maxScore={10}
               summary={candidate.labsScore === 0 ? "Candidate did not submit code changes or pass any automated tests." : (labsReport?.markdown ? "Candidate implementation and test execution analyzed across submitted lab scenarios." : data.blocks[0]?.summary || "Engineering labs evaluation.")}
               strengths={candidate.labsScore === 0 ? [] : (labsReport?.strengths?.filter((s: string) => !s.includes("Submitted verified code across") || candidate.labsScore > 0) || [])}
               explore={labsReport?.risks?.[0] || data.blocks[0]?.explore || "Error handling and edge cases"}
@@ -846,7 +1060,8 @@ function EvaluationSummary({
           {hasAssessment && (
             <SummaryBlock
               title="Assessment"
-              score={candidate.assessmentScore}
+              score={assessment10}
+              maxScore={10}
               summary={knowledgeReport ? (knowledgeReport.score_percent === 0 ? "Candidate answered 0 knowledge questions correctly." : `Candidate answered ${knowledgeReport.correct_count || 0}/${knowledgeReport.question_count || 0} questions correctly.`) : data.blocks[hasLabs ? 1 : 0]?.summary || "Knowledge assessment evaluation."}
               strengths={knowledgeReport ? (knowledgeReport.strengths || []) : (candidate.assessmentScore === 0 ? [] : data.blocks[hasLabs ? 1 : 0]?.strengths || [])}
               explore={knowledgeReport?.risks?.[0] || data.blocks[hasLabs ? 1 : 0]?.explore || "System design"}
@@ -855,7 +1070,8 @@ function EvaluationSummary({
           {hasVitarka && (
             <SummaryBlock
               title="Vitarka AI"
-              score={candidate.vitarkaScore}
+              score={vitarka10}
+              maxScore={10}
               summary={vitarkaReport?.executive_summary || (candidate.vitarkaScore === 0 ? "Candidate did not provide responses during the Vitarka AI technical discussion." : data.blocks[data.blocks.length - 1]?.summary || "AI technical discussion evaluation.")}
               strengths={vitarkaReport ? (vitarkaReport.strengths || []) : (candidate.vitarkaScore === 0 ? [] : data.blocks[data.blocks.length - 1]?.strengths || [])}
               explore={vitarkaReport?.risks?.[0] || data.blocks[data.blocks.length - 1]?.explore || "Detailed technical probing"}
@@ -869,8 +1085,8 @@ function EvaluationSummary({
           <div className="text-[11px] uppercase tracking-widest text-neutral-400">Overall recommendation</div>
           <div className="flex items-center gap-3">
             <div className="text-[13px] font-medium text-white">
-              {overall}
-              <span className="text-neutral-500">/100</span>
+              {overall10}
+              <span className="text-neutral-500">/10</span>
             </div>
             <span className={`rounded-full border px-2.5 py-0.5 text-[11px] uppercase tracking-widest ${verdictTone}`}>
               {verdict}
@@ -965,18 +1181,17 @@ export function LabsPane({
   onOpen: (data: { section: any, labSub: any, candidate: any }) => void;
 }) {
 
-  const labSections = ev.sections.filter((s: any) => s.kind === "labs" || s.kind === "lab");
-  const allLabs = labSections.flatMap((s: any) => s.labs || []);
+  const labSections = ev?.sections?.filter((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") || [];
+  const allLabs = labSections.flatMap((s: any) => (s.labs && s.labs.length > 0 ? s.labs : (s.questions || [])));
+  const labsMax = allLabs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0) || 80;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <SectionHeading>Engineering Labs</SectionHeading>
-        {labsReport?.overall_score != null && (
-          <span className="text-[12px] font-medium text-emerald-400">
-            Section Score: {candidate.labsScore === 0 ? 0 : Math.round(labsReport.overall_score * 10)}/100
-          </span>
-        )}
+        <span className="text-[12px] font-medium text-emerald-400">
+          Section Score: {candidate.labsScore}/{labsMax}
+        </span>
       </div>
 
       {labsReport && (
@@ -1058,33 +1273,108 @@ export function AssessmentPane({ ev, candidate, knowledgeReport }: { ev: any; ca
   const assessmentSections = ev.sections.filter((s: any) => s.kind === "knowledge" || s.kind === "assessment");
   const [open, setOpen] = useState<string | null>(assessmentSections[0]?.name ?? null);
 
+  // Pre-calculate live section question stats across all assessment sections
+  let totalEvaluatedCorrect = 0;
+  let totalEvaluatedQuestions = 0;
+  let totalEvaluatedMarks = 0;
+  let totalPossibleMarks = 0;
+
+  assessmentSections.forEach((sub: any) => {
+    const subId = sub.id || sub.section_id;
+    const knSub = candidate.rawSubmission?.knowledge_submissions?.find(
+      (s: any) => s.section === subId
+    );
+    (sub.questions || []).forEach((q: any) => {
+      totalEvaluatedQuestions++;
+      const qMarks = Number(q.marks || 1);
+      totalPossibleMarks += qMarks;
+
+      const answerRecord = knSub?.answers?.find((a: any) => a.question === q.id || a.question_id === q.id);
+      let isCorr = answerRecord?.is_correct ?? false;
+      if (!isCorr && answerRecord) {
+        if (q.format === "Description" || q.format === "Coding") {
+          // Keep as is
+        } else {
+          const optsArray = q.mcq_options || q.options || [];
+          let selectedOpts = answerRecord.selected_option !== undefined ? answerRecord.selected_option : answerRecord.selected_options;
+          if (selectedOpts !== undefined && selectedOpts !== null && selectedOpts !== "" && optsArray.length > 0) {
+            if (!Array.isArray(selectedOpts)) selectedOpts = [selectedOpts];
+            const selectedTexts = selectedOpts.map((optVal: any) => {
+              if (typeof optVal === "number" && optsArray[optVal]) {
+                return typeof optsArray[optVal] === "string" ? optsArray[optVal] : optsArray[optVal].text;
+              }
+              const foundOpt = optsArray.find((o: any) => o.id === optVal);
+              return foundOpt ? foundOpt.text : String(optVal);
+            });
+            let correctTexts: string[] = [];
+            if (typeof optsArray[0] === "string") {
+              const correctOpts = Array.isArray(q.correct) ? q.correct : (q.correct !== undefined && q.correct !== null ? [q.correct] : []);
+              correctTexts = correctOpts.map((idx: number) => optsArray[idx]).filter(Boolean);
+            } else {
+              const correctOptions = optsArray.filter((o: any) => o.is_correct);
+              correctTexts = correctOptions.map((o: any) => o.text);
+            }
+            if (selectedTexts.length > 0 && correctTexts.length > 0) {
+              const selectedSet = new Set(selectedTexts);
+              const correctSet = new Set(correctTexts);
+              isCorr = selectedSet.size === correctSet.size && [...selectedSet].every(x => correctSet.has(x));
+            }
+          }
+        }
+      }
+      if (isCorr) {
+        totalEvaluatedCorrect++;
+        totalEvaluatedMarks += qMarks;
+      }
+    });
+  });
+
+  const correctCount = totalEvaluatedQuestions > 0 ? totalEvaluatedCorrect : (knowledgeReport?.correct_count || 0);
+  const questionCount = totalEvaluatedQuestions > 0 ? totalEvaluatedQuestions : (knowledgeReport?.question_count || 0);
+  const totalMarks = totalPossibleMarks > 0 ? totalEvaluatedMarks : (knowledgeReport?.total_score ?? 0);
+  const maxMarks = totalPossibleMarks > 0 ? totalPossibleMarks : (knowledgeReport?.max_score ?? 0);
+  const scorePercent = questionCount > 0
+    ? Math.round((correctCount / questionCount) * 100)
+    : (knowledgeReport?.score_percent != null ? Math.round(knowledgeReport.score_percent) : 0);
+
+  const displayRisks = (knowledgeReport?.risks || []).filter((r: string) => {
+    if (correctCount > 0 && (r.toLowerCase().includes("0 knowledge questions") || r.toLowerCase().includes("below the expected threshold"))) {
+      return false;
+    }
+    return true;
+  });
+
+  const displayStrengths = (knowledgeReport?.strengths && knowledgeReport.strengths.length > 0)
+    ? knowledgeReport.strengths
+    : (correctCount > 0 ? [`Answered ${correctCount}/${questionCount} questions correctly.`] : []);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <SectionHeading>Knowledge Assessment</SectionHeading>
-        {knowledgeReport?.score_percent != null && (
+        {questionCount > 0 && (
           <span className="text-[12px] font-medium text-emerald-400">
-            Section Score: {Math.round(knowledgeReport.score_percent)}% ({knowledgeReport.correct_count || 0}/{knowledgeReport.question_count || 0} correct)
+            Section Score: {scorePercent}% ({correctCount}/{questionCount} correct)
           </span>
         )}
       </div>
 
-      {knowledgeReport && (
+      {(knowledgeReport || questionCount > 0) && (
         <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3 text-[12px]">
             <div className="flex items-center gap-4 text-neutral-300">
-              <span>Correct Questions: <strong className="text-white">{knowledgeReport.correct_count || 0}/{knowledgeReport.question_count || 0}</strong></span>
-              {knowledgeReport.total_score != null && (
-                <span>Marks: <strong className="text-white">{knowledgeReport.total_score}/{knowledgeReport.max_score || 0}</strong></span>
+              <span>Correct Questions: <strong className="text-white">{correctCount}/{questionCount}</strong></span>
+              {maxMarks > 0 && (
+                <span>Marks: <strong className="text-white">{totalMarks}/{maxMarks}</strong></span>
               )}
             </div>
-            {knowledgeReport.strengths && knowledgeReport.strengths.length > 0 && (
-              <span className="text-emerald-400 text-[11px]">✓ {knowledgeReport.strengths[0]}</span>
+            {displayStrengths.length > 0 && (
+              <span className="text-emerald-400 text-[11px]">✓ {displayStrengths[0]}</span>
             )}
           </div>
-          {knowledgeReport.risks && knowledgeReport.risks.length > 0 && (
+          {displayRisks.length > 0 && (
             <div className="text-[11px] text-amber-400/90 border-t border-white/5 pt-2">
-              Note: {knowledgeReport.risks.join(" · ")}
+              Note: {displayRisks.join(" · ")}
             </div>
           )}
         </div>
@@ -1413,10 +1703,10 @@ export function VitarkaPane({
                 </button>
               )}
               <div className="text-right">
-                <div className="text-[11px] uppercase tracking-widest text-neutral-500">Overall Score</div>
+                <div className="text-[11px] uppercase tracking-widest text-neutral-500">Discussion Score</div>
                 <div className={`text-[32px] font-medium leading-none ${eciColor(overallScore100)}`}>
-                  {overallScore100}
-                  <span className="text-[13px] text-neutral-500">/100</span>
+                  {report.scaled_score != null ? report.scaled_score : (report.overall_score != null ? report.overall_score : overallScore100)}
+                  <span className="text-[13px] text-neutral-500">/{report.max_score || (report.overall_score != null ? 10 : 100)}</span>
                 </div>
               </div>
             </div>
@@ -2094,18 +2384,18 @@ function StickySidebar({
             Engineering Capability
           </div>
           <div className="mt-1 flex items-baseline gap-1">
-            <div className={`text-[30px] font-medium ${eciColor(candidate.eci)}`}>
-              {candidate.eci}
+            <div className={`text-[30px] font-medium ${eciColor((candidate.totalPossible ?? 100) > 0 ? Math.round(((candidate.totalEarned ?? candidate.eci) / (candidate.totalPossible ?? 100)) * 100) : 0)}`}>
+              {candidate.totalEarned ?? candidate.eci}
             </div>
-            <div className="text-[12px] text-neutral-500">/100</div>
+            <div className="text-[12px] text-neutral-500">/{candidate.totalPossible ?? 100}</div>
             <div className="ml-auto">
               <RecBadge r={candidate.recommendation} />
             </div>
           </div>
           <div className="mt-3 space-y-1.5">
-            <MiniBar label="Labs" v={candidate.labsScore} />
-            <MiniBar label="Assessment" v={candidate.assessmentScore} />
-            <MiniBar label="Vitarka" v={candidate.vitarkaScore} />
+            <MiniBar label="Labs" v={candidate.labsScore} max={candidate.labsMaxScore ?? 200} />
+            <MiniBar label="Assessment" v={candidate.assessmentScore} max={candidate.assessmentMaxScore ?? 6} />
+            <MiniBar label="Vitarka" v={candidate.vitarkaScore} max={candidate.discussionMaxScore ?? 25} />
           </div>
         </div>
 
@@ -2179,6 +2469,27 @@ export function generateMockLabAttempt(lab: any, labSub: any) {
   const tasksCompleted = labSub?.tasks_completed ?? (score > 0 ? 1 : 0);
   const tasksTotal = lab.tasks?.length ?? 1;
 
+  const changedFiles: string[] = [];
+  const solutionStr = labSub?.solution || "";
+  if (typeof solutionStr === "string") {
+    const lines = solutionStr.split("\n");
+    for (const line of lines) {
+      if (line.startsWith("diff --git ")) {
+        const parts = line.split(" ");
+        if (parts.length >= 4) {
+          const bPath = parts.slice(3).join(" ");
+          const cleanPath = bPath.startsWith("b/") ? bPath.substring(2) : bPath;
+          const noise = [".cache", "__pycache__", "node_modules", ".npm", ".config", ".local", ".bash_history", ".python_history"];
+          if (!noise.some(p => cleanPath.startsWith(p + "/") || cleanPath.includes("/" + p + "/") || cleanPath === p || cleanPath.endsWith(p))) {
+            if (!changedFiles.includes(cleanPath)) {
+              changedFiles.push(cleanPath);
+            }
+          }
+        }
+      }
+    }
+  }
+
   return {
     id: lab.id || "lab",
     title: lab.title || lab.name || "Engineering Lab",
@@ -2188,10 +2499,10 @@ export function generateMockLabAttempt(lab: any, labSub: any) {
     timeLimit: lab.duration_minutes ?? lab.duration ?? 60,
     tasksCompleted: tasksCompleted,
     tasksTotal: tasksTotal,
-    files: [],
-    gitCommits: [],
+    files: changedFiles,
+    gitCommits: changedFiles.length > 0 ? [{ sha: "c1", message: "Candidate implementation", time: `${timeTaken}m in` }] : [],
     consoleLogs: labSub?.solution_output ? [labSub.solution_output] : [],
-    execOutput: score > 0 ? [`Score: ${score}%`] : ["No test execution output recorded."],
+    execOutput: labSub?.solution_output ? [labSub.solution_output] : (score > 0 ? [`Score: ${score}%`] : ["No test execution output recorded."]),
     problemStatement: lab.description || "Engineering Lab assignment.",
     strengths: score > 0 ? ["Submitted passing implementation"] : [],
     weaknesses: score === 0 ? ["No passing solution submitted"] : [],
@@ -2450,26 +2761,29 @@ function ListBlock({
 export function SubMetric({
   label,
   value,
+  maxScore = 100,
   onClick,
 }: {
   label: string;
   value: number;
+  maxScore?: number;
   onClick?: () => void;
 }) {
   return (
     <button onClick={onClick} className="px-4 py-4 text-left transition">
-      <div className="text-[10px] uppercase tracking-widest text-black-500">{label}</div>
-      <div className="mt-1 text-[22px] font-medium text-black-300">
+      <div className="text-[10px] uppercase tracking-widest text-neutral-400">{label}</div>
+      <div className="mt-1 text-[22px] font-medium text-white">
         {value}
-        <span className="text-[11px] text-neutral-500">/100</span>
+        <span className="text-[11px] text-neutral-500">/{maxScore}</span>
       </div>
     </button>
   );
 }
-export function RadialScore({ value }: { value: number }) {
+export function RadialScore({ value, maxScore = 100 }: { value: number; maxScore?: number }) {
   const c = 2 * Math.PI * 42;
-  const off = c - (value / 100) * c;
-  const stroke = value >= 70 ? "#34d399" : value >= 55 ? "#f59e0b" : "#ef4444";
+  const pct = maxScore > 0 ? Math.min(100, Math.max(0, (value / maxScore) * 100)) : 0;
+  const off = c - (pct / 100) * c;
+  const stroke = pct >= 70 ? "#34d399" : pct >= 55 ? "#f59e0b" : "#ef4444";
   return (
     <div className="relative grid h-[112px] w-[112px] shrink-0 place-items-center">
       <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
@@ -2495,23 +2809,24 @@ export function RadialScore({ value }: { value: number }) {
         />
       </svg>
       <div className="absolute text-center">
-        <div className={`text-[26px] font-medium leading-none ${eciColor(value)}`}>{value}</div>
-        <div className="text-[10px] uppercase tracking-widest text-neutral-500">of 100</div>
+        <div className={`text-[26px] font-medium leading-none ${eciColor(pct)}`}>{value}</div>
+        <div className="text-[10px] uppercase tracking-widest text-neutral-500">of {maxScore}</div>
       </div>
     </div>
   );
 }
-function MiniBar({ label, v }: { label: string; v: number }) {
+function MiniBar({ label, v, max }: { label: string; v: number; max?: number }) {
+  const pct = max && max > 0 ? Math.min(100, Math.round((v / max) * 100)) : v;
   return (
     <div>
       <div className="flex items-center justify-between text-[11px] text-neutral-400">
         <span>{label}</span>
-        <span className={eciColor(v)}>{v}</span>
+        <span className={eciColor(pct)}>{max ? `${v}/${max}` : v}</span>
       </div>
       <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5">
         <div
-          className={`h-full ${v >= 70 ? "bg-emerald-400" : v >= 55 ? "bg-amber-400" : "bg-red-400"}`}
-          style={{ width: `${v}%` }}
+          className={`h-full ${pct >= 70 ? "bg-emerald-400" : pct >= 55 ? "bg-amber-400" : "bg-red-400"}`}
+          style={{ width: `${pct}%` }}
         />
       </div>
     </div>

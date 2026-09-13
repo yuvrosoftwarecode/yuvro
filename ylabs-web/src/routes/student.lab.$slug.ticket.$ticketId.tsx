@@ -2320,11 +2320,11 @@ export function TicketIDE({
               score: computedScore
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
         });
       } else {
         setSubmitting(false);
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
       }
       return;
     }

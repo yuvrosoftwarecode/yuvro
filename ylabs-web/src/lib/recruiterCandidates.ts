@@ -22,7 +22,12 @@ export interface Candidate {
   labsScore: number;
   assessmentScore: number;
   vitarkaScore: number;
-  eci: number; // Engineering Capability Index
+  eci: number; // Engineering Capability Index / Total score percentage
+  totalEarned?: number;
+  totalPossible?: number;
+  labsMaxScore?: number;
+  assessmentMaxScore?: number;
+  discussionMaxScore?: number;
   recommendation: Recommendation;
   status: CandStatus;
   hiringStatus: HiringStatus;
@@ -190,9 +195,45 @@ const pick = <T>(r: () => number, arr: T[]) => arr[Math.floor(r() * arr.length)]
 
 const cache = new Map<string, Candidate[]>();
 
-export function getCandidates(evaluationId: string, submissions: any[] = []): Candidate[] {
-  const cached = cache.get(evaluationId);
-  if (cached) return cached;
+export function getCandidates(
+  evaluationId: string,
+  submissions: any[] = [],
+  vitarkaSubmissions: any[] = [],
+  ev?: any
+): Candidate[] {
+  const cacheKey = `${evaluationId}:${submissions.length}:${vitarkaSubmissions.length}`;
+  const cached = cache.get(cacheKey);
+  if (cached && (!submissions || submissions.length === 0)) return cached;
+
+  const labsSec = ev?.sections?.find(
+    (s: any) => s.type === "LAB" || s.type === "ENGINEERING_LABS" || s.kind === "labs" || s.kind === "lab"
+  );
+  const labsMaxScore = (labsSec?.labs && labsSec.labs.length > 0)
+    ? labsSec.labs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+    : (labsSec?.questions && labsSec.questions.length > 0)
+      ? labsSec.questions.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+      : (labsSec?.marks ?? 80);
+
+  const assessSec = ev?.sections?.find(
+    (s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT"
+  );
+  const assessmentMaxScore = (assessSec?.questions && assessSec.questions.length > 0)
+    ? assessSec.questions.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0)
+    : (assessSec?.marks ?? 30);
+
+  const discSec = ev?.sections?.find(
+    (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
+  );
+  let discMetaMarks: number | undefined;
+  if (discSec?.description) {
+    try {
+      const parsed = JSON.parse(discSec.description);
+      discMetaMarks = parsed.marks ?? parsed.max_score ?? parsed.discussionMaxScore;
+    } catch {}
+  }
+  const discussionMaxScore = discMetaMarks ?? discSec?.marks ?? 25;
+  const totalPossible = labsMaxScore + assessmentMaxScore + discussionMaxScore;
+
   const r = rng(hash(evaluationId));
   const out: Candidate[] = [];
   const now = Date.now();
@@ -217,6 +258,7 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
     let assess = 0;
     let vit = 0;
     let eci = 0;
+    let totalEarned = 0;
     let rec: Recommendation = "Reject";
     let status: CandStatus = "Not Started";
     let hiring: HiringStatus = "Pending Review";
@@ -225,6 +267,7 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
       labs = Math.round(35 + r() * 65);
       assess = Math.round(35 + r() * 65);
       vit = Math.round(35 + r() * 65);
+      totalEarned = labs + assess + vit;
       eci = Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
       rec = eci >= 85 ? "Strong Hire" : eci >= 72 ? "Hire" : eci >= 60 ? "Maybe" : "Reject";
       
@@ -237,20 +280,61 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
       const knowSubs = sub.knowledge_submissions || [];
       
       if (labSubs.length > 0) {
-        labs = Math.round(labSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0) / labSubs.length);
+        labs = Math.round(labSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0));
       }
       if (knowSubs.length > 0) {
-        assess = Math.round(knowSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0) / knowSubs.length);
+        assess = Math.round(knowSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0));
+      }
+
+      // Match vitarka submission
+      const vitSub = vitarkaSubmissions.find((vs: any) =>
+        (email && (vs.user?.email === email || vs.candidate_email === email)) ||
+        (user.id && (vs.user === user.id || vs.user?.id === user.id)) ||
+        (sub.id && (vs.candidate_id === sub.id || vs.candidate_id === String(user.id)))
+      );
+
+      if (vitSub) {
+        const liveBundle = vitSub.report_bundle || vitSub.session_state?.report_bundle;
+        const liveReport = liveBundle?.vitarka_report || vitSub.report || vitSub.session_state?.report;
+        if (liveReport?.scaled_score != null) {
+          vit = Number(liveReport.scaled_score);
+        } else if (vitSub.marks != null) {
+          vit = Number(vitSub.marks);
+        } else if (liveReport?.overall_score != null) {
+          vit = Number(((Number(liveReport.overall_score) / 10) * discussionMaxScore).toFixed(1));
+        } else if (vitSub.score != null) {
+          vit = Number(vitSub.score);
+        }
+      } else if (sub.vitarka_score != null) {
+        vit = Number(sub.vitarka_score);
+      } else if (sub.vitarkaScore != null) {
+        vit = Number(sub.vitarkaScore);
       }
       
-      // Calculate ECI
-      eci = Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
-      rec = eci >= 85 ? "Strong Hire" : eci >= 72 ? "Hire" : eci >= 60 ? "Maybe" : "Reject";
+      totalEarned = Number((labs + assess + vit).toFixed(1));
+      eci = totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
+      const scorePct = totalPossible > 0 ? (totalEarned / totalPossible) * 100 : eci;
+      rec = scorePct >= 75 ? "Strong Hire" : scorePct >= 60 ? "Hire" : scorePct >= 45 ? "Maybe" : "Reject";
+
+      const liveBundle = vitSub?.report_bundle || vitSub?.session_state?.report_bundle;
+      const liveOverallReport = liveBundle?.overall_report;
+      const isOverallReportStale = (
+        labs > 0 &&
+        (liveOverallReport?.section_scores?.find((s: any) => s.section === "engineering_labs")?.score === 0 ||
+         (liveOverallReport?.overall_score != null && liveOverallReport.overall_score <= 1.5))
+      );
+      if (!isOverallReportStale && liveOverallReport?.recommendation) {
+        const s = liveOverallReport.recommendation.toLowerCase().trim();
+        if (s.includes("strong")) rec = "Strong Hire";
+        else if ((s.includes("proceed") || s.includes("hire")) && !s.includes("not")) rec = "Hire";
+        else if (s.includes("review") || s.includes("maybe") || s.includes("hold")) rec = "Maybe";
+        else if (s.includes("not") || s.includes("reject")) rec = "Reject";
+      }
       
       // Determine real status
       if (sub.completed_at) {
         status = "Completed";
-      } else if (sub.id || labSubs.length > 0 || knowSubs.length > 0 || sub.general_events?.length > 0) {
+      } else if (sub.id || labSubs.length > 0 || knowSubs.length > 0 || vitSub || sub.general_events?.length > 0) {
         status = "In Progress";
       } else {
         status = "Not Started";
@@ -360,6 +444,11 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
         completionMinutes,
         avatarHue: Math.floor(r() * 360),
         eci,
+        totalEarned,
+        totalPossible,
+        labsMaxScore,
+        assessmentMaxScore,
+        discussionMaxScore,
         labsScore: labs,
         assessmentScore: assess,
         vitarkaScore: vit,
@@ -381,14 +470,15 @@ export function getCandidates(evaluationId: string, submissions: any[] = []): Ca
         rawSubmission: sub
       });
   }
-  cache.set(evaluationId, out);
+  cache.set(cacheKey, out);
   return out;
 }
 
-export function vitarkaLabel(v: number): VitarkaLabel {
-  if (v >= 85) return "Excellent";
-  if (v >= 70) return "Good";
-  if (v >= 55) return "Average";
+export function vitarkaLabel(v: number, maxScore: number = 100): VitarkaLabel {
+  const pct = maxScore > 0 && maxScore <= 50 ? (v / maxScore) * 100 : v;
+  if (pct >= 85) return "Excellent";
+  if (pct >= 70) return "Good";
+  if (pct >= 55) return "Average";
   return "Poor";
 }
 
@@ -501,8 +591,8 @@ export function applyFilters(all: Candidate[], f: CandidateFilters, sort: SortKe
   const cmp: Record<SortKey, (a: Candidate, b: Candidate) => number> = {
     newest: (a, b) => b.submittedAt - a.submittedAt,
     oldest: (a, b) => a.submittedAt - b.submittedAt,
-    eci_desc: (a, b) => b.eci - a.eci,
-    eci_asc: (a, b) => a.eci - b.eci,
+    eci_desc: (a, b) => (b.totalEarned ?? b.eci) - (a.totalEarned ?? a.eci),
+    eci_asc: (a, b) => (a.totalEarned ?? a.eci) - (b.totalEarned ?? b.eci),
     labs_desc: (a, b) => b.labsScore - a.labsScore,
     assess_desc: (a, b) => b.assessmentScore - a.assessmentScore,
     vit_desc: (a, b) => b.vitarkaScore - a.vitarkaScore,

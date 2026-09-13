@@ -177,29 +177,31 @@ function Workspace({
         const files: Record<string, string> = {};
         const diffs: Record<string, { type: 'add' | 'del' | 'same', text: string }[]> = {};
         
+        const isIgnored = (f: string) => {
+            const noise = ['.cache', '__pycache__', 'node_modules', '.npm', '.config', '.local', '.bash_history', '.python_history', 'package-lock.json', 'yarn.lock'];
+            if (noise.some(p => f.startsWith(p + '/') || f.includes('/' + p + '/') || f === p || f.endsWith('/' + p) || f.endsWith(p))) {
+                return true;
+            }
+            const noiseExt = ['.sqlite3', '.sqlite', '.db', '.log', '.pyc', '.tar', '.gz', '.zip'];
+            return noiseExt.some(ext => f.endsWith(ext));
+        };
+
         try {
             if (typeof p === 'string' && p.trim().startsWith('{')) {
                 const parsed = JSON.parse(p) as Record<string, string>;
                 const d: Record<string, any[]> = {};
                 const sd: Record<string, any[]> = {};
+                const filteredParsed: Record<string, string> = {};
                 for (const k of Object.keys(parsed)) {
-                    d[k] = [{ type: 'add', text: parsed[k] }];
-                    sd[k] = [{ left: null, right: d[k][0] }];
+                    if (!isIgnored(k)) {
+                        filteredParsed[k] = parsed[k];
+                        d[k] = [{ type: 'add', text: parsed[k] }];
+                        sd[k] = [{ left: null, right: d[k][0] }];
+                    }
                 }
-                return { fileDiffs: d, splitDiffs: sd, changedFilesList: Object.keys(d), submittedFiles: parsed };
+                return { fileDiffs: d, splitDiffs: sd, changedFilesList: Object.keys(d), submittedFiles: filteredParsed };
             }
         } catch {}
-
-        const lines = (p || "").split('\n');
-        let currentFile = '';
-        let currentContent: string[] = [];
-        let currentDiff: { type: 'add' | 'del' | 'same', text: string }[] = [];
-        let inHunk = false;
-
-        const isIgnored = (f: string) => {
-            const noise = ['.cache', '__pycache__', 'node_modules', '.npm', '.config', '.local', '.bash_history', '.python_history'];
-            return noise.some(p => f.startsWith(p + '/') || f.includes('/' + p + '/') || f === p);
-        };
 
         const flush = () => {
             if (currentFile && !isIgnored(currentFile)) {

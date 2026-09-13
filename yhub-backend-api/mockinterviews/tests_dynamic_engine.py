@@ -368,6 +368,193 @@ Code Diff:
         self.assertTrue(any("No lab tests were executed" in r for r in labs_rep.risks))
         self.assertTrue(any("No verified implementation code was submitted" in r for r in labs_rep.risks))
 
+    def test_normalize_gender_neutral_pronouns(self):
+        from mockinterviews.dynamic_engine.reporting import normalize_gender_neutral_pronouns
+
+        # Pronoun contractions and verb agreement
+        sample = "He's very confident. He is skilled, he has answered well, and he was calm. She's also great and she does know her stuff."
+        expected = "They're very confident. They are skilled, they have answered well, and they were calm. They're also great and they do know their stuff."
+        self.assertEqual(expected, normalize_gender_neutral_pronouns(sample))
+
+        # Standalone pronouns & himself/herself
+        sample2 = "We evaluated him. His performance was strong, and he solved it himself. She proved herself to her manager."
+        expected2 = "We evaluated them. Their performance was strong, and they solved it themselves. They proved themselves to their manager."
+        self.assertEqual(expected2, normalize_gender_neutral_pronouns(sample2))
+
+        # Preserve non-pronoun words containing 'he', 'his', 'her'
+        words = "The height of the theme was discussed in history where the hero adhered to the criteria."
+        self.assertEqual(words, normalize_gender_neutral_pronouns(words))
+
+    def test_report_bundle_normalizes_gendered_narrative(self):
+        from mockinterviews.dynamic_engine.llm import GeneratedReportNarrative
+
+        class GenderedFakeLLM:
+            def generate_question(self, session, fallback_question):
+                return None
+
+            def generate_report_narrative(self, session, evaluation):
+                return GeneratedReportNarrative(
+                    executive_summary="He demonstrated strong knowledge and his code was well structured.",
+                    recommendation="Hire him immediately.",
+                    strengths=["He answered all questions quickly", "His code quality was exceptional"],
+                    risks=["He was slightly hesitant on edge cases"],
+                )
+
+        engine = DynamicQuestionEngine()
+        session = InterviewSession.from_create_request(
+            InterviewCreateRequest(
+                mode=InterviewMode.AUTOMATIC,
+                candidate=CandidateContext(candidate_id="cand-gender-test"),
+            )
+        )
+        q = engine.next_question(session)
+        engine.record_answer(session, q.id, "I solved the problem using binary search.")
+
+        service = InterviewReportService(llm_client=GenderedFakeLLM())
+        bundle = service.create_report_bundle(session)
+        vitarka = bundle.vitarka_report
+        overall = bundle.overall_report
+
+        # Vitarka report checks
+        self.assertNotIn("He demonstrated", vitarka.executive_summary)
+        self.assertIn("They demonstrated", vitarka.executive_summary)
+        self.assertIn("their code", vitarka.executive_summary)
+        self.assertIn("Hire them immediately", vitarka.recommendation)
+        self.assertTrue(all("He" not in s and "his" not in s.lower() for s in vitarka.strengths))
+        self.assertTrue(all("He" not in r and "he was" not in r.lower() for r in vitarka.risks))
+
+        # Overall report checks
+        self.assertTrue(all("He" not in s and "his" not in s.lower() for s in overall.strengths))
+        self.assertTrue(all("He" not in r and "he was" not in r.lower() for r in overall.risks))
+
+    def test_candidate_evasion_and_unknowns_scores_low(self):
+        context = """
+Engineering Labs in section 'Backend Labs':
+
+--- Lab: REST API System ---
+Time spent: 10 minutes
+Tests: 0 passed out of 3
+Errors encountered: 2
+Code Diff:
+```diff
+diff --git a/library/services.py b/library/services.py
+--- a/library/services.py
++++ b/library/services.py
+@@ -10,2 +10,0 @@
+-response = client.get(url, timeout=5)
+-return response.json()
+diff --git a/rate_limiter.py b/rate_limiter.py
+--- a/rate_limiter.py
++++ b/rate_limiter.py
+@@ -5,1 +5,0 @@
+-self.capacity = capacity
+```
+"""
+        payload = UnifiedAssessmentPayload.model_validate({"candidate_context": context})
+        adapter = UnifiedPayloadAdapter()
+        engine = DynamicQuestionEngine()
+        session = InterviewSession.from_create_request(adapter.to_create_request(payload))
+        for event in adapter.to_assessment_events(payload):
+            engine.ingest_event(session, event)
+
+        # 10 evasive / unknown / skip answers matching user's real interview
+        sample_answers = [
+            "So actually coming to response and time out from librariesUh service down py I don't think like this this is going to help that a lot but I just want to check how you will generate report",
+            "I don't think so it is going to change any response or API response Behavior",
+            "I don't know",
+            "So I thought removing self dot capacity is equal to capacity I think that is not going to change the monitor any cost",
+            "I don't know",
+            "Can we move to the next topic I don't know much regarding this",
+            "So actually configuration settings dot py that file I have changed because I think that are that is going to help in some more some way",
+            "I don't want to discuss this more",
+            "I don't know much about this",
+            "No voice response recorded.",
+        ]
+
+        for ans in sample_answers:
+            q = engine.next_question(session)
+            engine.record_answer(session, q.id, ans)
+
+        service = InterviewReportService()
+        bundle = service.create_report_bundle(session)
+        vitarka = bundle.vitarka_report
+        overall = bundle.overall_report
+        labs = bundle.engineering_labs_report
+
+        # Vitarka MUST score low (<= 3.0 / 10), NEVER 7.3 / 10
+        self.assertLessEqual(vitarka.overall_score, 3.0)
+        # Strengths MUST be empty: candidate answered "I don't know" / evaded
+        self.assertEqual([], vitarka.strengths)
+        self.assertEqual("Do not proceed", vitarka.recommendation)
+
+        # Overall report MUST NOT have contradictory strengths praising problem-solving or coding
+        self.assertEqual([], overall.strengths)
+        self.assertLessEqual(overall.overall_score, 2.5)
+
+        # Labs summary must accurately note unverified changes across files with 0 passing tests
+        self.assertEqual(0.0, labs.overall_score)
+        self.assertIn("unverified code changes across 2 file(s) with 0 passing tests", labs.labs[0].summary)
+
+    def test_topic_retirement_on_skip_or_repeated_unknowns(self):
+        context = """
+Engineering Labs in section 'Backend Labs':
+
+--- Lab: REST API System ---
+Time spent: 10 minutes
+Code Diff:
+```diff
+diff --git a/library/services.py b/library/services.py
+--- a/library/services.py
++++ b/library/services.py
+@@ -10,2 +10,0 @@
+-response = client.get(url, timeout=5)
+```
+"""
+        payload = UnifiedAssessmentPayload.model_validate({"candidate_context": context})
+        adapter = UnifiedPayloadAdapter()
+        engine = DynamicQuestionEngine()
+        session = InterviewSession.from_create_request(adapter.to_create_request(payload))
+        for event in adapter.to_assessment_events(payload):
+            engine.ingest_event(session, event)
+
+        q1 = engine.next_question(session)
+        self.assertIn("library/services.py", q1.prompt)
+
+        # Candidate requests to move to next topic
+        ans1 = engine.record_answer(session, q1.id, "Can we move to the next topic I don't know much regarding this")
+        self.assertEqual("skip_requested", ans1.metadata["answer_quality"])
+        self.assertIn("library/services.py", session.metadata.get("retired_files", []))
+
+        # Next question MUST NOT ask about library/services.py
+        q2 = engine.next_question(session)
+        self.assertNotIn("library/services.py", q2.prompt)
+
+    def test_discussion_max_score_scaled_report(self):
+        context = """
+Candidate Context & Prior Performance:
+Vitarka Discussion Max Score: 40
+
+Engineering Labs in section 'Backend Labs':
+--- Lab: REST API System ---
+Tests: 5 passed out of 5
+"""
+        payload = UnifiedAssessmentPayload.model_validate({"candidate_context": context})
+        adapter = UnifiedPayloadAdapter()
+        session = InterviewSession.from_create_request(adapter.to_create_request(payload))
+        self.assertEqual(session.metadata.get("discussion_max_score"), 40.0)
+
+        from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
+        class MockEvaluator:
+            def evaluate(self, s):
+                ev = InterviewEvaluator().evaluate(s)
+                ev.overall_score = 8.5
+                return ev
+
+        reporter = InterviewReportService(evaluator=MockEvaluator())
+        report = reporter.create_report(session)
+        self.assertEqual(report.max_score, 40.0)
+        self.assertEqual(report.scaled_score, 34.0)  # (8.5 / 10) * 40 = 34.0
+
 
 if __name__ == "__main__":
     unittest.main()

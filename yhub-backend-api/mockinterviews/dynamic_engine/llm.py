@@ -20,6 +20,65 @@ from mockinterviews.dynamic_engine.models import (
 QUESTION_PROMPT_VERSION = "question_v2_file_grounded_no_repeat"
 REPORT_PROMPT_VERSION = "report_v1_evidence_narrative"
 
+PRONOUN_REPLACEMENTS = [
+    # Contractions & verb pairings
+    (r"\bHe's\b", "They're"),
+    (r"\bhe's\b", "they're"),
+    (r"\bShe's\b", "They're"),
+    (r"\bshe's\b", "they're"),
+    (r"\bHe'd\b", "They'd"),
+    (r"\bhe'd\b", "they'd"),
+    (r"\bShe'd\b", "They'd"),
+    (r"\bshe'd\b", "they'd"),
+    (r"\bHe'll\b", "They'll"),
+    (r"\bhe'll\b", "they'll"),
+    (r"\bShe'll\b", "They'll"),
+    (r"\bshe'll\b", "they'll"),
+    (r"\bHimself\b", "Themselves"),
+    (r"\bhimself\b", "themselves"),
+    (r"\bHerself\b", "Themselves"),
+    (r"\bherself\b", "themselves"),
+    (r"\bHe has\b", "They have"),
+    (r"\bhe has\b", "they have"),
+    (r"\bShe has\b", "They have"),
+    (r"\bshe has\b", "they have"),
+    (r"\bHe is\b", "They are"),
+    (r"\bhe is\b", "they are"),
+    (r"\bShe is\b", "They are"),
+    (r"\bshe is\b", "they are"),
+    (r"\bHe was\b", "They were"),
+    (r"\bhe was\b", "they were"),
+    (r"\bShe was\b", "They were"),
+    (r"\bshe was\b", "they were"),
+    (r"\bHe does\b", "They do"),
+    (r"\bhe does\b", "they do"),
+    (r"\bShe does\b", "They do"),
+    (r"\bshe does\b", "they do"),
+    # Standalone pronouns
+    (r"\bHe\b", "They"),
+    (r"\bhe\b", "they"),
+    (r"\bShe\b", "They"),
+    (r"\bshe\b", "they"),
+    (r"\bHim\b", "Them"),
+    (r"\bhim\b", "them"),
+    (r"\bHis\b", "Their"),
+    (r"\bhis\b", "their"),
+    (r"\bHers\b", "Theirs"),
+    (r"\bhers\b", "theirs"),
+    (r"\bHer\b", "Their"),
+    (r"\bher\b", "their"),
+]
+
+
+def normalize_gender_neutral_pronouns(text: str | None) -> str:
+    """Normalize gendered pronouns (he/him/his, she/her) to gender-neutral they/them/their."""
+    if not text or not isinstance(text, str):
+        return text or ""
+    res = text
+    for pattern, repl in PRONOUN_REPLACEMENTS:
+        res = re.sub(pattern, repl, res)
+    return res
+
 
 class GeneratedQuestion(BaseModel):
     prompt: str = Field(..., min_length=1)
@@ -101,9 +160,25 @@ class OpenAIInterviewLLM:
             "required_depth_axis": fallback_question.metadata.get("probe_axis")
             or "advance_beyond_previous_questions",
         }
+        retired_files = session.metadata.get("retired_files", [])
+        last_answer = session.answers[-1] if session.answers else None
+        last_quality = last_answer.metadata.get("answer_quality") if last_answer else None
+        skip_or_unknown = last_quality in {"skip_requested", "unknown"}
+
+        extra_directives = ""
+        if skip_or_unknown:
+            extra_directives += (
+                " CRITICAL: The candidate explicitly requested to skip, move to the next topic, or stated they do not know. "
+                "You MUST immediately pivot to a fresh topic (such as general architecture, system design, or engineering principles) "
+                "and NEVER probe or repeat the previous file, code snippet, or question."
+            )
+        if retired_files:
+            extra_directives += f" Do NOT mention or ask about any of the following retired files: {', '.join(retired_files)}."
+
         instructions = (
             "You are Vitarka AI, an experienced engineering manager conducting a live "
             "technical interview. Generate one concise, natural follow-up question. "
+            "Always use gender-neutral pronouns (they/them/their/theirs) when referring to the candidate. "
             "The question must be grounded in the provided evidence and must not repeat "
             "or paraphrase any previous question. Prefer the candidate's actual code, "
             "patch, failed tests, complexity, security, performance, or edge-case choices "
@@ -113,7 +188,7 @@ class OpenAIInterviewLLM:
             "file was chosen, and how the candidate verified it. If the candidate said "
             "they do not know, reframe to a smaller evidence-based question instead of "
             "repeating the same prompt. Move one level deeper than the fallback question "
-            "when code_artifacts are present. Return JSON only with keys: prompt, rationale."
+            f"when code_artifacts are present.{extra_directives} Return JSON only with keys: prompt, rationale."
         )
 
         data = self._call_json(
@@ -126,6 +201,8 @@ class OpenAIInterviewLLM:
         )
         if not data:
             return None
+        data["prompt"] = normalize_gender_neutral_pronouns(data.get("prompt"))
+        data["rationale"] = normalize_gender_neutral_pronouns(data.get("rationale"))
         try:
             return GeneratedQuestion.model_validate(data)
         except ValidationError as exc:
@@ -155,6 +232,11 @@ class OpenAIInterviewLLM:
             )
             return None
 
+        unknown_answers_count = sum(
+            1 for a in session.answers
+            if a.metadata.get("answer_quality") in {"unknown", "skip_requested"}
+        )
+
         payload = {
             "candidate": self._candidate_payload(session),
             "mode": session.mode.value,
@@ -163,6 +245,8 @@ class OpenAIInterviewLLM:
             "coverage": evaluation.coverage.model_dump(mode="json"),
             "strengths": evaluation.strengths,
             "risks": evaluation.risks,
+            "unknown_answers_count": unknown_answers_count,
+            "total_answers_count": len(session.answers),
             "previous_questions": self._previous_questions(session, limit=12),
             "code_artifacts": self._code_artifacts(session, limit=8),
             "top_scores": [
@@ -179,8 +263,14 @@ class OpenAIInterviewLLM:
         instructions = (
             "You are Vitarka AI preparing the final interview report for a hiring team. "
             "Write an evidence-backed narrative that is direct, fair, and useful. "
-            "Do not invent evidence. Return JSON only with keys: executive_summary, "
-            "recommendation, strengths, risks."
+            "Do not invent evidence. "
+            "IMPORTANT: Always use gender-neutral pronouns (they/them/their/theirs) when referring to the candidate. "
+            "Never use gendered pronouns like he/him/his or she/her/hers because candidate gender is unspecified. "
+            "CRITICAL TRUTHFULNESS DIRECTIVE: If the candidate frequently responded with 'I don't know', skipped questions, "
+            "asked to change topics, or could not explain their code changes, DO NOT invent or praise them for 'exceptional "
+            "problem-solving', 'strong engineering decision-making', or 'high code quality'. Accurately and honestly report "
+            "their inability to explain or defend their code, and do not fabricate positive strengths if they lacked technical depth. "
+            "Return JSON only with keys: executive_summary, recommendation, strengths, risks."
         )
 
         data = self._call_json(
@@ -193,6 +283,10 @@ class OpenAIInterviewLLM:
         )
         if not data:
             return None
+        data["executive_summary"] = normalize_gender_neutral_pronouns(data.get("executive_summary"))
+        data["recommendation"] = normalize_gender_neutral_pronouns(data.get("recommendation"))
+        data["strengths"] = [normalize_gender_neutral_pronouns(s) for s in data.get("strengths", []) if isinstance(s, str)]
+        data["risks"] = [normalize_gender_neutral_pronouns(r) for r in data.get("risks", []) if isinstance(r, str)]
         try:
             return GeneratedReportNarrative.model_validate(data)
         except ValidationError as exc:
@@ -515,9 +609,16 @@ class OpenAIInterviewLLM:
 
     def _code_artifacts(self, session: InterviewSession, *, limit: int = 5) -> list[dict[str, Any]]:
         artifacts = []
+        retired_files = session.metadata.get("retired_files", [])
+        retired_topics = session.metadata.get("retired_topics", [])
         for event in reversed(session.observations):
+            if f"code:{event.id}" in retired_topics:
+                continue
             code_insights = event.details.get("code_insights")
             if not isinstance(code_insights, dict):
+                continue
+            changed = code_insights.get("changed_files", [])
+            if changed and all(f in retired_files for f in changed):
                 continue
             artifacts.append(
                 {

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from mockinterviews.dynamic_engine.models import (
@@ -20,6 +21,65 @@ from mockinterviews.dynamic_engine.models import (
 from mockinterviews.dynamic_engine.code_analysis import CodeInsightExtractor
 from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
 from mockinterviews.dynamic_engine.llm import InterviewLLM
+
+PRONOUN_REPLACEMENTS = [
+    # Contractions & verb pairings
+    (r"\bHe's\b", "They're"),
+    (r"\bhe's\b", "they're"),
+    (r"\bShe's\b", "They're"),
+    (r"\bshe's\b", "they're"),
+    (r"\bHe'd\b", "They'd"),
+    (r"\bhe'd\b", "they'd"),
+    (r"\bShe'd\b", "They'd"),
+    (r"\bshe'd\b", "they'd"),
+    (r"\bHe'll\b", "They'll"),
+    (r"\bhe'll\b", "they'll"),
+    (r"\bShe'll\b", "They'll"),
+    (r"\bshe'll\b", "they'll"),
+    (r"\bHimself\b", "Themselves"),
+    (r"\bhimself\b", "themselves"),
+    (r"\bHerself\b", "Themselves"),
+    (r"\bherself\b", "themselves"),
+    (r"\bHe has\b", "They have"),
+    (r"\bhe has\b", "they have"),
+    (r"\bShe has\b", "They have"),
+    (r"\bshe has\b", "they have"),
+    (r"\bHe is\b", "They are"),
+    (r"\bhe is\b", "they are"),
+    (r"\bShe is\b", "They are"),
+    (r"\bshe is\b", "they are"),
+    (r"\bHe was\b", "They were"),
+    (r"\bhe was\b", "they were"),
+    (r"\bShe was\b", "They were"),
+    (r"\bshe was\b", "they were"),
+    (r"\bHe does\b", "They do"),
+    (r"\bhe does\b", "they do"),
+    (r"\bShe does\b", "They do"),
+    (r"\bshe does\b", "they do"),
+    # Standalone pronouns
+    (r"\bHe\b", "They"),
+    (r"\bhe\b", "they"),
+    (r"\bShe\b", "They"),
+    (r"\bshe\b", "they"),
+    (r"\bHim\b", "Them"),
+    (r"\bhim\b", "them"),
+    (r"\bHis\b", "Their"),
+    (r"\bhis\b", "their"),
+    (r"\bHers\b", "Theirs"),
+    (r"\bhers\b", "theirs"),
+    (r"\bHer\b", "Their"),
+    (r"\bher\b", "their"),
+]
+
+
+def normalize_gender_neutral_pronouns(text: str | None) -> str:
+    """Normalize gendered pronouns (he/him/his, she/her) to gender-neutral they/them/their."""
+    if not text or not isinstance(text, str):
+        return text or ""
+    res = text
+    for pattern, repl in PRONOUN_REPLACEMENTS:
+        res = re.sub(pattern, repl, res)
+    return res
 
 
 class InterviewReportService:
@@ -71,6 +131,11 @@ class InterviewReportService:
         evidence_highlights = self._evidence_highlights(evaluation)
         transcript = self._transcript(session)
 
+        recommendation = normalize_gender_neutral_pronouns(recommendation)
+        executive_summary = normalize_gender_neutral_pronouns(executive_summary)
+        strengths = [normalize_gender_neutral_pronouns(s) for s in strengths]
+        risks = [normalize_gender_neutral_pronouns(r) for r in risks]
+
         markdown = self._markdown(
             session=session,
             evaluation=evaluation,
@@ -82,6 +147,17 @@ class InterviewReportService:
             evidence_highlights=evidence_highlights,
             transcript=transcript,
         )
+        markdown = normalize_gender_neutral_pronouns(markdown)
+
+        disc_max = session.metadata.get("discussion_max_score") or session.metadata.get("max_score")
+        if disc_max is not None:
+            try:
+                disc_max = float(disc_max)
+            except (ValueError, TypeError):
+                disc_max = 25.0
+        else:
+            disc_max = 25.0
+        scaled_score = round((evaluation.overall_score / 10.0) * disc_max, 1) if evaluation.overall_score is not None else 0.0
 
         return InterviewReport(
             session_id=session.id,
@@ -91,6 +167,8 @@ class InterviewReportService:
             status=session.status,
             rubric_version=evaluation.rubric_version,
             overall_score=evaluation.overall_score,
+            scaled_score=scaled_score,
+            max_score=disc_max,
             coverage=evaluation.coverage,
             recommendation=recommendation,
             executive_summary=executive_summary,
@@ -216,6 +294,9 @@ class InterviewReportService:
             tests_passed=tests_passed,
             tests_total=tests_total,
         )
+        strengths = [normalize_gender_neutral_pronouns(s) for s in strengths]
+        risks = [normalize_gender_neutral_pronouns(r) for r in risks]
+        markdown = normalize_gender_neutral_pronouns(markdown)
 
         return EngineeringLabsReport(
             session_id=session.id,
@@ -288,8 +369,14 @@ class InterviewReportService:
         file_summary = ", ".join(changed_files[:5]) if changed_files else "no changed files detected"
         if score and score > 0:
             summary = f"{title} captured {file_summary}. Score: {score}/10."
+        elif changed_files:
+            summary = f"{title} had unverified code changes across {len(changed_files)} file(s) with 0 passing tests. Score: 0/10."
         else:
-            summary = f"{title} had no passing tests or verified candidate submissions. Score: 0/10."
+            summary = f"{title} had no passing tests or candidate code submissions. Score: 0/10."
+
+        summary = normalize_gender_neutral_pronouns(summary)
+        lab_strengths = [normalize_gender_neutral_pronouns(s) for s in self._unique(strengths)[:5]]
+        lab_risks = [normalize_gender_neutral_pronouns(r) for r in self._unique(risks)[:5]]
 
         return EngineeringLabReportItem(
             lab_id=str(source.get("lab_id")) if source.get("lab_id") else None,
@@ -304,8 +391,8 @@ class InterviewReportService:
             code_diff_format=source.get("code_diff_format") or (code_insights or {}).get("code_diff_format"),
             score=score,
             summary=summary,
-            strengths=self._unique(strengths)[:5],
-            risks=self._unique(risks)[:5],
+            strengths=lab_strengths,
+            risks=lab_risks,
             evidence_event_ids=[event.id for event in events],
         )
 
@@ -351,6 +438,9 @@ class InterviewReportService:
             strengths=strengths,
             risks=risks,
         )
+        strengths = [normalize_gender_neutral_pronouns(s) for s in strengths]
+        risks = [normalize_gender_neutral_pronouns(r) for r in risks]
+        markdown = normalize_gender_neutral_pronouns(markdown)
 
         return KnowledgeAssessmentReport(
             session_id=session.id,
@@ -387,6 +477,7 @@ class InterviewReportService:
             score_percent=score_percent,
             correct_solution=question.get("correct_solution"),
         )
+        feedback = normalize_gender_neutral_pronouns(feedback)
 
         return KnowledgeQuestionReport(
             question_id=str(question.get("id")) if question.get("id") else None,
@@ -449,13 +540,22 @@ class InterviewReportService:
         else:
             overall_score = 0.0
         recommendation = self._recommendation_from_score(overall_score)
-        strengths = self._unique(
+        combined_strengths = self._unique(
             [
                 *engineering_labs_report.strengths,
                 *knowledge_assessment_report.strengths,
                 *vitarka_report.strengths,
             ]
-        )[:6]
+        )
+        if engineering_labs_report.overall_score == 0.0 or (engineering_labs_report.tests_passed or 0) == 0:
+            combined_strengths = [
+                s for s in combined_strengths
+                if not any(token in s.lower() for token in (
+                    "coding assessment", "implementation", "code quality", "problem-solving skills", "problem solving", "verified code"
+                ))
+            ]
+        strengths = combined_strengths[:6]
+
         risks = self._unique(
             [
                 *engineering_labs_report.risks,
@@ -475,6 +575,11 @@ class InterviewReportService:
                 f"knowledge assessment, and Vitarka interview evidence. Aggregate score: "
                 f"{overall_score}/10. Recommendation: {recommendation}."
             )
+        executive_summary = normalize_gender_neutral_pronouns(executive_summary)
+        recommendation = normalize_gender_neutral_pronouns(recommendation)
+        strengths = [normalize_gender_neutral_pronouns(s) for s in strengths]
+        risks = [normalize_gender_neutral_pronouns(r) for r in risks]
+
         markdown = self._overall_markdown(
             session=session,
             overall_score=overall_score,
@@ -484,6 +589,7 @@ class InterviewReportService:
             strengths=strengths,
             risks=risks,
         )
+        markdown = normalize_gender_neutral_pronouns(markdown)
 
         return OverallInterviewReport(
             session_id=session.id,

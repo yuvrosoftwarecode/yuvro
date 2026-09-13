@@ -29,7 +29,7 @@ def evaluate_and_score_submission(submission):
     }
     
     try:
-        executer_host = os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executer:8009")
+        executer_host = os.environ.get("CODE_EXECUTOR_URL", os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executor:8009"))
         response = requests.post(f"{executer_host}/workspace/database_evaluate", json=payload, timeout=5)
         if response.status_code == 200:
             eval_data = response.json()
