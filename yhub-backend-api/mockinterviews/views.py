@@ -24,6 +24,10 @@ from mockinterviews.dynamic_engine.models import (
     InterviewMode as DynMode,
     CandidateContext,
     InterviewSession as DynamicInterviewSession,
+    InterviewQuestion,
+    QuestionKind,
+    Competency,
+    new_id,
     AssessmentEvent,
     InterviewStatus as DynamicInterviewStatus,
     UnifiedAssessmentPayload,
@@ -313,10 +317,27 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 )
                 dyn_session = DynamicInterviewSession.from_create_request(req)
 
+            candidate_name = f"{user.first_name} {user.last_name}".strip() or user.username or ""
+            if candidate_name:
+                dyn_session.candidate.metadata["name"] = candidate_name
+
+            greeting = f"Hello! I'm your AI interviewer today. We'll be discussing the {mock_interview.title} role. To start, could you please introduce yourself?"
+            
+            # Register greeting as the active initial question in the dynamic session
+            intro_q = InterviewQuestion(
+                id=new_id("q-intro"),
+                prompt=greeting,
+                kind=QuestionKind.DYNAMIC_FOLLOW_UP,
+                competency_targets=[Competency.COMMUNICATION],
+                rationale="Candidate introduction and ice-breaker",
+                metadata={"is_intro": True, "probe_axis": "introduction", "topic_key": "introduction"},
+            )
+            dyn_session.questions.append(intro_q)
+            dyn_session.current_question_id = intro_q.id
+            dyn_session.turn_index = 0
+
             submission.session_state = sanitize_null_bytes(dyn_session.model_dump(mode='json'))
             submission.save(update_fields=['session_state'])
-            
-            greeting = f"Hello! I'm your AI interviewer today. We'll be discussing the {mock_interview.title} role. To start, could you please introduce yourself?"
             
             if chat_session:
                 ChatMessage.objects.create(
@@ -386,9 +407,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     max_followups_per_topic=settings.max_followups_per_topic,
                 )
                 
+                # Ensure candidate name is known
+                if not dyn_session.candidate.metadata.get("name") and request.user:
+                    user_display = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username
+                    if user_display:
+                        dyn_session.candidate.metadata["name"] = user_display
+
                 # First handle any answer provided
-                if user_answer and user_answer.strip() and dyn_session.current_question_id:
-                    engine.record_answer(dyn_session, dyn_session.current_question_id, user_answer)
+                if user_answer and user_answer.strip():
+                    target_q_id = dyn_session.current_question_id
+                    if not target_q_id and dyn_session.questions:
+                        target_q_id = dyn_session.questions[-1].id
+                    if target_q_id:
+                        engine.record_answer(dyn_session, target_q_id, user_answer)
                 
                 # Advance question
                 force_new = (status_code == 'skip')
