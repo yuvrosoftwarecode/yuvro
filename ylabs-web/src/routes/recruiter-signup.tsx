@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { ArrowRight, Eye, EyeOff, KeyRound, ShieldCheck, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import authService from "@/services/authService";
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/components/ui/input-otp";
 
 export const Route = createFileRoute("/recruiter-signup")({
   head: () => ({
@@ -35,12 +36,22 @@ function RecruiterSignUpPage() {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown > 0) {
+      const t = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [cooldown]);
 
   useEffect(() => {
     const loadCompanies = async () => {
       try {
         const data = await authService.fetchCompanies();
-        // data could be paginated depending on viewset, so handle results array or direct array
         const results = Array.isArray(data) ? data : (data as any).results || [];
         setCompanies(results);
       } catch (err) {
@@ -49,6 +60,21 @@ function RecruiterSignUpPage() {
     };
     loadCompanies();
   }, []);
+
+  const sendOtp = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      setOtp(""); // Clear previous OTP
+      await authService.sendRegistrationOtp(email.trim(), "Recruiter Registration");
+      setOtpSent(true);
+      setCooldown(30);
+    } catch (err: any) {
+      setError(err?.message || "Failed to send OTP.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const enter = async () => {
     if (!firstName || !email || !password || !confirmPassword) {
@@ -78,6 +104,16 @@ function RecruiterSignUpPage() {
       return;
     }
     
+    if (!otpSent) {
+      await sendOtp();
+      return;
+    }
+    
+    if (otp.length !== 6) {
+      setError("Please enter the complete 6-digit OTP.");
+      return;
+    }
+    
     try {
       setLoading(true);
       setError("");
@@ -87,6 +123,7 @@ function RecruiterSignUpPage() {
         last_name: lastName.trim(),
         email: email.trim(),
         password: password,
+        otp: otp,
       };
 
       if (selectedCompanyId === "other") {
@@ -103,7 +140,13 @@ function RecruiterSignUpPage() {
       nav({ to: "/recruiter" });
     } catch (err: any) {
       let errorMsg = "Registration failed. Please try again.";
-      if (err?.yhub_error) {
+      // Extract detail or specific field errors
+      if (err?.response?.data) {
+        const d = err.response.data;
+        if (d.otp) errorMsg = typeof d.otp === 'string' ? d.otp : d.otp[0];
+        else if (d.email) errorMsg = typeof d.email === 'string' ? d.email : d.email[0];
+        else if (d.non_field_errors) errorMsg = d.non_field_errors[0];
+      } else if (err?.yhub_error) {
         errorMsg = err.yhub_error;
       } else if (err?.message) {
         errorMsg = err.message;
@@ -288,64 +331,116 @@ function RecruiterSignUpPage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6B6B6B]">Password</label>
-                  <div className="relative mt-1.5">
-                    <input
-                      type={show ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      required
-                      disabled={loading}
-                      className="w-full rounded-md border border-black/15 bg-white px-3 py-2 pr-9 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
-                    />
+              {!otpSent ? (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6B6B6B]">Password</label>
+                      <div className="relative mt-1.5">
+                        <input
+                          type={show ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          required
+                          disabled={loading}
+                          className="w-full rounded-md border border-black/15 bg-white px-3 py-2 pr-9 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShow((s) => !s)}
+                          disabled={loading}
+                          className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-1 text-[#6B6B6B] hover:text-[#0A0A0A] disabled:opacity-50"
+                          aria-label="Toggle password visibility"
+                        >
+                          {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6B6B6B]">Confirm Password</label>
+                      <div className="relative mt-1.5">
+                        <input
+                          type={show ? "text" : "password"}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="••••••••"
+                          required
+                          disabled={loading}
+                          className="w-full rounded-md border border-black/15 bg-white px-3 py-2 pr-9 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="mt-4 group inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#0A0A0A] px-4 py-2.5 text-[14px] font-medium text-white transition hover:bg-black disabled:opacity-70"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Sending OTP...
+                      </>
+                    ) : (
+                      <>
+                        Continue
+                        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                      </>
+                    )}
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col items-center mt-4">
+                  <p className="text-sm text-muted-foreground mb-4 text-center">
+                    We sent a 6-digit code to <strong>{email}</strong>
+                  </p>
+                  <InputOTP maxLength={6} value={otp} onChange={setOtp} disabled={loading}>
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} className="w-11 h-12 sm:w-12 sm:h-14 text-lg" />
+                      <InputOTPSlot index={1} className="w-11 h-12 sm:w-12 sm:h-14 text-lg" />
+                      <InputOTPSlot index={2} className="w-11 h-12 sm:w-12 sm:h-14 text-lg" />
+                    </InputOTPGroup>
+                    <InputOTPSeparator />
+                    <InputOTPGroup>
+                      <InputOTPSlot index={3} className="w-11 h-12 sm:w-12 sm:h-14 text-lg" />
+                      <InputOTPSlot index={4} className="w-11 h-12 sm:w-12 sm:h-14 text-lg" />
+                      <InputOTPSlot index={5} className="w-11 h-12 sm:w-12 sm:h-14 text-lg" />
+                    </InputOTPGroup>
+                  </InputOTP>
+
+                  <div className="mt-4 flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => setShow((s) => !s)}
-                      disabled={loading}
-                      className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-1 text-[#6B6B6B] hover:text-[#0A0A0A] disabled:opacity-50"
-                      aria-label="Toggle password visibility"
+                      disabled={cooldown > 0 || loading}
+                      onClick={sendOtp}
+                      className="text-xs text-[#6B6B6B] hover:text-[#0A0A0A] disabled:opacity-50"
                     >
-                      {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend OTP"}
                     </button>
                   </div>
-                </div>
 
-                <div>
-                  <label className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6B6B6B]">Confirm Password</label>
-                  <div className="relative mt-1.5">
-                    <input
-                      type={show ? "text" : "password"}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                      required
-                      disabled={loading}
-                      className="w-full rounded-md border border-black/15 bg-white px-3 py-2 pr-9 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
-                    />
-                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading || otp.length !== 6}
+                    className="mt-6 group inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#0A0A0A] px-4 py-2.5 text-[14px] font-medium text-white transition hover:bg-black disabled:opacity-70"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Verifying...
+                      </>
+                    ) : (
+                      <>
+                        Verify & Register
+                        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                      </>
+                    )}
+                  </button>
                 </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="group inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#0A0A0A] px-4 py-2.5 text-[14px] font-medium text-white transition hover:bg-black disabled:opacity-70"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Creating Account...
-                  </>
-                ) : (
-                  <>
-                    Sign Up
-                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-                  </>
-                )}
-              </button>
+              )}
 
               <div className="text-center">
                 <span className="text-[13px] text-[#6B6B6B]">Already have an account? </span>

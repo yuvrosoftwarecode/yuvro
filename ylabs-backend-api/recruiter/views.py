@@ -34,9 +34,17 @@ class RecruiterSelfRegistrationAPIView(generics.CreateAPIView):
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
+from rest_framework.pagination import PageNumberPagination
+
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class CompanyRecruiterViewSet(viewsets.ModelViewSet):
     queryset = CompanyRecruiter.objects.all().select_related("user", "company").order_by("-created_at")
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPageNumberPagination
 
     def get_serializer_class(self):
         if self.action == "create":

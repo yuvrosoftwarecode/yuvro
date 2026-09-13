@@ -83,12 +83,38 @@ def sync_shadow_user(request):
     return Response({"status": "success", "created": created})
 
 
+from rest_framework.pagination import PageNumberPagination
+
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+from django.db.models import Q
+
 @api_view(["GET"])
 @permission_classes([IsAdminUser])
 def get_all_users(request):
-    users = User.objects.select_related("profile", "profile__college").all()
+    users = User.objects.select_related("profile", "profile__college").all().order_by('-date_joined')
+    
+    search = request.GET.get('search', '').strip()
+    if search:
+        users = users.filter(
+            Q(first_name__icontains=search) | 
+            Q(last_name__icontains=search) | 
+            Q(email__icontains=search) | 
+            Q(username__icontains=search)
+        )
+        
+    role = request.GET.get('role', '').strip()
+    if role and role.lower() != 'all':
+        users = users.filter(role__iexact=role)
+
+    paginator = CustomPageNumberPagination()
+    paginated_users = paginator.paginate_queryset(users, request)
+
     result = []
-    for u in users:
+    for u in paginated_users:
         college_name = None
         if hasattr(u, "profile"):
             college_name = (
@@ -106,4 +132,14 @@ def get_all_users(request):
             "last_login": u.last_login,
             "college": college_name,
         })
-    return Response(result)
+    response = paginator.get_paginated_response(result)
+    
+    # Add stats to the response
+    response.data['stats'] = {
+        'total': users.count(),
+        'active': users.filter(is_active=True).count(),
+        'admins': users.filter(role='admin').count(),
+        'suspended': users.filter(is_active=False).count(),
+    }
+    
+    return response

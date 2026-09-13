@@ -9,6 +9,7 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("google/", google_login_view, name="google_login"),
     path("public_send_otp/", views.public_send_otp, name="public_send_otp"),
+    path("public_check_otp/", views.public_check_otp, name="public_check_otp"),
     path("public_verify_otp/", views.public_verify_otp, name="public_verify_otp"),
     path("logout/", views.logout_view, name="logout"),
     path(
