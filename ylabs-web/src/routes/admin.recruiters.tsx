@@ -716,6 +716,8 @@ function RecruitersPage() {
   const [recruiters, setRecruiters] = useState<CompanyRecruiter[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
   const loadData = async () => {
     setLoading(true);
@@ -747,6 +749,9 @@ function RecruitersPage() {
       toast.error(err.response?.data?.detail || "Failed to delete recruiter");
     }
   };
+
+  const totalPages = Math.max(1, Math.ceil(recruiters.length / pageSize));
+  const paginatedRecruiters = recruiters.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <AdminShell
@@ -821,7 +826,7 @@ function RecruitersPage() {
                   </td>
                 </tr>
               ) : (
-                recruiters.map((r) => (
+                paginatedRecruiters.map((r) => (
                   <tr key={r.id} className="border-t border-border/40 hover:bg-accent/30">
                     <td className="px-3 py-2.5 font-medium">
                       {r.user.first_name} {r.user.last_name}
@@ -865,6 +870,29 @@ function RecruitersPage() {
             </tbody>
           </table>
         </div>
+        {!loading && recruiters.length > 0 && (
+          <div className="flex items-center justify-between p-3 text-xs text-muted-foreground border-t border-border/60">
+            <span>
+              Page {page} of {totalPages}
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Prev
+              </button>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </Panel>
     </AdminShell>
   );

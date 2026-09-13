@@ -66,6 +66,20 @@ def sync_shadow_user(request):
     else:
         user.set_unusable_password()
 
+    if local_role == "recruiter":
+        from recruiter.models import Company, CompanyRecruiter
+        if not CompanyRecruiter.objects.filter(user=user).exists():
+            default_company, _ = Company.objects.get_or_create(
+                name="Yuvro",
+                defaults={"domain": "yuvro.com", "created_by": user}
+            )
+            CompanyRecruiter.objects.create(
+                user=user,
+                company=default_company,
+                is_self_signup=False,
+                created_by=user
+            )
+
     return Response({"status": "success", "created": created})
 
 

@@ -12,6 +12,8 @@ function UsersPage() {
   const [q, setQ] = useState("");
   const [role, setRole] = useState("All");
   const [users, setUsers] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
   useEffect(() => {
     async function fetchUsers() {
@@ -23,6 +25,10 @@ function UsersPage() {
             userRole = "Admin";
           } else if (u.role === "developer") {
             userRole = "Mentor";
+          } else if (u.role === "recruiter") {
+            userRole = "Recruiter";
+          } else if (u.role === "job_seeker" || u.role === "job seeker") {
+            userRole = "Job Seeker";
           }
 
           return {
@@ -51,6 +57,13 @@ function UsersPage() {
       (u.name.toLowerCase().includes(q.toLowerCase()) ||
         u.email.toLowerCase().includes(q.toLowerCase())),
   );
+
+  useEffect(() => {
+    setPage(1);
+  }, [q, role]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <AdminShell
@@ -132,7 +145,7 @@ function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((u) => (
+              {paginated.map((u) => (
                 <tr key={u.id} className="border-t border-border/40 hover:bg-accent/30">
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-2.5">
@@ -181,10 +194,24 @@ function UsersPage() {
           </table>
         </div>
         <div className="flex items-center justify-between p-3 text-xs text-muted-foreground border-t border-border/60">
-          <span>Page 1 of 25,699</span>
+          <span>
+            Page {page} of {totalPages}
+          </span>
           <div className="flex items-center gap-1">
-            <button className="px-2 py-1 rounded border border-border hover:bg-accent">Prev</button>
-            <button className="px-2 py-1 rounded border border-border hover:bg-accent">Next</button>
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Prev
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
