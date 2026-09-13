@@ -162,12 +162,10 @@ Knowledge Assessment Score: 1/2
 
         bundle = InterviewReportService().create_report_bundle(session)
 
-        self.assertEqual("Engineering Labs Report", bundle.engineering_labs_report.title)
-        self.assertEqual("Knowledge Assessment Report", bundle.knowledge_assessment_report.title)
+        self.assertIsNone(bundle.engineering_labs_report)
+        self.assertIsNone(bundle.knowledge_assessment_report)
         self.assertEqual("Overall Interview Report", bundle.overall_report.title)
-        self.assertEqual(1, bundle.engineering_labs_report.lab_count)
-        self.assertEqual(2, bundle.knowledge_assessment_report.question_count)
-        self.assertIn("orders/views.py", bundle.engineering_labs_report.labs[0].changed_files)
+        self.assertIsNotNone(bundle.vitarka_report)
         self.assertEqual(3, len(bundle.overall_report.section_scores))
 
     def test_missing_openai_key_records_llm_skip(self):

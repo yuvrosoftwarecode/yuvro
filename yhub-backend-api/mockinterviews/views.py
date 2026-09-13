@@ -1193,6 +1193,7 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                     if report_bundle.vitarka_report.scaled_score is not None
                     else round((report_bundle.vitarka_report.overall_score / 10.0) * (report_bundle.vitarka_report.max_score or 25.0), 1)
                 )
+                response_data = report_bundle.model_dump(mode='json')
                 response_data.update({
                     "overall_score": report_bundle.overall_report.overall_score,
                     "recommendation": report_bundle.overall_report.recommendation,

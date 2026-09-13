@@ -467,8 +467,8 @@ class InterviewReportBundle(BaseModel):
     session_id: str
     candidate_id: str
     target_role: str | None = None
-    engineering_labs_report: EngineeringLabsReport
-    knowledge_assessment_report: KnowledgeAssessmentReport
+    engineering_labs_report: EngineeringLabsReport | None = None
+    knowledge_assessment_report: KnowledgeAssessmentReport | None = None
     vitarka_report: InterviewReport
     overall_report: OverallInterviewReport
     generated_at: datetime = Field(default_factory=utc_now)

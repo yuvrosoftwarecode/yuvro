@@ -182,21 +182,21 @@ class InterviewReportService:
 
     def create_report_bundle(self, session: InterviewSession) -> InterviewReportBundle:
         vitarka_report = self.create_report(session)
-        engineering_labs_report = self._engineering_labs_report(session)
-        knowledge_assessment_report = self._knowledge_assessment_report(session)
+        lab_stats = self._get_engineering_stats(session)
+        knowledge_stats = self._get_knowledge_stats(session)
         overall_report = self._overall_report(
             session=session,
-            engineering_labs_report=engineering_labs_report,
-            knowledge_assessment_report=knowledge_assessment_report,
             vitarka_report=vitarka_report,
+            lab_stats=lab_stats,
+            knowledge_stats=knowledge_stats,
         )
 
         return InterviewReportBundle(
             session_id=session.id,
             candidate_id=session.candidate.candidate_id,
             target_role=session.candidate.target_role,
-            engineering_labs_report=engineering_labs_report,
-            knowledge_assessment_report=knowledge_assessment_report,
+            engineering_labs_report=None,
+            knowledge_assessment_report=None,
             vitarka_report=vitarka_report,
             overall_report=overall_report,
         )
@@ -495,32 +495,109 @@ class InterviewReportService:
             feedback=feedback,
         )
 
+    def _get_engineering_stats(self, session: InterviewSession) -> dict[str, Any]:
+        lab_sources = self._engineering_lab_sources(session)
+        if not lab_sources:
+            return {
+                "lab_count": 0,
+                "tests_passed": 0,
+                "tests_total": 0,
+                "score": None,
+                "total_time_seconds": 0,
+            }
+
+        lab_scores = []
+        total_passed = 0
+        total_tests = 0
+        total_time = 0
+        for source in lab_sources:
+            events = self._events_for_lab(session, source)
+            performance = source.get("performance") if isinstance(source.get("performance"), dict) else {}
+            code_insights = self._combined_code_insights(source, events)
+            changed_files = self._unique(self._as_list(code_insights.get("changed_files"))) if code_insights else []
+            tests_passed = self._as_int(performance.get("tests_passed")) or 0
+            tests_total = self._as_int(performance.get("tests_total")) or 0
+            errors_encountered = self._as_int(performance.get("errors_encountered")) or 0
+            time_spent = self._as_int(source.get("time_spent_seconds") or performance.get("total_time_seconds")) or 0
+
+            score = self._engineering_lab_score(
+                tests_passed=tests_passed,
+                tests_total=tests_total,
+                errors_encountered=errors_encountered,
+                changed_files=changed_files,
+                code_insights=code_insights,
+            )
+            if score is not None:
+                lab_scores.append(score)
+            total_passed += tests_passed
+            total_tests += tests_total
+            total_time += time_spent
+
+        avg_score = round(sum(lab_scores) / len(lab_scores), 1) if lab_scores else None
+        if total_tests > 0 and total_passed == 0:
+            avg_score = 0.0
+
+        return {
+            "lab_count": len(lab_sources),
+            "tests_passed": total_passed,
+            "tests_total": total_tests,
+            "score": avg_score,
+            "total_time_seconds": total_time,
+        }
+
+    def _get_knowledge_stats(self, session: InterviewSession) -> dict[str, Any]:
+        source = self._knowledge_assessment_source(session)
+        questions = source.get("questions", []) or []
+        total_score = self._as_float(source.get("total_score"))
+        max_score = self._as_float(source.get("max_score"))
+        if total_score is None and questions:
+            scores = [self._as_float(q.get("marks_awarded")) for q in questions if isinstance(q, dict)]
+            if any(s is not None for s in scores):
+                total_score = float(sum(s or 0 for s in scores if s is not None))
+        if max_score is None and questions:
+            max_scores = [self._as_float(q.get("max_marks")) for q in questions if isinstance(q, dict)]
+            if any(m is not None for m in max_scores):
+                max_score = float(sum(m or 0 for m in max_scores if m is not None))
+
+        score_percent = round((total_score / max_score) * 100, 1) if total_score is not None and max_score else None
+        correct_count = sum(1 for q in questions if isinstance(q, dict) and self._as_bool(q.get("is_correct")) is True)
+        score_out_of_ten = round(score_percent / 10.0, 1) if score_percent is not None else None
+
+        return {
+            "question_count": len(questions),
+            "correct_count": correct_count,
+            "total_score": total_score,
+            "max_score": max_score,
+            "score_percent": score_percent,
+            "score": score_out_of_ten,
+        }
+
     def _overall_report(
         self,
         *,
         session: InterviewSession,
-        engineering_labs_report: EngineeringLabsReport,
-        knowledge_assessment_report: KnowledgeAssessmentReport,
         vitarka_report: InterviewReport,
+        lab_stats: dict[str, Any],
+        knowledge_stats: dict[str, Any],
     ) -> OverallInterviewReport:
         section_scores = [
             OverallReportSectionScore(
                 section="engineering_labs",
-                score=engineering_labs_report.overall_score,
-                weight=0.35 if engineering_labs_report.overall_score is not None else 0,
+                score=lab_stats.get("score"),
+                weight=0.35 if lab_stats.get("score") is not None else 0,
                 summary=(
-                    f"{engineering_labs_report.lab_count} lab(s), "
-                    f"{engineering_labs_report.tests_passed}/{engineering_labs_report.tests_total} tests passed."
+                    f"{lab_stats.get('lab_count', 0)} lab(s), "
+                    f"{lab_stats.get('tests_passed', 0)}/{lab_stats.get('tests_total', 0)} tests passed."
                 ),
             ),
             OverallReportSectionScore(
                 section="knowledge_assessment",
-                score=self._knowledge_score_to_ten(knowledge_assessment_report),
-                weight=0.25 if knowledge_assessment_report.score_percent is not None else 0,
+                score=knowledge_stats.get("score"),
+                weight=0.25 if knowledge_stats.get("score") is not None else 0,
                 summary=(
-                    f"{knowledge_assessment_report.total_score}/"
-                    f"{knowledge_assessment_report.max_score} across "
-                    f"{knowledge_assessment_report.question_count} question(s)."
+                    f"{knowledge_stats.get('total_score')}/"
+                    f"{knowledge_stats.get('max_score')} ({knowledge_stats.get('score_percent')}%) across "
+                    f"{knowledge_stats.get('question_count', 0)} question(s)."
                 ),
             ),
             OverallReportSectionScore(
@@ -540,30 +617,58 @@ class InterviewReportService:
         else:
             overall_score = 0.0
         recommendation = self._recommendation_from_score(overall_score)
-        combined_strengths = self._unique(
-            [
-                *engineering_labs_report.strengths,
-                *knowledge_assessment_report.strengths,
-                *vitarka_report.strengths,
-            ]
-        )
-        if engineering_labs_report.overall_score == 0.0 or (engineering_labs_report.tests_passed or 0) == 0:
-            combined_strengths = [
-                s for s in combined_strengths
+
+        # Build strengths: Vitarka AI + factual lab tests passing + assessment performance
+        strengths = []
+        tests_total = lab_stats.get("tests_total", 0) or 0
+        tests_passed = lab_stats.get("tests_passed", 0) or 0
+        if tests_total > 0 and tests_passed == tests_total:
+            strengths.append(f"Passed all {tests_total} automated tests across engineering labs.")
+        elif tests_passed > 0:
+            strengths.append(f"Passed {tests_passed}/{tests_total} automated tests across engineering labs.")
+
+        k_pct = knowledge_stats.get("score_percent")
+        k_correct = knowledge_stats.get("correct_count", 0) or 0
+        k_total = knowledge_stats.get("question_count", 0) or 0
+        if k_pct is not None and k_pct >= 80:
+            strengths.append(f"Strong performance in knowledge assessment ({k_pct}%).")
+        elif k_correct > 0:
+            strengths.append(f"Answered {k_correct}/{k_total} knowledge assessment questions correctly.")
+
+        strengths.extend(vitarka_report.strengths[:4])
+        strengths = self._unique(strengths)
+        if (lab_stats.get("score") == 0.0 or tests_passed == 0) and tests_total > 0:
+            strengths = [
+                s for s in strengths
                 if not any(token in s.lower() for token in (
                     "coding assessment", "implementation", "code quality", "problem-solving skills", "problem solving", "verified code"
                 ))
             ]
-        strengths = combined_strengths[:6]
+        strengths = strengths[:6]
 
-        risks = self._unique(
-            [
-                *engineering_labs_report.risks,
-                *knowledge_assessment_report.risks,
-                *vitarka_report.risks,
-            ]
-        )[:6]
+        # Build risks: Vitarka AI + factual test failures + assessment gaps
+        risks = []
+        if tests_total > 0 and tests_passed == 0:
+            risks.append(f"Passed 0/{tests_total} test cases in engineering labs.")
+        elif tests_total > 0 and tests_passed < tests_total:
+            risks.append(f"Failed {tests_total - tests_passed} test case(s) in engineering labs.")
+
+        if k_pct is not None and k_pct < 60:
+            risks.append(f"Knowledge assessment score is below threshold ({k_pct}%).")
+
+        risks.extend(vitarka_report.risks[:4])
+        risks = self._unique(risks)[:6]
+
         name = self._display_name(session)
+        evidence_parts = []
+        if tests_total > 0:
+            evidence_parts.append(f"{tests_passed}/{tests_total} tests passed across {lab_stats.get('lab_count', 0)} engineering lab(s)")
+        if k_total > 0:
+            evidence_parts.append(f"{k_correct}/{k_total} questions correct ({k_pct}%) in knowledge assessment")
+        if vitarka_report.overall_score is not None:
+            evidence_parts.append(f"{vitarka_report.overall_score}/10 in Vitarka AI discussion")
+
+        evidence_str = "; ".join(evidence_parts) if evidence_parts else "completed sections"
         if overall_score == 0.0:
             executive_summary = (
                 f"Overall evaluation for {name} recorded 0 passing tests, no submitted code, "
@@ -571,10 +676,10 @@ class InterviewReportService:
             )
         else:
             executive_summary = (
-                f"Overall evaluation for {name} combines engineering labs, "
-                f"knowledge assessment, and Vitarka interview evidence. Aggregate score: "
-                f"{overall_score}/10. Recommendation: {recommendation}."
+                f"Overall evaluation for {name} synthesizes Vitarka AI interview results with practical performance: "
+                f"{evidence_str}. Aggregate score: {overall_score}/10. Recommendation: {recommendation}."
             )
+
         executive_summary = normalize_gender_neutral_pronouns(executive_summary)
         recommendation = normalize_gender_neutral_pronouns(recommendation)
         strengths = [normalize_gender_neutral_pronouns(s) for s in strengths]

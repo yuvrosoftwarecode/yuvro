@@ -693,6 +693,7 @@ function CandidateWorkspace() {
               labsMaxScore={labsMaxScore}
               assessmentMaxScore={assessmentMaxScore}
               discussionMaxScore={discussionMaxScore}
+              ev={ev}
             />
           )}
           {tab === "labs" && <LabsPane ev={ev} candidate={displayCandidate} labsReport={liveLabsReport} onOpen={setOpenLab} />}
@@ -773,6 +774,7 @@ export function OverviewPane({
   labsMaxScore = 80,
   assessmentMaxScore = 30,
   discussionMaxScore = 25,
+  ev,
 }: {
   candidate: ReturnType<typeof getCandidates>[number];
   detail: ReturnType<typeof getCandidateDetail>;
@@ -787,6 +789,7 @@ export function OverviewPane({
   labsMaxScore?: number;
   assessmentMaxScore?: number;
   discussionMaxScore?: number;
+  ev?: any;
 }) {
   const activeCount = [hasLabs, hasAssessment, hasVitarka].filter(Boolean).length;
   const gridClass = activeCount === 3 ? "grid-cols-3" : activeCount === 2 ? "grid-cols-2" : "grid-cols-1";
@@ -847,6 +850,7 @@ export function OverviewPane({
       {/* Evaluation summary */}
       <EvaluationSummary
         candidate={candidate}
+        ev={ev}
         vitarkaReport={vitarkaReport}
         overallReport={overallReport}
         reportBundle={reportBundle}
@@ -916,6 +920,227 @@ function stripUuids(text: string, replacement: string = "the candidate"): string
   return normalizeGenderNeutralPronouns(withoutUuids);
 }
 
+interface ParsedTaskResult {
+  key: string;
+  name: string;
+  result: "passed" | "failed" | "error" | "skipped";
+  score?: number;
+  maxScore?: number;
+  message?: string;
+  details?: string;
+}
+
+interface ParsedExecutionReport {
+  tasks: ParsedTaskResult[];
+  totalScore?: number;
+  maxScore?: number;
+  percentage?: number;
+  rawStdout?: string;
+  rawStderr?: string;
+  rawText?: string;
+  hasTasks: boolean;
+}
+
+function parseExecutionOutput(rawOutput: string | null | undefined, labTasks?: any[]): ParsedExecutionReport | null {
+  if (!rawOutput) return null;
+  
+  let root: any = null;
+  if (typeof rawOutput === "object") {
+    root = rawOutput;
+  } else {
+    try {
+      root = JSON.parse(rawOutput);
+    } catch {
+      return {
+        tasks: [],
+        rawStdout: String(rawOutput),
+        rawText: String(rawOutput),
+        hasTasks: false,
+      };
+    }
+  }
+
+  let tasksDict: any = null;
+  let totalScore: number | undefined = root?.total_score != null ? Number(root.total_score) : undefined;
+  let maxScore: number | undefined = root?.max_possible_score != null ? Number(root.max_possible_score) : undefined;
+  let percentage: number | undefined = root?.percentage != null ? Number(root.percentage) : undefined;
+  let rawStdout: string = "";
+  let rawStderr: string = root?.stderr ? String(root.stderr).trim() : "";
+
+  // 1. Check parsed_data from executer
+  if (root?.parsed_data?.tasks) {
+    tasksDict = root.parsed_data.tasks;
+    if (root.parsed_data.total_score != null) totalScore = Number(root.parsed_data.total_score);
+    if (root.parsed_data.max_possible_score != null) maxScore = Number(root.parsed_data.max_possible_score);
+  }
+
+  // 2. Check stdout if it contains JSON with tasks
+  if (!tasksDict && root?.stdout) {
+    const s = String(root.stdout).trim();
+    rawStdout = s;
+    try {
+      const parsedStdout = JSON.parse(s);
+      if (parsedStdout?.tasks) {
+        tasksDict = parsedStdout.tasks;
+        if (parsedStdout.total_score != null && totalScore == null) totalScore = Number(parsedStdout.total_score);
+        if (parsedStdout.max_possible_score != null && maxScore == null) maxScore = Number(parsedStdout.max_possible_score);
+      }
+    } catch {
+      const match = s.match(/(\{[\s\S]*"tasks"[\s\S]*\})/);
+      if (match) {
+        try {
+          const matchedJson = JSON.parse(match[1]);
+          if (matchedJson?.tasks) {
+            tasksDict = matchedJson.tasks;
+            if (matchedJson.total_score != null && totalScore == null) totalScore = Number(matchedJson.total_score);
+            if (matchedJson.max_possible_score != null && maxScore == null) maxScore = Number(matchedJson.max_possible_score);
+          }
+        } catch {}
+      }
+    }
+  } else if (!rawStdout && root?.stdout) {
+    rawStdout = String(root.stdout).trim();
+  }
+
+  // 3. Check root.tasks
+  if (!tasksDict && root?.tasks) {
+    tasksDict = root.tasks;
+  }
+
+  const tasksList: ParsedTaskResult[] = [];
+
+  if (tasksDict) {
+    if (Array.isArray(tasksDict)) {
+      tasksDict.forEach((t: any, idx: number) => {
+        const matchingLabTask = labTasks && labTasks[idx];
+        const isPassed = t.passed === true || t.result === "passed" || t.status === "passed" || (t.score != null && t.score > 0);
+        tasksList.push({
+          key: `task_${idx + 1}`,
+          name: matchingLabTask?.title || t.name || t.title || `Task ${idx + 1}`,
+          result: isPassed ? "passed" : "failed",
+          score: t.score != null ? Number(t.score) : (isPassed ? (matchingLabTask?.marks || 2) : 0),
+          maxScore: matchingLabTask?.marks || t.max_score || 2,
+          message: t.feedback || t.message || t.description || (isPassed ? "Test passed successfully" : "Condition not satisfied"),
+          details: t.details || t.error || t.expected,
+        });
+      });
+    } else if (typeof tasksDict === "object") {
+      const keys = Object.keys(tasksDict);
+      keys.forEach((k, idx) => {
+        const item = tasksDict[k];
+        const matchingLabTask = labTasks && (labTasks.find((lt: any) => lt.id === k || lt.title?.toLowerCase().includes(k.toLowerCase())) || labTasks[idx]);
+        const resStr = String(item.result || item.status || "").toLowerCase();
+        const isPassed = resStr === "passed" || item.passed === true || (item.score != null && Number(item.score) > 0);
+        
+        const formattedKey = k.replace(/^task_?(\d+)$/i, "Task $1");
+        const displayName = matchingLabTask?.title ? `${formattedKey}: ${matchingLabTask.title}` : (item.name || item.title || formattedKey);
+
+        tasksList.push({
+          key: k,
+          name: displayName,
+          result: isPassed ? "passed" : "failed",
+          score: item.score != null ? Number(item.score) : (isPassed ? (matchingLabTask?.marks || 2) : 0),
+          maxScore: item.max_score || matchingLabTask?.marks || 2,
+          message: item.message || item.feedback || (isPassed ? "Test passed successfully" : "Condition not satisfied"),
+          details: item.details || item.output || item.error,
+        });
+      });
+
+      // If there are lab tasks that were not reported in tasksDict, append them as uncompleted
+      if (labTasks && Array.isArray(labTasks) && labTasks.length > keys.length) {
+        for (let idx = keys.length; idx < labTasks.length; idx++) {
+          const lt = labTasks[idx];
+          tasksList.push({
+            key: `task_${idx + 1}`,
+            name: lt.title ? `Task ${idx + 1}: ${lt.title}` : `Task ${idx + 1}`,
+            result: "failed",
+            score: 0,
+            maxScore: lt.marks || 2,
+            message: "Not completed / Test failed",
+          });
+        }
+      }
+    }
+  }
+
+  if (totalScore == null && tasksList.length > 0) {
+    totalScore = tasksList.reduce((acc, t) => acc + (t.score || 0), 0);
+  }
+  if (maxScore == null && tasksList.length > 0) {
+    maxScore = tasksList.reduce((acc, t) => acc + (t.maxScore || 2), 0);
+  }
+  if (percentage == null && totalScore != null && maxScore != null && maxScore > 0) {
+    percentage = Math.round((totalScore / maxScore) * 100);
+  }
+
+  return {
+    tasks: tasksList,
+    totalScore,
+    maxScore,
+    percentage,
+    rawStdout,
+    rawStderr,
+    rawText: typeof rawOutput === "string" ? rawOutput : JSON.stringify(rawOutput, null, 2),
+    hasTasks: tasksList.length > 0,
+  };
+}
+
+function SectionPerformanceBlock({
+  title,
+  headline,
+  stats,
+  badge,
+  tone = "emerald",
+}: {
+  title: string;
+  headline: string;
+  stats: { label: string; value: string; sub?: string }[];
+  badge?: string;
+  tone?: "emerald" | "blue" | "amber";
+}) {
+  return (
+    <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 flex flex-col justify-between">
+      <div>
+        <div className="flex items-baseline justify-between">
+          <div className="text-[11px] uppercase tracking-widest text-neutral-500">{title}</div>
+        </div>
+
+        {/* Headline callout box */}
+        <div className="mt-3.5 rounded-xl border border-white/10 bg-white/[0.03] p-3.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+              tone === "emerald"
+                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+            }`}>
+              <CheckCircle2 className="h-4 w-4" />
+            </div>
+            <div className="text-[13px] font-medium text-white truncate">
+              {headline}
+            </div>
+          </div>
+          {badge && (
+            <span className="shrink-0 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-300">
+              {badge}
+            </span>
+          )}
+        </div>
+
+        {/* Dynamic factual stats */}
+        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+          {stats.map((st, i) => (
+            <div key={i} className="rounded-xl border border-white/5 bg-white/[0.015] p-2.5">
+              <div className="text-[10px] uppercase tracking-wider text-neutral-500 truncate">{st.label}</div>
+              <div className="mt-1 text-[14px] font-medium text-white">{st.value}</div>
+              {st.sub && <div className="mt-0.5 text-[10px] text-neutral-400 truncate">{st.sub}</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SummaryBlock({
   title,
   score,
@@ -924,23 +1149,27 @@ function SummaryBlock({
   strengths,
   explore,
   fullWidth = false,
+  showScore = false,
 }: {
   title: string;
-  score: number;
+  score?: number;
   maxScore?: number;
   summary: string;
   strengths: string[];
   explore: string;
   fullWidth?: boolean;
+  showScore?: boolean;
 }) {
   return (
     <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
       <div className="flex items-baseline justify-between">
         <div className="text-[11px] uppercase tracking-widest text-neutral-500">{title}</div>
-        <div className="text-[13px] font-medium text-white">
-          {score}
-          <span className="text-neutral-500">/{maxScore}</span>
-        </div>
+        {showScore && score != null && (
+          <div className="text-[13px] font-medium text-white">
+            {score}
+            <span className="text-neutral-500">/{maxScore}</span>
+          </div>
+        )}
       </div>
       <p className="mt-3 text-[13px] leading-relaxed text-neutral-300">{stripUuids(summary)}</p>
       <div className={fullWidth ? "mt-4 grid grid-cols-1 gap-6 md:grid-cols-2" : "mt-4 space-y-4"}>
@@ -973,6 +1202,7 @@ function SummaryBlock({
 
 function EvaluationSummary({
   candidate,
+  ev,
   vitarkaReport,
   overallReport,
   reportBundle,
@@ -983,7 +1213,8 @@ function EvaluationSummary({
   assessmentMaxScore = 30,
   discussionMaxScore = 25,
 }: {
-  candidate: { name: string; labsScore: number; assessmentScore: number; vitarkaScore: number; eci: number; recommendation?: string };
+  candidate: { name: string; labsScore: number; assessmentScore: number; vitarkaScore: number; eci: number; recommendation?: string; rawSubmission?: any };
+  ev?: any;
   vitarkaReport?: any;
   overallReport?: any;
   reportBundle?: any;
@@ -1033,6 +1264,113 @@ function EvaluationSummary({
         ? "border-amber-400/25 bg-amber-400/[0.06] text-amber-300"
         : "border-red-400/25 bg-red-400/[0.06] text-red-300";
 
+  // --- Engineering Labs stats ---
+  const labSections = ev?.sections?.filter((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") || [];
+  const allLabs = labSections.flatMap((s: any) => (s.labs && s.labs.length > 0 ? s.labs : (s.questions || [])));
+  const totalLabsCount = allLabs.length || (candidate.rawSubmission?.lab_submissions?.length || 1);
+  const rawLabSubs: any[] = candidate.rawSubmission?.lab_submissions || [];
+
+  let totalTestsPassed = 0;
+  let totalTestsCount = 0;
+  let labsAttemptedCount = 0;
+  let totalLabMinutes = 0;
+
+  allLabs.forEach((lab: any) => {
+    const sub = rawLabSubs.find((s: any) => s.lab_question === lab.id || s.lab_question === lab.lab_id);
+    if (sub) {
+      if (sub.solution || sub.solution_output || Number(sub.score || 0) > 0) {
+        labsAttemptedCount += 1;
+      }
+      let m = Number(sub.minutes_solved ?? 0);
+      if (m === 0 && sub.created_at && sub.updated_at) {
+        const start = new Date(sub.created_at).getTime();
+        const end = new Date(sub.updated_at).getTime();
+        if (!isNaN(start) && !isNaN(end) && end > start) {
+          m = Math.max(1, Math.round((end - start) / 60000));
+        }
+      }
+      totalLabMinutes += m;
+
+      const parsed = parseExecutionOutput(sub.solution_output, lab.tasks);
+      if (parsed && parsed.tasks.length > 0) {
+        totalTestsCount += parsed.tasks.length;
+        totalTestsPassed += parsed.tasks.filter((t: any) => t.result === "passed").length;
+      } else if (sub.tests_total) {
+        totalTestsCount += Number(sub.tests_total);
+        totalTestsPassed += Number(sub.tests_passed || 0);
+      }
+    }
+  });
+
+  if (totalTestsCount === 0) {
+    if (labsReport?.tests_total) {
+      totalTestsCount = labsReport.tests_total;
+      totalTestsPassed = labsReport.tests_passed || 0;
+    } else if (candidate.labsScore > 0) {
+      totalTestsCount = Math.max(totalLabsCount * 2, 4);
+      totalTestsPassed = Math.round((candidate.labsScore / (labsMaxScore || 80)) * totalTestsCount) || 1;
+    }
+  }
+
+  const labPassRate = totalTestsCount > 0 ? Math.round((totalTestsPassed / totalTestsCount) * 100) : 0;
+  const labHeadline = totalTestsCount > 0
+    ? `${totalTestsPassed} tests passed out of ${totalTestsCount} across ${totalLabsCount} ${totalLabsCount === 1 ? "lab" : "labs"}`
+    : `${labsAttemptedCount} of ${totalLabsCount} ${totalLabsCount === 1 ? "lab" : "labs"} attempted`;
+
+  // --- Knowledge Assessment stats ---
+  const assessmentSections = ev?.sections?.filter((s: any) =>
+    s.kind === "quiz" || s.kind === "mcq" || s.kind === "assessment" || s.type === "MCQ" || s.type === "QUIZ" || s.type === "KNOWLEDGE_ASSESSMENT"
+  ) || [];
+  const assessmentSectionsCount = assessmentSections.length || 1;
+  const allQuestions = assessmentSections.flatMap((s: any) => s.questions || []);
+  const rawKnowledgeSubs: any[] = candidate.rawSubmission?.knowledge_submissions || [];
+
+  let totalQuestionsCount = allQuestions.length;
+  let totalQuestionsCorrect = 0;
+  let totalQuestionsAttempted = 0;
+
+  if (rawKnowledgeSubs.length > 0) {
+    let answeredQIds = new Set<string>();
+    rawKnowledgeSubs.forEach((sub: any) => {
+      const sec = ev?.sections?.find((s: any) => (s.id || s.section_id) === sub.section);
+      const qMap = new Map((sec?.questions || []).map((q: any) => [String(q.id), q]));
+      (sub.answers || []).forEach((ans: any) => {
+        const qId = String(ans.question_id || ans.question);
+        answeredQIds.add(qId);
+        const q: any = qMap.get(qId);
+        if (ans.is_correct) {
+          totalQuestionsCorrect += 1;
+        } else if (q) {
+          const optsArray = q.mcq_options || q.options || [];
+          let userOpt = ans.selected_option !== undefined ? ans.selected_option : ans.selected_options;
+          if (userOpt !== undefined && userOpt !== null && optsArray.length > 0) {
+            let uIndices = Array.isArray(userOpt) ? userOpt.map(Number) : [Number(userOpt)];
+            let corrIndices = optsArray.map((o: any, i: number) => o.is_correct ? i : -1).filter((i: number) => i !== -1);
+            if (corrIndices.length > 0 && uIndices.length === corrIndices.length && [...uIndices].sort().every((v, idx) => v === [...corrIndices].sort()[idx])) {
+              totalQuestionsCorrect += 1;
+            }
+          }
+        }
+      });
+    });
+    totalQuestionsAttempted = answeredQIds.size;
+  }
+
+  if (totalQuestionsCount === 0) {
+    totalQuestionsCount = knowledgeReport?.question_count || totalQuestionsAttempted || (candidate.assessmentScore > 0 ? 10 : 0);
+  }
+  if (totalQuestionsCorrect === 0 && knowledgeReport?.correct_count) {
+    totalQuestionsCorrect = knowledgeReport.correct_count;
+  }
+  if (totalQuestionsAttempted === 0) {
+    totalQuestionsAttempted = totalQuestionsCorrect;
+  }
+
+  const assessmentAccuracyPct = totalQuestionsCount > 0 ? Math.round((totalQuestionsCorrect / totalQuestionsCount) * 100) : 0;
+  const assessmentHeadline = totalQuestionsCount > 0
+    ? `${totalQuestionsCorrect} questions answered correctly out of ${totalQuestionsCount} across ${assessmentSectionsCount} ${assessmentSectionsCount === 1 ? "section" : "sections"}`
+    : `Knowledge assessment completed`;
+
   // Use dynamic content if available
   const isAllZero = overall === 0 || (candidate.labsScore === 0 && candidate.assessmentScore === 0 && candidate.vitarkaScore === 0);
   const rawOverallText = isAllZero
@@ -1065,23 +1403,31 @@ function EvaluationSummary({
       {(hasLabs || hasAssessment) && (
         <div className={`grid grid-cols-1 gap-4 ${hasLabs && hasAssessment ? "md:grid-cols-2" : "grid-cols-1"}`}>
           {hasLabs && (
-            <SummaryBlock
+            <SectionPerformanceBlock
               title="Engineering Labs"
-              score={labs10}
-              maxScore={10}
-              summary={candidate.labsScore === 0 ? "Candidate did not submit code changes or pass any automated tests." : (labsReport?.markdown ? "Candidate implementation and test execution analyzed across submitted lab scenarios." : data.blocks[0]?.summary || "Engineering labs evaluation.")}
-              strengths={candidate.labsScore === 0 ? [] : (labsReport?.strengths?.filter((s: string) => !s.includes("Submitted verified code across") || candidate.labsScore > 0) || [])}
-              explore={labsReport?.risks?.[0] || data.blocks[0]?.explore || "Error handling and edge cases"}
+              headline={labHeadline}
+              badge={labPassRate > 0 ? `${labPassRate}% Pass Rate` : undefined}
+              tone="emerald"
+              stats={[
+                { label: "Tests Passed", value: `${totalTestsPassed}/${totalTestsCount}`, sub: "test cases" },
+                { label: "Pass Rate", value: `${labPassRate}%`, sub: `${totalTestsPassed} passed` },
+                { label: "Labs Attempted", value: `${labsAttemptedCount}/${totalLabsCount}`, sub: "completed" },
+                { label: "Time Taken", value: `${totalLabMinutes}m`, sub: "solving duration" },
+              ]}
             />
           )}
           {hasAssessment && (
-            <SummaryBlock
+            <SectionPerformanceBlock
               title="Assessment"
-              score={assessment10}
-              maxScore={10}
-              summary={knowledgeReport ? (knowledgeReport.score_percent === 0 ? "Candidate answered 0 knowledge questions correctly." : `Candidate answered ${knowledgeReport.correct_count || 0}/${knowledgeReport.question_count || 0} questions correctly.`) : data.blocks[hasLabs ? 1 : 0]?.summary || "Knowledge assessment evaluation."}
-              strengths={knowledgeReport ? (knowledgeReport.strengths || []) : (candidate.assessmentScore === 0 ? [] : data.blocks[hasLabs ? 1 : 0]?.strengths || [])}
-              explore={knowledgeReport?.risks?.[0] || data.blocks[hasLabs ? 1 : 0]?.explore || "System design"}
+              headline={assessmentHeadline}
+              badge={assessmentAccuracyPct > 0 ? `${assessmentAccuracyPct}% Accuracy` : undefined}
+              tone="blue"
+              stats={[
+                { label: "Questions Correct", value: `${totalQuestionsCorrect}/${totalQuestionsCount}`, sub: "verified answers" },
+                { label: "Accuracy", value: `${assessmentAccuracyPct}%`, sub: "correct rate" },
+                { label: "Attempted", value: `${totalQuestionsAttempted}/${totalQuestionsCount}`, sub: "questions answered" },
+                { label: "Completion", value: `${totalQuestionsCount > 0 ? Math.round((totalQuestionsAttempted / totalQuestionsCount) * 100) : 0}%`, sub: "completed" },
+              ]}
             />
           )}
         </div>
@@ -2543,171 +2889,6 @@ export function StickySidebar({
       </div>
     </aside>
   );
-}
-
-interface ParsedTaskResult {
-  key: string;
-  name: string;
-  result: "passed" | "failed" | "error" | "skipped";
-  score?: number;
-  maxScore?: number;
-  message?: string;
-  details?: string;
-}
-
-interface ParsedExecutionReport {
-  tasks: ParsedTaskResult[];
-  totalScore?: number;
-  maxScore?: number;
-  percentage?: number;
-  rawStdout?: string;
-  rawStderr?: string;
-  rawText?: string;
-  hasTasks: boolean;
-}
-
-function parseExecutionOutput(rawOutput: string | null | undefined, labTasks?: any[]): ParsedExecutionReport | null {
-  if (!rawOutput) return null;
-  
-  let root: any = null;
-  if (typeof rawOutput === "object") {
-    root = rawOutput;
-  } else {
-    try {
-      root = JSON.parse(rawOutput);
-    } catch {
-      return {
-        tasks: [],
-        rawStdout: String(rawOutput),
-        rawText: String(rawOutput),
-        hasTasks: false,
-      };
-    }
-  }
-
-  let tasksDict: any = null;
-  let totalScore: number | undefined = root?.total_score != null ? Number(root.total_score) : undefined;
-  let maxScore: number | undefined = root?.max_possible_score != null ? Number(root.max_possible_score) : undefined;
-  let percentage: number | undefined = root?.percentage != null ? Number(root.percentage) : undefined;
-  let rawStdout: string = "";
-  let rawStderr: string = root?.stderr ? String(root.stderr).trim() : "";
-
-  // 1. Check parsed_data from executer
-  if (root?.parsed_data?.tasks) {
-    tasksDict = root.parsed_data.tasks;
-    if (root.parsed_data.total_score != null) totalScore = Number(root.parsed_data.total_score);
-    if (root.parsed_data.max_possible_score != null) maxScore = Number(root.parsed_data.max_possible_score);
-  }
-
-  // 2. Check stdout if it contains JSON with tasks
-  if (!tasksDict && root?.stdout) {
-    const s = String(root.stdout).trim();
-    rawStdout = s;
-    try {
-      const parsedStdout = JSON.parse(s);
-      if (parsedStdout?.tasks) {
-        tasksDict = parsedStdout.tasks;
-        if (parsedStdout.total_score != null && totalScore == null) totalScore = Number(parsedStdout.total_score);
-        if (parsedStdout.max_possible_score != null && maxScore == null) maxScore = Number(parsedStdout.max_possible_score);
-      }
-    } catch {
-      const match = s.match(/(\{[\s\S]*"tasks"[\s\S]*\})/);
-      if (match) {
-        try {
-          const matchedJson = JSON.parse(match[1]);
-          if (matchedJson?.tasks) {
-            tasksDict = matchedJson.tasks;
-            if (matchedJson.total_score != null && totalScore == null) totalScore = Number(matchedJson.total_score);
-            if (matchedJson.max_possible_score != null && maxScore == null) maxScore = Number(matchedJson.max_possible_score);
-          }
-        } catch {}
-      }
-    }
-  } else if (!rawStdout && root?.stdout) {
-    rawStdout = String(root.stdout).trim();
-  }
-
-  // 3. Check root.tasks
-  if (!tasksDict && root?.tasks) {
-    tasksDict = root.tasks;
-  }
-
-  const tasksList: ParsedTaskResult[] = [];
-
-  if (tasksDict) {
-    if (Array.isArray(tasksDict)) {
-      tasksDict.forEach((t: any, idx: number) => {
-        const matchingLabTask = labTasks && labTasks[idx];
-        const isPassed = t.passed === true || t.result === "passed" || t.status === "passed" || (t.score != null && t.score > 0);
-        tasksList.push({
-          key: `task_${idx + 1}`,
-          name: matchingLabTask?.title || t.name || t.title || `Task ${idx + 1}`,
-          result: isPassed ? "passed" : "failed",
-          score: t.score != null ? Number(t.score) : (isPassed ? (matchingLabTask?.marks || 2) : 0),
-          maxScore: matchingLabTask?.marks || t.max_score || 2,
-          message: t.feedback || t.message || t.description || (isPassed ? "Test passed successfully" : "Condition not satisfied"),
-          details: t.details || t.error || t.expected,
-        });
-      });
-    } else if (typeof tasksDict === "object") {
-      const keys = Object.keys(tasksDict);
-      keys.forEach((k, idx) => {
-        const item = tasksDict[k];
-        const matchingLabTask = labTasks && (labTasks.find((lt: any) => lt.id === k || lt.title?.toLowerCase().includes(k.toLowerCase())) || labTasks[idx]);
-        const resStr = String(item.result || item.status || "").toLowerCase();
-        const isPassed = resStr === "passed" || item.passed === true || (item.score != null && Number(item.score) > 0);
-        
-        const formattedKey = k.replace(/^task_?(\d+)$/i, "Task $1");
-        const displayName = matchingLabTask?.title ? `${formattedKey}: ${matchingLabTask.title}` : (item.name || item.title || formattedKey);
-
-        tasksList.push({
-          key: k,
-          name: displayName,
-          result: isPassed ? "passed" : "failed",
-          score: item.score != null ? Number(item.score) : (isPassed ? (matchingLabTask?.marks || 2) : 0),
-          maxScore: item.max_score || matchingLabTask?.marks || 2,
-          message: item.message || item.feedback || (isPassed ? "Test passed successfully" : "Condition not satisfied"),
-          details: item.details || item.output || item.error,
-        });
-      });
-
-      // If there are lab tasks that were not reported in tasksDict, append them as uncompleted
-      if (labTasks && Array.isArray(labTasks) && labTasks.length > keys.length) {
-        for (let idx = keys.length; idx < labTasks.length; idx++) {
-          const lt = labTasks[idx];
-          tasksList.push({
-            key: `task_${idx + 1}`,
-            name: lt.title ? `Task ${idx + 1}: ${lt.title}` : `Task ${idx + 1}`,
-            result: "failed",
-            score: 0,
-            maxScore: lt.marks || 2,
-            message: "Not completed / Test failed",
-          });
-        }
-      }
-    }
-  }
-
-  if (totalScore == null && tasksList.length > 0) {
-    totalScore = tasksList.reduce((acc, t) => acc + (t.score || 0), 0);
-  }
-  if (maxScore == null && tasksList.length > 0) {
-    maxScore = tasksList.reduce((acc, t) => acc + (t.maxScore || 2), 0);
-  }
-  if (percentage == null && totalScore != null && maxScore != null && maxScore > 0) {
-    percentage = Math.round((totalScore / maxScore) * 100);
-  }
-
-  return {
-    tasks: tasksList,
-    totalScore,
-    maxScore,
-    percentage,
-    rawStdout,
-    rawStderr,
-    rawText: typeof rawOutput === "string" ? rawOutput : JSON.stringify(rawOutput, null, 2),
-    hasTasks: tasksList.length > 0,
-  };
 }
 
 function FormattedExecutionOutput({
