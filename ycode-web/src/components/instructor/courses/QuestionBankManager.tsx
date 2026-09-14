@@ -166,7 +166,10 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
 
       console.log('Loading questions with filters:', filters);
       const data = await fetchQuestions(filters);
-      setQuestions(data);
+      const safeData = Array.isArray(data)
+        ? data
+        : (data as any)?.results || (data as any)?.questions || (data as any)?.data || [];
+      setQuestions(safeData);
     } catch (error) {
       console.error('Error loading questions:', error);
       toast.error('Failed to load questions');
@@ -503,11 +506,14 @@ const QuestionBankManager: React.FC<QuestionBankManagerProps> = ({
 
 
 
-  const filteredQuestions = questions.filter(question => {
-    const matchesSearch = question.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      question.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'all' || question.type === filterType;
-    const matchesDifficulty = filterDifficulty === 'all' || question.difficulty === filterDifficulty;
+  const safeQuestions = Array.isArray(questions) ? questions : [];
+  const filteredQuestions = safeQuestions.filter(question => {
+    const title = question?.title || '';
+    const content = question?.content || '';
+    const matchesSearch = title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      content.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = filterType === 'all' || question?.type === filterType;
+    const matchesDifficulty = filterDifficulty === 'all' || question?.difficulty === filterDifficulty;
 
     return matchesSearch && matchesType && matchesDifficulty;
   });
