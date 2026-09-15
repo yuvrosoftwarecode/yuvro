@@ -102,12 +102,102 @@ export async function loadSprints(labId: string): Promise<LabSprint[]> {
 }
 
 export async function saveSprints(labId: string, sprints: LabSprint[]) {
-  const realSprints = sprints.filter((s) => !s.id.startsWith("sp-"));
-  await Promise.all(
-    realSprints.map((s) =>
-      restApiAuthUtil.patch(`/lab/sprints/${s.id}/`, { is_locked: s.is_locked ?? false }),
-    ),
-  );
+  for (let idx = 0; idx < sprints.length; idx++) {
+    const s = sprints[idx];
+    let sprintId = s.id;
+
+    const isTempSprint =
+      !s.id ||
+      s.id.startsWith("sp-") ||
+      s.id.startsWith("S") ||
+      s.id.startsWith("PS") ||
+      s.id.startsWith("DJ") ||
+      s.id.length < 10;
+
+    if (isTempSprint) {
+      try {
+        const createdSprint = await restApiAuthUtil.post<any>("/lab/sprints/", {
+          lab: labId,
+          title: s.name,
+          description: s.description || "",
+          order_index: idx,
+          is_locked: s.is_locked ?? false,
+        });
+        sprintId = createdSprint.id;
+        s.id = createdSprint.id;
+      } catch (err) {
+        console.error("Failed to create sprint:", s.name, err);
+        continue;
+      }
+    } else {
+      try {
+        await restApiAuthUtil.patch(`/lab/sprints/${s.id}/`, {
+          title: s.name,
+          description: s.description || "",
+          order_index: idx,
+          is_locked: s.is_locked ?? false,
+        });
+      } catch (err) {
+        console.error("Failed to update sprint:", s.name, err);
+      }
+    }
+
+    if (s.tasks && s.tasks.length > 0) {
+      for (let tIdx = 0; tIdx < s.tasks.length; tIdx++) {
+        const t = s.tasks[tIdx];
+        const isTempTicket =
+          !t.id || t.id.startsWith("tk-") || t.id.startsWith("T") || t.id.length < 10;
+        const diffMap: Record<string, string> = {
+          Advanced: "HARD",
+          Intermediate: "MEDIUM",
+          Beginner: "EASY",
+        };
+        const difficulty = diffMap[t.difficulty] || "EASY";
+        const allowedLangs =
+          t.allowedLanguages && t.allowedLanguages.length > 0
+            ? t.allowedLanguages
+            : [t.language || "python"];
+
+        const ticketPayload = {
+          sprint: sprintId,
+          ticket_slug: isTempTicket
+            ? t.title.toLowerCase().replace(/[^a-z0-9]+/g, "-") || `ticket-${tIdx + 1}`
+            : t.id || `ticket-${tIdx + 1}`,
+          title: t.title || "Untitled Ticket",
+          description: t.description || "",
+          difficulty: difficulty,
+          yuvro_points: t.xp || 100,
+          minutes_max: t.estMin || 30,
+          accepted_programming_languages: allowedLangs,
+          hints: t.hints ? (typeof t.hints === "string" ? [t.hints] : t.hints) : [],
+          solution: t.solution
+            ? typeof t.solution === "string"
+              ? { code: t.solution }
+              : t.solution
+            : {},
+          order_index: tIdx,
+        };
+
+        if (isTempTicket) {
+          try {
+            const createdTicket = await restApiAuthUtil.post<any>(
+              "/lab/tickets/",
+              ticketPayload,
+            );
+            t.id = createdTicket.id;
+          } catch (err) {
+            console.error("Failed to create ticket:", t.title, err);
+          }
+        } else {
+          try {
+            await restApiAuthUtil.patch(`/lab/tickets/${t.id}/`, ticketPayload);
+          } catch (err) {
+            console.error("Failed to update ticket:", t.title, err);
+          }
+        }
+      }
+    }
+  }
 }
 
 export const newId = (prefix: string) =>

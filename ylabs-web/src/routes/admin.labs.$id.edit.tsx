@@ -112,7 +112,12 @@ function EditLab() {
       await saveSprints(lab.id, sprints);
       setTimeout(() => nav({ to: "/admin/labs" }), 500);
     } catch (e: any) {
-      setError(e.message || "Failed to save lab");
+      const fieldMsg = e?.data && typeof e.data === "object"
+        ? Object.entries(e.data)
+            .map(([k, v]) => `${k !== "detail" && k !== "error" ? `${k}: ` : ""}${Array.isArray(v) ? v.join(", ") : v}`)
+            .join("; ")
+        : "";
+      setError(fieldMsg || e.message || "Failed to save lab");
       setSaved(false);
     }
   };

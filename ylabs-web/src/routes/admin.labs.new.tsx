@@ -26,8 +26,8 @@ function LabBuilder() {
     title: "",
     slug: "",
     icon: "🧪",
-    type: "backend" as LabType,
-    difficulty: "medium" as LabDifficulty,
+    type: "BACKEND" as LabType,
+    difficulty: "MEDIUM" as LabDifficulty,
     description: "",
     prerequisites: "",
     skills: "",
@@ -74,12 +74,12 @@ function LabBuilder() {
         title: form.title.trim(),
         slug: form.slug.trim(),
         icon: form.icon || "🧪",
-        type: form.type,
+        type: (form.type as string).toUpperCase() as LabType,
         description: form.description.trim(),
         prerequisites: form.prerequisites,
         skills: toList(form.skills),
         git_repo_starter_url: form.gitRepoStarterUrl.trim(),
-        difficulty: form.difficulty,
+        difficulty: (form.difficulty as string).toUpperCase() as LabDifficulty,
         is_active: form.isActive,
         payment_tier: form.payment_tier,
         payment_amount: form.payment_tier === "free" ? 0 : parseFloat(form.payment_amount) || 0,
@@ -92,7 +92,12 @@ function LabBuilder() {
         setTimeout(() => nav({ to: "/admin/labs" }), 600);
       }
     } catch (e: any) {
-      setError(e.message || "Failed to create lab");
+      const fieldMsg = e?.data && typeof e.data === "object"
+        ? Object.entries(e.data)
+            .map(([k, v]) => `${k !== "detail" && k !== "error" ? `${k}: ` : ""}${Array.isArray(v) ? v.join(", ") : v}`)
+            .join("; ")
+        : "";
+      setError(fieldMsg || e.message || "Failed to create lab");
       setSaved(false);
     }
   };
