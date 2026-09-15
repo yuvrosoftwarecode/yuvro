@@ -2272,7 +2272,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 | models.Q(sub_unit__unit__subject_id__in=assigned_subject_ids)
             )
 
-        subject_id = self.request.query_params.get("subject")
+        subject_id = self.request.query_params.get("subject") or self.request.query_params.get("course")
         unit_id = self.request.query_params.get("unit")
         sub_unit_id = self.request.query_params.get("sub_unit")
         question_type = self.request.query_params.get("type")

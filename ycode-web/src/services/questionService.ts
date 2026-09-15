@@ -92,7 +92,16 @@ export const fetchQuestions = async (filters?: QuestionFilters): Promise<Questio
     const url = queryString ? `/course/questions/?${queryString}` : '/course/questions/';
 
     const response = await restApiAuthUtil.get(url);
-    return response as Question[];
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (response && typeof response === 'object') {
+      const resObj = response as any;
+      if (Array.isArray(resObj.results)) return resObj.results;
+      if (Array.isArray(resObj.questions)) return resObj.questions;
+      if (Array.isArray(resObj.data)) return resObj.data;
+    }
+    return [];
   } catch (error) {
     console.error('Error fetching questions:', error);
     throw error;
