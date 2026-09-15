@@ -62,6 +62,7 @@ import {
   Recommendation,
   VitarkaLabel,
 } from "@/lib/recruiterCandidates";
+import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import {
   computeAttentionGroups,
   loadViewed,
@@ -113,6 +114,7 @@ function Workspace() {
   const nav = useNavigate();
   const [ev, setEv] = useState<Evaluation | null>(null);
   const [submissions, setSubmissions] = useState<any[] | null>(null);
+  const [vitarkaSubmissions, setVitarkaSubmissions] = useState<any[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -123,6 +125,24 @@ function Workspace() {
       else {
         setEv(e);
         getEvaluationSubmissions(e.id).then(setSubmissions).catch(() => setSubmissions([]));
+
+        const discSec = e.sections?.find(
+          (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
+        );
+        let mockInterviewId = discSec?.mockInterviewId;
+        if (!mockInterviewId && discSec?.description) {
+          try {
+            mockInterviewId = JSON.parse(discSec.description).mockInterviewId;
+          } catch {}
+        }
+        if (mockInterviewId) {
+          yhubApiAuthUtil
+            .get<any[]>(`/interview/submissions/?mock_interview=${mockInterviewId}`)
+            .then((res) => {
+              if (Array.isArray(res)) setVitarkaSubmissions(res);
+            })
+            .catch(console.error);
+        }
       }
     });
   }, [id, nav]);
@@ -135,7 +155,7 @@ function Workspace() {
 
   if (!ev || submissions === null) return null;
 
-  const candidates = getCandidates(ev.id, submissions);
+  const candidates = getCandidates(ev.id, submissions, vitarkaSubmissions, ev);
   const totals = evaluationTotals(ev);
   const goto = (t: typeof tab) =>
     nav({ to: "/recruiter/evaluations/$id/workspace", params: { id }, search: { tab: t, view: "edit" } as any });
@@ -156,7 +176,7 @@ function Workspace() {
         "Candidate",
         "Email",
         "Phone",
-        "ECI",
+        "Total",
         "Labs",
         "Assessment",
         "Vitarka",
@@ -169,7 +189,7 @@ function Workspace() {
         c.name,
         c.email,
         c.phone,
-        String(c.eci),
+        String(c.totalEarned != null ? c.totalEarned : c.eci),
         String(c.labsScore),
         String(c.assessmentScore),
         String(c.vitarkaScore),
@@ -844,7 +864,7 @@ const ALL_COLS: { key: ColKey; label: string; always?: boolean }[] = [
   { key: "labs", label: "Engineering Labs", always: true },
   { key: "assessment", label: "Knowledge Assessment", always: true },
   { key: "vitarka", label: "Vitarka", always: true },
-  { key: "eci", label: "Engineering Capability Index", always: true },
+  { key: "eci", label: "Total Score", always: true },
   { key: "recommendation", label: "AI Recommendation", always: true },
   { key: "submitted", label: "Submitted On", always: true },
   { key: "status", label: "Review Status", always: true },
@@ -1358,7 +1378,7 @@ function ExportMenu({
         "Candidate",
         "Email",
         "Phone",
-        "ECI",
+        "Total",
         "Labs",
         "Assessment",
         "Vitarka",
@@ -1371,7 +1391,7 @@ function ExportMenu({
         c.name,
         c.email,
         c.phone,
-        String(c.eci),
+        String(c.totalEarned != null ? c.totalEarned : c.eci),
         String(c.labsScore),
         String(c.assessmentScore),
         String(c.vitarkaScore),
@@ -1483,7 +1503,7 @@ function CandidateTable({
             {show("labs") && <Th className="w-[84px] text-right">Eng. Labs</Th>}
             {show("assessment") && <Th className="w-[104px] text-right">Knowledge</Th>}
             {show("vitarka") && <Th className="w-[84px] text-right">Vitarka</Th>}
-            {show("eci") && <Th className="w-[84px] text-right">ECI</Th>}
+            {show("eci") && <Th className="w-[84px] text-right">Total</Th>}
             {show("recommendation") && <Th className="w-[150px]">AI Recommendation</Th>}
             {show("submitted") && <Th className="w-[120px]">Submitted</Th>}
             {show("status") && <Th className="w-[130px]">Review Status</Th>}
@@ -1531,16 +1551,18 @@ function CandidateTable({
               )}
               {show("vitarka") && (
                 <Td className="text-right tabular-nums text-neutral-900">
-                  <div>{c.vitarkaScore}</div>
+                  <div className="font-medium">{c.vitarkaScore}</div>
                   <div className="text-[10.5px] text-neutral-500">
-                    {vitarkaLabel(c.vitarkaScore)}
+                    {c.discussionMaxScore ? `of ${c.discussionMaxScore}` : vitarkaLabel(c.vitarkaScore, 25)}
                   </div>
                 </Td>
               )}
               {show("eci") && (
                 <Td className="text-right tabular-nums text-neutral-900">
-                  <div className="font-medium">{c.eci}</div>
-                  <div className="text-[10.5px] text-neutral-500">{eciLabel(c.eci)}</div>
+                  <div className="font-medium">{c.totalEarned != null ? c.totalEarned : c.eci}</div>
+                  <div className="text-[10.5px] text-neutral-500">
+                    {c.totalPossible ? `of ${c.totalPossible}` : eciLabel(c.eci)}
+                  </div>
                 </Td>
               )}
               {show("recommendation") && (
@@ -1656,7 +1678,7 @@ function CandidateCard({
           <MiniScore label="Labs" v={c.labsScore} />
           <MiniScore label="Assess" v={c.assessmentScore} />
           <MiniScore label="Vitarka" v={c.vitarkaScore} />
-          <MiniScore label="ECI" v={c.eci} highlight />
+          <MiniScore label="Total" v={c.totalEarned != null ? c.totalEarned : c.eci} highlight />
         </div>
         <div className="mt-3 flex items-center justify-between text-[11px] text-neutral-600">
           <span>{fmtRel(c.submittedAt)}</span>
@@ -1842,7 +1864,7 @@ function AdvancedFiltersDrawer({
             }
           >
             <ScoreRow
-              label="Engineering Capability Index"
+              label="Total Score"
               value={local.eciMin}
               onChange={(v) => setL({ eciMin: v })}
             />
@@ -2207,7 +2229,7 @@ function buildActiveChips(f: CandidateFilters): ActiveChip[] {
   if (f.eciMin != null)
     chips.push({
       key: "eci",
-      group: "ECI",
+      group: "Total",
       value: `≥ ${f.eciMin}`,
       remove: (c) => ({ ...c, eciMin: null }),
     });
@@ -2249,8 +2271,8 @@ function SortMenu({ value, onChange }: { value: SortKey; onChange: (v: SortKey) 
   const opts: [SortKey, string][] = [
     ["newest", "Newest submission"],
     ["oldest", "Oldest submission"],
-    ["eci_desc", "Highest ECI"],
-    ["eci_asc", "Lowest ECI"],
+    ["eci_desc", "Highest Total"],
+    ["eci_asc", "Lowest Total"],
     ["labs_desc", "Highest Labs"],
     ["assess_desc", "Highest Assessment"],
     ["vit_desc", "Highest Vitarka"],
@@ -2355,11 +2377,11 @@ function PreviewPanel({
 
         <div className="mt-6">
           <div className="text-[11px] uppercase tracking-wider text-neutral-500">
-            Engineering capability
+            Total Score
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <div className="text-[36px] font-medium text-white">{c.eci}</div>
-            <div className="text-[12px] text-neutral-500">/100</div>
+            <div className="text-[36px] font-medium text-white">{c.totalEarned != null ? c.totalEarned : c.eci}</div>
+            <div className="text-[12px] text-neutral-500">/{c.totalPossible || 100}</div>
             <div className="ml-auto">
               <RecBadge r={c.recommendation} />
             </div>

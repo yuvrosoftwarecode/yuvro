@@ -153,6 +153,8 @@ export interface DiscussionSection {
   questions: PredefinedQuestion[];
   mockInterviewId?: string;
   proctoring?: ProctoringConfig;
+  marks?: number;
+  max_score?: number;
 }
 export type Section = LabsSection | AssessmentSection | DiscussionSection;
 
@@ -213,6 +215,7 @@ function mapBackendToFrontend(be: any): Evaluation {
         try {
           meta = JSON.parse(s.description || "{}");
         } catch {}
+        const marks = meta.marks ?? meta.max_score ?? 25;
         return {
           id: s.id || newUid(),
           kind: "discussion",
@@ -221,6 +224,8 @@ function mapBackendToFrontend(be: any): Evaluation {
           mode: meta.mode || "Automatic",
           questions: s.questions || [],
           mockInterviewId: meta.mockInterviewId,
+          marks,
+          max_score: marks,
           proctoring
         };
       } else {
@@ -234,6 +239,39 @@ function mapBackendToFrontend(be: any): Evaluation {
       }
     }),
   };
+}
+
+export function getVitarkaDiscussionConfig(sections: Section[] = []): {
+  marks: number;
+  duration: number;
+  labsCount: number;
+  hasAssessment: boolean;
+} {
+  const labSections = sections.filter((s: any) => s.kind === "labs" || s.type === "LAB");
+  const labsCount = labSections.reduce(
+    (sum: number, s: any) => sum + (s.labs?.length || s.questions?.length || 0),
+    0
+  );
+  const hasAssessment = sections.some(
+    (s: any) => s.kind === "assessment" || s.type === "KNOWLEDGE_ASSESSMENT"
+  );
+
+  const marks = labsCount * 10 + (hasAssessment ? 10 : 0);
+  const duration = labsCount * 10 + (hasAssessment ? 5 : 0);
+
+  return { marks, duration, labsCount, hasAssessment };
+}
+
+export function syncDiscussionConfig(e: Evaluation): Evaluation {
+  const { marks, duration } = getVitarkaDiscussionConfig(e.sections);
+  for (const s of e.sections) {
+    if (s.kind === "discussion") {
+      s.marks = marks;
+      s.max_score = marks;
+      s.duration = duration;
+    }
+  }
+  return e;
 }
 
 function mapFrontendToBackend(fe: Evaluation): any {
@@ -257,10 +295,16 @@ function mapFrontendToBackend(fe: Evaluation): any {
       } else if (s.kind === "discussion") {
         type = "VITARKA_AI_INTERVIEW";
         qs = s.questions || [];
+        const { marks: calcMarks, duration: calcDur } = getVitarkaDiscussionConfig(fe.sections);
+        const marks = s.marks != null ? s.marks : (s.max_score != null ? s.max_score : calcMarks);
+        const duration = s.duration != null ? s.duration : calcDur;
         desc = JSON.stringify({
-          duration: s.duration,
+          duration,
           mode: s.mode || "Automatic",
           mockInterviewId: s.mockInterviewId,
+          marks,
+          max_score: marks,
+          discussionMaxScore: marks,
         });
       }
 
@@ -309,13 +353,20 @@ export async function hydrateDiscussionQuestions(ev: Evaluation): Promise<Evalua
 
 export async function syncMockInterviews(e: Evaluation): Promise<Evaluation> {
   let discussionCounter = 1;
+  const { marks: calcMarks, duration: calcDur } = getVitarkaDiscussionConfig(e.sections);
   for (const section of e.sections) {
     if (section.kind === "discussion") {
+      const duration = section.duration != null ? section.duration : calcDur;
+      const marks = section.marks != null ? section.marks : (section.max_score != null ? section.max_score : calcMarks);
+      section.duration = duration;
+      section.marks = marks;
+      section.max_score = marks;
       const payload = {
         title: `${e.title} - ${discussionCounter}`,
         description: "Vitarka AI Interview created from ylabs-web",
         publish_status: "active",
-        max_duration: section.duration,
+        max_duration: duration,
+        max_score: marks,
         predefined_tree: section.questions,
         interview_mode: section.mode ? section.mode.toLowerCase() : "automatic",
       };
@@ -613,8 +664,12 @@ export function evaluationTotals(e: Evaluation) {
         0,
       );
     } else if (s.kind === "discussion") {
-      discussion += s.duration;
-      minutes += s.duration;
+      const { marks: calcMarks, duration: calcDur } = getVitarkaDiscussionConfig(e.sections);
+      const dur = s.duration != null ? s.duration : calcDur;
+      const m = s.marks != null ? s.marks : (s.max_score != null ? s.max_score : calcMarks);
+      discussion += dur;
+      minutes += dur;
+      marks += m;
     }
   }
   return { minutes, marks, labs, questions, discussion, sections: e.sections.length };

@@ -39,7 +39,7 @@ const COLUMNS: { key: ColKey; label: string; optional?: boolean }[] = [
   { key: "labs", label: "Engineering Labs", optional: true },
   { key: "assessment", label: "Assessment", optional: true },
   { key: "vitarka", label: "Vitarka AI", optional: true },
-  { key: "eci", label: "ECI", optional: true },
+  { key: "eci", label: "Total", optional: true },
   { key: "deadline", label: "Deadline", optional: true },
   { key: "emails", label: "Follow-up Emails Sent", optional: true },
   { key: "aicall", label: "AI Call", optional: true },
@@ -478,7 +478,7 @@ function DetailDrawer({
             <ScoreRow label="Engineering Labs" value={r.labsScore} />
             <ScoreRow label="Assessment" value={r.assessmentScore} />
             <ScoreRow label="Vitarka AI" value={r.vitarkaScore} />
-            <ScoreRow label="Overall" value={r.eci} />
+            <ScoreRow label="Total" value={r.totalEarned != null ? r.totalEarned : r.eci} />
           </div>
 
           <div className="mt-7 text-[11px] uppercase tracking-widest text-neutral-500">Activity</div>
@@ -544,7 +544,7 @@ function cellText(r: CandidateRecord, k: ColKey): string {
     case "labs": return r.labsScore == null ? "—" : String(r.labsScore);
     case "assessment": return r.assessmentScore == null ? "—" : String(r.assessmentScore);
     case "vitarka": return r.vitarkaScore == null ? "—" : String(r.vitarkaScore);
-    case "eci": return r.eci == null ? "—" : String(r.eci);
+    case "eci": return r.totalEarned != null ? String(r.totalEarned) : (r.eci == null ? "—" : String(r.eci));
     case "deadline": return fmtDate(r.deadline);
     case "emails": return String(r.emailsSent);
     case "aicall": return r.aiCall ? "Yes" : "No";

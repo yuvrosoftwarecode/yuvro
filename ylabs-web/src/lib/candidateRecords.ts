@@ -30,6 +30,8 @@ export interface CandidateRecord {
   assessmentScore: number | null;
   vitarkaScore: number | null;
   eci: number | null;
+  totalEarned?: number | null;
+  totalPossible?: number | null;
   deadline: number | null;
   emailsSent: number;
   aiCall: boolean;

@@ -17,10 +17,13 @@ export interface RegisterRequest {
 }
 
 class AuthService {
-  setAuthToken(token: string): void {
-    restApiAuthUtil.setAuthToken(token);
-    yhubApiAuthUtil.setAuthToken(token);
-    ycodeApiAuthUtil.setAuthToken(token);
+  setAuthToken(token: string, refreshToken?: string): void {
+    if (refreshToken) {
+      localStorage.setItem("refresh", refreshToken);
+    }
+    restApiAuthUtil.setAuthToken(token, refreshToken);
+    yhubApiAuthUtil.setAuthToken(token, refreshToken);
+    ycodeApiAuthUtil.setAuthToken(token, refreshToken);
   }
 
   isAuthenticated(): boolean {

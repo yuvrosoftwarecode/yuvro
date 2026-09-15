@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from mockinterviews.dynamic_engine.models import (
@@ -21,6 +22,65 @@ from mockinterviews.dynamic_engine.code_analysis import CodeInsightExtractor
 from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
 from mockinterviews.dynamic_engine.llm import InterviewLLM
 
+PRONOUN_REPLACEMENTS = [
+    # Contractions & verb pairings
+    (r"\bHe's\b", "They're"),
+    (r"\bhe's\b", "they're"),
+    (r"\bShe's\b", "They're"),
+    (r"\bshe's\b", "they're"),
+    (r"\bHe'd\b", "They'd"),
+    (r"\bhe'd\b", "they'd"),
+    (r"\bShe'd\b", "They'd"),
+    (r"\bshe'd\b", "they'd"),
+    (r"\bHe'll\b", "They'll"),
+    (r"\bhe'll\b", "they'll"),
+    (r"\bShe'll\b", "They'll"),
+    (r"\bshe'll\b", "they'll"),
+    (r"\bHimself\b", "Themselves"),
+    (r"\bhimself\b", "themselves"),
+    (r"\bHerself\b", "Themselves"),
+    (r"\bherself\b", "themselves"),
+    (r"\bHe has\b", "They have"),
+    (r"\bhe has\b", "they have"),
+    (r"\bShe has\b", "They have"),
+    (r"\bshe has\b", "they have"),
+    (r"\bHe is\b", "They are"),
+    (r"\bhe is\b", "they are"),
+    (r"\bShe is\b", "They are"),
+    (r"\bshe is\b", "they are"),
+    (r"\bHe was\b", "They were"),
+    (r"\bhe was\b", "they were"),
+    (r"\bShe was\b", "They were"),
+    (r"\bshe was\b", "they were"),
+    (r"\bHe does\b", "They do"),
+    (r"\bhe does\b", "they do"),
+    (r"\bShe does\b", "They do"),
+    (r"\bshe does\b", "they do"),
+    # Standalone pronouns
+    (r"\bHe\b", "They"),
+    (r"\bhe\b", "they"),
+    (r"\bShe\b", "They"),
+    (r"\bshe\b", "they"),
+    (r"\bHim\b", "Them"),
+    (r"\bhim\b", "them"),
+    (r"\bHis\b", "Their"),
+    (r"\bhis\b", "their"),
+    (r"\bHers\b", "Theirs"),
+    (r"\bhers\b", "theirs"),
+    (r"\bHer\b", "Their"),
+    (r"\bher\b", "their"),
+]
+
+
+def normalize_gender_neutral_pronouns(text: str | None) -> str:
+    """Normalize gendered pronouns (he/him/his, she/her) to gender-neutral they/them/their."""
+    if not text or not isinstance(text, str):
+        return text or ""
+    res = text
+    for pattern, repl in PRONOUN_REPLACEMENTS:
+        res = re.sub(pattern, repl, res)
+    return res
+
 
 class InterviewReportService:
     def __init__(
@@ -36,19 +96,29 @@ class InterviewReportService:
 
     def create_report(self, session: InterviewSession) -> InterviewReport:
         evaluation = self.evaluator.evaluate(session)
-        narrative = (
-            self.llm_client.generate_report_narrative(session, evaluation)
-            if self.llm_client is not None
-            else None
-        )
-        recommendation = (
-            narrative.recommendation if narrative is not None else self._recommendation(evaluation)
-        )
-        executive_summary = (
-            narrative.executive_summary if narrative is not None else self._executive_summary(session, evaluation)
-        )
-        strengths = narrative.strengths[:5] if narrative is not None else evaluation.strengths
-        risks = narrative.risks[:5] if narrative is not None else evaluation.risks
+        if len(session.answers) == 0:
+            recommendation = "Do not proceed"
+            name = self._display_name(session)
+            executive_summary = (
+                f"{name} completed an interview session without submitting any answers. "
+                "No technical, problem-solving, or communication signals were observed."
+            )
+            strengths = []
+            risks = ["Candidate did not provide any responses during the interview."]
+        else:
+            narrative = (
+                self.llm_client.generate_report_narrative(session, evaluation)
+                if self.llm_client is not None
+                else None
+            )
+            recommendation = (
+                narrative.recommendation if narrative is not None else self._recommendation(evaluation)
+            )
+            executive_summary = (
+                narrative.executive_summary if narrative is not None else self._executive_summary(session, evaluation)
+            )
+            strengths = narrative.strengths[:5] if narrative is not None else evaluation.strengths
+            risks = narrative.risks[:5] if narrative is not None else evaluation.risks
         competency_summaries = [
             ReportCompetencySummary(
                 competency=score.competency,
@@ -61,6 +131,11 @@ class InterviewReportService:
         evidence_highlights = self._evidence_highlights(evaluation)
         transcript = self._transcript(session)
 
+        recommendation = normalize_gender_neutral_pronouns(recommendation)
+        executive_summary = normalize_gender_neutral_pronouns(executive_summary)
+        strengths = [normalize_gender_neutral_pronouns(s) for s in strengths]
+        risks = [normalize_gender_neutral_pronouns(r) for r in risks]
+
         markdown = self._markdown(
             session=session,
             evaluation=evaluation,
@@ -72,6 +147,17 @@ class InterviewReportService:
             evidence_highlights=evidence_highlights,
             transcript=transcript,
         )
+        markdown = normalize_gender_neutral_pronouns(markdown)
+
+        disc_max = session.metadata.get("discussion_max_score") or session.metadata.get("max_score")
+        if disc_max is not None:
+            try:
+                disc_max = float(disc_max)
+            except (ValueError, TypeError):
+                disc_max = 25.0
+        else:
+            disc_max = 25.0
+        scaled_score = round((evaluation.overall_score / 10.0) * disc_max, 1) if evaluation.overall_score is not None else 0.0
 
         return InterviewReport(
             session_id=session.id,
@@ -81,6 +167,8 @@ class InterviewReportService:
             status=session.status,
             rubric_version=evaluation.rubric_version,
             overall_score=evaluation.overall_score,
+            scaled_score=scaled_score,
+            max_score=disc_max,
             coverage=evaluation.coverage,
             recommendation=recommendation,
             executive_summary=executive_summary,
@@ -94,21 +182,21 @@ class InterviewReportService:
 
     def create_report_bundle(self, session: InterviewSession) -> InterviewReportBundle:
         vitarka_report = self.create_report(session)
-        engineering_labs_report = self._engineering_labs_report(session)
-        knowledge_assessment_report = self._knowledge_assessment_report(session)
+        lab_stats = self._get_engineering_stats(session)
+        knowledge_stats = self._get_knowledge_stats(session)
         overall_report = self._overall_report(
             session=session,
-            engineering_labs_report=engineering_labs_report,
-            knowledge_assessment_report=knowledge_assessment_report,
             vitarka_report=vitarka_report,
+            lab_stats=lab_stats,
+            knowledge_stats=knowledge_stats,
         )
 
         return InterviewReportBundle(
             session_id=session.id,
             candidate_id=session.candidate.candidate_id,
             target_role=session.candidate.target_role,
-            engineering_labs_report=engineering_labs_report,
-            knowledge_assessment_report=knowledge_assessment_report,
+            engineering_labs_report=None,
+            knowledge_assessment_report=None,
             vitarka_report=vitarka_report,
             overall_report=overall_report,
         )
@@ -179,11 +267,18 @@ class InterviewReportService:
         total_time_seconds = sum(item.time_spent_seconds or 0 for item in lab_items)
         tests_passed = sum(item.tests_passed or 0 for item in lab_items)
         tests_total = sum(item.tests_total or 0 for item in lab_items)
+        if not tests_passed or tests_passed == 0:
+            # If candidate passed 0 tests across all labs, section score must be strictly 0.0
+            if any(item.score == 0.0 for item in lab_items) or not any(item.score and item.score > 0 for item in lab_items):
+                overall_score = 0.0
         strengths = self._unique(
             strength
             for item in lab_items
             for strength in item.strengths
-        )[:5]
+        )
+        if not tests_passed or tests_passed == 0 or overall_score == 0.0:
+            strengths = [s for s in strengths if not s.startswith("Submitted verified code")]
+        strengths = strengths[:5]
         risks = self._unique(risk for item in lab_items for risk in item.risks)[:5]
         if not lab_items:
             risks.append("No engineering lab payload was available for section-level scoring.")
@@ -199,6 +294,9 @@ class InterviewReportService:
             tests_passed=tests_passed,
             tests_total=tests_total,
         )
+        strengths = [normalize_gender_neutral_pronouns(s) for s in strengths]
+        risks = [normalize_gender_neutral_pronouns(r) for r in risks]
+        markdown = normalize_gender_neutral_pronouns(markdown)
 
         return EngineeringLabsReport(
             session_id=session.id,
@@ -241,27 +339,44 @@ class InterviewReportService:
         risks = []
         if tests_total and tests_passed == tests_total:
             strengths.append(f"Passed all {tests_total} lab tests.")
+        elif tests_total and tests_passed and tests_passed > 0:
+            strengths.append(f"Passed {tests_passed}/{tests_total} lab tests.")
         elif tests_total:
-            risks.append(f"Only {tests_passed or 0}/{tests_total} lab tests passed.")
-        if changed_files:
-            strengths.append(f"Submitted code evidence across {len(changed_files)} files.")
+            risks.append(f"Passed 0/{tests_total} lab tests.")
         else:
-            risks.append("No file-level implementation evidence was detected.")
-        if terminal_commands_run:
+            risks.append("No lab tests were executed.")
+
+        is_snapshot = (
+            (code_insights or {}).get("code_diff_format") == "workspace_snapshot_json"
+            or bool((code_insights or {}).get("is_workspace_snapshot"))
+            or source.get("code_diff_format") == "workspace_snapshot_json"
+        )
+        if score and score > 0 and tests_passed and tests_passed > 0 and changed_files and not is_snapshot:
+            strengths.append(f"Submitted verified code across {len(changed_files)} file(s).")
+        else:
+            risks.append("No verified implementation code was submitted.")
+
+        if terminal_commands_run and terminal_commands_run > 0:
             strengths.append(f"Used {terminal_commands_run} terminal commands during the lab.")
-        if errors_encountered:
+        if errors_encountered and errors_encountered > 0:
             risks.append(f"Encountered {errors_encountered} errors during the lab.")
-        if code_insights:
+        if code_insights and score and score > 0:
             risks.extend(self._as_list(code_insights.get("performance_concerns"))[:2])
             risks.extend(self._as_list(code_insights.get("security_concerns"))[:2])
             risks.extend(self._as_list(code_insights.get("candidate_correctness_concerns"))[:2])
 
         title = str(source.get("title") or source.get("lab_id") or "Engineering Lab")
         file_summary = ", ".join(changed_files[:5]) if changed_files else "no changed files detected"
-        summary = (
-            f"{title} captured {file_summary}. "
-            f"Score: {score}/10." if score is not None else f"{title} has insufficient scoring evidence."
-        )
+        if score and score > 0:
+            summary = f"{title} captured {file_summary}. Score: {score}/10."
+        elif changed_files:
+            summary = f"{title} had unverified code changes across {len(changed_files)} file(s) with 0 passing tests. Score: 0/10."
+        else:
+            summary = f"{title} had no passing tests or candidate code submissions. Score: 0/10."
+
+        summary = normalize_gender_neutral_pronouns(summary)
+        lab_strengths = [normalize_gender_neutral_pronouns(s) for s in self._unique(strengths)[:5]]
+        lab_risks = [normalize_gender_neutral_pronouns(r) for r in self._unique(risks)[:5]]
 
         return EngineeringLabReportItem(
             lab_id=str(source.get("lab_id")) if source.get("lab_id") else None,
@@ -276,8 +391,8 @@ class InterviewReportService:
             code_diff_format=source.get("code_diff_format") or (code_insights or {}).get("code_diff_format"),
             score=score,
             summary=summary,
-            strengths=self._unique(strengths)[:5],
-            risks=self._unique(risks)[:5],
+            strengths=lab_strengths,
+            risks=lab_risks,
             evidence_event_ids=[event.id for event in events],
         )
 
@@ -304,10 +419,12 @@ class InterviewReportService:
             strengths.append("Strong knowledge assessment performance.")
         elif score_percent is not None and score_percent < 60:
             risks.append("Knowledge assessment score is below the expected threshold.")
-        if correct_count:
+        if correct_count and correct_count > 0:
             strengths.append(f"Answered {correct_count} question(s) correctly.")
+        else:
+            risks.append("Candidate answered 0 knowledge questions correctly.")
         missed = len(question_items) - correct_count
-        if missed > 0:
+        if missed > 0 and correct_count and correct_count > 0:
             risks.append(f"Missed or partially missed {missed} knowledge question(s).")
         if not question_items:
             risks.append("No knowledge assessment questions were available for section-level scoring.")
@@ -321,6 +438,9 @@ class InterviewReportService:
             strengths=strengths,
             risks=risks,
         )
+        strengths = [normalize_gender_neutral_pronouns(s) for s in strengths]
+        risks = [normalize_gender_neutral_pronouns(r) for r in risks]
+        markdown = normalize_gender_neutral_pronouns(markdown)
 
         return KnowledgeAssessmentReport(
             session_id=session.id,
@@ -357,6 +477,7 @@ class InterviewReportService:
             score_percent=score_percent,
             correct_solution=question.get("correct_solution"),
         )
+        feedback = normalize_gender_neutral_pronouns(feedback)
 
         return KnowledgeQuestionReport(
             question_id=str(question.get("id")) if question.get("id") else None,
@@ -374,32 +495,109 @@ class InterviewReportService:
             feedback=feedback,
         )
 
+    def _get_engineering_stats(self, session: InterviewSession) -> dict[str, Any]:
+        lab_sources = self._engineering_lab_sources(session)
+        if not lab_sources:
+            return {
+                "lab_count": 0,
+                "tests_passed": 0,
+                "tests_total": 0,
+                "score": None,
+                "total_time_seconds": 0,
+            }
+
+        lab_scores = []
+        total_passed = 0
+        total_tests = 0
+        total_time = 0
+        for source in lab_sources:
+            events = self._events_for_lab(session, source)
+            performance = source.get("performance") if isinstance(source.get("performance"), dict) else {}
+            code_insights = self._combined_code_insights(source, events)
+            changed_files = self._unique(self._as_list(code_insights.get("changed_files"))) if code_insights else []
+            tests_passed = self._as_int(performance.get("tests_passed")) or 0
+            tests_total = self._as_int(performance.get("tests_total")) or 0
+            errors_encountered = self._as_int(performance.get("errors_encountered")) or 0
+            time_spent = self._as_int(source.get("time_spent_seconds") or performance.get("total_time_seconds")) or 0
+
+            score = self._engineering_lab_score(
+                tests_passed=tests_passed,
+                tests_total=tests_total,
+                errors_encountered=errors_encountered,
+                changed_files=changed_files,
+                code_insights=code_insights,
+            )
+            if score is not None:
+                lab_scores.append(score)
+            total_passed += tests_passed
+            total_tests += tests_total
+            total_time += time_spent
+
+        avg_score = round(sum(lab_scores) / len(lab_scores), 1) if lab_scores else None
+        if total_tests > 0 and total_passed == 0:
+            avg_score = 0.0
+
+        return {
+            "lab_count": len(lab_sources),
+            "tests_passed": total_passed,
+            "tests_total": total_tests,
+            "score": avg_score,
+            "total_time_seconds": total_time,
+        }
+
+    def _get_knowledge_stats(self, session: InterviewSession) -> dict[str, Any]:
+        source = self._knowledge_assessment_source(session)
+        questions = source.get("questions", []) or []
+        total_score = self._as_float(source.get("total_score"))
+        max_score = self._as_float(source.get("max_score"))
+        if total_score is None and questions:
+            scores = [self._as_float(q.get("marks_awarded")) for q in questions if isinstance(q, dict)]
+            if any(s is not None for s in scores):
+                total_score = float(sum(s or 0 for s in scores if s is not None))
+        if max_score is None and questions:
+            max_scores = [self._as_float(q.get("max_marks")) for q in questions if isinstance(q, dict)]
+            if any(m is not None for m in max_scores):
+                max_score = float(sum(m or 0 for m in max_scores if m is not None))
+
+        score_percent = round((total_score / max_score) * 100, 1) if total_score is not None and max_score else None
+        correct_count = sum(1 for q in questions if isinstance(q, dict) and self._as_bool(q.get("is_correct")) is True)
+        score_out_of_ten = round(score_percent / 10.0, 1) if score_percent is not None else None
+
+        return {
+            "question_count": len(questions),
+            "correct_count": correct_count,
+            "total_score": total_score,
+            "max_score": max_score,
+            "score_percent": score_percent,
+            "score": score_out_of_ten,
+        }
+
     def _overall_report(
         self,
         *,
         session: InterviewSession,
-        engineering_labs_report: EngineeringLabsReport,
-        knowledge_assessment_report: KnowledgeAssessmentReport,
         vitarka_report: InterviewReport,
+        lab_stats: dict[str, Any],
+        knowledge_stats: dict[str, Any],
     ) -> OverallInterviewReport:
         section_scores = [
             OverallReportSectionScore(
                 section="engineering_labs",
-                score=engineering_labs_report.overall_score,
-                weight=0.35 if engineering_labs_report.overall_score is not None else 0,
+                score=lab_stats.get("score"),
+                weight=0.35 if lab_stats.get("score") is not None else 0,
                 summary=(
-                    f"{engineering_labs_report.lab_count} lab(s), "
-                    f"{engineering_labs_report.tests_passed}/{engineering_labs_report.tests_total} tests passed."
+                    f"{lab_stats.get('lab_count', 0)} lab(s), "
+                    f"{lab_stats.get('tests_passed', 0)}/{lab_stats.get('tests_total', 0)} tests passed."
                 ),
             ),
             OverallReportSectionScore(
                 section="knowledge_assessment",
-                score=self._knowledge_score_to_ten(knowledge_assessment_report),
-                weight=0.25 if knowledge_assessment_report.score_percent is not None else 0,
+                score=knowledge_stats.get("score"),
+                weight=0.25 if knowledge_stats.get("score") is not None else 0,
                 summary=(
-                    f"{knowledge_assessment_report.total_score}/"
-                    f"{knowledge_assessment_report.max_score} across "
-                    f"{knowledge_assessment_report.question_count} question(s)."
+                    f"{knowledge_stats.get('total_score')}/"
+                    f"{knowledge_stats.get('max_score')} ({knowledge_stats.get('score_percent')}%) across "
+                    f"{knowledge_stats.get('question_count', 0)} question(s)."
                 ),
             ),
             OverallReportSectionScore(
@@ -419,26 +617,74 @@ class InterviewReportService:
         else:
             overall_score = 0.0
         recommendation = self._recommendation_from_score(overall_score)
-        strengths = self._unique(
-            [
-                *engineering_labs_report.strengths,
-                *knowledge_assessment_report.strengths,
-                *vitarka_report.strengths,
+
+        # Build strengths: Vitarka AI + factual lab tests passing + assessment performance
+        strengths = []
+        tests_total = lab_stats.get("tests_total", 0) or 0
+        tests_passed = lab_stats.get("tests_passed", 0) or 0
+        if tests_total > 0 and tests_passed == tests_total:
+            strengths.append(f"Passed all {tests_total} automated tests across engineering labs.")
+        elif tests_passed > 0:
+            strengths.append(f"Passed {tests_passed}/{tests_total} automated tests across engineering labs.")
+
+        k_pct = knowledge_stats.get("score_percent")
+        k_correct = knowledge_stats.get("correct_count", 0) or 0
+        k_total = knowledge_stats.get("question_count", 0) or 0
+        if k_pct is not None and k_pct >= 80:
+            strengths.append(f"Strong performance in knowledge assessment ({k_pct}%).")
+        elif k_correct > 0:
+            strengths.append(f"Answered {k_correct}/{k_total} knowledge assessment questions correctly.")
+
+        strengths.extend(vitarka_report.strengths[:4])
+        strengths = self._unique(strengths)
+        if (lab_stats.get("score") == 0.0 or tests_passed == 0) and tests_total > 0:
+            strengths = [
+                s for s in strengths
+                if not any(token in s.lower() for token in (
+                    "coding assessment", "implementation", "code quality", "problem-solving skills", "problem solving", "verified code"
+                ))
             ]
-        )[:6]
-        risks = self._unique(
-            [
-                *engineering_labs_report.risks,
-                *knowledge_assessment_report.risks,
-                *vitarka_report.risks,
-            ]
-        )[:6]
+        strengths = strengths[:6]
+
+        # Build risks: Vitarka AI + factual test failures + assessment gaps
+        risks = []
+        if tests_total > 0 and tests_passed == 0:
+            risks.append(f"Passed 0/{tests_total} test cases in engineering labs.")
+        elif tests_total > 0 and tests_passed < tests_total:
+            risks.append(f"Failed {tests_total - tests_passed} test case(s) in engineering labs.")
+
+        if k_pct is not None and k_pct < 60:
+            risks.append(f"Knowledge assessment score is below threshold ({k_pct}%).")
+
+        risks.extend(vitarka_report.risks[:4])
+        risks = self._unique(risks)[:6]
+
         name = self._display_name(session)
-        executive_summary = (
-            f"Overall evaluation for {name} combines engineering labs, "
-            f"knowledge assessment, and Vitarka interview evidence. Aggregate score: "
-            f"{overall_score}/10. Recommendation: {recommendation}."
-        )
+        evidence_parts = []
+        if tests_total > 0:
+            evidence_parts.append(f"{tests_passed}/{tests_total} tests passed across {lab_stats.get('lab_count', 0)} engineering lab(s)")
+        if k_total > 0:
+            evidence_parts.append(f"{k_correct}/{k_total} questions correct ({k_pct}%) in knowledge assessment")
+        if vitarka_report.overall_score is not None:
+            evidence_parts.append(f"{vitarka_report.overall_score}/10 in Vitarka AI discussion")
+
+        evidence_str = "; ".join(evidence_parts) if evidence_parts else "completed sections"
+        if overall_score == 0.0:
+            executive_summary = (
+                f"Overall evaluation for {name} recorded 0 passing tests, no submitted code, "
+                f"and no interview responses. Aggregate score: 0.0/10. Recommendation: Do not proceed."
+            )
+        else:
+            executive_summary = (
+                f"Overall evaluation for {name} synthesizes Vitarka AI interview results with practical performance: "
+                f"{evidence_str}. Aggregate score: {overall_score}/10. Recommendation: {recommendation}."
+            )
+
+        executive_summary = normalize_gender_neutral_pronouns(executive_summary)
+        recommendation = normalize_gender_neutral_pronouns(recommendation)
+        strengths = [normalize_gender_neutral_pronouns(s) for s in strengths]
+        risks = [normalize_gender_neutral_pronouns(r) for r in risks]
+
         markdown = self._overall_markdown(
             session=session,
             overall_score=overall_score,
@@ -448,6 +694,7 @@ class InterviewReportService:
             strengths=strengths,
             risks=risks,
         )
+        markdown = normalize_gender_neutral_pronouns(markdown)
 
         return OverallInterviewReport(
             session_id=session.id,
@@ -612,15 +859,29 @@ class InterviewReportService:
         changed_files: list[str],
         code_insights: dict[str, Any] | None,
     ) -> float | None:
-        if tests_total:
-            base = ((tests_passed or 0) / tests_total) * 10
+        additions = self._as_int((code_insights or {}).get("additions")) or 0
+        deletions = self._as_int((code_insights or {}).get("deletions")) or 0
+        notable_lines = (code_insights or {}).get("notable_added_lines") or []
+        is_snapshot = (
+            (code_insights or {}).get("code_diff_format") == "workspace_snapshot_json"
+            or bool((code_insights or {}).get("is_workspace_snapshot"))
+        )
+        has_actual_code_changes = not is_snapshot and ((additions + deletions > 0) or bool(notable_lines))
+
+        if tests_total and tests_total > 0:
+            if not tests_passed or tests_passed == 0:
+                return 0.0
+            base = (tests_passed / tests_total) * 10
+        elif tests_passed and tests_passed > 0:
+            base = min(10.0, tests_passed * 3.3)
+        elif has_actual_code_changes:
+            base = 5.0
         elif changed_files or code_insights:
-            base = 6.5
+            # Files existed in workspace snapshot, but candidate made zero additions/deletions/submissions
+            return 0.0
         else:
             return None
 
-        if changed_files:
-            base = max(base, 6.0)
         if code_insights and code_insights.get("framework_choices"):
             base += 0.4
         if code_insights and code_insights.get("performance_concerns"):
@@ -631,7 +892,7 @@ class InterviewReportService:
             base -= 0.8
         if errors_encountered:
             base -= min(2.0, errors_encountered * 0.35)
-        return round(max(0, min(10, base)), 1)
+        return round(max(0.0, min(10.0, base)), 1)
 
     def _knowledge_feedback(
         self,

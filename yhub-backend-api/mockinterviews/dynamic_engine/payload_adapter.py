@@ -47,6 +47,9 @@ class UnifiedPayloadAdapter:
                 "candidate_context_excerpt": self._compact_text(payload.candidate_context, 1200),
                 "knowledge_assessment": self._assessment_summary(report_sources["knowledge_assessment"]),
                 "payload_report_sources": report_sources,
+                **({
+                    "discussion_max_score": report_sources["discussion_max_score"]
+                } if report_sources.get("discussion_max_score") is not None else {}),
                 **payload.metadata,
             },
         )
@@ -124,7 +127,7 @@ class UnifiedPayloadAdapter:
         parsed_knowledge = parsed_context.get("knowledge_assessment", {})
         if structured_knowledge.get("questions"):
             knowledge = structured_knowledge
-        elif parsed_knowledge.get("questions"):
+        elif parsed_knowledge.get("questions") or parsed_knowledge.get("max_score") is not None:
             knowledge = {
                 **structured_knowledge,
                 **parsed_knowledge,
@@ -149,6 +152,7 @@ class UnifiedPayloadAdapter:
         return {
             "engineering_labs": labs,
             "knowledge_assessment": knowledge or self._empty_knowledge_assessment(),
+            "discussion_max_score": parsed_context.get("discussion_max_score"),
             "candidate_context": {
                 "present": bool(payload.candidate_context),
                 "engineering_lab_count": len(parsed_labs),
@@ -351,17 +355,25 @@ class UnifiedPayloadAdapter:
         }
 
     def _parse_candidate_context(self, context: str) -> dict[str, Any]:
-        if not context.strip():
+        sanitized_context = (context or "").replace("\x00", "").replace("\u0000", "")
+        if not sanitized_context.strip():
             return {}
+        disc_match = re.search(
+            r"Vitarka\s+Discussion\s+Max\s+Score:\s*(?P<max>\d+(?:\.\d+)?)",
+            sanitized_context,
+            re.IGNORECASE,
+        )
+        discussion_max_score = self._as_float(disc_match.group("max")) if disc_match else None
         return {
-            "engineering_labs": self._parse_context_labs(context),
-            "knowledge_assessment": self._parse_context_knowledge_assessment(context),
+            "engineering_labs": self._parse_context_labs(sanitized_context),
+            "knowledge_assessment": self._parse_context_knowledge_assessment(sanitized_context),
+            "discussion_max_score": discussion_max_score,
         }
 
     def _parse_context_labs(self, context: str) -> list[dict[str, Any]]:
         labs: list[dict[str, Any]] = []
         pattern = re.compile(
-            r"---\s*Lab:\s*(?P<title>.*?)\s*---(?P<body>.*?)(?=\n---\s*Lab:|\n\s*Knowledge Assessment Score:|\Z)",
+            r"---\s*Lab:\s*(?P<title>.*?)\s*---(?P<body>.*?)(?=\n---\s*Lab:|\n\s*(?:Knowledge\s+Assessment\s+Score|Total\s+score):|\Z)",
             re.IGNORECASE | re.DOTALL,
         )
         for index, match in enumerate(pattern.finditer(context), start=1):
@@ -369,6 +381,17 @@ class UnifiedPayloadAdapter:
             title = self._clean_text(match.group("title")) or f"Engineering Lab {index}"
             minutes = self._parse_minutes(body)
             code_diff = self._parse_code_diff(body)
+
+            tests_match = re.search(r"Tests:\s*(?P<passed>\d+)\s*passed\s*out\s*of\s*(?P<total>\d+)", body, re.IGNORECASE)
+            tests_passed = self._as_int(tests_match.group("passed")) if tests_match else None
+            tests_total = self._as_int(tests_match.group("total")) if tests_match else None
+
+            errors_match = re.search(r"Errors(?:\s+encountered)?:\s*(?P<errors>\d+)", body, re.IGNORECASE)
+            errors_encountered = self._as_int(errors_match.group("errors")) if errors_match else None
+
+            commands_match = re.search(r"(?:Terminal\s+commands(?:\s+run)?|Commands):\s*(?P<cmds>\d+)", body, re.IGNORECASE)
+            terminal_commands_run = self._as_int(commands_match.group("cmds")) if commands_match else None
+
             labs.append(
                 {
                     "lab_id": f"context_lab_{index}",
@@ -377,10 +400,10 @@ class UnifiedPayloadAdapter:
                     "time_spent_seconds": minutes * 60 if minutes is not None else None,
                     "performance": {
                         "total_time_seconds": minutes * 60 if minutes is not None else None,
-                        "tests_passed": None,
-                        "tests_total": None,
-                        "terminal_commands_run": None,
-                        "errors_encountered": None,
+                        "tests_passed": tests_passed,
+                        "tests_total": tests_total,
+                        "terminal_commands_run": terminal_commands_run,
+                        "errors_encountered": errors_encountered,
                     },
                     "solution_patch": code_diff,
                     "code_diff_format": self._code_payload_format(code_diff),
@@ -391,7 +414,7 @@ class UnifiedPayloadAdapter:
 
     def _parse_context_knowledge_assessment(self, context: str) -> dict[str, Any]:
         score_match = re.search(
-            r"Knowledge Assessment Score:\s*(?P<score>\d+(?:\.\d+)?)\s*/\s*(?P<max>\d+(?:\.\d+)?)",
+            r"(?:Knowledge\s+Assessment\s+Score|Total\s+score):\s*(?P<score>\d+(?:\.\d+)?)\s*/\s*(?P<max>\d+(?:\.\d+)?)",
             context,
             re.IGNORECASE,
         )
@@ -613,10 +636,11 @@ class UnifiedPayloadAdapter:
             return None
 
     def _clean_text(self, value: Any) -> str:
-        return "\n".join(line.rstrip() for line in str(value or "").strip().splitlines()).strip()
+        cleaned = str(value or "").replace("\x00", "").replace("\u0000", "").strip()
+        return "\n".join(line.rstrip() for line in cleaned.splitlines()).strip()
 
     def _compact_text(self, value: Any, limit: int) -> str:
-        text = " ".join(str(value or "").split())
+        text = " ".join(str(value or "").replace("\x00", "").replace("\u0000", "").split())
         if len(text) <= limit:
             return text
         return f"{text[: limit - 3]}..."
@@ -641,22 +665,24 @@ class UnifiedPayloadAdapter:
 
     def _job_description_text(self, job_description: dict[str, Any] | str) -> str:
         if isinstance(job_description, str):
-            return job_description
+            return job_description.replace("\x00", "").replace("\u0000", "")
         requirements = self._as_string_list(job_description.get("requirements"))
         parts = [
             str(job_description.get("role") or "").strip(),
             str(job_description.get("summary") or "").strip(),
             f"Requirements: {', '.join(requirements)}" if requirements else "",
         ]
-        return " ".join(part for part in parts if part)
+        return " ".join(part for part in parts if part).replace("\x00", "").replace("\u0000", "")
 
     def _question_text(self, value: Any) -> str | None:
         if isinstance(value, str):
-            return value.strip() or None
+            sanitized = value.replace("\x00", "").replace("\u0000", "").strip()
+            return sanitized or None
         if isinstance(value, dict):
             for key in ("question", "prompt", "content", "text", "title"):
                 if value.get(key):
-                    return str(value[key]).strip()
+                    sanitized = str(value[key]).replace("\x00", "").replace("\u0000", "").strip()
+                    return sanitized or None
         return None
 
     def _as_list(self, value: Any) -> list[Any]:
@@ -667,7 +693,7 @@ class UnifiedPayloadAdapter:
         return [value]
 
     def _as_string_list(self, value: Any) -> list[str]:
-        return [str(item) for item in self._as_list(value) if str(item).strip()]
+        return [str(item).replace("\x00", "").replace("\u0000", "") for item in self._as_list(value) if str(item).strip()]
 
     def _as_int(self, value: Any) -> int | None:
         try:
@@ -676,7 +702,7 @@ class UnifiedPayloadAdapter:
             return None
 
     def _text(self, value: Any) -> str:
-        return value if isinstance(value, str) else ""
+        return value.replace("\x00", "").replace("\u0000", "") if isinstance(value, str) else ""
 
     def _looks_database_related(self, title: str, patch: Any) -> bool:
         haystack = f"{title} {patch or ''}".lower()

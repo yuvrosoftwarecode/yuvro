@@ -30,9 +30,12 @@ class RestApiAuthUtil extends RestApiUtil {
     this.refreshSubscribers.push({ resolve, reject });
   }
 
-  setAuthToken(token: string) {
+  setAuthToken(token: string, refreshToken?: string) {
     this.token = token;
     localStorage.setItem("access", token);
+    if (refreshToken) {
+      localStorage.setItem("refresh", refreshToken);
+    }
   }
 
   getAuthToken(): string | null {
@@ -69,43 +72,72 @@ class RestApiAuthUtil extends RestApiUtil {
 
   private async refreshToken(): Promise<boolean> {
     const refreshToken = localStorage.getItem("refresh");
-    if (!refreshToken) {
-      console.warn("No refresh token available");
-      return false;
-    }
+    const authBaseUrl = (
+      import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || "http://localhost:8003/api"
+    ).replace(/\/$/, "");
 
-    try {
-      console.log("Attempting to refresh token...");
-      const authBaseUrl = (
-        import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || "http://localhost:8002/api"
-      ).replace(/\/$/, "");
-      const res = await fetch(`${authBaseUrl}/auth/token/refresh/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh: refreshToken }),
-      });
-      if (!res.ok) throw new Error(`Refresh failed with status ${res.status}`);
-      const response = await res.json();
-
-      localStorage.setItem("access", response.access);
-      if (response.refresh) {
-        localStorage.setItem("refresh", response.refresh);
+    if (refreshToken) {
+      try {
+        console.log("Attempting to refresh token...");
+        const res = await fetch(`${authBaseUrl}/auth/token/refresh/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh: refreshToken }),
+        });
+        if (res.ok) {
+          const response = await res.json();
+          localStorage.setItem("access", response.access);
+          if (response.refresh) {
+            localStorage.setItem("refresh", response.refresh);
+          }
+          this.token = response.access;
+          console.log("Token refreshed successfully");
+          return true;
+        }
+      } catch (err) {
+        console.warn("Standard token refresh failed:", err);
       }
-      this.token = response.access;
-      console.log("Token refreshed successfully");
-      return true;
-    } catch (err) {
-      console.error("Token refresh failed:", err);
-      this.logout();
-      return false;
     }
+
+    // Fallback: If no refresh token or refresh failed, check if we can recover an evaluation session
+    const currentAccess = this.getAuthToken();
+    let candidateEmail = "";
+    try {
+      const cand = JSON.parse(localStorage.getItem("yuvro-eval-candidate") || "{}");
+      candidateEmail = cand?.email || "";
+    } catch {}
+
+    if (currentAccess || candidateEmail) {
+      try {
+        console.log("Attempting to recover evaluation session token...");
+        const res = await fetch(`${authBaseUrl}/auth/recover_candidate_session/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ access_token: currentAccess, email: candidateEmail }),
+        });
+        if (res.ok) {
+          const response = await res.json();
+          if (response.access) {
+            this.setAuthToken(response.access, response.refresh);
+            console.log("Evaluation session recovered successfully");
+            return true;
+          }
+        }
+      } catch (err) {
+        console.warn("Evaluation session recovery failed:", err);
+      }
+    }
+
+    console.warn("No refresh token or session recovery available");
+    this.logout();
+    return false;
   }
 
   private logout(): void {
     console.log("Logging out user due to authentication failure");
     const currentPath = window.location.pathname + window.location.search;
     this.clearAuthToken();
-    if (!window.location.pathname.includes("/auth")) {
+    if (!window.location.pathname.includes("/auth") && !window.location.pathname.includes("/evaluation")) {
       window.location.href = `/auth?tab=signin&redirect=${encodeURIComponent(currentPath)}`;
     }
   }

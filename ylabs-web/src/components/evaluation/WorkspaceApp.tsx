@@ -477,7 +477,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
         }
 
         try {
-          if (evaluationId) await evaluationService.submitLab?.(evaluationId, e.data.labId, { status: "done" });
+          if (evaluationId) await evaluationService.submitLab?.(evaluationId, e.data.labId, { status: "done", score: e.data.score });
         } catch (err) {
           console.error(err);
         }
@@ -561,13 +561,28 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       if (sec && sec.type === "KNOWLEDGE_ASSESSMENT" && sec.questions) {
         sec.questions.forEach((q: any) => {
           if (answers[q.id] !== undefined) {
-            let isCorrect = answers[q.id] === q.correct;
-            if (typeof answers[q.id] === "string" && typeof q.correct === "string") {
+            let isCorrect = false;
+            if (q.mcq_options && Array.isArray(q.mcq_options) && q.mcq_options.length > 0) {
+              const correctIndices = q.mcq_options
+                .map((opt: any, idx: number) => opt.is_correct ? idx : -1)
+                .filter((idx: number) => idx !== -1);
+              const userAns = answers[q.id];
+              const userIndices = Array.isArray(userAns)
+                ? userAns.map(Number)
+                : (userAns !== undefined && userAns !== null ? [Number(userAns)] : []);
+              isCorrect = correctIndices.length > 0 &&
+                userIndices.length === correctIndices.length &&
+                [...userIndices].sort().every((val, i) => val === [...correctIndices].sort()[i]);
+            } else if (typeof answers[q.id] === "string" && typeof q.correct === "string") {
               if (q.format?.toUpperCase() === "CODING") {
                 const normUser = answers[q.id].replace(/\s+/g, "").replace(/'/g, '"');
                 const normCorrect = q.correct.replace(/\s+/g, "").replace(/'/g, '"');
                 isCorrect = normUser === normCorrect;
+              } else {
+                isCorrect = answers[q.id].trim() === q.correct.trim();
               }
+            } else {
+              isCorrect = answers[q.id] === q.correct;
             }
             richAnswers.push({
               question_id: q.id,
@@ -664,15 +679,27 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           const submission = labSubmissionsData.find((s: any) => s.lab_question === lab.id || s.lab_question?.id === lab.id);
           if (submission && submission.solution) {
             hasSubmissions = true;
+            const isDiff = typeof submission.solution === 'string' && submission.solution.includes('diff --git');
             labDetails += `\n--- Lab: ${lab.title} ---\n`;
+            labDetails += `Score: ${submission.score ?? 0}/100\n`;
             labDetails += `Time spent: ${submission.minutes_solved || 0} minutes\n`;
-            labDetails += `Code Diff:\n\`\`\`diff\n${submission.solution}\n\`\`\`\n`;
+            if (isDiff) {
+              labDetails += `Code Diff:\n\`\`\`diff\n${submission.solution}\n\`\`\`\n`;
+            } else {
+              labDetails += `Code implementation submitted.\n`;
+            }
           } else {
             labDetails += `\n--- Lab: ${lab.title} ---\n`;
             labDetails += `Status: Not submitted or no code diff available.\n`;
           }
         }
         contextParts.push(labDetails);
+      }
+      if (sec.type === "VITARKA_AI_INTERVIEW") {
+        let meta: any = {};
+        try { meta = JSON.parse(sec.description || "{}"); } catch {}
+        const discMax = meta.marks ?? meta.max_score ?? 25;
+        contextParts.push(`Vitarka Discussion Max Score: ${discMax}`);
       }
     }
     return contextParts.join("\n\n");
@@ -861,6 +888,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   key={sec.id}
                   mockInterviewId={meta.mockInterviewId}
                   candidateContext={candidateContextString}
+                  discussionMaxScore={meta.marks ?? meta.max_score ?? 25}
                   onEnd={() => setModal({ kind: "end-discussion" })}
                   onQuestionChange={(q) => setActiveDiscussionQuestion(q)}
                   onSessionStart={(sId) => logActivity('vitarka_session_started', { session_id: sId })}
@@ -873,6 +901,12 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
             <VitarkaInterviewScreen
               mockInterviewId={appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")?.description ? JSON.parse(appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")!.description || "{}").mockInterviewId : ""}
               candidateContext={candidateContextString}
+              discussionMaxScore={(() => {
+                try {
+                  const d = JSON.parse(appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")?.description || "{}");
+                  return d.marks ?? d.max_score ?? 25;
+                } catch { return 25; }
+              })()}
               onEnd={() => setModal({ kind: "end-discussion" })}
               onQuestionChange={(q) => setActiveDiscussionQuestion(q)}
               onSessionStart={(sId) => logActivity('vitarka_session_started', { session_id: sId })}

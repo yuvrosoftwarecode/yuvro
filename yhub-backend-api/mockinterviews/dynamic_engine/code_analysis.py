@@ -5,6 +5,62 @@ import re
 from typing import Any
 
 
+BINARY_EXTENSIONS = {
+    ".zip", ".tar", ".gz", ".tgz", ".bz2", ".7z", ".rar", ".jar", ".war", ".ear",
+    ".pyc", ".pyo", ".pyd", ".so", ".dylib", ".dll", ".exe", ".bin", ".dat", ".db",
+    ".sqlite", ".sqlite3", ".db-journal", ".db-wal", ".dbsqlite3", ".dump",
+    ".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg", ".pdf",
+    ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".woff", ".woff2", ".ttf",
+    ".eot", ".class", ".o", ".obj", ".iso", ".apk", ".aab", ".wasm",
+}
+
+IGNORED_NON_CODE_EXTENSIONS = {
+    ".log", ".lock", ".env", ".example", ".md", ".markdown", ".txt", ".csv",
+    ".map", ".min.js", ".min.css",
+}
+
+IGNORED_FILENAMES = {
+    "readme.md", "readme", "challenge_documentation.md", ".gitignore", ".gitattributes",
+    ".dockerignore", "requirements.txt", "package.json", "package-lock.json",
+    "yarn.lock", "pnpm-lock.yaml", "poetry.lock", ".bash_history", ".bashrc",
+    ".profile", ".ds_store", "thumbs.db", "db.sqlite3", "schema2.yml",
+}
+
+IGNORED_PATH_SEGMENTS = {
+    "__pycache__", ".pytest_cache", "node_modules", ".git", ".venv", "venv", ".idea", ".vscode"
+}
+
+
+def is_ignored_path(path: str) -> bool:
+    if not path:
+        return True
+    norm = path.replace("\\", "/").strip().lower()
+    filename = norm.rsplit("/", 1)[-1]
+    if filename in IGNORED_FILENAMES:
+        return True
+    if any(segment in norm.split("/") for segment in IGNORED_PATH_SEGMENTS):
+        return True
+    ext = "." + filename.rsplit(".", 1)[-1] if "." in filename else ""
+    if ext in BINARY_EXTENSIONS or ext in IGNORED_NON_CODE_EXTENSIONS:
+        return True
+    if filename.startswith("."):
+        return True
+    return False
+
+
+def is_binary_content(content: str) -> bool:
+    if "\x00" in content or "\u0000" in content:
+        return True
+    if content.startswith(("PK\x03\x04", "\x7fELF", "SQLite format 3", "%PDF-", "\x89PNG", "GIF8")):
+        return True
+    sample = content[:512]
+    if sample:
+        non_printable = sum(1 for ch in sample if ord(ch) < 32 and ch not in "\n\r\t")
+        if non_printable / len(sample) > 0.05:
+            return True
+    return False
+
+
 class CodeInsightExtractor:
     def from_event_details(self, details: dict[str, Any]) -> dict[str, Any] | None:
         patch_value = details.get("solution_patch") or details.get("patch") or details.get("diff")
@@ -55,8 +111,12 @@ class CodeInsightExtractor:
         for path, content in parsed.items():
             if not isinstance(path, str) or not path.strip():
                 continue
+            if is_ignored_path(path):
+                continue
             if isinstance(content, str):
-                files[path] = content
+                if is_binary_content(content):
+                    continue
+                files[path] = content.replace("\x00", "").replace("\u0000", "")
             elif content is None:
                 files[path] = ""
             else:
@@ -65,44 +125,24 @@ class CodeInsightExtractor:
         return files or None
 
     def _workspace_snapshot_insights(self, files: dict[str, Any]) -> dict[str, Any]:
-        changed_files = [str(path) for path in files if str(path).strip()]
-        file_change_summaries = []
-        all_source_chunks = []
-        notable_lines = []
-        for path in changed_files:
-            source = self._text(files.get(path))
-            all_source_chunks.append(source)
-            lines = source.splitlines()
-            file_change_summaries.append(
-                {
-                    "path": path,
-                    "additions": len(lines),
-                    "deletions": 0,
-                    "notable_added_lines": self._notable_lines(lines),
-                    "notable_removed_lines": [],
-                    "framework_choices": self._framework_choices(source),
-                    "performance_concerns": self._performance_concerns(source),
-                    "security_concerns": self._security_concerns(source),
-                    "removed_symbols": [],
-                    "added_symbols": self._symbols(source),
-                }
-            )
-            notable_lines.extend(self._notable_lines(lines))
-
-        combined_source = "\n".join(all_source_chunks)
+        changed_files = [
+            str(path).strip() for path in files
+            if str(path).strip() and not is_ignored_path(str(path))
+        ]
         return {
             "changed_files": changed_files,
-            "file_changes": file_change_summaries,
-            "additions": sum(len(self._text(files.get(path)).splitlines()) for path in changed_files),
+            "file_changes": [],
+            "additions": 0,
             "deletions": 0,
-            "notable_added_lines": notable_lines[:8],
+            "notable_added_lines": [],
             "notable_removed_lines": [],
-            "added_symbols": self._symbols(combined_source),
+            "added_symbols": [],
             "removed_symbols": [],
-            "framework_choices": self._framework_choices(combined_source),
-            "performance_concerns": self._performance_concerns(combined_source),
-            "security_concerns": self._security_concerns(combined_source),
+            "framework_choices": [],
+            "performance_concerns": [],
+            "security_concerns": [],
             "code_diff_format": "workspace_snapshot_json",
+            "is_workspace_snapshot": True,
             "patch_summary": (
                 f"Submitted a workspace snapshot with {len(changed_files)} files."
                 if changed_files
@@ -116,11 +156,19 @@ class CodeInsightExtractor:
         removed_lines: list[str] = []
         file_changes: dict[str, dict[str, Any]] = {}
         current_file: str | None = None
+        skip_current_file: bool = False
 
         def ensure_file(path: str | None) -> dict[str, Any] | None:
+            nonlocal skip_current_file
             if not path or path == "/dev/null":
+                skip_current_file = True
                 return None
-            changed_files.append(path)
+            if is_ignored_path(path):
+                skip_current_file = True
+                return None
+            skip_current_file = False
+            if path not in changed_files:
+                changed_files.append(path)
             if path not in file_changes:
                 file_changes[path] = {
                     "path": path,
@@ -135,31 +183,40 @@ class CodeInsightExtractor:
                 if len(parts) >= 4:
                     current_file = parts[3].removeprefix("b/")
                     ensure_file(current_file)
+                else:
+                    skip_current_file = True
                 continue
             if line.startswith("+++ "):
                 current_file = line.removeprefix("+++ ").removeprefix("b/")
                 ensure_file(current_file)
                 continue
+            if skip_current_file:
+                continue
             if line.startswith("+") and not line.startswith("+++"):
                 added_line = line[1:].strip()
+                if is_binary_content(added_line):
+                    continue
                 added_lines.append(added_line)
-                file_change = ensure_file(current_file)
+                file_change = file_changes.get(current_file) if current_file else None
                 if file_change is not None:
                     file_change["added_lines"].append(added_line)
                 continue
             if line.startswith("-") and not line.startswith("---"):
                 removed_line = line[1:].strip()
+                if is_binary_content(removed_line):
+                    continue
                 removed_lines.append(removed_line)
-                file_change = ensure_file(current_file)
+                file_change = file_changes.get(current_file) if current_file else None
                 if file_change is not None:
                     file_change["removed_lines"].append(removed_line)
 
-        changed_files = list(dict.fromkeys(file for file in changed_files if file))
+        changed_files = [file for file in changed_files if file and not is_ignored_path(file)]
         added_code = "\n".join(added_lines)
         removed_code = "\n".join(removed_lines)
         file_change_summaries = [
             self._file_change_summary(path, change)
             for path, change in file_changes.items()
+            if not is_ignored_path(path)
         ]
 
         return {
@@ -304,11 +361,14 @@ class CodeInsightExtractor:
 
     def _notable_lines(self, lines: list[str]) -> list[str]:
         clean_lines = [" ".join(line.strip().split()) for line in lines if line.strip()]
-        useful_lines = [
-            line
-            for line in clean_lines
-            if not line.startswith("#") and line not in {"{", "}", "(", ")"}
-        ]
+        useful_lines = []
+        for line in clean_lines:
+            if line.startswith("#") or line in {"{", "}", "(", ")"}:
+                continue
+            sanitized = "".join(ch for ch in line if ch >= " " or ch in "\t").strip()
+            if not sanitized or is_binary_content(sanitized):
+                continue
+            useful_lines.append(sanitized)
         return useful_lines[:8]
 
     def _has_nested_loop(self, source: str) -> bool:
@@ -334,5 +394,5 @@ class CodeInsightExtractor:
 
     def _text(self, value: Any) -> str:
         if isinstance(value, str):
-            return value
+            return value.replace("\x00", "").replace("\u0000", "")
         return ""

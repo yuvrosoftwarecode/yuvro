@@ -59,6 +59,8 @@ import {
   fetchTopics,
   createEvaluation,
   syncMockInterviews,
+  getVitarkaDiscussionConfig,
+  syncDiscussionConfig,
 } from "@/lib/recruiter";
 import { CreateQuestionForm } from "@/components/evaluation/CreateQuestionForm";
 import { Workspace } from "@/components/evaluation/WorkspaceApp";
@@ -96,11 +98,17 @@ function EvaluationWorkspace() {
   useEffect(() => {
     if (isChild) return;
     if (id === "draft") {
-      createEvaluation().then(setEv);
+      createEvaluation().then((e) => {
+        syncDiscussionConfig(e);
+        setEv(e);
+      });
     } else {
       getEvaluation(id).then((e) => {
         if (!e) nav({ to: "/recruiter/evaluations" });
-        else setEv(e);
+        else {
+          syncDiscussionConfig(e);
+          setEv(e);
+        }
       });
     }
   }, [id, nav, isChild]);
@@ -111,6 +119,7 @@ function EvaluationWorkspace() {
   const update = (fn: (e: Evaluation) => void) => {
     const c = { ...ev, sections: JSON.parse(JSON.stringify(ev.sections)) };
     fn(c);
+    syncDiscussionConfig(c);
     setEv(c);
   };
 
@@ -264,6 +273,7 @@ function EvaluationWorkspace() {
                 section={s}
                 index={idx}
                 total={ev.sections.length}
+                allSections={ev.sections}
                 onChange={(next) =>
                   update((x) => {
                     x.sections[idx] = next;
@@ -334,16 +344,20 @@ function EvaluationWorkspace() {
                   questions: [],
                   proctoring: { enableProctoring: true, enableCopyPaste: false, tabSwitchAllowed: false, tabSwitchLimit: 3 },
                 });
-              else
+              else {
+                const { marks, duration } = getVitarkaDiscussionConfig(x.sections);
                 x.sections.push({
                   id: newUid(),
                   kind: "discussion",
-                  title: "Engineering Discussion",
-                  duration: 15,
+                  title: "Vitarka AI Discussion",
+                  duration,
                   mode: "Automatic",
+                  marks,
+                  max_score: marks,
                   questions: [],
                   proctoring: { enableProctoring: true, enableCopyPaste: false, tabSwitchAllowed: false, tabSwitchLimit: 3 },
                 });
+              }
             });
             setAddSectionOpen(false);
           }}
@@ -407,6 +421,7 @@ function SectionBlock({
   onMove,
   onAddLab,
   onAddQuestions,
+  allSections,
 }: {
   section: Section;
   index: number;
@@ -417,6 +432,7 @@ function SectionBlock({
   onMove: (dir: "up" | "down") => void;
   onAddLab: () => void;
   onAddQuestions: () => void;
+  allSections?: Section[];
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [renaming, setRenaming] = useState(false);
@@ -496,7 +512,7 @@ function SectionBlock({
             />
           )}
           {section.kind === "discussion" && (
-            <DiscussionSectionBody section={section} onChange={onChange} />
+            <DiscussionSectionBody section={section} onChange={onChange} allSections={allSections} />
           )}
         </div>
       )}
@@ -838,35 +854,58 @@ function AssessmentSectionBody({
 function DiscussionSectionBody({
   section,
   onChange,
+  allSections = [],
 }: {
   section: DiscussionSection;
   onChange: (s: Section) => void;
+  allSections?: Section[];
 }) {
+  const labSections = allSections.filter((s: any) => s.kind === "labs" || s.type === "LAB");
+  const labsCount = labSections.reduce((sum: number, s: any) => sum + (s.labs?.length || s.questions?.length || 0), 0);
+  const hasAssessment = allSections.some((s: any) => s.kind === "assessment" || s.type === "KNOWLEDGE_ASSESSMENT");
+
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-3 rounded-lg border border-white/5 bg-black/20 p-3 text-[11px]">
+        <Stat label="Mode" value={section.mode || "Automatic"} />
+        <Stat label="Duration" value={`${section.duration || 0} min`} />
+        <Stat label="Total Marks" value={section.marks ?? section.max_score ?? 0} />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <div className="text-[11px] uppercase tracking-widest text-neutral-500">Duration</div>
-          <div className="mt-1 flex items-center gap-2">
-            {[10, 15, 20, 30].map((d) => (
-              <button
-                key={d}
-                onClick={() => onChange({ ...section, duration: d })}
-                className={`rounded-md border px-2.5 py-1 text-[12px] ${section.duration === d ? "border-amber-400/40 bg-amber-400/10 text-amber-300" : "border-white/10 text-neutral-400 hover:text-white"}`}
-              >
-                {d} min
-              </button>
-            ))}
+          <div className="mt-1.5 flex items-center gap-2">
+            <div className="flex h-9 items-center rounded-md border border-amber-400/30 bg-amber-400/10 px-3 text-[13px] font-medium text-amber-300">
+              {section.duration || 0} min
+            </div>
+            <input
+              type="number"
+              min={0}
+              max={120}
+              value={section.duration || 0}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || 0;
+                onChange({ ...section, duration: val });
+              }}
+              className="h-9 w-20 rounded-md border border-white/10 bg-black/40 px-2 text-[12px] text-white outline-none focus:border-amber-400/40 text-center"
+              placeholder="Custom"
+            />
           </div>
+          <p className="mt-1 text-[11px] text-neutral-400">
+            {labsCount} lab(s) × 10 + {hasAssessment ? "5 min (assessment)" : "0 min"}
+          </p>
         </div>
+
         <div>
           <div className="text-[11px] uppercase tracking-widest text-neutral-500">
             Question Mode
           </div>
-          <div className="mt-1 flex items-center gap-2">
-            {(["Custom", "Automatic", "Hybrid"] as const).map(mode => (
+          <div className="mt-1.5 flex items-center gap-1.5">
+            {(["Automatic", "Custom", "Hybrid"] as const).map(mode => (
               <button 
                 key={mode} 
+                type="button"
                 onClick={() => {
                   let updatedQuestions = section.questions;
                   if (mode === "Automatic") {
@@ -874,12 +913,45 @@ function DiscussionSectionBody({
                   }
                   onChange({ ...section, mode, questions: updatedQuestions });
                 }}
-                className={`rounded-md border px-2.5 py-1 text-[12px] ${section.mode === mode || (!section.mode && mode === 'Automatic') ? "border-amber-400/40 bg-amber-400/10 text-amber-300" : "border-white/10 text-neutral-400 hover:text-white"}`}
+                className={`h-9 rounded-md border px-3 text-[12px] font-medium transition ${
+                  section.mode === mode || (!section.mode && mode === 'Automatic')
+                    ? "border-amber-400/40 bg-amber-400/10 text-amber-300"
+                    : "border-white/10 text-neutral-400 hover:border-white/20 hover:text-white"
+                }`}
               >
                 {mode}
               </button>
             ))}
           </div>
+          <p className="mt-1 text-[11px] text-neutral-400">
+            AI conducts discussion based on candidate submissions
+          </p>
+        </div>
+
+        <div>
+          <div className="text-[11px] uppercase tracking-widest text-neutral-500">
+            Total Marks
+          </div>
+          <div className="mt-1.5 flex items-center gap-2">
+            <div className="flex h-9 items-center rounded-md border border-amber-400/30 bg-amber-400/10 px-3 text-[13px] font-medium text-amber-300">
+              {section.marks ?? section.max_score ?? 0}
+            </div>
+            <input
+              type="number"
+              min={0}
+              max={200}
+              value={section.marks ?? section.max_score ?? 0}
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || 0;
+                onChange({ ...section, marks: val, max_score: val });
+              }}
+              className="h-9 w-20 rounded-md border border-white/10 bg-black/40 px-2 text-[12px] text-white outline-none focus:border-amber-400/40 text-center"
+              placeholder="Custom"
+            />
+          </div>
+          <p className="mt-1 text-[11px] text-neutral-400">
+            {labsCount} lab(s) × 10 + {hasAssessment ? "10 marks (assessment)" : "0 marks"}
+          </p>
         </div>
       </div>
       

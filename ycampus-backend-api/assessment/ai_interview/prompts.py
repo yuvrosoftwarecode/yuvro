@@ -219,6 +219,7 @@ Rules:
 
 REPORT_GENERATION_PROMPT = """\
 Generate a comprehensive interview performance report.
+Always use gender-neutral pronouns (they/them/their/theirs) when referring to the candidate. Never use gendered pronouns like he/him/his or she/her/hers because candidate gender is unspecified.
 
 Candidate: {candidate_name}
 Position: {position}
@@ -239,9 +240,9 @@ Return ONLY a valid JSON object:
 {{
   "overall_score": <float 0-100>,
   "overall_grade": "<A+ | A | B+ | B | C+ | C | D | F>",
-  "executive_summary": "<3-4 sentence summary for hiring manager>",
-  "strengths": ["<strength with evidence>"],
-  "weaknesses": ["<weakness with evidence>"],
+  "executive_summary": "<3-4 sentence summary for hiring manager using gender-neutral pronouns (they/them/their)>",
+  "strengths": ["<strength with evidence using gender-neutral pronouns>"],
+  "weaknesses": ["<weakness with evidence using gender-neutral pronouns>"],
   "topic_breakdown": [
     {{
       "topic": "<topic name>",

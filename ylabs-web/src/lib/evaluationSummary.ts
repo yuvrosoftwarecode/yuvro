@@ -36,45 +36,72 @@ export function buildEvaluationSummary(
     blocks.push({
       title: "Engineering Labs",
       score: candidate.labsScore,
-      summary: `${first} performed well in the Python API lab and fixed the validation issue while improving the database interaction. His debugging was systematic — he traced the API issue back to the SQL query.`,
-      strengths: ["Python API debugging", "SQL troubleshooting", "Practical problem solving"],
-      explore: "Transaction management",
+      summary: candidate.labsScore === 0
+        ? `${first} did not submit code changes or pass any automated tests for the engineering labs.`
+        : `${first} completed hands-on lab exercises with an evaluated score of ${candidate.labsScore}/100.`,
+      strengths: candidate.labsScore === 0
+        ? []
+        : candidate.labsScore >= 75
+          ? ["Implementation completeness", "Test pass verification"]
+          : ["Partial task completion"],
+      explore: candidate.labsScore === 0
+        ? "Practical implementation and coding verification"
+        : "Error handling and edge cases",
     });
   }
   if (hasAssessment) {
     blocks.push({
       title: "Assessment",
       score: candidate.assessmentScore,
-      summary: `${first} performed well on Python and database-related questions. Results were weaker on system-design concepts, which is worth exploring further.`,
-      strengths: ["Python", "REST APIs", "SQL"],
-      explore: "System design",
+      summary: candidate.assessmentScore === 0
+        ? `${first} did not answer any assessment questions correctly.`
+        : `${first} completed knowledge assessment questions with an evaluated score of ${candidate.assessmentScore}/100.`,
+      strengths: candidate.assessmentScore === 0
+        ? []
+        : candidate.assessmentScore >= 75
+          ? ["Conceptual accuracy", "Technical foundations"]
+          : ["Foundational topics"],
+      explore: candidate.assessmentScore === 0
+        ? "Core concept fundamentals"
+        : "Advanced problem-solving concepts",
     });
   }
   if (hasVitarka) {
     blocks.push({
       title: "Vitarka AI",
       score: candidate.vitarkaScore,
-      summary: `${first} explained the Python API changes he made in the lab and why he introduced the validation logic. He connected the SQL change to the API performance issue and handled follow-ups on error handling well.`,
-      strengths: [
-        "Explains implementation decisions",
-        "Good Python/API understanding",
-        "Handles technical follow-ups",
-      ],
-      explore: "Transaction-level reasoning",
+      summary: candidate.vitarkaScore === 0
+        ? `${first} did not provide responses during the Vitarka AI technical discussion.`
+        : `${first} engaged in the technical discussion with an evaluated score of ${candidate.vitarkaScore}/100.`,
+      strengths: candidate.vitarkaScore === 0
+        ? []
+        : candidate.vitarkaScore >= 75
+          ? ["Technical articulation", "Solution explanation"]
+          : ["Basic technical communication"],
+      explore: candidate.vitarkaScore === 0
+        ? "Technical communication and problem articulation"
+        : "Deep architecture trade-offs",
     });
   }
+
+  const overallStrengths = overall === 0
+    ? []
+    : blocks.flatMap((b) => b.strengths).slice(0, 4);
+
+  const overallExplore = overall === 0
+    ? ["Core technical fundamentals", "Hands-on engineering execution"]
+    : blocks.map((b) => b.explore);
+
+  const overallText = overall === 0
+    ? `${first} did not record passing scores, code submissions, or interview responses across the evaluation.`
+    : `${first} demonstrated an aggregate evaluation score of ${overall}/100 across the assessed sections.`;
 
   return {
     overall,
     verdict,
     blocks,
-    overallText: `${first} shows good hands-on backend engineering ability, particularly in Python APIs, debugging and SQL troubleshooting. His Vitarka discussion was largely consistent with the work completed in the lab, which is a positive signal that he understands the implementation rather than simply completing the task. The main area to explore further is system design and transaction-level reasoning.`,
-    overallStrengths: [
-      "Strong hands-on Python/API work",
-      "Good debugging and SQL troubleshooting",
-      "Able to explain implementation decisions",
-      "Consistent lab and Vitarka performance",
-    ],
-    overallExplore: ["System-design depth", "Transaction management"],
+    overallText,
+    overallStrengths,
+    overallExplore,
   };
 }

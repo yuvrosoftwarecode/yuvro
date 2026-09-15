@@ -45,32 +45,33 @@ EVENT_COMPETENCY_EVIDENCE: dict[EventType, list[Competency]] = {
 
 
 ANSWER_KEYWORDS: dict[Competency, set[str]] = {
-    Competency.TECHNICAL_KNOWLEDGE: {"algorithm", "architecture", "api", "database", "thread", "memory"},
-    Competency.PROBLEM_SOLVING: {"because", "hypothesis", "root", "cause", "isolate", "breakdown"},
-    Competency.DEBUGGING_ABILITY: {"debug", "trace", "log", "reproduce", "stack", "inspect"},
+    Competency.TECHNICAL_KNOWLEDGE: {"algorithm", "architecture", "asynchronous", "concurrency", "distributed", "serialization", "idempotent", "orm"},
+    Competency.PROBLEM_SOLVING: {"hypothesis", "root cause", "isolate", "breakdown", "reproduce", "diagnose", "binary search"},
+    Competency.DEBUGGING_ABILITY: {"stack trace", "breakpoint", "profiler", "inspect logs", "reproduce the bug"},
     Competency.ENGINEERING_DECISION_MAKING: {
         "tradeoff",
-        "constraint",
-        "alternative",
-        "decision",
-        "because",
+        "trade-off",
+        "architectural decision",
+        "benchmark",
+        "alternative approach",
+        "pros and cons",
     },
-    Competency.CODE_QUALITY: {"refactor", "readable", "maintain", "abstraction", "testable"},
-    Competency.COMMUNICATION: {"because", "for example", "specifically", "first", "then"},
-    Competency.LEARNING_ABILITY: {"learn", "feedback", "iterate", "adjust", "changed"},
-    Competency.ADAPTABILITY: {"adapt", "changed", "switch", "iterate", "alternative"},
-    Competency.TIME_MANAGEMENT: {"deadline", "prioritize", "time", "scope", "tradeoff"},
-    Competency.TESTING_MINDSET: {"test", "edge", "case", "coverage", "assert"},
-    Competency.PERFORMANCE_AWARENESS: {"latency", "scale", "cache", "index", "throughput", "performance"},
+    Competency.CODE_QUALITY: {"refactoring", "maintainability", "single responsibility", "abstraction", "modular", "clean code"},
+    Competency.COMMUNICATION: {"for example", "specifically", "in contrast", "firstly", "secondly", "to summarize"},
+    Competency.LEARNING_ABILITY: {"retrospective", "post-mortem", "learned from", "incorporated feedback"},
+    Competency.ADAPTABILITY: {"pivoted", "adapted to", "revised approach", "switched implementation"},
+    Competency.TIME_MANAGEMENT: {"deadline", "prioritization", "scoping", "time constraint", "phased rollout"},
+    Competency.TESTING_MINDSET: {"unit test", "integration test", "edge case", "regression", "mocking", "assertion", "test coverage"},
+    Competency.PERFORMANCE_AWARENESS: {"latency", "scalability", "caching", "query optimization", "throughput", "bottleneck", "o(n)", "o(log n)", "select_related"},
     Competency.SECURITY_AWARENESS: {
-        "security",
-        "auth",
-        "permission",
-        "validate",
-        "injection",
-        "secret",
+        "authentication",
+        "authorization",
+        "input validation",
+        "sql injection",
+        "sanitization",
+        "least privilege",
     },
-    Competency.OWNERSHIP_COLLABORATION: {"owner", "collaborate", "handoff", "document", "monitor"},
+    Competency.OWNERSHIP_COLLABORATION: {"code review", "monitoring", "alerting", "documentation", "runbook", "on-call"},
 }
 
 
@@ -102,20 +103,66 @@ class InterviewEvaluator:
         self.rubric_version = rubric_version or self.DEFAULT_RUBRIC_VERSION
 
     def evaluate(self, session: InterviewSession) -> InterviewEvaluation:
-        evidence_by_competency, adjustments = self._collect_evidence(session)
-        scores = self._scores_from_evidence(evidence_by_competency, adjustments)
+        # Zero-gating: If candidate answered no questions, entire interview is unattempted
+        if len(session.answers) == 0:
+            scores = [
+                CompetencyScore(
+                    competency=comp,
+                    score=0,
+                    evidence=[
+                        EvaluationEvidence(
+                            source="system",
+                            reference_id="unattempted",
+                            note="Candidate did not provide any responses during the interview.",
+                        )
+                    ],
+                    guidance="No interview answers were provided to evaluate this competency.",
+                )
+                for comp in Competency
+            ]
+            competency_coverages = [
+                CompetencyCoverage(
+                    competency=comp,
+                    evidence_count=0,
+                    status="missing",
+                    score=0,
+                    suggested_probe=COVERAGE_PROBES[comp],
+                )
+                for comp in Competency
+            ]
+            coverage = EvaluationCoverage(
+                session_id=session.id,
+                rubric_version=self.rubric_version,
+                covered_competencies=0,
+                total_competencies=len(Competency),
+                coverage_percent=0.0,
+                competencies=competency_coverages,
+            )
+            return InterviewEvaluation(
+                session_id=session.id,
+                rubric_version=self.rubric_version,
+                overall_score=0.0,
+                scores=scores,
+                coverage=coverage,
+                summary="The candidate did not answer any questions during the Vitarka interview session. Evidence coverage is 0/13 competencies (0.0%). Overall score: 0.0/10.",
+                strengths=[],
+                risks=["Candidate did not provide any responses during the interview."],
+            )
+
+        evidence_by_competency, adjustments, positive_counts, negative_counts = self._collect_evidence(session)
+        scores = self._scores_from_evidence(evidence_by_competency, adjustments, positive_counts, negative_counts)
         coverage = self._coverage_from_scores(session.id, scores)
         overall = round(sum(score.score for score in scores) / len(scores), 1)
         strengths = [
             self._label(score.competency)
             for score in sorted(scores, key=lambda item: item.score, reverse=True)
-            if score.score >= 7
+            if score.score >= 6 and positive_counts.get(score.competency, 0) > negative_counts.get(score.competency, 0)
         ][:3]
         risks = [
             self._label(score.competency)
             for score in sorted(scores, key=lambda item: item.score)
-            if score.score <= 4
-        ][:3]
+            if score.score <= 3 or negative_counts.get(score.competency, 0) > 0
+        ][:4]
 
         summary = (
             f"Evaluation is based on {len(session.observations)} assessment events and "
@@ -136,29 +183,35 @@ class InterviewEvaluator:
         )
 
     def coverage(self, session: InterviewSession) -> EvaluationCoverage:
-        evidence_by_competency, adjustments = self._collect_evidence(session)
-        scores = self._scores_from_evidence(evidence_by_competency, adjustments)
+        evidence_by_competency, adjustments, positive_counts, negative_counts = self._collect_evidence(session)
+        scores = self._scores_from_evidence(evidence_by_competency, adjustments, positive_counts, negative_counts)
         return self._coverage_from_scores(session.id, scores)
 
-    def _collect_evidence(self, session: InterviewSession) -> tuple[CoverageEvidence, ScoreAdjustments]:
+    def _collect_evidence(
+        self, session: InterviewSession
+    ) -> tuple[CoverageEvidence, ScoreAdjustments, dict[Competency, int], dict[Competency, int]]:
         evidence_by_competency: CoverageEvidence = defaultdict(list)
         adjustments: ScoreAdjustments = defaultdict(int)
+        positive_counts: dict[Competency, int] = defaultdict(int)
+        negative_counts: dict[Competency, int] = defaultdict(int)
 
         for event in session.observations:
-            self._apply_event(event, evidence_by_competency, adjustments)
+            self._apply_event(event, evidence_by_competency, adjustments, positive_counts, negative_counts)
 
         for answer in session.answers:
-            self._apply_answer(answer.id, answer.answer_text, answer.metadata, evidence_by_competency, adjustments)
+            self._apply_answer(session, answer, evidence_by_competency, adjustments, positive_counts, negative_counts)
 
-        return evidence_by_competency, adjustments
+        return evidence_by_competency, adjustments, positive_counts, negative_counts
 
     def _scores_from_evidence(
         self,
         evidence_by_competency: CoverageEvidence,
         adjustments: ScoreAdjustments,
+        positive_counts: dict[Competency, int],
+        negative_counts: dict[Competency, int],
     ) -> list[CompetencyScore]:
         return [
-            self._score_competency(competency, evidence_by_competency, adjustments)
+            self._score_competency(competency, evidence_by_competency, adjustments, positive_counts, negative_counts)
             for competency in Competency
         ]
 
@@ -205,53 +258,98 @@ class InterviewEvaluator:
 
     def _apply_answer(
         self,
-        answer_id: str,
-        answer_text: str,
-        metadata: dict,
+        session: InterviewSession,
+        answer: CandidateAnswer,
         evidence_by_competency: CoverageEvidence,
         adjustments: ScoreAdjustments,
+        positive_counts: dict[Competency, int],
+        negative_counts: dict[Competency, int],
     ) -> None:
-        normalized = answer_text.lower()
-        answer_length = len(answer_text.split())
-        if metadata.get("answer_quality") == "unknown" or self._looks_unknown(normalized):
+        normalized = answer.answer_text.lower()
+        words = answer.answer_text.split()
+        answer_length = len(words)
+
+        question = next((q for q in session.questions if q.id == answer.question_id), None)
+        targets = question.competency_targets if question else []
+        if not targets:
+            targets = [Competency.PROBLEM_SOLVING, Competency.COMMUNICATION]
+
+        quality = answer.metadata.get("answer_quality")
+        is_unknown_or_skip = (
+            quality in {"unknown", "skip_requested"}
+            or self._looks_unknown(normalized)
+            or self._looks_evasive(normalized)
+        )
+
+        if is_unknown_or_skip:
+            for competency in targets:
+                negative_counts[competency] += 1
+                adjustments[competency] -= 3
+                evidence_by_competency[competency].append(
+                    EvaluationEvidence(
+                        source="interview",
+                        reference_id=answer.id,
+                        note=f"Candidate was unable to explain or declined to discuss implementation details when probed on {self._label(competency)}.",
+                    )
+                )
             adjustments[Competency.COMMUNICATION] -= 1
             adjustments[Competency.LEARNING_ABILITY] -= 1
+            negative_counts[Competency.COMMUNICATION] += 1
             evidence_by_competency[Competency.COMMUNICATION].append(
                 EvaluationEvidence(
                     source="answer",
-                    reference_id=answer_id,
-                    note="Candidate said they did not know and required a reframed prompt.",
+                    reference_id=answer.id,
+                    note="Candidate responded with 'I don't know', deflection, or requested to skip topic.",
                 )
             )
             return
 
-        for competency, keywords in ANSWER_KEYWORDS.items():
-            if any(keyword in normalized for keyword in keywords):
+        if answer_length < 5:
+            for competency in targets:
+                negative_counts[competency] += 1
+                adjustments[competency] -= 1
                 evidence_by_competency[competency].append(
                     EvaluationEvidence(
-                        source="answer",
-                        reference_id=answer_id,
-                        note=self._answer_note(answer_text),
+                        source="interview",
+                        reference_id=answer.id,
+                        note="Candidate response was brief and lacked technical depth.",
                     )
                 )
-                adjustments[competency] += 1
+            adjustments[Competency.COMMUNICATION] -= 1
+            return
 
-        if answer_length >= 40:
-            adjustments[Competency.COMMUNICATION] += 1
-            evidence_by_competency[Competency.COMMUNICATION].append(
+        for competency in targets:
+            positive_counts[competency] += 1
+            adjustments[competency] += 1
+            evidence_by_competency[competency].append(
                 EvaluationEvidence(
-                    source="answer",
-                    reference_id=answer_id,
-                    note="Candidate provided a detailed verbal explanation.",
+                    source="interview",
+                    reference_id=answer.id,
+                    note=self._answer_note(answer.answer_text),
                 )
             )
-        elif answer_length < 12:
-            adjustments[Competency.COMMUNICATION] -= 1
+
+        for competency, keywords in ANSWER_KEYWORDS.items():
+            if any(keyword in normalized for keyword in keywords):
+                if competency not in targets and answer_length >= 25:
+                    positive_counts[competency] += 1
+                    adjustments[competency] += 1
+                    evidence_by_competency[competency].append(
+                        EvaluationEvidence(
+                            source="answer",
+                            reference_id=answer.id,
+                            note=self._answer_note(answer.answer_text),
+                        )
+                    )
+
+        if answer_length >= 35:
+            adjustments[Competency.COMMUNICATION] += 1
+            positive_counts[Competency.COMMUNICATION] += 1
             evidence_by_competency[Competency.COMMUNICATION].append(
                 EvaluationEvidence(
                     source="answer",
-                    reference_id=answer_id,
-                    note="Candidate response was brief and may need clarification.",
+                    reference_id=answer.id,
+                    note="Candidate provided a detailed verbal explanation.",
                 )
             )
 
@@ -260,8 +358,10 @@ class InterviewEvaluator:
         event: AssessmentEvent,
         evidence_by_competency: CoverageEvidence,
         adjustments: ScoreAdjustments,
+        positive_counts: dict[Competency, int],
+        negative_counts: dict[Competency, int],
     ) -> None:
-        competencies = EVENT_COMPETENCY_EVIDENCE[event.event_type]
+        competencies = EVENT_COMPETENCY_EVIDENCE.get(event.event_type, [])
         for competency in competencies:
             evidence_by_competency[competency].append(
                 EvaluationEvidence(
@@ -270,13 +370,14 @@ class InterviewEvaluator:
                     note=f"{event.event_type.value}: {event.summary}",
                 )
             )
-            adjustments[competency] += 1
 
         if event.event_type == EventType.TEST_RUN:
             result = str(event.details.get("result") or event.details.get("status") or "").lower()
-            if any(token in result for token in ("pass", "success", "green")):
+            tests_passed = event.details.get("tests_passed") or 0
+            if any(token in result for token in ("pass", "success", "green")) or (isinstance(tests_passed, int) and tests_passed > 0):
                 adjustments[Competency.TESTING_MINDSET] += 2
                 adjustments[Competency.CODE_QUALITY] += 1
+                positive_counts[Competency.TESTING_MINDSET] += 1
             elif any(token in result for token in ("fail", "error", "red")):
                 adjustments[Competency.TESTING_MINDSET] += 1
 
@@ -286,8 +387,10 @@ class InterviewEvaluator:
             used_hint = event.details.get("used_hint")
             if is_correct is True:
                 adjustments[Competency.TECHNICAL_KNOWLEDGE] += 2
+                positive_counts[Competency.TECHNICAL_KNOWLEDGE] += 1
             elif is_correct is False:
                 adjustments[Competency.TECHNICAL_KNOWLEDGE] -= 1
+                negative_counts[Competency.TECHNICAL_KNOWLEDGE] += 1
             if skipped:
                 adjustments[Competency.TIME_MANAGEMENT] -= 1
             if used_hint:
@@ -300,28 +403,48 @@ class InterviewEvaluator:
 
         code_insights = event.details.get("code_insights")
         if isinstance(code_insights, dict):
-            self._apply_code_insights(event, code_insights, evidence_by_competency, adjustments)
+            self._apply_code_insights(event, code_insights, evidence_by_competency, adjustments, positive_counts, negative_counts)
 
     def _score_competency(
         self,
         competency: Competency,
         evidence_by_competency: CoverageEvidence,
         adjustments: ScoreAdjustments,
+        positive_counts: dict[Competency, int],
+        negative_counts: dict[Competency, int],
     ) -> CompetencyScore:
+        pos = positive_counts.get(competency, 0)
+        neg = negative_counts.get(competency, 0)
+        adj = adjustments.get(competency, 0)
         evidence = evidence_by_competency.get(competency, [])
-        if evidence:
-            raw_score = 5 + min(3, len(evidence)) + adjustments[competency]
-            guidance = "Supported by observed assessment behaviour and interview answers."
+
+        if pos > 0 or neg > 0:
+            if neg > 0 and pos == 0:
+                raw_score = max(1, 2 - neg)
+                guidance = "Candidate was probed on this competency but could not explain or declined to answer."
+            elif pos > 0 and neg == 0:
+                raw_score = min(10, 6 + pos + max(0, adj))
+                guidance = "Demonstrated through clear, substantive technical responses during the interview."
+            else:
+                if neg > pos:
+                    raw_score = max(1, min(3, 3 + pos - neg))
+                    guidance = "Candidate struggled on most probes for this competency."
+                else:
+                    raw_score = max(3, min(7, 4 + pos - neg + adj))
+                    guidance = "Mixed evidence observed; candidate answered some aspects but struggled with others."
+        elif evidence:
+            raw_score = 2
+            guidance = "Observed in background activity, but not verified through interview discussion."
         else:
-            raw_score = 3
+            raw_score = 0
             evidence = [
                 EvaluationEvidence(
                     source="system",
                     reference_id="not_observed",
-                    note="No direct evidence captured for this competency yet.",
+                    note="No direct evidence captured for this competency.",
                 )
             ]
-            guidance = "Collect targeted follow-up evidence before making a strong hiring signal."
+            guidance = "No evidence observed for this competency."
 
         return CompetencyScore(
             competency=competency,
@@ -330,12 +453,34 @@ class InterviewEvaluator:
             guidance=guidance,
         )
 
+    def _looks_evasive(self, normalized: str) -> bool:
+        return any(
+            phrase in normalized
+            for phrase in (
+                "help in some way",
+                "help in some more",
+                "not going to change",
+                "don't think so it is going to change",
+                "dont think so it is going to change",
+                "just want to check how you will generate report",
+                "check how you will generate report",
+                "test the system",
+                "testing how you generate",
+                "not want to discuss",
+                "don't want to discuss",
+                "dont want to discuss",
+                "do not want to discuss",
+            )
+        )
+
     def _apply_code_insights(
         self,
         event: AssessmentEvent,
         code_insights: dict,
         evidence_by_competency: CoverageEvidence,
         adjustments: ScoreAdjustments,
+        positive_counts: dict[Competency, int],
+        negative_counts: dict[Competency, int],
     ) -> None:
         changed_files = self._as_list(code_insights.get("changed_files"))
         if changed_files:
@@ -346,7 +491,6 @@ class InterviewEvaluator:
                 event.id,
                 file_note,
             )
-            adjustments[Competency.ENGINEERING_DECISION_MAKING] += 1
 
         self._add_code_evidence(
             evidence_by_competency,
@@ -354,7 +498,6 @@ class InterviewEvaluator:
             event.id,
             code_insights.get("patch_summary") or "Candidate implementation was available for review.",
         )
-        adjustments[Competency.CODE_QUALITY] += 1
 
         correctness_concerns = self._as_list(
             code_insights.get("candidate_correctness_concerns")
@@ -369,6 +512,7 @@ class InterviewEvaluator:
             )
             adjustments[Competency.PROBLEM_SOLVING] -= 1
             adjustments[Competency.CODE_QUALITY] -= 1
+            negative_counts[Competency.PROBLEM_SOLVING] += 1
 
         performance_concerns = self._as_list(
             code_insights.get("performance_concerns")
@@ -385,7 +529,8 @@ class InterviewEvaluator:
             adjustments[Competency.PERFORMANCE_AWARENESS] -= 1
 
         security_concerns = self._as_list(
-            code_insights.get("security_concerns") or code_insights.get("candidate_security_concerns")
+            code_insights.get("security_concerns")
+            or code_insights.get("candidate_security_concerns")
         )
         if security_concerns:
             self._add_code_evidence(
@@ -436,17 +581,42 @@ class InterviewEvaluator:
     def _looks_unknown(self, normalized_answer: str) -> bool:
         normalized = re.sub(r"[^a-z0-9\s']", " ", normalized_answer.replace("dont", "don't"))
         normalized = " ".join(normalized.split())
-        return normalized in {
-            "don't know",
-            "do not know",
-            "i don't know",
-            "i do not know",
-            "idk",
-            "no idea",
-            "not sure",
-            "pass",
-            "skip",
-        }
+        if not normalized or normalized == "no voice response recorded":
+            return True
+        return any(
+            p in normalized
+            for p in (
+                "don't know",
+                "do not know",
+                "idk",
+                "no idea",
+                "not sure",
+                "dont know much",
+                "don't know much",
+                "do not know much",
+                "cant answer",
+                "can't answer",
+                "cannot answer",
+                "not much idea",
+                "dont know much regarding this",
+                "don't know much regarding this",
+                "dont know much about this",
+                "don't know much about this",
+                "dont want to discuss",
+                "don't want to discuss",
+                "do not want to discuss",
+                "not want to discuss",
+                "next topic",
+                "move to next",
+                "move to the next",
+                "can we move",
+                "move on",
+                "next question",
+                "pass",
+                "skip",
+                "just want to check how you will generate report",
+            )
+        )
 
     def _label(self, competency: Competency) -> str:
         return competency.value.replace("_", " ").title()

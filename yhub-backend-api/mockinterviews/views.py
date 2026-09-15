@@ -24,9 +24,14 @@ from mockinterviews.dynamic_engine.models import (
     InterviewMode as DynMode,
     CandidateContext,
     InterviewSession as DynamicInterviewSession,
+    InterviewQuestion,
+    QuestionKind,
+    Competency,
+    new_id,
     AssessmentEvent,
     InterviewStatus as DynamicInterviewStatus,
     UnifiedAssessmentPayload,
+    sanitize_null_bytes,
 )
 from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
 from mockinterviews.dynamic_engine.reporting import InterviewReportService
@@ -259,6 +264,17 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 if engine_mode == DynMode.HYBRID and len(recruiter_qs) > 2:
                     recruiter_qs = recruiter_qs[:2]
 
+            disc_max_val = request.data.get('discussion_max_score') or request.data.get('max_score')
+            session_metadata = {
+                "mock_interview_id": mock_interview.id,
+                "selected_duration": selected_duration or 0,
+            }
+            if disc_max_val is not None:
+                try:
+                    session_metadata["discussion_max_score"] = float(disc_max_val)
+                except (ValueError, TypeError):
+                    pass
+
             if candidate_context_frontend:
                 adapter = UnifiedPayloadAdapter()
                 dynamic_payload = UnifiedAssessmentPayload.model_validate({
@@ -277,10 +293,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                         "requirements": mock_interview.required_skills,
                     },
                     "recruiter_questions": recruiter_qs,
-                    "metadata": {
-                        "mock_interview_id": mock_interview.id,
-                        "selected_duration": selected_duration or 0,
-                    },
+                    "metadata": session_metadata,
                 })
                 req = adapter.to_create_request(dynamic_payload)
                 dyn_session = DynamicInterviewSession.from_create_request(req)
@@ -299,14 +312,32 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                         resume=context_text,
                         job_description=mock_interview.description
                     ),
-                    recruiter_questions=recruiter_qs
+                    recruiter_questions=recruiter_qs,
+                    metadata=session_metadata,
                 )
                 dyn_session = DynamicInterviewSession.from_create_request(req)
 
-            submission.session_state = dyn_session.model_dump(mode='json')
-            submission.save(update_fields=['session_state'])
-            
+            candidate_name = f"{user.first_name} {user.last_name}".strip() or user.username or ""
+            if candidate_name:
+                dyn_session.candidate.metadata["name"] = candidate_name
+
             greeting = f"Hello! I'm your AI interviewer today. We'll be discussing the {mock_interview.title} role. To start, could you please introduce yourself?"
+            
+            # Register greeting as the active initial question in the dynamic session
+            intro_q = InterviewQuestion(
+                id=new_id("q-intro"),
+                prompt=greeting,
+                kind=QuestionKind.DYNAMIC_FOLLOW_UP,
+                competency_targets=[Competency.COMMUNICATION],
+                rationale="Candidate introduction and ice-breaker",
+                metadata={"is_intro": True, "probe_axis": "introduction", "topic_key": "introduction"},
+            )
+            dyn_session.questions.append(intro_q)
+            dyn_session.current_question_id = intro_q.id
+            dyn_session.turn_index = 0
+
+            submission.session_state = sanitize_null_bytes(dyn_session.model_dump(mode='json'))
+            submission.save(update_fields=['session_state'])
             
             if chat_session:
                 ChatMessage.objects.create(
@@ -376,15 +407,25 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     max_followups_per_topic=settings.max_followups_per_topic,
                 )
                 
+                # Ensure candidate name is known
+                if not dyn_session.candidate.metadata.get("name") and request.user:
+                    user_display = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username
+                    if user_display:
+                        dyn_session.candidate.metadata["name"] = user_display
+
                 # First handle any answer provided
-                if user_answer and user_answer.strip() and dyn_session.current_question_id:
-                    engine.record_answer(dyn_session, dyn_session.current_question_id, user_answer)
+                if user_answer and user_answer.strip():
+                    target_q_id = dyn_session.current_question_id
+                    if not target_q_id and dyn_session.questions:
+                        target_q_id = dyn_session.questions[-1].id
+                    if target_q_id:
+                        engine.record_answer(dyn_session, target_q_id, user_answer)
                 
                 # Advance question
                 force_new = (status_code == 'skip')
                 question = engine.next_question(dyn_session, force_new=force_new)
                 
-                submission.session_state = dyn_session.model_dump(mode='json')
+                submission.session_state = sanitize_null_bytes(dyn_session.model_dump(mode='json'))
                 submission.save(update_fields=['session_state'])
                 
                 if chat_session:
@@ -1178,17 +1219,25 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                     llm_client=OpenAIInterviewLLM.from_settings(settings),
                 )
                 report_bundle = reporter.create_report_bundle(dyn_session)
+                disc_scaled = (
+                    report_bundle.vitarka_report.scaled_score
+                    if report_bundle.vitarka_report.scaled_score is not None
+                    else round((report_bundle.vitarka_report.overall_score / 10.0) * (report_bundle.vitarka_report.max_score or 25.0), 1)
+                )
                 response_data = report_bundle.model_dump(mode='json')
                 response_data.update({
                     "overall_score": report_bundle.overall_report.overall_score,
                     "recommendation": report_bundle.overall_report.recommendation,
                     "markdown": report_bundle.overall_report.markdown,
+                    "scaled_score": disc_scaled,
+                    "discussion_max_score": report_bundle.vitarka_report.max_score,
+                    "marks": disc_scaled,
                 })
                 dyn_session_dict = dyn_session.model_dump(mode='json')
                 dyn_session_dict['report_bundle'] = response_data
                 dyn_session_dict['report'] = report_bundle.vitarka_report.model_dump(mode='json')
-                submission.session_state = dyn_session_dict
-                submission.marks = report_bundle.overall_report.overall_score * 10
+                submission.session_state = sanitize_null_bytes(dyn_session_dict)
+                submission.marks = disc_scaled
                 submission.status = MockInterviewSubmission.STATUS_COMPLETED
                 submission.save(update_fields=['session_state', 'marks', 'status'])
                 return Response(response_data)
@@ -1288,7 +1337,7 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
         try:
             event = AssessmentEvent.model_validate(request.data.get('event', {}))
             ingest_response = engine.ingest_event(dyn_session, event)
-            submission.session_state = dyn_session.model_dump(mode='json')
+            submission.session_state = sanitize_null_bytes(dyn_session.model_dump(mode='json'))
             submission.save(update_fields=['session_state'])
             return Response({
                 "status": "success",

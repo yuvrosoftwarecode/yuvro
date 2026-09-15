@@ -375,25 +375,41 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         lab_id = request.data.get('lab_id')
         status_val = request.data.get('status', 'in_review')
         solution = request.data.get('solution', '')
-        minutes_solved = request.data.get('minutes_solved', 0)
-        
-        if not lab_id:
-            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        try:
-            lab = LabQuestionBank.objects.get(id=lab_id)
-        except LabQuestionBank.DoesNotExist:
-            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
-            
+        minutes_solved = request.data.get('minutes_solved')
+        if not minutes_solved:
+            existing = UserLabQuestionBankSubmission.objects.filter(
+                user=request.user, evaluation=evaluation, lab_question=lab
+            ).first()
+            if existing and existing.created_at:
+                import django.utils.timezone as tz
+                delta = tz.now() - existing.created_at
+                minutes_solved = max(1, round(delta.total_seconds() / 60))
+            else:
+                minutes_solved = 0
+        else:
+            try:
+                minutes_solved = int(minutes_solved)
+            except (ValueError, TypeError):
+                minutes_solved = 0
+
+        score_val = request.data.get('score')
+        defaults = {
+            'status': status_val,
+            'minutes_solved': minutes_solved
+        }
+        if solution:
+            defaults['solution'] = solution
+        if score_val is not None:
+            try:
+                defaults['score'] = int(score_val)
+            except (ValueError, TypeError):
+                pass
+
         submission, created = UserLabQuestionBankSubmission.objects.update_or_create(
             user=request.user,
             evaluation=evaluation,
             lab_question=lab,
-            defaults={
-                'status': status_val,
-                'solution': solution,
-                'minutes_solved': minutes_solved
-            }
+            defaults=defaults
         )
         
         CandidateTimelineEvent.objects.get_or_create(
@@ -410,84 +426,104 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 try:
                     subprocess.run(["git", "add", "-A", "-N"], cwd=user_dir, check=True, capture_output=True)
                     diff_output = subprocess.check_output(
-                        ["git", "diff", "HEAD"], 
+                        [
+                            "git", "diff", "-U99999", "HEAD", "--", ".",
+                            ":(exclude)*.sqlite3", ":(exclude)*.db", ":(exclude)*.sqlite",
+                            ":(exclude)*.db-journal", ":(exclude)*.db-wal", ":(exclude)*.dbsqlite3",
+                            ":(exclude)*.zip", ":(exclude)*.tar", ":(exclude)*.gz",
+                            ":(exclude)*.pyc", ":(exclude)*__pycache__*",
+                            ":(exclude)*.log", ":(exclude)*bash_history*",
+                            ":(exclude)README.md", ":(exclude).gitignore", ":(exclude)requirements.txt"
+                        ], 
                         cwd=user_dir,
                         stderr=subprocess.DEVNULL
                     ).decode()
-                    submission.solution = diff_output
-                    
-                    tasks = lab.tasks.all().order_by('order_index')
-                    executer_host = os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executer:8009")
+                    if diff_output:
+                        submission.solution = diff_output
+                        if submission.score == 0 and ("HTTP_201_CREATED" in diff_output or "201_CREATED" in diff_output):
+                            submission.score = 2
+                        submission.save(update_fields=['solution', 'score'])
+                except Exception as e:
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f"Failed to generate git diff for lab {lab.id}: {e}")
+                
+                tasks = lab.tasks.all().order_by('order_index')
+                executer_host = os.environ.get("CODE_EXECUTOR_URL", os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executor:8009"))
 
-                    if is_database_lab(lab, tasks):
-                        import requests
-                        import json
-                        db_engine = "sqlite"
-                        if lab.databases and any("mongo" in str(d).lower() for d in lab.databases):
-                            db_engine = "mongodb"
-                        elif lab.databases and any("mysql" in str(d).lower() for d in lab.databases):
-                            db_engine = "mysql"
-                        elif lab.databases and any("postgres" in str(d).lower() for d in lab.databases):
-                            db_engine = "postgresql"
+                if is_database_lab(lab, tasks):
+                    import requests
+                    import json
+                    db_engine = "sqlite"
+                    if lab.databases and any("mongo" in str(d).lower() for d in lab.databases):
+                        db_engine = "mongodb"
+                    elif lab.databases and any("mysql" in str(d).lower() for d in lab.databases):
+                        db_engine = "mysql"
+                    elif lab.databases and any("postgres" in str(d).lower() for d in lab.databases):
+                        db_engine = "postgresql"
 
-                        payload_tasks = []
-                        for i, task in enumerate(tasks, start=1):
-                            expected_sol = task.solution or {}
-                            rules = task.scoring_rules or {}
-                            if rules.get("database_engine"):
-                                db_engine = rules.get("database_engine")
-                            
-                            task_ext = "js" if db_engine in ["mongodb", "mongo", "mongosh"] else "sql"
-                            expected_query = expected_sol.get("query.js") or expected_sol.get("query.sql") or ""
-                            
-                            payload_tasks.append({
-                                "task_id": str(task.id),
-                                "task_file": f"task{i}.{task_ext}",
-                                "expected_query": expected_query,
-                                "expected_output": expected_sol.get("expected_output", ""),
-                                "scoring_rules": rules,
-                                "system_query": rules.get("system_query", ""),
-                                "expected_result": rules.get("expected_result", "")
-                            })
-                            
-                        try:
-                            response = requests.post(f"{executer_host}/workspace/database_submit", json={
-                                "user_id": str(request.user.id),
-                                "lab_id": str(lab.id),
-                                "sprint_id": str(lab.id),
-                                "database_engine": db_engine,
-                                "evaluation_id": str(evaluation.id),
-                                "tasks": payload_tasks
-                            }, timeout=10)
-                            if response.status_code == 200:
-                                result_data = response.json()
-                                submission.solution_output = json.dumps(result_data)
-                                submission.score = int(result_data.get("percentage", 0))
-                        except Exception as e:
-                            logger = logging.getLogger(__name__)
-                            logger.error(f"Failed to submit database lab to executer: {e}")
-                    elif getattr(lab, 'test_command', None) and lab.test_command.strip():
-                        import requests
-                        import json
-                        try:
-                            response = requests.post(f"{executer_host}/workspace/run_test_command", json={
-                                "user_id": str(request.user.id),
-                                "lab_id": str(lab.id),
-                                "sprint_id": str(lab.id),
-                                "command": lab.test_command.strip(),
-                                "evaluation_id": str(evaluation.id)
-                            }, timeout=35)
-                            if response.status_code == 200:
-                                result_data = response.json()
-                                submission.solution_output = json.dumps(result_data)
-                                submission.score = int(result_data.get("percentage", result_data.get("total_score", 0)))
-                        except Exception as e:
-                            logger = logging.getLogger(__name__)
-                            logger.error(f"Failed to submit test_command lab to executer: {e}")
-                    
-                    submission.save(update_fields=['solution', 'solution_output', 'score'])
-                except Exception:
-                    pass
+                    payload_tasks = []
+                    for i, task in enumerate(tasks, start=1):
+                        expected_sol = task.solution or {}
+                        rules = task.scoring_rules or {}
+                        if rules.get("database_engine"):
+                            db_engine = rules.get("database_engine")
+                        
+                        task_ext = "js" if db_engine in ["mongodb", "mongo", "mongosh"] else "sql"
+                        expected_query = expected_sol.get("query.js") or expected_sol.get("query.sql") or ""
+                        
+                        payload_tasks.append({
+                            "task_id": str(task.id),
+                            "task_file": f"task{i}.{task_ext}",
+                            "expected_query": expected_query,
+                            "expected_output": expected_sol.get("expected_output", ""),
+                            "scoring_rules": rules,
+                            "system_query": rules.get("system_query", ""),
+                            "expected_result": rules.get("expected_result", "")
+                        })
+                        
+                    try:
+                        response = requests.post(f"{executer_host}/workspace/database_submit", json={
+                            "user_id": str(request.user.id),
+                            "lab_id": str(lab.id),
+                            "sprint_id": str(lab.id),
+                            "database_engine": db_engine,
+                            "evaluation_id": str(evaluation.id),
+                            "tasks": payload_tasks
+                        }, timeout=10)
+                        if response.status_code == 200:
+                            result_data = response.json()
+                            submission.solution_output = json.dumps(result_data)
+                            calc_score = int(result_data.get("percentage", 0))
+                            if calc_score > 0 or submission.score == 0:
+                                submission.score = calc_score
+                            submission.save(update_fields=['solution_output', 'score'])
+                    except Exception as e:
+                        logger = logging.getLogger(__name__)
+                        logger.error(f"Failed to submit database lab to executer: {e}")
+                elif getattr(lab, 'test_command', None) and lab.test_command.strip():
+                    import requests
+                    import json
+                    try:
+                        response = requests.post(f"{executer_host}/workspace/run_test_command", json={
+                            "user_id": str(request.user.id),
+                            "lab_id": str(lab.id),
+                            "sprint_id": str(lab.id),
+                            "command": lab.test_command.strip(),
+                            "evaluation_id": str(evaluation.id)
+                        }, timeout=35)
+                        if response.status_code == 200:
+                            result_data = response.json()
+                            submission.solution_output = json.dumps(result_data)
+                            calc_score = result_data.get("total_score")
+                            if calc_score is None:
+                                calc_score = result_data.get("percentage", 0)
+                            calc_score = int(calc_score)
+                            if calc_score > 0 or submission.score == 0:
+                                submission.score = calc_score
+                            submission.save(update_fields=['solution_output', 'score'])
+                    except Exception as e:
+                        logger = logging.getLogger(__name__)
+                        logger.error(f"Failed to submit test_command lab to executer: {e}")
         
         return Response({"status": "success"})
 
@@ -505,15 +541,58 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         except EvaluationSection.DoesNotExist:
             return Response({"error": "Section not found"}, status=status.HTTP_404_NOT_FOUND)
             
+        questions_by_id = {str(q.get('id')): q for q in (section.questions or [])}
+        computed_score = 0
+        evaluated_answers = []
+
+        for a in answers:
+            qid = str(a.get('question_id') or a.get('question'))
+            q = questions_by_id.get(qid)
+            user_opt = a.get('selected_option')
+            if user_opt is None:
+                user_opt = a.get('selected_options')
+            
+            is_corr = False
+            if q:
+                mcq_opts = q.get('mcq_options') or q.get('options') or []
+                if mcq_opts:
+                    if isinstance(mcq_opts[0], dict):
+                        corr_indices = [i for i, opt in enumerate(mcq_opts) if opt.get('is_correct')]
+                    else:
+                        corr_val = q.get('correct') if q.get('correct') is not None else q.get('correct_answer')
+                        corr_indices = corr_val if isinstance(corr_val, list) else ([corr_val] if corr_val is not None else [])
+                    
+                    user_indices = user_opt if isinstance(user_opt, list) else ([user_opt] if user_opt is not None else [])
+                    try:
+                        user_indices = [int(x) for x in user_indices if x is not None]
+                        corr_indices = [int(x) for x in corr_indices if x is not None]
+                        is_corr = len(corr_indices) > 0 and sorted(user_indices) == sorted(corr_indices)
+                    except (ValueError, TypeError):
+                        is_corr = False
+                elif q.get('correct') is not None or q.get('correct_answer') is not None:
+                    expected = q.get('correct') if q.get('correct') is not None else q.get('correct_answer')
+                    is_corr = str(user_opt).strip() == str(expected).strip()
+            else:
+                is_corr = bool(a.get('is_correct'))
+            
+            if is_corr:
+                q_marks = float(q.get('marks') or 1) if q else 1
+                computed_score += q_marks
+
+            evaluated_answers.append({
+                'question_id': qid,
+                'selected_option': user_opt,
+                'is_correct': is_corr
+            })
+
         submission, created = UserKnowledgeAssessmentSubmission.objects.update_or_create(
             user=request.user,
             evaluation=evaluation,
             section=section,
             defaults={
-                'answers': answers,
-                'total_questions': len(answers),
-                # Calculate score if 'is_correct' is provided in answers JSON
-                'score': sum(1 for a in answers if a.get('is_correct'))
+                'answers': evaluated_answers,
+                'total_questions': len(section.questions or answers),
+                'score': int(computed_score)
             }
         )
         
@@ -826,7 +905,47 @@ class UserLabQuestionBankSubmissionViewSet(viewsets.ModelViewSet):
         return UserLabQuestionBankSubmission.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        instance = serializer.save(user=self.request.user)
+        self._ensure_git_diff(instance)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        self._ensure_git_diff(instance)
+
+    def _ensure_git_diff(self, instance):
+        if not instance.evaluation_id or not instance.lab_question_id:
+            return
+        user_dir = os.path.join(
+            settings.WORKSPACES_ROOT,
+            "evaluation",
+            str(instance.evaluation_id),
+            "users",
+            str(instance.user_id),
+            "labs",
+            str(instance.lab_question_id)
+        )
+        if os.path.exists(user_dir):
+            import subprocess
+            try:
+                subprocess.run(["git", "add", "-A", "-N"], cwd=user_dir, check=True, capture_output=True)
+                diff_output = subprocess.check_output(
+                    [
+                        "git", "diff", "-U99999", "HEAD", "--", ".",
+                        ":(exclude)*.sqlite3", ":(exclude)*.db", ":(exclude)*.sqlite",
+                        ":(exclude)*.db-journal", ":(exclude)*.db-wal", ":(exclude)*.dbsqlite3",
+                        ":(exclude)*.zip", ":(exclude)*.tar", ":(exclude)*.gz",
+                        ":(exclude)*.pyc", ":(exclude)*__pycache__*",
+                        ":(exclude)*.log", ":(exclude)*bash_history*",
+                        ":(exclude)README.md", ":(exclude).gitignore", ":(exclude)requirements.txt"
+                    ],
+                    cwd=user_dir,
+                    stderr=subprocess.DEVNULL
+                ).decode()
+                if diff_output and diff_output.strip():
+                    instance.solution = diff_output
+                    instance.save(update_fields=['solution'])
+            except Exception:
+                pass
 
 from .models import CandidateNote
 from .serializers import CandidateNoteSerializer, CandidateTimelineEventSerializer

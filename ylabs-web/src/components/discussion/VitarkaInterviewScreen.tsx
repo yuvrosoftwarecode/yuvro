@@ -10,12 +10,14 @@ export function VitarkaInterviewScreen({
   mockInterviewId,
   onEnd,
   candidateContext,
+  discussionMaxScore,
   onQuestionChange,
   onSessionStart,
 }: {
   mockInterviewId: string;
   onEnd: () => void;
   candidateContext?: string;
+  discussionMaxScore?: number;
   onQuestionChange?: (question: string) => void;
   onSessionStart?: (sessionId: string) => void;
 }) {
@@ -79,7 +81,17 @@ export function VitarkaInterviewScreen({
 
   const speakText = (text: string) => {
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
+
+    // Clean text for speech synthesis so symbols like ` are not read aloud as "back quote"
+    const cleanSpeechText = text
+      .replace(/`+/g, "")
+      .replace(/[*_#~]/g, "")
+      .replace(/[""]/g, '"')
+      .replace(/['']/g, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
 
     const voices = window.speechSynthesis.getVoices();
     let selectedVoice = voices.find((v) => v.lang.startsWith("en") && v.name.includes("Female"));
@@ -128,6 +140,8 @@ export function VitarkaInterviewScreen({
           sequential: true,
           force: true,
           candidate_context: candidateContext,
+          discussion_max_score: discussionMaxScore,
+          max_score: discussionMaxScore,
         },
       );
       setSessionInfo({
@@ -136,13 +150,14 @@ export function VitarkaInterviewScreen({
       });
       if (res.interview_session_id) onSessionStart?.(res.interview_session_id);
 
-      const firstQ = res.first_question || "Hello. Let's begin the discussion.";
+      const firstQ = (res.first_question || "Hello. Let's begin the discussion.").replace(/`+/g, "");
       setConversation([{ type: "ai", content: firstQ }]);
       onQuestionChange?.(firstQ);
       speakText(firstQ);
     } catch (err) {
       console.error("Failed to start interview", err);
-      alert("Failed to initialize interview.");
+      setInterviewState("initial");
+      alert("Failed to initialize interview. Please check your connection and try again.");
     }
   };
 
@@ -237,7 +252,7 @@ export function VitarkaInterviewScreen({
         },
       );
 
-      const nextQ = res.question;
+      const nextQ = (res.question || "").replace(/`+/g, "");
       setConversation((prev) => [...prev, { type: "ai", content: nextQ }]);
       onQuestionChange?.(nextQ);
       speakText(nextQ);
