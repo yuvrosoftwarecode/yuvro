@@ -10,10 +10,14 @@ export function VitarkaInterviewScreen({
   mockInterviewId,
   onEnd,
   candidateContext,
+  onQuestionChange,
+  onSessionStart,
 }: {
   mockInterviewId: string;
   onEnd: () => void;
   candidateContext?: string;
+  onQuestionChange?: (question: string) => void;
+  onSessionStart?: (sessionId: string) => void;
 }) {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [conversation, setConversation] = useState<Message[]>([]);
@@ -130,9 +134,11 @@ export function VitarkaInterviewScreen({
         interview_session_id: res.interview_session_id,
         submission_id: res.submission_id,
       });
+      if (res.interview_session_id) onSessionStart?.(res.interview_session_id);
 
       const firstQ = res.first_question || "Hello. Let's begin the discussion.";
       setConversation([{ type: "ai", content: firstQ }]);
+      onQuestionChange?.(firstQ);
       speakText(firstQ);
     } catch (err) {
       console.error("Failed to start interview", err);
@@ -233,6 +239,7 @@ export function VitarkaInterviewScreen({
 
       const nextQ = res.question;
       setConversation((prev) => [...prev, { type: "ai", content: nextQ }]);
+      onQuestionChange?.(nextQ);
       speakText(nextQ);
 
       if (res.is_finished) {
