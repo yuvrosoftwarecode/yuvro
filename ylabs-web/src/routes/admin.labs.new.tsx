@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AdminShell, Panel, Badge } from "@/components/admin/AdminShell";
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, ChevronRight } from "lucide-react";
 import {
   createLab,
   LAB_TYPES,
@@ -9,15 +9,18 @@ import {
   type LabType,
   type LabDifficulty,
 } from "@/lib/adminLabs";
+import { saveSprints, type LabSprint } from "@/lib/labSprints";
+import { SprintBuilder } from "@/components/admin/SprintBuilder";
 import { LabIcon } from "@/components/LabIcon";
 
 export const Route = createFileRoute("/admin/labs/new")({ component: LabBuilder });
 
-const STEPS = ["Basic info"];
+const STEPS = ["Basic info", "Sprints & tickets"];
 
 function LabBuilder() {
   const nav = useNavigate();
   const [step, setStep] = useState(0);
+  const [sprints, setSprints] = useState<LabSprint[]>([]);
 
   const [form, setForm] = useState({
     title: "",
@@ -83,6 +86,9 @@ function LabBuilder() {
       });
 
       if (created) {
+        if (sprints.length) {
+          await saveSprints(created.id, sprints);
+        }
         setTimeout(() => nav({ to: "/admin/labs" }), 600);
       }
     } catch (e: any) {
@@ -94,7 +100,7 @@ function LabBuilder() {
   return (
     <AdminShell
       title="Lab Builder"
-      breadcrumb={["Content", "Labs", "New"]}
+      breadcrumb={["Engineering", "Labs", "New"]}
       right={
         <Link
           to="/admin/labs"
@@ -112,10 +118,11 @@ function LabBuilder() {
               className={`flex items-center gap-2 px-3 py-1.5 rounded-md border text-xs ${i === step ? "border-primary bg-primary/10 text-primary" : i < step ? "border-success/40 text-success" : "border-border text-muted-foreground"}`}
             >
               <span className="grid h-5 w-5 place-items-center rounded-full border text-[10px]">
-                {i + 1}
+                {i < step ? <Check className="h-3 w-3" /> : i + 1}
               </span>
               {s}
             </button>
+            {i < STEPS.length - 1 && <ChevronRight className="h-3 w-3 text-muted-foreground" />}
           </div>
         ))}
       </div>
@@ -253,21 +260,43 @@ function LabBuilder() {
               </div>
             </Panel>
           )}
+          {step === 1 && (
+            <Panel title="Sprints & tasks">
+              <SprintBuilder
+                sprints={sprints}
+                setSprints={setSprints}
+                labName={form.title || "New lab"}
+                labSlug={form.slug || form.title}
+                labTier={form.payment_tier}
+              />
+            </Panel>
+          )}
 
-          <div className="flex items-center justify-end gap-2 flex-wrap">
-            <Link
-              to="/admin/labs"
-              className="text-xs px-3 py-1.5 rounded-md border border-border hover:bg-accent"
-            >
-              ← Cancel
-            </Link>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <button
-              onClick={publish}
-              disabled={saved}
-              className="text-xs px-4 py-1.5 rounded-md bg-primary text-primary-foreground disabled:opacity-60"
+              disabled={step === 0}
+              onClick={() => setStep((s) => s - 1)}
+              className="text-xs px-3 py-1.5 rounded-md border border-border hover:bg-accent disabled:opacity-40"
             >
-              {saved ? "Published — redirecting…" : "Publish lab"}
+              ← Back
             </button>
+            <div className="flex items-center gap-2">
+              {step < STEPS.length - 1 && (
+                <button
+                  onClick={() => setStep((s) => s + 1)}
+                  className="text-xs px-3 py-1.5 rounded-md border border-border hover:bg-accent"
+                >
+                  Next →
+                </button>
+              )}
+              <button
+                onClick={publish}
+                disabled={saved}
+                className="text-xs px-4 py-1.5 rounded-md bg-primary text-primary-foreground disabled:opacity-60"
+              >
+                {saved ? "Published — redirecting…" : "Publish lab"}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -285,6 +314,10 @@ function LabBuilder() {
                 {form.description ? "ready" : "missing"}
               </Badge>{" "}
               Description
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge tone={sprints.length ? "success" : "warning"}>{sprints.length} sprints</Badge>{" "}
+              {sprints.reduce((a, s) => a + (s.tasks?.length || 0), 0)} tickets
             </div>
             <div className="text-muted-foreground pt-2 border-t border-border/60">
               {LAB_TYPES.find((t) => t.value === form.type)?.label} ·{" "}
