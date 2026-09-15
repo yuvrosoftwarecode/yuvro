@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { yhubApiAuthUtil } from '@/utils/RestApiAuthUtil';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -193,12 +194,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ candidate, evaluation }) => {
-    const submission = candidate.rawSubmission;
+const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: propVitarkaSubmission }: { candidate: any, evaluation: any, vitarkaSubmission?: any }) => {
+    const [submission, setSubmission] = useState<any>(candidate.submission || candidate.rawSubmission);
     if (!submission) return <div className="p-6 text-neutral-500">No raw submission data available for this candidate.</div>;
     const navigate = useNavigate();
     const [activeLightboxImg, setActiveLightboxImg] = useState<string | null>(null);
     const [frozenLog, setFrozenLog] = useState<any>(null);
+    const [vitarkaQuestions, setVitarkaQuestions] = useState<any[]>([]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -209,6 +211,30 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
+
+    useEffect(() => {
+        const fetchVitarkaQuestions = async () => {
+            if (!submission && !evaluation) return;
+            
+            const vitarkaSubmission = propVitarkaSubmission || evaluation?.submissions?.find((s: any) => s.type === "VITARKA_AI_INTERVIEW" && (s.user?.toString() === candidate.user?.id?.toString() || s.candidate === candidate.id)) || submission;
+            let turns = vitarkaSubmission?.session_state?.turns || vitarkaSubmission?.turns || submission?.session_state?.turns || submission?.turns || null;
+
+            if (!turns) {
+                // If it's not in the submission yet, we will wait for propVitarkaSubmission to populate
+            }
+
+            if (turns) {
+                const aiQuestions = turns
+                    .filter((t: any) => t.speaker === 'assistant' || t.role === 'assistant' || t.speaker === 'AI' || t.role === 'system')
+                    .map((t: any, idx: number) => ({
+                        id: `v-q-${idx}`,
+                        title: t.text || t.content || `Question ${idx + 1}`
+                    }));
+                setVitarkaQuestions(aiQuestions);
+            }
+        };
+        fetchVitarkaQuestions();
+    }, [submission, evaluation, propVitarkaSubmission]);
 
     const formatEventTime = (timestampStr: string | number) => {
         try {
@@ -876,8 +902,10 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                         // Build a list of ALL question IDs in OTHER sections
                                         const otherSectionQuestionIds = new Set<string>();
                                         const otherSectionQuestionTitles = new Set<string>();
+                                        const otherSectionIds = new Set<string>();
                                         activeSections.forEach((otherSec: any) => {
                                             if (otherSec.id !== sec.id) {
+                                                otherSectionIds.add(String(otherSec.id));
                                                 if (otherSec.questions) {
                                                     otherSec.questions.forEach((q: any) => {
                                                         otherSectionQuestionIds.add(String(typeof q === 'string' ? q : q.id));
@@ -901,7 +929,7 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                             const vQTitle = e.question_title || (e.meta_data && e.meta_data.question_title);
                                             
                                             // If the event explicitly belongs to ANOTHER section, exclude it!
-                                            if (vQId && otherSectionQuestionIds.has(String(vQId)) && !secQuestionIds.has(String(vQId))) {
+                                            if (vQId && (otherSectionQuestionIds.has(String(vQId)) || otherSectionIds.has(String(vQId))) && !secQuestionIds.has(String(vQId)) && String(vQId) !== String(sec.id)) {
                                                 return false;
                                             }
                                             if (vQTitle && otherSectionQuestionTitles.has(vQTitle)) {
@@ -963,86 +991,6 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                                         </div>
                                                     </div>
 
-                                                    {/* Submissions UI */}
-                                                    {sec.type === 'LAB' && submission?.lab_submissions && (
-                                                        <div className="mb-6 space-y-4">
-                                                            {submission.lab_submissions.map((labSub: any, lIdx: number) => {
-                                                                const isMatch = sec.questions?.some((q: any) => 
-                                                                    (typeof q === 'string' ? q : q.id) === labSub.lab_question
-                                                                );
-                                                                if (!isMatch) return null;
-                                                                
-                                                                return (
-                                                                    <div key={lIdx} className="mb-4">
-                                                                        <LabSubmissionViewer
-                                                                            userId={labSub?.user || candidate.user?.id?.toString() || candidate.id}
-                                                                            evaluationId={evaluation.id}
-                                                                            labId={labSub.lab_question}
-                                                                            diffPatch={labSub.solution}
-                                                                            minutesSolved={labSub.minutes_solved}
-                                                                        />
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    )}
-
-                                                    {sec.type === 'KNOWLEDGE_ASSESSMENT' && submission?.knowledge_submissions && (
-                                                        <div className="mb-6 space-y-4">
-                                                            {submission.knowledge_submissions.map((ks: any, kIdx: number) => {
-                                                                if (ks.section !== sec.id) return null;
-
-                                                                return (
-                                                                    <div key={kIdx} className="space-y-4">
-                                                                        {sec.questions?.map((q: any, qIdx: number) => {
-                                                                            const ans = ks.answers?.find((a: any) => a.question_id === q.id);
-                                                                            const isMcq = Array.isArray(q.mcq_options) && q.mcq_options.length > 0;
-                                                                            const mappedOptions = isMcq ? q.mcq_options.map((opt: any) => opt.text || "") : (q.options || []);
-                                                                            
-                                                                            const correctAnsIdx = isMcq 
-                                                                                ? q.mcq_options.findIndex((opt: any) => opt.is_correct === true)
-                                                                                : (q.correct_answer ?? 0);
-                                                                            
-                                                                            return (
-                                                                                <div key={qIdx} className="bg-white border border-neutral-200 rounded-lg p-4 shadow-sm">
-                                                                                    <div className="flex justify-between items-start mb-3">
-                                                                                        <h6 className="font-medium text-slate-800 text-sm pr-4 leading-relaxed">{qIdx + 1}. {q.title || q.text || q.content}</h6>
-                                                                                        {ans ? (
-                                                                                            <Badge variant={ans.is_correct ? "default" : "destructive"} className={ans.is_correct ? "bg-emerald-500 hover:bg-emerald-600 border-none" : ""}>
-                                                                                                {ans.is_correct ? 'Correct' : 'Incorrect'}
-                                                                                            </Badge>
-                                                                                        ) : (
-                                                                                            <Badge variant="outline" className="text-slate-500 bg-slate-50">Not Attempted</Badge>
-                                                                                        )}
-                                                                                    </div>
-                                                                                    <div className="space-y-2 mt-4">
-                                                                                        {mappedOptions.map((opt: string, oIdx: number) => {
-                                                                                            const isSelected = ans?.selected_option === oIdx;
-                                                                                            const isCorrect = correctAnsIdx === oIdx;
-                                                                                            let bgClass = "bg-slate-50 text-slate-700 border-neutral-200 hover:bg-slate-100 transition-colors";
-                                                                                            if (isCorrect && isSelected) bgClass = "bg-emerald-50 border-emerald-200 text-emerald-800 shadow-sm";
-                                                                                            else if (isCorrect && !isSelected) bgClass = "bg-emerald-50/40 border-emerald-200/50 text-emerald-700/80";
-                                                                                            else if (!isCorrect && isSelected) bgClass = "bg-rose-50 border-rose-200 text-rose-800 shadow-sm";
-                                                                                            
-                                                                                            return (
-                                                                                                <div key={oIdx} className={`text-sm p-3.5 rounded-lg border ${bgClass} flex items-center gap-3 transition-all`}>
-                                                                                                    <div className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${isSelected ? (isCorrect ? 'border-emerald-500 bg-emerald-500' : 'border-rose-500 bg-rose-500') : (isCorrect ? 'border-emerald-400/50' : 'border-slate-300')}`}>
-                                                                                                        {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-                                                                                                    </div>
-                                                                                                    <span className="leading-snug">{opt}</span>
-                                                                                                </div>
-                                                                                            );
-                                                                                        })}
-                                                                                    </div>
-                                                                                </div>
-                                                                            );
-                                                                        })}
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    )}
-
                                                     <div className="bg-slate-50 rounded-lg p-4 text-sm border border-neutral-200 overflow-hidden">
                                                         <div className="flex items-center justify-between mb-4">
                                                             <h5 className="font-semibold text-slate-900 flex items-center gap-2">
@@ -1070,6 +1018,8 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                                             }
 
                                                             let sectionQuestions: { title: string; events: any[] }[] = [];
+                                                            const matchedEvents = new Set<any>();
+                                                            
                                                             if (resolvedQuestions && resolvedQuestions.length > 0) {
                                                                 sectionQuestions = resolvedQuestions.map((q: any, qIdx: number) => {
                                                                     const qTitle = q.title || q.text || q.content || `Question ${qIdx + 1}`;
@@ -1080,17 +1030,25 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
                                                                         if (v.question_title && (v.question_title === q.title || v.question_title === q.text || v.question_title === q.content || qTitle.includes(v.question_title) || v.question_title.includes(qTitle))) return true;
                                                                         return false;
                                                                     });
+                                                                    qEvents.forEach((e: any) => matchedEvents.add(e));
                                                                     return { title: qTitle, events: qEvents.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) };
                                                                 });
-                                                            } else {
+                                                            }
+
+                                                            // Append unmatched events as fallback groups
+                                                            const unmatchedEvents = allSectionEvents.filter((e: any) => !matchedEvents.has(e));
+                                                            if (unmatchedEvents.length > 0) {
                                                                 const groups = new Map<string, any[]>();
-                                                                allSectionEvents.forEach((v: any) => {
+                                                                unmatchedEvents.forEach((v: any) => {
                                                                     const vQId = v.question_id || (v.meta_data && v.meta_data.question_id);
-                                                                    const t = v.question_title || (vQId ? `Question ${vQId.slice(0,8)}` : 'General / Unknown Question');
+                                                                    const isSectionId = activeSections.some((s: any) => s.id === vQId);
+                                                                    const t = v.question_title || (isSectionId ? 'General Section Activity' : (vQId ? `Question ${vQId.slice(0,8)}` : 'General / Unknown Question'));
                                                                     if (!groups.has(t)) groups.set(t, []);
                                                                     groups.get(t)!.push(v);
                                                                 });
-                                                                sectionQuestions = Array.from(groups.entries()).map(([title, events]) => ({ title, events: events.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) }));
+                                                                Array.from(groups.entries()).forEach(([title, events]) => {
+                                                                    sectionQuestions.push({ title, events: events.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) });
+                                                                });
                                                             }
 
                                                             // Filter out sectionQuestions that are actually from other sections if possible
@@ -1387,4 +1345,5 @@ const CandidateAnalyticsViewer: React.FC<CandidateAnalyticsViewerProps> = ({ can
 };
 
 export { CandidateAnalyticsViewer };
+
 

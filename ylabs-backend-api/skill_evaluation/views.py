@@ -345,12 +345,16 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         submission.completed_at = timezone.now()
         submission.save(update_fields=['completed_at'])
         
-        CandidateTimelineEvent.objects.get_or_create(
-            evaluation=evaluation,
-            candidate_email=user.email,
-            title=CandidateTimelineEventType.VITARKA_COMPLETED,
-            defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
-        )
+
+        has_vitarka = any(sec.type == "VITARKA_AI_INTERVIEW" for sec in evaluation.sections.all())
+        if has_vitarka:
+            CandidateTimelineEvent.objects.get_or_create(
+                evaluation=evaluation,
+                candidate_email=user.email,
+                title=CandidateTimelineEventType.VITARKA_COMPLETED,
+                defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+            )
+
         CandidateTimelineEvent.objects.get_or_create(
             evaluation=evaluation,
             candidate_email=user.email,

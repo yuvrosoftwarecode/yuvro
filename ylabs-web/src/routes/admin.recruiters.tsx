@@ -716,7 +716,6 @@ function RecruitersPage() {
   const [recruiters, setRecruiters] = useState<CompanyRecruiter[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const pageSize = 20;
@@ -752,6 +751,8 @@ function RecruitersPage() {
       toast.error(err.response?.data?.detail || "Failed to delete recruiter");
     }
   };
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
     <AdminShell
@@ -869,28 +870,31 @@ function RecruitersPage() {
               )}
             </tbody>
           </table>
-        </div>
-        <div className="flex items-center justify-between p-3 text-xs text-muted-foreground border-t border-border/60">
-          <span>
-            Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of {totalCount} recruiters
-          </span>
-          <div className="flex items-center gap-1">
-            <button 
-              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50"
-              disabled={page <= 1}
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-            >
-              Prev
-            </button>
-            <span className="px-2">Page {page} of {Math.ceil(totalCount / pageSize) || 1}</span>
-            <button 
-              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50"
-              disabled={page >= Math.ceil(totalCount / pageSize)}
-              onClick={() => setPage(p => p + 1)}
-            >
-              Next
-            </button>
-          </div>
+          
+          {!loading && recruiters.length > 0 && (
+            <div className="flex items-center justify-between p-3 text-xs border-t text-muted-foreground">
+              <span>
+                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of {totalCount} recruiters
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-2 py-1 rounded border border-border hover:bg-muted disabled:opacity-50"
+                >
+                  Prev
+                </button>
+                <span className="px-2">Page {page} of {totalPages}</span>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-2 py-1 rounded border border-border hover:bg-muted disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </Panel>
     </AdminShell>

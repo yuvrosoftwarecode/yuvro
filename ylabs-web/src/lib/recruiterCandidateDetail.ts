@@ -988,14 +988,25 @@ export async function loadTimelineEvents(evId: string, email: string): Promise<T
 
     const completedMap = new Map(completed.map(e => [e.label, e]));
     
+    const isFinished = completedMap.has("Evaluation finished");
+    const sectionMilestones = [
+      "Engineering Labs submitted",
+      "Knowledge Assessment submitted",
+      "Vitarka discussion completed",
+    ];
+
     const fullTimeline = MILESTONES.map(m => {
       if (completedMap.has(m)) {
         return completedMap.get(m)!;
       } else {
+        let timeLabel = "pending";
+        if (isFinished && sectionMilestones.includes(m)) {
+          timeLabel = "Not submitted";
+        }
         return {
           id: m,
           label: m,
-          time: "pending",
+          time: timeLabel,
           done: false,
           tone: "neutral" as const,
         };

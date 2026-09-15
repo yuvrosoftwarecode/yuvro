@@ -173,6 +173,26 @@
       }
     },
     {
+      "email": "recruiter2@yuvro.com",
+      "username": "recruiter2",
+      "first_name": "Tech 2",
+      "last_name": "Recruiter",
+      "password": "recruiter123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Tech 2 Recruiter",
+        "title": "Technical Recruiter",
+        "location": "New York, NY",
+        "about": "Technical recruiter.",
+        "gender": "male"
+      },
+      "roles": {
+        "ycode": "recruiter",
+        "ylabs": "recruiter"
+      }
+    },
+    {
       "email": "shilpa@gmail.com",
       "username": "shilpa",
       "first_name": "Shilpa",

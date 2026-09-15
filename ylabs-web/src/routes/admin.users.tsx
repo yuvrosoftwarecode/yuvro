@@ -35,6 +35,8 @@ function UsersPage() {
             userRole = "Mentor";
           } else if (u.role === "recruiter") {
             userRole = "Recruiter";
+          } else if (u.role === "job_seeker" || u.role === "job seeker") {
+            userRole = "Job Seeker";
           }
 
           return {
@@ -70,6 +72,12 @@ function UsersPage() {
   }, [page, q, role]);
 
   const filtered = users; // The filtering is now handled in the backend!
+
+  useEffect(() => {
+    setPage(1);
+  }, [q, role]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
     <AdminShell
@@ -157,7 +165,7 @@ function UsersPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((u) => (
+              {users.map((u) => (
                 <tr key={u.id} className="border-t border-border/40 hover:bg-accent/30">
                   <td className="px-4 py-2.5">
                     <div className="flex items-center gap-2.5">
@@ -206,19 +214,21 @@ function UsersPage() {
           </table>
         </div>
         <div className="flex items-center justify-between p-3 text-xs text-muted-foreground border-t border-border/60">
-          <span>Page {page} of {Math.ceil(totalCount / pageSize) || 1}</span>
+          <span>
+            Page {page} of {totalPages}
+          </span>
           <div className="flex items-center gap-1">
-            <button 
-              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50"
-              disabled={page <= 1}
-              onClick={() => setPage(p => Math.max(1, p - 1))}
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Prev
             </button>
-            <button 
-              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50"
-              disabled={page >= Math.ceil(totalCount / pageSize)}
-              onClick={() => setPage(p => p + 1)}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-2 py-1 rounded border border-border hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>

@@ -38,6 +38,7 @@ const ProctoringGate: React.FC<ProctoringGateProps> = ({ onReady, onCancel }) =>
     const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
     const [fullscreenCheck, setFullscreenCheck] = useState<CheckState>({ status: 'idle' });
     const [showTabWarning, setShowTabWarning] = useState(false);
+    const [showScreenWarning, setShowScreenWarning] = useState(false);
 
     // Step unlock logic
     // 1 -> Mic, 2 -> Camera, 3 -> Photo, 4 -> Tab check, 5 -> Screen share + screenshot, 6 -> Fullscreen
@@ -149,20 +150,32 @@ const ProctoringGate: React.FC<ProctoringGateProps> = ({ onReady, onCancel }) =>
     // --- Step 5: Screen Share Check & Screenshot ---
     const requestScreenShare = async () => {
         setScreenCheck({ status: 'checking' });
+        if (screenStream) {
+            screenStream.getTracks().forEach(t => t.stop());
+            setScreenStream(null);
+        }
+        if (screenVideoRef.current) screenVideoRef.current.srcObject = null;
+        
         try {
             const stream = await navigator.mediaDevices.getDisplayMedia({ 
-                video: { displaySurface: 'monitor' }
-            });
+                video: { displaySurface: 'monitor' },
+                surfaceSwitching: "exclude",
+                preferCurrentTab: false
+            } as any);
 
             const videoTrack = stream.getVideoTracks()[0];
             const settings = videoTrack.getSettings() as any;
             
-            if (settings.displaySurface && settings.displaySurface !== 'monitor') {
+            if (settings.displaySurface !== 'monitor') {
                 stream.getTracks().forEach(t => t.stop());
                 setScreenCheck({
                     status: 'failed',
                     message: 'You must share your ENTIRE SCREEN, not a window or tab.',
                 });
+                if (screenVideoRef.current) screenVideoRef.current.srcObject = null;
+                window.focus();
+                setTimeout(() => window.focus(), 100);
+                setShowScreenWarning(true);
                 return;
             }
 
@@ -505,6 +518,25 @@ const ProctoringGate: React.FC<ProctoringGateProps> = ({ onReady, onCancel }) =>
                             </Button>
                             <Button onClick={confirmTabsClosed} className="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold">
                                 I Understand
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showScreenWarning && (
+                <div className="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="bg-slate-900 border border-amber-500/30 rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200 text-center">
+                        <div className="w-12 h-12 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center mx-auto mb-4">
+                            <AlertCircle className="w-6 h-6 text-amber-500" />
+                        </div>
+                        <h2 className="text-xl font-bold text-white mb-2">Select "Entire Screen"</h2>
+                        <p className="text-slate-300 text-sm mb-6 leading-relaxed">
+                            You selected a window or a tab. Please click <strong>Share Screen</strong> again and select the <span className="text-amber-400 font-bold">Entire Screen</span> tab in the browser dialog.
+                        </p>
+                        <div className="flex justify-center">
+                            <Button onClick={() => setShowScreenWarning(false)} className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold transition-colors">
+                                Try Again
                             </Button>
                         </div>
                     </div>
