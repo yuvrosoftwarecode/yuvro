@@ -85,10 +85,10 @@ export const useProctoring = ({
                 if (shouldSendQuestionId) formData.append('question_id', activeQuestionId);
                 
                 if (blob) {
-                    formData.append('snapshot', blob, 'snapshot.png');
+                    formData.append('snapshot', blob, 'snapshot.jpg');
                 }
                 if (screenBlob) {
-                    formData.append('screenshot', screenBlob, 'screenshot.png');
+                    formData.append('screenshot', screenBlob, 'screenshot.jpg');
                 }
                 
                 response = await restApiAuthUtil.post(url, formData) as any;
@@ -463,7 +463,7 @@ export const useProctoring = ({
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 canvas.toBlob((blob) => {
                     resolve(blob);
-                }, 'image/png');
+                }, 'image/jpeg', 0.5);
             });
         };
 
@@ -480,7 +480,7 @@ export const useProctoring = ({
                 ctx.drawImage(screenVideo, 0, 0, canvas.width, canvas.height);
                 canvas.toBlob((blob) => {
                     resolve(blob);
-                }, 'image/png');
+                }, 'image/jpeg', 0.5);
             });
         };
 
@@ -497,7 +497,7 @@ export const useProctoring = ({
                     if (!blob || !isActive) return;
 
                     const formData = new FormData();
-                    formData.append('snapshot', blob, 'snapshot.png');
+                    formData.append('snapshot', blob, 'snapshot.jpg');
                     formData.append('activity_type', 'snapshot');
                     formData.append('timestamp', new Date().toISOString());
                     const activeQId = questionIdRef.current;
@@ -506,11 +506,6 @@ export const useProctoring = ({
                     const url = `/assessment/${assessmentType}/${assessmentId}/log-activity/`;
                     try {
                         const response = await restApiAuthUtil.post(url, formData) as any;
-                        toast.success('Proctoring Snapshot Captured', {
-                            duration: 1500,
-                            position: 'top-center',
-                            id: 'snapshot-toast',
-                        });
                         if (response?.status === 'auto_submitted' || response?.auto_submitted === true) {
                             onAutoSubmitRef.current?.();
                         }
@@ -575,6 +570,39 @@ export const useProctoring = ({
             }
         };
 
+        // ── Camera Timeout Logic ──────────────────────────────────────────────
+        let cameraTimeoutId: ReturnType<typeof setTimeout> | null = null;
+        const cameraKey = `cam_disabled_${assessmentId}`;
+
+        const checkCameraTimeout = () => {
+            const disabledTime = localStorage.getItem(cameraKey);
+            if (disabledTime) {
+                const elapsed = Date.now() - parseInt(disabledTime, 10);
+                if (elapsed >= 60000) {
+                    onAutoSubmitRef.current?.();
+                } else {
+                    cameraTimeoutId = setTimeout(checkCameraTimeout, 60000 - elapsed + 500);
+                }
+            }
+        };
+
+        const markCameraDisabled = (err?: any) => {
+            logActivity('camera_disabled', { error: String(err || 'Track ended') });
+            onViolationRef.current?.('camera_disabled');
+            if (!localStorage.getItem(cameraKey)) {
+                localStorage.setItem(cameraKey, Date.now().toString());
+            }
+            checkCameraTimeout();
+        };
+
+        const markCameraEnabled = () => {
+            logActivity('camera_enabled');
+            localStorage.removeItem(cameraKey);
+            if (cameraTimeoutId) clearTimeout(cameraTimeoutId);
+        };
+
+        checkCameraTimeout();
+
         // ── Camera init ───────────────────────────────────────────────────────
         const initCamera = async () => {
             try {
@@ -588,7 +616,13 @@ export const useProctoring = ({
                 }
 
                 if (streamToUse && isActive) {
-                    logActivity('camera_enabled');
+                    markCameraEnabled();
+                    const videoTrack = streamToUse.getVideoTracks()[0];
+                    if (videoTrack) {
+                        videoTrack.onended = () => {
+                            if (isActive) markCameraDisabled('Track ended');
+                        };
+                    }
 
                     let started = false;
                     const startCapture = async () => {
@@ -634,7 +668,7 @@ export const useProctoring = ({
             } catch (err) {
                 if (isActive) {
                     console.error('Camera init failed for proctoring:', err);
-                    logActivity('camera_disabled', { error: String(err) });
+                    markCameraDisabled(err);
                 }
             }
         };
@@ -647,6 +681,7 @@ export const useProctoring = ({
             captureFrameRef.current = null;
             captureScreenFrameRef.current = null;
             clearInterval(snapshotIntervalId);
+            if (cameraTimeoutId) clearTimeout(cameraTimeoutId);
             if (internalStream) internalStream.getTracks().forEach(t => t.stop());
             video.srcObject = null;
             screenVideo.srcObject = null;

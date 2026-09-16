@@ -79,8 +79,8 @@ export const evaluationService = {
     return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/start_lab/`, { lab_id: labId });
   },
 
-  async finishEvaluation(evaluationId: string): Promise<any> {
-    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/finish/`, {});
+  async finishEvaluation(evaluationId: string, autoSubmitted: boolean = false): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/finish/`, { auto_submitted: autoSubmitted });
   },
 
   async submitLab(evaluationId: string, labId: string, data: any): Promise<any> {

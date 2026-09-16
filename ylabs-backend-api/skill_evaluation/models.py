@@ -356,6 +356,7 @@ class CandidateTimelineEventType(models.TextChoices):
     ASSESSMENT_SUBMITTED = "Knowledge Assessment submitted", "Knowledge Assessment submitted"
     VITARKA_COMPLETED = "Vitarka discussion completed", "Vitarka discussion completed"
     EVALUATION_FINISHED = "Evaluation finished", "Evaluation finished"
+    AUTO_SUBMITTED = "Auto submitted", "Auto submitted"
     RECRUITER_VIEWED = "Recruiter viewed profile", "Recruiter viewed profile"
     SHORTLISTED = "Shortlisted", "Shortlisted"
     ON_HOLD = "Placed on hold", "Placed on hold"

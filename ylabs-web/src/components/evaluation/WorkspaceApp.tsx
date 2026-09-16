@@ -333,7 +333,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       // We rely on our custom useEffect for tab switch and copy/paste modals & enforcement
     },
     onAutoSubmit: () => {
-      submitEvaluation();
+      submitEvaluation(true);
     }
   });
 
@@ -499,13 +499,13 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 
   const locked = discussionTriggered.current;
 
-  const submitEvaluation = async () => {
+  const submitEvaluation = async (autoSubmit: boolean = false) => {
     try {
       sessionStorage.removeItem(sessionKey);
       sessionStorage.removeItem(sessionDurKey);
     } catch {}
     try {
-      await evaluationService.finishEvaluation?.(evaluationId);
+      await evaluationService.finishEvaluation?.(evaluationId, autoSubmit);
     } catch (e) {
       console.error(e);
     }
