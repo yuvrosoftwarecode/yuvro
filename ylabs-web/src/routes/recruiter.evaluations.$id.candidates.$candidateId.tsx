@@ -44,6 +44,8 @@ import {
   Maximize2,
   Loader2,
   RefreshCw,
+  ArrowLeft,
+  X,
 } from "lucide-react";
 import { getCandidates, type Recommendation } from "@/lib/recruiterCandidates";
 import { buildEvaluationSummary } from "@/lib/evaluationSummary";
@@ -154,6 +156,10 @@ function CandidateWorkspace() {
     const discSec = ev.sections?.find(
       (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
     );
+    if (!discSec) {
+      setVitarkaSubmission(null);
+      return;
+    }
     let mockInterviewId = discSec?.mockInterviewId;
     if (!mockInterviewId && discSec?.description) {
       try {
@@ -174,7 +180,7 @@ function CandidateWorkspace() {
         .then((res) => {
           if (res && res.length > 0) {
             setVitarkaSubmission(res[0]);
-            const cands = getCandidates(id, ev?.submissions || [], res);
+            const cands = getCandidates(id, ev?.submissions || [], res, ev);
             const cand = cands.find((x) => x.id === candidateId);
             if (cand) {
               setCandidate(cand);
@@ -186,11 +192,16 @@ function CandidateWorkspace() {
   }, [id, candidateId, ev, candidate?.email]);
 
   const handleGenerateReport = async () => {
+    const discSec = ev?.sections?.find(
+      (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
+    );
+    if (!discSec) {
+      notify("This evaluation does not include Vitarka AI Discussion. No AI report will be generated.");
+      return;
+    }
+
     let sub = vitarkaSubmission;
     if (!sub?.id) {
-      const discSec = ev?.sections?.find(
-        (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
-      );
       let mockInterviewId = discSec?.mockInterviewId;
       if (!mockInterviewId && discSec?.description) {
         try {
@@ -248,11 +259,18 @@ function CandidateWorkspace() {
     markViewed(id, candidateId);
     if (candidate?.email) {
       pushActivity(id, candidate.email, "view", "Recruiter viewed the profile").then(() => {
-        loadActivity(id, candidate.email).then(setActivity);
+        setActivity((prev) => [
+          {
+            type: "view",
+            text: "Recruiter viewed the profile",
+            time: "Just now",
+            timeAgo: "Just now",
+            iconColor: "text-blue-400",
+          },
+          ...prev,
+        ]);
       });
-      createTimelineEvent(id, candidate.email, "Recruiter viewed profile");
     }
-    // logRecruiterActivity is redundant here, pushActivity is called above.
   }, [id, candidateId, candidate?.email]);
 
   useEffect(() => {
@@ -276,37 +294,42 @@ function CandidateWorkspace() {
 
   if (loading) return <div className="p-16 text-center text-neutral-400">Loading...</div>;
 
-  if (!candidate || !ev) {
+  if (!candidate) {
     return (
-      <div className="p-16 text-center text-neutral-400">
-        Candidate not found.{" "}
+      <div className="flex h-[60vh] flex-col items-center justify-center text-center">
+        <p className="text-neutral-400">Candidate not found.</p>
         <Link
-          to="/recruiter/evaluations/$id/workspace"
+          to="/recruiter/evaluations/$id"
           params={{ id }}
-          search={{ tab: "candidates", view: "edit" } as any}
-          className="text-emerald-400 hover:underline"
+          className="mt-4 inline-flex items-center gap-2 text-[13px] text-neutral-300 hover:text-white"
         >
-          Back to list
+          <ArrowLeft className="h-4 w-4" />
+          Back to evaluation
         </Link>
       </div>
     );
   }
 
-  const hasLabs = ev?.sections?.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") ?? true;
-  const hasAssessment = ev?.sections?.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT") ?? true;
-  const hasVitarka = ev?.sections?.some((s: any) => s.kind === "discussion" || s.kind === "vitarka" || s.type === "VITARKA_AI_INTERVIEW") ?? true;
+  const hasSections = Array.isArray(ev?.sections) && ev.sections.length > 0;
+  const hasLabs = hasSections ? ev.sections.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") : false;
+  const hasAssessment = hasSections ? ev.sections.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT") : false;
+  const hasVitarka = hasSections ? ev.sections.some((s: any) => s.kind === "discussion" || s.kind === "vitarka" || s.type === "VITARKA_AI_INTERVIEW") : false;
 
   const labsSec = ev?.sections?.find((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS");
-  const labsMaxScore = (labsSec?.labs && labsSec.labs.length > 0)
-    ? labsSec.labs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
-    : (labsSec?.questions && labsSec.questions.length > 0)
-      ? labsSec.questions.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
-      : (labsSec?.marks ?? 80);
+  const labsMaxScore = hasLabs
+    ? ((labsSec?.labs && labsSec.labs.length > 0)
+        ? labsSec.labs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+        : (labsSec?.questions && labsSec.questions.length > 0)
+          ? labsSec.questions.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+          : (labsSec?.marks ?? 100))
+    : 0;
 
   const assessSec = ev?.sections?.find((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT");
-  const assessmentMaxScore = (assessSec?.questions && assessSec.questions.length > 0)
-    ? assessSec.questions.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0)
-    : (assessSec?.marks ?? 30);
+  const assessmentMaxScore = hasAssessment
+    ? ((assessSec?.questions && assessSec.questions.length > 0)
+        ? assessSec.questions.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0)
+        : (assessSec?.marks ?? 30))
+    : 0;
 
   const discSec = ev?.sections?.find(
     (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
@@ -318,11 +341,11 @@ function CandidateWorkspace() {
       discMetaMarks = parsed.marks ?? parsed.max_score ?? parsed.discussionMaxScore;
     } catch {}
   }
-  const discussionMaxScore = discSec?.marks ?? discSec?.max_score ?? discMetaMarks ?? 25;
+  const discussionMaxScore = hasVitarka ? (discSec?.marks ?? discSec?.max_score ?? discMetaMarks ?? 25) : 0;
 
-  const liveBundle = vitarkaSubmission?.report_bundle || vitarkaSubmission?.session_state?.report_bundle;
-  const liveVitarkaReport = liveBundle?.vitarka_report || vitarkaSubmission?.report || vitarkaSubmission?.session_state?.report;
-  const liveOverallReport = liveBundle?.overall_report;
+  const liveBundle = hasVitarka ? (vitarkaSubmission?.report_bundle || vitarkaSubmission?.session_state?.report_bundle) : null;
+  const liveVitarkaReport = hasVitarka ? (liveBundle?.vitarka_report || vitarkaSubmission?.report || vitarkaSubmission?.session_state?.report) : null;
+  const liveOverallReport = hasVitarka ? liveBundle?.overall_report : null;
   const liveLabsReport = liveBundle?.engineering_labs_report;
   const liveKnowledgeReport = liveBundle?.knowledge_assessment_report;
   const sectionScoresMap: Record<string, number> = {};
@@ -461,10 +484,11 @@ function CandidateWorkspace() {
   );
 
   const canonicalRecommendation: Recommendation =
-    (!isOverallReportStale && normalizeRec(liveOverallReport?.recommendation)) ||
-    (!hasLabs && !hasAssessment && normalizeRec(liveVitarkaReport?.recommendation)) ||
-    candidate?.recommendation ||
-    scoreRec;
+    scoreRec === "Strong Hire"
+      ? "Strong Hire"
+      : (!isOverallReportStale && normalizeRec(liveOverallReport?.recommendation)) ||
+        (!hasLabs && !hasAssessment && normalizeRec(liveVitarkaReport?.recommendation)) ||
+        scoreRec;
 
   const displayCandidate = {
     ...candidate,
@@ -647,7 +671,7 @@ function CandidateWorkspace() {
                   icon={<Share2 className="h-3.5 w-3.5" />}
                   onClick={async () => {
                     if (!candidate?.email) { notify("Candidate email not found."); return; }
-                    const result = await generateSharedReportLink(id, candidate.email);
+                    const result = await generateSharedReportLink(id, candidate.email, candidate.rawSubmission?.id || candidate.id);
                     if (!result) {
                       notify("Failed to generate report link");
                       return;
@@ -1307,8 +1331,9 @@ function EvaluationSummary({
       totalTestsCount = labsReport.tests_total;
       totalTestsPassed = labsReport.tests_passed || 0;
     } else if (candidate.labsScore > 0) {
-      totalTestsCount = Math.max(totalLabsCount * 2, 4);
-      totalTestsPassed = Math.round((candidate.labsScore / (labsMaxScore || 80)) * totalTestsCount) || 1;
+      const totalLabTasks = allLabs.reduce((sum: number, l: any) => sum + (l.tasks?.length || 0), 0);
+      totalTestsCount = totalLabTasks > 0 ? totalLabTasks : totalLabsCount;
+      totalTestsPassed = Math.max(1, Math.min(totalTestsCount, Math.round((candidate.labsScore / (labsMaxScore || 10)) * totalTestsCount)));
     }
   }
 
@@ -1371,26 +1396,41 @@ function EvaluationSummary({
     ? `${totalQuestionsCorrect} questions answered correctly out of ${totalQuestionsCount} across ${assessmentSectionsCount} ${assessmentSectionsCount === 1 ? "section" : "sections"}`
     : `Knowledge assessment completed`;
 
-  // Use dynamic content if available
   const isAllZero = overall === 0 || (candidate.labsScore === 0 && candidate.assessmentScore === 0 && candidate.vitarkaScore === 0);
+  const activeSectionsNames = [
+    hasLabs ? "engineering labs" : "",
+    hasAssessment ? "knowledge assessment" : "",
+    hasVitarka ? "Vitarka interview evidence" : "",
+  ].filter(Boolean);
+  const activeSectionsPhrase = activeSectionsNames.length > 0 ? activeSectionsNames.join(", ") : "the evaluation";
+
   const rawOverallText = isAllZero
     ? `Overall evaluation for ${candidate.name || "the candidate"} recorded 0 passing tests, no submitted code, and no interview responses. Aggregate score: 0/10. Recommendation: Reject.`
     : (!isOverallReportStale && overallReport?.executive_summary
         ? overallReport.executive_summary
-        : `Overall evaluation for ${candidate.name || "the candidate"} combines engineering labs, knowledge assessment, and Vitarka interview evidence. Aggregate score: ${overall10}/10. Recommendation: ${verdict}.`);
+        : `Overall evaluation for ${candidate.name || "the candidate"} evaluates ${activeSectionsPhrase}. Aggregate score: ${overall10}/10. Recommendation: ${verdict}.`);
   const overallText = stripUuids(rawOverallText, candidate.name || "the candidate");
-  const overallStrengths = isAllZero
+  const hasAiReport = Boolean(
+    (overallReport?.strengths && overallReport.strengths.length > 0) ||
+    (vitarkaReport?.strengths && vitarkaReport.strengths.length > 0) ||
+    (overallReport?.risks && overallReport.risks.length > 0) ||
+    (vitarkaReport?.risks && vitarkaReport.risks.length > 0)
+  );
+
+  const overallStrengths = isAllZero || !hasAiReport
     ? []
     : (overallReport?.strengths && overallReport.strengths.length > 0)
       ? overallReport.strengths.map((s: string) => stripUuids(s, candidate.name)).filter((s: string) => !s.includes("Submitted verified code across") || candidate.labsScore > 0)
       : (vitarkaReport?.strengths && vitarkaReport.strengths.length > 0)
         ? vitarkaReport.strengths.map((s: string) => stripUuids(s, candidate.name))
-        : data.overallStrengths;
-  const rawRisks = (overallReport?.risks && overallReport.risks.length > 0)
-    ? overallReport.risks.map((s: string) => stripUuids(s, candidate.name))
-    : (vitarkaReport?.risks && vitarkaReport.risks.length > 0)
-      ? vitarkaReport.risks.map((s: string) => stripUuids(s, candidate.name))
-      : data.overallExplore;
+        : [];
+  const rawRisks = isAllZero || !hasAiReport
+    ? []
+    : (overallReport?.risks && overallReport.risks.length > 0)
+      ? overallReport.risks.map((s: string) => stripUuids(s, candidate.name))
+      : (vitarkaReport?.risks && vitarkaReport.risks.length > 0)
+        ? vitarkaReport.risks.map((s: string) => stripUuids(s, candidate.name))
+        : [];
   const overallExplore = rawRisks.filter((r: string) =>
     candidate.labsScore === 0 || (!r.toLowerCase().includes("no lab tests were executed") && !r.toLowerCase().includes("no verified implementation code"))
   );
@@ -1462,38 +1502,40 @@ function EvaluationSummary({
           </div>
         </div>
         <p className="mt-3 text-[13px] leading-relaxed text-neutral-200">{overallText}</p>
-        <div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div>
-            <div className="text-[10px] uppercase tracking-widest text-neutral-500">Strengths</div>
-            {overallStrengths.length > 0 ? (
-              <ul className="mt-1.5 space-y-1">
-                {overallStrengths.map((s: string) => (
-                  <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
-                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400" />
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-1.5 text-[12px] text-neutral-400">None identified</p>
-            )}
+        {hasAiReport && (overallStrengths.length > 0 || overallExplore.length > 0) && (
+          <div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-neutral-500">Strengths</div>
+              {overallStrengths.length > 0 ? (
+                <ul className="mt-1.5 space-y-1">
+                  {overallStrengths.map((s: string) => (
+                    <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
+                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400" />
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-1.5 text-[12px] text-neutral-400">None identified</p>
+              )}
+            </div>
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-neutral-500">Areas to explore</div>
+              {overallExplore.length > 0 ? (
+                <ul className="mt-1.5 space-y-1">
+                  {overallExplore.map((s: string) => (
+                    <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
+                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-1.5 text-[12px] text-neutral-400">None identified</p>
+              )}
+            </div>
           </div>
-          <div>
-            <div className="text-[10px] uppercase tracking-widest text-neutral-500">Areas to explore</div>
-            {overallExplore.length > 0 ? (
-              <ul className="mt-1.5 space-y-1">
-                {overallExplore.map((s: string) => (
-                  <li key={s} className="flex gap-2 text-[12px] text-neutral-300">
-                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-1.5 text-[12px] text-neutral-400">None identified</p>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -3175,167 +3217,165 @@ export function LabDrawer({
   const hasAIReview = lab.strengths.length > 0 || lab.weaknesses.length > 0 || lab.suggestions.length > 0 || Boolean(lab.feedback);
 
   return (
-    <>
-      <div className="fixed inset-0 z-40 bg-black/60" onClick={onClose} />
-      <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-5xl overflow-y-auto border-l border-white/10 bg-neutral-950 text-neutral-100 shadow-2xl">
-        {/* Sticky top bar */}
-        <div className="sticky top-0 z-10 border-b border-white/10 bg-neutral-950/95 px-6 py-4 backdrop-blur">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-[11px] font-mono uppercase tracking-widest text-neutral-400">
-                {lab.domain} · Engineering lab
+    <div className="fixed inset-0 z-50 h-full w-full overflow-y-auto bg-white text-neutral-900">
+      {/* Sticky top bar */}
+      <div className="sticky top-0 z-10 border-b border-neutral-200 bg-white/95 px-6 py-4 backdrop-blur shadow-sm">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-[11px] font-mono uppercase tracking-widest text-neutral-500">
+              {lab.domain} · Engineering lab
+            </div>
+            <div className="mt-1 text-[20px] font-semibold text-neutral-900">
+              {lab.title}
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className={`text-[26px] font-semibold leading-none ${eciColor(lab.scorePct)}`}>
+                {lab.scorePct}
+                <span className="text-[12px] text-neutral-500">%</span>
               </div>
-              <div className="mt-1 text-[20px] font-semibold text-white" style={{ color: '#ffffff' }}>
-                {lab.title}
+              <div className="mt-1 text-[11px] font-mono text-neutral-500">
+                {lab.marksEarned}/{lab.maxMarks} marks
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className={`text-[26px] font-medium leading-none ${eciColor(lab.scorePct)}`}>
-                  {lab.scorePct}
-                  <span className="text-[12px] text-neutral-400">%</span>
-                </div>
-                <div className="mt-1 text-[11px] font-mono text-neutral-400">
-                  {lab.marksEarned}/{lab.maxMarks} marks
-                </div>
-              </div>
-              <button
-                onClick={onClose}
-                className="rounded-lg border border-white/10 p-2 text-neutral-400 hover:bg-white/5 hover:text-white transition"
-              >
-                ✕
-              </button>
-            </div>
+            <button
+              onClick={onClose}
+              className="rounded-lg border border-neutral-200 p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 transition"
+              title="Close"
+            >
+              ✕
+            </button>
           </div>
         </div>
+      </div>
 
-        <div className="space-y-6 px-6 py-6">
-          {/* Problem statement (only if data exists) */}
-          {lab.problemStatement && (
-            <Block title="Problem statement">
-              <p className="text-[13px] leading-relaxed text-neutral-300 whitespace-pre-wrap">{lab.problemStatement}</p>
-            </Block>
-          )}
+      <div className="space-y-6 px-6 py-6">
+        {/* Problem statement (only if data exists) */}
+        {lab.problemStatement && (
+          <Block title="Problem statement">
+            <p className="text-[13px] leading-relaxed text-neutral-700 whitespace-pre-wrap">{lab.problemStatement}</p>
+          </Block>
+        )}
 
-          {/* Quick stats metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {/* Quick stats metrics */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <StatMini
+            label="Time taken"
+            value={`${lab.timeTaken}m`}
+            sub={lab.timeLimit > 0 ? `of ${lab.timeLimit}m allowed` : undefined}
+          />
+          {lab.tasksTotal > 0 && (
             <StatMini
-              label="Time taken"
-              value={`${lab.timeTaken}m`}
-              sub={lab.timeLimit > 0 ? `of ${lab.timeLimit}m allowed` : undefined}
+              label="Tasks completed"
+              value={`${lab.tasksCompleted}/${lab.tasksTotal}`}
+              sub={lab.tasksCompleted === lab.tasksTotal ? "All done" : `${lab.tasksTotal - lab.tasksCompleted} missed`}
             />
-            {lab.tasksTotal > 0 && (
-              <StatMini
-                label="Tasks completed"
-                value={`${lab.tasksCompleted}/${lab.tasksTotal}`}
-                sub={lab.tasksCompleted === lab.tasksTotal ? "All done" : `${lab.tasksTotal - lab.tasksCompleted} missed`}
+          )}
+          <StatMini
+            label="Files changed"
+            value={String(lab.files.length)}
+            sub={lab.files.length === 1 ? "1 file modified" : `${lab.files.length} files modified`}
+          />
+        </div>
+
+        {/* Execution timeline (only if entries exist) */}
+        {lab.timeline.length > 0 && (
+          <Block title="Execution timeline">
+            <ol className="relative space-y-3 border-l border-neutral-200 pl-5">
+              {lab.timeline.map((t: any, i: number) => (
+                <li key={i} className="relative">
+                  <span className="absolute -left-[22px] mt-1.5 h-2 w-2 rounded-full bg-emerald-500" />
+                  <div className="text-[12px] font-medium text-neutral-800">{t.label}</div>
+                  <div className="text-[10px] text-neutral-500">{t.time}</div>
+                </li>
+              ))}
+            </ol>
+          </Block>
+        )}
+
+        {/* Submitted code */}
+        <Block title="Submitted code" icon={<FileText className="h-3.5 w-3.5 text-neutral-500" />}>
+          <div className="h-[600px] border border-neutral-200 rounded-xl overflow-hidden relative shadow-sm">
+            <ErrorBoundary>
+              <LabCodeExplorer
+                userId={labSub?.user || candidate.rawSubmission?.user?.id?.toString() || candidate.rawSubmission?.user || candidate.id}
+                evaluationId={evaluationId}
+                lab={section}
+                labSub={labSub}
               />
-            )}
-            <StatMini
-              label="Files changed"
-              value={String(lab.files.length)}
-              sub={lab.files.length === 1 ? "1 file modified" : `${lab.files.length} files modified`}
-            />
+            </ErrorBoundary>
           </div>
+        </Block>
 
-          {/* Execution timeline (only if entries exist) */}
-          {lab.timeline.length > 0 && (
-            <Block title="Execution timeline">
-              <ol className="relative space-y-3 border-l border-white/10 pl-5">
-                {lab.timeline.map((t: any, i: number) => (
-                  <li key={i} className="relative">
-                    <span className="absolute -left-[22px] mt-1.5 h-2 w-2 rounded-full bg-emerald-400" />
-                    <div className="text-[12px] text-white" style={{ color: '#ffffff' }}>{t.label}</div>
-                    <div className="text-[10px] text-neutral-400">{t.time}</div>
-                  </li>
-                ))}
-              </ol>
-            </Block>
-          )}
-
-          {/* Submitted code */}
-          <Block title="Submitted code" icon={<FileText className="h-3.5 w-3.5" />}>
-            <div className="h-[600px] border border-white/10 rounded-xl overflow-hidden relative">
-              <ErrorBoundary>
-                <LabCodeExplorer
-                  userId={labSub?.user || candidate.rawSubmission?.user?.id?.toString() || candidate.rawSubmission?.user || candidate.id}
-                  evaluationId={evaluationId}
-                  lab={section}
-                  labSub={labSub}
-                />
-              </ErrorBoundary>
+        {/* Real Git commits (only if real commits exist) */}
+        {lab.gitCommits.length > 0 && (
+          <Block title="Git commits" icon={<GitCommit className="h-3.5 w-3.5 text-neutral-500" />}>
+            <div className="space-y-2">
+              {lab.gitCommits.map((c: any, i: number) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-[12px]"
+                >
+                  <span className="font-mono text-[10px] font-medium text-emerald-600">{c.sha || c.hash}</span>
+                  <div className="flex-1">
+                    <div className="text-neutral-800">{c.message}</div>
+                    {c.time && <div className="text-[10px] text-neutral-500">{c.time}</div>}
+                  </div>
+                </div>
+              ))}
             </div>
           </Block>
+        )}
 
-          {/* Real Git commits (only if real commits exist) */}
-          {lab.gitCommits.length > 0 && (
-            <Block title="Git commits" icon={<GitCommit className="h-3.5 w-3.5" />}>
-              <div className="space-y-2">
-                {lab.gitCommits.map((c: any, i: number) => (
-                  <div
-                    key={i}
-                    className="flex items-start gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 text-[12px]"
-                  >
-                    <span className="font-mono text-[10px] text-emerald-300">{c.sha || c.hash}</span>
-                    <div className="flex-1">
-                      <div className="text-neutral-200">{c.message}</div>
-                      {c.time && <div className="text-[10px] text-neutral-500">{c.time}</div>}
-                    </div>
-                  </div>
-                ))}
+        {/* Execution & test output (only if real output exists) */}
+        {lab.output && (
+          <FormattedExecutionOutput rawOutput={lab.output} labTasks={section?.tasks} />
+        )}
+
+        {/* AI review (only if real strengths/weaknesses/suggestions/feedback exist) */}
+        {hasAIReview && (
+          <Block title="AI Review & Feedback" icon={<Sparkles className="h-3.5 w-3.5 text-emerald-600" />}>
+            {lab.feedback && (
+              <div className="mb-4 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-[13px] text-neutral-700 leading-relaxed">
+                {lab.feedback}
               </div>
-            </Block>
-          )}
-
-          {/* Execution & test output (only if real output exists) */}
-          {lab.output && (
-            <FormattedExecutionOutput rawOutput={lab.output} labTasks={section?.tasks} />
-          )}
-
-          {/* AI review (only if real strengths/weaknesses/suggestions/feedback exist) */}
-          {hasAIReview && (
-            <Block title="AI Review & Feedback" icon={<Sparkles className="h-3.5 w-3.5 text-emerald-400" />}>
-              {lab.feedback && (
-                <div className="mb-4 rounded-lg border border-white/5 bg-white/[0.02] p-3 text-[13px] text-neutral-300 leading-relaxed">
-                  {lab.feedback}
-                </div>
+            )}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {lab.strengths.length > 0 && (
+                <ListBlock title="Strengths" items={lab.strengths} tone="good" />
               )}
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {lab.strengths.length > 0 && (
-                  <ListBlock title="Strengths" items={lab.strengths} tone="good" />
-                )}
-                {lab.weaknesses.length > 0 && (
-                  <ListBlock title="Weaknesses" items={lab.weaknesses} tone="warn" />
-                )}
-              </div>
-              {lab.suggestions.length > 0 && (
-                <div className="mt-4">
-                  <div className="text-[10px] uppercase tracking-widest text-neutral-500">Suggestions</div>
-                  <ul className="mt-2 space-y-1 text-[12px] text-neutral-300">
-                    {lab.suggestions.map((s: string, i: number) => (
-                      <li key={i} className="flex gap-2">
-                        <span className="mt-1.5 h-1 w-1 rounded-full bg-neutral-400" />
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              {lab.weaknesses.length > 0 && (
+                <ListBlock title="Weaknesses" items={lab.weaknesses} tone="warn" />
               )}
-            </Block>
-          )}
-
-          {/* Final lab score */}
-          <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4 text-center">
-            <div className="text-[10px] uppercase tracking-widest text-emerald-300/80">Final lab score</div>
-            <div className={`mt-1 text-[36px] font-medium ${eciColor(lab.scorePct)}`}>
-              {lab.marksEarned}
-              <span className="text-[16px] text-neutral-400">/{lab.maxMarks} marks</span>
-              <span className="ml-2 text-[14px] text-neutral-500">({lab.scorePct}%)</span>
             </div>
+            {lab.suggestions.length > 0 && (
+              <div className="mt-4">
+                <div className="text-[10px] uppercase tracking-widest text-neutral-500 font-medium">Suggestions</div>
+                <ul className="mt-2 space-y-1 text-[12px] text-neutral-700">
+                  {lab.suggestions.map((s: string, i: number) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="mt-1.5 h-1 w-1 rounded-full bg-neutral-400" />
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Block>
+        )}
+
+        {/* Final lab score */}
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-center">
+          <div className="text-[10px] uppercase tracking-widest text-emerald-700 font-semibold">Final lab score</div>
+          <div className={`mt-1 text-[36px] font-semibold ${eciColor(lab.scorePct)}`}>
+            {lab.marksEarned}
+            <span className="text-[16px] text-neutral-500">/{lab.maxMarks} marks</span>
+            <span className="ml-2 text-[14px] text-neutral-500">({lab.scorePct}%)</span>
           </div>
         </div>
-      </aside>
-    </>
+      </div>
+    </div>
   );
 }
 
@@ -3436,14 +3476,14 @@ function ListBlock({
   items: string[];
   tone: "good" | "warn";
 }) {
-  const dot = tone === "good" ? "bg-emerald-400" : "bg-amber-400";
+  const dot = tone === "good" ? "bg-emerald-500" : "bg-amber-500";
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-widest text-neutral-500">{title}</div>
-      <ul className="mt-2 space-y-1.5 text-[13px] text-neutral-200">
+      <div className="text-[10px] uppercase tracking-widest text-neutral-500 font-medium">{title}</div>
+      <ul className="mt-2 space-y-1.5 text-[13px] text-neutral-800">
         {items.map((s, i) => (
           <li key={i} className="flex items-start gap-2">
-            <span className={`mt-2 h-1 w-1 rounded-full ${dot}`} />
+            <span className={`mt-2 h-1 w-1 rounded-full shrink-0 ${dot}`} />
             {s}
           </li>
         ))}
@@ -3531,12 +3571,12 @@ function MiniBar({ label, v, max }: { label: string; v: number; max?: number }) 
     </div>
   );
 }
-function StatMini({ label, value, sub }: { label: string; value: string; sub: string }) {
+function StatMini({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
-      <div className="text-[10px] uppercase tracking-widest text-neutral-500">{label}</div>
-      <div className="mt-1 text-[18px] font-medium text-white">{value}</div>
-      <div className="text-[10px] text-neutral-500">{sub}</div>
+    <div className="rounded-lg border border-neutral-200 bg-neutral-50/70 p-3">
+      <div className="text-[10px] uppercase tracking-widest text-neutral-500 font-medium">{label}</div>
+      <div className="mt-1 text-[18px] font-semibold text-neutral-900">{value}</div>
+      {sub && <div className="text-[10px] text-neutral-500">{sub}</div>}
     </div>
   );
 }

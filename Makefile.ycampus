@@ -76,6 +76,8 @@ reload-data-clear:
 	docker compose $(COMPOSE_FILES) exec ycampus-backend python manage.py setup_fixtures_data --clear
 	@echo "✅ Test data cleared and reloaded!"
 
+reload-fixtures-data: reload-data-clear
+
 load-fixtures-data:
 	@echo "🔄 Loading YCampus fixture data (no clear)..."
 	docker compose $(COMPOSE_FILES) exec ycampus-backend python manage.py setup_fixtures_data

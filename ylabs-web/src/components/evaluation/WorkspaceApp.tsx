@@ -1026,9 +1026,6 @@ function TopBar({ remaining, online, autosave, section, appSections, onExit }: {
         <StatusDot label={online ? "Online" : "Reconnecting"} tone={online ? "ok" : "warn"} />
         <StatusDot label="Camera" tone="ok" />
         <StatusDot label="Fullscreen" tone="ok" />
-        <span className="hidden md:inline">
-          {autosave === "saving" ? "Saving…" : autosave === "saved" ? "Saved" : ""}
-        </span>
         <button className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Help</button>
         <button onClick={onExit} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Exit</button>
         <ThemeToggle />

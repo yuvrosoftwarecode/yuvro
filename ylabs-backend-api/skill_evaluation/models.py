@@ -142,6 +142,7 @@ class UserEvaluationSubmission(BaseTimestampedModel):
     anomalies_detected = models.JSONField(default=list, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     hiring_status = models.CharField(max_length=50, default="Pending Review")
+    phone = models.CharField(max_length=20, blank=True, help_text="Candidate phone number collected during registration")
 
     class Meta:
         unique_together = ("user", "evaluation")

@@ -529,31 +529,45 @@ export function getCandidateDetail(
           : NEXT_STEPS[4]);
 
   const labsMax = sectionMaxScores?.labsMaxScore ?? 80;
-  const assessMax = sectionMaxScores?.assessmentMaxScore ?? 30;
-  const vitarkaMax = sectionMaxScores?.discussionMaxScore ?? 25;
+  const assessMax = sectionMaxScores?.assessmentMaxScore ?? (sectionMaxScores ? 0 : 30);
+  const vitarkaMax = sectionMaxScores?.discussionMaxScore ?? (sectionMaxScores ? 0 : 25);
 
-  const ecIBreakdown = [
-    {
+  const ecIBreakdown: { label: string; contribution: string; kind: "pos" | "neg" | "neu" }[] = [];
+
+  if (labsMax > 0) {
+    ecIBreakdown.push({
       label: "Engineering Labs",
       contribution: `+${c.labsScore} of a possible ${labsMax}`,
-      kind: (c.labsScore / labsMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
-    },
-    {
+      kind: (labsMax > 0 && c.labsScore / labsMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
+    });
+  }
+
+  if (assessMax > 0) {
+    ecIBreakdown.push({
       label: "Knowledge Assessment",
       contribution: `+${c.assessmentScore} of a possible ${assessMax}`,
-      kind: (c.assessmentScore / assessMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
-    },
-    {
+      kind: (assessMax > 0 && c.assessmentScore / assessMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
+    });
+  }
+
+  if (vitarkaMax > 0) {
+    ecIBreakdown.push({
       label: "Vitarka Discussion",
       contribution: `+${c.vitarkaScore} of a possible ${vitarkaMax}`,
-      kind: (c.vitarkaScore / vitarkaMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
-    },
-    {
+      kind: (vitarkaMax > 0 && c.vitarkaScore / vitarkaMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
+    });
+  }
+
+  if (labsMax > 0) {
+    ecIBreakdown.push({
       label: "Debugging signal",
       contribution: c.labsScore === 0 ? "No lab activity" : c.labsScore >= (labsMax * 0.85) ? "Excellent" : c.labsScore >= (labsMax * 0.7) ? "Strong" : "Average",
       kind: (c.labsScore === 0 ? "neg" : "neu") as "pos" | "neg" | "neu",
-    },
-    {
+    });
+  }
+
+  if (vitarkaMax > 0) {
+    ecIBreakdown.push({
       label: "Architecture signal",
       contribution:
         c.vitarkaScore === 0
@@ -564,8 +578,8 @@ export function getCandidateDetail(
               ? "Reasonable"
               : "Minor gaps",
       kind: (c.vitarkaScore === 0 ? "neg" : "neu") as "pos" | "neg" | "neu",
-    },
-  ];
+    });
+  }
 
   const resume = {
     summary: `${c.experience === 0 ? "Recent graduate" : `${c.experience}+ year engineer`} focused on ${c.domain.toLowerCase()} systems. Currently at ${c.company}, with a track record of shipping production services and mentoring peers.`,

@@ -29,10 +29,10 @@ export const evaluationService = {
     });
   },
 
-  async registerPublicEvaluation(evaluationId: string, accessToken?: string, resumeUrl?: string): Promise<any> {
+  async registerPublicEvaluation(evaluationId: string, accessToken?: string, resumeUrl?: string, phone?: string): Promise<any> {
     return restApiUtil.post(
       `/skill_evaluation/evaluations/${evaluationId}/public_register/`,
-      { resume_url: resumeUrl },
+      { resume_url: resumeUrl, phone },
       {
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
       },

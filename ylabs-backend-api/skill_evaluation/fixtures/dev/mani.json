@@ -1,0 +1,48 @@
+{
+  "lab_questions": [
+    {
+      "title": "Django Cache Invalidation Bug",
+      "type": "BACKEND",
+      "description": "Debug and fix a critical caching bug in a Django REST Framework API. The API caches product details, but fails to invalidate the cache when the product is updated, leading to stale data being returned to users.",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 50,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Cache",
+      "startup_command": "python manage.py migrate && python manage.py runserver",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Fix Cache Invalidation on Update",
+          "description": "When a product is fetched via `GET /api/store/products/<id>/`, its details are cached. However, when the product is updated via `PUT` or `PATCH`, the database is correctly updated but the cache is not cleared. Subsequent `GET` requests return the stale old price until the cache expires (15 minutes later).\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Create a product if none exists via `POST /api/store/products/`.\n3. Expand `GET /api/store/products/{id}/` and click **'Try it out'** to fetch and cache the product.\n4. Expand `PUT /api/store/products/{id}/` and update the price.\n5. Call the `GET` endpoint again and observe that the returned price is the old cached price, not the newly updated price.\n\n**Goal:** Ensure that whenever a product is updated (either fully or partially), the stale cache entry `product_<id>` is immediately deleted.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 50,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

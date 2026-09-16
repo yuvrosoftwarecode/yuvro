@@ -1,0 +1,64 @@
+name: Manage Fixtures Dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'Application for fixture management'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - ycode
+          - ycampus
+          - ylabs
+          - yhub
+      action:
+        description: 'Fixture action: setup (load/seed) or clear (wipe & reload)'
+        required: true
+        default: 'setup'
+        type: choice
+        options:
+          - setup
+          - clear
+
+jobs:
+  manage-fixtures:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.DEPLOY_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-south-1
+    
+    - name: Configure SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.DEPLOY_EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/yuvro-dev.pem
+        chmod 400 ~/.ssh/yuvro-dev.pem
+        echo "SSH key configured"
+    
+    - name: Run Fixtures on EC2 Dev
+      env:
+        DEPLOY_ENV: dev
+        TARGET_APP: ${{ inputs.app }}
+        FIXTURE_ACTION: ${{ inputs.action }}
+        SSH_KEY_PATH: /home/runner/.ssh/yuvro-dev.pem
+      run: |
+        echo "🚀 Running fixture operation [$FIXTURE_ACTION] on EC2 dev for app [$TARGET_APP]..."
+        
+        EXTRA_FLAG=""
+        if [ "$FIXTURE_ACTION" = "clear" ]; then
+          EXTRA_FLAG="--clear"
+        fi
+        
+        bash infra/scripts/runFixtures.sh "$TARGET_APP" $EXTRA_FLAG
+        
+        echo "✅ Fixture operation completed!"
