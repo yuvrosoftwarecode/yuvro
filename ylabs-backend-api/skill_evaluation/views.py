@@ -417,6 +417,15 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def submit_lab(self, request, pk=None):
         evaluation = self.get_object()
         lab_id = request.data.get('lab_id')
+        
+        if not lab_id:
+            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            lab = LabQuestionBank.objects.get(id=lab_id)
+        except LabQuestionBank.DoesNotExist:
+            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
+            
         status_val = request.data.get('status', 'in_review')
         solution = request.data.get('solution', '')
         minutes_solved = request.data.get('minutes_solved')

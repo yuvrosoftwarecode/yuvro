@@ -499,7 +499,8 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 
   const locked = discussionTriggered.current;
 
-  const submitEvaluation = async (autoSubmit: boolean = false) => {
+  const submitEvaluation = async (autoSubmit: boolean | any = false) => {
+    if (typeof autoSubmit !== "boolean") autoSubmit = false;
     try {
       sessionStorage.removeItem(sessionKey);
       sessionStorage.removeItem(sessionDurKey);
@@ -939,7 +940,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           title="End the engineering discussion?"
           body="This will conclude your evaluation and generate your report."
           confirm="End and submit"
-          onConfirm={submitEvaluation}
+          onConfirm={() => submitEvaluation(false)}
           onCancel={() => setModal(null)}
         />
       )}
@@ -948,7 +949,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           title="Submit the evaluation?"
           body="This will conclude your evaluation and generate your report."
           confirm="Submit evaluation"
-          onConfirm={submitEvaluation}
+          onConfirm={() => submitEvaluation(false)}
           onCancel={() => setModal(null)}
         />
       )}
