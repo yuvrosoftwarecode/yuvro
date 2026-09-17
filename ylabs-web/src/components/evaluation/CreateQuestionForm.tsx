@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Plus, X, Trash2, Save, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
-import { ycodeApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { questionBankService } from "@/services/questionBankService";
 import { fetchTopics, checkDuplicateQuestion, PROGRAMMING_LANGUAGES } from "@/lib/recruiter";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -19,14 +19,14 @@ export function CreateQuestionForm({
   const [error, setError] = useState<string | null>(null);
 
   const [type, setType] = useState<"mcq_single" | "mcq_multiple" | "descriptive" | "coding">(
-    initialData?.type || "mcq_single"
+    initialData?.type || (initialData?.format === "Coding" ? "coding" : initialData?.format === "Multiple Select" ? "mcq_multiple" : initialData?.format === "Description" ? "descriptive" : "mcq_single")
   );
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [content, setContent] = useState(initialData?.content || "");
+  const [title, setTitle] = useState(initialData?.title || initialData?.content || "");
+  const [content, setContent] = useState(initialData?.content || initialData?.title || "");
   const [course, setCourse] = useState(initialData?.course || "");
   const [topic, setTopic] = useState(initialData?.topic || "");
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(
-    initialData?.difficulty || "medium"
+    (initialData?.difficulty || "medium").toLowerCase() as any
   );
   const [marks, setMarks] = useState(initialData?.marks || 1);
   const [duration, setDuration] = useState(initialData?.duration_minutes || initialData?.duration || 5);
@@ -41,17 +41,23 @@ export function CreateQuestionForm({
   );
 
   const [testCases, setTestCases] = useState<{ input: string; expected_output: string }[]>(
-    initialData?.test_cases_basic && initialData.test_cases_basic.length > 0
-      ? initialData.test_cases_basic
+    (initialData?.test_cases || initialData?.test_cases_basic) && (initialData.test_cases || initialData.test_cases_basic).length > 0
+      ? (initialData.test_cases || initialData.test_cases_basic)
       : [{ input: "", expected_output: "" }]
   );
 
   const [hints, setHints] = useState<string[]>(
-    initialData?.hints || []
+    (initialData?.hints && initialData.hints.length > 0)
+      ? initialData.hints
+      : []
   );
 
   const [solutions, setSolutions] = useState<any[]>(
-    initialData?.solutions || []
+    (initialData?.solutions && initialData.solutions.length > 0)
+      ? initialData.solutions
+      : initialData?.solution_explanation
+      ? [{ title: "Optimal Solution", language: "python", code: initialData.solution_explanation, is_recommended: true }]
+      : []
   );
 
   const handleHintChange = (index: number, value: string) => {
@@ -98,45 +104,39 @@ export function CreateQuestionForm({
     
     // Skip checking if content is unchanged from initialData
     if (initialData && initialData.content) {
-      const currentNorm = content.trim().toLowerCase().replace(/\s+/g, ' ');
-      const initialNorm = initialData.content.trim().toLowerCase().replace(/\s+/g, ' ');
-      if (currentNorm === initialNorm && course === initialData.course) {
+      if (content.trim().toLowerCase() === initialData.content.trim().toLowerCase()) {
         setDuplicateMeta(null);
-        setIsCheckingDuplicate(false);
         return;
       }
     }
 
-    setIsCheckingDuplicate(true);
-    setDuplicateMeta(null);
-
-    const handler = setTimeout(async () => {
-      const res = await checkDuplicateQuestion(content, course);
-      setDuplicateMeta(res);
-      setIsCheckingDuplicate(false);
+    const timer = setTimeout(() => {
+      setIsCheckingDuplicate(true);
+      checkDuplicateQuestion(content, course)
+        .then((data: any) => {
+          if (data && data.is_duplicate) {
+            setDuplicateMeta(data);
+          } else {
+            setDuplicateMeta(null);
+          }
+        })
+        .finally(() => setIsCheckingDuplicate(false));
     }, 500);
 
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [content, course]);
+    return () => clearTimeout(timer);
+  }, [content, course, initialData]);
 
-  const validate = () => {
-    if (!title.trim()) return "Title is required.";
-    if (!content.trim()) return "Question content is required.";
-    if (!course) return "Course (Subject) is required.";
-    if (marks <= 0) return "Marks must be greater than 0.";
-    if (duration <= 0) return "Duration must be greater than 0.";
-
+  const validate = (): string | null => {
+    if (!title.trim() && !content.trim()) return "Please enter question title or content.";
     if (type === "mcq_single" || type === "mcq_multiple") {
       if (options.length < 2) return "MCQ questions must have at least 2 options.";
-      for (let i = 0; i < options.length; i++) {
-        if (!options[i].text.trim()) return `Option ${i + 1} text cannot be empty.`;
-      }
-      const correctCount = options.filter((o) => o.is_correct).length;
-      if (correctCount === 0) return "MCQ questions must have at least one correct answer.";
-      if (type === "mcq_single" && correctCount > 1) {
-        return "Single answer MCQ questions can only have one correct answer.";
+      const hasEmptyOption = options.some((opt) => !opt.text.trim());
+      if (hasEmptyOption) return "All options must have text.";
+      const hasCorrect = options.some((opt) => opt.is_correct);
+      if (!hasCorrect) return "At least one option must be marked as correct.";
+      if (type === "mcq_single") {
+        const correctCount = options.filter((opt) => opt.is_correct).length;
+        if (correctCount > 1) return "Single Choice MCQ can only have 1 correct answer.";
       }
     } else if (type === "coding") {
       if (testCases.length === 0) return "Coding questions must have at least 1 test case.";
@@ -162,21 +162,23 @@ export function CreateQuestionForm({
     setLoading(true);
 
     try {
-      const payload: any = {
-        type,
-        title,
-        content,
-        level: topic ? "topic" : "course",
-        course,
-        difficulty: difficulty.toLowerCase(),
-        marks,
-        duration,
-        categories: ["ylabs_evaluation"],
+      const formatMap: Record<string, string> = {
+        mcq_single: "MCQ",
+        mcq_multiple: "MULTIPLE SELECT",
+        coding: "CODING",
+        descriptive: "DESCRIPTION"
       };
 
-      if (topic) {
-        payload.topic = topic;
-      }
+      const payload: any = {
+        title: title || content,
+        content: content || title,
+        format: formatMap[type] || "MCQ",
+        course: course || "GENERAL",
+        topic: topic === "no_topic" ? "" : (topic || ""),
+        difficulty: difficulty.toUpperCase(),
+        marks,
+        duration_minutes: duration,
+      };
 
       if (type === "mcq_single" || type === "mcq_multiple") {
         payload.mcq_options = options.map((opt) => ({
@@ -184,10 +186,11 @@ export function CreateQuestionForm({
           is_correct: opt.is_correct,
         }));
       } else if (type === "coding") {
-        payload.test_cases_basic = testCases.map((tc) => ({
+        payload.test_cases = testCases.map((tc) => ({
           input: tc.input.trim(),
           expected_output: tc.expected_output.trim(),
         }));
+        payload.test_cases_basic = payload.test_cases;
         payload.hints = hints.filter(h => h.trim() !== "");
         const usedTitles = new Set();
         payload.solutions = solutions.filter(s => s.code.trim() !== "").map((s, idx) => {
@@ -211,9 +214,9 @@ export function CreateQuestionForm({
 
       let res;
       if (initialData && initialData.id) {
-        res = await ycodeApiAuthUtil.put<any>(`/course/questions/${initialData.id}/`, payload);
+        res = await questionBankService.updateKnowledgeQuestion(initialData.id, payload);
       } else {
-        res = await ycodeApiAuthUtil.post<any>("/course/questions/", payload);
+        res = await questionBankService.createKnowledgeQuestion(payload);
       }
       onSuccess(res);
     } catch (err: any) {
@@ -263,7 +266,7 @@ export function CreateQuestionForm({
   };
 
   return (
-    <div className="flex h-full flex-col bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-200">
+    <div className="flex h-full min-h-0 flex-col bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-200">
       <div className="flex items-center justify-between border-b border-neutral-200 dark:border-white/5 p-6 shrink-0">
         <div>
           <h2 className="text-[16px] font-semibold text-neutral-900 dark:text-white">
@@ -281,7 +284,7 @@ export function CreateQuestionForm({
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto hide-scrollbar p-6">
+      <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar p-6">
         <form id="create-q-form" onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <div className="flex items-center gap-2 rounded-md bg-red-500/10 p-3 text-[13px] text-red-400 border border-red-500/20">
@@ -661,7 +664,7 @@ export function CreateQuestionForm({
           type="button"
           onClick={onClose}
           disabled={loading}
-          className="rounded-md px-5 py-2.5 text-[13px] font-medium text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition disabled:opacity-50"
+          className="rounded-md border border-neutral-200 dark:border-white/10 px-5 py-2.5 text-[13px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition disabled:opacity-50"
         >
           Cancel
         </button>

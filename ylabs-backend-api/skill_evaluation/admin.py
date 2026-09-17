@@ -11,6 +11,7 @@ from .models import (
     CandidateTimelineEvent,
     UserLabQuestionBankSubmission,
     UserKnowledgeAssessmentSubmission,
+    KnowledgeQuestionBank,
     FollowUpConfig,
     FollowUpCandidate,
 )
@@ -55,6 +56,13 @@ class VitarkaAIInterviewQuestionBankAdmin(admin.ModelAdmin):
     list_display = [f.name for f in VitarkaAIInterviewQuestionBank._meta.fields]
     list_filter = ("domain", "experience", "difficulty")
     search_fields = ("title", "description")
+    ordering = ("-created_at",)
+
+@admin.register(KnowledgeQuestionBank)
+class KnowledgeQuestionBankAdmin(admin.ModelAdmin):
+    list_display = ("id", "title", "format", "difficulty", "domain", "experience", "duration_minutes", "marks", "created_at")
+    list_filter = ("format", "domain", "experience", "difficulty")
+    search_fields = ("title", "description", "content")
     ordering = ("-created_at",)
 
 @admin.register(CandidateNote)
