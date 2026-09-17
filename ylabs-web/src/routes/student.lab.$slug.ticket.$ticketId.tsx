@@ -2424,6 +2424,15 @@ export function TicketIDE({
     return Object.fromEntries(
       Object.entries(files).filter(([p, content]) => {
         if (p.endsWith(".db") || p.endsWith(".sqlite")) return false;
+        if (
+          p.includes("yuvro_scoring_rules") ||
+          p.includes("scoring_rules") ||
+          p.startsWith(".") ||
+          p.includes("__pycache__") ||
+          p.includes("node_modules")
+        ) {
+          return false;
+        }
         return content !== "" || loadedFiles.current.has(p);
       })
     );
@@ -2635,7 +2644,7 @@ export function TicketIDE({
               <GitBranch className="h-3 w-3" />Commit
             </button>
           )}
-          {(!isEvaluationMode || !headerActions) && (
+          {(!isEvaluationMode || slug !== "knowledge") && (
             <button onClick={handleSubmit}
               disabled={submitting}
               className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"

@@ -575,27 +575,82 @@ class UnifiedPayloadAdapter:
         value = self._as_float(match.group("minutes"))
         return int(round(value)) if value is not None else None
 
+    def _filter_internal_files_from_diff(self, diff_str: str | None) -> str | None:
+        if not diff_str or not isinstance(diff_str, str):
+            return None
+
+        internal_patterns = (
+            "yuvro_scoring_rules",
+            "scoring_rules",
+            ".git",
+            ".vscode",
+            "__pycache__",
+            "node_modules",
+            ".pytest_cache",
+            ".venv",
+        )
+
+        if diff_str.strip().startswith("{"):
+            try:
+                import json
+                parsed = json.loads(diff_str)
+                if isinstance(parsed, dict):
+                    clean_dict = {
+                        k: v for k, v in parsed.items()
+                        if not any(pat in k for pat in internal_patterns)
+                    }
+                    return json.dumps(clean_dict, indent=2) if clean_dict else None
+            except Exception:
+                pass
+
+        lines = diff_str.splitlines()
+        filtered_lines = []
+        skip_block = False
+
+        for line in lines:
+            if line.startswith("diff --git") or line.startswith("--- a/") or line.startswith("+++ b/"):
+                if any(pat in line for pat in internal_patterns):
+                    skip_block = True
+                    continue
+                else:
+                    skip_block = False
+            elif line.startswith("Index:") or line.startswith("Property changes on:"):
+                if any(pat in line for pat in internal_patterns):
+                    skip_block = True
+                    continue
+                else:
+                    skip_block = False
+
+            if skip_block:
+                continue
+            filtered_lines.append(line)
+
+        res = "\n".join(filtered_lines).strip()
+        return res if res else None
+
     def _parse_code_diff(self, text: str) -> str | None:
+        raw_code = None
         match = re.search(
             r"(?:Code Diff|Submitted Code|Code Implementation|Solution):\s*```(?:[A-Za-z0-9_-]+)?\s*\n(?P<code>.*?)(?:\n```|$)",
             text,
             re.IGNORECASE | re.DOTALL,
         )
         if match:
-            return match.group("code").strip()
+            raw_code = match.group("code").strip()
+        else:
+            match2 = re.search(
+                r"```(?:diff|python|javascript|typescript|json|bash|sh)?\s*\n(?P<code>.*?)(?:\n```|$)",
+                text,
+                re.IGNORECASE | re.DOTALL,
+            )
+            if match2:
+                raw_code = match2.group("code").strip()
+            else:
+                marker = re.search(r"(?:Code Diff|Submitted Code):\s*(?P<code>.*)", text, re.IGNORECASE | re.DOTALL)
+                if marker:
+                    raw_code = marker.group("code").strip()
 
-        match2 = re.search(
-            r"```(?:diff|python|javascript|typescript|json|bash|sh)?\s*\n(?P<code>.*?)(?:\n```|$)",
-            text,
-            re.IGNORECASE | re.DOTALL,
-        )
-        if match2:
-            return match2.group("code").strip()
-
-        marker = re.search(r"(?:Code Diff|Submitted Code):\s*(?P<code>.*)", text, re.IGNORECASE | re.DOTALL)
-        if marker:
-            return marker.group("code").strip()
-        return None
+        return self._filter_internal_files_from_diff(raw_code)
 
     def _extract_block_value(
         self,
