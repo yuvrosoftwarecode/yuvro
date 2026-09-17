@@ -320,7 +320,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     assessmentId: evaluationId,
     assessmentType: "skill_evaluation",
     enabled: !!proctoringConfig.enableProctoring,
-    questionId: activeQuestionId || openLab || section || undefined,
+    questionId: (activeSection?.type === "KNOWLEDGE_ASSESSMENT" ? activeSection.questions?.[qIndex]?.id : null) || activeQuestionId || openLab || section || undefined,
     questionTitle: activeDiscussionQuestion || undefined,
     mediaStream: proctoringData?.cameraStream,
     screenStream: proctoringData?.screenStream,
@@ -421,7 +421,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           if (tabSwitches.current > limit) {
              setModal({ kind: "proctoring-violation", message: `You have exceeded the maximum allowed tab switches (${limit}). Your evaluation is being terminated.` });
              setTimeout(() => {
-               submitEvaluation();
+               submitEvaluation(true);
              }, 3000);
           } else {
              setModal({ kind: "tab-warning" });

@@ -186,7 +186,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         const data = payload[0].payload;
         if (!data.log || data.isBaseline) return null;
         return (
-            <div className="bg-white p-3 rounded-lg shadow-xl border border-neutral-200 max-w-[240px]">
+            <div className="bg-white p-3 rounded-lg shadow-xl border border-neutral-200 max-w-[240px] -translate-y-12">
                 <CustomTooltipContent data={data} label={label} />
             </div>
         );
@@ -224,12 +224,47 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
             }
 
             if (turns) {
-                const aiQuestions = turns
-                    .filter((t: any) => t.speaker === 'assistant' || t.role === 'assistant' || t.speaker === 'AI' || t.role === 'system')
-                    .map((t: any, idx: number) => ({
-                        id: `v-q-${idx}`,
-                        title: t.text || t.content || `Question ${idx + 1}`
-                    }));
+                let aiQuestions: any[] = [];
+                let currentAiQ: any = null;
+                if (Array.isArray(turns)) {
+                    turns.forEach((t: any, idx: number) => {
+                        const isAi = t.speaker === 'assistant' || t.role === 'assistant' || t.speaker === 'AI' || t.role === 'system' || t.type === 'ai';
+                        if (isAi) {
+                            currentAiQ = {
+                                id: `v-q-${aiQuestions.length}`,
+                                title: t.text || t.content || `Question ${aiQuestions.length + 1}`,
+                                answer: null
+                            };
+                            aiQuestions.push(currentAiQ);
+                        } else if (currentAiQ) {
+                            const ansText = t.text || t.content || '';
+                            if (ansText) {
+                                currentAiQ.answer = (currentAiQ.answer ? currentAiQ.answer + '\n' : '') + ansText;
+                            }
+                        }
+                    });
+                }
+                setVitarkaQuestions(aiQuestions);
+            } else {
+                // Fallback: extract questions from general_events if turns are missing
+                const aiQuestions: any[] = [];
+                const seenTitles = new Set<string>();
+                const vitarkaSecId = evaluation?.sections?.find((s: any) => s.type === "VITARKA_AI_INTERVIEW")?.id;
+                
+                if (submission?.general_events && Array.isArray(submission.general_events)) {
+                    submission.general_events.forEach((ev: any) => {
+                        if (ev.question_title && (!vitarkaSecId || ev.question_id === vitarkaSecId)) {
+                            if (!seenTitles.has(ev.question_title)) {
+                                seenTitles.add(ev.question_title);
+                                aiQuestions.push({
+                                    id: `v-q-${aiQuestions.length}`,
+                                    title: ev.question_title,
+                                    answer: null
+                                });
+                            }
+                        }
+                    });
+                }
                 setVitarkaQuestions(aiQuestions);
             }
         };
@@ -306,12 +341,13 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
             'copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected',
             'right_click_detected', 'screenshot_detected', 'keyboard_shortcut',
             'suspicious_movement', 'audio_anomaly', 'audio_anomaly_detected',
-            'network_disconnected', 'network_connected', 'violation_warning', 'violation'
+            'network_disconnected', 'network_connected', 'violation_warning', 'violation',
+            'camera_disabled', 'mic_disabled', 'camera_stopped', 'mic_stopped'
         ];
 
         uniqueEvents.forEach(e => {
             const type = e.activity_type;
-            if (['snapshot', 'camera_enabled', 'camera_disabled'].includes(type)) {
+            if (['snapshot', 'camera_enabled'].includes(type)) {
                 return;
             }
 
@@ -327,7 +363,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
 
         uniqueEvents.forEach(e => {
             const type = e.activity_type;
-            if (['network_disconnected', 'network_connected', 'camera_enabled', 'camera_disabled', 'focus_gained', 'session_start', 'session_submit'].includes(type)) {
+            if (['network_disconnected', 'network_connected', 'camera_enabled', 'camera_disabled', 'camera_stopped', 'mic_disabled', 'mic_stopped', 'focus_gained', 'session_start', 'session_submit'].includes(type)) {
                 if (!systemLogs.some(sl => sl.activity_type === type && sl.timestamp === e.timestamp)) {
                     systemLogs.push(e);
                 }
@@ -950,12 +986,26 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                             return true;
                                         });
                                         
-                                        // Use real time spent calculated from section events
-                                        let realTimeSpent = sectionMock.timeSpent || 0;
-                                        if (allSectionEvents && allSectionEvents.length > 1) {
-                                            const sortedEvents = [...allSectionEvents].sort((a: any, b: any) => a.timestamp - b.timestamp);
-                                            const firstEvt = sortedEvents[0].timestamp;
-                                            const lastEvt = sortedEvents[sortedEvents.length - 1].timestamp;
+                                        // Use real time spent calculated from all section events
+                                        let realTimeSpent = 0;
+                                        const sectionAllEvents = riskAnalysis.uniqueEvents.filter((e: any) => {
+                                            const vQId = e.question_id || (e.meta_data && e.meta_data.question_id);
+                                            const vQTitle = e.question_title || (e.meta_data && e.meta_data.question_title);
+                                            
+                                            // If the event explicitly belongs to ANOTHER section, exclude it!
+                                            if (vQId && (otherSectionQuestionIds.has(String(vQId)) || otherSectionIds.has(String(vQId))) && !secQuestionIds.has(String(vQId)) && String(vQId) !== String(sec.id)) {
+                                                return false;
+                                            }
+                                            if (vQTitle && otherSectionQuestionTitles.has(vQTitle)) {
+                                                return false;
+                                            }
+                                            return true;
+                                        });
+
+                                        if (sectionAllEvents && sectionAllEvents.length > 1) {
+                                            const sortedEvents = [...sectionAllEvents].sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+                                            const firstEvt = new Date(sortedEvents[0].timestamp).getTime();
+                                            const lastEvt = new Date(sortedEvents[sortedEvents.length - 1].timestamp).getTime();
                                             // duration in minutes
                                             const diffMinutes = (lastEvt - firstEvt) / (1000 * 60);
                                             if (diffMinutes > 0) {
@@ -999,7 +1049,9 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                         </div>
                                                         {(() => {
                                                             let resolvedQuestions = sec.questions || [];
-                                                            if (resolvedQuestions.length > 0 && typeof resolvedQuestions[0] === 'string') {
+                                                            if (sec.type === 'VITARKA_AI_INTERVIEW' && vitarkaQuestions && vitarkaQuestions.length > 0) {
+                                                                resolvedQuestions = vitarkaQuestions;
+                                                            } else if (resolvedQuestions.length > 0 && typeof resolvedQuestions[0] === 'string') {
                                                                 resolvedQuestions = resolvedQuestions.map((qId: string, idx: number) => ({
                                                                     id: qId,
                                                                     title: `Engineering Lab ${idx + 1}`
@@ -1043,8 +1095,10 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                                     const vQId = v.question_id || (v.meta_data && v.meta_data.question_id);
                                                                     const isSectionId = activeSections.some((s: any) => s.id === vQId);
                                                                     const t = v.question_title || (isSectionId ? 'General Section Activity' : (vQId ? `Question ${vQId.slice(0,8)}` : 'General / Unknown Question'));
-                                                                    if (!groups.has(t)) groups.set(t, []);
-                                                                    groups.get(t)!.push(v);
+                                                                    if (t !== 'General Section Activity' && t !== 'General / Unknown Question') {
+                                                                        if (!groups.has(t)) groups.set(t, []);
+                                                                        groups.get(t)!.push(v);
+                                                                    }
                                                                 });
                                                                 Array.from(groups.entries()).forEach(([title, events]) => {
                                                                     sectionQuestions.push({ title, events: events.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) });
@@ -1074,6 +1128,12 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                                                 </div>
                                                                             </AccordionTrigger>
                                                                             <AccordionContent className="pt-2 pb-4 border-t border-neutral-100">
+                                                                                {sec.type === 'VITARKA_AI_INTERVIEW' && (q as any).answer && (
+                                                                                    <div className="mb-4 mt-2 bg-slate-50 p-3 rounded-lg text-sm text-slate-700 border border-slate-200">
+                                                                                        <span className="font-semibold text-slate-900 block mb-1">Candidate's Answer:</span>
+                                                                                        {(q as any).answer}
+                                                                                    </div>
+                                                                                )}
                                                                                 {q.events.length === 0 ? (
                                                                                     <div className="text-slate-500 italic text-xs py-2 px-1 flex items-center gap-2">
                                                                                         <ShieldCheck className="w-4 h-4 text-emerald-500" /> No anomalies recorded for this question.
