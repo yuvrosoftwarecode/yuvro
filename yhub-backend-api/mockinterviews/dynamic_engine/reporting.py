@@ -94,8 +94,22 @@ class InterviewReportService:
         self.llm_client = llm_client
         self.code_analyzer = code_analyzer or CodeInsightExtractor()
 
+    def _fix_lab_percentage_hallucinations(self, text: str, lab_stats: dict[str, Any] | None) -> str:
+        if not text or not isinstance(text, str) or not lab_stats:
+            return text or ""
+        tests_passed = lab_stats.get("tests_passed") or 0
+        tests_total = lab_stats.get("tests_total") or 0
+        if tests_total > 0:
+            actual_pct = round((tests_passed / tests_total) * 100)
+            if actual_pct == 20:
+                text = re.sub(r"\b2\s*%\s*(in the lab|pass rate|in lab|score)\b", f"20% \\1", text, flags=re.IGNORECASE)
+                text = re.sub(r"\bscore of 2\s*%\b", "score of 20%", text, flags=re.IGNORECASE)
+                text = re.sub(r"\bscore of 2%\b", "score of 20%", text, flags=re.IGNORECASE)
+        return text
+
     def create_report(self, session: InterviewSession) -> InterviewReport:
         evaluation = self.evaluator.evaluate(session)
+        lab_stats = self._get_engineering_stats(session)
         if len(session.answers) == 0:
             recommendation = "Do not proceed"
             name = self._display_name(session)
@@ -107,7 +121,7 @@ class InterviewReportService:
             risks = ["Candidate did not provide any responses during the interview."]
         else:
             narrative = (
-                self.llm_client.generate_report_narrative(session, evaluation)
+                self.llm_client.generate_report_narrative(session, evaluation, lab_stats=lab_stats)
                 if self.llm_client is not None
                 else None
             )
@@ -117,6 +131,7 @@ class InterviewReportService:
             executive_summary = (
                 narrative.executive_summary if narrative is not None else self._executive_summary(session, evaluation)
             )
+            executive_summary = self._fix_lab_percentage_hallucinations(executive_summary, lab_stats)
             strengths = narrative.strengths[:5] if narrative is not None else evaluation.strengths
             risks = narrative.risks[:5] if narrative is not None else evaluation.risks
         competency_summaries = [

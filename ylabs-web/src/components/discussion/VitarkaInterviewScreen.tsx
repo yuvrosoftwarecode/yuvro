@@ -36,6 +36,7 @@ export function VitarkaInterviewScreen({
   const videoRef = useRef<HTMLVideoElement>(null);
   const recognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
   const interviewStateRef = useRef(interviewState);
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const currentUserAnswerRef = useRef(currentUserAnswer);
@@ -58,6 +59,7 @@ export function VitarkaInterviewScreen({
   }, [conversation, currentUserAnswer]);
 
   const requestPermissions = async () => {
+    onSessionStart?.("started");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setMediaStream(stream);
@@ -79,8 +81,50 @@ export function VitarkaInterviewScreen({
     };
   }, [mediaStream]);
 
+  const resetInactivityTimer = () => {
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    if (isFinishedRef.current) return;
+    inactivityTimerRef.current = setTimeout(() => {
+      handleInactivityTimeout();
+    }, 6000);
+  };
+
+  const INACTIVITY_PHRASES = [
+    "Are you still there? Shall I repeat again?",
+    "Are you there? Would you like me to repeat the question?",
+    "I didn't hear a response. Shall I repeat that for you?",
+    "Are you still with me? Let me know if you'd like me to repeat the question.",
+    "Still there? Would you like me to say the question once more?",
+    "I'm listening. Shall I repeat the question for you?",
+  ];
+
+  const handleInactivityTimeout = () => {
+    if (
+      isFinishedRef.current ||
+      processingRef.current ||
+      interviewStateRef.current !== "listening" ||
+      currentUserAnswerRef.current.replace(/ \[interim\].*$/, "").trim().length > 0
+    ) {
+      return;
+    }
+
+    const promptText = INACTIVITY_PHRASES[Math.floor(Math.random() * INACTIVITY_PHRASES.length)];
+    setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
+    setCurrentUserAnswer("");
+    speakText(promptText);
+  };
+
   const speakText = (text: string) => {
     window.speechSynthesis.cancel();
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
+    // Immediately stop listening so the microphone does NOT pick up AI audio from speakers
+    setInterviewState("speaking");
+    try {
+      recognitionRef.current?.abort();
+    } catch (e) {}
+    setCurrentUserAnswer("");
 
     // Clean text for speech synthesis so symbols like ` are not read aloud as "back quote"
     const cleanSpeechText = text
@@ -99,30 +143,34 @@ export function VitarkaInterviewScreen({
     if (selectedVoice) utterance.voice = selectedVoice;
 
     utterance.onstart = () => {
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       setInterviewState("speaking");
+      try {
+        recognitionRef.current?.abort();
+      } catch (e) {}
     };
 
-    utterance.onend = () => {
-      if (isFinishedRef.current) {
+    const resumeListening = () => {
+      if (isFinishedRef.current || isUnmountedRef.current) {
         setTimeout(() => handleEnd(), 1000);
       } else {
-        setInterviewState("listening");
-        try {
-          recognitionRef.current?.start();
-        } catch (e) {}
+        // Small delay to prevent speaker reverberation from triggering mic
+        setTimeout(() => {
+          if (!isFinishedRef.current && !isUnmountedRef.current && !window.speechSynthesis.speaking) {
+            setInterviewState("listening");
+            setCurrentUserAnswer("");
+            resetInactivityTimer();
+            try {
+              recognitionRef.current?.start();
+            } catch (e) {}
+          }
+        }, 400);
       }
     };
 
-    utterance.onerror = () => {
-      if (isFinishedRef.current) {
-        setTimeout(() => handleEnd(), 1000);
-      } else {
-        setInterviewState("listening");
-        try {
-          recognitionRef.current?.start();
-        } catch (e) {}
-      }
-    };
+    utterance.onend = resumeListening;
+    utterance.onerror = resumeListening;
 
     window.speechSynthesis.speak(utterance);
   };
@@ -179,8 +227,15 @@ export function VitarkaInterviewScreen({
       recognition.lang = "en-US";
 
       recognition.onresult = (event: any) => {
-        if (interviewStateRef.current !== "listening" || isUnmountedRef.current) return;
+        if (
+          interviewStateRef.current !== "listening" ||
+          isUnmountedRef.current ||
+          window.speechSynthesis.speaking
+        ) {
+          return;
+        }
 
+        if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = setTimeout(() => {
           handleAutoSubmit();
@@ -218,6 +273,7 @@ export function VitarkaInterviewScreen({
       try {
         recognitionRef.current?.abort();
       } catch (e) {}
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       window.speechSynthesis.cancel();
       mediaStream?.getTracks().forEach((t) => t.stop());
@@ -225,12 +281,14 @@ export function VitarkaInterviewScreen({
   }, [hasPermissions]);
 
   const handleAutoSubmit = async () => {
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     if (processingRef.current || isFinishedRef.current || interviewStateRef.current !== "listening")
       return;
 
     let cleanAnswer = currentUserAnswerRef.current.replace(/ \[interim\].*$/, "").trim();
     if (!cleanAnswer) {
       setInterviewState("listening");
+      resetInactivityTimer();
       return;
     }
 

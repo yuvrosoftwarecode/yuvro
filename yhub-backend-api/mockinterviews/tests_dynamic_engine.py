@@ -101,7 +101,7 @@ class DynamicEngineIntegrationTest(unittest.TestCase):
             def generate_question(self, session, fallback_question):
                 return None
 
-            def generate_report_narrative(self, session, evaluation):
+            def generate_report_narrative(self, session, evaluation, lab_stats=None):
                 return None
 
         engine = DynamicQuestionEngine(llm_client=FakeLLM())
@@ -552,6 +552,63 @@ Tests: 5 passed out of 5
         report = reporter.create_report(session)
         self.assertEqual(report.max_score, 40.0)
         self.assertEqual(report.scaled_score, 34.0)  # (8.5 / 10) * 40 = 34.0
+
+    def test_intro_only_evaluates_to_zero_score(self):
+        from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
+        from mockinterviews.dynamic_engine.models import CandidateAnswer
+
+        session = InterviewSession.from_create_request(
+            InterviewCreateRequest(
+                mode=InterviewMode.AUTOMATIC,
+                candidate=CandidateContext(candidate_id="cand-intro-only"),
+            )
+        )
+        # Candidate only introduces themselves
+        answer = CandidateAnswer(
+            question_id="intro-q1",
+            answer_text="Hello I am manikanda",
+            metadata={"answer_quality": "intro", "is_intro": True},
+        )
+        session.answers.append(answer)
+
+        evaluator = InterviewEvaluator()
+        evaluation = evaluator.evaluate(session)
+
+        self.assertEqual(evaluation.overall_score, 0.0)
+        self.assertEqual(evaluation.coverage.covered_competencies, 0)
+        for score in evaluation.scores:
+            self.assertEqual(score.score, 0)
+
+    def test_irrelevant_answer_evaluates_to_low_score_and_refocuses(self):
+        from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
+        from mockinterviews.dynamic_engine.models import CandidateAnswer
+
+        engine = DynamicQuestionEngine()
+        session = InterviewSession.from_create_request(
+            InterviewCreateRequest(
+                mode=InterviewMode.AUTOMATIC,
+                candidate=CandidateContext(candidate_id="cand-irrelevant"),
+            )
+        )
+        q1 = engine.next_question(session)
+        answer = engine.record_answer(session, q1.id, "I love eating pizza and watching cricket on weekends")
+
+        self.assertEqual(answer.metadata["answer_quality"], "irrelevant")
+
+        evaluator = InterviewEvaluator()
+        evaluation = evaluator.evaluate(session)
+        self.assertLessEqual(evaluation.overall_score, 2.0)
+
+        q2 = engine.next_question(session)
+        self.assertNotIn("good point", q2.prompt.lower())
+        self.assertIn("stay focused", q2.prompt.lower())
+
+    def test_fix_lab_percentage_hallucinations(self):
+        reporter = InterviewReportService()
+        lab_stats = {"tests_passed": 1, "tests_total": 5, "score": 2.0}
+        text = "leading to a score of 2% in the lab exercise."
+        fixed = reporter._fix_lab_percentage_hallucinations(text, lab_stats)
+        self.assertEqual("leading to a score of 20% in the lab exercise.", fixed)
 
 
 if __name__ == "__main__":

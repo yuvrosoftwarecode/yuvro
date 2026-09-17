@@ -151,11 +151,21 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
             });
             mappedSections.push({ type: "LAB", id: sec.id, title: sec.title || "Engineering Labs", labs: mappedLabs, proctoring: pc });
           } else if (sec.type === "KNOWLEDGE_ASSESSMENT") {
+            let totalQMinutes = 0;
+            (sec.questions || []).forEach((q: any) => {
+              const qDur = Number(q.duration_minutes || (q.seconds ? Math.ceil(q.seconds / 60) : 0) || (q.duration ? Number(q.duration) : 0) || 0);
+              totalQMinutes += qDur;
+            });
+            const sectionDuration = totalQMinutes > 0
+              ? totalQMinutes
+              : (sec.duration_minutes || sec.duration || (sec.questions?.length ? sec.questions.length * 1 : 10));
+
             mappedSections.push({
               type: "KNOWLEDGE_ASSESSMENT",
               id: sec.id,
               title: sec.title || "Knowledge Assessment",
               proctoring: pc,
+              duration_minutes: sectionDuration,
               questions: (sec.questions || []).map((q: any) => {
                 const isMcq = Array.isArray(q.mcq_options) && q.mcq_options.length > 0;
                 let mappedOptions = q.options || [];
@@ -188,7 +198,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   examples: Array.isArray(q.test_cases_basic) ? q.test_cases_basic : []
                 };
               })
-            });
+            } as any);
           } else if (sec.type === "VITARKA_AI_INTERVIEW") {
             mappedSections.push({ type: "VITARKA_AI_INTERVIEW", id: sec.id, title: sec.title || "Engineering Discussion", description: sec.description, proctoring: pc });
             if (sec.questions && Array.isArray(sec.questions) && sec.questions.length > 0) {
@@ -224,50 +234,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       if (dQs.length > 0) setDiscussionQuestions(dQs);
 
       setLabsData(mappedLabs);
-
-      const totalMins = res.duration_minutes || res.duration || res.settings?.duration || durationMinutes || 60;
-      const totalSecs = totalMins * 60;
-      totalDurationSecondsRef.current = totalSecs;
-      try { sessionStorage.setItem(sessionDurKey, String(totalSecs)); } catch {}
-
-      let startedAt = res.started_at;
-      if (!startedAt) {
-        try {
-          startedAt = sessionStorage.getItem(sessionKey);
-        } catch {}
-      }
-      if (!startedAt) {
-        startedAt = new Date().toISOString();
-      }
-      try {
-        sessionStorage.setItem(sessionKey, startedAt);
-      } catch {}
-
-      startedAtRef.current = startedAt;
-      const elapsed = Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000);
-      let remainingSeconds = Math.max(0, totalSecs - elapsed);
-      setRemaining(remainingSeconds);
   };
 
-  const sessionKey = `eval_start_${evaluationId || (previewData ? 'preview' : 'default')}`;
-  const sessionDurKey = `eval_dur_${evaluationId || (previewData ? 'preview' : 'default')}`;
+  const evalPrefix = evaluationId || (previewData ? 'preview' : 'default');
 
-  const [remaining, setRemaining] = useState<number>(() => {
-    try {
-      if (typeof window !== "undefined") {
-        const savedStart = sessionStorage.getItem(`eval_start_${evaluationId || (previewData ? 'preview' : 'default')}`);
-        const savedDur = sessionStorage.getItem(`eval_dur_${evaluationId || (previewData ? 'preview' : 'default')}`);
-        const dur = savedDur ? parseInt(savedDur, 10) : TOTAL_SECONDS;
-        if (savedStart) {
-          const elapsed = Math.floor((Date.now() - new Date(savedStart).getTime()) / 1000);
-          return Math.max(0, dur - elapsed);
-        }
-      }
-    } catch {}
-    return TOTAL_SECONDS;
-  });
-  const startedAtRef = useRef<string | null>(typeof window !== "undefined" ? sessionStorage.getItem(`eval_start_${evaluationId || (previewData ? 'preview' : 'default')}`) : null);
-  const totalDurationSecondsRef = useRef<number>(TOTAL_SECONDS);
   const [section, setSection] = useState<string | null>(null);
   const [openLab, setOpenLab] = useState<LabId | null>(null);
   const [submittedLabs, setSubmittedLabs] = useState<Set<LabId>>(new Set());
@@ -306,7 +276,6 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "submit-evaluation" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" } | { kind: "proctoring-violation"; message: string }>(null);
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved">("saved");
   const [online, setOnline] = useState(true);
-  const discussionTriggered = useRef(false);
   const tabSwitches = useRef(0);
 
   const [proctoringData, setProctoringData] = useState<ProctoringData | null>(getGlobalProctoringData());
@@ -316,6 +285,180 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const proctoringConfig = activeSection?.proctoring || {};
   
   const anySectionNeedsProctoring = useMemo(() => appSections.some(s => s.proctoring?.enableProctoring), [appSections]);
+
+  // Section completion & unlocking helper
+  const isSectionCompleted = (sec: AppSection): boolean => {
+    if (submittedSections.has(sec.id)) return true;
+    if (sec.type === "LAB") {
+      return sec.labs.length > 0 && sec.labs.every(l => submittedLabs.has(l.id));
+    }
+    return false;
+  };
+
+  const isSectionUnlocked = (secIdx: number): boolean => {
+    if (secIdx <= 0) return true;
+    for (let i = 0; i < secIdx; i++) {
+      if (!isSectionCompleted(appSections[i])) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // Active Timer Resolution (Per-Lab & Per-Section)
+  interface ActiveTimerInfo {
+    key: string;
+    title: string;
+    subTitle?: string;
+    durationSeconds: number;
+    isSubmitted: boolean;
+    type: "LAB_ITEM" | "LAB_SECTION" | "KNOWLEDGE_ASSESSMENT" | "VITARKA_AI_INTERVIEW" | "UNKNOWN";
+    labId?: string;
+    sectionId?: string;
+  }
+
+  const activeTimerInfo = useMemo<ActiveTimerInfo | null>(() => {
+    if (!activeSection) return null;
+
+    if (activeSection.type === "LAB") {
+      if (openLab) {
+        const lab = activeSection.labs.find(l => l.id === openLab);
+        const isSub = submittedLabs.has(openLab);
+        return {
+          key: `eval_${evalPrefix}_timer_lab_${openLab}`,
+          title: activeSection.title || "Engineering Labs",
+          subTitle: lab?.title || "Lab",
+          durationSeconds: (lab?.minutes || 30) * 60,
+          isSubmitted: isSub,
+          type: "LAB_ITEM",
+          labId: openLab,
+          sectionId: activeSection.id,
+        };
+      }
+      const isSub = isSectionCompleted(activeSection);
+      const totalSecs = activeSection.labs.reduce((acc, l) => acc + (l.minutes || 30) * 60, 0) || 30 * 60;
+      return {
+        key: `eval_${evalPrefix}_timer_sec_${activeSection.id}`,
+        title: activeSection.title || "Engineering Labs",
+        subTitle: "Overview",
+        durationSeconds: totalSecs,
+        isSubmitted: isSub,
+        type: "LAB_SECTION",
+        sectionId: activeSection.id,
+      };
+    }
+
+    if (activeSection.type === "KNOWLEDGE_ASSESSMENT") {
+      const isSub = submittedSections.has(activeSection.id);
+      let totalQMinutes = 0;
+      (activeSection.questions || []).forEach((q: any) => {
+        const qDur = Number(q.duration_minutes || (q.seconds ? Math.ceil(q.seconds / 60) : 0) || (q.duration ? Number(q.duration) : 0) || 0);
+        totalQMinutes += qDur;
+      });
+      const durationMinutes = (activeSection as any).duration_minutes || (totalQMinutes > 0 ? totalQMinutes : (activeSection.questions?.length ? activeSection.questions.length * 1 : 10));
+      return {
+        key: `eval_${evalPrefix}_timer_sec_${activeSection.id}`,
+        title: activeSection.title || "Knowledge Assessment",
+        durationSeconds: durationMinutes * 60,
+        isSubmitted: isSub,
+        type: "KNOWLEDGE_ASSESSMENT",
+        sectionId: activeSection.id,
+      };
+    }
+
+    if (activeSection.type === "VITARKA_AI_INTERVIEW") {
+      const isSub = submittedSections.has(activeSection.id);
+      let meta: any = {};
+      try { meta = JSON.parse(activeSection.description || "{}"); } catch {}
+      const durationMinutes = meta.duration_minutes || 15;
+      return {
+        key: `eval_${evalPrefix}_timer_sec_${activeSection.id}`,
+        title: activeSection.title || "Engineering Discussion",
+        durationSeconds: durationMinutes * 60,
+        isSubmitted: isSub,
+        type: "VITARKA_AI_INTERVIEW",
+        sectionId: activeSection.id,
+      };
+    }
+
+    return null;
+  }, [activeSection, openLab, submittedLabs, submittedSections, evalPrefix]);
+
+  const getStorageItem = (key: string) => {
+    try {
+      return localStorage.getItem(key) || sessionStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  };
+
+  const setStorageItem = (key: string, val: string) => {
+    try { localStorage.setItem(key, val); } catch {}
+    try { sessionStorage.setItem(key, val); } catch {}
+  };
+
+  const computeRemaining = (info: ActiveTimerInfo | null): number => {
+    if (!info) return 0;
+    if (info.isSubmitted) return 0;
+    try {
+      let startedAt = getStorageItem(info.key);
+      // If this is a lab item and its timer hasn't been set, inherit from section timer if available
+      if (!startedAt && info.type === "LAB_ITEM" && info.sectionId) {
+        startedAt = getStorageItem(`eval_${evalPrefix}_timer_sec_${info.sectionId}`);
+      }
+      // Vitarka AI Interview timer only starts when candidate explicitly starts the interview
+      if (!startedAt && info.type === "VITARKA_AI_INTERVIEW") {
+        return info.durationSeconds;
+      }
+      // If still not started, start now and persist across localStorage & sessionStorage
+      if (!startedAt) {
+        startedAt = new Date().toISOString();
+        setStorageItem(info.key, startedAt);
+        if (info.sectionId) {
+          setStorageItem(`eval_${evalPrefix}_timer_sec_${info.sectionId}`, startedAt);
+        }
+      } else {
+        setStorageItem(info.key, startedAt);
+      }
+      const elapsed = Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000);
+      return Math.max(0, info.durationSeconds - elapsed);
+    } catch {
+      return info.durationSeconds;
+    }
+  };
+
+  const [remaining, setRemaining] = useState<number>(() => computeRemaining(activeTimerInfo));
+
+  // Timer interval updates for the active item
+  useEffect(() => {
+    if (!activeTimerInfo) return;
+    const initialRem = computeRemaining(activeTimerInfo);
+    setRemaining(initialRem);
+
+    if (activeTimerInfo.isSubmitted) return;
+
+    const t = setInterval(() => {
+      const currentRem = computeRemaining(activeTimerInfo);
+      setRemaining(currentRem);
+      if (currentRem <= 0) {
+        clearInterval(t);
+        if (activeTimerInfo.type === "LAB_ITEM" && activeTimerInfo.labId) {
+          confirmSubmitLab(activeTimerInfo.labId);
+        } else if (activeTimerInfo.type === "LAB_SECTION" && activeTimerInfo.sectionId) {
+          const sec = appSections.find(s => s.id === activeTimerInfo.sectionId);
+          if (sec && sec.type === "LAB") {
+            sec.labs.forEach(l => confirmSubmitLab(l.id));
+          }
+        } else if (activeTimerInfo.type === "KNOWLEDGE_ASSESSMENT" && activeTimerInfo.sectionId) {
+          confirmSubmitSection(activeTimerInfo.sectionId);
+        } else if (activeTimerInfo.type === "VITARKA_AI_INTERVIEW") {
+          submitEvaluation(true);
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(t);
+  }, [activeTimerInfo?.key, activeTimerInfo?.isSubmitted]);
 
   const { logActivity } = useProctoring({
     assessmentId: evaluationId,
@@ -331,7 +474,6 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     onViolation: (type, data) => {
       // Handle violation
       console.warn("Proctoring violation:", type, data);
-      // We rely on our custom useEffect for tab switch and copy/paste modals & enforcement
     },
     onAutoSubmit: () => {
       submitEvaluation(true);
@@ -377,40 +519,6 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     checkMedia();
     return () => clearInterval(intervalId);
   }, [anySectionNeedsProctoring, proctoringData]);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setRemaining(r => {
-        if (startedAtRef.current) {
-          const elapsed = Math.floor((Date.now() - new Date(startedAtRef.current).getTime()) / 1000);
-          const rem = Math.max(0, totalDurationSecondsRef.current - elapsed);
-          if (rem <= 0) {
-            clearInterval(t);
-            return 0;
-          }
-          return rem;
-        }
-
-        if (r <= 1) { clearInterval(t); return 0; }
-        return r - 1;
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  useEffect(() => {
-    if (remaining <= DISCUSSION_LOCK_SECONDS && !discussionTriggered.current && remaining > 0) {
-      discussionTriggered.current = true;
-      const discussionSection = appSections.find(s => s.type === "VITARKA_AI_INTERVIEW");
-      if (discussionSection) {
-        setSection(discussionSection.id);
-        setOpenLab(null);
-        setActiveQuestionId(null);
-        setModal({ kind: "discussion-starting" });
-      }
-    }
-    if (remaining === 0) submitEvaluation();
-  }, [remaining]);
 
   // Tab-switch warning & Copy/Paste prevention
   useEffect(() => {
@@ -482,7 +590,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
         } catch (err) {
           console.error(err);
         }
-        setSubmittedLabs(prev => new Set(prev).add(e.data.labId));
+        setSubmittedLabs(prev => {
+          const nextLabs = new Set(prev).add(e.data.labId);
+          const activeLabSec = appSections.find(s => s.type === "LAB" && s.labs.some(l => l.id === e.data.labId));
+          if (activeLabSec && activeLabSec.labs.every(l => nextLabs.has(l.id))) {
+            setSubmittedSections(sPrev => new Set(sPrev).add(activeLabSec.id));
+          }
+          return nextLabs;
+        });
         setOpenLab(null);
         setModal(null);
       }
@@ -498,13 +613,16 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     (touchAutosave as any)._t = window.setTimeout(() => setAutosave("saved"), 600);
   };
 
-  const locked = discussionTriggered.current;
-
   const submitEvaluation = async (autoSubmit: boolean | any = false) => {
     if (typeof autoSubmit !== "boolean") autoSubmit = false;
     try {
-      sessionStorage.removeItem(sessionKey);
-      sessionStorage.removeItem(sessionDurKey);
+      const pfx = `eval_${evalPrefix}_timer_`;
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const k = sessionStorage.key(i);
+        if (k && k.startsWith(pfx)) {
+          sessionStorage.removeItem(k);
+        }
+      }
     } catch {}
     try {
       await evaluationService.finishEvaluation?.(evaluationId, autoSubmit);
@@ -516,22 +634,38 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   };
 
   const getSectionStatus = (secId: string): Status => {
+    const idx = appSections.findIndex(s => s.id === secId);
+    if (idx !== -1 && !isSectionUnlocked(idx)) return "locked";
     if (submittedSections.has(secId)) return "complete";
     if (section === secId) return "current";
     return "not-started";
   };
   const getLabStatus = (secId: string, labs: RealLab[]): Status => {
+    const idx = appSections.findIndex(s => s.id === secId);
+    if (idx !== -1 && !isSectionUnlocked(idx)) return "locked";
     const submittedCount = labs.filter(l => submittedLabs.has(l.id)).length;
-    if (submittedCount === labs.length && labs.length > 0) return "complete";
+    if (submittedSections.has(secId) || (submittedCount === labs.length && labs.length > 0)) return "complete";
     if (submittedCount > 0) return "in-progress";
     if (section === secId) return "current";
     return "not-started";
   };
-  const isDiscussionSection = appSections.find(x => x.id === section)?.type === "VITARKA_AI_INTERVIEW";
-  const discussionStatus = isDiscussionSection ? "current" : "not-started";
+  const discussionIdx = appSections.findIndex(x => x.type === "VITARKA_AI_INTERVIEW");
+  const isDiscussionUnlocked = discussionIdx !== -1 ? isSectionUnlocked(discussionIdx) : false;
+  const discussionStatus: Status = !isDiscussionUnlocked 
+    ? "locked" 
+    : (discussionIdx !== -1 && submittedSections.has(appSections[discussionIdx]?.id) 
+        ? "complete" 
+        : (discussionIdx !== -1 && section === appSections[discussionIdx]?.id ? "current" : "not-started"));
+
   const goSection = (s: string) => {
-    const isDiscussion = appSections.find(x => x.id === s)?.type === "VITARKA_AI_INTERVIEW";
-    if (locked && !isDiscussion) return;
+    const targetIdx = appSections.findIndex(x => x.id === s);
+    if (targetIdx === -1) return;
+    if (isSectionCompleted(appSections[targetIdx])) {
+      return; // Cannot navigate back to already submitted sections
+    }
+    if (!isSectionUnlocked(targetIdx)) {
+      return; // Locked section: cannot navigate until earlier sections are submitted
+    }
     setSection(s);
     setOpenLab(null);
     setActiveQuestionId(null);
@@ -552,7 +686,20 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     } catch (e) {
       console.error(e);
     }
-    setSubmittedLabs(prev => new Set(prev).add(labId));
+    setSubmittedLabs(prev => {
+      const nextLabs = new Set(prev).add(labId);
+      const activeLabSec = appSections.find(s => s.type === "LAB" && s.labs.some(l => l.id === labId));
+      if (activeLabSec && activeLabSec.labs.every(l => nextLabs.has(l.id))) {
+        setSubmittedSections(sPrev => new Set(sPrev).add(activeLabSec.id));
+        const idx = appSections.findIndex(s => s.id === activeLabSec.id);
+        if (idx !== -1 && idx + 1 < appSections.length) {
+          setSection(appSections[idx + 1].id);
+          setOpenLab(null);
+          setQIndex(0);
+        }
+      }
+      return nextLabs;
+    });
     setOpenLab(null);
     setModal(null);
   };
@@ -598,10 +745,12 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     } catch (e) {}
     setSubmittedSections(prev => new Set(prev).add(secId));
     setActiveQuestionId(null);
+    setModal(null);
     const idx = appSections.findIndex(s => s.id === secId);
     if (idx !== -1 && idx + 1 < appSections.length) {
-      goSection(appSections[idx + 1].id);
-      setModal(null);
+      setSection(appSections[idx + 1].id);
+      setOpenLab(null);
+      setQIndex(0);
     } else {
       setModal({ kind: "submit-evaluation" });
     }
@@ -697,15 +846,50 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 
           if (submission && (submission.solution || submission.score !== undefined)) {
             hasSubmissions = true;
-            const isDiff = typeof submission.solution === 'string' && submission.solution.includes('diff --git');
             const scoreVal = submission.score ?? 100;
             labDetails += `Score: ${scoreVal}/100\n`;
             labDetails += `Tests: ${scoreVal === 100 ? 5 : Math.round((scoreVal / 100) * 5)} passed out of 5\n`;
             labDetails += `Time spent: ${submission.minutes_solved || 1} minutes\n`;
-            if (isDiff) {
-              labDetails += `Code Diff:\n\`\`\`diff\n${submission.solution}\n\`\`\`\n`;
+
+            const isInternal = (path: string) =>
+              path.includes("yuvro_scoring_rules") ||
+              path.includes("scoring_rules") ||
+              path.includes("__pycache__") ||
+              path.includes("node_modules") ||
+              path.startsWith(".");
+
+            if (typeof submission.solution === 'string' && submission.solution.includes('diff --git')) {
+              const cleanDiff = submission.solution
+                .split(/(?=diff --git)/g)
+                .filter((block: string) => !isInternal(block))
+                .join("")
+                .trim();
+
+              if (cleanDiff) {
+                labDetails += `Code Diff:\n\`\`\`diff\n${cleanDiff}\n\`\`\`\n`;
+              } else {
+                labDetails += `Status: Submitted (No user code diffs).\n`;
+              }
             } else if (submission.solution) {
-              labDetails += `Submitted Code:\n\`\`\`\n${submission.solution}\n\`\`\`\n`;
+              try {
+                const parsed = typeof submission.solution === 'string' ? JSON.parse(submission.solution) : submission.solution;
+                if (typeof parsed === 'object' && parsed !== null) {
+                  const cleanFiles = Object.fromEntries(
+                    Object.entries(parsed).filter(([p]) => !isInternal(p))
+                  );
+                  if (Object.keys(cleanFiles).length > 0) {
+                    labDetails += `Submitted Code:\n\`\`\`json\n${JSON.stringify(cleanFiles, null, 2)}\n\`\`\`\n`;
+                  } else {
+                    labDetails += `Status: Submitted (No user code files).\n`;
+                  }
+                } else if (!isInternal(String(submission.solution))) {
+                  labDetails += `Submitted Code:\n\`\`\`\n${submission.solution}\n\`\`\`\n`;
+                }
+              } catch {
+                if (!isInternal(String(submission.solution))) {
+                  labDetails += `Submitted Code:\n\`\`\`\n${submission.solution}\n\`\`\`\n`;
+                }
+              }
             }
           } else {
             labDetails += `Status: Not submitted or no code diff available.\n`;
@@ -769,6 +953,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
         autosave={autosave}
         section={section}
         appSections={appSections}
+        activeItemInfo={activeTimerInfo}
         onExit={() => setModal({ kind: "exit" })}
       />
 
@@ -779,14 +964,31 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           openLab={openLab}
           activeQuestionId={String(qIndex)}
           onSelectSection={goSection}
-          onSelectLab={(id) => { setSection(appSections.find(s => s.type === "LAB")?.id || ""); setOpenLab(id); }}
-          onSelectQuestion={(secId, idxStr) => { setSection(secId); setQIndex(parseInt(idxStr)); }}
+          onSelectLab={(id) => { 
+            if (submittedLabs.has(id)) return;
+            const labSec = appSections.find(s => s.type === "LAB" && s.labs.some(l => l.id === id));
+            if (labSec) {
+              const secIdx = appSections.findIndex(s => s.id === labSec.id);
+              if (isSectionUnlocked(secIdx) && !submittedSections.has(labSec.id)) {
+                setSection(labSec.id);
+                setOpenLab(id);
+              }
+            }
+          }}
+          onSelectQuestion={(secId, idxStr) => { 
+            if (submittedSections.has(secId)) return;
+            const targetIdx = appSections.findIndex(s => s.id === secId);
+            if (isSectionUnlocked(targetIdx)) {
+              setSection(secId);
+              setQIndex(parseInt(idxStr));
+            }
+          }}
           getSectionStatus={getSectionStatus}
           getLabStatus={getLabStatus}
           discussionStatus={discussionStatus}
           submittedLabs={submittedLabs}
           submittedSections={submittedSections}
-          locked={locked}
+          isSectionUnlocked={isSectionUnlocked}
           collapsed={isSidebarCollapsed}
           onToggleCollapse={() => setIsSidebarCollapsed(c => !c)}
         />
@@ -827,7 +1029,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                 };
                 return (
                   <TicketIDE
-                    key={sec.id}
+                    key={lab.id}
                     slug={lab.id}
                     ticket={mappedTicket}
                     previewOverride={null}
@@ -843,9 +1045,12 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   onOpen={(id) => setOpenLab(id)}
                   nextSectionTitle={appSections.findIndex(s => s.id === sec.id) + 1 < appSections.length ? appSections[appSections.findIndex(s => s.id === sec.id) + 1].title : undefined}
                   onFinishSection={() => {
+                    setSubmittedSections(prev => new Set(prev).add(sec.id));
                     const idx = appSections.findIndex(s => s.id === sec.id);
                     if (idx + 1 < appSections.length) {
-                      goSection(appSections[idx + 1].id);
+                      setSection(appSections[idx + 1].id);
+                      setOpenLab(null);
+                      setQIndex(0);
                     } else {
                       setModal({ kind: "submit-evaluation" });
                     }
@@ -878,7 +1083,9 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   onFinishSection={() => {
                     const idx = appSections.findIndex(s => s.id === sec.id);
                     if (idx + 1 < appSections.length) {
-                      goSection(appSections[idx + 1].id);
+                      setSection(appSections[idx + 1].id);
+                      setOpenLab(null);
+                      setQIndex(0);
                     } else {
                       setModal({ kind: "submit-evaluation" });
                     }
@@ -909,7 +1116,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   discussionMaxScore={meta.marks ?? meta.max_score ?? 25}
                   onEnd={() => setModal({ kind: "end-discussion" })}
                   onQuestionChange={(q) => setActiveDiscussionQuestion(q)}
-                  onSessionStart={(sId) => logActivity('vitarka_session_started', { session_id: sId })}
+                  onSessionStart={(sId) => {
+                    logActivity('vitarka_session_started', { session_id: sId });
+                    const timerKey = `eval_${evalPrefix}_timer_sec_${sec.id}`;
+                    if (!getStorageItem(timerKey)) {
+                      setStorageItem(timerKey, new Date().toISOString());
+                      setRemaining(computeRemaining(activeTimerInfo));
+                    }
+                  }}
                 />
               );
             }
@@ -927,7 +1141,17 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               })()}
               onEnd={() => setModal({ kind: "end-discussion" })}
               onQuestionChange={(q) => setActiveDiscussionQuestion(q)}
-              onSessionStart={(sId) => logActivity('vitarka_session_started', { session_id: sId })}
+              onSessionStart={(sId) => {
+                logActivity('vitarka_session_started', { session_id: sId });
+                const vSec = appSections.find(s => s.type === "VITARKA_AI_INTERVIEW");
+                if (vSec) {
+                  const timerKey = `eval_${evalPrefix}_timer_sec_${vSec.id}`;
+                  if (!getStorageItem(timerKey)) {
+                    setStorageItem(timerKey, new Date().toISOString());
+                    setRemaining(computeRemaining(activeTimerInfo));
+                  }
+                }
+              }}
             />
           )}
         </main>
@@ -946,7 +1170,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       {modal?.kind === "submit-section" && (
         <Confirm
           title={`Submit ${appSections.find(s => s.id === modal.id)?.title} section?`}
-          body="You cannot return to these questions once submitted."
+          body="Once submitted, your answers will be recorded and you will proceed to the next section. You cannot return to this section once submitted."
           confirm="Submit section"
           onConfirm={() => confirmSubmitSection(modal.id)}
           onCancel={() => setModal(null)}
@@ -992,7 +1216,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       {modal?.kind === "discussion-starting" && (
         <Confirm
           title="The engineering discussion will now begin"
-          body="The remaining 15 minutes are reserved for your discussion. Labs, assessment and the coding challenge are now locked."
+          body="The engineering discussion is starting. Ensure your microphone is ready."
           confirm="Begin discussion"
           onConfirm={() => setModal(null)}
         />
@@ -1014,38 +1238,73 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 // Top bar
 // ────────────────────────────────────────────────────────────────────────────
 
-function TopBar({ remaining, online, autosave, section, appSections, onExit }: { remaining: number; online: boolean; autosave: "idle" | "saving" | "saved"; section: string | null; appSections: AppSection[]; onExit: () => void }) {
+function TopBar({ 
+  remaining, 
+  online, 
+  autosave, 
+  section, 
+  appSections, 
+  activeItemInfo, 
+  onExit 
+}: { 
+  remaining: number; 
+  online: boolean; 
+  autosave: "idle" | "saving" | "saved"; 
+  section: string | null; 
+  appSections: AppSection[]; 
+  activeItemInfo: any; 
+  onExit: () => void 
+}) {
   const fmt = (s: number) => {
     const h = Math.floor(s / 3600);
     const m = Math.floor((s % 3600) / 60);
     const sec = s % 60;
     return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}` : `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   };
-  const critical = remaining <= 15 * 60;
+  const isCompleted = activeItemInfo?.isSubmitted;
+  const critical = !isCompleted && remaining <= 5 * 60;
 
   return (
     <header className="flex h-12 shrink-0 items-center justify-between border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-[#0c0c0e]/80 px-5 backdrop-blur text-neutral-900 dark:text-neutral-100">
       <div className="flex min-w-0 items-center gap-4">
         <div className="grid h-6 w-6 place-items-center rounded-md bg-neutral-900 dark:bg-neutral-800 text-[10px] font-mono text-white">Y</div>
         <div className="min-w-0">
-          <div className="truncate text-[12px] leading-none text-neutral-500 dark:text-neutral-400">Yuvro Labs · Backend Engineer Evaluation</div>
+          <div className="truncate text-[12px] leading-none text-neutral-500 dark:text-neutral-400">Yuvro Labs · Evaluation</div>
           <div className="mt-1 flex items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-400">
-            <span>Section</span>
-            <span className="text-neutral-900 dark:text-neutral-100">{sectionLabel(section, appSections)}</span>
+            <span>Section:</span>
+            <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+              {activeItemInfo?.title || sectionLabel(section, appSections)}
+            </span>
+            {activeItemInfo?.subTitle && (
+              <>
+                <span className="text-neutral-300 dark:text-neutral-700">·</span>
+                <span className="text-neutral-700 dark:text-neutral-300 font-medium">
+                  {activeItemInfo.subTitle}
+                </span>
+              </>
+            )}
+            {isCompleted && (
+              <span className="ml-1 inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                Completed
+              </span>
+            )}
           </div>
         </div>
       </div>
 
-      <div className={`font-mono text-[15px] tracking-wide ${critical ? "text-neutral-900 dark:text-neutral-100" : "text-neutral-700 dark:text-neutral-300"}`}>
-        {fmt(remaining)}
+      <div className="flex items-center gap-2">
+        <span className="text-[11px] uppercase tracking-wider text-neutral-400 dark:text-neutral-500 font-medium">
+          {isCompleted ? "Status" : "Time remaining"}:
+        </span>
+        <div className={`font-mono text-[15px] font-semibold tracking-wide ${isCompleted ? "text-emerald-600 dark:text-emerald-400" : critical ? "text-red-600 dark:text-red-400 animate-pulse" : "text-neutral-800 dark:text-neutral-200"}`}>
+          {isCompleted ? "Done" : fmt(remaining)}
+        </div>
       </div>
 
       <div className="flex items-center gap-3 text-[11px] text-neutral-500 dark:text-neutral-400">
         <StatusDot label={online ? "Online" : "Reconnecting"} tone={online ? "ok" : "warn"} />
-        <StatusDot label="Camera" tone="ok" />
-        <StatusDot label="Fullscreen" tone="ok" />
-        <button className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Help</button>
-        <button onClick={onExit} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Exit</button>
+        <StatusDot label="Proctoring" tone="ok" />
+        <button onClick={onExit} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">Exit</button>
         <ThemeToggle />
       </div>
     </header>
@@ -1086,7 +1345,7 @@ function sectionLabel(s: string | null, appSections: AppSection[]) {
 
 // ────────────────────────────────────────────────────────────────────────────
 // Sidebar
-// ────────────────────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────────────
 
 type Status = "not-started" | "current" | "in-progress" | "complete" | "locked";
 
@@ -1095,14 +1354,14 @@ function Sidebar({
   section, openLab, activeQuestionId,
   onSelectSection, onSelectLab, onSelectQuestion,
   getSectionStatus, getLabStatus, discussionStatus,
-  submittedLabs, submittedSections, locked,
+  submittedLabs, submittedSections, isSectionUnlocked,
   collapsed, onToggleCollapse,
 }: {
   appSections: AppSection[];
   section: string | null; openLab: string | null; activeQuestionId: string | null;
   onSelectSection: (s: string) => void; onSelectLab: (id: string) => void; onSelectQuestion: (secId: string, id: string) => void;
   getSectionStatus: (id: string) => Status; getLabStatus: (secId: string, labs: RealLab[]) => Status; discussionStatus: Status;
-  submittedLabs: Set<string>; submittedSections: Set<string>; locked: boolean;
+  submittedLabs: Set<string>; submittedSections: Set<string>; isSectionUnlocked: (idx: number) => boolean;
   collapsed: boolean; onToggleCollapse: () => void;
 }) {
   const labSections = appSections.filter(s => s.type === "LAB");
@@ -1188,9 +1447,16 @@ function Sidebar({
   let sectionCount = 0;
   if (labSections.length > 0) sectionCount++;
   if (knowledgeSections.length > 0) sectionCount++;
-  sectionCount++; // discussion
+  if (discussionSection) sectionCount++;
 
-  const knowStatus: Status = knowledgeSections.every(s => submittedSections.has(s.id)) && knowledgeSections.length > 0 ? "complete" : knowledgeSections.some(s => getSectionStatus(s.id) === "in-progress" || section === s.id) ? "in-progress" : section === "knowledge" ? "current" : "not-started";
+  const firstKnowSec = knowledgeSections[0];
+  const knowIdx = firstKnowSec ? appSections.findIndex(s => s.id === firstKnowSec.id) : -1;
+  const isKnowUnlocked = knowIdx !== -1 ? isSectionUnlocked(knowIdx) : true;
+  const knowStatus: Status = !isKnowUnlocked
+    ? "locked"
+    : (knowledgeSections.every(s => submittedSections.has(s.id)) && knowledgeSections.length > 0
+        ? "complete"
+        : (knowledgeSections.some(s => section === s.id) ? "current" : "not-started"));
 
   let counter = 1;
   const getNum = () => String(counter++).padStart(2, "0");
@@ -1218,108 +1484,117 @@ function Sidebar({
       </div>
 
       <nav className="flex flex-col gap-1 px-2 py-3 text-[13px]">
-        {labSections.map((sec) => (
-          <SectionItem
-            key={sec.id}
-            n={getNum()} label={sec.title} status={getLabStatus(sec.id, sec.labs)}
-            onClick={() => onSelectSection(sec.id)}
-            disabled={locked && sec.type !== "VITARKA_AI_INTERVIEW"}
-          >
-            <div className="mt-2 flex flex-col gap-0.5 pl-8">
-              {sec.labs.map(l => (
-                <button
-                  key={l.id}
-                  disabled={locked && !submittedLabs.has(l.id)}
-                  onClick={() => onSelectLab(l.id)}
-                  className={`flex items-center justify-between rounded-md px-2 py-1 text-left transition ${openLab === l.id && section === sec.id ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100" : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-850 hover:text-neutral-900 dark:hover:text-neutral-100"} disabled:cursor-not-allowed disabled:text-neutral-300 dark:disabled:text-neutral-700`}
-                >
-                  <span className="truncate text-[12px]">{l.title}</span>
-                  {submittedLabs.has(l.id) && <span className="text-[10px] text-emerald-600 dark:text-emerald-500 font-medium">Done</span>}
-                </button>
-              ))}
-            </div>
-          </SectionItem>
-        ))}
+        {labSections.map((sec) => {
+          const labStatus = getLabStatus(sec.id, sec.labs);
+          return (
+            <SectionItem
+              key={sec.id}
+              n={getNum()} label={sec.title} status={labStatus}
+              onClick={() => onSelectSection(sec.id)}
+              disabled={labStatus === "locked" || labStatus === "complete"}
+            >
+              {labStatus !== "locked" && labStatus !== "complete" && (
+                <div className="mt-2 flex flex-col gap-0.5 pl-8">
+                  {sec.labs.map(l => {
+                    const isLabDone = submittedLabs.has(l.id);
+                    return (
+                      <button
+                        key={l.id}
+                        disabled={isLabDone}
+                        onClick={() => onSelectLab(l.id)}
+                        className={`flex items-center justify-between rounded-md px-2 py-1 text-left transition ${openLab === l.id && section === sec.id ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-medium" : isLabDone ? "text-neutral-400 dark:text-neutral-600 cursor-not-allowed opacity-60" : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-850 hover:text-neutral-900 dark:hover:text-neutral-100"}`}
+                      >
+                        <span className="truncate text-[12px]">{l.title}</span>
+                        {isLabDone && <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">Done</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </SectionItem>
+          );
+        })}
 
         {knowledgeSections.length > 0 && knowledgeHierarchy && (
           <SectionItem
-            n={getNum()} label="Knowledge Assessment" status={knowledgeSections.some(s => s.id === section) ? "current" : knowStatus}
+            n={getNum()} label="Knowledge Assessment" status={knowStatus}
             onClick={() => onSelectQuestion(knowledgeSections[0].id, "0")}
-            disabled={locked}
+            disabled={knowStatus === "locked" || knowStatus === "complete"}
           >
-            <div className="mt-2 flex flex-col pl-3">
-              {knowledgeHierarchy.map((subj: any) => {
-                const subjId = `subj-${subj.name}`;
-                const isSubjExpanded = expandedNodes.has(subjId);
-                return (
-                  <div key={subjId} className="flex flex-col">
-                    <button 
-                      disabled={locked}
-                      onClick={(e) => { e.stopPropagation(); toggleNode(subjId); }} 
-                      className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-[12px] font-medium text-neutral-700 hover:bg-neutral-50 transition"
-                    >
-                      {isSubjExpanded ? <ChevronDown className="h-3 w-3 text-neutral-400" /> : <ChevronRight className="h-3 w-3 text-neutral-400" />}
-                      <span className="truncate">{subj.name}</span>
-                    </button>
-                    {isSubjExpanded && (
-                      <div className="flex flex-col pl-4 border-l border-neutral-100 ml-3">
-                        {subj.topics.map((top: any) => {
-                          const topId = `top-${subj.name}-${top.name}`;
-                          const isTopExpanded = expandedNodes.has(topId);
-                          return (
-                            <div key={topId} className="flex flex-col mt-0.5">
-                              <button 
-                                disabled={locked}
-                                onClick={(e) => { e.stopPropagation(); toggleNode(topId); }} 
-                                className="flex items-center gap-1.5 rounded-md px-2 py-1 text-left text-[11px] font-medium text-neutral-600 hover:bg-neutral-50 transition"
-                              >
-                                {isTopExpanded ? <ChevronDown className="h-3 w-3 text-neutral-400" /> : <ChevronRight className="h-3 w-3 text-neutral-400" />}
-                                <span className="truncate">{top.name}</span>
-                              </button>
-                              {isTopExpanded && (
-                                <div className="flex flex-col pl-4 border-l border-neutral-100 ml-3">
-                                  {top.formats.map((fmt: any) => (
-                                    <div key={fmt.name} className="flex flex-col mt-1 mb-1">
-                                      <div className="flex items-center px-2 py-0.5 text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
-                                        {fmt.name}
+            {knowStatus !== "locked" && knowStatus !== "complete" && (
+              <div className="mt-2 flex flex-col pl-3">
+                {knowledgeHierarchy.map((subj: any) => {
+                  const subjId = `subj-${subj.name}`;
+                  const isSubjExpanded = expandedNodes.has(subjId);
+                  return (
+                    <div key={subjId} className="flex flex-col">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); toggleNode(subjId); }} 
+                        className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-[12px] font-medium text-neutral-700 hover:bg-neutral-50 transition"
+                      >
+                        {isSubjExpanded ? <ChevronDown className="h-3 w-3 text-neutral-400" /> : <ChevronRight className="h-3 w-3 text-neutral-400" />}
+                        <span className="truncate">{subj.name}</span>
+                      </button>
+                      {isSubjExpanded && (
+                        <div className="flex flex-col pl-4 border-l border-neutral-100 ml-3">
+                          {subj.topics.map((top: any) => {
+                            const topId = `top-${subj.name}-${top.name}`;
+                            const isTopExpanded = expandedNodes.has(topId);
+                            return (
+                              <div key={topId} className="flex flex-col mt-0.5">
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); toggleNode(topId); }} 
+                                  className="flex items-center gap-1.5 rounded-md px-2 py-1 text-left text-[11px] font-medium text-neutral-600 hover:bg-neutral-50 transition"
+                                >
+                                  {isTopExpanded ? <ChevronDown className="h-3 w-3 text-neutral-400" /> : <ChevronRight className="h-3 w-3 text-neutral-400" />}
+                                  <span className="truncate">{top.name}</span>
+                                </button>
+                                {isTopExpanded && (
+                                  <div className="flex flex-col pl-4 border-l border-neutral-100 ml-3">
+                                    {top.formats.map((fmt: any) => (
+                                      <div key={fmt.name} className="flex flex-col mt-1 mb-1">
+                                        <div className="flex items-center px-2 py-0.5 text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
+                                          {fmt.name}
+                                        </div>
+                                        <div className="flex flex-col mt-0.5 ml-1">
+                                          {fmt.questions.map((item: any) => {
+                                            const isCurrent = section === item.parentSec.id && activeQuestionId === String(item.localIdx);
+                                            const isQuestionSecDone = submittedSections.has(item.parentSec.id);
+                                            return (
+                                              <button
+                                                key={item.q.id}
+                                                disabled={isQuestionSecDone}
+                                                onClick={(e) => { e.stopPropagation(); onSelectQuestion(item.parentSec.id, String(item.localIdx)); }}
+                                                className={`flex items-center justify-between rounded-md px-2 py-1 text-left transition ${isCurrent ? "bg-neutral-100 text-neutral-900 font-medium" : isQuestionSecDone ? "text-neutral-400 dark:text-neutral-600 cursor-not-allowed opacity-60" : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"}`}
+                                              >
+                                                <span className="truncate text-[11px]">{item.q.q}</span>
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
                                       </div>
-                                      <div className="flex flex-col mt-0.5 ml-1">
-                                        {fmt.questions.map((item: any) => {
-                                          const isCurrent = section === item.parentSec.id && activeQuestionId === String(item.localIdx);
-                                          return (
-                                            <button
-                                              key={item.q.id}
-                                              disabled={locked}
-                                              onClick={(e) => { e.stopPropagation(); onSelectQuestion(item.parentSec.id, String(item.localIdx)); }}
-                                              className={`flex items-center justify-between rounded-md px-2 py-1 text-left transition ${isCurrent ? "bg-neutral-100 text-neutral-900 font-medium" : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"} disabled:cursor-not-allowed disabled:text-neutral-300`}
-                                            >
-                                              <span className="truncate text-[11px]">{item.q.q}</span>
-                                            </button>
-                                          );
-                                        })}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </SectionItem>
         )}
 
         {discussionSection && (
           <SectionItem
             n={getNum()} label={discussionSection.title} status={discussionStatus}
-            hint="Last 15 minutes"
+            hint={discussionStatus === "locked" ? "Unlock by completing prior sections" : discussionStatus === "complete" ? "Completed" : "Engineering discussion"}
             onClick={() => onSelectSection(discussionSection.id)}
-            disabled={discussionStatus === "locked"}
+            disabled={discussionStatus === "locked" || discussionStatus === "complete"}
           />
         )}
       </nav>
@@ -1333,12 +1608,12 @@ function SectionItem({ n, label, status, hint, onClick, disabled, children }: { 
       <button
         disabled={disabled}
         onClick={onClick}
-        className={`group flex w-full items-start gap-3 rounded-md px-3 py-2.5 text-left transition ${status === "current" ? "bg-neutral-100 dark:bg-neutral-850" : "hover:bg-neutral-50 dark:hover:bg-neutral-800/40"} disabled:cursor-not-allowed disabled:opacity-50`}
+        className={`group flex w-full items-start gap-3 rounded-md px-3 py-2.5 text-left transition ${status === "current" ? "bg-neutral-100 dark:bg-neutral-850" : status === "locked" || status === "complete" ? "opacity-50 cursor-not-allowed" : "hover:bg-neutral-50 dark:hover:bg-neutral-800/40"} disabled:cursor-not-allowed`}
       >
         <span className="mt-0.5 font-mono text-[10px] tracking-widest text-neutral-400 dark:text-neutral-500">{n}</span>
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
-            <span className={`text-[13px] ${status === "current" ? "text-neutral-900 dark:text-neutral-100 font-medium" : "text-neutral-700 dark:text-neutral-300"}`}>{label}</span>
+            <span className={`text-[13px] ${status === "current" ? "text-neutral-900 dark:text-neutral-100 font-medium" : status === "locked" || status === "complete" ? "text-neutral-400 dark:text-neutral-600" : "text-neutral-700 dark:text-neutral-300"}`}>{label}</span>
             <StatusChip status={status} />
           </span>
           {hint && <span className="mt-0.5 block text-[11px] text-neutral-400 dark:text-neutral-500">{hint}</span>}
@@ -1352,9 +1627,9 @@ function SectionItem({ n, label, status, hint, onClick, disabled, children }: { 
 function StatusChip({ status }: { status: Status }) {
   const map: Record<Status, { label: string; cls: string }> = {
     "not-started": { label: "", cls: "" },
-    "current": { label: "Current", cls: "text-neutral-900 dark:text-neutral-100" },
-    "in-progress": { label: "In progress", cls: "text-amber-600 dark:text-amber-500" },
-    "complete": { label: "Done", cls: "text-emerald-600 dark:text-emerald-500" },
+    "current": { label: "Current", cls: "text-neutral-900 dark:text-neutral-100 font-medium" },
+    "in-progress": { label: "In progress", cls: "text-amber-600 dark:text-amber-500 font-medium" },
+    "complete": { label: "Done", cls: "text-neutral-400 dark:text-neutral-500 font-medium" },
     "locked": { label: "Locked", cls: "text-neutral-400 dark:text-neutral-600" },
   };
   const { label, cls } = map[status];
@@ -1384,12 +1659,18 @@ function LabsList({ labs, submitted, onOpen, onFinishSection, nextSectionTitle }
                 </div>
                 <div className="mt-1 text-[12px] text-neutral-500">{l.sub} · ~{l.minutes} min</div>
               </div>
-              <button
-                onClick={() => onOpen(l.id)}
-                className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-[13px] text-neutral-800 hover:border-neutral-900 hover:text-neutral-900"
-              >
-                {done ? "Review" : "Open lab"}
-              </button>
+              {done ? (
+                <span className="rounded-lg border border-neutral-200 bg-neutral-100 dark:bg-neutral-800 px-4 py-2 text-[13px] text-neutral-400 dark:text-neutral-500 font-medium cursor-not-allowed">
+                  Submitted
+                </span>
+              ) : (
+                <button
+                  onClick={() => onOpen(l.id)}
+                  className="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2 text-[13px] text-neutral-800 dark:text-neutral-200 hover:border-neutral-900 dark:hover:border-neutral-400 hover:text-neutral-900 dark:hover:text-white transition"
+                >
+                  Open lab
+                </button>
+              )}
             </div>
           );
         })}
@@ -1554,13 +1835,18 @@ function KnowledgeList({ sections, submitted, onOpen, onFinishSection, nextSecti
         {sections.map(s => {
           const done = submitted.has(s.id);
           return (
-            <button key={s.id} onClick={() => onOpen(s.id)} className="group rounded-xl border border-neutral-200 bg-white p-5 text-left transition hover:border-neutral-900">
+            <button 
+              key={s.id} 
+              disabled={done}
+              onClick={() => onOpen(s.id)} 
+              className={`group rounded-xl border p-5 text-left transition ${done ? "border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 cursor-not-allowed opacity-75" : "border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-neutral-900 dark:hover:border-neutral-600"}`}
+            >
               <div className="flex items-center justify-between">
-                <div className="font-serif text-[20px] tracking-tight text-neutral-900">{s.title}</div>
-                {done && <span className="text-[11px] text-emerald-600">Submitted</span>}
+                <div className="font-serif text-[20px] tracking-tight text-neutral-900 dark:text-neutral-100">{s.title}</div>
+                {done && <span className="text-[11px] text-neutral-400 dark:text-neutral-500 font-medium">Submitted</span>}
               </div>
               <div className="mt-1 text-[12px] text-neutral-500">{s.questions?.length || 0} questions</div>
-              <div className="mt-6 text-[12px] text-neutral-500 group-hover:text-neutral-900">{done ? "Review submitted" : "Start subject →"}</div>
+              <div className="mt-6 text-[12px] text-neutral-400 dark:text-neutral-500">{done ? "Submitted" : "Start subject →"}</div>
             </button>
           );
         })}
