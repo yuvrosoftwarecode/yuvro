@@ -388,6 +388,28 @@ export async function syncMockInterviews(e: Evaluation): Promise<Evaluation> {
   return e;
 }
 
+export async function hydrateLabQuestions(ev: Evaluation): Promise<Evaluation> {
+  try {
+    const res = await fetch(`${API_BASE}/lab-questions/`, {
+      headers: { "Authorization": `Bearer ${localStorage.getItem("access")}` }
+    });
+    if (res.ok) {
+      const allLabs = await res.json();
+      for (const section of ev.sections) {
+        if (section.kind === "labs" && section.labs) {
+          section.labs = section.labs.map((l: any) => {
+            const fullLab = (allLabs as any[]).find((item: any) => item.id === l.id || item.id === l.lab_id);
+            return fullLab ? { ...fullLab, ...l, tasks: fullLab.tasks || l.tasks } : l;
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Failed to hydrate lab questions", err);
+  }
+  return ev;
+}
+
 export async function getEvaluation(id: string): Promise<Evaluation | undefined> {
   try {
     const res = await fetch(`${API_BASE}/evaluations/${id}/`, {
@@ -396,7 +418,9 @@ export async function getEvaluation(id: string): Promise<Evaluation | undefined>
     if (!res.ok) return undefined;
     const data = await res.json();
     const fe = mapBackendToFrontend(data);
-    return await hydrateDiscussionQuestions(fe);
+    await hydrateDiscussionQuestions(fe);
+    await hydrateLabQuestions(fe);
+    return fe;
   } catch {
     return undefined;
   }

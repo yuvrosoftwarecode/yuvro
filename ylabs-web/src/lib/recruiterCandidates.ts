@@ -279,7 +279,7 @@ export function getCandidates(
       vit = Math.round(35 + r() * 65);
       totalEarned = labs + assess + vit;
       eci = Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
-      rec = eci >= 85 ? "Strong Hire" : eci >= 72 ? "Hire" : eci >= 60 ? "Maybe" : "Reject";
+      rec = eci >= 70 ? "Strong Hire" : eci >= 50 ? "Hire" : eci >= 35 ? "Maybe" : "Reject";
       
       const statusRoll = r();
       status = statusRoll < 0.55 ? "Submitted" : statusRoll < 0.7 ? "Completed" : statusRoll < 0.82 ? "In Progress" : statusRoll < 0.93 ? "Not Started" : "Expired";
@@ -314,7 +314,9 @@ export function getCandidates(
         assess = Math.round(knowSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0));
       }
 
-      // Match vitarka submission only if evaluation contains Vitarka AI Discussion section
+      // Check active sections in evaluation
+      const hasLabsSec = sectionsList.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS");
+      const hasAssessmentSec = sectionsList.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT");
       const hasVitarkaSec = sectionsList.some((s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka");
       const vitSub = hasVitarkaSec ? vitarkaSubmissions.find((vs: any) =>
         (email && (vs.user?.email === email || vs.candidate_email === email)) ||
@@ -344,22 +346,40 @@ export function getCandidates(
       
       totalEarned = Number((labs + assess + vit).toFixed(1));
       eci = totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
-      const scorePct = totalPossible > 0 ? (totalEarned / totalPossible) * 100 : eci;
-      rec = scorePct >= 75 ? "Strong Hire" : scorePct >= 60 ? "Hire" : scorePct >= 45 ? "Maybe" : "Reject";
+
+      const labsPct = labsMaxScore > 0 ? (labs / labsMaxScore) * 10 : (labs > 0 ? 10 : 0);
+      const assessPct = assessmentMaxScore > 0 ? (assess / assessmentMaxScore) * 10 : (assess > 0 ? 10 : 0);
+      const vitPct = discussionMaxScore > 0 ? (vit / discussionMaxScore) * 10 : (vit > 0 ? 10 : 0);
+      
+      const activeWeights = (hasLabsSec ? 0.35 : 0) + (hasAssessmentSec ? 0.25 : 0) + (hasVitarkaSec ? 0.40 : 0);
+      const weighted10 = activeWeights > 0
+        ? ((hasLabsSec ? labsPct * 0.35 : 0) + (hasAssessmentSec ? assessPct * 0.25 : 0) + (hasVitarkaSec ? vitPct * 0.40 : 0)) / activeWeights
+        : (totalPossible > 0 ? (totalEarned / totalPossible) * 10 : 0);
+
+      const score10 = Number(weighted10.toFixed(1));
+      const scorePct = totalPossible > 0 ? (totalEarned / totalPossible) * 100 : score10 * 10;
+      rec = (score10 >= 7.0 || scorePct >= 65)
+        ? "Strong Hire"
+        : (score10 >= 5.0 || scorePct >= 48)
+          ? "Hire"
+          : (score10 >= 3.5 || scorePct >= 35)
+            ? "Maybe"
+            : "Reject";
 
       const liveBundle = hasVitarkaSec ? (vitSub?.report_bundle || vitSub?.session_state?.report_bundle) : null;
       const liveOverallReport = liveBundle?.overall_report;
-      const isOverallReportStale = (
-        labs > 0 &&
-        (liveOverallReport?.section_scores?.find((s: any) => s.section === "engineering_labs")?.score === 0 ||
-         (liveOverallReport?.overall_score != null && liveOverallReport.overall_score <= 1.5))
+      const isOverallReportStale = Boolean(
+        (labs > 0 && liveOverallReport?.section_scores?.find((s: any) => s.section === "engineering_labs")?.score === 0) ||
+        (liveOverallReport?.overall_score != null && liveOverallReport.overall_score <= 1.5) ||
+        (labs > 0 && liveOverallReport?.overall_score != null && liveOverallReport.overall_score < 4.0 && score10 >= 5.0) ||
+        (liveOverallReport?.overall_score != null && Math.abs(score10 - liveOverallReport.overall_score) >= 1.5)
       );
       if (!isOverallReportStale && liveOverallReport?.recommendation) {
         const s = liveOverallReport.recommendation.toLowerCase().trim();
-        if (s.includes("strong")) rec = "Strong Hire";
-        else if ((s.includes("proceed") || s.includes("hire")) && !s.includes("not")) rec = "Hire";
-        else if (s.includes("review") || s.includes("maybe") || s.includes("hold")) rec = "Maybe";
-        else if (s.includes("not") || s.includes("reject")) rec = "Reject";
+        if (s.includes("strong") || (score10 >= 7.0 && (s.includes("proceed") || s.includes("hire")))) rec = "Strong Hire";
+        else if ((s.includes("proceed") || s.includes("hire")) && !s.includes("not")) rec = score10 >= 7.0 ? "Strong Hire" : "Hire";
+        else if (s.includes("review") || s.includes("maybe") || s.includes("hold")) rec = score10 >= 7.0 ? "Strong Hire" : "Maybe";
+        else if (s.includes("not") || s.includes("reject")) rec = score10 >= 5.0 ? "Hire" : "Reject";
       }
       
       // Determine real status

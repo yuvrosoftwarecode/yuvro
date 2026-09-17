@@ -241,18 +241,23 @@ function SharedReportWorkspace() {
     return null;
   };
 
-  const isOverallReportStale = (
-    liveLabsScore > 0 &&
-    (liveOverallReport?.section_scores?.find((s: any) => s.section === "engineering_labs")?.score === 0 ||
-     (liveOverallReport?.overall_score != null && liveOverallReport.overall_score <= 1.5))
+  const isOverallReportStale = Boolean(
+    (liveLabsScore > 0 && liveOverallReport?.section_scores?.find((s: any) => s.section === "engineering_labs")?.score === 0) ||
+    (liveOverallReport?.overall_score != null && liveOverallReport.overall_score <= 1.5) ||
+    (liveLabsScore > 0 && liveOverallReport?.overall_score != null && liveOverallReport.overall_score < 4.0 && scorePct >= 50) ||
+    (liveOverallReport?.overall_score != null && Math.abs((scorePct / 10) - liveOverallReport.overall_score) >= 1.5)
   );
 
   const canonicalRecommendation =
-    scoreRec === "Strong Hire"
+    scorePct >= 70
       ? "Strong Hire"
-      : (!isOverallReportStale && normalizeRec(liveOverallReport?.recommendation)) ||
-        (!hasLabs && !hasAssessment && normalizeRec(liveVitarkaReport?.recommendation)) ||
-        scoreRec;
+      : scorePct >= 50
+        ? "Hire"
+        : scorePct >= 35
+          ? "Maybe"
+          : (!isOverallReportStale && normalizeRec(liveOverallReport?.recommendation)) ||
+            (!hasLabs && !hasAssessment && normalizeRec(liveVitarkaReport?.recommendation)) ||
+            scoreRec;
 
   const displayCandidate = {
     ...candidate,

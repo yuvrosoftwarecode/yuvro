@@ -477,18 +477,23 @@ function CandidateWorkspace() {
     return null;
   };
 
-  const isOverallReportStale = (
-    liveLabsScore > 0 &&
-    (liveOverallReport?.section_scores?.find((s: any) => s.section === "engineering_labs")?.score === 0 ||
-     (liveOverallReport?.overall_score != null && liveOverallReport.overall_score <= 1.5))
+  const isOverallReportStale = Boolean(
+    (liveLabsScore > 0 && liveOverallReport?.section_scores?.find((s: any) => s.section === "engineering_labs")?.score === 0) ||
+    (liveOverallReport?.overall_score != null && liveOverallReport.overall_score <= 1.5) ||
+    (liveLabsScore > 0 && liveOverallReport?.overall_score != null && liveOverallReport.overall_score < 4.0 && scorePct >= 50) ||
+    (liveOverallReport?.overall_score != null && Math.abs((scorePct / 10) - liveOverallReport.overall_score) >= 1.5)
   );
 
   const canonicalRecommendation: Recommendation =
-    scoreRec === "Strong Hire"
+    scorePct >= 70
       ? "Strong Hire"
-      : (!isOverallReportStale && normalizeRec(liveOverallReport?.recommendation)) ||
-        (!hasLabs && !hasAssessment && normalizeRec(liveVitarkaReport?.recommendation)) ||
-        scoreRec;
+      : scorePct >= 50
+        ? "Hire"
+        : scorePct >= 35
+          ? "Maybe"
+          : (!isOverallReportStale && normalizeRec(liveOverallReport?.recommendation)) ||
+            (!hasLabs && !hasAssessment && normalizeRec(liveVitarkaReport?.recommendation)) ||
+            scoreRec;
 
   const displayCandidate = {
     ...candidate,
@@ -1254,40 +1259,6 @@ function EvaluationSummary({
   const labsReport = reportBundle?.engineering_labs_report;
   const knowledgeReport = reportBundle?.knowledge_assessment_report;
 
-  const labs10 = candidate.labsScore > 0
-    ? Number(((candidate.labsScore / (labsMaxScore || 80)) * 10).toFixed(1))
-    : (labsReport?.overall_score != null ? labsReport.overall_score : 0);
-
-  const assessment10 = knowledgeReport?.score_percent != null
-    ? Number((knowledgeReport.score_percent / 10).toFixed(1))
-    : (candidate.assessmentScore > 0 ? Number(((candidate.assessmentScore / (assessmentMaxScore || 30)) * 10).toFixed(1)) : 0);
-
-  const vitarka10 = vitarkaReport?.overall_score != null
-    ? vitarkaReport.overall_score
-    : (candidate.vitarkaScore > 0 ? Number(((candidate.vitarkaScore / (discussionMaxScore || 25)) * 10).toFixed(1)) : 0);
-
-  const activeWeights = (hasLabs ? 0.35 : 0) + (hasAssessment ? 0.25 : 0) + (hasVitarka ? 0.40 : 0);
-  const liveWeighted10 = activeWeights > 0
-    ? Number((((hasLabs ? labs10 * 0.35 : 0) + (hasAssessment ? assessment10 * 0.25 : 0) + (hasVitarka ? vitarka10 * 0.40 : 0)) / activeWeights).toFixed(1))
-    : (overall > 0 ? Number((overall / 10).toFixed(1)) : 0);
-
-  const isOverallReportStale = (
-    candidate.labsScore > 0 &&
-    (overallReport?.overall_score != null && overallReport.overall_score <= 1.5)
-  );
-
-  const overall10 = (!isOverallReportStale && overallReport?.overall_score != null)
-    ? overallReport.overall_score
-    : liveWeighted10;
-
-  const verdict = candidate.recommendation || (overall10 >= 7.5 ? "Strong Hire" : overall10 >= 6.0 ? "Hire" : overall10 >= 4.0 ? "Maybe" : "Reject");
-  const verdictTone =
-    verdict.toLowerCase().includes("strong") || verdict.toLowerCase().includes("shortlist") || verdict.toLowerCase().includes("hire")
-      ? "border-emerald-400/25 bg-emerald-400/[0.06] text-emerald-300"
-      : verdict.toLowerCase().includes("hold") || verdict.toLowerCase().includes("review") || verdict.toLowerCase().includes("maybe")
-        ? "border-amber-400/25 bg-amber-400/[0.06] text-amber-300"
-        : "border-red-400/25 bg-red-400/[0.06] text-red-300";
-
   // --- Engineering Labs stats ---
   const labSections = ev?.sections?.filter((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") || [];
   const allLabs = labSections.flatMap((s: any) => (s.labs && s.labs.length > 0 ? s.labs : (s.questions || [])));
@@ -1326,15 +1297,26 @@ function EvaluationSummary({
     }
   });
 
+  const totalLabTasks = allLabs.reduce((sum: number, l: any) => {
+    if (Array.isArray(l.tasks) && l.tasks.length > 0) return sum + l.tasks.length;
+    if (typeof l.tasks === "number" && l.tasks > 0) return sum + l.tasks;
+    return sum;
+  }, 0);
+
   if (totalTestsCount === 0) {
     if (labsReport?.tests_total) {
       totalTestsCount = labsReport.tests_total;
       totalTestsPassed = labsReport.tests_passed || 0;
-    } else if (candidate.labsScore > 0) {
-      const totalLabTasks = allLabs.reduce((sum: number, l: any) => sum + (l.tasks?.length || 0), 0);
-      totalTestsCount = totalLabTasks > 0 ? totalLabTasks : totalLabsCount;
-      totalTestsPassed = Math.max(1, Math.min(totalTestsCount, Math.round((candidate.labsScore / (labsMaxScore || 10)) * totalTestsCount)));
+    } else {
+      totalTestsCount = totalLabTasks > 0 ? totalLabTasks : (allLabs.length > 0 ? allLabs.length * 5 : 5);
+      if (candidate.labsScore > 0) {
+        totalTestsPassed = Math.max(1, Math.min(totalTestsCount, Math.round((candidate.labsScore / (labsMaxScore || 10)) * totalTestsCount)));
+      } else {
+        totalTestsPassed = 0;
+      }
     }
+  } else if (totalLabTasks > 0 && totalTestsCount < totalLabTasks) {
+    totalTestsCount = totalLabTasks;
   }
 
   const labPassRate = totalTestsCount > 0 ? Math.round((totalTestsPassed / totalTestsCount) * 100) : 0;
@@ -1396,6 +1378,49 @@ function EvaluationSummary({
     ? `${totalQuestionsCorrect} questions answered correctly out of ${totalQuestionsCount} across ${assessmentSectionsCount} ${assessmentSectionsCount === 1 ? "section" : "sections"}`
     : `Knowledge assessment completed`;
 
+  const labs10 = totalTestsCount > 0
+    ? Number(((totalTestsPassed / totalTestsCount) * 10).toFixed(1))
+    : (candidate.labsScore > 0 ? Number(((candidate.labsScore / (labsMaxScore || 80)) * 10).toFixed(1)) : (labsReport?.overall_score != null ? labsReport.overall_score : 0));
+
+  const assessment10 = totalQuestionsCount > 0
+    ? Number(((totalQuestionsCorrect / totalQuestionsCount) * 10).toFixed(1))
+    : (knowledgeReport?.score_percent != null ? Number((knowledgeReport.score_percent / 10).toFixed(1)) : (candidate.assessmentScore > 0 ? Number(((candidate.assessmentScore / (assessmentMaxScore || 30)) * 10).toFixed(1)) : 0));
+
+  const vitarka10 = vitarkaReport?.overall_score != null
+    ? vitarkaReport.overall_score
+    : (candidate.vitarkaScore > 0 ? Number(((candidate.vitarkaScore / (discussionMaxScore || 25)) * 10).toFixed(1)) : 0);
+
+  const activeWeights = (hasLabs ? 0.35 : 0) + (hasAssessment ? 0.25 : 0) + (hasVitarka ? 0.40 : 0);
+  const liveWeighted10 = activeWeights > 0
+    ? Number((((hasLabs ? labs10 * 0.35 : 0) + (hasAssessment ? assessment10 * 0.25 : 0) + (hasVitarka ? vitarka10 * 0.40 : 0)) / activeWeights).toFixed(1))
+    : (overall > 0 ? Number((overall / 10).toFixed(1)) : 0);
+
+  const isOverallReportStale = Boolean(
+    !overallReport?.overall_score ||
+    (candidate.labsScore > 0 && overallReport.overall_score <= 1.5) ||
+    (totalTestsPassed > 0 && overallReport.overall_score < 4.0 && liveWeighted10 >= 5.0) ||
+    (Math.abs(liveWeighted10 - (overallReport?.overall_score || 0)) >= 1.5) ||
+    (overallReport?.executive_summary && overallReport.executive_summary.includes("0/6") && totalQuestionsCorrect > 0) ||
+    (overallReport?.executive_summary && overallReport.executive_summary.includes("1/5") && totalTestsPassed > 1)
+  );
+
+  const overall10 = (!isOverallReportStale && overallReport?.overall_score != null)
+    ? overallReport.overall_score
+    : liveWeighted10;
+
+  const calculatedVerdict =
+    overall10 >= 7.5 ? "Strong Hire" : overall10 >= 5.0 ? "Hire" : overall10 >= 3.5 ? "Maybe" : "Reject";
+  const verdict =
+    overall10 >= 5.0 && candidate.recommendation === "Reject"
+      ? calculatedVerdict
+      : (!isOverallReportStale && candidate.recommendation ? candidate.recommendation : calculatedVerdict);
+  const verdictTone =
+    verdict.toLowerCase().includes("strong") || verdict.toLowerCase().includes("shortlist") || verdict.toLowerCase().includes("hire")
+      ? "border-emerald-400/25 bg-emerald-400/[0.06] text-emerald-300"
+      : verdict.toLowerCase().includes("hold") || verdict.toLowerCase().includes("review") || verdict.toLowerCase().includes("maybe")
+        ? "border-amber-400/25 bg-amber-400/[0.06] text-amber-300"
+        : "border-red-400/25 bg-red-400/[0.06] text-red-300";
+
   const isAllZero = overall === 0 || (candidate.labsScore === 0 && candidate.assessmentScore === 0 && candidate.vitarkaScore === 0);
   const activeSectionsNames = [
     hasLabs ? "engineering labs" : "",
@@ -1408,7 +1433,7 @@ function EvaluationSummary({
     ? `Overall evaluation for ${candidate.name || "the candidate"} recorded 0 passing tests, no submitted code, and no interview responses. Aggregate score: 0/10. Recommendation: Reject.`
     : (!isOverallReportStale && overallReport?.executive_summary
         ? overallReport.executive_summary
-        : `Overall evaluation for ${candidate.name || "the candidate"} evaluates ${activeSectionsPhrase}. Aggregate score: ${overall10}/10. Recommendation: ${verdict}.`);
+        : `Overall evaluation for ${candidate.name || "the candidate"} synthesizes Vitarka AI interview results with practical performance: ${totalTestsPassed}/${totalTestsCount} tests passed across ${totalLabsCount} engineering lab(s); ${totalQuestionsCorrect}/${totalQuestionsCount} questions correct (${assessmentAccuracyPct}%) in knowledge assessment; ${vitarka10}/10 in Vitarka AI discussion. Aggregate score: ${overall10}/10. Recommendation: ${verdict}.`);
   const overallText = stripUuids(rawOverallText, candidate.name || "the candidate");
   const hasAiReport = Boolean(
     (overallReport?.strengths && overallReport.strengths.length > 0) ||
@@ -1417,23 +1442,41 @@ function EvaluationSummary({
     (vitarkaReport?.risks && vitarkaReport.risks.length > 0)
   );
 
-  const overallStrengths = isAllZero || !hasAiReport
+  let overallStrengths = isAllZero || !hasAiReport
     ? []
-    : (overallReport?.strengths && overallReport.strengths.length > 0)
+    : (overallReport?.strengths && overallReport.strengths.length > 0 && !isOverallReportStale)
       ? overallReport.strengths.map((s: string) => stripUuids(s, candidate.name)).filter((s: string) => !s.includes("Submitted verified code across") || candidate.labsScore > 0)
       : (vitarkaReport?.strengths && vitarkaReport.strengths.length > 0)
         ? vitarkaReport.strengths.map((s: string) => stripUuids(s, candidate.name))
         : [];
+
+  if (totalTestsCount > 0 && totalTestsPassed === totalTestsCount) {
+    const sTxt = `Passed all ${totalTestsCount} automated tests across engineering labs.`;
+    if (!overallStrengths.includes(sTxt)) overallStrengths = [sTxt, ...overallStrengths];
+  } else if (totalTestsPassed > 0) {
+    const sTxt = `Passed ${totalTestsPassed}/${totalTestsCount} automated tests across engineering labs.`;
+    if (!overallStrengths.includes(sTxt)) overallStrengths = [sTxt, ...overallStrengths];
+  }
+
+  if (totalQuestionsCorrect > 0 && !overallStrengths.some((s: string) => s.includes("knowledge assessment"))) {
+    overallStrengths.push(`Answered ${totalQuestionsCorrect}/${totalQuestionsCount} knowledge assessment questions correctly (${assessmentAccuracyPct}%).`);
+  }
+
   const rawRisks = isAllZero || !hasAiReport
     ? []
-    : (overallReport?.risks && overallReport.risks.length > 0)
+    : (overallReport?.risks && overallReport.risks.length > 0 && !isOverallReportStale)
       ? overallReport.risks.map((s: string) => stripUuids(s, candidate.name))
       : (vitarkaReport?.risks && vitarkaReport.risks.length > 0)
         ? vitarkaReport.risks.map((s: string) => stripUuids(s, candidate.name))
         : [];
-  const overallExplore = rawRisks.filter((r: string) =>
-    candidate.labsScore === 0 || (!r.toLowerCase().includes("no lab tests were executed") && !r.toLowerCase().includes("no verified implementation code"))
-  );
+
+  const overallExplore = rawRisks.filter((r: string) => {
+    const lower = r.toLowerCase();
+    if (totalTestsPassed === totalTestsCount && (lower.includes("failed") || lower.includes("test case(s)"))) return false;
+    if (totalQuestionsCorrect > 0 && lower.includes("0.0%")) return false;
+    if (candidate.labsScore > 0 && (lower.includes("no lab tests were executed") || lower.includes("no verified implementation code"))) return false;
+    return true;
+  });
 
   return (
     <div className="space-y-4">
@@ -1595,6 +1638,13 @@ export function LabsPane({
   const allLabs = labSections.flatMap((s: any) => (s.labs && s.labs.length > 0 ? s.labs : (s.questions || [])));
   const labsMax = allLabs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0) || 80;
 
+  const totalLabTasks = allLabs.reduce((sum: number, l: any) => {
+    if (Array.isArray(l.tasks) && l.tasks.length > 0) return sum + l.tasks.length;
+    if (typeof l.tasks === "number" && l.tasks > 0) return sum + l.tasks;
+    return sum;
+  }, 0);
+  const totalLabTasksCount = totalLabTasks > 0 ? totalLabTasks : (allLabs.length > 0 ? allLabs.length * 5 : 5);
+
   const totalLabMinutes = allLabs.reduce((sum: number, lab: any) => {
     const sub = candidate.rawSubmission?.lab_submissions?.find(
       (s: any) => s.lab_question === lab.id || s.lab_question === lab.lab_id
@@ -1628,7 +1678,7 @@ export function LabsPane({
           <div className="flex flex-wrap items-center justify-between gap-3 text-[12px]">
             <div className="flex items-center gap-4 text-neutral-300">
               <span>Tests Passed: <strong className="text-white">
-                {labsReport.tests_passed || (candidate.labsScore > 0 ? 1 : 0)}/{labsReport.tests_total || (candidate.labsScore > 0 ? 5 : 0)}
+                {labsReport.tests_passed != null ? labsReport.tests_passed : (candidate.labsScore > 0 ? 1 : 0)}/{labsReport.tests_total || totalLabTasksCount}
               </strong></span>
               {displayTotalTime > 0 && (
                 <span>Time: <strong className="text-white">{displayTotalTime}m</strong></span>
