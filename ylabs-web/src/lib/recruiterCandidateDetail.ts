@@ -988,7 +988,7 @@ export async function loadTimelineEvents(evId: string, email: string): Promise<T
 
     const completedMap = new Map(completed.map(e => [e.label, e]));
     
-    const isFinished = completedMap.has("Evaluation finished");
+    const isFinished = completedMap.has("Evaluation finished") || completedMap.has("Auto submitted");
     const sectionMilestones = [
       "Engineering Labs submitted",
       "Knowledge Assessment submitted",
@@ -996,6 +996,9 @@ export async function loadTimelineEvents(evId: string, email: string): Promise<T
     ];
 
     const fullTimeline = MILESTONES.map(m => {
+      if (m === "Evaluation finished" && completedMap.has("Auto submitted")) {
+        return completedMap.get("Auto submitted")!;
+      }
       if (completedMap.has(m)) {
         return completedMap.get(m)!;
       } else {
@@ -1014,7 +1017,7 @@ export async function loadTimelineEvents(evId: string, email: string): Promise<T
     });
 
     for (const e of completed) {
-      if (!MILESTONES.includes(e.label)) {
+      if (!MILESTONES.includes(e.label) && e.label !== "Auto submitted") {
         fullTimeline.push(e);
       }
     }

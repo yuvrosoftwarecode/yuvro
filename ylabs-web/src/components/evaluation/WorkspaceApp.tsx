@@ -320,7 +320,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     assessmentId: evaluationId,
     assessmentType: "skill_evaluation",
     enabled: !!proctoringConfig.enableProctoring,
-    questionId: activeQuestionId || openLab || section || undefined,
+    questionId: (activeSection?.type === "KNOWLEDGE_ASSESSMENT" ? activeSection.questions?.[qIndex]?.id : null) || activeQuestionId || openLab || section || undefined,
     questionTitle: activeDiscussionQuestion || undefined,
     mediaStream: proctoringData?.cameraStream,
     screenStream: proctoringData?.screenStream,
@@ -333,7 +333,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       // We rely on our custom useEffect for tab switch and copy/paste modals & enforcement
     },
     onAutoSubmit: () => {
-      submitEvaluation();
+      submitEvaluation(true);
     }
   });
 
@@ -421,7 +421,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           if (tabSwitches.current > limit) {
              setModal({ kind: "proctoring-violation", message: `You have exceeded the maximum allowed tab switches (${limit}). Your evaluation is being terminated.` });
              setTimeout(() => {
-               submitEvaluation();
+               submitEvaluation(true);
              }, 3000);
           } else {
              setModal({ kind: "tab-warning" });
@@ -499,13 +499,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 
   const locked = discussionTriggered.current;
 
-  const submitEvaluation = async () => {
+  const submitEvaluation = async (autoSubmit: boolean | any = false) => {
+    if (typeof autoSubmit !== "boolean") autoSubmit = false;
     try {
       sessionStorage.removeItem(sessionKey);
       sessionStorage.removeItem(sessionDurKey);
     } catch {}
     try {
-      await evaluationService.finishEvaluation?.(evaluationId);
+      await evaluationService.finishEvaluation?.(evaluationId, autoSubmit);
     } catch (e) {
       console.error(e);
     }
@@ -939,7 +940,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           title="End the engineering discussion?"
           body="This will conclude your evaluation and generate your report."
           confirm="End and submit"
-          onConfirm={submitEvaluation}
+          onConfirm={() => submitEvaluation(false)}
           onCancel={() => setModal(null)}
         />
       )}
@@ -948,7 +949,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           title="Submit the evaluation?"
           body="This will conclude your evaluation and generate your report."
           confirm="Submit evaluation"
-          onConfirm={submitEvaluation}
+          onConfirm={() => submitEvaluation(false)}
           onCancel={() => setModal(null)}
         />
       )}

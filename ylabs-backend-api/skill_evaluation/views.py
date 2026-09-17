@@ -94,6 +94,12 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     duration=0,
                     discussion_mode=DiscussionMode.AUTOMATIC
                 )
+                CandidateTimelineEvent.objects.get_or_create(
+                    evaluation=instance,
+                    candidate_email=user.email,
+                    title=CandidateTimelineEventType.STARTED,
+                    defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+                )
             if submission:
                 data['submission_id'] = submission.id
                 data['started_at'] = submission.created_at.isoformat()
@@ -235,7 +241,14 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             attempt_count = 1
             ts = str(int(time.time() * 1000))
             prefix = prefix_override or "snapshot"
-            filename = f"{prefix}_{ts}.png"
+            
+            ext = "png"
+            if file_obj and hasattr(file_obj, 'name') and file_obj.name:
+                parts = file_obj.name.rsplit('.', 1)
+                if len(parts) > 1:
+                    ext = parts[-1].lower()
+                    
+            filename = f"{prefix}_{ts}.{ext}"
             
             user_id = str(user.id)
             object_key = f"{user_id}/skill_evaluation/{evaluation.id}/attempt-{attempt_count}/{filename}"
@@ -345,20 +358,51 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         submission.completed_at = timezone.now()
         submission.save(update_fields=['completed_at'])
         
+        CandidateTimelineEvent.objects.get_or_create(
+            evaluation=evaluation,
+            candidate_email=user.email,
+            title=CandidateTimelineEventType.STARTED,
+            defaults={"status": "SUCCESS", "occurred_at": submission.created_at or timezone.now(), "created_by": user}
+        )
 
         has_vitarka = any(sec.type == "VITARKA_AI_INTERVIEW" for sec in evaluation.sections.all())
-        if has_vitarka:
+        has_started_vitarka = False
+        if has_vitarka and isinstance(submission.general_events, list):
+            for event in submission.general_events:
+                if isinstance(event, dict) and event.get('activity_type') == 'vitarka_session_started':
+                    has_started_vitarka = True
+                    break
+                    
+        if has_vitarka and has_started_vitarka:
             CandidateTimelineEvent.objects.get_or_create(
                 evaluation=evaluation,
                 candidate_email=user.email,
                 title=CandidateTimelineEventType.VITARKA_COMPLETED,
                 defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
             )
+            
+        if UserLabQuestionBankSubmission.objects.filter(user=user, evaluation=evaluation).exists():
+            CandidateTimelineEvent.objects.get_or_create(
+                evaluation=evaluation,
+                candidate_email=user.email,
+                title=CandidateTimelineEventType.LABS_SUBMITTED,
+                defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+            )
+
+        if UserKnowledgeAssessmentSubmission.objects.filter(user=user, evaluation=evaluation).exists():
+            CandidateTimelineEvent.objects.get_or_create(
+                evaluation=evaluation,
+                candidate_email=user.email,
+                title=CandidateTimelineEventType.ASSESSMENT_SUBMITTED,
+                defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+            )
+
+        auto_submitted = request.data.get('auto_submitted', False)
 
         CandidateTimelineEvent.objects.get_or_create(
             evaluation=evaluation,
             candidate_email=user.email,
-            title=CandidateTimelineEventType.EVALUATION_FINISHED,
+            title=CandidateTimelineEventType.AUTO_SUBMITTED if auto_submitted else CandidateTimelineEventType.EVALUATION_FINISHED,
             defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
         )
         
@@ -373,6 +417,15 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def submit_lab(self, request, pk=None):
         evaluation = self.get_object()
         lab_id = request.data.get('lab_id')
+        
+        if not lab_id:
+            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            lab = LabQuestionBank.objects.get(id=lab_id)
+        except LabQuestionBank.DoesNotExist:
+            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
+            
         status_val = request.data.get('status', 'in_review')
         solution = request.data.get('solution', '')
         minutes_solved = request.data.get('minutes_solved')
