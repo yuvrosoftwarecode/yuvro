@@ -205,23 +205,30 @@ export function getCandidates(
   const cached = cache.get(cacheKey);
   if (cached && (!submissions || submissions.length === 0)) return cached;
 
-  const labsSec = ev?.sections?.find(
+  const sectionsList = ev?.sections || [];
+  const hasSections = sectionsList.length > 0;
+
+  const labsSec = sectionsList.find(
     (s: any) => s.type === "LAB" || s.type === "ENGINEERING_LABS" || s.kind === "labs" || s.kind === "lab"
   );
-  const labsMaxScore = (labsSec?.labs && labsSec.labs.length > 0)
-    ? labsSec.labs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
-    : (labsSec?.questions && labsSec.questions.length > 0)
-      ? labsSec.questions.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
-      : (labsSec?.marks ?? 80);
+  const labsMaxScore = labsSec
+    ? (labsSec.labs && labsSec.labs.length > 0
+        ? labsSec.labs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+        : (labsSec.questions && labsSec.questions.length > 0
+            ? labsSec.questions.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+            : (labsSec.marks ?? 100)))
+    : (hasSections ? 0 : 80);
 
-  const assessSec = ev?.sections?.find(
+  const assessSec = sectionsList.find(
     (s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT"
   );
-  const assessmentMaxScore = (assessSec?.questions && assessSec.questions.length > 0)
-    ? assessSec.questions.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0)
-    : (assessSec?.marks ?? 30);
+  const assessmentMaxScore = assessSec
+    ? (assessSec.questions && assessSec.questions.length > 0
+        ? assessSec.questions.reduce((sum: number, q: any) => sum + (Number(q.marks) || 0), 0)
+        : (assessSec.marks ?? 30))
+    : (hasSections ? 0 : 30);
 
-  const discSec = ev?.sections?.find(
+  const discSec = sectionsList.find(
     (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
   );
   let discMetaMarks: number | undefined;
@@ -231,7 +238,10 @@ export function getCandidates(
       discMetaMarks = parsed.marks ?? parsed.max_score ?? parsed.discussionMaxScore;
     } catch {}
   }
-  const discussionMaxScore = discMetaMarks ?? discSec?.marks ?? 25;
+  const discussionMaxScore = discSec
+    ? (discMetaMarks ?? discSec.marks ?? discSec.max_score ?? 25)
+    : (hasSections ? 0 : 25);
+
   const totalPossible = labsMaxScore + assessmentMaxScore + discussionMaxScore;
 
   const r = rng(hash(evaluationId));
@@ -269,7 +279,7 @@ export function getCandidates(
       vit = Math.round(35 + r() * 65);
       totalEarned = labs + assess + vit;
       eci = Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
-      rec = eci >= 85 ? "Strong Hire" : eci >= 72 ? "Hire" : eci >= 60 ? "Maybe" : "Reject";
+      rec = eci >= 70 ? "Strong Hire" : eci >= 50 ? "Hire" : eci >= 35 ? "Maybe" : "Reject";
       
       const statusRoll = r();
       status = statusRoll < 0.55 ? "Submitted" : statusRoll < 0.7 ? "Completed" : statusRoll < 0.82 ? "In Progress" : statusRoll < 0.93 ? "Not Started" : "Expired";
@@ -304,14 +314,17 @@ export function getCandidates(
         assess = Math.round(knowSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0));
       }
 
-      // Match vitarka submission
-      const vitSub = vitarkaSubmissions.find((vs: any) =>
+      // Check active sections in evaluation
+      const hasLabsSec = sectionsList.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS");
+      const hasAssessmentSec = sectionsList.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT");
+      const hasVitarkaSec = sectionsList.some((s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka");
+      const vitSub = hasVitarkaSec ? vitarkaSubmissions.find((vs: any) =>
         (email && (vs.user?.email === email || vs.candidate_email === email)) ||
         (user.id && (vs.user === user.id || vs.user?.id === user.id)) ||
         (sub.id && (vs.candidate_id === sub.id || vs.candidate_id === String(user.id)))
-      );
+      ) : null;
 
-      if (vitSub) {
+      if (hasVitarkaSec && vitSub) {
         const liveBundle = vitSub.report_bundle || vitSub.session_state?.report_bundle;
         const liveReport = liveBundle?.vitarka_report || vitSub.report || vitSub.session_state?.report;
         if (liveReport?.scaled_score != null) {
@@ -323,30 +336,50 @@ export function getCandidates(
         } else if (vitSub.score != null) {
           vit = Number(vitSub.score);
         }
-      } else if (sub.vitarka_score != null) {
+      } else if (hasVitarkaSec && sub.vitarka_score != null) {
         vit = Number(sub.vitarka_score);
-      } else if (sub.vitarkaScore != null) {
+      } else if (hasVitarkaSec && sub.vitarkaScore != null) {
         vit = Number(sub.vitarkaScore);
+      } else {
+        vit = 0;
       }
       
       totalEarned = Number((labs + assess + vit).toFixed(1));
       eci = totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
-      const scorePct = totalPossible > 0 ? (totalEarned / totalPossible) * 100 : eci;
-      rec = scorePct >= 75 ? "Strong Hire" : scorePct >= 60 ? "Hire" : scorePct >= 45 ? "Maybe" : "Reject";
 
-      const liveBundle = vitSub?.report_bundle || vitSub?.session_state?.report_bundle;
+      const labsPct = labsMaxScore > 0 ? (labs / labsMaxScore) * 10 : (labs > 0 ? 10 : 0);
+      const assessPct = assessmentMaxScore > 0 ? (assess / assessmentMaxScore) * 10 : (assess > 0 ? 10 : 0);
+      const vitPct = discussionMaxScore > 0 ? (vit / discussionMaxScore) * 10 : (vit > 0 ? 10 : 0);
+      
+      const activeWeights = (hasLabsSec ? 0.35 : 0) + (hasAssessmentSec ? 0.25 : 0) + (hasVitarkaSec ? 0.40 : 0);
+      const weighted10 = activeWeights > 0
+        ? ((hasLabsSec ? labsPct * 0.35 : 0) + (hasAssessmentSec ? assessPct * 0.25 : 0) + (hasVitarkaSec ? vitPct * 0.40 : 0)) / activeWeights
+        : (totalPossible > 0 ? (totalEarned / totalPossible) * 10 : 0);
+
+      const score10 = Number(weighted10.toFixed(1));
+      const scorePct = totalPossible > 0 ? (totalEarned / totalPossible) * 100 : score10 * 10;
+      rec = (score10 >= 7.0 || scorePct >= 65)
+        ? "Strong Hire"
+        : (score10 >= 5.0 || scorePct >= 48)
+          ? "Hire"
+          : (score10 >= 3.5 || scorePct >= 35)
+            ? "Maybe"
+            : "Reject";
+
+      const liveBundle = hasVitarkaSec ? (vitSub?.report_bundle || vitSub?.session_state?.report_bundle) : null;
       const liveOverallReport = liveBundle?.overall_report;
-      const isOverallReportStale = (
-        labs > 0 &&
-        (liveOverallReport?.section_scores?.find((s: any) => s.section === "engineering_labs")?.score === 0 ||
-         (liveOverallReport?.overall_score != null && liveOverallReport.overall_score <= 1.5))
+      const isOverallReportStale = Boolean(
+        (labs > 0 && liveOverallReport?.section_scores?.find((s: any) => s.section === "engineering_labs")?.score === 0) ||
+        (liveOverallReport?.overall_score != null && liveOverallReport.overall_score <= 1.5) ||
+        (labs > 0 && liveOverallReport?.overall_score != null && liveOverallReport.overall_score < 4.0 && score10 >= 5.0) ||
+        (liveOverallReport?.overall_score != null && Math.abs(score10 - liveOverallReport.overall_score) >= 1.5)
       );
       if (!isOverallReportStale && liveOverallReport?.recommendation) {
         const s = liveOverallReport.recommendation.toLowerCase().trim();
-        if (s.includes("strong")) rec = "Strong Hire";
-        else if ((s.includes("proceed") || s.includes("hire")) && !s.includes("not")) rec = "Hire";
-        else if (s.includes("review") || s.includes("maybe") || s.includes("hold")) rec = "Maybe";
-        else if (s.includes("not") || s.includes("reject")) rec = "Reject";
+        if (s.includes("strong") || (score10 >= 7.0 && (s.includes("proceed") || s.includes("hire")))) rec = "Strong Hire";
+        else if ((s.includes("proceed") || s.includes("hire")) && !s.includes("not")) rec = score10 >= 7.0 ? "Strong Hire" : "Hire";
+        else if (s.includes("review") || s.includes("maybe") || s.includes("hold")) rec = score10 >= 7.0 ? "Strong Hire" : "Maybe";
+        else if (s.includes("not") || s.includes("reject")) rec = score10 >= 5.0 ? "Hire" : "Reject";
       }
       
       // Determine real status
@@ -452,7 +485,7 @@ export function getCandidates(
         realUserId: user.id,
         name,
         email,
-        phone: `+91 ${Math.floor(r() * 9000000000) + 1000000000}`,
+        phone: sub.phone || user.phone || sub.rawSubmission?.phone || (isDemo ? `+91 ${Math.floor(r() * 9000000000) + 1000000000}` : "—"),
         experience,
         college,
         company,

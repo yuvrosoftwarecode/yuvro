@@ -11,7 +11,7 @@
 .PHONY: deployImages deployImages-ycode deployImages-ycampus deployImages-ylabs deployImages-yhub deployImages-code-executor
 .PHONY: install-ycode install-ycampus install-ylabs install-yhub install-code-executor run-ycode run-ycampus run-ylabs run-yhub
 .PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub stop-code-executor clean-ycode clean-ycampus clean-ylabs clean-yhub clean-code-executor
-.PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub logs-code-executor load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub setup-fixtures-data-ylabs load-courses-ycode load-courses-ycampus
+.PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub logs-code-executor load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub setup-fixtures-data-ylabs reload-fixtures-data reload-fixtures-data-ycode reload-fixtures-data-ycampus reload-fixtures-data-yhub reload-fixtures-data-ylabs clear-fixtures-data clear-fixtures-data-ycode clear-fixtures-data-ycampus clear-fixtures-data-yhub clear-fixtures-data-ylabs load-courses-ycode load-courses-ycampus
 .PHONY: test-all format-all lint-all check-all
 .PHONY: makemigrations makemigrations-ycode makemigrations-ycampus makemigrations-yhub makemigrations-ylabs
 .PHONY: db-reset db-reset-ycode db-reset-ycampus db-reset-ylabs db-reset-yhub
@@ -225,6 +225,11 @@ help:
 	@echo "  make setup-fixtures-data-ycampus Load YCampus fixture data"
 	@echo "  make setup-fixtures-data-yhub   Load YHub fixture data"
 	@echo "  make setup-fixtures-data-ylabs  Load YLabs fixture data"
+	@echo "  make reload-fixtures-data       Clear and reload fixture data for all apps"
+	@echo "  make reload-fixtures-data-ycode Clear and reload YCode fixture data"
+	@echo "  make reload-fixtures-data-ycampus Clear and reload YCampus fixture data"
+	@echo "  make reload-fixtures-data-yhub  Clear and reload YHub fixture data"
+	@echo "  make reload-fixtures-data-ylabs Clear and reload YLabs fixture data"
 	@echo ""
 	@echo "  make load-courses-ycode        Load courses only into YCode"
 	@echo "  make load-courses-ycampus      Load courses only into YCampus"
@@ -868,7 +873,7 @@ load-fixtures-ycampus:
 setup-fixtures-data:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Loading fixtures on EC2 for all apps..."; \
-		bash infra/scripts/run-fixtures.sh; \
+		bash infra/scripts/runFixtures.sh; \
 	else \
 		$(MAKE) -f Makefile.yhub load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 		$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
@@ -907,6 +912,59 @@ setup-fixtures-data-ylabs:
 	else \
 		$(MAKE) -f Makefile.ylabs load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
+
+reload-fixtures-data:
+	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		echo "Reloading fixtures with clear on EC2 for all apps..."; \
+		bash infra/scripts/runFixtures.sh all --clear; \
+	else \
+		$(MAKE) -f Makefile.yhub reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.ycode reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.ylabs reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.ycampus reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+	fi
+
+clear-fixtures-data: reload-fixtures-data
+
+reload-fixtures-data-ycode:
+	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		echo "Reloading fixtures with clear for YCode on EC2..."; \
+		bash infra/scripts/runFixtures.sh ycode --clear; \
+	else \
+		$(MAKE) -f Makefile.ycode reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+	fi
+
+clear-fixtures-data-ycode: reload-fixtures-data-ycode
+
+reload-fixtures-data-ycampus:
+	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		echo "Reloading fixtures with clear for YCampus on EC2..."; \
+		bash infra/scripts/runFixtures.sh ycampus --clear; \
+	else \
+		$(MAKE) -f Makefile.ycampus reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+	fi
+
+clear-fixtures-data-ycampus: reload-fixtures-data-ycampus
+
+reload-fixtures-data-yhub:
+	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		echo "Reloading fixtures with clear for YHub on EC2..."; \
+		bash infra/scripts/runFixtures.sh yhub --clear; \
+	else \
+		$(MAKE) -f Makefile.yhub reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+	fi
+
+clear-fixtures-data-yhub: reload-fixtures-data-yhub
+
+reload-fixtures-data-ylabs:
+	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		echo "Reloading fixtures with clear for YLabs on EC2..."; \
+		bash infra/scripts/runFixtures.sh ylabs --clear; \
+	else \
+		$(MAKE) -f Makefile.ylabs reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+	fi
+
+clear-fixtures-data-ylabs: reload-fixtures-data-ylabs
 
 load-courses-ycode:
 	@$(MAKE) -f Makefile.ycode load-courses

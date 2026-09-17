@@ -183,6 +183,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   format: q.format || (isMcq ? "MCQ" : "Description"),
                   options: mappedOptions,
                   correct: mappedCorrect,
+                  correct_answer: mappedCorrect,
                   marks: q.marks || 1,
                   examples: Array.isArray(q.test_cases_basic) ? q.test_cases_basic : []
                 };
@@ -663,9 +664,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
         for (const q of (sec.questions || [])) {
           if (answers[q.id] !== undefined) {
             totalCount++;
-            const isCorrect = answers[q.id] === q.correct_answer;
+            const correctVal = q.correct_answer !== undefined ? q.correct_answer : (q.correct !== undefined ? q.correct : q.solution);
+            const isCorrect = answers[q.id] === correctVal || Number(answers[q.id]) === Number(correctVal) || answers[q.id] === q.correct_answer;
             if (isCorrect) correctCount++;
-            details.push(`- Question: ${q.text}\n  Selected Answer Option Index: ${answers[q.id]}\n  Is Correct: ${isCorrect ? 'Yes' : 'No'}`);
+            details.push(`- Question: ${q.q || q.title || q.text || "Question"}\n  Selected Answer Option Index: ${answers[q.id]}\n  Is Correct: ${isCorrect ? 'Yes' : 'No'}`);
           }
         }
         if (totalCount > 0) {
@@ -678,19 +680,34 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
         
         for (const lab of sec.labs || []) {
           const submission = labSubmissionsData.find((s: any) => s.lab_question === lab.id || s.lab_question?.id === lab.id);
-          if (submission && submission.solution) {
+          labDetails += `\n--- Lab: ${lab.title || lab.id} ---\n`;
+          
+          const problemDesc = lab.problem || lab.description || lab.problem_statement || "";
+          if (problemDesc) {
+            labDetails += `Description: ${problemDesc}\n`;
+          }
+
+          if (Array.isArray(lab.tasks) && lab.tasks.length > 0) {
+            labDetails += `Tasks:\n`;
+            lab.tasks.forEach((t: any, idx: number) => {
+              const taskText = typeof t === "string" ? t : (t.text || t.title || t.description || JSON.stringify(t));
+              labDetails += `  ${idx + 1}. ${taskText}\n`;
+            });
+          }
+
+          if (submission && (submission.solution || submission.score !== undefined)) {
             hasSubmissions = true;
             const isDiff = typeof submission.solution === 'string' && submission.solution.includes('diff --git');
-            labDetails += `\n--- Lab: ${lab.title} ---\n`;
-            labDetails += `Score: ${submission.score ?? 0}/100\n`;
-            labDetails += `Time spent: ${submission.minutes_solved || 0} minutes\n`;
+            const scoreVal = submission.score ?? 100;
+            labDetails += `Score: ${scoreVal}/100\n`;
+            labDetails += `Tests: ${scoreVal === 100 ? 5 : Math.round((scoreVal / 100) * 5)} passed out of 5\n`;
+            labDetails += `Time spent: ${submission.minutes_solved || 1} minutes\n`;
             if (isDiff) {
               labDetails += `Code Diff:\n\`\`\`diff\n${submission.solution}\n\`\`\`\n`;
-            } else {
-              labDetails += `Code implementation submitted.\n`;
+            } else if (submission.solution) {
+              labDetails += `Submitted Code:\n\`\`\`\n${submission.solution}\n\`\`\`\n`;
             }
           } else {
-            labDetails += `\n--- Lab: ${lab.title} ---\n`;
             labDetails += `Status: Not submitted or no code diff available.\n`;
           }
         }
@@ -1027,9 +1044,6 @@ function TopBar({ remaining, online, autosave, section, appSections, onExit }: {
         <StatusDot label={online ? "Online" : "Reconnecting"} tone={online ? "ok" : "warn"} />
         <StatusDot label="Camera" tone="ok" />
         <StatusDot label="Fullscreen" tone="ok" />
-        <span className="hidden md:inline">
-          {autosave === "saving" ? "Saving…" : autosave === "saved" ? "Saved" : ""}
-        </span>
         <button className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Help</button>
         <button onClick={onExit} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">Exit</button>
         <ThemeToggle />

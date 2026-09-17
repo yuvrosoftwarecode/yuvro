@@ -183,19 +183,21 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             return Response({"error": "Authentication required. Please verify OTP first."}, status=status.HTTP_401_UNAUTHORIZED)
             
         user = request.user
+        phone = request.data.get('phone', '')
         
-        # We allow any email to register via the public link.
-        # They will be tracked as 'Shared Link' source if not explicitly invited.
-            
-        if UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).exists():
-            return Response({"error": "This email is already registered for this evaluation"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        UserEvaluationSubmission.objects.create(
-            evaluation=evaluation, 
-            user=user,
-            duration=0,
-            discussion_mode=DiscussionMode.AUTOMATIC
-        )
+        submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).first()
+        if submission:
+            if phone and not submission.phone:
+                submission.phone = phone
+                submission.save(update_fields=['phone'])
+        else:
+            UserEvaluationSubmission.objects.create(
+                evaluation=evaluation, 
+                user=user,
+                duration=0,
+                discussion_mode=DiscussionMode.AUTOMATIC,
+                phone=phone or ""
+            )
         
         resume_url = request.data.get('resume_url')
         if resume_url:
@@ -669,18 +671,31 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def generate_share_link(self, request, pk=None):
         evaluation = self.get_object()
         candidate_email = request.data.get('candidate_email')
-        if not candidate_email:
-            return Response({"error": "candidate_email is required"}, status=status.HTTP_400_BAD_REQUEST)
+        candidate_id = request.data.get('candidate_id')
         
-        # In a real system, you would check if the request.user has permission to share this evaluation
-        # For this prototype, we'll proceed if the submission exists
-        submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user__email=candidate_email).first()
-        if not submission:
-            return Response({"error": "Candidate submission not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        # Generate a new token and set expiration to 30 days from now
+        from django.db.models import Q
         import secrets
         from datetime import timedelta
+
+        query = Q(evaluation=evaluation)
+        if candidate_id and candidate_email:
+            query &= (Q(id=candidate_id) | Q(user__id=candidate_id) | Q(user__email__iexact=candidate_email))
+        elif candidate_id:
+            query &= (Q(id=candidate_id) | Q(user__id=candidate_id))
+        elif candidate_email:
+            query &= Q(user__email__iexact=candidate_email)
+        else:
+            return Response({"error": "candidate_email or candidate_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        submission = UserEvaluationSubmission.objects.filter(query).first()
+        if not submission:
+            # Fallback: find submission in this evaluation by candidate email or candidate id
+            if candidate_email:
+                submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user__email__iexact=candidate_email).first()
+            if not submission and candidate_id:
+                submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, id=candidate_id).first()
+            if not submission:
+                return Response({"error": "Candidate submission not found"}, status=status.HTTP_404_NOT_FOUND)
         
         token = secrets.token_urlsafe(12)
         submission.share_token = token
@@ -1104,10 +1119,13 @@ class SharedReportView(APIView):
         sub_serializer = UserEvaluationSubmissionSerializer(submission)
         
         # Include timeline events specifically for this candidate and evaluation
-        events = CandidateTimelineEvent.objects.filter(
-            evaluation=evaluation, 
-            candidate_email=submission.user.email
-        )
+        candidate_email = submission.user.email if submission.user else submission.email
+        events = []
+        if candidate_email:
+            events = CandidateTimelineEvent.objects.filter(
+                evaluation=evaluation, 
+                candidate_email=candidate_email
+            )
         from .serializers import CandidateTimelineEventSerializer
         event_serializer = CandidateTimelineEventSerializer(events, many=True)
         

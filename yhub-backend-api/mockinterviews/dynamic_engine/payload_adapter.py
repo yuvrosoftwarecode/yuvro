@@ -239,7 +239,9 @@ class UnifiedPayloadAdapter:
             common_details = {
                 "lab_id": lab.get("lab_id"),
                 "title": title,
-                "scenario": lab.get("scenario"),
+                "scenario": lab.get("scenario") or lab.get("description"),
+                "description": lab.get("description"),
+                "tasks": lab.get("tasks"),
                 "performance": performance,
                 "time_spent_seconds": lab.get("time_spent_seconds")
                 or performance.get("total_time_seconds"),
@@ -382,9 +384,24 @@ class UnifiedPayloadAdapter:
             minutes = self._parse_minutes(body)
             code_diff = self._parse_code_diff(body)
 
+            description = (
+                self._extract_block_value(body, "Description", stop_labels=("Problem Statement", "Tasks", "Score", "Time spent", "Code Diff", "Submitted Code", "Status"))
+                or self._extract_block_value(body, "Problem Statement", stop_labels=("Tasks", "Score", "Time spent", "Code Diff", "Submitted Code", "Status"))
+            )
+            tasks = self._extract_block_value(body, "Tasks", stop_labels=("Score", "Time spent", "Code Diff", "Submitted Code", "Status"))
+
             tests_match = re.search(r"Tests:\s*(?P<passed>\d+)\s*passed\s*out\s*of\s*(?P<total>\d+)", body, re.IGNORECASE)
             tests_passed = self._as_int(tests_match.group("passed")) if tests_match else None
             tests_total = self._as_int(tests_match.group("total")) if tests_match else None
+
+            score_match = re.search(r"Score:\s*(?P<score>\d+(?:\.\d+)?)\s*(?:/\s*(?P<max>\d+(?:\.\d+)?)|%)?", body, re.IGNORECASE)
+            if score_match and (tests_passed is None or tests_total is None):
+                raw_score = self._as_float(score_match.group("score"))
+                raw_max = self._as_float(score_match.group("max")) or 100.0
+                if raw_score is not None:
+                    pct = max(0.0, min(1.0, (raw_score / raw_max) if raw_max else 1.0))
+                    tests_total = tests_total or 5
+                    tests_passed = tests_passed if tests_passed is not None else int(round(pct * tests_total))
 
             errors_match = re.search(r"Errors(?:\s+encountered)?:\s*(?P<errors>\d+)", body, re.IGNORECASE)
             errors_encountered = self._as_int(errors_match.group("errors")) if errors_match else None
@@ -396,7 +413,9 @@ class UnifiedPayloadAdapter:
                 {
                     "lab_id": f"context_lab_{index}",
                     "title": title,
-                    "scenario": None,
+                    "scenario": description or None,
+                    "description": description or None,
+                    "tasks": tasks or None,
                     "time_spent_seconds": minutes * 60 if minutes is not None else None,
                     "performance": {
                         "total_time_seconds": minutes * 60 if minutes is not None else None,
@@ -558,14 +577,22 @@ class UnifiedPayloadAdapter:
 
     def _parse_code_diff(self, text: str) -> str | None:
         match = re.search(
-            r"Code Diff:\s*```(?:[A-Za-z0-9_-]+)?\s*\n(?P<code>.*?)(?:\n```|$)",
+            r"(?:Code Diff|Submitted Code|Code Implementation|Solution):\s*```(?:[A-Za-z0-9_-]+)?\s*\n(?P<code>.*?)(?:\n```|$)",
             text,
             re.IGNORECASE | re.DOTALL,
         )
         if match:
             return match.group("code").strip()
 
-        marker = re.search(r"Code Diff:\s*(?P<code>.*)", text, re.IGNORECASE | re.DOTALL)
+        match2 = re.search(
+            r"```(?:diff|python|javascript|typescript|json|bash|sh)?\s*\n(?P<code>.*?)(?:\n```|$)",
+            text,
+            re.IGNORECASE | re.DOTALL,
+        )
+        if match2:
+            return match2.group("code").strip()
+
+        marker = re.search(r"(?:Code Diff|Submitted Code):\s*(?P<code>.*)", text, re.IGNORECASE | re.DOTALL)
         if marker:
             return marker.group("code").strip()
         return None

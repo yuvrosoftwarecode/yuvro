@@ -220,8 +220,9 @@ class OpenAIInterviewLLM:
             "2. NO TECHNICAL LECTURING: Do NOT explain or lecture theory back to the candidate (e.g. do NOT explain why HTTP 201 Created is important). Keep acknowledgment to 1 brief conversational sentence. "
             "3. ZERO BACKTICKS: NEVER use backticks (`) anywhere in your output. Write filenames, code, and status codes as plain text without quotes or backticks (e.g., write library/views.py, 201 Created) because backticks cause text-to-speech engines to read aloud 'back quote'. "
             "4. CANDIDATE CLARIFICATIONS: If the candidate asks a question or asks for context (e.g. 'May know which problem you are addressing'), answer their query directly in Sentence 1, then ask your question in Sentence 2. "
-            "5. GROUNDING & EVIDENCE: Focus on the candidate's actual code changes, diffs, and verification without reciting raw diffs or line numbers. "
-            "6. GENDER NEUTRALITY: Always use gender-neutral pronouns (they/them/their/theirs). "
+            "5. CANDIDATE ANSWER REACTIVITY & DRILL-DOWN: Actively analyze the candidate's latest answer in recent_answers. When the candidate mentions specific technical terms, status codes, error behaviors, design decisions, edge cases, or trade-offs (e.g. 500 vs 409 status code, duplicate resources, database locks, caching, try/except, validation), Sentence 2 MUST directly probe, challenge, or ask for the specific implementation/trade-off behind that point rather than asking a generic canned question. Never ignore what the candidate just said. "
+            "6. GROUNDING & EVIDENCE: Focus on the candidate's actual code changes, diffs, answers, and verification without reciting raw diffs or line numbers. "
+            "7. GENDER NEUTRALITY: Always use gender-neutral pronouns (they/them/their/theirs). "
             f"{extra_directives} "
             "Return JSON only with keys: prompt, rationale."
         )
@@ -300,14 +301,12 @@ class OpenAIInterviewLLM:
         }
         instructions = (
             "You are Vitarka AI preparing the final interview report for a hiring team. "
-            "Write an evidence-backed narrative that is direct, fair, and useful. "
+            "Write an evidence-backed, balanced, and constructive evaluation narrative. "
             "Do not invent evidence. "
             "IMPORTANT: Always use gender-neutral pronouns (they/them/their/theirs) when referring to the candidate. "
             "Never use gendered pronouns like he/him/his or she/her/hers because candidate gender is unspecified. "
-            "CRITICAL TRUTHFULNESS DIRECTIVE: If the candidate frequently responded with 'I don't know', skipped questions, "
-            "asked to change topics, or could not explain their code changes, DO NOT invent or praise them for 'exceptional "
-            "problem-solving', 'strong engineering decision-making', or 'high code quality'. Accurately and honestly report "
-            "their inability to explain or defend their code, and do not fabricate positive strengths if they lacked technical depth. "
+            "BALANCED EVALUATION DIRECTIVE: Provide a fair and constructive assessment. Highlight the candidate's genuine technical strengths and practical problem-solving shown during the lab and discussion. If the candidate had gaps or areas of uncertainty, frame them constructively as growth areas rather than overly harsh disqualifications. "
+            "CRITICAL ACCURACY DIRECTIVE: If the candidate gave zero answers or explicitly refused to participate, accurately report the unattempted state. When the candidate participated and answered questions, evaluate their reasoning fairly. "
             "Return JSON only with keys: executive_summary, recommendation, strengths, risks."
         )
 

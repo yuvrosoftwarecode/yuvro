@@ -414,22 +414,6 @@ function Workspace({
 
   const toggleDir = (p: string) => setOpenDirs(s => ({ ...s, [p]: s[p] === false }));
 
-  const NavBtn = ({
-    id,
-    icon: Icon,
-    label,
-  }: { id: "files" | "diff"; icon: typeof Files; label: string }) => (
-    <button
-      onClick={() => setView(id)}
-      title={label}
-      className={`flex h-10 w-10 items-center justify-center rounded-lg transition ${
-        view === id ? "bg-white/10 text-white" : "text-neutral-500 hover:bg-white/5 hover:text-neutral-300"
-      }`}
-    >
-      <Icon className="h-4 w-4" />
-    </button>
-  );
-
   return (
     <div
       className={`flex flex-col overflow-hidden border border-white/10 bg-neutral-950 ${
@@ -437,51 +421,78 @@ function Workspace({
       }`}
     >
       {/* Top bar */}
-      <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">
-          {view === "files" ? "File view" : "Diff view"}
-        </span>
-        <span className="text-[11px] text-neutral-500">
-          {view === "files" ? `${changedFilesList.length} changed` : `${changedFilesList.length} changed files`}
-        </span>
+      <div className="flex items-center justify-between gap-3 border-b border-white/10 px-3 py-2">
+        {/* Toggle between Full Code & Candidate Code */}
+        <div className="inline-flex items-center rounded-lg border border-white/10 bg-white/[0.04] p-0.5 text-[11px] font-medium">
+          <button
+            onClick={() => setView("files")}
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1 transition ${
+              view === "files"
+                ? "bg-white text-neutral-900 shadow-sm"
+                : "text-neutral-400 hover:text-white"
+            }`}
+          >
+            <Files className="h-3.5 w-3.5" />
+            Full Code
+          </button>
+          <button
+            onClick={() => setView("diff")}
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1 transition ${
+              view === "diff"
+                ? "bg-white text-neutral-900 shadow-sm"
+                : "text-neutral-400 hover:text-white"
+            }`}
+          >
+            <FileDiff className="h-3.5 w-3.5" />
+            Candidate Code
+            {changedFilesList.length > 0 && (
+              <span
+                className={`ml-1 rounded-full px-1.5 py-0.5 text-[9.5px] font-bold leading-none ${
+                  view === "diff" ? "bg-neutral-900 text-white" : "bg-emerald-500/20 text-emerald-300"
+                }`}
+              >
+                {changedFilesList.length}
+              </span>
+            )}
+          </button>
+        </div>
 
-        {view === "diff" && (
-          <div className="ml-auto inline-flex overflow-hidden rounded-md border border-white/10 text-[11px]">
-            <button
-              onClick={() => setMode("unified")}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 ${mode === "unified" ? "bg-white text-neutral-900" : "text-neutral-400 hover:bg-white/5"}`}
-            >
-              <Rows3 className="h-3 w-3" /> Unified
-            </button>
-            <button
-              onClick={() => setMode("split")}
-              className={`inline-flex items-center gap-1 border-l border-white/10 px-2.5 py-1 ${mode === "split" ? "bg-white text-neutral-900" : "text-neutral-400 hover:bg-white/5"}`}
-            >
-              <Columns2 className="h-3 w-3" /> Split
-            </button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {view === "diff" && (
+            <div className="inline-flex overflow-hidden rounded-md border border-white/10 text-[11px]">
+              <button
+                onClick={() => setMode("unified")}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 ${mode === "unified" ? "bg-white text-neutral-900" : "text-neutral-400 hover:bg-white/5"}`}
+              >
+                <Rows3 className="h-3 w-3" /> Unified
+              </button>
+              <button
+                onClick={() => setMode("split")}
+                className={`inline-flex items-center gap-1 border-l border-white/10 px-2.5 py-1 ${mode === "split" ? "bg-white text-neutral-900" : "text-neutral-400 hover:bg-white/5"}`}
+              >
+                <Columns2 className="h-3 w-3" /> Split
+              </button>
+            </div>
+          )}
 
-        <button
-          onClick={onToggleFullscreen}
-          className={`inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1 text-[11px] text-neutral-300 hover:bg-white/5 ${view === "diff" ? "" : "ml-auto"}`}
-        >
-          {fullscreen ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
-          {fullscreen ? "Exit full screen" : "Full screen"}
-        </button>
+          <button
+            onClick={onToggleFullscreen}
+            className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1 text-[11px] text-neutral-300 hover:bg-white/5"
+          >
+            {fullscreen ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
+            {fullscreen ? "Exit full screen" : "Full screen"}
+          </button>
+        </div>
       </div>
 
       <div className="flex min-h-0 flex-1">
-        {/* Activity bar */}
-        <div className="flex w-12 shrink-0 flex-col items-center gap-1 border-r border-white/10 bg-white/[0.02] py-2">
-          <NavBtn id="files" icon={Files} label="File view" />
-          <NavBtn id="diff" icon={FileDiff} label="Diff view" />
-        </div>
-
         {/* Explorer */}
         <div className="flex w-64 shrink-0 flex-col border-r border-white/10 bg-white/[0.02]">
-          <div className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-            Explorer
+          <div className="flex items-center justify-between px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+            <span>{view === "files" ? "Explorer" : "Changed Files"}</span>
+            <span className="text-[10px] text-neutral-500">
+              {view === "files" ? "" : `${changedFilesList.length} files`}
+            </span>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto pb-2">
             {view === "files" ? (

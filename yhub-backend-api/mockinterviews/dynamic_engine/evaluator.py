@@ -152,17 +152,26 @@ class InterviewEvaluator:
         evidence_by_competency, adjustments, positive_counts, negative_counts = self._collect_evidence(session)
         scores = self._scores_from_evidence(evidence_by_competency, adjustments, positive_counts, negative_counts)
         coverage = self._coverage_from_scores(session.id, scores)
-        overall = round(sum(score.score for score in scores) / len(scores), 1)
+        
+        evaluated_scores = [
+            score for score in scores
+            if positive_counts.get(score.competency, 0) > 0 or negative_counts.get(score.competency, 0) > 0
+        ]
+        if evaluated_scores:
+            overall = round(sum(score.score for score in evaluated_scores) / len(evaluated_scores), 1)
+        else:
+            overall = round(sum(score.score for score in scores) / len(scores), 1)
+
         strengths = [
             self._label(score.competency)
             for score in sorted(scores, key=lambda item: item.score, reverse=True)
-            if score.score >= 6 and positive_counts.get(score.competency, 0) > negative_counts.get(score.competency, 0)
-        ][:3]
+            if score.score >= 6 and positive_counts.get(score.competency, 0) >= negative_counts.get(score.competency, 0)
+        ][:4]
         risks = [
             self._label(score.competency)
             for score in sorted(scores, key=lambda item: item.score)
-            if score.score <= 3 or negative_counts.get(score.competency, 0) > 0
-        ][:4]
+            if score.score <= 4 and negative_counts.get(score.competency, 0) > positive_counts.get(score.competency, 0)
+        ][:3]
 
         summary = (
             f"Evaluation is based on {len(session.observations)} assessment events and "
@@ -284,7 +293,7 @@ class InterviewEvaluator:
         if is_unknown_or_skip:
             for competency in targets:
                 negative_counts[competency] += 1
-                adjustments[competency] -= 3
+                adjustments[competency] -= 1
                 evidence_by_competency[competency].append(
                     EvaluationEvidence(
                         source="interview",
@@ -420,31 +429,31 @@ class InterviewEvaluator:
 
         if pos > 0 or neg > 0:
             if neg > 0 and pos == 0:
-                raw_score = max(1, 2 - neg)
+                raw_score = max(2, 3 - neg)
                 guidance = "Candidate was probed on this competency but could not explain or declined to answer."
             elif pos > 0 and neg == 0:
-                raw_score = min(10, 6 + pos + max(0, adj))
+                raw_score = min(10, 7 + pos + max(0, adj))
                 guidance = "Demonstrated through clear, substantive technical responses during the interview."
             else:
                 if neg > pos:
-                    raw_score = max(1, min(3, 3 + pos - neg))
-                    guidance = "Candidate struggled on most probes for this competency."
+                    raw_score = max(2, min(5, 4 + pos - neg))
+                    guidance = "Candidate struggled on some probes for this competency."
                 else:
-                    raw_score = max(3, min(7, 4 + pos - neg + adj))
-                    guidance = "Mixed evidence observed; candidate answered some aspects but struggled with others."
+                    raw_score = max(5, min(8, 5 + pos - neg + adj))
+                    guidance = "Demonstrated capability with some mixed areas observed during discussion."
         elif evidence:
-            raw_score = 2
-            guidance = "Observed in background activity, but not verified through interview discussion."
+            raw_score = 5
+            guidance = "Observed in background activity and lab work."
         else:
-            raw_score = 0
+            raw_score = 5
             evidence = [
                 EvaluationEvidence(
                     source="system",
                     reference_id="not_observed",
-                    note="No direct evidence captured for this competency.",
+                    note="Not directly probed during this interview session.",
                 )
             ]
-            guidance = "No evidence observed for this competency."
+            guidance = "Neutral evaluation (not directly probed during session)."
 
         return CompetencyScore(
             competency=competency,

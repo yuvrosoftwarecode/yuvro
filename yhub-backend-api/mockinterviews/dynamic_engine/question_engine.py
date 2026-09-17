@@ -937,8 +937,24 @@ class DynamicQuestionEngine:
             return None
         if quality == "clarification_requested":
             return answer
-        if self._is_unknown_answer(answer) or question.evidence_event_ids or len(answer.answer_text.split()) < 18:
+        if self._is_unknown_answer(answer) or question.evidence_event_ids or quality in {"substantive", "thin"} or len(answer.answer_text.split()) >= 4:
             return answer
+        return None
+
+    def _extract_key_topic_from_answer(self, answer_text: str) -> str | None:
+        if not answer_text or not isinstance(answer_text, str):
+            return None
+        clean = re.sub(r"[^a-zA-Z0-9\s_-]", " ", answer_text)
+        matches = re.findall(
+            r"\b(?:status code[s]?|duplicate\s*\w+|edge case[s]?|error handling|logging|database|query|api|validation|exception|try\s*except|500|404|409|400|200|201|performance|latency|cache|concurrency|thread|async|await|test case[s]?|mock|fixture|payload|response|request)\b",
+            clean,
+            re.IGNORECASE,
+        )
+        if matches:
+            return matches[0].strip()
+        words = clean.split()
+        if len(words) >= 4:
+            return " ".join(words[:4])
         return None
 
     def _answer_depth_follow_up(
@@ -1006,18 +1022,33 @@ class DynamicQuestionEngine:
 
         event = self._event_for_question(session, question)
         code_insights = event.details.get("code_insights") if event else None
-        answer_excerpt = self._compact(answer.answer_text, 100)
+        key_topic = self._extract_key_topic_from_answer(answer.answer_text)
 
         if isinstance(code_insights, dict):
             focus = self._code_focus_phrase(code_insights)
-            prompt = (
-                f"Understood. Regarding {focus}: "
-                "which line or design choice would you defend or change?"
-            )
+            if key_topic:
+                prompt = (
+                    f"Understood. Regarding {key_topic} in {focus}: "
+                    "which line or design choice would you defend or change?"
+                )
+            else:
+                prompt = (
+                    f"Understood. Regarding {focus}: "
+                    "which line or design choice would you defend or change?"
+                )
             targets = [
                 Competency.CODE_QUALITY,
                 Competency.PROBLEM_SOLVING,
                 Competency.TESTING_MINDSET,
+            ]
+        elif key_topic:
+            prompt = (
+                f"Understood. Regarding {key_topic}: what was the exact implementation detail and tradeoff behind that choice?"
+            )
+            targets = [
+                Competency.ENGINEERING_DECISION_MAKING,
+                Competency.CODE_QUALITY,
+                Competency.PROBLEM_SOLVING,
             ]
         elif len(answer.answer_text.split()) < 18:
             prompt = (
@@ -1109,7 +1140,15 @@ class DynamicQuestionEngine:
         axis: str,
         signature: str,
     ) -> InterviewQuestion:
-        files = self._join(code_insights.get("changed_files"), default="the submitted code")
+        changed_files_list = code_insights.get("changed_files") or []
+        if isinstance(changed_files_list, list):
+            app_files = [
+                f for f in changed_files_list
+                if not str(f).startswith("config/") and not str(f).startswith("settings/") and not str(f).endswith("__init__.py") and not str(f).endswith("asgi.py") and not str(f).endswith("wsgi.py")
+            ]
+            if app_files:
+                changed_files_list = app_files
+        files = self._join(changed_files_list, default="the submitted code")
         file_change_summary = self._file_change_summary(code_insights)
         added_line = self._first(
             code_insights.get("notable_added_lines")

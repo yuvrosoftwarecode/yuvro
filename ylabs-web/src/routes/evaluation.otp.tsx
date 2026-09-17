@@ -102,7 +102,16 @@ function OtpPage() {
           }
         }
 
-        await evaluationService.registerPublicEvaluation(evaluationId, accessToken, resumeUrl);
+        const candidateData = (() => {
+          try {
+            return JSON.parse(localStorage.getItem("yuvro-eval-candidate") ?? "{}");
+          } catch {
+            return {};
+          }
+        })();
+        const phone = candidateData.phone || "";
+
+        await evaluationService.registerPublicEvaluation(evaluationId, accessToken, resumeUrl, phone);
 
         window.location.href = `/evaluation/proctoring?e=${evaluationId}`;
       } else {

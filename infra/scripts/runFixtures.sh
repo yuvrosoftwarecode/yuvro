@@ -9,6 +9,12 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 SSH_KEY_PATH="${SSH_KEY_PATH:-$HOME/.ssh/yuvro-dev.pem}"
 
 APP="${1:-all}"
+ACTION="${2:-setup}"
+CLEAR_FLAG=""
+if [ "$ACTION" = "--clear" ] || [ "$ACTION" = "clear" ] || [ "$CLEAR" = "true" ]; then
+    CLEAR_FLAG="--clear"
+fi
+
 EC2_IP=$(aws ec2 describe-instances \
     --region ap-south-1 \
     --filters "Name=tag:Environment,Values=dev" "Name=instance-state-name,Values=running" \
@@ -20,7 +26,7 @@ if [ -z "$EC2_IP" ] || [ "$EC2_IP" = "None" ]; then
     exit 1
 fi
 
-echo "🚀 Running fixtures on EC2 for: $APP"
+echo "🚀 Running fixtures on EC2 for: $APP (mode: ${CLEAR_FLAG:-setup})"
 echo "   EC2 IP: $EC2_IP"
 
 # Map app names to container names
@@ -42,7 +48,7 @@ case "$APP" in
         ;;
     *)
         echo "❌ Unknown app: $APP"
-        echo "Usage: $0 [ycode|ycampus|yhub|ylabs|all]"
+        echo "Usage: $0 [ycode|ycampus|yhub|ylabs|all] [--clear]"
         exit 1
         ;;
 esac
@@ -57,13 +63,15 @@ cd /home/ubuntu/yuvro
 echo "Waiting for containers to be healthy..."
 sleep 10
 
+EXTRA_ARGS="$CLEAR_FLAG"
+
 for container in $CONTAINERS; do
-    echo "Loading fixtures for: \$container"
-    docker exec "\$container" python manage.py setup_fixtures_data 2>&1 | tail -10 || echo "   ⚠ \$container: already loaded or failed"
+    echo "Loading fixtures for: \$container (args: \$EXTRA_ARGS)"
+    docker exec "\$container" python manage.py setup_fixtures_data \$EXTRA_ARGS 2>&1 | tail -10 || echo "   ⚠ \$container: already loaded or failed"
     echo ""
 done
 
-echo "✅ Fixtures loaded successfully!"
+echo "✅ Fixtures processed successfully!"
 EOF
 
 echo "✅ Done!"

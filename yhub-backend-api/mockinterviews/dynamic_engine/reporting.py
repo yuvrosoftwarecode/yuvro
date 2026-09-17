@@ -202,11 +202,11 @@ class InterviewReportService:
         )
 
     def _recommendation(self, evaluation: InterviewEvaluation) -> str:
-        if evaluation.overall_score >= 8:
+        if evaluation.overall_score >= 7.0:
             return "Strong proceed"
-        if evaluation.overall_score >= 6:
+        if evaluation.overall_score >= 5.0:
             return "Proceed"
-        if evaluation.overall_score >= 4:
+        if evaluation.overall_score >= 3.5:
             return "Needs review"
         return "Do not proceed"
 

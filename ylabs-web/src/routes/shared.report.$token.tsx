@@ -76,7 +76,18 @@ function SharedReportWorkspace() {
         
         // Pass the single submission into getCandidates to perfectly hydrate scores, names, and logic
         const cands = getCandidates(data.evaluation.id, [data.submission]);
-        const hydratedCand = cands[0];
+        const hydratedCand = cands[0] || {
+          id: data.submission.id,
+          name: data.submission.user?.full_name || data.submission.user?.username || data.submission.email?.split('@')[0] || "Candidate",
+          email: data.submission.user?.email || data.submission.email || "",
+          phone: data.submission.phone || data.submission.user?.phone || "",
+          hiringStatus: data.submission.hiring_status || "Pending Review",
+          eci: 0,
+          labsScore: 0,
+          assessmentScore: 0,
+          vitarkaScore: 0,
+          recommendation: "Reject",
+        };
         
         setCandidate({
           ...hydratedCand,
@@ -108,29 +119,183 @@ function SharedReportWorkspace() {
     </div>
   );
 
-  const detail = getCandidateDetail(candidate);
-  const hasLabs = ev?.sections?.some((s: any) => s.kind === "labs" || s.kind === "lab");
-  const hasAssessment = ev?.sections?.some((s: any) => s.kind === "assessment" || s.kind === "knowledge");
-  const hasVitarka = ev?.sections?.some((s: any) => s.kind === "discussion" || s.kind === "vitarka");
+  const hasSections = Array.isArray(ev?.sections) && ev.sections.length > 0;
+  const hasLabs = hasSections ? ev.sections.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") : false;
+  const hasAssessment = hasSections ? ev.sections.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT") : false;
+  const hasVitarka = hasSections ? ev.sections.some((s: any) => s.kind === "discussion" || s.kind === "vitarka" || s.type === "VITARKA_AI_INTERVIEW") : false;
+
+  const labsMaxScore = (ev?.sections || []).filter((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS").reduce((acc: number, sec: any) => {
+    const secSum = (sec.labs || sec.questions || []).reduce((subAcc: number, item: any) => subAcc + (Number(item.marks) || 0), 0);
+    return acc + (secSum > 0 ? secSum : 10);
+  }, 0) || (hasLabs ? 10 : 0);
+
+  const assessmentMaxScore = (ev?.sections || []).filter((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT").reduce((acc: number, sec: any) => {
+    const secSum = (sec.questions || []).reduce((subAcc: number, item: any) => subAcc + (Number(item.marks) || 1), 0);
+    return acc + (secSum > 0 ? secSum : 30);
+  }, 0) || (hasAssessment ? 30 : 0);
+
+  const discussionMaxScore = (ev?.sections || []).filter((s: any) => s.kind === "discussion" || s.kind === "vitarka" || s.type === "VITARKA_AI_INTERVIEW").reduce((acc: number, sec: any) => {
+    return acc + (Number(sec.marks) || 25);
+  }, 0) || (hasVitarka ? 25 : 0);
+
+  const rawLabSubs = candidate?.rawSubmission?.lab_submissions || [];
+  const vitarkaSubmission = candidate?.rawSubmission?.vitarka_submission;
+  const liveBundle = hasVitarka ? (vitarkaSubmission?.report_bundle || vitarkaSubmission?.session_state?.report_bundle) : null;
+  const liveVitarkaReport = hasVitarka ? (liveBundle?.vitarka_report || vitarkaSubmission?.report || vitarkaSubmission?.session_state?.report) : null;
+  const liveOverallReport = hasVitarka ? liveBundle?.overall_report : null;
+  const liveLabsReport = liveBundle?.engineering_labs_report;
+  const liveKnowledgeReport = liveBundle?.knowledge_assessment_report;
+
+  const totalLabMarksEarned = rawLabSubs.length > 0
+    ? rawLabSubs.reduce((acc: number, cur: any) => {
+        let score = Number(cur.score || cur.marks_earned || 0);
+        if (score === 0 && cur.test_results && Array.isArray(cur.test_results)) {
+          const passed = cur.test_results.filter((t: any) => t.passed || t.status === "passed" || t.status === "PASS").length;
+          const total = cur.test_results.length;
+          if (total > 0) score = Math.round((passed / total) * 10);
+        }
+        if (score === 0 && cur.solution && typeof cur.solution === "string") {
+          if (cur.solution.includes("HTTP_201_CREATED") || cur.solution.includes("201_CREATED")) {
+            score = 2;
+          }
+        }
+        if (score > 10 && score <= 100) {
+          score = (score / 100) * 10;
+        }
+        return acc + score;
+      }, 0)
+    : (candidate?.labsScore != null ? candidate.labsScore : 0);
+
+  const liveLabsHasNoAttempts = (
+    totalLabMarksEarned === 0 && (
+      (liveLabsReport?.tests_total && liveLabsReport.tests_total > 0 && (!liveLabsReport.tests_passed || liveLabsReport.tests_passed === 0)) ||
+      (liveLabsReport?.risks?.some((r: string) => r.includes("No lab tests were executed")) && liveLabsReport?.risks?.some((r: string) => r.includes("No verified implementation code")))
+    )
+  );
+
+  const liveLabsScore = totalLabMarksEarned > 0
+    ? Math.min(totalLabMarksEarned, labsMaxScore)
+    : (liveLabsHasNoAttempts
+        ? 0
+        : (candidate?.labsScore != null && candidate.labsScore > 0
+            ? Math.min(candidate.labsScore, labsMaxScore)
+            : (liveLabsReport?.overall_score != null
+                ? Math.round((liveLabsReport.overall_score / 10) * labsMaxScore)
+                : (liveLabsReport?.tests_total && liveLabsReport.tests_total > 0
+                    ? Math.round((liveLabsReport.tests_passed / liveLabsReport.tests_total) * labsMaxScore)
+                    : 0))));
+
+  const rawKnowledgeSubs = candidate?.rawSubmission?.knowledge_submissions || [];
+  let computedKnowledgeMarks = 0;
+  rawKnowledgeSubs.forEach((sub: any) => {
+    if (sub.score) {
+      computedKnowledgeMarks += Number(sub.score);
+    } else if (sub.answers && Array.isArray(sub.answers)) {
+      const sec = ev?.sections?.find((s: any) => (s.id || s.section_id) === sub.section);
+      const qMap = new Map((sec?.questions || []).map((q: any) => [String(q.id), q]));
+      sub.answers.forEach((ans: any) => {
+        const q: any = qMap.get(String(ans.question_id || ans.question));
+        const marks = Number(q?.marks || 1);
+        if (ans.is_correct) {
+          computedKnowledgeMarks += marks;
+        }
+      });
+    }
+  });
+
+  const totalKnowledgeMarksEarned = computedKnowledgeMarks > 0
+    ? computedKnowledgeMarks
+    : (candidate?.assessmentScore != null ? candidate.assessmentScore : 0);
+
+  const liveAssessmentScore = (
+    totalKnowledgeMarksEarned > 0
+      ? Math.min(totalKnowledgeMarksEarned, assessmentMaxScore)
+      : (liveKnowledgeReport?.total_score != null && liveKnowledgeReport.total_score > 0
+          ? Math.min(Number(liveKnowledgeReport.total_score), assessmentMaxScore)
+          : (candidate?.assessmentScore != null ? Math.min(candidate.assessmentScore, assessmentMaxScore) : 0))
+  );
+
+  const liveVitarkaScore = (
+    liveVitarkaReport?.scaled_score != null
+      ? liveVitarkaReport.scaled_score
+      : (vitarkaSubmission?.marks != null
+          ? vitarkaSubmission.marks
+          : (candidate?.vitarkaScore != null && candidate.vitarkaScore <= discussionMaxScore
+              ? candidate.vitarkaScore
+              : 0))
+  );
+
+  const totalEarned = (hasLabs ? liveLabsScore : 0) + (hasAssessment ? liveAssessmentScore : 0) + (hasVitarka ? liveVitarkaScore : 0);
+  const totalPossible = (hasLabs ? labsMaxScore : 0) + (hasAssessment ? assessmentMaxScore : 0) + (hasVitarka ? discussionMaxScore : 0);
+
+  const scorePct = totalPossible > 0 ? (totalEarned / totalPossible) * 100 : (candidate?.eci ?? 0);
+  const scoreRec = scorePct >= 75 ? "Strong Hire" : scorePct >= 60 ? "Hire" : scorePct >= 45 ? "Maybe" : "Reject";
+
+  const normalizeRec = (raw?: string) => {
+    if (!raw) return null;
+    const s = raw.toLowerCase().trim();
+    if (s.includes("strong")) return "Strong Hire";
+    if ((s.includes("proceed") || s.includes("hire")) && !s.includes("not")) return "Hire";
+    if (s.includes("review") || s.includes("maybe") || s.includes("hold") || s.includes("gem")) return "Maybe";
+    if (s.includes("not") || s.includes("reject")) return "Reject";
+    return null;
+  };
+
+  const isOverallReportStale = Boolean(
+    (liveLabsScore > 0 && liveOverallReport?.section_scores?.find((s: any) => s.section === "engineering_labs")?.score === 0) ||
+    (liveOverallReport?.overall_score != null && liveOverallReport.overall_score <= 1.5) ||
+    (liveLabsScore > 0 && liveOverallReport?.overall_score != null && liveOverallReport.overall_score < 4.0 && scorePct >= 50) ||
+    (liveOverallReport?.overall_score != null && Math.abs((scorePct / 10) - liveOverallReport.overall_score) >= 1.5)
+  );
+
+  const canonicalRecommendation =
+    scorePct >= 70
+      ? "Strong Hire"
+      : scorePct >= 50
+        ? "Hire"
+        : scorePct >= 35
+          ? "Maybe"
+          : (!isOverallReportStale && normalizeRec(liveOverallReport?.recommendation)) ||
+            (!hasLabs && !hasAssessment && normalizeRec(liveVitarkaReport?.recommendation)) ||
+            scoreRec;
+
+  const displayCandidate = {
+    ...candidate,
+    labsScore: liveLabsScore,
+    assessmentScore: liveAssessmentScore,
+    vitarkaScore: liveVitarkaScore,
+    totalEarned,
+    totalPossible,
+    labsMaxScore,
+    assessmentMaxScore,
+    discussionMaxScore,
+    eci: totalEarned,
+    recommendation: canonicalRecommendation,
+  };
+
+  const detail = getCandidateDetail(displayCandidate, {
+    labsMaxScore,
+    assessmentMaxScore,
+    discussionMaxScore,
+  });
 
   const tabsToDisplay: Tab[] = ["overview"];
   if (hasLabs) tabsToDisplay.push("labs");
   if (hasAssessment) tabsToDisplay.push("assessment");
   if (hasVitarka) tabsToDisplay.push("vitarka");
   tabsToDisplay.push("resume", "timeline");
-  // Omitting proctoring, notes, and activity for the public view.
 
   return (
     <div className={`min-h-screen ${isLightMode ? "recruiter-theme bg-[#fdfdfb]" : "bg-[#0a0a0b] text-white"}`}>
       {/* Top header */}
-      <header className={`border-b backdrop-blur ${isLightMode ? "bg-white border-black/5" : "bg-white/[0.02] border-white/5"}`}>
+      <header className={`border-b backdrop-blur ${isLightMode ? "bg-white border-neutral-200" : "bg-white/[0.02] border-white/5"}`}>
         <div className="px-8 pt-6 pb-5">
           <div className="mt-2 flex justify-between gap-6">
             <div className="flex flex-col min-w-0 items-start gap-4">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <Avatar name={candidate.name} hue={candidate.avatarHue} size="xl" />
-                  <h1 className="text-[26px] font-medium leading-tight text-white">
+                  <h1 className={`text-[26px] font-medium leading-tight ${isLightMode ? "text-neutral-900" : "text-white"}`}>
                     {candidate.name}
                   </h1>
                   <StatusPill s={candidate.hiringStatus} />
@@ -144,13 +309,15 @@ function SharedReportWorkspace() {
                     {isLightMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
                   </button>
                 </div>
-                <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-neutral-300">
+                <div className={`mt-8 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] ${isLightMode ? "text-neutral-600" : "text-neutral-300"}`}>
                   <span className="inline-flex items-center gap-1.5">
                     <Mail className="h-3.5 w-3.5 text-neutral-500" /> {candidate.email}
                   </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Phone className="h-3.5 w-3.5 text-neutral-500" /> {candidate.phone}
-                  </span>
+                  {candidate.phone && (
+                    <span className="inline-flex items-center gap-1.5">
+                      <Phone className="h-3.5 w-3.5 text-neutral-500" /> {candidate.phone}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -163,10 +330,20 @@ function SharedReportWorkspace() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`relative shrink-0 px-3 py-2 text-[13px] transition ${tab === t ? "text-white" : "text-neutral-500 hover:text-neutral-300"}`}
+            className={`relative shrink-0 px-3 py-2 text-[13px] transition ${
+              isLightMode
+                ? tab === t
+                  ? "font-semibold text-neutral-900"
+                  : "text-neutral-500 hover:text-neutral-900"
+                : tab === t
+                  ? "text-white"
+                  : "text-neutral-500 hover:text-neutral-300"
+            }`}
           >
             {tabLabel(t)}
-            {tab === t && <span className="absolute inset-x-3 -bottom-[13px] h-px bg-white" />}
+            {tab === t && (
+              <span className={`absolute inset-x-3 -bottom-[13px] h-0.5 ${isLightMode ? "bg-neutral-900" : "bg-white"}`} />
+            )}
           </button>
         ))}
       </nav>
@@ -176,23 +353,30 @@ function SharedReportWorkspace() {
         <div className="w-full">
           {tab === "overview" && (
             <OverviewPane
-              candidate={candidate}
+              candidate={displayCandidate}
               detail={detail}
+              vitarkaReport={liveVitarkaReport}
+              overallReport={liveOverallReport}
+              reportBundle={liveBundle}
               onGotoLabs={() => setTab("labs")}
               onGotoVit={() => setTab("vitarka")}
               hasLabs={hasLabs}
               hasAssessment={hasAssessment}
               hasVitarka={hasVitarka}
+              labsMaxScore={labsMaxScore}
+              assessmentMaxScore={assessmentMaxScore}
+              discussionMaxScore={discussionMaxScore}
+              ev={ev}
             />
           )}
           {tab === "labs" && (
             <LabsPane
               ev={ev}
-              candidate={candidate}
+              candidate={displayCandidate}
               onOpen={setOpenLab}
             />
           )}
-          {tab === "assessment" && <AssessmentPane ev={ev} candidate={candidate} />}
+          {tab === "assessment" && <AssessmentPane ev={ev} candidate={displayCandidate} />}
           {tab === "vitarka" && (
             <VitarkaPane
               detail={detail}
@@ -202,7 +386,7 @@ function SharedReportWorkspace() {
             />
           )}
           {tab === "resume" && (
-            <ResumePane candidate={candidate} detail={detail} onDownload={() => alert("Resume downloaded")} />
+            <ResumePane candidate={displayCandidate} detail={detail} onDownload={() => alert("Resume downloaded")} />
           )}
           {tab === "timeline" && <TimelinePane events={timelineEvents} detail={detail} isDemo={false} hasLabs={hasLabs} hasAssessment={hasAssessment} hasVitarka={hasVitarka} />}
         </div>

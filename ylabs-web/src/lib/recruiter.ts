@@ -176,6 +176,7 @@ export interface Evaluation {
     link?: string;
   };
   settings?: Record<string, any>;
+  createdBy?: string;
 }
 
 // Ensure unique ID generation
@@ -196,6 +197,7 @@ function mapBackendToFrontend(be: any): Evaluation {
     createdAt: be.created_at ? new Date(be.created_at).getTime() : Date.now(),
     candidatesInvited: be.candidate_invited_emails?.length || 0,
     candidatesCompleted: 0,
+    createdBy: be.created_by || "",
     settings: be.settings || {},
     invite: be.candidate_invited_emails?.length
       ? {
@@ -386,6 +388,28 @@ export async function syncMockInterviews(e: Evaluation): Promise<Evaluation> {
   return e;
 }
 
+export async function hydrateLabQuestions(ev: Evaluation): Promise<Evaluation> {
+  try {
+    const res = await fetch(`${API_BASE}/lab-questions/`, {
+      headers: { "Authorization": `Bearer ${localStorage.getItem("access")}` }
+    });
+    if (res.ok) {
+      const allLabs = await res.json();
+      for (const section of ev.sections) {
+        if (section.kind === "labs" && section.labs) {
+          section.labs = section.labs.map((l: any) => {
+            const fullLab = (allLabs as any[]).find((item: any) => item.id === l.id || item.id === l.lab_id);
+            return fullLab ? { ...fullLab, ...l, tasks: fullLab.tasks || l.tasks } : l;
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Failed to hydrate lab questions", err);
+  }
+  return ev;
+}
+
 export async function getEvaluation(id: string): Promise<Evaluation | undefined> {
   try {
     const res = await fetch(`${API_BASE}/evaluations/${id}/`, {
@@ -394,7 +418,9 @@ export async function getEvaluation(id: string): Promise<Evaluation | undefined>
     if (!res.ok) return undefined;
     const data = await res.json();
     const fe = mapBackendToFrontend(data);
-    return await hydrateDiscussionQuestions(fe);
+    await hydrateDiscussionQuestions(fe);
+    await hydrateLabQuestions(fe);
+    return fe;
   } catch {
     return undefined;
   }
@@ -736,15 +762,26 @@ export async function inviteCandidates(evaluationId: string, emails: string[], s
 }
 
 
-export async function generateSharedReportLink(evaluationId: string, candidateEmail: string): Promise<{ token: string, expires_at: string } | null> {
+export async function generateSharedReportLink(
+  evaluationId: string, 
+  candidateEmail: string,
+  candidateId?: string
+): Promise<{ token: string, expires_at: string } | null> {
   try {
+    const token = localStorage.getItem("access") || localStorage.getItem("accessToken");
+    const headers: Record<string, string> = { 
+      "Content-Type": "application/json"
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
     const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/generate_share_link/`, {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("access")}`
-      },
-      body: JSON.stringify({ candidate_email: candidateEmail })
+      headers,
+      body: JSON.stringify({ 
+        candidate_email: candidateEmail,
+        candidate_id: candidateId
+      })
     });
     if (!res.ok) return null;
     return await res.json();

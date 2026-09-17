@@ -1573,8 +1573,10 @@ export function TicketIDE({
     const dirtyPaths = Object.keys(dirty).filter(k => dirty[k]);
     if (dirtyPaths.length === 0) return;
     
-    // Save immediately with no delay
-    handleSave(true);
+    const timer = setTimeout(() => {
+      handleSave(true);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, [files, dirty, autoSave]);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -2427,10 +2429,12 @@ export function TicketIDE({
     );
   }
 
-  function handleSave() {
+  function handleSave(silent?: boolean) {
     setDirty(Object.fromEntries(Object.keys(files).map((k) => [k, false])));
-    const now = new Date();
-    setSavedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`);
+    if (!silent) {
+      const now = new Date();
+      setSavedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`);
+    }
     if (isReal) {
       const filesToSave = getFilesToSave();
       // Persist loaded files to the workspace so disk is always in sync
@@ -2460,7 +2464,7 @@ export function TicketIDE({
         }
       }
     }
-    showToast("Saved");
+    if (!silent) showToast("Saved");
   }
 
   function handleReset() {
