@@ -162,8 +162,8 @@ Knowledge Assessment Score: 1/2
 
         bundle = InterviewReportService().create_report_bundle(session)
 
-        self.assertIsNone(bundle.engineering_labs_report)
-        self.assertIsNone(bundle.knowledge_assessment_report)
+        self.assertIsNotNone(bundle.engineering_labs_report)
+        self.assertIsNotNone(bundle.knowledge_assessment_report)
         self.assertEqual("Overall Interview Report", bundle.overall_report.title)
         self.assertIsNotNone(bundle.vitarka_report)
         self.assertEqual(3, len(bundle.overall_report.section_scores))
@@ -390,7 +390,7 @@ Code Diff:
             def generate_question(self, session, fallback_question):
                 return None
 
-            def generate_report_narrative(self, session, evaluation):
+            def generate_report_narrative(self, session, evaluation, **kwargs):
                 return GeneratedReportNarrative(
                     executive_summary="He demonstrated strong knowledge and his code was well structured.",
                     recommendation="Hire him immediately.",
@@ -609,6 +609,47 @@ Tests: 5 passed out of 5
         text = "leading to a score of 2% in the lab exercise."
         fixed = reporter._fix_lab_percentage_hallucinations(text, lab_stats)
         self.assertEqual("leading to a score of 20% in the lab exercise.", fixed)
+
+    def test_lab_stats_deduplication_and_camelcase_key_preserves_test_counts(self):
+        context = """--- Lab: Engineering Lab 1 ---
+Time spent: 15 minutes
+Tests: 2 passed out of 5
+Score: 40%
+
+Code Diff:
+```diff
+diff --git a/app.py b/app.py
+--- a/app.py
++++ b/app.py
+@@ -1,1 +1,3 @@
++# Fix implementation
++def process(): return True
+```
+"""
+        payload = UnifiedAssessmentPayload.model_validate({
+            "engineering_labs": [{
+                "lab_id": "lab_1",
+                "title": "Engineering Lab 1",
+                "performance": {"testsPassed": 2, "testsTotal": 5},
+            }],
+            "candidate_context": context,
+        })
+        adapter = UnifiedPayloadAdapter()
+        engine = DynamicQuestionEngine()
+        session = InterviewSession.from_create_request(adapter.to_create_request(payload))
+        for event in adapter.to_assessment_events(payload):
+            engine.ingest_event(session, event)
+        question = engine.next_question(session)
+        engine.record_answer(session, question.id, "I implemented the fix.")
+
+        reporter = InterviewReportService()
+        stats = reporter._get_engineering_stats(session)
+        self.assertEqual(2, stats["tests_passed"])
+        self.assertEqual(5, stats["tests_total"])
+
+        bundle = reporter.create_report_bundle(session)
+        self.assertIn("2/5 tests passed", bundle.overall_report.executive_summary)
+        self.assertNotIn("0/5 tests passed", bundle.overall_report.executive_summary)
 
 
 if __name__ == "__main__":

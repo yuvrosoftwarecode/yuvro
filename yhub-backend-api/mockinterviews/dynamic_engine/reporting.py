@@ -210,8 +210,8 @@ class InterviewReportService:
             session_id=session.id,
             candidate_id=session.candidate.candidate_id,
             target_role=session.candidate.target_role,
-            engineering_labs_report=None,
-            knowledge_assessment_report=None,
+            engineering_labs_report=self._engineering_labs_report(session),
+            knowledge_assessment_report=self._knowledge_assessment_report(session),
             vitarka_report=vitarka_report,
             overall_report=overall_report,
         )
@@ -327,22 +327,64 @@ class InterviewReportService:
             markdown=markdown,
         )
 
+    def _extract_lab_metrics(
+        self,
+        source: dict[str, Any],
+        events: list | None = None,
+    ) -> dict[str, Any]:
+        performance = source.get("performance") if isinstance(source.get("performance"), dict) else {}
+
+        def pick_max_int(keys, *dicts):
+            vals = []
+            for d in dicts:
+                if isinstance(d, dict):
+                    for k in keys:
+                        v = self._as_int(d.get(k))
+                        if v is not None:
+                            vals.append(v)
+            return max(vals) if vals else None
+
+        test_passed_keys = ("tests_passed", "testsPassed", "passed_tests", "passed")
+        test_total_keys = ("tests_total", "testsTotal", "total_tests", "total")
+        error_keys = ("errors_encountered", "errorsEncountered", "errors")
+        command_keys = ("terminal_commands_run", "terminalCommandsRun", "commands_run")
+        time_keys = ("time_spent_seconds", "total_time_seconds", "duration_seconds")
+
+        dicts_to_check = [performance, source]
+        if events:
+            for ev in events:
+                details = ev.details if isinstance(ev.details, dict) else {}
+                ev_perf = details.get("performance") if isinstance(details.get("performance"), dict) else {}
+                dicts_to_check.extend([ev_perf, details])
+
+        tests_passed = pick_max_int(test_passed_keys, *dicts_to_check)
+        tests_total = pick_max_int(test_total_keys, *dicts_to_check)
+        errors_encountered = pick_max_int(error_keys, *dicts_to_check)
+        terminal_commands_run = pick_max_int(command_keys, *dicts_to_check)
+        time_spent_seconds = pick_max_int(time_keys, *dicts_to_check)
+
+        return {
+            "tests_passed": tests_passed,
+            "tests_total": tests_total,
+            "errors_encountered": errors_encountered,
+            "terminal_commands_run": terminal_commands_run,
+            "time_spent_seconds": time_spent_seconds,
+        }
+
     def _engineering_lab_item(
         self,
         session: InterviewSession,
         source: dict[str, Any],
     ) -> EngineeringLabReportItem:
         events = self._events_for_lab(session, source)
-        performance = source.get("performance") if isinstance(source.get("performance"), dict) else {}
+        metrics = self._extract_lab_metrics(source, events)
         code_insights = self._combined_code_insights(source, events)
         changed_files = self._unique(self._as_list(code_insights.get("changed_files"))) if code_insights else []
-        tests_passed = self._as_int(performance.get("tests_passed"))
-        tests_total = self._as_int(performance.get("tests_total"))
-        errors_encountered = self._as_int(performance.get("errors_encountered"))
-        terminal_commands_run = self._as_int(performance.get("terminal_commands_run"))
-        time_spent_seconds = self._as_int(
-            source.get("time_spent_seconds") or performance.get("total_time_seconds")
-        )
+        tests_passed = metrics["tests_passed"]
+        tests_total = metrics["tests_total"]
+        errors_encountered = metrics["errors_encountered"]
+        terminal_commands_run = metrics["terminal_commands_run"]
+        time_spent_seconds = metrics["time_spent_seconds"]
         score = self._engineering_lab_score(
             tests_passed=tests_passed,
             tests_total=tests_total,
@@ -527,13 +569,13 @@ class InterviewReportService:
         total_time = 0
         for source in lab_sources:
             events = self._events_for_lab(session, source)
-            performance = source.get("performance") if isinstance(source.get("performance"), dict) else {}
+            metrics = self._extract_lab_metrics(source, events)
             code_insights = self._combined_code_insights(source, events)
             changed_files = self._unique(self._as_list(code_insights.get("changed_files"))) if code_insights else []
-            tests_passed = self._as_int(performance.get("tests_passed")) or 0
-            tests_total = self._as_int(performance.get("tests_total")) or 0
-            errors_encountered = self._as_int(performance.get("errors_encountered")) or 0
-            time_spent = self._as_int(source.get("time_spent_seconds") or performance.get("total_time_seconds")) or 0
+            tests_passed = metrics["tests_passed"] or 0
+            tests_total = metrics["tests_total"] or 0
+            errors_encountered = metrics["errors_encountered"] or 0
+            time_spent = metrics["time_spent_seconds"] or 0
 
             score = self._engineering_lab_score(
                 tests_passed=tests_passed,
