@@ -51,6 +51,7 @@ export const useProctoring = ({
     const captureFrameRef = useRef<(() => Promise<Blob | null>) | null>(null);
     const captureScreenFrameRef = useRef<(() => Promise<Blob | null>) | null>(null);
     const hasInitializedRef = useRef(false);
+    const keysDownRef = useRef(new Set<string>());
 
     // ── Core logActivity ──────────────────────────────────────────────────────
     const logActivity = useCallback(async (activityType: string, metaData: any = {}, explicitBlob?: Blob | null) => {
@@ -154,7 +155,15 @@ export const useProctoring = ({
     // ── 2. Window Blur / Focus ────────────────────────────────────────────────
     useEffect(() => {
         if (!enabled) return;
-        const handleBlur = () => logActivity('window_blur');
+        const handleBlur = () => {
+            if (keysDownRef.current.has('meta') && keysDownRef.current.has('shift')) {
+                logActivity('screenshot_detected', { description: 'Inferred screenshot from OS shortcut' });
+                onViolationRef.current?.('screenshot_detected');
+            } else {
+                logActivity('window_blur');
+            }
+            keysDownRef.current.clear();
+        };
         const handleFocus = () => logActivity('window_focus');
         window.addEventListener('blur', handleBlur);
         window.addEventListener('focus', handleFocus);
@@ -269,6 +278,12 @@ export const useProctoring = ({
 
         const handleKeyDown = (e: KeyboardEvent) => {
             const key = e.key.toLowerCase();
+            keysDownRef.current.add(key);
+            if (e.metaKey) keysDownRef.current.add('meta');
+            if (e.shiftKey) keysDownRef.current.add('shift');
+            if (e.ctrlKey) keysDownRef.current.add('ctrl');
+            if (e.altKey) keysDownRef.current.add('alt');
+
             const ctrl = e.ctrlKey;
             const meta = e.metaKey;           // Cmd on Mac
             const ctrlOrMeta = ctrl || meta;
@@ -328,6 +343,12 @@ export const useProctoring = ({
             // ── Screenshots (Mac: Cmd+Shift+3/4/5) ────────────────────────────
             if (meta && shift && ['3','4','5'].includes(key)) {
                 logActivity('screenshot_detected', { key: `Cmd+Shift+${key}`, description: 'Screenshot attempt' });
+                onViolationRef.current?.('screenshot_detected');
+            }
+
+            // ── Screenshots (Windows/Mac: Win/Cmd+Shift+S) ────────────────────
+            if (meta && shift && key === 's') {
+                logActivity('screenshot_detected', { key: `Win/Cmd+Shift+S`, description: 'Screenshot attempt' });
                 onViolationRef.current?.('screenshot_detected');
             }
 
@@ -394,8 +415,36 @@ export const useProctoring = ({
             }
         };
 
+        const handleKeyUp = (e: KeyboardEvent) => {
+            const key = e.key.toLowerCase();
+            keysDownRef.current.delete(key);
+            if (!e.metaKey) keysDownRef.current.delete('meta');
+            if (!e.shiftKey) keysDownRef.current.delete('shift');
+            if (!e.ctrlKey) keysDownRef.current.delete('ctrl');
+            if (!e.altKey) keysDownRef.current.delete('alt');
+
+            const meta = e.metaKey;
+            const shift = e.shiftKey;
+
+            // ── PrintScreen (Often only fires keyup on Windows) ───────────────
+            if (key === 'printscreen') {
+                logActivity('screenshot_detected', { key: 'PrintScreen', description: 'Screenshot attempt' });
+                onViolationRef.current?.('screenshot_detected');
+            }
+            
+            // ── Screenshots (Windows/Mac: Win/Cmd+Shift+S) fallback ───────────
+            if (meta && shift && key === 's') {
+                logActivity('screenshot_detected', { key: `Win/Cmd+Shift+S`, description: 'Screenshot attempt' });
+                onViolationRef.current?.('screenshot_detected');
+            }
+        };
+
         window.addEventListener('keydown', handleKeyDown, { capture: true });
-        return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+        window.addEventListener('keyup', handleKeyUp, { capture: true });
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown, { capture: true });
+            window.removeEventListener('keyup', handleKeyUp, { capture: true });
+        };
     }, [enabled, logActivity]);
 
     // ── 6. Network Disconnection Tracking ────────────────────────────────────
