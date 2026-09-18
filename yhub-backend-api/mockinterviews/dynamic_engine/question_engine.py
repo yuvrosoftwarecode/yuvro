@@ -554,14 +554,14 @@ class DynamicQuestionEngine:
                 prompt_text = f"Got it, let's move on. {prompt_text}"
         elif last_quality == "irrelevant":
             prompt_text = re.sub(
-                r"^(good point|great|makes sense|nice|excellent|thanks|thank you)[,!.]?\s*",
+                r"^(good point|great|makes sense|nice|excellent|thanks|thank you|understood)[,!.]?\s*",
                 "",
                 prompt_text,
                 flags=re.IGNORECASE,
             ).strip()
             has_pivot = bool(
                 re.match(
-                    r"^(got it|understood|let's stay focused|lets stay focused)\b",
+                    r"^(let's stay focused|lets stay focused)\b",
                     prompt_text,
                     re.IGNORECASE,
                 )
@@ -697,7 +697,7 @@ class DynamicQuestionEngine:
 
         question = next((q for q in session.questions if q.id == question_id), None)
         is_intro = False
-        if quality in {"repeat_requested", "clarification_requested", "skip_requested", "unknown"}:
+        if quality in {"repeat_requested", "clarification_requested", "skip_requested", "unknown", "irrelevant"}:
             is_intro = False
         elif question and question.metadata.get("is_intro"):
             is_intro = True
