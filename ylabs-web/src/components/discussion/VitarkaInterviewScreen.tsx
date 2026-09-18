@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { yhubApiAuthUtil } from "../../utils/RestApiAuthUtil";
 
 interface Message {
@@ -6,21 +6,34 @@ interface Message {
   content: string;
 }
 
-export function VitarkaInterviewScreen({
-  mockInterviewId,
-  onEnd,
-  candidateContext,
-  discussionMaxScore,
-  onQuestionChange,
-  onSessionStart,
-}: {
+export interface VitarkaInterviewScreenRef {
+  cancelEnd: () => void;
+  confirmEnd: () => Promise<void>;
+}
+
+export interface VitarkaInterviewScreenProps {
   mockInterviewId: string;
   onEnd: () => void;
   candidateContext?: string;
   discussionMaxScore?: number;
   onQuestionChange?: (question: string) => void;
   onSessionStart?: (sessionId: string) => void;
-}) {
+}
+
+export const VitarkaInterviewScreen = forwardRef<
+  VitarkaInterviewScreenRef,
+  VitarkaInterviewScreenProps
+>(function VitarkaInterviewScreen(
+  {
+    mockInterviewId,
+    onEnd,
+    candidateContext,
+    discussionMaxScore,
+    onQuestionChange,
+    onSessionStart,
+  },
+  ref
+) {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [conversation, setConversation] = useState<Message[]>([]);
   const [currentUserAnswer, setCurrentUserAnswer] = useState("");
@@ -43,6 +56,24 @@ export function VitarkaInterviewScreen({
   const sessionInfoRef = useRef(sessionInfo);
   const isFinishedRef = useRef(false);
   const processingRef = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    cancelEnd: () => {
+      try {
+        window.speechSynthesis.resume();
+      } catch (e) {}
+      if (!isFinishedRef.current && !isUnmountedRef.current) {
+        setInterviewState("listening");
+        resetInactivityTimer();
+        try {
+          recognitionRef.current?.start();
+        } catch (e) {}
+      }
+    },
+    confirmEnd: async () => {
+      await handleEndConfirm();
+    },
+  }));
 
   useEffect(() => {
     interviewStateRef.current = interviewState;
@@ -153,7 +184,7 @@ export function VitarkaInterviewScreen({
 
     const resumeListening = () => {
       if (isFinishedRef.current || isUnmountedRef.current) {
-        setTimeout(() => handleEnd(), 1000);
+        setTimeout(() => handleEndConfirm(), 1000);
       } else {
         // Small delay to prevent speaker reverberation from triggering mic
         setTimeout(() => {
@@ -329,12 +360,28 @@ export function VitarkaInterviewScreen({
     }
   };
 
-  const handleEnd = async () => {
+  const handleEndRequest = () => {
+    try {
+      window.speechSynthesis.pause();
+    } catch (e) {}
+    try {
+      recognitionRef.current?.stop();
+    } catch (e) {}
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    onEnd();
+  };
+
+  const handleEndConfirm = async () => {
     isFinishedRef.current = true;
-    window.speechSynthesis.cancel();
+    try {
+      window.speechSynthesis.cancel();
+    } catch (e) {}
     try {
       recognitionRef.current?.abort();
     } catch (e) {}
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     mediaStream?.getTracks().forEach((t) => t.stop());
 
     if (sessionInfoRef.current?.interview_session_id) {
@@ -427,7 +474,7 @@ export function VitarkaInterviewScreen({
           <video ref={videoRef} muted playsInline className="h-48 w-full object-cover" />
           <div className="flex justify-center p-4">
             <button
-              onClick={handleEnd}
+              onClick={handleEndRequest}
               className="rounded-lg bg-red-500/10 px-5 py-2 text-[13px] font-medium text-red-500 transition hover:bg-red-500/20"
             >
               End Discussion
@@ -457,4 +504,4 @@ export function VitarkaInterviewScreen({
       </div>
     </div>
   );
-}
+});
