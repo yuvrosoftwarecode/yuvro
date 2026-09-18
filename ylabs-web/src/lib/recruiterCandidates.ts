@@ -35,6 +35,8 @@ export interface Candidate {
   completionMinutes: number;
   avatarHue: number;
   resumeUrl?: string;
+  hasVitarkaSubmission?: boolean;
+  anomalies?: any;
   rawSubmission?: any;
   proctoringData?: {
     totalViolations: number;
@@ -272,6 +274,7 @@ export function getCandidates(
     let rec: Recommendation = "Reject";
     let status: CandStatus = "Not Started";
     let hiring: HiringStatus = "Pending Review";
+    let vitSub: any = null;
 
     if (isDemo) {
       labs = Math.round(35 + r() * 65);
@@ -318,7 +321,7 @@ export function getCandidates(
       const hasLabsSec = sectionsList.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS");
       const hasAssessmentSec = sectionsList.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT");
       const hasVitarkaSec = sectionsList.some((s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka");
-      const vitSub = hasVitarkaSec ? vitarkaSubmissions.find((vs: any) =>
+      vitSub = hasVitarkaSec ? vitarkaSubmissions.find((vs: any) =>
         (email && (vs.user?.email === email || vs.candidate_email === email)) ||
         (user.id && (vs.user === user.id || vs.user?.id === user.id)) ||
         (sub.id && (vs.candidate_id === sub.id || vs.candidate_id === String(user.id)))
@@ -518,7 +521,8 @@ export function getCandidates(
           sections: sectionsMap,
         },
         resumeUrl: user.resume_url,
-        rawSubmission: sub
+        rawSubmission: { ...sub, vitarka_submission: vitSub },
+        hasVitarkaSubmission: !!vitSub,
       });
   }
   cache.set(cacheKey, out);

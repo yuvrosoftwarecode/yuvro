@@ -415,6 +415,9 @@ const InternalTestInterface: React.FC<InternalTestInterfaceProps> = ({
     if (isSubmittingRef.current) return;
     isSubmittingRef.current = true;
     stopMediaMonitoring();
+    if (screenStream) {
+      screenStream.getTracks().forEach(t => t.stop());
+    }
 
     const answeredCount = questions.filter(isQuestionAnswered).length;
     const timeSpent = testDuration - timeLeft;

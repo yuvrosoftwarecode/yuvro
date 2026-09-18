@@ -8,7 +8,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { TicketIDE } from "@/routes/student.lab.$slug.ticket.$ticketId";
 import ProctoringGate, { ProctoringData } from "@/components/evaluation/ProctoringGate";
 import { useProctoring } from "@/hooks/useProctoring";
-import { getGlobalProctoringData, setGlobalProctoringData } from "@/utils/proctoringStore";
+import { getGlobalProctoringData, setGlobalProctoringData, clearGlobalProctoringData } from "@/utils/proctoringStore";
 // Extracted from route file to fix code-split warning
 
 
@@ -273,13 +273,15 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [discussionResponses, setDiscussionResponses] = useState<string[]>([]);
   const [discussionDraft, setDiscussionDraft] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "submit-evaluation" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" } | { kind: "proctoring-violation"; message: string }>(null);
+  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "submit-evaluation" } | { kind: "exit" } | { kind: "discussion-starting" } | { kind: "proctoring-violation"; message: string }>(null);
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved">("saved");
   const [online, setOnline] = useState(true);
   const tabSwitches = useRef(0);
 
   const [proctoringData, setProctoringData] = useState<ProctoringData | null>(getGlobalProctoringData());
   const [mediaDisabled, setMediaDisabled] = useState(false);
+  const [showTabWarning, setShowTabWarning] = useState(false);
+  const [showFullscreenWarning, setShowFullscreenWarning] = useState(false);
   
   const activeSection = useMemo(() => appSections.find(s => s.id === section), [appSections, section]);
   const proctoringConfig = activeSection?.proctoring || {};
@@ -449,10 +451,19 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           if (sec && sec.type === "LAB") {
             sec.labs.forEach(l => confirmSubmitLab(l.id));
           }
+          const idx = appSections.findIndex(s => s.id === activeTimerInfo.sectionId);
+          if (idx !== -1 && idx + 1 === appSections.length) {
+            submitEvaluation(false);
+          }
         } else if (activeTimerInfo.type === "KNOWLEDGE_ASSESSMENT" && activeTimerInfo.sectionId) {
-          confirmSubmitSection(activeTimerInfo.sectionId);
+          const idx = appSections.findIndex(s => s.id === activeTimerInfo.sectionId);
+          if (idx !== -1 && idx + 1 === appSections.length) {
+            submitEvaluation(false);
+          } else {
+            confirmSubmitSection(activeTimerInfo.sectionId);
+          }
         } else if (activeTimerInfo.type === "VITARKA_AI_INTERVIEW") {
-          submitEvaluation(true);
+          submitEvaluation(false);
         }
       }
     }, 1000);
@@ -520,6 +531,16 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     return () => clearInterval(intervalId);
   }, [anySectionNeedsProctoring, proctoringData]);
 
+  // Auto-submit after 1 minute of disabled media
+  useEffect(() => {
+    if (mediaDisabled) {
+      const timeoutId = setTimeout(() => {
+        submitEvaluation(true);
+      }, 60000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [mediaDisabled]);
+
   // Tab-switch warning & Copy/Paste prevention
   useEffect(() => {
     const onVis = () => {
@@ -533,7 +554,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                submitEvaluation(true);
              }, 3000);
           } else {
-             setModal({ kind: "tab-warning" });
+             setShowTabWarning(true);
           }
         }
       }
@@ -546,12 +567,20 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       }
     };
 
+    const onFullscreenChange = () => {
+      if (!document.fullscreenElement && proctoringConfig?.enableProctoring) {
+        setShowFullscreenWarning(true);
+      }
+    };
+
     document.addEventListener("visibilitychange", onVis);
+    document.addEventListener("fullscreenchange", onFullscreenChange);
     document.addEventListener("copy", onCopyPaste, { capture: true });
     document.addEventListener("paste", onCopyPaste, { capture: true });
     document.addEventListener("cut", onCopyPaste, { capture: true });
     return () => {
       document.removeEventListener("visibilitychange", onVis);
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
       document.removeEventListener("copy", onCopyPaste, { capture: true });
       document.removeEventListener("paste", onCopyPaste, { capture: true });
       document.removeEventListener("cut", onCopyPaste, { capture: true });
@@ -630,6 +659,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       console.error(e);
     }
     try { document.exitFullscreen?.(); } catch {}
+    try { clearGlobalProctoringData(); } catch {}
     nav({ to: "/evaluation/complete" });
   };
 
@@ -955,6 +985,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
         appSections={appSections}
         activeItemInfo={activeTimerInfo}
         onExit={() => setModal({ kind: "exit" })}
+        proctoringActive={anySectionNeedsProctoring}
       />
 
       <div className="flex min-h-0 flex-1">
@@ -1200,19 +1231,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           body="Your progress will not be saved and you may lose access to this evaluation. Are you sure?"
           confirm="Exit evaluation"
           destructive
-          onConfirm={() => { try { document.exitFullscreen?.(); } catch {}; nav({ to: "/" }); }}
+          onConfirm={() => {
+            submitEvaluation(false);
+            setModal(null);
+          }}
           onCancel={() => setModal(null)}
         />
       )}
-      {modal?.kind === "tab-warning" && (
-        <Confirm
-          title="Please stay on this tab"
-          body="Switching tabs or windows during your evaluation is recorded. Repeated tab switches may end your evaluation."
-          confirm="I understand"
-          onConfirm={() => setModal(null)}
-          onCancel={() => setModal(null)}
-        />
-      )}
+
       {modal?.kind === "discussion-starting" && (
         <Confirm
           title="The engineering discussion will now begin"
@@ -1230,6 +1256,25 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           onCancel={() => setModal(null)}
         />
       )}
+      {showTabWarning && (
+        <Confirm
+          title="Please stay on this tab"
+          body="Switching tabs or windows during your evaluation is recorded. Repeated tab switches may end your evaluation."
+          confirm="I understand"
+          onConfirm={() => setShowTabWarning(false)}
+        />
+      )}
+      {showFullscreenWarning && (
+        <Confirm
+          title="Fullscreen Required"
+          body="You need to be in full screen to continue the evaluation."
+          confirm="Enter full screen"
+          onConfirm={() => {
+            document.documentElement.requestFullscreen().catch(console.error);
+            setShowFullscreenWarning(false);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -1245,7 +1290,8 @@ function TopBar({
   section, 
   appSections, 
   activeItemInfo, 
-  onExit 
+  onExit,
+  proctoringActive
 }: { 
   remaining: number; 
   online: boolean; 
@@ -1253,7 +1299,8 @@ function TopBar({
   section: string | null; 
   appSections: AppSection[]; 
   activeItemInfo: any; 
-  onExit: () => void 
+  onExit: () => void;
+  proctoringActive: boolean;
 }) {
   const fmt = (s: number) => {
     const h = Math.floor(s / 3600);
@@ -1303,7 +1350,7 @@ function TopBar({
 
       <div className="flex items-center gap-3 text-[11px] text-neutral-500 dark:text-neutral-400">
         <StatusDot label={online ? "Online" : "Reconnecting"} tone={online ? "ok" : "warn"} />
-        <StatusDot label="Proctoring" tone="ok" />
+        <StatusDot label={proctoringActive ? "Proctoring" : "Proctoring Disabled"} tone={proctoringActive ? "ok" : "error"} />
         <button onClick={onExit} className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">Exit</button>
         <ThemeToggle />
       </div>
@@ -1326,10 +1373,11 @@ function ThemeToggle() {
   );
 }
 
-function StatusDot({ label, tone }: { label: string; tone: "ok" | "warn" }) {
+function StatusDot({ label, tone }: { label: string; tone: "ok" | "warn" | "error" }) {
+  const bg = tone === "ok" ? "bg-emerald-500" : tone === "warn" ? "bg-amber-500" : "bg-red-500";
   return (
     <span className="hidden items-center gap-1.5 sm:inline-flex">
-      <span className={`h-1.5 w-1.5 rounded-full ${tone === "ok" ? "bg-emerald-500" : "bg-amber-500"}`} />
+      <span className={`h-1.5 w-1.5 rounded-full ${bg}`} />
       {label}
     </span>
   );

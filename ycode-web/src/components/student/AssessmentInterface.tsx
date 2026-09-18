@@ -585,6 +585,9 @@ const AssessmentInterface: React.FC<AssessmentInterfaceProps> = ({
     // Stop camera and microphone FIRST before any async operations
     console.log('handleSubmitAssessment called - cleaning up camera');
     cleanupCamera();
+    if (screenStream) {
+        screenStream.getTracks().forEach(t => t.stop());
+    }
 
     try {
       const loadingToast = toast.loading("Submitting assessment...");
