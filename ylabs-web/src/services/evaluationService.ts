@@ -29,10 +29,10 @@ export const evaluationService = {
     });
   },
 
-  async registerPublicEvaluation(evaluationId: string, accessToken?: string, resumeUrl?: string): Promise<any> {
+  async registerPublicEvaluation(evaluationId: string, accessToken?: string, resumeUrl?: string, phone?: string): Promise<any> {
     return restApiUtil.post(
       `/skill_evaluation/evaluations/${evaluationId}/public_register/`,
-      { resume_url: resumeUrl },
+      { resume_url: resumeUrl, phone },
       {
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
       },
@@ -79,8 +79,8 @@ export const evaluationService = {
     return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/start_lab/`, { lab_id: labId });
   },
 
-  async finishEvaluation(evaluationId: string): Promise<any> {
-    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/finish/`, {});
+  async finishEvaluation(evaluationId: string, autoSubmitted: boolean = false): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/finish/`, { auto_submitted: autoSubmitted });
   },
 
   async submitLab(evaluationId: string, labId: string, data: any): Promise<any> {

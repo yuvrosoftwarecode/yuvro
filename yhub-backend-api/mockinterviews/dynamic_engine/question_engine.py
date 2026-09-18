@@ -136,6 +136,39 @@ CLARIFICATION_PATTERNS = {
 }
 
 
+IRRELEVANT_PATTERNS = {
+    "pizza",
+    "cricket",
+    "football",
+    "movie",
+    "weather",
+    "whatever",
+    "who cares",
+    "i dont care",
+    "i don't care",
+    "do not care",
+    "asdf",
+    "qwerty",
+    "test test",
+    "testing testing",
+    "random answer",
+    "you tell me",
+    "why are you asking",
+    "not your business",
+    "ignore instructions",
+    "ignore previous",
+    "prompt injection",
+    "help in some way",
+    "help in some more",
+    "not going to change",
+    "just want to check how you will generate report",
+    "testing how you generate",
+    "dont think so it is going to change",
+    "don't think so it is going to change",
+    "do not think so it is going to change",
+}
+
+
 REPEAT_OR_REPHRASE_PATTERNS = {
     "didnt get",
     "didn't get",
@@ -487,7 +520,7 @@ class DynamicQuestionEngine:
         if last_quality == "intro":
             has_greeting = bool(
                 re.match(
-                    r"^(hello|hi|welcome|hey|great to meet you)\b",
+                    r"^(hello|hi|welcome|hey|great to meet you|thanks for introducing)\b",
                     prompt_text,
                     re.IGNORECASE,
                 )
@@ -496,7 +529,7 @@ class DynamicQuestionEngine:
                 greet_prefix = (
                     f"Hello {cand_name}! Great to meet you. "
                     if cand_name
-                    else "Hello! Great to meet you. "
+                    else "Great to meet you! "
                 )
                 prompt_text = f"{greet_prefix}{prompt_text}"
         elif last_quality == "repeat_requested":
@@ -519,8 +552,29 @@ class DynamicQuestionEngine:
             )
             if not has_pivot:
                 prompt_text = f"Got it, let's move on. {prompt_text}"
+        elif last_quality == "irrelevant":
+            prompt_text = re.sub(
+                r"^(good point|great|makes sense|nice|excellent|thanks|thank you)[,!.]?\s*",
+                "",
+                prompt_text,
+                flags=re.IGNORECASE,
+            ).strip()
+            has_pivot = bool(
+                re.match(
+                    r"^(got it|understood|let's stay focused|lets stay focused)\b",
+                    prompt_text,
+                    re.IGNORECASE,
+                )
+            )
+            if not has_pivot:
+                prompt_text = f"Understood, but let's stay focused on the technical question. {prompt_text}"
         elif last_quality in {"substantive", "thin"}:
-            # If the LLM used "let's move on" when the candidate gave a valid answer, replace it with a positive acknowledgment
+            prompt_text = re.sub(
+                r"^(good point|great job|excellent)[,!.]?\s*",
+                "Understood. ",
+                prompt_text,
+                flags=re.IGNORECASE,
+            ).strip()
             prompt_text = re.sub(
                 r"^(got it|understood|no problem)?[,.]?\s*let's move on[.,!]?\s*",
                 "",
@@ -535,13 +589,13 @@ class DynamicQuestionEngine:
             ).strip()
             has_ack = bool(
                 re.match(
-                    r"^(understood|got it|makes sense|sure|great|nice|thanks|thank you|no problem|good point)\b",
+                    r"^(understood|got it|makes sense|sure|great|nice|thanks|thank you|no problem)\b",
                     prompt_text,
                     re.IGNORECASE,
                 )
             )
             if not has_ack:
-                prompt_text = f"Understood! {prompt_text}"
+                prompt_text = f"Understood. {prompt_text}"
 
         final_question.prompt = prompt_text
         return final_question
@@ -643,9 +697,11 @@ class DynamicQuestionEngine:
 
         question = next((q for q in session.questions if q.id == question_id), None)
         is_intro = False
-        if question and question.metadata.get("is_intro"):
+        if quality in {"repeat_requested", "clarification_requested", "skip_requested", "unknown"}:
+            is_intro = False
+        elif question and question.metadata.get("is_intro"):
             is_intro = True
-        elif len(session.answers) == 0:
+        elif len(session.answers) == 0 and not quality.startswith("skip"):
             is_intro = True
         elif re.match(r"^(hello|hi|hey)?\s*(i am|i'm|my name is)\b", answer_text.strip(), re.IGNORECASE):
             is_intro = True
@@ -937,8 +993,24 @@ class DynamicQuestionEngine:
             return None
         if quality == "clarification_requested":
             return answer
-        if self._is_unknown_answer(answer) or question.evidence_event_ids or len(answer.answer_text.split()) < 18:
+        if self._is_unknown_answer(answer) or question.evidence_event_ids or quality in {"substantive", "thin"} or len(answer.answer_text.split()) >= 4:
             return answer
+        return None
+
+    def _extract_key_topic_from_answer(self, answer_text: str) -> str | None:
+        if not answer_text or not isinstance(answer_text, str):
+            return None
+        clean = re.sub(r"[^a-zA-Z0-9\s_-]", " ", answer_text)
+        matches = re.findall(
+            r"\b(?:status code[s]?|duplicate\s*\w+|edge case[s]?|error handling|logging|database|query|api|validation|exception|try\s*except|500|404|409|400|200|201|performance|latency|cache|concurrency|thread|async|await|test case[s]?|mock|fixture|payload|response|request)\b",
+            clean,
+            re.IGNORECASE,
+        )
+        if matches:
+            return matches[0].strip()
+        words = clean.split()
+        if len(words) >= 4:
+            return " ".join(words[:4])
         return None
 
     def _answer_depth_follow_up(
@@ -1006,18 +1078,33 @@ class DynamicQuestionEngine:
 
         event = self._event_for_question(session, question)
         code_insights = event.details.get("code_insights") if event else None
-        answer_excerpt = self._compact(answer.answer_text, 100)
+        key_topic = self._extract_key_topic_from_answer(answer.answer_text)
 
         if isinstance(code_insights, dict):
             focus = self._code_focus_phrase(code_insights)
-            prompt = (
-                f"Understood. Regarding {focus}: "
-                "which line or design choice would you defend or change?"
-            )
+            if key_topic:
+                prompt = (
+                    f"Understood. Regarding {key_topic} in {focus}: "
+                    "which line or design choice would you defend or change?"
+                )
+            else:
+                prompt = (
+                    f"Understood. Regarding {focus}: "
+                    "which line or design choice would you defend or change?"
+                )
             targets = [
                 Competency.CODE_QUALITY,
                 Competency.PROBLEM_SOLVING,
                 Competency.TESTING_MINDSET,
+            ]
+        elif key_topic:
+            prompt = (
+                f"Understood. Regarding {key_topic}: what was the exact implementation detail and tradeoff behind that choice?"
+            )
+            targets = [
+                Competency.ENGINEERING_DECISION_MAKING,
+                Competency.CODE_QUALITY,
+                Competency.PROBLEM_SOLVING,
             ]
         elif len(answer.answer_text.split()) < 18:
             prompt = (
@@ -1109,7 +1196,15 @@ class DynamicQuestionEngine:
         axis: str,
         signature: str,
     ) -> InterviewQuestion:
-        files = self._join(code_insights.get("changed_files"), default="the submitted code")
+        changed_files_list = code_insights.get("changed_files") or []
+        if isinstance(changed_files_list, list):
+            app_files = [
+                f for f in changed_files_list
+                if not str(f).startswith("config/") and not str(f).startswith("settings/") and not str(f).endswith("__init__.py") and not str(f).endswith("asgi.py") and not str(f).endswith("wsgi.py")
+            ]
+            if app_files:
+                changed_files_list = app_files
+        files = self._join(changed_files_list, default="the submitted code")
         file_change_summary = self._file_change_summary(code_insights)
         added_line = self._first(
             code_insights.get("notable_added_lines")
@@ -1429,6 +1524,8 @@ class DynamicQuestionEngine:
             answer_text.strip().endswith("?") and len(normalized.split()) <= 16
         ):
             return "clarification_requested"
+        if any(pattern in normalized for pattern in IRRELEVANT_PATTERNS):
+            return "irrelevant"
         if normalized in UNKNOWN_ANSWER_PATTERNS:
             return "unknown"
         if any(pattern in normalized for pattern in UNKNOWN_ANSWER_PATTERNS) and len(
@@ -1441,7 +1538,7 @@ class DynamicQuestionEngine:
 
     def _is_unknown_answer(self, answer: CandidateAnswer) -> bool:
         quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
-        return quality in {"unknown", "skip_requested"}
+        return quality in {"unknown", "skip_requested", "irrelevant"}
 
     def _should_reframe_unknown_answer(
         self,

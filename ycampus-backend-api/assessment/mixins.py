@@ -614,9 +614,16 @@ class ProctoringMixin:
                     prefix = "screen_share"
                 
             ts = str(int(time.time() * 1000))
-            filename = f"{prefix}_{ts}.png"
+            
+            ext = "png"
+            if file_obj and hasattr(file_obj, 'name') and file_obj.name:
+                parts = file_obj.name.rsplit('.', 1)
+                if len(parts) > 1:
+                    ext = parts[-1].lower()
+                    
+            filename = f"{prefix}_{ts}.{ext}"
             if question_id:
-                filename = f"q{question_id}_{prefix}_{ts}.png"
+                filename = f"q{question_id}_{prefix}_{ts}.{ext}"
 
             # Object key: {user_id}/{type}/{parent}/{exam}/{attempt}/{filename}
             user_id = str(user.id)

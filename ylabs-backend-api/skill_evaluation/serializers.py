@@ -59,14 +59,20 @@ def provision_evaluation_labs(evaluation):
 
 class SubmissionUserSerializer(serializers.ModelSerializer):
     resume_url = serializers.SerializerMethodField()
+    phone = serializers.SerializerMethodField()
     
     class Meta:
         model = get_user_model()
-        fields = ['id', 'email', 'first_name', 'last_name', 'resume_url']
+        fields = ['id', 'email', 'first_name', 'last_name', 'resume_url', 'phone']
 
     def get_resume_url(self, obj):
         if hasattr(obj, 'profile') and obj.profile.resume_file:
             return obj.profile.resume_file
+        return None
+
+    def get_phone(self, obj):
+        if hasattr(obj, 'profile') and hasattr(obj.profile, 'phone'):
+            return obj.profile.phone
         return None
 
 class UserEvaluationSubmissionSerializer(serializers.ModelSerializer):
@@ -119,6 +125,7 @@ class EvaluationSectionSerializer(serializers.ModelSerializer):
 
 class EvaluationSerializer(serializers.ModelSerializer):
     sections = EvaluationSectionSerializer(many=True, required=False)
+    created_by = serializers.SerializerMethodField()
 
     class Meta:
         model = Evaluation
@@ -126,8 +133,14 @@ class EvaluationSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'is_public', 'domain', 
             'candidate_invited_emails', 'experience_level', 
             'maximum_attempts', 'expiry_datetime', 'is_published', 
-            'settings', 'sections', 'created_at', 'updated_at'
+            'settings', 'sections', 'created_at', 'updated_at', 'created_by'
         ]
+
+    def get_created_by(self, obj):
+        if obj.created_by:
+            name = f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()
+            return name or obj.created_by.email or obj.created_by.username
+        return None
 
     def create(self, validated_data):
         sections_data = validated_data.pop('sections', [])

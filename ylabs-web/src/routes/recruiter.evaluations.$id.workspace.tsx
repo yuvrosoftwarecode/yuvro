@@ -264,7 +264,7 @@ function Workspace() {
                   <b className="font-normal text-neutral-300">{fmtRel(ev.createdAt)}</b>
                 </span>
                 <span>
-                  Created by <b className="font-normal text-neutral-300">Riya Recruiter</b>
+                  Created by <b className="font-normal text-neutral-300">{ev.createdBy || "Recruiter"}</b>
                 </span>
                 <span>
                   Duration <b className="font-normal text-neutral-300">{totals.minutes} min</b>
@@ -316,7 +316,7 @@ function Workspace() {
           <OverviewTab ev={ev} candidates={candidates} onGoto={goto} notify={notify} />
         )}
         {tab === "candidates" && (
-          <CandidatesTab evId={ev.id} candidates={candidates} notify={notify} />
+          <CandidatesTab evId={ev.id} ev={ev} candidates={candidates} notify={notify} />
         )}
         {tab === "followups" && <FollowUpsTab ev={ev} notify={notify} />}
         {tab === "records" && <CandidateRecordsTab ev={ev} notify={notify} onGotoFollowUps={() => goto("followups")} />}
@@ -450,7 +450,13 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
           if (part === "{{link}}") {
             return (
               <div key={i} className="my-4">
-                <a href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
+                <a
+                  href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-semibold !text-white transition hover:bg-opacity-90 shadow-sm"
+                  style={{ color: "#ffffff" }}
+                >
                   Start Evaluation
                 </a>
               </div>
@@ -463,7 +469,7 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
   };
 
   const isValid = recipients.length > 0 || (emailsInput.trim() && emailRegex.test(emailsInput.trim()));
-  const totalCount = recipients.length + (emailsInput.trim() && emailRegex.test(emailsInput.trim()) ? 1 : 0);
+  const totalCount = recipients.length + (emailsInput.trim() && emailRegex.test(emailsInput.trim()) && !recipients.includes(emailsInput.trim()) ? 1 : 0);
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-white text-neutral-900">
@@ -573,7 +579,13 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
                   if (part === "{{link}}") {
                     return (
                       <div key={i} className="my-4">
-                        <a href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
+                        <a
+                          href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-semibold !text-white transition hover:bg-opacity-90 shadow-sm"
+                          style={{ color: "#ffffff" }}
+                        >
                           Start Evaluation
                         </a>
                       </div>
@@ -589,14 +601,15 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
       </div>
       
       {/* Footer */}
-      <div className="flex items-center justify-end gap-3 p-5 bg-white">
+      <div className="flex items-center justify-end gap-3 p-5 bg-white border-t border-neutral-200">
         <button onClick={onClose} className="rounded-lg px-6 py-2.5 text-[13px] font-medium text-neutral-600 hover:bg-neutral-100 transition-colors">
           Cancel
         </button>
         <button 
           onClick={onSubmit} 
           disabled={sending || !isValid} 
-          className="inline-flex items-center justify-center rounded-lg bg-[#F5A623] px-8 py-2.5 text-[13px] font-semibold text-white transition-all hover:bg-opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center rounded-lg bg-[#F5A623] px-8 py-2.5 text-[13px] font-semibold !text-white transition-all hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          style={{ color: "#ffffff" }}
         >
           {sending ? "Sending..." : `Send Invites ${totalCount > 0 ? `(${totalCount})` : ''}`}
         </button>
@@ -883,10 +896,12 @@ const COLS_KEY = "yuvro-cand-cols-v2";
 
 function CandidatesTab({
   evId,
+  ev,
   candidates,
   notify,
 }: {
   evId: string;
+  ev?: Evaluation;
   candidates: Candidate[];
   notify: (m: string) => void;
 }) {
@@ -906,14 +921,27 @@ function CandidatesTab({
   const [viewed, setViewed] = useState<Set<string>>(new Set());
   const [noted, setNoted] = useState<Set<string>>(new Set());
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [cols, setCols] = useState<Set<ColKey>>(() => {
-    if (typeof window === "undefined") return new Set(DEFAULT_COLS);
-    try {
-      const raw = localStorage.getItem(COLS_KEY);
-      if (raw) return new Set(JSON.parse(raw));
-    } catch {}
-    return new Set(DEFAULT_COLS);
-  });
+
+  const sections = ev?.sections || [];
+  const hasSections = sections.length > 0;
+  const hasLabs = hasSections ? sections.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") : false;
+  const hasAssessment = hasSections ? sections.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT") : false;
+  const hasVitarka = hasSections ? sections.some((s: any) => s.kind === "discussion" || s.kind === "vitarka" || s.type === "VITARKA_AI_INTERVIEW") : false;
+
+  const defaultColsSet = useMemo(() => {
+    const list: ColKey[] = ["candidate"];
+    if (hasLabs) list.push("labs");
+    if (hasAssessment) list.push("assessment");
+    if (hasVitarka) list.push("vitarka");
+    list.push("eci", "recommendation", "submitted", "status");
+    return new Set(list);
+  }, [hasLabs, hasAssessment, hasVitarka]);
+
+  const [cols, setCols] = useState<Set<ColKey>>(defaultColsSet);
+
+  useEffect(() => {
+    setCols(defaultColsSet);
+  }, [defaultColsSet]);
 
   useEffect(() => {
     try {
@@ -1125,30 +1153,9 @@ function CandidatesTab({
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2">
           <div className="text-[12px] font-medium text-neutral-900">{selected.size} selected</div>
           <div className="mx-2 h-4 w-px bg-neutral-200" />
-          <BulkBtn
-            onClick={() => {
-              if (selected.size < 2 || selected.size > 4)
-                return notify("Select 2 to 4 candidates to compare");
-              nav({
-                to: "/recruiter/evaluations/$id/compare",
-                params: { id: evId },
-                search: { ids: Array.from(selected).join(",") },
-              } as any);
-            }}
-            accent
-          >
-            Compare {selected.size >= 2 && selected.size <= 4 ? `(${selected.size})` : ""}
-          </BulkBtn>
           <BulkBtn onClick={() => bulk("Moved to Hold")}>Hold</BulkBtn>
           <BulkBtn onClick={() => bulk("Shortlisted")}>Shortlist</BulkBtn>
           <BulkBtn onClick={() => bulk("Rejected")}>Reject</BulkBtn>
-          <BulkBtn onClick={() => bulk("Email sent")}>Send Email</BulkBtn>
-          <BulkBtn onClick={() => bulk("Reports downloaded")}>Download Reports</BulkBtn>
-          <BulkBtn onClick={() => bulk("Tag added")}>Add Tags</BulkBtn>
-          <BulkBtn onClick={() => bulk("Archived")}>Archive</BulkBtn>
-          <BulkBtn onClick={() => bulk("Deleted")} danger>
-            Delete
-          </BulkBtn>
           <button
             onClick={() => setSelected(new Set())}
             className="ml-auto text-[11px] text-neutral-500 hover:text-neutral-900"
@@ -1180,6 +1187,9 @@ function CandidatesTab({
             onPreview={setPreview}
             onAction={(label) => notify(label)}
             highlight={filters.search}
+            hasLabs={hasLabs}
+            hasAssessment={hasAssessment}
+            hasVitarka={hasVitarka}
           />
         ) : (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -1192,6 +1202,9 @@ function CandidatesTab({
                 onOpen={() => openDetails(c)}
                 onPreview={() => setPreview(c)}
                 onAction={(l) => notify(l)}
+                hasLabs={hasLabs}
+                hasAssessment={hasAssessment}
+                hasVitarka={hasVitarka}
               />
             ))}
           </div>
@@ -1476,6 +1489,9 @@ function CandidateTable({
   onPreview,
   onAction,
   highlight,
+  hasLabs = true,
+  hasAssessment = true,
+  hasVitarka = true,
 }: {
   rows: Candidate[];
   cols: Set<ColKey>;
@@ -1487,8 +1503,17 @@ function CandidateTable({
   onPreview: (c: Candidate) => void;
   onAction: (label: string) => void;
   highlight?: string;
+  hasLabs?: boolean;
+  hasAssessment?: boolean;
+  hasVitarka?: boolean;
 }) {
-  const show = (k: ColKey) => cols.has(k);
+  const show = (k: ColKey) => {
+    if (k === "labs" && !hasLabs) return false;
+    if (k === "assessment" && !hasAssessment) return false;
+    if (k === "vitarka" && !hasVitarka) return false;
+    return cols.has(k);
+  };
+
   return (
     <div className="-mx-1 overflow-x-auto">
       <table className="w-full min-w-[960px] border-collapse text-left text-[12.5px]">
@@ -1542,18 +1567,28 @@ function CandidateTable({
               {show("email") && (
                 <Td className="text-neutral-700">{highlightText(c.email, highlight || "")}</Td>
               )}
-              {show("phone") && <Td className="text-neutral-700">{c.phone}</Td>}
+              {show("phone") && <Td className="text-neutral-700">{c.phone || "—"}</Td>}
               {show("labs") && (
-                <Td className="text-right tabular-nums text-neutral-900">{c.labsScore}</Td>
+                <Td className="text-right tabular-nums text-neutral-900">
+                  <div className="font-medium">{c.labsScore}</div>
+                  <div className="text-[10.5px] text-neutral-500">
+                    {c.labsMaxScore ? `of ${c.labsMaxScore}` : ""}
+                  </div>
+                </Td>
               )}
               {show("assessment") && (
-                <Td className="text-right tabular-nums text-neutral-900">{c.assessmentScore}</Td>
+                <Td className="text-right tabular-nums text-neutral-900">
+                  <div className="font-medium">{c.assessmentScore}</div>
+                  <div className="text-[10.5px] text-neutral-500">
+                    {c.assessmentMaxScore ? `of ${c.assessmentMaxScore}` : ""}
+                  </div>
+                </Td>
               )}
               {show("vitarka") && (
                 <Td className="text-right tabular-nums text-neutral-900">
                   <div className="font-medium">{c.vitarkaScore}</div>
                   <div className="text-[10.5px] text-neutral-500">
-                    {c.discussionMaxScore ? `of ${c.discussionMaxScore}` : vitarkaLabel(c.vitarkaScore, 25)}
+                    {c.discussionMaxScore ? `of ${c.discussionMaxScore}` : ""}
                   </div>
                 </Td>
               )}
@@ -1642,6 +1677,9 @@ function CandidateCard({
   onOpen,
   onPreview,
   onAction,
+  hasLabs = true,
+  hasAssessment = true,
+  hasVitarka = true,
 }: {
   c: Candidate;
   selected: boolean;
@@ -1649,6 +1687,9 @@ function CandidateCard({
   onOpen: () => void;
   onPreview: () => void;
   onAction: (l: string) => void;
+  hasLabs?: boolean;
+  hasAssessment?: boolean;
+  hasVitarka?: boolean;
 }) {
   return (
     <div
@@ -1672,12 +1713,12 @@ function CandidateCard({
         </div>
         <dl className="mt-4 grid grid-cols-2 gap-1 text-[11px] text-neutral-600">
           <span className="truncate">{c.email}</span>
-          <span className="truncate text-right">{c.phone}</span>
+          <span className="truncate text-right">{c.phone || "—"}</span>
         </dl>
-        <div className="mt-4 grid grid-cols-4 gap-1.5">
-          <MiniScore label="Labs" v={c.labsScore} />
-          <MiniScore label="Assess" v={c.assessmentScore} />
-          <MiniScore label="Vitarka" v={c.vitarkaScore} />
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {hasLabs && <MiniScore label="Labs" v={c.labsScore} />}
+          {hasAssessment && <MiniScore label="Assess" v={c.assessmentScore} />}
+          {hasVitarka && <MiniScore label="Vitarka" v={c.vitarkaScore} />}
           <MiniScore label="Total" v={c.totalEarned != null ? c.totalEarned : c.eci} highlight />
         </div>
         <div className="mt-3 flex items-center justify-between text-[11px] text-neutral-600">
@@ -2388,10 +2429,10 @@ function PreviewPanel({
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          <ScoreBlock label="Labs" v={c.labsScore} big />
-          <ScoreBlock label="Assessment" v={c.assessmentScore} big />
-          <ScoreBlock label="Vitarka" v={c.vitarkaScore} big />
+        <div className="mt-4 flex flex-wrap gap-2">
+          {c.labsMaxScore ? <ScoreBlock label="Labs" v={c.labsScore} big /> : null}
+          {c.assessmentMaxScore ? <ScoreBlock label="Assessment" v={c.assessmentScore} big /> : null}
+          {c.discussionMaxScore ? <ScoreBlock label="Vitarka" v={c.vitarkaScore} big /> : null}
         </div>
 
         <div className="mt-6">

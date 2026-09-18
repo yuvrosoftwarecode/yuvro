@@ -96,15 +96,66 @@ COVERAGE_PROBES: dict[Competency, str] = {
 }
 
 
+TECHNICAL_SUBSTANCE_TERMS = {
+    "algorithm", "architecture", "asynchronous", "concurrency", "distributed", "serialization", "idempotent", "orm",
+    "hypothesis", "root cause", "isolate", "breakdown", "reproduce", "diagnose", "binary search",
+    "stack trace", "breakpoint", "profiler", "inspect logs", "reproduce",
+    "tradeoff", "trade-off", "benchmark", "pros and cons",
+    "refactoring", "maintainability", "single responsibility", "abstraction", "modular", "clean code",
+    "unit test", "integration test", "edge case", "regression", "mocking", "assertion", "test coverage",
+    "latency", "scalability", "caching", "query optimization", "throughput", "bottleneck", "select_related",
+    "authentication", "authorization", "input validation", "sql injection", "sanitization", "least privilege",
+    "code review", "monitoring", "alerting", "documentation", "runbook", "on-call",
+    "django", "python", "http", "api", "rest", "endpoint", "status code", "200", "201", "400", "404", "409", "422", "500",
+    "database", "model", "view", "serializer", "query", "request", "response", "payload", "json", "header",
+    "exception", "try", "except", "raise", "catch", "error", "handler", "validation", "conflict", "duplicate",
+    "field", "table", "column", "primary key", "foreign key", "index", "filter", "get", "post", "put", "patch", "delete",
+    "function", "method", "class", "variable", "parameter", "return", "import", "module", "file", "code", "diff",
+    "bug", "fix", "issue", "logic", "route", "url", "schema", "lock", "transaction", "commit", "rollback",
+}
+
+
 class InterviewEvaluator:
     DEFAULT_RUBRIC_VERSION = "engineering_manager_v1.2"
 
     def __init__(self, rubric_version: str | None = None) -> None:
         self.rubric_version = rubric_version or self.DEFAULT_RUBRIC_VERSION
 
+    def _has_technical_substance(self, normalized: str) -> bool:
+        if any(term in normalized for term in TECHNICAL_SUBSTANCE_TERMS):
+            return True
+        if re.search(r"\b(200|201|204|400|401|403|404|409|422|500|502|503)\b", normalized):
+            return True
+        if re.search(r"\b[a-zA-Z0-9_-]+\.(py|js|ts|json|sql|html|css|txt)\b", normalized):
+            return True
+        return False
+
+    def _is_intro_answer(self, session: InterviewSession, answer: CandidateAnswer) -> bool:
+        quality = answer.metadata.get("answer_quality")
+        if quality == "intro" or answer.metadata.get("is_intro"):
+            return True
+        question = next((q for q in session.questions if q.id == answer.question_id), None)
+        if question and question.metadata.get("is_intro"):
+            return True
+        if re.match(r"^(hello|hi|hey)?\s*(i am|i'm|my name is)\b", answer.answer_text.strip(), re.IGNORECASE):
+            return True
+        return False
+
+    def _substantive_answers(self, session: InterviewSession) -> list[CandidateAnswer]:
+        substantive = []
+        for ans in session.answers:
+            if self._is_intro_answer(session, ans):
+                continue
+            text = ans.answer_text.strip().lower()
+            if text in {"no voice response recorded.", "no voice response recorded", ""}:
+                continue
+            substantive.append(ans)
+        return substantive
+
     def evaluate(self, session: InterviewSession) -> InterviewEvaluation:
-        # Zero-gating: If candidate answered no questions, entire interview is unattempted
-        if len(session.answers) == 0:
+        substantive_answers = self._substantive_answers(session)
+        # Zero-gating: If candidate answered no substantive technical questions, entire interview is unattempted
+        if len(substantive_answers) == 0:
             scores = [
                 CompetencyScore(
                     competency=comp,
@@ -113,10 +164,10 @@ class InterviewEvaluator:
                         EvaluationEvidence(
                             source="system",
                             reference_id="unattempted",
-                            note="Candidate did not provide any responses during the interview.",
+                            note="Candidate did not provide any responses during the interview." if len(session.answers) == 0 else "Candidate only provided self-introduction or no voice response recorded.",
                         )
                     ],
-                    guidance="No interview answers were provided to evaluate this competency.",
+                    guidance="No technical interview answers were provided to evaluate this competency.",
                 )
                 for comp in Competency
             ]
@@ -144,25 +195,34 @@ class InterviewEvaluator:
                 overall_score=0.0,
                 scores=scores,
                 coverage=coverage,
-                summary="The candidate did not answer any questions during the Vitarka interview session. Evidence coverage is 0/13 competencies (0.0%). Overall score: 0.0/10.",
+                summary="The candidate did not answer any technical questions during the Vitarka interview session. Evidence coverage is 0/13 competencies (0.0%). Overall score: 0.0/10.",
                 strengths=[],
-                risks=["Candidate did not provide any responses during the interview."],
+                risks=["Candidate did not provide any technical responses during the interview."],
             )
 
         evidence_by_competency, adjustments, positive_counts, negative_counts = self._collect_evidence(session)
         scores = self._scores_from_evidence(evidence_by_competency, adjustments, positive_counts, negative_counts)
         coverage = self._coverage_from_scores(session.id, scores)
-        overall = round(sum(score.score for score in scores) / len(scores), 1)
+        
+        evaluated_scores = [
+            score for score in scores
+            if positive_counts.get(score.competency, 0) > 0 or negative_counts.get(score.competency, 0) > 0
+        ]
+        if evaluated_scores:
+            overall = round(sum(score.score for score in evaluated_scores) / len(evaluated_scores), 1)
+        else:
+            overall = round(sum(score.score for score in scores) / len(scores), 1)
+
         strengths = [
             self._label(score.competency)
             for score in sorted(scores, key=lambda item: item.score, reverse=True)
-            if score.score >= 6 and positive_counts.get(score.competency, 0) > negative_counts.get(score.competency, 0)
-        ][:3]
+            if score.score >= 6 and positive_counts.get(score.competency, 0) >= negative_counts.get(score.competency, 0)
+        ][:4]
         risks = [
             self._label(score.competency)
             for score in sorted(scores, key=lambda item: item.score)
-            if score.score <= 3 or negative_counts.get(score.competency, 0) > 0
-        ][:4]
+            if score.score <= 4 and negative_counts.get(score.competency, 0) > positive_counts.get(score.competency, 0)
+        ][:3]
 
         summary = (
             f"Evaluation is based on {len(session.observations)} assessment events and "
@@ -265,6 +325,9 @@ class InterviewEvaluator:
         positive_counts: dict[Competency, int],
         negative_counts: dict[Competency, int],
     ) -> None:
+        if self._is_intro_answer(session, answer):
+            return
+
         normalized = answer.answer_text.lower()
         words = answer.answer_text.split()
         answer_length = len(words)
@@ -275,21 +338,21 @@ class InterviewEvaluator:
             targets = [Competency.PROBLEM_SOLVING, Competency.COMMUNICATION]
 
         quality = answer.metadata.get("answer_quality")
-        is_unknown_or_skip = (
-            quality in {"unknown", "skip_requested"}
+        is_unknown_or_skip_or_irrelevant = (
+            quality in {"unknown", "skip_requested", "irrelevant"}
             or self._looks_unknown(normalized)
             or self._looks_evasive(normalized)
         )
 
-        if is_unknown_or_skip:
+        if is_unknown_or_skip_or_irrelevant:
             for competency in targets:
                 negative_counts[competency] += 1
-                adjustments[competency] -= 3
+                adjustments[competency] -= 2
                 evidence_by_competency[competency].append(
                     EvaluationEvidence(
                         source="interview",
                         reference_id=answer.id,
-                        note=f"Candidate was unable to explain or declined to discuss implementation details when probed on {self._label(competency)}.",
+                        note=f"Candidate provided an irrelevant, evasive, or insufficient answer when probed on {self._label(competency)}.",
                     )
                 )
             adjustments[Competency.COMMUNICATION] -= 1
@@ -299,7 +362,7 @@ class InterviewEvaluator:
                 EvaluationEvidence(
                     source="answer",
                     reference_id=answer.id,
-                    note="Candidate responded with 'I don't know', deflection, or requested to skip topic.",
+                    note="Candidate responded with 'I don't know', off-topic deflection, or requested to skip topic.",
                 )
             )
             return
@@ -313,6 +376,22 @@ class InterviewEvaluator:
                         source="interview",
                         reference_id=answer.id,
                         note="Candidate response was brief and lacked technical depth.",
+                    )
+                )
+            adjustments[Competency.COMMUNICATION] -= 1
+            return
+
+        has_substance = self._has_technical_substance(normalized)
+
+        if not has_substance:
+            for competency in targets:
+                negative_counts[competency] += 1
+                adjustments[competency] -= 1
+                evidence_by_competency[competency].append(
+                    EvaluationEvidence(
+                        source="interview",
+                        reference_id=answer.id,
+                        note="Candidate explanation lacked specific technical terms, status codes, or implementation evidence.",
                     )
                 )
             adjustments[Competency.COMMUNICATION] -= 1
@@ -342,14 +421,14 @@ class InterviewEvaluator:
                         )
                     )
 
-        if answer_length >= 35:
+        if answer_length >= 35 and has_substance:
             adjustments[Competency.COMMUNICATION] += 1
             positive_counts[Competency.COMMUNICATION] += 1
             evidence_by_competency[Competency.COMMUNICATION].append(
                 EvaluationEvidence(
                     source="answer",
                     reference_id=answer.id,
-                    note="Candidate provided a detailed verbal explanation.",
+                    note="Candidate provided a detailed technical explanation.",
                 )
             )
 
@@ -420,31 +499,31 @@ class InterviewEvaluator:
 
         if pos > 0 or neg > 0:
             if neg > 0 and pos == 0:
-                raw_score = max(1, 2 - neg)
-                guidance = "Candidate was probed on this competency but could not explain or declined to answer."
+                raw_score = max(1, 3 - neg)
+                guidance = "Candidate was probed on this competency but provided irrelevant, evasive, or insufficient technical answers."
             elif pos > 0 and neg == 0:
-                raw_score = min(10, 6 + pos + max(0, adj))
+                raw_score = min(10, 5 + pos + max(0, adj))
                 guidance = "Demonstrated through clear, substantive technical responses during the interview."
             else:
-                if neg > pos:
-                    raw_score = max(1, min(3, 3 + pos - neg))
-                    guidance = "Candidate struggled on most probes for this competency."
+                if neg >= pos:
+                    raw_score = max(1, min(4, 3 + pos - neg))
+                    guidance = "Candidate struggled or provided off-topic/evasive responses on probes for this competency."
                 else:
-                    raw_score = max(3, min(7, 4 + pos - neg + adj))
-                    guidance = "Mixed evidence observed; candidate answered some aspects but struggled with others."
+                    raw_score = max(4, min(8, 4 + pos - neg + adj))
+                    guidance = "Demonstrated capability with some mixed areas observed during discussion."
         elif evidence:
-            raw_score = 2
-            guidance = "Observed in background activity, but not verified through interview discussion."
+            raw_score = 5
+            guidance = "Observed in background activity and lab work."
         else:
-            raw_score = 0
+            raw_score = 5
             evidence = [
                 EvaluationEvidence(
                     source="system",
                     reference_id="not_observed",
-                    note="No direct evidence captured for this competency.",
+                    note="Not directly probed during this interview session.",
                 )
             ]
-            guidance = "No evidence observed for this competency."
+            guidance = "Neutral evaluation (not directly probed during session)."
 
         return CompetencyScore(
             competency=competency,
@@ -470,6 +549,20 @@ class InterviewEvaluator:
                 "don't want to discuss",
                 "dont want to discuss",
                 "do not want to discuss",
+                "whatever",
+                "who cares",
+                "i dont care",
+                "i don't care",
+                "do not care",
+                "you tell me",
+                "why are you asking",
+                "not your business",
+                "random answer",
+                "pizza",
+                "cricket",
+                "football",
+                "movie",
+                "weather",
             )
         )
 

@@ -1573,8 +1573,10 @@ export function TicketIDE({
     const dirtyPaths = Object.keys(dirty).filter(k => dirty[k]);
     if (dirtyPaths.length === 0) return;
     
-    // Save immediately with no delay
-    handleSave(true);
+    const timer = setTimeout(() => {
+      handleSave(true);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, [files, dirty, autoSave]);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -2422,15 +2424,26 @@ export function TicketIDE({
     return Object.fromEntries(
       Object.entries(files).filter(([p, content]) => {
         if (p.endsWith(".db") || p.endsWith(".sqlite")) return false;
+        if (
+          p.includes("yuvro_scoring_rules") ||
+          p.includes("scoring_rules") ||
+          p.startsWith(".") ||
+          p.includes("__pycache__") ||
+          p.includes("node_modules")
+        ) {
+          return false;
+        }
         return content !== "" || loadedFiles.current.has(p);
       })
     );
   }
 
-  function handleSave() {
+  function handleSave(silent?: boolean) {
     setDirty(Object.fromEntries(Object.keys(files).map((k) => [k, false])));
-    const now = new Date();
-    setSavedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`);
+    if (!silent) {
+      const now = new Date();
+      setSavedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`);
+    }
     if (isReal) {
       const filesToSave = getFilesToSave();
       // Persist loaded files to the workspace so disk is always in sync
@@ -2460,7 +2473,7 @@ export function TicketIDE({
         }
       }
     }
-    showToast("Saved");
+    if (!silent) showToast("Saved");
   }
 
   function handleReset() {
@@ -2631,7 +2644,7 @@ export function TicketIDE({
               <GitBranch className="h-3 w-3" />Commit
             </button>
           )}
-          {(!isEvaluationMode || !headerActions) && (
+          {(!isEvaluationMode || slug !== "knowledge") && (
             <button onClick={handleSubmit}
               disabled={submitting}
               className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"

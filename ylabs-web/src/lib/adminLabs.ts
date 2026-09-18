@@ -40,9 +40,13 @@ export const DIFFICULTIES: { value: LabDifficulty; label: string }[] = [
   { value: "HARD", label: "Hard" },
 ];
 
-export const labTypeLabel = (t: LabType) => LAB_TYPES.find((x) => x.value === t)?.label ?? t;
+export const labTypeLabel = (t: LabType) =>
+  LAB_TYPES.find((x) => x.value === t || x.value.toLowerCase() === (t as string)?.toLowerCase())
+    ?.label ?? t;
 export const difficultyLabel = (d: LabDifficulty) =>
-  DIFFICULTIES.find((x) => x.value === d)?.label ?? d;
+  DIFFICULTIES.find(
+    (x) => x.value === d || x.value.toLowerCase() === (d as string)?.toLowerCase(),
+  )?.label ?? d;
 
 export async function loadLabs(): Promise<AdminLab[]> {
   return await restApiAuthUtil.get<AdminLab[]>("/lab/labs/");

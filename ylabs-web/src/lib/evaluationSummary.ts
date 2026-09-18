@@ -84,12 +84,12 @@ export function buildEvaluationSummary(
     });
   }
 
-  const overallStrengths = overall === 0
+  const overallStrengths = (overall === 0 || !hasVitarka)
     ? []
     : blocks.flatMap((b) => b.strengths).slice(0, 4);
 
-  const overallExplore = overall === 0
-    ? ["Core technical fundamentals", "Hands-on engineering execution"]
+  const overallExplore = (overall === 0 || !hasVitarka)
+    ? []
     : blocks.map((b) => b.explore);
 
   const overallText = overall === 0

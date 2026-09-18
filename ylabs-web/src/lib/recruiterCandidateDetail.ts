@@ -529,31 +529,45 @@ export function getCandidateDetail(
           : NEXT_STEPS[4]);
 
   const labsMax = sectionMaxScores?.labsMaxScore ?? 80;
-  const assessMax = sectionMaxScores?.assessmentMaxScore ?? 30;
-  const vitarkaMax = sectionMaxScores?.discussionMaxScore ?? 25;
+  const assessMax = sectionMaxScores?.assessmentMaxScore ?? (sectionMaxScores ? 0 : 30);
+  const vitarkaMax = sectionMaxScores?.discussionMaxScore ?? (sectionMaxScores ? 0 : 25);
 
-  const ecIBreakdown = [
-    {
+  const ecIBreakdown: { label: string; contribution: string; kind: "pos" | "neg" | "neu" }[] = [];
+
+  if (labsMax > 0) {
+    ecIBreakdown.push({
       label: "Engineering Labs",
       contribution: `+${c.labsScore} of a possible ${labsMax}`,
-      kind: (c.labsScore / labsMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
-    },
-    {
+      kind: (labsMax > 0 && c.labsScore / labsMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
+    });
+  }
+
+  if (assessMax > 0) {
+    ecIBreakdown.push({
       label: "Knowledge Assessment",
       contribution: `+${c.assessmentScore} of a possible ${assessMax}`,
-      kind: (c.assessmentScore / assessMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
-    },
-    {
+      kind: (assessMax > 0 && c.assessmentScore / assessMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
+    });
+  }
+
+  if (vitarkaMax > 0) {
+    ecIBreakdown.push({
       label: "Vitarka Discussion",
       contribution: `+${c.vitarkaScore} of a possible ${vitarkaMax}`,
-      kind: (c.vitarkaScore / vitarkaMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
-    },
-    {
+      kind: (vitarkaMax > 0 && c.vitarkaScore / vitarkaMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
+    });
+  }
+
+  if (labsMax > 0) {
+    ecIBreakdown.push({
       label: "Debugging signal",
       contribution: c.labsScore === 0 ? "No lab activity" : c.labsScore >= (labsMax * 0.85) ? "Excellent" : c.labsScore >= (labsMax * 0.7) ? "Strong" : "Average",
       kind: (c.labsScore === 0 ? "neg" : "neu") as "pos" | "neg" | "neu",
-    },
-    {
+    });
+  }
+
+  if (vitarkaMax > 0) {
+    ecIBreakdown.push({
       label: "Architecture signal",
       contribution:
         c.vitarkaScore === 0
@@ -564,8 +578,8 @@ export function getCandidateDetail(
               ? "Reasonable"
               : "Minor gaps",
       kind: (c.vitarkaScore === 0 ? "neg" : "neu") as "pos" | "neg" | "neu",
-    },
-  ];
+    });
+  }
 
   const resume = {
     summary: `${c.experience === 0 ? "Recent graduate" : `${c.experience}+ year engineer`} focused on ${c.domain.toLowerCase()} systems. Currently at ${c.company}, with a track record of shipping production services and mentoring peers.`,
@@ -660,7 +674,7 @@ function fmtClock(s: number) {
   return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
 }
 function buildTimeline(c: Candidate): CandidateDetail["timeline"] {
-  const submitted = c.status === "Submitted" || c.status === "Completed";
+  const submitted = c.status === "Submitted" || c.status === "Completed" || !!c.hasVitarkaSubmission;
   const shortlisted =
     c.hiringStatus === "Shortlisted" ||
     c.hiringStatus === "Interview Scheduled" ||
@@ -709,8 +723,8 @@ function buildTimeline(c: Candidate): CandidateDetail["timeline"] {
       icon: "chat",
       label: "Vitarka discussion completed",
       time: rel(safeTime(anchor - 2 * d)),
-      done: submitted || c.vitarkaScore > 0,
-      tone: (submitted || c.vitarkaScore > 0 ? "good" : "neutral") as "good" | "neutral",
+      done: c.vitarkaScore > 0 || !!c.hasVitarkaSubmission,
+      tone: (c.vitarkaScore > 0 || !!c.hasVitarkaSubmission ? "good" : "neutral") as "good" | "neutral",
     },
     {
       icon: "check",
@@ -988,7 +1002,7 @@ export async function loadTimelineEvents(evId: string, email: string): Promise<T
 
     const completedMap = new Map(completed.map(e => [e.label, e]));
     
-    const isFinished = completedMap.has("Evaluation finished");
+    const isFinished = completedMap.has("Evaluation finished") || completedMap.has("Auto submitted");
     const sectionMilestones = [
       "Engineering Labs submitted",
       "Knowledge Assessment submitted",
@@ -996,6 +1010,9 @@ export async function loadTimelineEvents(evId: string, email: string): Promise<T
     ];
 
     const fullTimeline = MILESTONES.map(m => {
+      if (m === "Evaluation finished" && completedMap.has("Auto submitted")) {
+        return completedMap.get("Auto submitted")!;
+      }
       if (completedMap.has(m)) {
         return completedMap.get(m)!;
       } else {
@@ -1014,7 +1031,7 @@ export async function loadTimelineEvents(evId: string, email: string): Promise<T
     });
 
     for (const e of completed) {
-      if (!MILESTONES.includes(e.label)) {
+      if (!MILESTONES.includes(e.label) && e.label !== "Auto submitted") {
         fullTimeline.push(e);
       }
     }

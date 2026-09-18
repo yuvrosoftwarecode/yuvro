@@ -96,6 +96,12 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     duration=0,
                     discussion_mode=DiscussionMode.AUTOMATIC
                 )
+                CandidateTimelineEvent.objects.get_or_create(
+                    evaluation=instance,
+                    candidate_email=user.email,
+                    title=CandidateTimelineEventType.STARTED,
+                    defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+                )
             if submission:
                 data['submission_id'] = submission.id
                 data['started_at'] = submission.created_at.isoformat()
@@ -179,19 +185,21 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             return Response({"error": "Authentication required. Please verify OTP first."}, status=status.HTTP_401_UNAUTHORIZED)
             
         user = request.user
+        phone = request.data.get('phone', '')
         
-        # We allow any email to register via the public link.
-        # They will be tracked as 'Shared Link' source if not explicitly invited.
-            
-        if UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).exists():
-            return Response({"error": "This email is already registered for this evaluation"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        UserEvaluationSubmission.objects.create(
-            evaluation=evaluation, 
-            user=user,
-            duration=0,
-            discussion_mode=DiscussionMode.AUTOMATIC
-        )
+        submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).first()
+        if submission:
+            if phone and not submission.phone:
+                submission.phone = phone
+                submission.save(update_fields=['phone'])
+        else:
+            UserEvaluationSubmission.objects.create(
+                evaluation=evaluation, 
+                user=user,
+                duration=0,
+                discussion_mode=DiscussionMode.AUTOMATIC,
+                phone=phone or ""
+            )
         
         resume_url = request.data.get('resume_url')
         if resume_url:
@@ -237,7 +245,14 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             attempt_count = 1
             ts = str(int(time.time() * 1000))
             prefix = prefix_override or "snapshot"
-            filename = f"{prefix}_{ts}.png"
+            
+            ext = "png"
+            if file_obj and hasattr(file_obj, 'name') and file_obj.name:
+                parts = file_obj.name.rsplit('.', 1)
+                if len(parts) > 1:
+                    ext = parts[-1].lower()
+                    
+            filename = f"{prefix}_{ts}.{ext}"
             
             user_id = str(user.id)
             object_key = f"{user_id}/skill_evaluation/{evaluation.id}/attempt-{attempt_count}/{filename}"
@@ -347,20 +362,51 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         submission.completed_at = timezone.now()
         submission.save(update_fields=['completed_at'])
         
+        CandidateTimelineEvent.objects.get_or_create(
+            evaluation=evaluation,
+            candidate_email=user.email,
+            title=CandidateTimelineEventType.STARTED,
+            defaults={"status": "SUCCESS", "occurred_at": submission.created_at or timezone.now(), "created_by": user}
+        )
 
         has_vitarka = any(sec.type == "VITARKA_AI_INTERVIEW" for sec in evaluation.sections.all())
-        if has_vitarka:
+        has_started_vitarka = False
+        if has_vitarka and isinstance(submission.general_events, list):
+            for event in submission.general_events:
+                if isinstance(event, dict) and event.get('activity_type') == 'vitarka_session_started':
+                    has_started_vitarka = True
+                    break
+                    
+        if has_vitarka and has_started_vitarka:
             CandidateTimelineEvent.objects.get_or_create(
                 evaluation=evaluation,
                 candidate_email=user.email,
                 title=CandidateTimelineEventType.VITARKA_COMPLETED,
                 defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
             )
+            
+        if UserLabQuestionBankSubmission.objects.filter(user=user, evaluation=evaluation).exists():
+            CandidateTimelineEvent.objects.get_or_create(
+                evaluation=evaluation,
+                candidate_email=user.email,
+                title=CandidateTimelineEventType.LABS_SUBMITTED,
+                defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+            )
+
+        if UserKnowledgeAssessmentSubmission.objects.filter(user=user, evaluation=evaluation).exists():
+            CandidateTimelineEvent.objects.get_or_create(
+                evaluation=evaluation,
+                candidate_email=user.email,
+                title=CandidateTimelineEventType.ASSESSMENT_SUBMITTED,
+                defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+            )
+
+        auto_submitted = request.data.get('auto_submitted', False)
 
         CandidateTimelineEvent.objects.get_or_create(
             evaluation=evaluation,
             candidate_email=user.email,
-            title=CandidateTimelineEventType.EVALUATION_FINISHED,
+            title=CandidateTimelineEventType.AUTO_SUBMITTED if auto_submitted else CandidateTimelineEventType.EVALUATION_FINISHED,
             defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
         )
         
@@ -375,6 +421,15 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def submit_lab(self, request, pk=None):
         evaluation = self.get_object()
         lab_id = request.data.get('lab_id')
+        
+        if not lab_id:
+            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            lab = LabQuestionBank.objects.get(id=lab_id)
+        except LabQuestionBank.DoesNotExist:
+            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
+            
         status_val = request.data.get('status', 'in_review')
         solution = request.data.get('solution', '')
         minutes_solved = request.data.get('minutes_solved')
@@ -618,18 +673,31 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def generate_share_link(self, request, pk=None):
         evaluation = self.get_object()
         candidate_email = request.data.get('candidate_email')
-        if not candidate_email:
-            return Response({"error": "candidate_email is required"}, status=status.HTTP_400_BAD_REQUEST)
+        candidate_id = request.data.get('candidate_id')
         
-        # In a real system, you would check if the request.user has permission to share this evaluation
-        # For this prototype, we'll proceed if the submission exists
-        submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user__email=candidate_email).first()
-        if not submission:
-            return Response({"error": "Candidate submission not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        # Generate a new token and set expiration to 30 days from now
+        from django.db.models import Q
         import secrets
         from datetime import timedelta
+
+        query = Q(evaluation=evaluation)
+        if candidate_id and candidate_email:
+            query &= (Q(id=candidate_id) | Q(user__id=candidate_id) | Q(user__email__iexact=candidate_email))
+        elif candidate_id:
+            query &= (Q(id=candidate_id) | Q(user__id=candidate_id))
+        elif candidate_email:
+            query &= Q(user__email__iexact=candidate_email)
+        else:
+            return Response({"error": "candidate_email or candidate_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        submission = UserEvaluationSubmission.objects.filter(query).first()
+        if not submission:
+            # Fallback: find submission in this evaluation by candidate email or candidate id
+            if candidate_email:
+                submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user__email__iexact=candidate_email).first()
+            if not submission and candidate_id:
+                submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, id=candidate_id).first()
+            if not submission:
+                return Response({"error": "Candidate submission not found"}, status=status.HTTP_404_NOT_FOUND)
         
         token = secrets.token_urlsafe(12)
         submission.share_token = token
@@ -1075,10 +1143,13 @@ class SharedReportView(APIView):
         sub_serializer = UserEvaluationSubmissionSerializer(submission)
         
         # Include timeline events specifically for this candidate and evaluation
-        events = CandidateTimelineEvent.objects.filter(
-            evaluation=evaluation, 
-            candidate_email=submission.user.email
-        )
+        candidate_email = submission.user.email if submission.user else submission.email
+        events = []
+        if candidate_email:
+            events = CandidateTimelineEvent.objects.filter(
+                evaluation=evaluation, 
+                candidate_email=candidate_email
+            )
         from .serializers import CandidateTimelineEventSerializer
         event_serializer = CandidateTimelineEventSerializer(events, many=True)
         
