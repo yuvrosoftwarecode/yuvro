@@ -981,7 +981,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   }
 
   return (
-    <div className="eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 antialiased">
+    <div className={`eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 antialiased ${isRecruiterPreview ? "dark" : ""}`}>
       <TopBar
         remaining={remaining}
         online={online}
@@ -1699,18 +1699,18 @@ function LabsList({ labs, submitted, onOpen, onFinishSection, nextSectionTitle }
   return (
     <div className="mx-auto max-w-4xl px-8 py-12">
       <SectionHeader eyebrow="Section 01" title="Engineering Labs" body="Two labs. Pick one to start. You can submit each independently." />
-      <div className="mt-10 divide-y divide-neutral-200 overflow-hidden rounded-xl border border-neutral-200 bg-white">
+      <div className="mt-10 divide-y divide-neutral-200 dark:divide-neutral-800 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
         {labs.map((l, i) => {
           const done = submitted.has(l.id);
           return (
             <div key={l.id} className="flex items-center justify-between gap-6 px-6 py-5">
               <div className="min-w-0">
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-[11px] tracking-widest text-neutral-400">L0{i + 1}</span>
-                  <div className="text-[15px] text-neutral-900">{l.title}</div>
-                  {done && <span className="text-[11px] text-emerald-600">· Submitted</span>}
+                  <span className="font-mono text-[11px] tracking-widest text-neutral-400 dark:text-neutral-500">L0{i + 1}</span>
+                  <div className="text-[15px] font-medium text-neutral-900 dark:text-neutral-100">{l.title}</div>
+                  {done && <span className="text-[11px] text-emerald-600 dark:text-emerald-400">· Submitted</span>}
                 </div>
-                <div className="mt-1 text-[12px] text-neutral-500">{l.sub} · ~{l.minutes} min</div>
+                <div className="mt-1 text-[12px] text-neutral-500 dark:text-neutral-400">{l.sub} · ~{l.minutes} min</div>
               </div>
               {done ? (
                 <span className="rounded-lg border border-neutral-200 bg-neutral-100 dark:bg-neutral-800 px-4 py-2 text-[13px] text-neutral-400 dark:text-neutral-500 font-medium cursor-not-allowed">
@@ -1729,8 +1729,8 @@ function LabsList({ labs, submitted, onOpen, onFinishSection, nextSectionTitle }
         })}
       </div>
       <div className="mt-8 flex items-center justify-between">
-        <span className="text-[12px] text-neutral-500">{submitted.size} of {labs.length} submitted</span>
-        <button onClick={onFinishSection} disabled={!allDone} className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
+        <span className="text-[12px] text-neutral-500 dark:text-neutral-400">{submitted.size} of {labs.length} submitted</span>
+        <button onClick={onFinishSection} disabled={!allDone} className="rounded-lg bg-neutral-900 dark:bg-neutral-100 px-4 py-2 text-[13px] font-medium text-white dark:text-neutral-900 transition hover:bg-neutral-800 dark:hover:bg-white disabled:cursor-not-allowed disabled:bg-neutral-300 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600">
           {nextSectionTitle ? `Continue to ${nextSectionTitle} →` : "Submit Evaluation"}
         </button>
       </div>
@@ -1905,8 +1905,8 @@ function KnowledgeList({ sections, submitted, onOpen, onFinishSection, nextSecti
         })}
       </div>
       <div className="mt-8 flex items-center justify-between">
-        <span className="text-[12px] text-neutral-500">{Array.from(submitted).filter(id => sections.some(s => s.id === id)).length} of {sections.length} submitted</span>
-        <button onClick={onFinishSection} disabled={!allDone} className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300">
+        <span className="text-[12px] text-neutral-500 dark:text-neutral-400">{Array.from(submitted).filter(id => sections.some(s => s.id === id)).length} of {sections.length} submitted</span>
+        <button onClick={onFinishSection} disabled={!allDone} className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-300 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600">
           {nextSectionTitle ? `Continue to ${nextSectionTitle} →` : "Submit Evaluation"}
         </button>
       </div>
@@ -2113,9 +2113,9 @@ function KnowledgeRunner({
 function SectionHeader({ eyebrow, title, body }: { eyebrow: string; title: string; body?: string }) {
   return (
     <div>
-      <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">{eyebrow}</div>
-      <h2 className="mt-2 font-serif text-[34px] leading-tight tracking-tight text-neutral-900">{title}</h2>
-      {body && <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-neutral-600">{body}</p>}
+      <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-400">{eyebrow}</div>
+      <h2 className="mt-2 font-serif text-[34px] leading-tight tracking-tight text-neutral-900 dark:text-neutral-100">{title}</h2>
+      {body && <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-neutral-600 dark:text-neutral-400">{body}</p>}
     </div>
   );
 }

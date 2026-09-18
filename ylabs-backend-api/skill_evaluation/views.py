@@ -14,6 +14,7 @@ import time
 from .models import (
     Evaluation,
     LabQuestionBank,
+    KnowledgeQuestionBank,
     UserEvaluationSubmission,
     DiscussionMode,
     FollowUpConfig, 
@@ -27,6 +28,7 @@ from .models import (
 from .serializers import (
     EvaluationSerializer,
     LabQuestionBankSerializer,
+    KnowledgeQuestionBankSerializer,
     UserEvaluationSubmissionSerializer,
     FollowUpConfigSerializer, 
     FollowUpCandidateSerializer,
@@ -964,6 +966,28 @@ class LabQuestionBankViewSet(viewsets.ModelViewSet):
             if not user:
                 user = User.objects.create(username="admin", email="admin@yuvro.com")
         serializer.save(created_by=user)
+
+
+class KnowledgeQuestionBankViewSet(viewsets.ModelViewSet):
+    queryset = KnowledgeQuestionBank.objects.all().order_by('-created_at')
+    serializer_class = KnowledgeQuestionBankSerializer
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def get_queryset(self):
+        return KnowledgeQuestionBank.objects.all().order_by('-created_at')
+
+    def perform_create(self, serializer):
+        user = self.request.user if hasattr(self.request, 'user') and getattr(self.request.user, 'is_authenticated', False) else None
+        if not user:
+            User = get_user_model()
+            user = User.objects.first()
+            if not user:
+                user = User.objects.create(username="admin", email="admin@yuvro.com")
+        
+        company = user.recruiter_profiles.first().company if hasattr(user, 'recruiter_profiles') and user.recruiter_profiles.exists() else None
+        serializer.save(created_by=user, company=company)
+
 
 class UserLabQuestionBankSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = UserLabQuestionBankSubmissionSerializer

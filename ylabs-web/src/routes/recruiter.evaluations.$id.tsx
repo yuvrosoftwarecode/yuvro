@@ -690,51 +690,104 @@ function LabPreview({ l }: { l: any }) {
 }
 
 function QuestionPreview({ q }: { q: any }) {
+  if (!q) return null;
+
+  const questionContent = q.content || q.description || (q.text && q.text !== q.title ? q.text : "");
+  
+  const options = Array.isArray(q.mcq_options) && q.mcq_options.length > 0
+    ? q.mcq_options
+    : Array.isArray(q.options) && q.options.length > 0
+    ? q.options
+    : [];
+
+  const testCases = Array.isArray(q.test_cases_basic) && q.test_cases_basic.length > 0
+    ? q.test_cases_basic
+    : Array.isArray(q.test_cases) && q.test_cases.length > 0
+    ? q.test_cases
+    : Array.isArray(q.examples) && q.examples.length > 0
+    ? q.examples
+    : [];
+
+  const rawHints = (Array.isArray(q.hints) && q.hints.length > 0)
+    ? q.hints
+    : [];
+
+  const hints = rawHints.map((h: any) => {
+    if (typeof h === "string") return h.trim();
+    return h?.text || h?.hint || String(h);
+  }).filter(Boolean);
+
+  let solutions: any[] = [];
+  if (Array.isArray(q.solutions) && q.solutions.length > 0) {
+    solutions = q.solutions;
+  } else if (q.solution_explanation && typeof q.solution_explanation === "string") {
+    let explanationText = q.solution_explanation;
+    // Just in case there is some lingering JSON string, try to parse or keep as text
+    if (explanationText.trim().startsWith("{")) {
+       try {
+         const p = JSON.parse(explanationText);
+         if (p.solutions && p.solutions.length > 0) {
+           solutions = p.solutions;
+           explanationText = "";
+         } else if (p.hints && p.hints.length > 0) {
+           explanationText = "";
+         }
+       } catch {}
+    }
+    if (explanationText) {
+      solutions = [{ title: "Solution Explanation", code: explanationText, language: "text" }];
+    }
+  } else if (typeof q.solution === "string" && q.solution.trim()) {
+    solutions = [{ title: "Solution", code: q.solution, language: "text" }];
+  } else if (typeof q.solution === "object" && q.solution && Object.keys(q.solution).length > 0) {
+    solutions = [{ title: "Solution", code: JSON.stringify(q.solution, null, 2), language: "json" }];
+  }
+
   return (
     <div className="rounded-md bg-neutral-50 dark:bg-white/5 p-4 text-[13px] text-neutral-700 dark:text-neutral-300 space-y-4">
-      {(q.text || q.content) && (
-        <div className="whitespace-pre-wrap">{q.text || q.content}</div>
+      {questionContent && (
+        <div className="whitespace-pre-wrap font-medium text-neutral-900 dark:text-white">{questionContent}</div>
       )}
 
-      {q.mcq_options && q.mcq_options.length > 0 && (
+      {options.length > 0 && (
         <div className="space-y-2">
           <div className="font-semibold text-neutral-600 dark:text-neutral-400">Options:</div>
-          {q.mcq_options.map((opt: any, i: number) => (
-            <div key={i} className="flex items-start gap-3 rounded bg-white dark:bg-black/20 border border-neutral-200 dark:border-transparent px-3 py-2">
+          {options.map((opt: any, i: number) => (
+            <div key={i} className="flex items-start gap-3 rounded bg-white dark:bg-black/20 border border-neutral-200 dark:border-white/5 px-3 py-2">
               <div className="mt-0.5">
-                {opt.is_correct ? (
+                {opt?.is_correct ? (
                   <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 ) : (
-                  <div className="h-4 w-4 rounded-full border border-neutral-300 dark:border-white/10" />
+                  <div className="h-4 w-4 rounded-full border border-neutral-300 dark:border-white/20" />
                 )}
               </div>
-              <div className="flex-1 text-neutral-900 dark:text-white">{opt.text}</div>
+              <div className="flex-1 text-neutral-900 dark:text-white">{opt?.text || (typeof opt === "string" ? opt : "")}</div>
             </div>
           ))}
         </div>
       )}
 
-      {q.test_cases_basic && q.test_cases_basic.length > 0 && (
+      {testCases.length > 0 && (
         <div className="space-y-3">
           <div className="font-semibold text-neutral-600 dark:text-neutral-400">Examples:</div>
-          {q.test_cases_basic.map((ex: any, i: number) => (
-            <div key={i} className="rounded bg-neutral-100 dark:bg-black/20 p-3 font-mono text-[11px]">
+          {testCases.map((ex: any, i: number) => (
+            <div key={i} className="rounded bg-white dark:bg-black/20 border border-neutral-200 dark:border-white/5 p-3 font-mono text-[11px]">
               <div className="text-neutral-900 dark:text-neutral-300">
-                <span className="text-neutral-500">Input:</span> {ex.input}
+                <span className="text-neutral-500">Input:</span> {ex?.input !== undefined ? String(ex.input) : ""}
               </div>
               <div className="mt-2 text-neutral-900 dark:text-neutral-300">
-                <span className="text-neutral-500">Output:</span> {ex.expected_output || ex.output}
+                <span className="text-neutral-500">Output:</span> {ex?.expected_output !== undefined ? String(ex.expected_output) : ex?.output !== undefined ? String(ex.output) : ""}
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {q.hints && q.hints.length > 0 && (
+      {hints.length > 0 && (
         <div className="space-y-2">
           <div className="font-semibold text-neutral-600 dark:text-neutral-400">Hints:</div>
           <ul className="list-inside list-disc space-y-1">
-            {q.hints.map((hint: string, i: number) => (
+            {hints.map((hint: string, i: number) => (
               <li key={i} className="text-neutral-700 dark:text-neutral-300">
                 {hint}
               </li>
@@ -743,27 +796,31 @@ function QuestionPreview({ q }: { q: any }) {
         </div>
       )}
 
-      {q.solutions && q.solutions.length > 0 && (
+      {solutions.length > 0 && (
         <div className="space-y-3">
           <div className="font-semibold text-neutral-600 dark:text-neutral-400">Solutions:</div>
-          {q.solutions.map((sol: any, i: number) => (
+          {solutions.map((sol: any, i: number) => (
             <div key={i} className="rounded border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/20 p-3 space-y-2">
               <div className="flex items-center gap-2">
                 <span className="font-medium text-neutral-900 dark:text-white">
-                  {sol.title || "Solution"}
+                  {sol?.title || "Solution"}
                 </span>
-                <span className="rounded bg-neutral-100 dark:bg-white/10 px-1.5 py-0.5 text-[10px] uppercase text-neutral-600 dark:text-neutral-400">
-                  {sol.language}
-                </span>
-                {sol.is_primary && (
+                {sol?.language && (
+                  <span className="rounded bg-neutral-100 dark:bg-white/10 px-1.5 py-0.5 text-[10px] uppercase text-neutral-600 dark:text-neutral-400">
+                    {sol.language}
+                  </span>
+                )}
+                {sol?.is_primary && (
                   <span className="rounded bg-emerald-100 dark:bg-emerald-500/20 px-1.5 py-0.5 text-[10px] uppercase text-emerald-700 dark:text-emerald-400">
                     Primary
                   </span>
                 )}
               </div>
-              <pre className="overflow-x-auto rounded bg-neutral-50 dark:bg-black/40 p-2 font-mono text-[11px] text-neutral-800 dark:text-neutral-300">
-                <code>{sol.code}</code>
-              </pre>
+              {sol?.code && (
+                <pre className="overflow-x-auto rounded bg-neutral-100 dark:bg-black/50 p-2 font-mono text-[11px] text-neutral-800 dark:text-neutral-300 border border-neutral-200 dark:border-white/5">
+                  <code>{sol.code}</code>
+                </pre>
+              )}
             </div>
           ))}
         </div>
@@ -1448,7 +1505,7 @@ function QuestionDrawerItem({
     <div className="flex flex-col rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] p-3 shadow-sm dark:shadow-none hover:border-emerald-400/50 dark:hover:border-emerald-400/50 transition-colors">
       <div className="flex-1 min-w-0" onClick={() => onPreview(it)}>
         <div className="flex items-start justify-between gap-4">
-          <div className="text-[13px] text-neutral-900 dark:text-white font-medium flex-1 truncate">{it.text || it.content || it.title}</div>
+          <div className="text-[13px] text-neutral-900 dark:text-white font-medium flex-1 truncate">{it.title || it.text || it.content}</div>
           <span className="text-[11px] font-mono text-neutral-400 dark:text-neutral-500 shrink-0">{it.marks}m</span>
         </div>
       </div>
@@ -1569,7 +1626,7 @@ function QuestionDrawer({
       topic !== "All" ? topic : undefined, 
       debouncedQ, diff, format
     )
-      .then(setQuestions)
+      .then((res) => setQuestions(res.results))
       .finally(() => setLoading(false));
   };
 
@@ -1592,7 +1649,7 @@ function QuestionDrawer({
       topic !== "All" ? topic : undefined, 
       debouncedQ, diff, format
     )
-      .then(setQuestions)
+      .then((res) => setQuestions(res.results))
       .finally(() => setLoading(false));
   };
 
@@ -1618,7 +1675,7 @@ function QuestionDrawer({
         topic !== "All" ? topic : undefined, 
         debouncedQ, diff, format
       )
-        .then(setQuestions)
+        .then((res) => setQuestions(res.results))
         .finally(() => setLoading(false));
     } catch (err: any) {
       console.error("Delete failed:", err);
@@ -1654,7 +1711,7 @@ function QuestionDrawer({
       topic !== "All" ? topic : undefined, 
       debouncedQ, diff, format
     )
-      .then(setQuestions)
+      .then((res) => setQuestions(res.results))
       .finally(() => setLoading(false));
   }, [course, topic, debouncedQ, diff, format]);
 
@@ -1682,39 +1739,13 @@ function QuestionDrawer({
       subtitle="Curated by topic and experience level."
       onClose={onClose}
       leftPanel={
-        isCreating || editingQ ? (
-          <CreateQuestionForm
-            initialData={editingQ}
-            courses={courses}
-            onClose={() => {
-              setIsCreating(false);
-              setEditingQ(null);
-            }}
-            onSuccess={editingQ ? handleEditSuccess : handleCreateSuccess}
-          />
-        ) : previewQ ? (
+        previewQ ? (
           <div className="flex h-full flex-col">
             <div className="flex items-center justify-between border-b border-neutral-200 dark:border-white/5 p-6 shrink-0">
               <div className="text-[16px] font-semibold text-neutral-900 dark:text-white truncate mr-4">
                 {previewQ.title || previewQ.text || previewQ.content || "Preview"}
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <button
-                  onClick={() => setEditingQ(previewQ)}
-                  className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                  title="Edit Question"
-                >
-                  <Pencil className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(previewQ)}
-                  className="rounded-md p-1.5 text-neutral-500 hover:bg-red-50 dark:hover:bg-white/5 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                  title="Delete Question"
-                  disabled={loadingPreview}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-                <div className="w-px h-4 bg-neutral-200 dark:bg-white/10 mx-1" />
                 <button
                   onClick={() => setPreviewQ(null)}
                   className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white transition-colors"
@@ -1754,15 +1785,6 @@ function QuestionDrawer({
               className="w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/[0.03] py-2 pl-9 pr-3 text-[13px] text-neutral-900 dark:text-white outline-none focus:bg-white dark:focus:bg-black/30 placeholder-neutral-400 dark:placeholder-neutral-500 transition-colors"
             />
           </div>
-          <button
-            onClick={() => {
-              setIsCreating(true);
-              setPreviewQ(null);
-            }}
-            className="rounded-md bg-neutral-900 px-4 py-2 text-[13px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors shrink-0"
-          >
-            Create New Question
-          </button>
         </div>
         <FilterRow
           label="Programming Languages"

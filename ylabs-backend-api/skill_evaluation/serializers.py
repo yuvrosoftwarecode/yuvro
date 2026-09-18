@@ -7,6 +7,7 @@ from .models import (
     Evaluation,
     EvaluationSection,
     LabQuestionBank,
+    KnowledgeQuestionBank,
     QuestionDomain,
     ExperienceLevel,
     Difficulty,
@@ -319,3 +320,20 @@ class RecruiterActivityLogSerializer(serializers.ModelSerializer):
         if obj.recruiter:
             return f"{obj.recruiter.first_name} {obj.recruiter.last_name}".strip() or obj.recruiter.email
         return None
+
+
+class KnowledgeQuestionBankSerializer(serializers.ModelSerializer):
+    created_by_email = serializers.SerializerMethodField()
+    company_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = KnowledgeQuestionBank
+        fields = '__all__'
+        read_only_fields = ('created_by', 'company')
+
+    def get_created_by_email(self, obj):
+        return obj.created_by.email if obj.created_by else None
+
+    def get_company_name(self, obj):
+        return obj.company.name if obj.company else None
+

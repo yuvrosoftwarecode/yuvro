@@ -229,6 +229,57 @@ class VitarkaAIInterviewQuestionBank(QuestionBank):
     def __str__(self):
         return self.title
 
+
+class KnowledgeQuestionFormat(models.TextChoices):
+    MCQ = "MCQ", "MCQ (Single Choice)"
+    MULTIPLE_SELECT = "MULTIPLE SELECT", "Multiple Select"
+    CODING = "CODING", "Coding"
+    DESCRIPTION = "DESCRIPTION", "Description"
+
+
+class KnowledgeQuestionBank(QuestionBank):
+    company = models.ForeignKey(
+        "recruiter.Company",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="knowledge_questions",
+        help_text="Company owning this knowledge question"
+    )
+    format = models.CharField(
+        max_length=40,
+        choices=KnowledgeQuestionFormat.choices,
+        default=KnowledgeQuestionFormat.MCQ,
+    )
+    content = models.TextField(blank=True, help_text="Full question text or prompt")
+    mcq_options = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of MCQ options [{id, text, is_correct, explanation}]"
+    )
+    test_cases = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of coding test cases [{input, expected_output, is_hidden}]"
+    )
+    hints = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of hints"
+    )
+    solutions = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of solution objects [{title, language, code, is_primary}]"
+    )
+    solution_explanation = models.TextField(blank=True)
+    course = models.CharField(max_length=255, blank=True)
+    topic = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f"[{self.format}] {self.title}"
+
+
 class UserLabQuestionBankSubmission(BaseTimestampedModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="evaluation_lab_submissions"

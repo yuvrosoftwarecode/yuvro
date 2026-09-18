@@ -1,5 +1,6 @@
 // Recruiter data + backend API
 import restApiAuthUtil, { ycodeApiAuthUtil, yhubApiAuthUtil } from "../utils/RestApiAuthUtil";
+import { questionBankService } from "../services/questionBankService";
 
 export const DOMAINS = [
   "Finance",
@@ -571,55 +572,106 @@ export async function fetchTopics(courseId?: string): Promise<TopicItem[]> {
   }
 }
 
+export interface FetchQuestionsResult {
+  results: QuestionItem[];
+  count: number;
+}
+
 export async function fetchQuestions(
-  courseId?: string, 
+  courseId?: string,
   topicId?: string,
   search?: string,
   difficulty?: string,
-  format?: string
-): Promise<QuestionItem[]> {
+  format?: string,
+  page: number = 1,
+  pageSize: number = 50
+): Promise<FetchQuestionsResult> {
   try {
-    let url = "/course/questions/";
     const params = new URLSearchParams();
-    if (courseId && courseId !== "All") params.append("course", courseId);
-    if (topicId && topicId !== "All") params.append("topic", topicId);
-    if (search) params.append("search", search);
-    if (difficulty && difficulty !== "All") params.append("difficulty", difficulty.toLowerCase());
-    if (format && format !== "All") params.append("type", format.toLowerCase().replace(" ", "_"));
+    params.set("page_size", "100");
+    if (page) params.set("page", String(page));
+    if (courseId && courseId !== "All") params.set("course", courseId);
+    if (topicId && topicId !== "All") params.set("topic", topicId);
+    if (search) params.set("search", search);
+    if (difficulty && difficulty !== "All") params.set("difficulty", difficulty.toLowerCase());
     
-    if (params.toString()) url += `?${params.toString()}`;
-    
-    const data = await ycodeApiAuthUtil.get<any[]>(url);
-    // Handle paginated response if backend returns { results: [...] }
-    const results = Array.isArray(data) ? data : (data as any).results || [];
-    return results.map((q: any) => ({
+    if (format && format !== "All") {
+      const typeMap: Record<string, string> = {
+        "MCQ": "mcq_single",
+        "Multiple Select": "mcq_multiple",
+        "Coding": "coding",
+        "Description": "descriptive",
+      };
+      if (typeMap[format]) {
+        params.set("type", typeMap[format]);
+      }
+    }
+
+    const [knowledgeRes, courseRes] = await Promise.all([
+      questionBankService.getKnowledgeQuestions().catch(() => []),
+      ycodeApiAuthUtil.get<any>(`/course/questions/?${params.toString()}`).catch(() => null)
+    ]);
+
+    const knowledgeList = Array.isArray(knowledgeRes) ? knowledgeRes : (knowledgeRes?.results || []);
+    const courseList = Array.isArray(courseRes) ? courseRes : (courseRes?.results || []);
+
+    const rawCombined = [...knowledgeList, ...courseList];
+    const seenIds = new Set();
+    const uniqueRaw: any[] = [];
+    for (const q of rawCombined) {
+      if (!q || !q.id || seenIds.has(q.id)) continue;
+      seenIds.add(q.id);
+      uniqueRaw.push(q);
+    }
+
+    let results: QuestionItem[] = uniqueRaw.map((q: any) => ({
       ...q,
       id: q.id,
-      text: q.content || "",
-      title: q.title || "",
-      programming_languages: [],
-      databases: [],
-      difficulty: (q.difficulty === "medium"
+      title: q.title || q.name || q.content || "",
+      content: q.content || q.description || (q.text !== q.title ? q.text : "") || "",
+      text: q.title || q.content || "",
+      programming_languages: q.programming_languages || [],
+      databases: q.databases || [],
+      difficulty: (q.difficulty === "medium" || q.difficulty === "MEDIUM" || q.difficulty === "Medium"
         ? "Medium"
-        : q.difficulty === "hard"
+        : q.difficulty === "hard" || q.difficulty === "HARD" || q.difficulty === "Hard"
           ? "Hard"
           : "Easy") as Difficulty,
-      experience: "Fresher" as ExperienceLevel,
-      format: (q.type === "mcq_single"
+      experience: (q.experience || "Fresher") as ExperienceLevel,
+      format: (q.format === "MCQ" || q.type === "mcq_single" || q.type === "MCQ"
         ? "MCQ"
-        : q.type === "mcq_multiple"
+        : q.format === "MULTIPLE SELECT" || q.format === "Multiple Select" || q.type === "mcq_multiple" || q.type === "MULTIPLE SELECT"
           ? "Multiple Select"
-          : q.type === "coding"
+          : q.format === "CODING" || q.format === "Coding" || q.type === "coding" || q.type === "CODING"
             ? "Coding"
             : "Description") as Format,
       marks: q.marks || 1,
-      duration_minutes: q.duration || 1,
-      course: q.course,
-      topic: q.topic,
+      duration_minutes: q.duration || q.duration_minutes || 1,
+      course: q.course || q.course_id || "GENERAL",
+      topic: q.topic || q.topic_id || "",
     }));
+
+    if (courseId && courseId !== "All") {
+      results = results.filter(q => q.course === courseId || q.course_name === courseId);
+    }
+    if (topicId && topicId !== "All") {
+      results = results.filter(q => q.topic === topicId || q.topic_name === topicId);
+    }
+    if (search) {
+      const s = search.toLowerCase();
+      results = results.filter(q => q.title.toLowerCase().includes(s) || q.text.toLowerCase().includes(s));
+    }
+    if (difficulty && difficulty !== "All") {
+      results = results.filter(q => q.difficulty.toLowerCase() === difficulty.toLowerCase());
+    }
+    if (format && format !== "All") {
+      results = results.filter(q => q.format.toLowerCase() === format.toLowerCase());
+    }
+
+    return { results, count: results.length };
   } catch (err) {
     console.error("fetchQuestions error", err);
-    return [];
+    return { results: [], count: 0 };
   }
 }
 
@@ -638,35 +690,79 @@ export async function checkDuplicateQuestion(content: string, courseId: string) 
 
 export async function fetchQuestionDetails(id: string): Promise<QuestionItem | null> {
   try {
-    const q = await ycodeApiAuthUtil.get<any>(`/course/questions/${id}/`);
-    if (!q) return null;
+    let q1: any = null;
+    let q2: any = null;
+
+    try {
+      q1 = await questionBankService.getKnowledgeQuestion(id);
+    } catch {}
+
+    try {
+      q2 = await ycodeApiAuthUtil.get<any>(`/course/questions/${id}/`);
+    } catch {}
+
+    const q: any = { ...q1, ...q2 };
+    if (!q || (!q.content && !q.title && !q.text)) return null;
+
+    const testCases = (Array.isArray(q.test_cases_basic) && q.test_cases_basic.length > 0)
+      ? q.test_cases_basic
+      : (Array.isArray(q.test_cases) && q.test_cases.length > 0)
+      ? q.test_cases
+      : (Array.isArray(q1?.test_cases) && q1.test_cases.length > 0)
+      ? q1.test_cases
+      : (Array.isArray(q2?.test_cases_basic) && q2.test_cases_basic.length > 0)
+      ? q2.test_cases_basic
+      : [];
+
+    const hints = (Array.isArray(q.hints) && q.hints.length > 0)
+      ? q.hints
+      : (Array.isArray(q1?.hints) && q1.hints.length > 0)
+      ? q1.hints
+      : (Array.isArray(q2?.hints) && q2.hints.length > 0)
+      ? q2.hints
+      : [];
+
+    const solutions = (Array.isArray(q.solutions) && q.solutions.length > 0)
+      ? q.solutions
+      : (Array.isArray(q1?.solutions) && q1.solutions.length > 0)
+      ? q1.solutions
+      : (Array.isArray(q2?.solutions) && q2.solutions.length > 0)
+      ? q2.solutions
+      : [];
+
     return {
       ...q,
-      id: q.id,
-      text: q.content || "",
-      title: q.title || "",
-      programming_languages: [],
-      databases: [],
-      difficulty: (q.difficulty === "medium"
+      id: q.id || id,
+      title: q.title || q.name || q.content || "",
+      content: q.content || q.description || (q.text !== q.title ? q.text : "") || "",
+      text: q.title || q.content || "",
+      test_cases: testCases,
+      test_cases_basic: testCases,
+      hints: hints,
+      solutions: solutions,
+      solution_explanation: q.solution_explanation || q1?.solution_explanation || q2?.solution_explanation || "",
+      programming_languages: q.programming_languages || [],
+      databases: q.databases || [],
+      difficulty: (q.difficulty === "medium" || q.difficulty === "MEDIUM" || q.difficulty === "Medium"
         ? "Medium"
-        : q.difficulty === "hard"
+        : q.difficulty === "hard" || q.difficulty === "HARD" || q.difficulty === "Hard"
           ? "Hard"
           : "Easy") as Difficulty,
-      experience: "Fresher" as ExperienceLevel,
-      format: (q.type === "mcq_single"
+      experience: (q.experience || "Fresher") as ExperienceLevel,
+      format: (q.format === "MCQ" || q.type === "mcq_single" || q.type === "MCQ"
         ? "MCQ"
-        : q.type === "mcq_multiple"
+        : q.format === "MULTIPLE SELECT" || q.format === "Multiple Select" || q.type === "mcq_multiple" || q.type === "MULTIPLE SELECT"
           ? "Multiple Select"
-          : q.type === "coding"
+          : q.format === "CODING" || q.format === "Coding" || q.type === "coding" || q.type === "CODING"
             ? "Coding"
             : "Description") as Format,
       marks: q.marks || 1,
-      duration_minutes: q.duration || 1,
-      course: q.course,
-      topic: q.topic,
+      duration_minutes: q.duration || q.duration_minutes || 1,
+      course: q.course || q.course_id || "GENERAL",
+      topic: q.topic || q.topic_id || "",
     };
   } catch (err) {
-    console.error("fetchQuestionDetails error", err);
+    console.error("Error fetching question details", err);
     return null;
   }
 }
