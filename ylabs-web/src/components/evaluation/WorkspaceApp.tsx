@@ -278,7 +278,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [discussionResponses, setDiscussionResponses] = useState<string[]>([]);
   const [discussionDraft, setDiscussionDraft] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "submit-evaluation" } | { kind: "exit" } | { kind: "discussion-starting" } | { kind: "proctoring-violation"; message: string }>(null);
+  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "submit-evaluation" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" } | { kind: "proctoring-violation"; message: string }>(null);
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved">("saved");
   const [online, setOnline] = useState(true);
   const tabSwitches = useRef(0);
@@ -546,7 +546,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     }
   }, [mediaDisabled]);
 
-  // Tab-switch warning & Copy/Paste prevention
+  // Tab-switch warning, Copy/Paste prevention & Fullscreen warning
   useEffect(() => {
     const onVis = () => {
       if (document.hidden) {
@@ -559,7 +559,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                submitEvaluation(true);
              }, 3000);
           } else {
-             setShowTabWarning(true);
+             setModal({ kind: "tab-warning" });
           }
         }
       }
@@ -574,21 +574,21 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 
     const onFullscreenChange = () => {
       if (!document.fullscreenElement && proctoringConfig?.enableProctoring) {
-        setShowFullscreenWarning(true);
+        setModal({ kind: "fullscreen" });
       }
     };
 
     document.addEventListener("visibilitychange", onVis);
-    document.addEventListener("fullscreenchange", onFullscreenChange);
     document.addEventListener("copy", onCopyPaste, { capture: true });
     document.addEventListener("paste", onCopyPaste, { capture: true });
     document.addEventListener("cut", onCopyPaste, { capture: true });
+    document.addEventListener("fullscreenchange", onFullscreenChange);
     return () => {
       document.removeEventListener("visibilitychange", onVis);
-      document.removeEventListener("fullscreenchange", onFullscreenChange);
       document.removeEventListener("copy", onCopyPaste, { capture: true });
       document.removeEventListener("paste", onCopyPaste, { capture: true });
       document.removeEventListener("cut", onCopyPaste, { capture: true });
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
     };
   }, [proctoringConfig, nav]);
 
@@ -1261,22 +1261,26 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           onCancel={() => setModal(null)}
         />
       )}
-      {showTabWarning && (
+      {modal?.kind === "tab-warning" && (
         <Confirm
           title="Please stay on this tab"
           body="Switching tabs or windows during your evaluation is recorded. Repeated tab switches may end your evaluation."
           confirm="I understand"
-          onConfirm={() => setShowTabWarning(false)}
+          onConfirm={() => setModal(null)}
+          onCancel={() => setModal(null)}
         />
       )}
-      {showFullscreenWarning && (
+      {modal?.kind === "fullscreen" && (
         <Confirm
           title="Fullscreen Required"
-          body="You need to be in full screen to continue the evaluation."
-          confirm="Enter full screen"
+          body="This evaluation requires you to be in fullscreen mode. Please enter fullscreen to continue."
+          confirm="Full screen"
           onConfirm={() => {
             document.documentElement.requestFullscreen().catch(console.error);
-            setShowFullscreenWarning(false);
+            setModal(null);
+          }}
+          onCancel={() => {
+            submitEvaluation(true);
           }}
         />
       )}
