@@ -1983,6 +1983,7 @@ function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
               id: s.id,
               title: s.title,
               questions: (s as any).labs, // Workspace expects questions array for labs
+              proctoring_config: s.proctoring || {},
             };
           } else if (s.kind === "assessment") {
             return {
@@ -1990,12 +1991,14 @@ function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
               id: s.id,
               title: s.title,
               questions: (s as any).questions,
+              proctoring_config: s.proctoring || {},
             };
           } else if (s.kind === "discussion") {
             return {
               type: "VITARKA_AI_INTERVIEW",
               id: s.id,
               title: s.title,
+              proctoring_config: s.proctoring || {},
             };
           }
           return null;

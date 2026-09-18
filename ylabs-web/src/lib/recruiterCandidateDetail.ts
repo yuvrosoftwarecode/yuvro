@@ -674,7 +674,7 @@ function fmtClock(s: number) {
   return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
 }
 function buildTimeline(c: Candidate): CandidateDetail["timeline"] {
-  const submitted = c.status === "Submitted" || c.status === "Completed";
+  const submitted = c.status === "Submitted" || c.status === "Completed" || !!c.hasVitarkaSubmission;
   const shortlisted =
     c.hiringStatus === "Shortlisted" ||
     c.hiringStatus === "Interview Scheduled" ||
@@ -723,8 +723,8 @@ function buildTimeline(c: Candidate): CandidateDetail["timeline"] {
       icon: "chat",
       label: "Vitarka discussion completed",
       time: rel(safeTime(anchor - 2 * d)),
-      done: submitted || c.vitarkaScore > 0,
-      tone: (submitted || c.vitarkaScore > 0 ? "good" : "neutral") as "good" | "neutral",
+      done: c.vitarkaScore > 0 || !!c.hasVitarkaSubmission,
+      tone: (c.vitarkaScore > 0 || !!c.hasVitarkaSubmission ? "good" : "neutral") as "good" | "neutral",
     },
     {
       icon: "check",
