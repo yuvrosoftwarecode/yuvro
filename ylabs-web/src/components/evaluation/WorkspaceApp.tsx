@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, useSearch, useRouterState } from "@tansta
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluationService } from "@/services/evaluationService";
 import { yhubApiAuthUtil, restApiAuthUtil } from "@/utils/RestApiAuthUtil";
-import { VitarkaInterviewScreen } from "@/components/discussion/VitarkaInterviewScreen";
+import { VitarkaInterviewScreen, type VitarkaInterviewScreenRef } from "@/components/discussion/VitarkaInterviewScreen";
 import { ChevronDown, ChevronRight, Sun, Moon, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { TicketIDE } from "@/routes/student.lab.$slug.ticket.$ticketId";
@@ -278,7 +278,8 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [discussionResponses, setDiscussionResponses] = useState<string[]>([]);
   const [discussionDraft, setDiscussionDraft] = useState("");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "submit-evaluation" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" } | { kind: "proctoring-violation"; message: string }>(null);
+  const vitarkaRef = useRef<VitarkaInterviewScreenRef>(null);
+  const [modal, setModal] = useState<null | { kind: "submit-lab"; id: LabId } | { kind: "submit-section"; id: string } | { kind: "end-discussion" } | { kind: "submit-evaluation" } | { kind: "submitting-evaluation" } | { kind: "exit" } | { kind: "tab-warning" } | { kind: "discussion-starting" } | { kind: "fullscreen" } | { kind: "proctoring-violation"; message: string }>(null);
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved">("saved");
   const [online, setOnline] = useState(true);
   const tabSwitches = useRef(0);
@@ -1146,6 +1147,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               try { meta = JSON.parse(sec.description || "{}"); } catch {}
               return (
                 <VitarkaInterviewScreen
+                  ref={vitarkaRef}
                   key={sec.id}
                   mockInterviewId={meta.mockInterviewId}
                   candidateContext={candidateContextString}
@@ -1167,6 +1169,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           })}
           {section === "discussion-dummy" && (
             <VitarkaInterviewScreen
+              ref={vitarkaRef}
               mockInterviewId={appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")?.description ? JSON.parse(appSections.find(s => s.type === "VITARKA_AI_INTERVIEW")!.description || "{}").mockInterviewId : ""}
               candidateContext={candidateContextString}
               discussionMaxScore={(() => {
@@ -1217,8 +1220,21 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           title="End the engineering discussion?"
           body="This will conclude your evaluation and generate your report."
           confirm="End and submit"
-          onConfirm={() => submitEvaluation(false)}
-          onCancel={() => setModal(null)}
+          onConfirm={async () => {
+            setModal({ kind: "submitting-evaluation" });
+            try {
+              if (vitarkaRef.current) {
+                await vitarkaRef.current.confirmEnd();
+              }
+            } catch (e) {
+              console.error(e);
+            }
+            await submitEvaluation(false);
+          }}
+          onCancel={() => {
+            setModal(null);
+            vitarkaRef.current?.cancelEnd();
+          }}
         />
       )}
       {modal?.kind === "submit-evaluation" && (
@@ -1226,7 +1242,17 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           title="Submit the evaluation?"
           body="This will conclude your evaluation and generate your report."
           confirm="Submit evaluation"
-          onConfirm={() => submitEvaluation(false)}
+          onConfirm={async () => {
+            setModal({ kind: "submitting-evaluation" });
+            try {
+              if (vitarkaRef.current) {
+                await vitarkaRef.current.confirmEnd();
+              }
+            } catch (e) {
+              console.error(e);
+            }
+            await submitEvaluation(false);
+          }}
           onCancel={() => setModal(null)}
         />
       )}
@@ -1236,12 +1262,37 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           body="Your progress will not be saved and you may lose access to this evaluation. Are you sure?"
           confirm="Exit evaluation"
           destructive
-          onConfirm={() => {
-            submitEvaluation(false);
-            setModal(null);
+          onConfirm={async () => {
+            setModal({ kind: "submitting-evaluation" });
+            try {
+              if (vitarkaRef.current) {
+                await vitarkaRef.current.confirmEnd();
+              }
+            } catch (e) {
+              console.error(e);
+            }
+            await submitEvaluation(false);
           }}
           onCancel={() => setModal(null)}
         />
+      )}
+      {modal?.kind === "submitting-evaluation" && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-neutral-900/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-6 text-center shadow-2xl">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-900">
+              <svg className="h-6 w-6 animate-spin text-neutral-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+            <div className="font-serif text-[22px] leading-tight tracking-tight text-neutral-900">
+              Submitting Evaluation...
+            </div>
+            <p className="mt-3 text-[13px] leading-relaxed text-neutral-600">
+              Your responses are being recorded and your final report is being generated. Please wait.
+            </p>
+          </div>
+        </div>
       )}
 
       {modal?.kind === "discussion-starting" && (
