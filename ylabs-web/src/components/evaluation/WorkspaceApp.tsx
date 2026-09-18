@@ -75,12 +75,17 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   useEffect(() => {
     if (previewData) {
       processWorkspaceData(previewData);
-      return;
+    } else if (evaluationId) {
+      evaluationService.getWorkspaceData(evaluationId)
+        .then(res => processWorkspaceData(res))
+        .catch(err => setDebugData({ error: err.message || err.toString() }));
     }
-    if (!evaluationId) return;
-    evaluationService.getWorkspaceData(evaluationId)
-      .then(res => processWorkspaceData(res))
-      .catch(err => setDebugData({ error: err.message || err.toString() }));
+
+    return () => {
+      try {
+        clearGlobalProctoringData();
+      } catch (e) {}
+    };
   }, [evaluationId, previewData]);
 
   const processWorkspaceData = (res: any) => {
