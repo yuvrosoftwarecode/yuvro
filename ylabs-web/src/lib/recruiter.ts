@@ -325,13 +325,7 @@ function mapFrontendToBackend(fe: Evaluation): any {
 
 export async function listEvaluations(): Promise<Evaluation[]> {
   try {
-    const res = await fetch(`${API_BASE}/evaluations/`, {
-      headers: {
-        "Authorization": `Bearer ${localStorage.getItem("access")}`,
-      },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
+    const data = await restApiAuthUtil.get<any[]>("/skill_evaluation/evaluations/");
     return data.map(mapBackendToFrontend);
   } catch {
     return [];
@@ -391,18 +385,13 @@ export async function syncMockInterviews(e: Evaluation): Promise<Evaluation> {
 
 export async function hydrateLabQuestions(ev: Evaluation): Promise<Evaluation> {
   try {
-    const res = await fetch(`${API_BASE}/lab-questions/`, {
-      headers: { "Authorization": `Bearer ${localStorage.getItem("access")}` }
-    });
-    if (res.ok) {
-      const allLabs = await res.json();
-      for (const section of ev.sections) {
-        if (section.kind === "labs" && section.labs) {
-          section.labs = section.labs.map((l: any) => {
-            const fullLab = (allLabs as any[]).find((item: any) => item.id === l.id || item.id === l.lab_id);
-            return fullLab ? { ...fullLab, ...l, tasks: fullLab.tasks || l.tasks } : l;
-          });
-        }
+    const allLabs = await restApiAuthUtil.get<any[]>("/skill_evaluation/lab-questions/");
+    for (const section of ev.sections) {
+      if (section.kind === "labs" && section.labs) {
+        section.labs = section.labs.map((l: any) => {
+          const fullLab = (allLabs as any[]).find((item: any) => item.id === l.id || item.id === l.lab_id);
+          return fullLab ? { ...fullLab, ...l, tasks: fullLab.tasks || l.tasks } : l;
+        });
       }
     }
   } catch (err) {
@@ -413,11 +402,7 @@ export async function hydrateLabQuestions(ev: Evaluation): Promise<Evaluation> {
 
 export async function getEvaluation(id: string): Promise<Evaluation | undefined> {
   try {
-    const res = await fetch(`${API_BASE}/evaluations/${id}/`, {
-      headers: { "Authorization": `Bearer ${localStorage.getItem("access")}` }
-    });
-    if (!res.ok) return undefined;
-    const data = await res.json();
+    const data = await restApiAuthUtil.get<any>(`/skill_evaluation/evaluations/${id}/`);
     const fe = mapBackendToFrontend(data);
     await hydrateDiscussionQuestions(fe);
     await hydrateLabQuestions(fe);
@@ -429,11 +414,7 @@ export async function getEvaluation(id: string): Promise<Evaluation | undefined>
 
 export async function getEvaluationSubmissions(id: string): Promise<any[]> {
   try {
-    const res = await fetch(`${API_BASE}/evaluations/${id}/submissions/`, {
-      headers: { "Authorization": `Bearer ${localStorage.getItem("access")}` }
-    });
-    if (!res.ok) return [];
-    return await res.json();
+    return await restApiAuthUtil.get<any[]>(`/skill_evaluation/evaluations/${id}/submissions/`);
   } catch {
     return [];
   }
@@ -442,39 +423,16 @@ export async function getEvaluationSubmissions(id: string): Promise<any[]> {
 export async function saveEvaluation(e: Evaluation): Promise<Evaluation | undefined> {
   try {
     const payload = mapFrontendToBackend(e);
-    let res;
+    let data;
     if (e.id === "draft") {
-      res = await fetch(`${API_BASE}/evaluations/`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("access")}` 
-        },
-        body: JSON.stringify(payload),
-      });
+      data = await restApiAuthUtil.post<any>("/skill_evaluation/evaluations/", payload);
     } else {
-      res = await fetch(`${API_BASE}/evaluations/${e.id}/`, {
-        method: "PUT",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("access")}` 
-        },
-        body: JSON.stringify(payload),
-      });
+      data = await restApiAuthUtil.put<any>(`/skill_evaluation/evaluations/${e.id}/`, payload);
     }
-
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("Backend returned error:", res.status, errText);
-      alert("Error saving: " + errText);
-      return undefined;
-    }
-
-    const data = await res.json();
     return mapBackendToFrontend(data);
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error saving evaluation", err);
-    alert("Network error while saving.");
+    alert("Error saving: " + (err.message || "Network error while saving."));
     return undefined;
   }
 }
@@ -519,10 +477,7 @@ export function clearDraftLocally(id: string) {
 
 export async function deleteEvaluation(id: string) {
   try {
-    await fetch(`${API_BASE}/evaluations/${id}/`, { 
-      method: "DELETE",
-      headers: { "Authorization": `Bearer ${localStorage.getItem("access")}` }
-    });
+    await restApiAuthUtil.delete(`/skill_evaluation/evaluations/${id}/`);
   } catch {}
 }
 
@@ -531,23 +486,13 @@ export async function duplicateEvaluation(id: string): Promise<Evaluation | unde
   if (!src) return;
   const payload = mapFrontendToBackend(src);
   payload.title = payload.title + " (Copy)";
-  const res = await fetch(`${API_BASE}/evaluations/`, {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem("access")}` 
-    },
-    body: JSON.stringify(payload),
-  });
-  const data = await res.json();
+  const data = await restApiAuthUtil.post<any>("/skill_evaluation/evaluations/", payload);
   return mapBackendToFrontend(data);
 }
 
 export async function fetchLabs(): Promise<LabItem[]> {
   try {
-    const res = await fetch(`${API_BASE}/lab-questions/`);
-    if (!res.ok) return [];
-    return await res.json();
+    return await restApiAuthUtil.get<LabItem[]>("/skill_evaluation/lab-questions/");
   } catch {
     return [];
   }
@@ -612,8 +557,8 @@ export async function fetchQuestions(
       ycodeApiAuthUtil.get<any>(`/course/questions/?${params.toString()}`).catch(() => null)
     ]);
 
-    const knowledgeList = Array.isArray(knowledgeRes) ? knowledgeRes : (knowledgeRes?.results || []);
-    const courseList = Array.isArray(courseRes) ? courseRes : (courseRes?.results || []);
+    const knowledgeList = Array.isArray(knowledgeRes) ? knowledgeRes : ((knowledgeRes as any)?.results || []);
+    const courseList = Array.isArray(courseRes) ? courseRes : ((courseRes as any)?.results || []);
 
     const rawCombined = [...knowledgeList, ...courseList];
     const seenIds = new Set();
@@ -799,14 +744,7 @@ export function evaluationTotals(e: Evaluation) {
 
 export async function fetchFollowUps(evaluationId: string): Promise<any> {
   try {
-    const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/follow_ups/`, {
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("access")}` 
-      }
-    });
-    if (!res.ok) return null;
-    return await res.json();
+    return await restApiAuthUtil.get(`/skill_evaluation/evaluations/${evaluationId}/follow_ups/`);
   } catch (err) {
     console.error("fetchFollowUps error:", err);
     return null;
@@ -815,20 +753,7 @@ export async function fetchFollowUps(evaluationId: string): Promise<any> {
 
 export async function saveFollowUps(evaluationId: string, data: any): Promise<any> {
   try {
-    const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/follow_ups/`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("access")}` 
-      },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("saveFollowUps error:", errText);
-      return null;
-    }
-    return await res.json();
+    return await restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/follow_ups/`, data);
   } catch (err) {
     console.error("saveFollowUps error:", err);
     return null;
@@ -837,26 +762,12 @@ export async function saveFollowUps(evaluationId: string, data: any): Promise<an
 
 export async function inviteCandidates(evaluationId: string, emails: string[], subject: string = "", body: string = ""): Promise<any> {
   try {
-    const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/invite/`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("access")}` 
-      },
-      body: JSON.stringify({ emails, subject, body })
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("inviteCandidates error:", errText);
-      return null;
-    }
-    return await res.json();
+    return await restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/invite/`, { emails, subject, body });
   } catch (err) {
     console.error("inviteCandidates error:", err);
     return null;
   }
 }
-
 
 export async function generateSharedReportLink(
   evaluationId: string, 
@@ -864,23 +775,10 @@ export async function generateSharedReportLink(
   candidateId?: string
 ): Promise<{ token: string, expires_at: string } | null> {
   try {
-    const token = localStorage.getItem("access") || localStorage.getItem("accessToken");
-    const headers: Record<string, string> = { 
-      "Content-Type": "application/json"
-    };
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-    const res = await fetch(`${API_BASE}/evaluations/${evaluationId}/generate_share_link/`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ 
-        candidate_email: candidateEmail,
-        candidate_id: candidateId
-      })
+    return await restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/generate_share_link/`, {
+      candidate_email: candidateEmail,
+      candidate_id: candidateId
     });
-    if (!res.ok) return null;
-    return await res.json();
   } catch {
     return null;
   }
@@ -888,9 +786,7 @@ export async function generateSharedReportLink(
 
 export async function getSharedReportByToken(token: string): Promise<any> {
   try {
-    const res = await fetch(`${API_BASE}/shared-report/${token}/`);
-    if (!res.ok) return null;
-    const data = await res.json();
+    const data = await restApiAuthUtil.get<any>(`/skill_evaluation/shared-report/${token}/`);
     return {
       evaluation: mapBackendToFrontend(data.evaluation),
       submission: data.submission,

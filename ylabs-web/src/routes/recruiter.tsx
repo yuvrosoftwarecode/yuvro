@@ -13,10 +13,12 @@ import {
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/hooks/use-theme";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { requireRecruiterAuth } from "@/utils/authGuards";
 import { PricingContent } from "./pricing";
 import { DeployInfo } from "@/components/common/DeployInfo";
 
 export const Route = createFileRoute("/recruiter")({
+  beforeLoad: ({ location }) => requireRecruiterAuth(location.href),
   head: () => ({
     meta: [{ title: "Recruiter — Yuvro Labs" }, { name: "robots", content: "noindex" }],
   }),
@@ -34,6 +36,16 @@ function RecruiterLayout() {
   const [isTrial, setIsTrial] = useState<boolean>(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("access");
+      if (!token) {
+        nav({ to: "/auth", search: { tab: "signin", redirect: window.location.pathname } });
+        return;
+      }
+    }
+  }, [user, nav]);
+
+  useEffect(() => {
     async function checkPlan() {
       try {
         const res = await yhubApiAuthUtil.get<any[]>("/payment/entitlements/");
@@ -48,13 +60,17 @@ function RecruiterLayout() {
         if (isTrialPlan && plan.revoked_at) {
           setExpiryDate(plan.revoked_at);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to fetch entitlements", err);
+        if (err?.status === 401 || !localStorage.getItem("access")) {
+          nav({ to: "/auth", search: { tab: "signin", redirect: window.location.pathname } });
+          return;
+        }
         setHasPlan(false);
       }
     }
     checkPlan();
-  }, []);
+  }, [nav]);
   const items = [
     { to: "/recruiter/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
     { to: "/recruiter/evaluations", label: "Evaluations", icon: ClipboardList },

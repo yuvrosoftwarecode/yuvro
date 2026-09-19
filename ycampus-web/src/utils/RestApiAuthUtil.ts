@@ -8,42 +8,41 @@ interface RequestOptions extends RequestInit {
 
 class RestApiAuthUtil extends RestApiUtil {
     private token: string | null = null;
-    private isRefreshing: boolean = false;
-    private refreshSubscribers: { resolve: (token: string) => void; reject: (error: any) => void }[] = [];
+    private static instances: Set<RestApiAuthUtil> = new Set();
+    private static refreshPromise: Promise<boolean> | null = null;
+    private static refreshSubscribers: Array<{
+        resolve: (token: string) => void;
+        reject: (error: any) => void;
+    }> = [];
 
     constructor(baseURL: string) {
         super(baseURL);
+        RestApiAuthUtil.instances.add(this);
     }
 
-    private onRefreshed(token: string) {
-        this.refreshSubscribers.forEach((cb) => cb.resolve(token));
-        this.refreshSubscribers = [];
-    }
-
-    private onRefreshFailed(error: any) {
-        this.refreshSubscribers.forEach((cb) => cb.reject(error));
-        this.refreshSubscribers = [];
-    }
-
-    private addSubscriber(resolve: (token: string) => void, reject: (error: any) => void) {
-        this.refreshSubscribers.push({ resolve, reject });
-    }
-
-    setAuthToken(token: string) {
-        this.token = token;
+    setAuthToken(token: string, refreshToken?: string) {
+        if (token) {
+            localStorage.setItem('access', token);
+        }
+        if (refreshToken) {
+            localStorage.setItem('refresh', refreshToken);
+        }
+        RestApiAuthUtil.updateAllInstanceTokens(token);
     }
 
     getAuthToken(): string | null {
         const t = this.token || localStorage.getItem('access');
-        // Filter out junk values that sometimes get stuck in localStorage
         if (!t || t === 'undefined' || t === 'null') return null;
         return t;
     }
 
     clearAuthToken() {
-        this.token = null;
         localStorage.removeItem('access');
         localStorage.removeItem('refresh');
+        localStorage.removeItem('user');
+        RestApiAuthUtil.instances.forEach((inst) => {
+            inst.token = null;
+        });
     }
 
     isAuthenticated(): boolean {
@@ -55,10 +54,92 @@ class RestApiAuthUtil extends RestApiUtil {
         return await this.refreshToken();
     }
 
+    private static updateAllInstanceTokens(token: string) {
+        RestApiAuthUtil.instances.forEach((inst) => {
+            inst.token = token;
+        });
+    }
+
+    private static notifySubscribersSuccess(token: string) {
+        const subs = [...RestApiAuthUtil.refreshSubscribers];
+        RestApiAuthUtil.refreshSubscribers = [];
+        subs.forEach((cb) => cb.resolve(token));
+    }
+
+    private static notifySubscribersError(error: any) {
+        const subs = [...RestApiAuthUtil.refreshSubscribers];
+        RestApiAuthUtil.refreshSubscribers = [];
+        subs.forEach((cb) => cb.reject(error));
+    }
+
+    private static handleGlobalLogout(): void {
+        console.log('Logging out user due to authentication failure');
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname + window.location.search : '';
+
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        localStorage.removeItem('user');
+        RestApiAuthUtil.instances.forEach((inst) => {
+            inst.token = null;
+        });
+
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+            window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+        }
+    }
+
+    private static async executeRefreshToken(): Promise<boolean> {
+        const refreshToken = localStorage.getItem('refresh');
+        const authBaseUrl = (
+            import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || 'http://localhost:8003/api'
+        ).replace(/\/$/, '');
+
+        if (refreshToken) {
+            try {
+                console.log('Attempting to refresh token...');
+                const res = await fetch(`${authBaseUrl}/auth/token/refresh/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh: refreshToken }),
+                });
+
+                if (res.ok) {
+                    const response = await res.json();
+                    if (response.access) {
+                        localStorage.setItem('access', response.access);
+                        if (response.refresh) {
+                            localStorage.setItem('refresh', response.refresh);
+                        }
+                        RestApiAuthUtil.updateAllInstanceTokens(response.access);
+                        RestApiAuthUtil.notifySubscribersSuccess(response.access);
+                        console.log('Token refreshed successfully');
+                        return true;
+                    }
+                }
+            } catch (err) {
+                console.warn('Standard token refresh failed:', err);
+            }
+        }
+
+        console.warn('No refresh token available');
+        RestApiAuthUtil.handleGlobalLogout();
+        RestApiAuthUtil.notifySubscribersError(new ApiError('Authentication failed', 401));
+        return false;
+    }
+
+    private async refreshToken(): Promise<boolean> {
+        if (RestApiAuthUtil.refreshPromise) {
+            return RestApiAuthUtil.refreshPromise;
+        }
+        RestApiAuthUtil.refreshPromise = RestApiAuthUtil.executeRefreshToken().finally(() => {
+            RestApiAuthUtil.refreshPromise = null;
+        });
+        return RestApiAuthUtil.refreshPromise;
+    }
+
     private getAuthHeaders(endpoint?: string): HeadersInit {
         const headers: HeadersInit = { 'Content-Type': 'application/json' };
 
-        // Skip Authorization header for auth-related endpoints to avoid 401 loops
         const isAuthEndpoint = endpoint && (
             endpoint.includes('/auth/login') ||
             endpoint.includes('/auth/register') ||
@@ -72,39 +153,6 @@ class RestApiAuthUtil extends RestApiUtil {
             }
         }
         return headers;
-    }
-
-    private async refreshToken(): Promise<boolean> {
-        const refreshToken = localStorage.getItem('refresh');
-        if (!refreshToken) {
-            console.warn('No refresh token available');
-            return false;
-        }
-
-        try {
-            console.log('Attempting to refresh token...');
-            const response = await super.post<{ access: string; refresh?: string }>('/auth/token/refresh/', { refresh: refreshToken });
-
-            localStorage.setItem('access', response.access);
-            if (response.refresh) {
-                localStorage.setItem('refresh', response.refresh);
-            }
-            this.token = response.access;
-            console.log('Token refreshed successfully');
-            return true;
-        } catch (err) {
-            console.error('Token refresh failed:', err);
-            this.logout();
-            return false;
-        }
-    }
-
-    private logout(): void {
-        console.log('Logging out user due to authentication failure');
-        this.clearAuthToken();
-        if (!window.location.pathname.includes('/login')) {
-            window.location.href = '/login';
-        }
     }
 
     protected async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
@@ -134,37 +182,34 @@ class RestApiAuthUtil extends RestApiUtil {
                     throw error;
                 }
 
-                if (!this.isRefreshing) {
-                    this.isRefreshing = true;
-                    this.refreshToken().then((success) => {
-                        this.isRefreshing = false;
-                        if (success && this.token) {
-                            this.onRefreshed(this.token);
-                        } else {
-                            this.onRefreshFailed(error);
-                        }
-                    });
-                }
+                const refreshPromise = this.refreshToken();
 
                 return new Promise<T>((resolve, reject) => {
-                    this.addSubscriber(
-                        (newToken) => {
-                            const retryHeaders: HeadersInit = {
-                                ...options.headers,
-                                'Authorization': `Bearer ${newToken}`,
-                                ...((authHeaders as Record<string, string>)['Content-Type'] ? { 'Content-Type': (authHeaders as Record<string, string>)['Content-Type'] } : {})
-                            };
+                    RestApiAuthUtil.refreshSubscribers.push({
+                        resolve: (newToken: string) => {
+                            const cleanedHeaders: Record<string, string> = {};
+                            if (options.headers) {
+                                Object.entries(options.headers as Record<string, string>).forEach(([k, v]) => {
+                                    if (k.toLowerCase() !== 'authorization') {
+                                        cleanedHeaders[k] = v;
+                                    }
+                                });
+                            }
+                            if (!(options.body instanceof FormData)) {
+                                cleanedHeaders['Content-Type'] = 'application/json';
+                            }
+                            cleanedHeaders['Authorization'] = `Bearer ${newToken}`;
 
                             const retryOptionsWithAuth = {
                                 ...options,
-                                headers: retryHeaders,
+                                headers: cleanedHeaders,
                             };
                             resolve(super.request<T>(endpoint, retryOptionsWithAuth));
                         },
-                        (err) => {
+                        reject: (err: any) => {
                             reject(err);
-                        }
-                    );
+                        },
+                    });
                 });
             }
             throw error;
