@@ -37,6 +37,12 @@ import {
   GitCompare,
 } from "lucide-react";
 import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
   getEvaluation,
   evaluationTotals,
   saveEvaluation,
@@ -68,7 +74,9 @@ import {
   loadViewed,
   loadNotedSet,
   pushActivity,
+  saveDecision,
   type AttentionGroup,
+  type HiringDecision,
 } from "@/lib/recruiterCandidateDetail";
 import { IntelligenceTab } from "@/components/recruiter/IntelligenceTab";
 import { SettingsTab } from "@/components/recruiter/SettingsTab";
@@ -233,6 +241,10 @@ function Workspace() {
     }
   };
 
+  const refreshSubmissions = () => {
+    getEvaluationSubmissions(ev.id).then(setSubmissions).catch(() => setSubmissions([]));
+  };
+
   return (
     <div className="min-h-screen">
       {/* Top header */}
@@ -316,7 +328,7 @@ function Workspace() {
           <OverviewTab ev={ev} candidates={candidates} onGoto={goto} notify={notify} />
         )}
         {tab === "candidates" && (
-          <CandidatesTab evId={ev.id} ev={ev} candidates={candidates} notify={notify} />
+          <CandidatesTab evId={ev.id} ev={ev} candidates={candidates} notify={notify} onRefresh={refreshSubmissions} />
         )}
         {tab === "followups" && <FollowUpsTab ev={ev} notify={notify} />}
         {tab === "records" && <CandidateRecordsTab ev={ev} notify={notify} onGotoFollowUps={() => goto("followups")} />}
@@ -644,15 +656,13 @@ function OverviewTab({
   }, [ev.id]);
 
   const stats = useMemo(() => {
-    // 1. Funnel from both records and candidates
-    const invited = records.length > 0 ? records.length : candidates.length; 
+    // 1. Funnel
+    const invited = ev.candidatesTotal; 
     const submitted = candidates.filter((c) => c.status === "Submitted").length;
     const completed = candidates.filter((c) => c.status === "Completed").length;
     const inProgress = candidates.filter((c) => c.status === "In Progress").length;
-    const notStarted = records.length > 0 
-      ? records.filter((r) => r.status === "Not Submitted").length 
-      : candidates.filter((c) => c.status === "Not Started").length;
     const expired = candidates.filter((c) => c.status === "Expired").length;
+    const notStarted = Math.max(0, invited - (submitted + completed + inProgress + expired));
 
     // 2. Hiring Status from candidates (from submissions)
     const pending = candidates.filter((c) => c.hiringStatus === "Pending Review").length;
@@ -660,6 +670,7 @@ function OverviewTab({
     const interview = candidates.filter((c) => c.hiringStatus === "Interview Scheduled").length;
     const selected = candidates.filter((c) => c.hiringStatus === "Selected").length;
     const rejected = candidates.filter((c) => c.hiringStatus === "Rejected").length;
+    
     const submittedList = candidates.filter(
       (c) => c.status === "Submitted" || c.status === "Completed",
     );
@@ -686,7 +697,7 @@ function OverviewTab({
       avgEci,
       avgTime,
     };
-  }, [candidates]);
+  }, [candidates, ev.candidatesTotal]);
 
   const activity = useMemo(() => buildActivity(candidates), [candidates]);
 
@@ -899,11 +910,13 @@ function CandidatesTab({
   ev,
   candidates,
   notify,
+  onRefresh,
 }: {
   evId: string;
   ev?: Evaluation;
   candidates: Candidate[];
   notify: (m: string) => void;
+  onRefresh: () => void;
 }) {
   const nav = useNavigate();
   const [filters, setFilters] = useState<CandidateFilters>(emptyFilters());
@@ -1028,17 +1041,33 @@ function CandidatesTab({
       params: { id: evId, candidateId: c.id },
       search: { view: "edit" } as any,
     });
-  const bulk = async (label: string) => {
+    
+  const bulk = async (label: string, decision?: HiringDecision) => {
     for (const c of selected) {
       const candidateObj = candidates.find(cand => cand.id === c);
       if (candidateObj?.email) {
+        if (decision) {
+          await saveDecision(evId, candidateObj.id, candidateObj.email, decision);
+        }
         await pushActivity(evId, candidateObj.email, label, `Bulk applied ${label}`);
       }
     }
     notify(`${label} applied to ${selected.size} candidate${selected.size === 1 ? "" : "s"}`);
     setSelected(new Set());
+    if (decision) {
+      onRefresh();
+    }
   };
 
+  const handleRowAction = async (c: Candidate, label: string, decision?: HiringDecision) => {
+    if (decision && c.email) {
+      await saveDecision(evId, c.id, c.email, decision);
+      notify(`${label} applied to ${c.name}`);
+      onRefresh();
+    } else {
+      notify(label);
+    }
+  };
   const colleges = useMemo(
     () => Array.from(new Set(candidates.map((c) => c.college))).sort(),
     [candidates],
@@ -1153,9 +1182,9 @@ function CandidatesTab({
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2">
           <div className="text-[12px] font-medium text-neutral-900">{selected.size} selected</div>
           <div className="mx-2 h-4 w-px bg-neutral-200" />
-          <BulkBtn onClick={() => bulk("Moved to Hold")}>Hold</BulkBtn>
-          <BulkBtn onClick={() => bulk("Shortlisted")}>Shortlist</BulkBtn>
-          <BulkBtn onClick={() => bulk("Rejected")}>Reject</BulkBtn>
+          <BulkBtn onClick={() => bulk("Moved to Hold", "Hold")}>Hold</BulkBtn>
+          <BulkBtn onClick={() => bulk("Shortlisted", "Shortlisted")}>Shortlist</BulkBtn>
+          <BulkBtn onClick={() => bulk("Rejected", "Rejected")}>Reject</BulkBtn>
           <button
             onClick={() => setSelected(new Set())}
             className="ml-auto text-[11px] text-neutral-500 hover:text-neutral-900"
@@ -1185,7 +1214,7 @@ function CandidatesTab({
             allChecked={paged.length > 0 && paged.every((r) => selected.has(r.id))}
             onOpen={openDetails}
             onPreview={setPreview}
-            onAction={(label) => notify(label)}
+            onAction={handleRowAction}
             highlight={filters.search}
             hasLabs={hasLabs}
             hasAssessment={hasAssessment}
@@ -1201,7 +1230,7 @@ function CandidatesTab({
                 onToggle={() => toggleSelect(c.id)}
                 onOpen={() => openDetails(c)}
                 onPreview={() => setPreview(c)}
-                onAction={(l) => notify(l)}
+                onAction={(l, d) => handleRowAction(c, l, d)}
                 hasLabs={hasLabs}
                 hasAssessment={hasAssessment}
                 hasVitarka={hasVitarka}
@@ -1273,7 +1302,7 @@ function CandidatesTab({
         onClose={() => setDrawerOpen(false)}
         filters={filters}
         setFilters={setFilters}
-        matchCount={filtered.length}
+        candidates={pipelineBase}
         colleges={colleges}
         companies={companies}
       />
@@ -1378,7 +1407,6 @@ function ExportMenu({
   selected: Candidate[];
   notify: (m: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const scope = selected.length > 0 ? selected : candidates;
   const label =
     selected.length > 0
@@ -1436,28 +1464,27 @@ function ExportMenu({
   };
 
   return (
-    <ToolbarBtn onClick={() => doCsv("xlsx")} icon={<Download className="h-3.5 w-3.5" />}>
-      Export
-    </ToolbarBtn>
-  );
-}
-function ExportItem({
-  children,
-  onClick,
-  icon,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12.5px] text-neutral-800 hover:bg-neutral-50"
-    >
-      {icon}
-      {children}
-    </button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-medium text-neutral-800 transition hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none">
+          <Download className="h-3.5 w-3.5" /> Export
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48 p-0 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg">
+        <DropdownMenuItem
+          onClick={() => doCsv("csv")}
+          className="block w-full cursor-pointer px-3 py-2 text-left text-[12.5px] text-neutral-800 hover:bg-neutral-50 focus:bg-neutral-50 focus:text-neutral-900 rounded-none border-none outline-none"
+        >
+          Export as CSV ({label})
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => doCsv("xlsx")}
+          className="block w-full cursor-pointer px-3 py-2 text-left text-[12.5px] text-neutral-800 hover:bg-neutral-50 focus:bg-neutral-50 focus:text-neutral-900 rounded-none border-none outline-none"
+        >
+          Export as Excel ({label})
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -1501,7 +1528,7 @@ function CandidateTable({
   allChecked: boolean;
   onOpen: (c: Candidate) => void;
   onPreview: (c: Candidate) => void;
-  onAction: (label: string) => void;
+  onAction: (c: Candidate, label: string, decision?: HiringDecision) => void;
   highlight?: string;
   hasLabs?: boolean;
   hasAssessment?: boolean;
@@ -1614,7 +1641,7 @@ function CandidateTable({
                 </Td>
               )}
               <Td onClick={(e) => e.stopPropagation()}>
-                <RowMenu onOpen={() => onOpen(c)} onAction={onAction} />
+                <RowMenu onOpen={() => onOpen(c)} onAction={(l, d) => onAction(c, l, d)} />
               </Td>
             </tr>
           ))}
@@ -1624,49 +1651,42 @@ function CandidateTable({
   );
 }
 
-function RowMenu({ onOpen, onAction }: { onOpen: () => void; onAction: (l: string) => void }) {
-  const [open, setOpen] = useState(false);
+function RowMenu({ onOpen, onAction }: { onOpen: () => void; onAction: (l: string, d?: HiringDecision) => void }) {
   const items = [
     { label: "View Candidate", fn: onOpen },
     { label: "Open Resume", fn: () => onAction("Resume opened") },
     { label: "Download Report", fn: () => onAction("Report downloaded") },
-    { label: "Shortlist", fn: () => onAction("Shortlisted") },
-    { label: "Reject", fn: () => onAction("Rejected") },
-    { label: "Hold", fn: () => onAction("Moved to Hold") },
+    { label: "Shortlist", fn: () => onAction("Shortlisted", "Shortlisted") },
+    { label: "Reject", fn: () => onAction("Rejected", "Rejected") },
+    { label: "Hold", fn: () => onAction("Moved to Hold", "Hold") },
     { label: "Copy Candidate Link", fn: () => onAction("Link copied") },
     { label: "Add Notes", fn: () => onAction("Note added") },
   ];
   return (
-    <div className="relative">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen((v) => !v);
-        }}
-        className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
-      >
-        <MoreHorizontal className="h-3.5 w-3.5" />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full z-40 mt-1 w-48 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg">
-            {items.map((it) => (
-              <button
-                key={it.label}
-                onClick={() => {
-                  it.fn();
-                  setOpen(false);
-                }}
-                className="block w-full px-3 py-2 text-left text-[12.5px] text-neutral-800 hover:bg-neutral-50"
-              >
-                {it.label}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          onClick={(e) => e.stopPropagation()}
+          className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none"
+        >
+          <MoreHorizontal className="h-3.5 w-3.5" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48 overflow-hidden rounded-xl border border-neutral-200 bg-white p-0 shadow-lg">
+        {items.map((it) => (
+          <DropdownMenuItem
+            key={it.label}
+            onClick={(e) => {
+              e.stopPropagation();
+              it.fn();
+            }}
+            className="block w-full cursor-pointer px-3 py-2 text-left text-[12.5px] text-neutral-800 hover:bg-neutral-50 focus:bg-neutral-50 focus:text-neutral-900 rounded-none border-none outline-none"
+          >
+            {it.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -1686,7 +1706,7 @@ function CandidateCard({
   onToggle: () => void;
   onOpen: () => void;
   onPreview: () => void;
-  onAction: (l: string) => void;
+  onAction: (l: string, d?: HiringDecision) => void;
   hasLabs?: boolean;
   hasAssessment?: boolean;
   hasVitarka?: boolean;
@@ -1779,7 +1799,7 @@ function AdvancedFiltersDrawer({
   onClose,
   filters,
   setFilters,
-  matchCount,
+  candidates,
   colleges,
   companies,
 }: {
@@ -1787,7 +1807,7 @@ function AdvancedFiltersDrawer({
   onClose: () => void;
   filters: CandidateFilters;
   setFilters: (f: CandidateFilters | ((p: CandidateFilters) => CandidateFilters)) => void;
-  matchCount: number;
+  candidates: Candidate[];
   colleges: string[];
   companies: string[];
 }) {
@@ -1822,6 +1842,8 @@ function AdvancedFiltersDrawer({
     setFilters(local);
     onClose();
   };
+
+  const localMatchCount = useMemo(() => applyFilters(candidates, local, "newest").length, [candidates, local]);
 
   return (
     <>
@@ -1935,28 +1957,22 @@ function AdvancedFiltersDrawer({
             title="Background"
             open={openSection === "background"}
             onToggle={setOpenSection}
-            count={
-              local.experience.size +
-              local.colleges.size +
-              local.companies.size +
-              local.skills.size +
-              local.domains.size
-            }
+            count={local.experience.size + local.colleges.size + local.companies.size}
           >
-            <SubLabel>Experience</SubLabel>
+            <SubLabel>Experience Level</SubLabel>
             <CheckGrid
               options={["Fresher", "1-3 Years", "3-5 Years", "5-8 Years", "8+"]}
               value={local.experience}
               onChange={(v) => setL({ experience: v })}
             />
-            <SubLabel>College</SubLabel>
+            <SubLabel>College / University</SubLabel>
             <SearchableList
               options={colleges}
               value={local.colleges}
               onChange={(v) => setL({ colleges: v })}
               placeholder="Search colleges"
             />
-            <SubLabel>Company</SubLabel>
+            <SubLabel>Current Company</SubLabel>
             <SearchableList
               options={companies}
               value={local.companies}
@@ -2041,10 +2057,9 @@ function AdvancedFiltersDrawer({
             onClick={apply}
             className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2 text-[13px] font-medium text-white hover:bg-neutral-800"
           >
-            Show {applyFilters(dryRunCandidates, local, "newest").length ? "matching" : ""}{" "}
-            candidates
+            Show {localMatchCount ? "matching" : ""} candidates
             <span className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] tabular-nums">
-              {matchCount.toLocaleString()}
+              {localMatchCount.toLocaleString()}
             </span>
           </button>
         </footer>
@@ -2308,7 +2323,6 @@ function buildActiveChips(f: CandidateFilters): ActiveChip[] {
 // -------------- Sort --------------
 
 function SortMenu({ value, onChange }: { value: SortKey; onChange: (v: SortKey) => void }) {
-  const [open, setOpen] = useState(false);
   const opts: [SortKey, string][] = [
     ["newest", "Newest submission"],
     ["oldest", "Oldest submission"],
@@ -2323,34 +2337,25 @@ function SortMenu({ value, onChange }: { value: SortKey; onChange: (v: SortKey) 
     ["name_desc", "Z → A"],
   ];
   return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1.5 text-[12px] text-neutral-300 hover:border-white/20"
-      >
-        <ArrowUpDown className="h-3.5 w-3.5" /> {opts.find((o) => o[0] === value)?.[1]}
-        <ChevronDown className="h-3 w-3" />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full z-40 mt-1 w-52 overflow-hidden rounded-lg border border-white/10 bg-neutral-950 shadow-2xl">
-            {opts.map(([k, l]) => (
-              <button
-                key={k}
-                onClick={() => {
-                  onChange(k);
-                  setOpen(false);
-                }}
-                className={`block w-full px-3 py-1.5 text-left text-[12px] hover:bg-white/5 ${value === k ? "text-white" : "text-neutral-300"}`}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-medium text-neutral-800 transition hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none">
+          <ArrowUpDown className="h-3.5 w-3.5" /> {opts.find((o) => o[0] === value)?.[1]}
+          <ChevronDown className="h-3.5 w-3.5 text-neutral-400" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-52 p-0 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg">
+        {opts.map(([k, l]) => (
+          <DropdownMenuItem
+            key={k}
+            onClick={() => onChange(k)}
+            className={`block w-full cursor-pointer px-3 py-2 text-left text-[12.5px] rounded-none border-none outline-none ${value === k ? "bg-neutral-50 font-medium text-neutral-900" : "text-neutral-800 hover:bg-neutral-50 focus:bg-neutral-50"}`}
+          >
+            {l}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

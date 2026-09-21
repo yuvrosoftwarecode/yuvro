@@ -351,6 +351,26 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def update_candidate_status(self, request, pk=None):
+        evaluation = self.get_object()
+        email = request.data.get('email')
+        new_status = request.data.get('status')
+        
+        if not email or not new_status:
+            return Response({"error": "email and status are required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user__email=email).first()
+        if not submission:
+            # Fallback if email doesn't strictly match a user submission (e.g. they haven't started but are invited)
+            # Yuvro currently tracks hiring status on the submission model.
+            return Response({"error": "Submission not found for this email"}, status=status.HTTP_404_NOT_FOUND)
+            
+        submission.hiring_status = new_status
+        submission.save(update_fields=['hiring_status'])
+        
+        return Response({"status": "success", "message": f"Updated hiring status to {new_status}"})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def finish(self, request, pk=None):
         evaluation = self.get_object()
         user = request.user

@@ -167,6 +167,7 @@ export interface Evaluation {
   createdAt: number;
   publishedAt?: number;
   candidatesInvited: number;
+  candidatesTotal: number;
   candidatesCompleted: number;
   sections: Section[];
   invite?: {
@@ -196,8 +197,9 @@ function mapBackendToFrontend(be: any): Evaluation {
     domain: (be.domain === "OTHER" ? "" : be.domain) as any,
     status: be.is_published ? "published" : "draft",
     createdAt: be.created_at ? new Date(be.created_at).getTime() : Date.now(),
-    candidatesInvited: be.candidate_invited_emails?.length || 0,
-    candidatesCompleted: 0,
+    candidatesInvited: be.candidates_invited_count || be.candidate_invited_emails?.length || 0,
+    candidatesTotal: be.total_candidates_count || be.candidates_invited_count || 0,
+    candidatesCompleted: be.completed_candidates_count || 0,
     createdBy: be.created_by || "",
     settings: be.settings || {},
     invite: be.candidate_invited_emails?.length
