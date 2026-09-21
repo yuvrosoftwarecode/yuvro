@@ -34,20 +34,23 @@ export const Route = createFileRoute("/recruiter/questions")({
 });
 
 const DOMAINS = ["BACKEND", "FRONTEND", "FULLSTACK", "DEVOPS", "DATA", "SECURITY", "OTHER"];
+const LAB_TYPES = ["DATABASE", "BACKEND", "FRONTEND", "FULL_STACK", "QUALITY_ASSURANCE", "DEVOPS"];
 const SCENARIOS = [
+  "DEBUGGING",
   "FEATURE_DEVELOPMENT",
-  "BUG_FIXING",
-  "PERFORMANCE_OPTIMIZATION",
-  "CODE_REFACTORING",
-  "SECURITY_PATCHING",
-  "SYSTEM_DESIGN",
+  "API_OPTIMIZATION",
+  "SECURITY",
+  "ARCHITECTURE",
+  "PERFORMANCE",
+  "TESTING",
+  "PRODUCTION_INCIDENT",
 ];
 
 const DEFAULT_LAB_FORM = {
   title: "",
   description: "",
   difficulty: "EASY",
-  domain: "BACKEND",
+  type: "BACKEND",
   experience: "FRESHER",
   scenario: "FEATURE_DEVELOPMENT",
   marks: 10,
@@ -55,12 +58,57 @@ const DEFAULT_LAB_FORM = {
   git_repo_starter_url: "",
   git_repo_starter_branch: "main",
   startup_command: "",
+  test_command: "",
   programming_languages: [],
   databases: [],
   backend_frameworks: [],
   frontend_frameworks: [],
   tasks: [],
 };
+
+const PROGRAMMING_LANGUAGES = ["C", "C++", "Python", "Java", "SQL", "Bash", "JavaScript", "TypeScript"];
+const DATABASES = ["SQLite", "PostgreSQL", "MySQL", "MongoDB", "Redis", "Elasticsearch"];
+const BACKEND_FRAMEWORKS = ["Django", "FastAPI", "Flask", "Spring Boot", "NodeJS", "Express", "NestJS"];
+const FRONTEND_FRAMEWORKS = ["React", "NextJS", "Vue", "Angular", "Svelte"];
+
+function MultiSelectPills({ label, options, value, onChange }: { label: string, options: string[], value: string[], onChange: (v: string[]) => void }) {
+  const toggle = (opt: string) => {
+    let mappedVal = opt.toUpperCase().replace(/ /g, "_").replace(/\+/g, "P");
+    if (opt === "C++") mappedVal = "C++";
+    
+    if (value.includes(mappedVal)) {
+      onChange(value.filter(v => v !== mappedVal));
+    } else {
+      onChange([...value, mappedVal]);
+    }
+  };
+  return (
+    <div className="col-span-full">
+      <label className="text-[11px] uppercase tracking-widest text-neutral-500">{label}</label>
+      <div className="flex flex-wrap gap-2 mt-1.5">
+        {options.map(opt => {
+          let mappedVal = opt.toUpperCase().replace(/ /g, "_").replace(/\+/g, "P");
+          if (opt === "C++") mappedVal = "C++";
+          const selected = value.includes(mappedVal);
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => toggle(opt)}
+              className={`rounded-full px-3 py-1 text-[11px] font-medium border transition ${
+                selected 
+                  ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" 
+                  : "border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-white/20"
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 const getSolutionString = (solution: any) => {
   if (!solution) return "";
@@ -338,7 +386,6 @@ const QuestionCardItem = memo(function QuestionCardItem({
                 <BookOpen className="h-3 w-3" /> Knowledge Assessment
               </span>
             )}
-            <span className="font-mono text-[10px] text-neutral-400 dark:text-neutral-500">{String(q.id).substring(0, 8)}...</span>
           </div>
           <DifficultyPill difficulty={q.difficulty} />
         </div>
@@ -581,7 +628,7 @@ function RecruiterQuestionBankPage() {
       title: q.title || "",
       description: q.description || "",
       difficulty: q.difficulty || "EASY",
-      domain: q.domain || "BACKEND",
+      type: q.type || "BACKEND",
       experience: q.experience || "FRESHER",
       scenario: q.scenario || "FEATURE_DEVELOPMENT",
       marks: q.marks || 10,
@@ -589,6 +636,7 @@ function RecruiterQuestionBankPage() {
       git_repo_starter_url: q.git_repo_starter_url || "",
       git_repo_starter_branch: q.git_repo_starter_branch || "main",
       startup_command: q.startup_command || "",
+      test_command: q.test_command || "",
       programming_languages: q.programming_languages || [],
       databases: q.databases || [],
       backend_frameworks: q.backend_frameworks || [],
@@ -656,6 +704,7 @@ function RecruiterQuestionBankPage() {
     const payload = {
       ...labFormData,
       tasks: preparedTasks,
+      domain: "OTHER",
     };
 
     if (editingLabId) {
@@ -1241,15 +1290,15 @@ function RecruiterQuestionBankPage() {
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Domain</label>
+                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Lab Role / Type</label>
                 <select
-                  value={labFormData.domain}
-                  onChange={(e) => setLabFormData({ ...labFormData, domain: e.target.value })}
+                  value={labFormData.type}
+                  onChange={(e) => setLabFormData({ ...labFormData, type: e.target.value })}
                   className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
                 >
-                  {DOMAINS.map((d) => (
+                  {LAB_TYPES.map((d) => (
                     <option key={d} value={d} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
-                      {d}
+                      {d.replace("_", " ")}
                     </option>
                   ))}
                 </select>
@@ -1329,15 +1378,54 @@ function RecruiterQuestionBankPage() {
               </div>
             </div>
 
-            <div>
-              <label className="text-[11px] uppercase tracking-widest text-neutral-500">Startup Command</label>
-              <input
-                value={labFormData.startup_command}
-                onChange={(e) => setLabFormData({ ...labFormData, startup_command: e.target.value })}
-                placeholder="npm start or python main.py"
-                className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Startup Command</label>
+                <input
+                  value={labFormData.startup_command}
+                  onChange={(e) => setLabFormData({ ...labFormData, startup_command: e.target.value })}
+                  placeholder="npm start or python main.py"
+                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Test Command</label>
+                <input
+                  value={labFormData.test_command || ""}
+                  onChange={(e) => setLabFormData({ ...labFormData, test_command: e.target.value })}
+                  placeholder="npm test or pytest"
+                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                />
+              </div>
             </div>
+
+            <MultiSelectPills
+              label="Programming Languages"
+              options={PROGRAMMING_LANGUAGES as any}
+              value={labFormData.programming_languages || []}
+              onChange={(v) => setLabFormData({ ...labFormData, programming_languages: v })}
+            />
+
+            <MultiSelectPills
+              label="Databases"
+              options={DATABASES as any}
+              value={labFormData.databases || []}
+              onChange={(v) => setLabFormData({ ...labFormData, databases: v })}
+            />
+
+            <MultiSelectPills
+              label="Backend Frameworks"
+              options={BACKEND_FRAMEWORKS}
+              value={labFormData.backend_frameworks || []}
+              onChange={(v) => setLabFormData({ ...labFormData, backend_frameworks: v })}
+            />
+
+            <MultiSelectPills
+              label="Frontend Frameworks"
+              options={FRONTEND_FRAMEWORKS}
+              value={labFormData.frontend_frameworks || []}
+              onChange={(v) => setLabFormData({ ...labFormData, frontend_frameworks: v })}
+            />
 
             {/* Dynamic Tasks Section */}
             <div className="border-t border-neutral-200 dark:border-white/5 pt-4">
