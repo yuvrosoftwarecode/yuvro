@@ -73,9 +73,12 @@ function EvaluationsList() {
     }
     refresh();
   };
-  const onDelete = async (id: string) => {
-    if (confirm("Delete this evaluation?")) {
-      await deleteEvaluation(id);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const onDelete = async () => {
+    if (deleteId) {
+      await deleteEvaluation(deleteId);
+      setDeleteId(null);
       refresh();
     }
   };
@@ -156,7 +159,7 @@ function EvaluationsList() {
                       <div className="flex items-center gap-1 text-neutral-500">
                         <Users className="h-3 w-3" /> Candidates
                       </div>
-                      <div className="mt-1 text-[13px] text-white">{e.candidatesInvited}</div>
+                      <div className="mt-1 text-[13px] text-white">{e.candidatesTotal}</div>
                     </div>
                   </div>
                   <div className="mt-4 text-[11px] text-neutral-500">Created {rel}</div>
@@ -197,7 +200,7 @@ function EvaluationsList() {
                     </IconBtn>
                   </div>
                   <div className="flex items-center">
-                    <IconBtn title="Delete" onClick={() => onDelete(e.id)}>
+                    <IconBtn title="Delete" onClick={() => setDeleteId(e.id)}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </IconBtn>
                   </div>
@@ -211,6 +214,34 @@ function EvaluationsList() {
       {toast && (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-white/10 bg-neutral-900 px-4 py-2 text-[12px] text-white shadow-xl">
           {toast}
+        </div>
+      )}
+
+      {deleteId && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+        >
+          <div className="w-full max-w-sm rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.03] to-white/[0.01] p-6 shadow-2xl">
+            <h3 className="text-[18px] font-semibold text-white">Delete Evaluation</h3>
+            <p className="mt-2 text-[13px] text-neutral-500">
+              Are you sure you want to delete this evaluation? This action cannot be undone and will permanently remove all associated candidate data.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteId(null)}
+                className="rounded-lg px-4 py-2 text-[13px] font-medium text-neutral-400 hover:bg-white/5 hover:text-white transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onDelete}
+                className="rounded-lg bg-red-500/10 px-4 py-2 text-[13px] font-medium text-red-500 hover:bg-red-500/20 transition"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

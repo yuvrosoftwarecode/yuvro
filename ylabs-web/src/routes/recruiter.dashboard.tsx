@@ -84,52 +84,90 @@ function RecruiterDashboard() {
   ];
 
   return (
-    <div className="p-10">
-      <div className="flex items-start justify-between">
+    <div className="p-4 sm:p-6 md:p-10">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
         <div>
-          <h1 className="mt-4 text-[34px] font-semibold tracking-tight">Good to see you back.</h1>
-          <p className="mt-1 text-[14px] text-neutral-400">
+          {/* <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-neutral-400">
+            AI-assisted recruiting workspace
+          </div> */}
+          <h1 className="mt-2 md:mt-4 text-[24px] md:text-[34px] font-semibold tracking-tight">Good to see you back.</h1>
+          <p className="mt-1 text-[13px] md:text-[14px] text-neutral-400">
             Design engineering evaluations that feel like real work.
           </p>
         </div>
         <button
           onClick={onCreate}
-          className="group inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-4 py-2.5 text-[13px] font-medium text-black transition hover:brightness-110"
+          className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-4 py-2.5 text-[13px] font-medium text-black transition hover:brightness-110"
         >
           <Plus className="h-4 w-4" /> Create Evaluation
         </button>
       </div>
 
-      {error && <ErrorState message={error} onRetry={loadData} inline className="mt-6" />}
+      <div className="mt-8 md:mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {metrics.map((m) => (
+          <div
+            key={m.label}
+            className="relative overflow-hidden rounded-2xl border border-white/5 bg-white p-5"
+          >
+            <div
+              className="absolute right-0 top-0 h-24 w-24 rounded-full bg-gradient-to-br opacity-10 blur-2xl"
+              style={{ backgroundImage: `linear-gradient(135deg, var(--tw-gradient-stops))` }}
+            />
+            <div
+              className={`inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${m.tone} text-black`}
+            >
+              <m.icon className="h-4 w-4" />
+            </div>
+            <div className="mt-6 text-[11px] uppercase tracking-widest text-neutral-500">
+              {m.label}
+            </div>
+            <div className="mt-1 text-[32px] font-semibold tracking-tight">{m.value}</div>
+          </div>
+        ))}
+      </div>
 
       {loading ? (
         <div className="mt-10 space-y-10">
           <LoadingSkeleton type="metrics" />
           <LoadingSkeleton type="table" count={5} />
         </div>
-      ) : (
-        <>
-          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {metrics.map((m) => (
-              <div
-                key={m.label}
-                className="relative overflow-hidden rounded-2xl border border-white/5 bg-white p-5"
-              >
-                <div
-                  className="absolute right-0 top-0 h-24 w-24 rounded-full bg-gradient-to-br opacity-10 blur-2xl"
-                  style={{ backgroundImage: `linear-gradient(135deg, var(--tw-gradient-stops))` }}
-                />
-                <div
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${m.tone} text-black`}
+        {evals.length === 0 ? (
+          <div className="p-10 text-center text-[13px] text-neutral-500">
+            No evaluations yet. Create your first one.
+          </div>
+        ) : (
+          <div className="divide-y divide-white/5">
+            {evals.slice(0, 5).map((e) => {
+              const t = evaluationTotals(e);
+              return (
+                <Link
+                  key={e.id}
+                  to="/recruiter/evaluations/$id/workspace"
+                  params={{ id: e.id }}
+                  search={{ tab: "overview", view: "edit" } as any}
+                  className="group flex flex-col sm:grid sm:grid-cols-[1fr_auto_auto_auto] items-start sm:items-center gap-4 sm:gap-6 px-5 py-4 transition hover:bg-white/[0.02]"
                 >
-                  <m.icon className="h-4 w-4" />
-                </div>
-                <div className="mt-6 text-[11px] uppercase tracking-widest text-neutral-500">
-                  {m.label}
-                </div>
-                <div className="mt-1 text-[32px] font-semibold tracking-tight">{m.value}</div>
-              </div>
-            ))}
+                  <div className="min-w-0 w-full sm:w-auto">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate text-[14px] text-white">{e.title}</span>
+                      <StatusPill status={e.status} />
+                    </div>
+                    <div className="mt-0.5 text-[11px] text-neutral-500">
+                      {e.domain || "—"} · {t.sections} sections · {t.minutes} min · {t.marks} marks
+                    </div>
+                  </div>
+                  <div className="flex sm:contents w-full justify-between items-center mt-2 sm:mt-0">
+                    <div className="text-left sm:text-right text-[11px] text-neutral-500">
+                      Invited<div className="text-[13px] text-white">{e.candidatesInvited}</div>
+                    </div>
+                    <div className="text-left sm:text-right text-[11px] text-neutral-500">
+                      Completed<div className="text-[13px] text-white">{e.candidatesCompleted}</div>
+                    </div>
+                    <ArrowUpRight className="hidden sm:block h-4 w-4 text-neutral-500 transition group-hover:text-emerald-400" />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
 
           <div className="mt-10 rounded-2xl border border-white/5 bg-white">

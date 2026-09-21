@@ -323,14 +323,30 @@ function CandidateWorkspace() {
 
   useEffect(() => {
     if (candidate?.email) {
-      loadNotes(id, candidate.email).then(setNotes);
-      loadTimelineEvents(id, candidate.email).then(setTimelineEvents);
+      let mounted = true;
+      loadNotes(id, candidate.email).then(notes => {
+        if (mounted) setNotes(notes);
+      });
+      loadTimelineEvents(id, candidate.email).then(events => {
+        if (!mounted) return;
+        setTimelineEvents(events);
+        
+        // Auto-trigger "Recruiter viewed profile" if it hasn't happened yet
+        if (!events.some(e => e.label === "Recruiter viewed profile" && e.done)) {
+          createTimelineEvent(id, candidate.email, "Recruiter viewed profile").then(() => {
+            if (mounted) loadTimelineEvents(id, candidate.email).then(setTimelineEvents);
+          });
+        }
+      });
       
       const intervalId = setInterval(() => {
-        loadTimelineEvents(id, candidate.email).then(setTimelineEvents);
+        if (mounted) loadTimelineEvents(id, candidate.email).then(setTimelineEvents);
       }, 5000);
       
-      return () => clearInterval(intervalId);
+      return () => {
+        mounted = false;
+        clearInterval(intervalId);
+      };
     }
   }, [id, candidate?.email]);
   
@@ -577,7 +593,7 @@ function CandidateWorkspace() {
     const newAct = await loadActivity(id, candidate.email);
     setActivity(newAct);
   };
-  const doDecision = (d: HiringDecision) => {
+  const doDecision = async (d: HiringDecision) => {
     setDecision(d);
     if (candidate?.email) saveDecision(id, candidateId, candidate.email, d);
     act("Decision Changed", `Decision changed to ${d}`);
@@ -585,16 +601,17 @@ function CandidateWorkspace() {
     
     if (candidate?.email) {
       if (d === "Shortlisted") {
-        createTimelineEvent(id, candidate.email, "Shortlisted");
+        await createTimelineEvent(id, candidate.email, "Shortlisted");
       } else if (d === "Hold") {
-        createTimelineEvent(id, candidate.email, "Placed on hold");
+        await createTimelineEvent(id, candidate.email, "Placed on hold");
       } else if (d === "Rejected") {
-        createTimelineEvent(id, candidate.email, "Rejected");
+        await createTimelineEvent(id, candidate.email, "Rejected");
       } else if (d === "Interview Scheduled") {
-        createTimelineEvent(id, candidate.email, "Interview scheduled");
+        await createTimelineEvent(id, candidate.email, "Interview scheduled");
       } else if (d === "Selected") {
-        createTimelineEvent(id, candidate.email, "Offer sent");
+        await createTimelineEvent(id, candidate.email, "Offer sent");
       }
+      loadTimelineEvents(id, candidate.email).then(setTimelineEvents);
     }
   };
 
@@ -1935,28 +1952,26 @@ export function AssessmentPane({ ev, candidate, knowledgeReport }: { ev: any; ca
       <div className="flex items-center justify-between">
         <SectionHeading>Knowledge Assessment</SectionHeading>
         {questionCount > 0 && (
-          <span className="text-[12px] font-medium text-emerald-400">
-            Section Score: {scorePercent}% ({correctCount}/{questionCount} correct)
-          </span>
+          <div className="flex items-center gap-4 text-[12px]">
+            <span className="text-neutral-500">Correct Questions: <strong className="text-neutral-900">{correctCount}/{questionCount}</strong></span>
+            {maxMarks > 0 && (
+              <span className="text-neutral-500">Marks: <strong className="text-neutral-900">{totalMarks}/{maxMarks}</strong></span>
+            )}
+            <span className="font-medium text-emerald-600">
+              Section Score: {scorePercent}%
+            </span>
+          </div>
         )}
       </div>
 
-      {(knowledgeReport || questionCount > 0) && (
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3 text-[12px]">
-            <div className="flex items-center gap-4 text-neutral-300">
-              <span>Correct Questions: <strong className="text-white">{correctCount}/{questionCount}</strong></span>
-              {maxMarks > 0 && (
-                <span>Marks: <strong className="text-white">{totalMarks}/{maxMarks}</strong></span>
-              )}
-            </div>
-            {displayStrengths.length > 0 && (
-              <span className="text-emerald-400 text-[11px]">✓ {displayStrengths[0]}</span>
-            )}
-          </div>
+      {(displayStrengths.length > 0 || displayRisks.length > 0) && (
+        <div className="rounded-2xl border border-black/5 bg-black/[0.02] p-4 space-y-3">
+          {displayStrengths.length > 0 && (
+            <span className="text-emerald-600 text-[12px]">💡 {displayStrengths[0]}</span>
+          )}
           {displayRisks.length > 0 && (
-            <div className="text-[11px] text-amber-400/90 border-t border-white/5 pt-2">
-              Note: {displayRisks.join(" · ")}
+            <div className="text-[12px] text-amber-600/90 border-t border-black/5 pt-2 mt-2">
+              Note: {displayRisks.join(" • ")}
             </div>
           )}
         </div>
@@ -2711,22 +2726,46 @@ export function VitarkaPane({
             {normalizedSessionTurns.length} turns recorded
           </div>
         </div>
-
+        
+        {normalizedSessionTurns.length === 0 ? (
+          <div className="mt-4 text-[13px] text-neutral-500 italic">
+            Candidate did not attempt this section.
+          </div>
+        ) : (
+          <ul className="mt-3 space-y-2 text-[14px] text-neutral-200">
+            {detail.vitarka.summary.map((s, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="mt-2 h-1 w-1 rounded-full bg-emerald-400" /> {s}
+              </li>
+            ))}
+          </ul>
+        )}
+        
         <div className="mt-6 flex flex-wrap gap-2">
-          <SecondaryAction
-            icon={<ScrollText className="h-3.5 w-3.5" />}
-            onClick={() => setShowTranscript((v) => !v)}
-            disabled={!hasTranscript}
-          >
-            {showTranscript ? "Hide" : "View"} Transcript
-          </SecondaryAction>
-          <SecondaryAction
-            icon={<FileDown className="h-3.5 w-3.5" />}
-            onClick={downloadTranscript}
-            disabled={!hasTranscript}
-          >
-            Download Transcript
-          </SecondaryAction>
+          {normalizedSessionTurns.length === 0 ? (
+            <>
+              <button disabled className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 px-3 py-1.5 text-[12px] font-medium text-neutral-400 bg-black/5 opacity-50 cursor-not-allowed">
+                <ScrollText className="h-3.5 w-3.5" />
+                View Transcript
+              </button>
+              <button disabled className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 px-3 py-1.5 text-[12px] font-medium text-neutral-400 bg-black/5 opacity-50 cursor-not-allowed">
+                <FileDown className="h-3.5 w-3.5" />
+                Download Transcript
+              </button>
+            </>
+          ) : (
+            <>
+              <SecondaryAction
+                icon={<ScrollText className="h-3.5 w-3.5" />}
+                onClick={() => setShowTranscript((v) => !v)}
+              >
+                {showTranscript ? "Hide" : "View"} Transcript
+              </SecondaryAction>
+              <SecondaryAction icon={<FileDown className="h-3.5 w-3.5" />} onClick={downloadTranscript}>
+                Download Transcript
+              </SecondaryAction>
+            </>
+          )}
         </div>
       </div>
 
@@ -2816,21 +2855,30 @@ export function ResumePane({
               Open Full Screen
             </SecondaryAction>
           )}
-          <SecondaryAction icon={<Download className="h-3.5 w-3.5" />} onClick={handleDownload}>
-            Download
-          </SecondaryAction>
+          {resumeUrl ? (
+            <SecondaryAction icon={<Download className="h-3.5 w-3.5" />} onClick={handleDownload}>
+              Download
+            </SecondaryAction>
+          ) : (
+            <button disabled className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 px-3 py-1.5 text-[12px] font-medium text-neutral-400 bg-black/5 opacity-50 cursor-not-allowed">
+              <Download className="h-3.5 w-3.5" />
+              Download
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-neutral-500">
-          <Sparkles className="h-3.5 w-3.5 text-emerald-400" /> AI Resume Summary
+      {resumeUrl && (
+        <div className="rounded-2xl border border-black/5 bg-black/[0.02] p-6">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-neutral-500">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-600" /> AI Resume Summary
+          </div>
+          <p className="mt-3 text-[13px] leading-relaxed text-neutral-800">{detail.resume.summary}</p>
         </div>
-        <p className="mt-3 text-[14px] leading-relaxed text-neutral-200">{detail.resume.summary}</p>
-      </div>
+      )}
 
       {resumeUrl ? (
-        <div className="h-[800px] w-full rounded-2xl border border-white/5 bg-white overflow-hidden relative">
+        <div className="h-[800px] w-full rounded-2xl border border-black/5 bg-white overflow-hidden relative shadow-sm">
           <iframe 
             src={resumeUrl} 
             className="w-full h-full border-none"

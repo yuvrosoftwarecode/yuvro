@@ -126,6 +126,9 @@ class EvaluationSectionSerializer(serializers.ModelSerializer):
 class EvaluationSerializer(serializers.ModelSerializer):
     sections = EvaluationSectionSerializer(many=True, required=False)
     created_by = serializers.SerializerMethodField()
+    completed_candidates_count = serializers.SerializerMethodField()
+    candidates_invited_count = serializers.SerializerMethodField()
+    total_candidates_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Evaluation
@@ -133,7 +136,8 @@ class EvaluationSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'is_public', 'domain', 
             'candidate_invited_emails', 'experience_level', 
             'maximum_attempts', 'expiry_datetime', 'is_published', 
-            'settings', 'sections', 'created_at', 'updated_at', 'created_by'
+            'settings', 'sections', 'created_at', 'updated_at', 'created_by',
+            'completed_candidates_count', 'candidates_invited_count', 'total_candidates_count'
         ]
 
     def validate_domain(self, value):
@@ -150,6 +154,20 @@ class EvaluationSerializer(serializers.ModelSerializer):
             name = f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()
             return name or obj.created_by.email or obj.created_by.username
         return None
+
+    def get_completed_candidates_count(self, obj):
+        return obj.submissions.count()
+
+    def get_candidates_invited_count(self, obj):
+        followup_emails = set(obj.followup_candidates.values_list('email', flat=True))
+        invited_emails = set(obj.candidate_invited_emails or [])
+        return len(followup_emails.union(invited_emails))
+
+    def get_total_candidates_count(self, obj):
+        followup_emails = set(obj.followup_candidates.values_list('email', flat=True))
+        invited_emails = set(obj.candidate_invited_emails or [])
+        submission_emails = set(obj.submissions.values_list('user__email', flat=True))
+        return len(followup_emails.union(invited_emails).union(submission_emails))
 
     def create(self, validated_data):
         sections_data = validated_data.pop('sections', [])

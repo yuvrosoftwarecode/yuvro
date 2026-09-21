@@ -14,10 +14,20 @@ export const Route = createFileRoute("/evaluation/")({
   component: EvaluationInvite,
 });
 
+const COUNTRIES = [
+  { code: "+91", label: "🇮🇳 India (+91)", digits: 10 },
+  { code: "+1", label: "🇺🇸 US/CA (+1)", digits: 10 },
+  { code: "+44", label: "🇬🇧 UK (+44)", digits: 10 },
+  { code: "+61", label: "🇦🇺 Australia (+61)", digits: 9 },
+  { code: "+65", label: "🇸🇬 Singapore (+65)", digits: 8 },
+  { code: "+971", label: "🇦🇪 UAE (+971)", digits: 9 },
+];
+
 function EvaluationInvite() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
   const [phone, setPhone] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -66,12 +76,12 @@ function EvaluationInvite() {
       setErr("First name, last name, email, phone number, and valid evaluation link are required.");
       return;
     }
-    if (phone.length !== 10) {
-      setErr("Please enter a valid 10-digit mobile number.");
-      return;
-    }
-    setLoading(true);
-    setErr(null);
+      if (phone.length < 5) {
+        setErr("Please enter a valid mobile number.");
+        return;
+      }
+      setLoading(true);
+      setErr(null);
     try {
       const checkRes = await evaluationService.checkRegistration(evaluationId, email);
       if (checkRes.is_expired) {
@@ -88,7 +98,7 @@ function EvaluationInvite() {
       await evaluationService.sendRegistrationOtp(evaluationId, email, title);
       localStorage.setItem(
         "yuvro-eval-candidate",
-        JSON.stringify({ firstName, lastName, email, phone: `+91 ${phone}`, resume: file?.name, title }),
+        JSON.stringify({ firstName, lastName, email, phone: `${countryCode} ${phone}`, resume: file?.name, title }),
       );
       if (file) {
         setTempResumeFile(file);
@@ -191,20 +201,24 @@ function EvaluationInvite() {
                 />
               </Field>
               <Field label="Phone number" hint="Required for account recovery.">
-                <div className="relative flex items-center">
-                  <span className="pointer-events-none absolute left-4 text-[14px] text-neutral-500">
-                    +91
-                  </span>
+                <div className="flex gap-2">
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="eval-input !w-[160px] shrink-0"
+                  >
+                    {COUNTRIES.map(c => (
+                      <option key={c.code} value={c.code}>{c.label}</option>
+                    ))}
+                  </select>
                   <input
-                    type="tel"
-                    required
-                    pattern="[0-9]{10}"
-                    title="Please enter a valid 10-digit mobile number"
-                    maxLength={10}
+                    pattern="[0-9]*"
+                    title="Please enter a valid mobile number"
+                    maxLength={COUNTRIES.find(c => c.code === countryCode)?.digits || 15}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, COUNTRIES.find(c => c.code === countryCode)?.digits || 15))}
                     placeholder="Phone number"
-                    className="eval-input !pl-[44px]"
+                    className="eval-input flex-1"
                   />
                 </div>
               </Field>

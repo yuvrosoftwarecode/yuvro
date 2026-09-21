@@ -238,6 +238,7 @@ export interface Evaluation {
   createdAt: number;
   publishedAt?: number;
   candidatesInvited: number;
+  candidatesTotal: number;
   candidatesCompleted: number;
   sections: Section[];
   invite?: {
@@ -292,8 +293,9 @@ function mapBackendToFrontend(be: any): Evaluation {
     domain: mapDomainToFrontend(be.domain),
     status: be.is_published ? "published" : "draft",
     createdAt: be.created_at ? new Date(be.created_at).getTime() : Date.now(),
-    candidatesInvited: be.candidate_invited_emails?.length || 0,
-    candidatesCompleted: 0,
+    candidatesInvited: be.candidates_invited_count || be.candidate_invited_emails?.length || 0,
+    candidatesTotal: be.total_candidates_count || be.candidates_invited_count || 0,
+    candidatesCompleted: be.completed_candidates_count || 0,
     createdBy: be.created_by || "",
     settings: settings,
     expiry_datetime: expiry_datetime,
@@ -912,25 +914,62 @@ export async function generateSharedReportLink(
   }
 }
 
+import { formatTimelineEvents } from "./recruiterCandidateDetail";
+
 export async function getSharedReportByToken(token: string): Promise<any> {
   try {
     const data = await restApiAuthUtil.get<any>(`/skill_evaluation/shared-report/${token}/`);
     return {
       evaluation: mapBackendToFrontend(data.evaluation),
       submission: data.submission,
-      timelineEvents: (data.timeline_events || []).map((r: any) => {
-        let tone = "neutral";
-        if (r.status === "SUCCESS") tone = "success";
-        else if (r.status === "WARNING" || r.status === "ERROR") tone = "warn";
-        return {
-          id: r.id || String(Math.random()),
-          label: r.title || "Event",
-          time: new Date(r.occurred_at).toLocaleString(),
-          tone,
-        };
-      })
+      timelineEvents: formatTimelineEvents(data.timeline_events || [])
     };
   } catch {
     return null;
   }
+}
+
+export async function toggleFollowUp(evId: string, email: string, enabled: boolean): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/evaluations/${evId}/toggle_followup/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("access") },
+    body: JSON.stringify({ email, enabled })
+  });
+  return res.ok;
+}
+
+export async function removeFollowUp(evId: string, email: string): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/evaluations/${evId}/remove_followup/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("access") },
+    body: JSON.stringify({ email })
+  });
+  return res.ok;
+}
+
+export async function triggerAiCall(evId: string, email: string): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/evaluations/${evId}/trigger_ai_call/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("access") },
+    body: JSON.stringify({ email })
+  });
+  return res.ok;
+}
+
+export async function sendReminderNow(evId: string, email: string): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/evaluations/${evId}/send_reminder/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("access") },
+    body: JSON.stringify({ email })
+  });
+  return res.ok;
+}
+
+export async function editCandidateDeadline(evId: string, email: string, deadline: string): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/evaluations/${evId}/edit_candidate_deadline/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("access") },
+    body: JSON.stringify({ email, deadline })
+  });
+  return res.ok;
 }

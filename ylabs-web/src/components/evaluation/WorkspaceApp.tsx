@@ -292,10 +292,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const [showTabWarning, setShowTabWarning] = useState(false);
   const [showFullscreenWarning, setShowFullscreenWarning] = useState(false);
   
-  const activeSection = useMemo(() => appSections.find(s => s.id === section), [appSections, section]);
-  const proctoringConfig = activeSection?.proctoring || {};
-  
-  const anySectionNeedsProctoring = useMemo(() => appSections.some(s => s.proctoring?.enableProctoring), [appSections]);
+    const activeSection = useMemo(() => appSections.find(s => s.id === section), [appSections, section]);
+    const proctoringConfig = activeSection?.proctoring || {};
+    
+    const anySectionNeedsProctoring = useMemo(() => !isPreviewMode && appSections.some(s => s.proctoring?.enableProctoring), [appSections, isPreviewMode]);
 
   // Section completion & unlocking helper
   const isSectionCompleted = (sec: AppSection): boolean => {
@@ -470,7 +470,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const { logActivity } = useProctoring({
     assessmentId: evaluationId,
     assessmentType: "skill_evaluation",
-    enabled: !!proctoringConfig.enableProctoring,
+    enabled: !!proctoringConfig.enableProctoring && !isPreviewMode,
     questionId: (activeSection?.type === "KNOWLEDGE_ASSESSMENT" ? activeSection.questions?.[qIndex]?.id : null) || activeQuestionId || openLab || section || undefined,
     questionTitle: activeDiscussionQuestion || undefined,
     mediaStream: proctoringData?.cameraStream,
@@ -502,6 +502,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
 
   useEffect(() => {
     if (!anySectionNeedsProctoring) return;
+    if (isPreviewMode) return;
     
     if (!proctoringData || !proctoringData.cameraStream) {
        setMediaDisabled(true);
@@ -525,7 +526,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     const intervalId = setInterval(checkMedia, 1500);
     checkMedia();
     return () => clearInterval(intervalId);
-  }, [anySectionNeedsProctoring, proctoringData]);
+  }, [anySectionNeedsProctoring, proctoringData, isPreviewMode]);
 
   // Auto-submit after 1 minute of disabled media
   useEffect(() => {
@@ -541,7 +542,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   useEffect(() => {
     const onVis = () => {
       if (document.hidden) {
-        if (proctoringConfig?.enableProctoring && proctoringConfig?.tabSwitchAllowed === false) {
+        if (proctoringConfig?.enableProctoring && proctoringConfig?.tabSwitchAllowed === false && !isPreviewMode) {
           tabSwitches.current += 1;
           const limit = proctoringConfig.tabSwitchLimit ?? 1;
           if (tabSwitches.current > limit) {
@@ -557,14 +558,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     };
 
     const onCopyPaste = (e: ClipboardEvent) => {
-      if (proctoringConfig?.enableProctoring && proctoringConfig?.enableCopyPaste === false) {
+      if (proctoringConfig?.enableProctoring && proctoringConfig?.enableCopyPaste === false && !isPreviewMode) {
         e.preventDefault();
         setModal(m => m ?? { kind: "proctoring-violation", message: "Copying and pasting is disabled for this evaluation." });
       }
     };
 
     const onFullscreenChange = () => {
-      if (!document.fullscreenElement && proctoringConfig?.enableProctoring) {
+      if (!document.fullscreenElement && proctoringConfig?.enableProctoring && !isPreviewMode) {
         setModal({ kind: "fullscreen" });
       }
     };
