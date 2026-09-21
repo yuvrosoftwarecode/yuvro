@@ -36,6 +36,8 @@ import {
   saveEvaluation,
   evaluationTotals,
   DOMAINS,
+  TIMEZONES,
+  EXPIRY_OPTIONS,
   PROGRAMMING_LANGUAGES,
   DATABASES,
   SCENARIOS,
@@ -2101,8 +2103,12 @@ function PublishScreen({
   const [emails, setEmails] = useState("");
   const [csvError, setCsvError] = useState("");
   const [csvSuccess, setCsvSuccess] = useState("");
-  const [expiry, setExpiry] = useState<"7" | "14" | "30" | "custom">("14");
-  const [attempts, setAttempts] = useState<"1" | "2" | "unlimited">("1");
+  const [expiry, setExpiry] = useState<"7" | "14" | "30" | "custom">(ev.invite?.expiry || "14");
+  const [attempts, setAttempts] = useState<"1" | "2" | "unlimited">(ev.invite?.attempts || "1");
+  const [customDate, setCustomDate] = useState(ev.expiry_date || "");
+  const [customTime, setCustomTime] = useState(ev.expiry_time || "23:59");
+  const [customTz, setCustomTz] = useState(ev.expiry_timezone || (typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC"));
+
   const link = useMemo(
     () => `${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${ev.id}`,
     [ev.id],
@@ -2180,6 +2186,11 @@ function PublishScreen({
     const publishType = type === "csv" ? "email" : type;
     setIsPublishing(true);
     try {
+      if (expiry === "custom" && customDate) {
+        ev.expiry_date = customDate;
+        ev.expiry_time = customTime;
+        ev.expiry_timezone = customTz;
+      }
       await onPublish({ type: publishType, emails: list, expiry, attempts, link });
     } catch (err) {
       console.error(err);
@@ -2298,18 +2309,59 @@ function PublishScreen({
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
             <div className="text-[11px] uppercase tracking-widest text-neutral-500">Expiry</div>
-            <div className="mt-2 flex gap-1.5">
-              {(["7", "14", "30", "custom"] as const).map((x) => (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {EXPIRY_OPTIONS.map((opt) => (
                 <button
-                  key={x}
+                  key={opt.value}
                   disabled={isPublishing}
-                  onClick={() => setExpiry(x)}
-                  className={`rounded-md border px-2 py-1 text-[11px] ${expiry === x ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
+                  onClick={() => setExpiry(opt.value as any)}
+                  className={`rounded-md border px-2.5 py-1 text-[11px] ${expiry === opt.value ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
                 >
-                  {x === "custom" ? "Custom" : `${x} days`}
+                  {opt.label}
                 </button>
               ))}
             </div>
+            {expiry === "custom" && (
+              <div className="mt-3 space-y-2 border-t border-white/5 pt-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-neutral-400">Date</label>
+                    <input
+                      type="date"
+                      value={customDate}
+                      onChange={(e) => setCustomDate(e.target.value)}
+                      disabled={isPublishing}
+                      className="mt-1 w-full rounded-md border border-white/10 bg-black/40 px-2 py-1 text-[11px] text-white outline-none focus:border-emerald-400/60"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-neutral-400">Time</label>
+                    <input
+                      type="time"
+                      value={customTime}
+                      onChange={(e) => setCustomTime(e.target.value)}
+                      disabled={isPublishing}
+                      className="mt-1 w-full rounded-md border border-white/10 bg-black/40 px-2 py-1 text-[11px] text-white outline-none focus:border-emerald-400/60"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-neutral-400">Timezone</label>
+                  <select
+                    value={customTz}
+                    onChange={(e) => setCustomTz(e.target.value)}
+                    disabled={isPublishing}
+                    className="mt-1 w-full rounded-md border border-white/10 bg-black/40 px-2 py-1 text-[11px] text-white outline-none focus:border-emerald-400/60"
+                  >
+                    {TIMEZONES.map((tz) => (
+                      <option key={tz.value} value={tz.value} className="bg-[#121214] text-white">
+                        {tz.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
           <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
             <div className="text-[11px] uppercase tracking-widest text-neutral-500">Attempts</div>

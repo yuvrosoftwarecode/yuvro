@@ -48,6 +48,11 @@ function EvaluationInvite() {
     setErr(null);
     try {
       const checkRes = await evaluationService.checkRegistration(evaluationId, email);
+      if (checkRes.is_expired) {
+        setErr(checkRes.error || "This evaluation has expired and is no longer accepting submissions.");
+        setLoading(false);
+        return;
+      }
       if (checkRes.registered) {
         setErr("The user is already evaluated with this mail");
         setLoading(false);

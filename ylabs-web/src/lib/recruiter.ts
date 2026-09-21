@@ -2,6 +2,45 @@
 import restApiAuthUtil, { ycodeApiAuthUtil, yhubApiAuthUtil } from "../utils/RestApiAuthUtil";
 import { questionBankService } from "../services/questionBankService";
 
+export const TIMEZONES = [
+  { value: "Asia/Kolkata", label: "Asia / Kolkata (IST +5:30)" },
+  { value: "UTC", label: "UTC (Coordinated Universal Time +0:00)" },
+  { value: "America/New_York", label: "America / New_York (EST -5:00)" },
+  { value: "America/Chicago", label: "America / Chicago (CST -6:00)" },
+  { value: "America/Denver", label: "America / Denver (MST -7:00)" },
+  { value: "America/Los_Angeles", label: "America / Los_Angeles (PST -8:00)" },
+  { value: "Europe/London", label: "Europe / London (GMT +0:00)" },
+  { value: "Europe/Paris", label: "Europe / Paris (CET +1:00)" },
+  { value: "Europe/Berlin", label: "Europe / Berlin (CET +1:00)" },
+  { value: "Asia/Dubai", label: "Asia / Dubai (GST +4:00)" },
+  { value: "Asia/Singapore", label: "Asia / Singapore (SGT +8:00)" },
+  { value: "Asia/Tokyo", label: "Asia / Tokyo (JST +9:00)" },
+  { value: "Australia/Sydney", label: "Australia / Sydney (AEST +10:00)" },
+  { value: "Pacific/Auckland", label: "Pacific / Auckland (NZST +12:00)" },
+] as const;
+
+export const EXPIRY_OPTIONS = [
+  { value: "1", label: "1 day" },
+  { value: "3", label: "3 days" },
+  { value: "7", label: "7 days" },
+  { value: "14", label: "14 days" },
+  { value: "30", label: "30 days" },
+  { value: "60", label: "60 days" },
+  { value: "90", label: "90 days" },
+  { value: "custom", label: "Custom" },
+] as const;
+
+export const DURATION_OPTIONS = [
+  { value: "30 min", label: "30 min" },
+  { value: "45 min", label: "45 min" },
+  { value: "60 min", label: "60 min" },
+  { value: "90 min", label: "90 min" },
+  { value: "120 min", label: "120 min" },
+  { value: "180 min", label: "180 min" },
+  { value: "240 min", label: "240 min" },
+  { value: "unlimited", label: "Unlimited" },
+] as const;
+
 export const DOMAINS = [
   "Finance",
   "Insurance",
@@ -159,6 +198,38 @@ export interface DiscussionSection {
 }
 export type Section = LabsSection | AssessmentSection | DiscussionSection;
 
+export function mapDomainToBackend(domain?: string): string {
+  if (!domain) return "OTHER";
+  const normalized = domain.trim().toUpperCase().replace(/\s+/g, "_");
+  const validMap: Record<string, string> = {
+    FINANCE: "FINANCE",
+    INSURANCE: "INSURANCE",
+    EDTECH: "EDTECH",
+    SUPPLY_CHAIN: "SUPPLY_CHAIN",
+    HEALTHCARE: "HEALTHCARE",
+    RETAIL: "RETAIL",
+    PAYMENT: "PAYMENT",
+    OTHER: "OTHER",
+  };
+  return validMap[normalized] || "OTHER";
+}
+
+export function mapDomainToFrontend(domain?: string): Domain {
+  if (!domain) return "Other";
+  const normalized = domain.trim().toUpperCase().replace(/\s+/g, "_");
+  const reverseMap: Record<string, Domain> = {
+    FINANCE: "Finance",
+    INSURANCE: "Insurance",
+    EDTECH: "EdTech",
+    SUPPLY_CHAIN: "Supply Chain",
+    HEALTHCARE: "Healthcare",
+    RETAIL: "Retail",
+    PAYMENT: "Payment",
+    OTHER: "Other",
+  };
+  return reverseMap[normalized] || "Other";
+}
+
 export interface Evaluation {
   id: string;
   title: string;
@@ -178,6 +249,10 @@ export interface Evaluation {
   };
   settings?: Record<string, any>;
   createdBy?: string;
+  expiry_datetime?: string | null;
+  expiry_date?: string;
+  expiry_time?: string;
+  expiry_timezone?: string;
 }
 
 // Ensure unique ID generation
@@ -190,22 +265,47 @@ const API_BASE = (
 ).replace(/\/$/, "") + "/skill_evaluation";
 
 function mapBackendToFrontend(be: any): Evaluation {
+  const settings = be.settings || {};
+  let expiry_datetime = be.expiry_datetime || settings.expiry_datetime || null;
+  let expiry_date = settings.expiry_date || "";
+  let expiry_time = settings.expiry_time || "";
+  let expiry_timezone = settings.expiry_timezone || (typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC");
+  let expiry_preset: "7" | "14" | "30" | "custom" = settings.expiry_preset || "14";
+
+  if (expiry_datetime) {
+    try {
+      const d = new Date(expiry_datetime);
+      if (!isNaN(d.getTime())) {
+        if (!expiry_date) {
+          expiry_date = d.toISOString().split("T")[0];
+        }
+        if (!expiry_time) {
+          expiry_time = d.toISOString().split("T")[1]?.slice(0, 5) || "23:59";
+        }
+      }
+    } catch {}
+  }
+
   return {
     id: be.id,
     title: be.title || "Untitled Evaluation",
-    domain: (be.domain === "OTHER" ? "" : be.domain) as any,
+    domain: mapDomainToFrontend(be.domain),
     status: be.is_published ? "published" : "draft",
     createdAt: be.created_at ? new Date(be.created_at).getTime() : Date.now(),
     candidatesInvited: be.candidate_invited_emails?.length || 0,
     candidatesCompleted: 0,
     createdBy: be.created_by || "",
-    settings: be.settings || {},
-    invite: be.candidate_invited_emails?.length
+    settings: settings,
+    expiry_datetime: expiry_datetime,
+    expiry_date: expiry_date,
+    expiry_time: expiry_time,
+    expiry_timezone: expiry_timezone,
+    invite: be.candidate_invited_emails?.length || expiry_datetime
       ? {
           type: "email",
-          emails: be.candidate_invited_emails,
-          expiry: "7",
-          attempts: "1",
+          emails: be.candidate_invited_emails || [],
+          expiry: expiry_preset,
+          attempts: settings.attempts || "1",
         }
       : undefined,
     sections: (be.sections || []).map((s: any) => {
@@ -278,11 +378,39 @@ export function syncDiscussionConfig(e: Evaluation): Evaluation {
 }
 
 function mapFrontendToBackend(fe: Evaluation): any {
+  let expiry_datetime: string | null = fe.expiry_datetime || null;
+  const settings = { ...(fe.settings || {}) };
+
+  if (fe.expiry_date) {
+    try {
+      const timeStr = fe.expiry_time || "23:59";
+      const dtStr = `${fe.expiry_date}T${timeStr}:00`;
+      const dateObj = new Date(dtStr);
+      if (!isNaN(dateObj.getTime())) {
+        expiry_datetime = dateObj.toISOString();
+      }
+    } catch {}
+  } else if (!expiry_datetime && fe.invite?.expiry) {
+    const preset = fe.invite.expiry;
+    if (preset === "7" || preset === "14" || preset === "30") {
+      const d = new Date();
+      d.setDate(d.getDate() + parseInt(preset, 10));
+      expiry_datetime = d.toISOString();
+    }
+  }
+
+  settings.expiry_datetime = expiry_datetime;
+  if (fe.expiry_date) settings.expiry_date = fe.expiry_date;
+  if (fe.expiry_time) settings.expiry_time = fe.expiry_time;
+  if (fe.expiry_timezone) settings.expiry_timezone = fe.expiry_timezone;
+  if (fe.invite?.expiry) settings.expiry_preset = fe.invite.expiry;
+
   return {
     title: fe.title,
-    domain: fe.domain || "OTHER",
+    domain: mapDomainToBackend(fe.domain),
     is_published: fe.status === "published",
-    settings: fe.settings || {},
+    expiry_datetime: expiry_datetime,
+    settings: settings,
     candidate_invited_emails:
       fe.invite?.type === "email" && fe.invite?.emails ? fe.invite.emails : [],
     sections: fe.sections.map((s: any, idx: number) => {
