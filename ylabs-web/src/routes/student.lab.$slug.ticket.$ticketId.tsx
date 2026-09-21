@@ -1199,7 +1199,7 @@ export function TicketIDE({
 
         const { fetchFile } = await import("@/services/workspaceService");
         await Promise.all(Object.keys(paths).map(async (p) => {
-          if (p.endsWith(".db") || p.endsWith(".sqlite") || p.endsWith(".png") || p.endsWith(".jpg") || p.endsWith(".jpeg")) return;
+          if (isBinaryOrDatabaseFile(p)) return;
           try {
             const fRes = await fetchFile(userId, labId, sprintId, p, isEvaluationMode ? evaluationId : undefined);
             paths[p] = fRes;
@@ -2420,10 +2420,38 @@ export function TicketIDE({
     }
   }
 
+  function isBinaryOrDatabaseFile(p: string): boolean {
+    if (!p) return false;
+    const lower = p.toLowerCase();
+    return (
+      lower.endsWith(".db") ||
+      lower.endsWith(".sqlite") ||
+      lower.endsWith(".sqlite3") ||
+      lower.endsWith(".db3") ||
+      lower.endsWith("-journal") ||
+      lower.endsWith(".pyc") ||
+      lower.endsWith(".so") ||
+      lower.endsWith(".dll") ||
+      lower.endsWith(".dylib") ||
+      lower.endsWith(".png") ||
+      lower.endsWith(".jpg") ||
+      lower.endsWith(".jpeg") ||
+      lower.endsWith(".gif") ||
+      lower.endsWith(".ico") ||
+      lower.endsWith(".woff") ||
+      lower.endsWith(".woff2") ||
+      lower.endsWith(".ttf") ||
+      lower.endsWith(".pdf") ||
+      lower.endsWith(".zip") ||
+      lower.endsWith(".tar") ||
+      lower.endsWith(".gz")
+    );
+  }
+
   function getFilesToSave() {
     return Object.fromEntries(
       Object.entries(files).filter(([p, content]) => {
-        if (p.endsWith(".db") || p.endsWith(".sqlite")) return false;
+        if (isBinaryOrDatabaseFile(p)) return false;
         if (
           p.includes("yuvro_scoring_rules") ||
           p.includes("scoring_rules") ||
@@ -2644,10 +2672,25 @@ export function TicketIDE({
               <GitBranch className="h-3 w-3" />Commit
             </button>
           )}
+          {isEvaluationMode && slug !== "knowledge" && (
+            <button
+              onClick={() => {
+                handleSave(false);
+                window.parent.postMessage({ type: "LAB_SAVED", labId: ticket.id }, "*");
+              }}
+              disabled={submitting}
+              className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-50 transition"
+              title="Save progress and return to lab selection"
+            >
+              <Save className="h-3 w-3" />
+              Save
+            </button>
+          )}
           {(!isEvaluationMode || slug !== "knowledge") && (
             <button onClick={handleSubmit}
               disabled={submitting}
-              className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 transition"
+              title="Submit lab solution permanently"
             >
               <Send className="h-3 w-3" />
               {submitting ? "Submitting..." : "Submit"}

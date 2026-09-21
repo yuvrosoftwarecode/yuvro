@@ -332,26 +332,13 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     if (!activeSection) return null;
 
     if (activeSection.type === "LAB") {
-      if (openLab) {
-        const lab = activeSection.labs.find(l => l.id === openLab);
-        const isSub = submittedLabs.has(openLab);
-        return {
-          key: `eval_${evalPrefix}_timer_lab_${openLab}`,
-          title: activeSection.title || "Engineering Labs",
-          subTitle: lab?.title || "Lab",
-          durationSeconds: (lab?.minutes || 30) * 60,
-          isSubmitted: isSub,
-          type: "LAB_ITEM",
-          labId: openLab,
-          sectionId: activeSection.id,
-        };
-      }
       const isSub = isSectionCompleted(activeSection);
       const totalSecs = activeSection.labs.reduce((acc, l) => acc + (l.minutes || 30) * 60, 0) || 30 * 60;
+      const activeLab = openLab ? activeSection.labs.find(l => l.id === openLab) : null;
       return {
         key: `eval_${evalPrefix}_timer_sec_${activeSection.id}`,
         title: activeSection.title || "Engineering Labs",
-        subTitle: "Overview",
+        subTitle: activeLab ? activeLab.title : "Overview",
         durationSeconds: totalSecs,
         isSubmitted: isSub,
         type: "LAB_SECTION",
@@ -608,6 +595,11 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   // Listen for lab submission from iframe
   useEffect(() => {
     const onMessage = async (e: MessageEvent) => {
+      if (e.data?.type === "LAB_SAVED" && e.data?.labId) {
+        setOpenLab(null);
+        setModal(null);
+        return;
+      }
       if (e.data?.type === "LAB_SUBMITTED" && e.data?.labId) {
         const activeSection = appSections.find(s => s.id === section);
         if (activeSection?.type === "KNOWLEDGE_ASSESSMENT") {
@@ -623,11 +615,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           }
         }
 
-        try {
-          if (evaluationId) await evaluationService.submitLab?.(evaluationId, e.data.labId, { status: "done", score: e.data.score });
-        } catch (err) {
-          console.error(err);
+        if (evaluationId) {
+          evaluationService.submitLab?.(evaluationId, e.data.labId, { status: "done", score: e.data.score }).catch(console.error);
         }
+
         setSubmittedLabs(prev => {
           const nextLabs = new Set(prev).add(e.data.labId);
           const activeLabSec = appSections.find(s => s.type === "LAB" && s.labs.some(l => l.id === e.data.labId));
