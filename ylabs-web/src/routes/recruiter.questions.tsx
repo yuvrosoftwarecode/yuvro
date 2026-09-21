@@ -24,6 +24,7 @@ import { fetchCourses, fetchQuestions, fetchQuestionDetails } from "@/lib/recrui
 import { ycodeApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { CreateQuestionForm } from "@/components/evaluation/CreateQuestionForm";
+import LoadingSkeleton from "@/components/common/LoadingSkeleton";
 
 export const Route = createFileRoute("/recruiter/questions")({
   head: () => ({
@@ -1024,7 +1025,7 @@ function RecruiterQuestionBankPage() {
 
       {/* Questions List */}
       {isLoading ? (
-        <div className="mt-12 p-12 text-center text-[13px] text-neutral-500 dark:text-neutral-400">Loading Question Bank...</div>
+        <LoadingSkeleton type="cards" count={6} className="mt-8" />
       ) : filteredQuestions.length === 0 ? (
         <div className="mt-12 rounded-2xl border border-dashed border-neutral-200 dark:border-white/10 p-16 text-center bg-white dark:bg-transparent shadow-sm dark:shadow-none">
           <FileQuestion className="mx-auto h-8 w-8 text-neutral-400 dark:text-neutral-500 mb-3" />

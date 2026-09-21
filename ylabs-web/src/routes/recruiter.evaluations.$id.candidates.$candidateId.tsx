@@ -102,6 +102,8 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
+import LoadingSkeleton from "@/components/common/LoadingSkeleton";
+
 export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$candidateId")({
   head: () => ({
     meta: [{ title: "Candidate — Yuvro Labs" }, { name: "robots", content: "noindex" }],
@@ -292,7 +294,14 @@ function CandidateWorkspace() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  if (loading) return <div className="p-16 text-center text-neutral-400">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="p-8 max-w-7xl mx-auto space-y-6">
+        <LoadingSkeleton type="metrics" />
+        <LoadingSkeleton type="table" count={5} />
+      </div>
+    );
+  }
 
   if (!candidate) {
     return (

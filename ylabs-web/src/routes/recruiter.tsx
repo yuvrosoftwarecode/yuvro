@@ -16,6 +16,7 @@ import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { requireRecruiterAuth } from "@/utils/authGuards";
 import { PricingContent } from "./pricing";
 import { DeployInfo } from "@/components/common/DeployInfo";
+import LoadingSkeleton from "@/components/common/LoadingSkeleton";
 
 export const Route = createFileRoute("/recruiter")({
   beforeLoad: ({ location }) => requireRecruiterAuth(location.href),
@@ -80,15 +81,7 @@ function RecruiterLayout() {
   const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname.startsWith(to);
 
-  if (hasPlan === null) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0b] flex items-center justify-center text-white text-sm">
-        Loading workspace...
-      </div>
-    );
-  }
-
-  if (!hasPlan) {
+  if (hasPlan === false) {
     return (
       <div className="bg-[#FAFAF8] min-h-screen text-[#0A0A0A] antialiased selection:bg-[#0A0A0A] selection:text-white pb-20">
         <div className="fixed top-0 inset-x-0 h-16 bg-white/80 backdrop-blur-md border-b z-50 flex items-center justify-between px-6">
@@ -167,10 +160,10 @@ function RecruiterLayout() {
             </div> */}
             <div className="flex items-center gap-2 rounded-lg px-2 py-2">
               <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-400 text-[11px] font-semibold text-black">
-                {(user?.name ?? "R")[0]}
+                {(user?.name || user?.first_name || user?.username || "R")[0]}
               </div>
               <div className="min-w-0 flex-1 leading-tight">
-                <div className="truncate text-[12px] text-white">{user?.name ?? "Recruiter"}</div>
+                <div className="truncate text-[12px] text-white">{user?.name || user?.first_name || user?.username || "Recruiter"}</div>
                 <div className="truncate text-[10px] text-neutral-500">{user?.email ?? "recruiter@yuvro.com"}</div>
               </div>
               <button
@@ -200,7 +193,14 @@ function RecruiterLayout() {
           </div>
         </aside>
         <main className="ml-[240px] flex-1 h-screen overflow-y-auto hide-scrollbar">
-          <Outlet />
+          {hasPlan === null ? (
+            <div className="p-8 max-w-7xl mx-auto space-y-6">
+              <div className="h-8 w-48 rounded-lg bg-white/10 animate-pulse" />
+              <LoadingSkeleton type="cards" />
+            </div>
+          ) : (
+            <Outlet />
+          )}
         </main>
       </div>
     </div>

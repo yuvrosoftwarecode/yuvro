@@ -39,16 +39,12 @@ export interface CandidateRecord {
   activity: ActivityEvent[];
 }
 
-const API_BASE = (
-  import.meta.env.VITE_BACKEND_API_BASE_URL || "http://localhost:8002/api"
-).replace(/\/$/, "") + "/skill_evaluation";
+import { restApiAuthUtil } from "@/utils/RestApiAuthUtil";
 
 export async function fetchCandidateRecords(evId: string): Promise<CandidateRecord[]> {
   try {
-    const res = await fetch(`${API_BASE}/evaluations/${evId}/records/`);
-    if (!res.ok) throw new Error("Failed to fetch");
-    const data = await res.json();
-    return data as CandidateRecord[];
+    const data = await restApiAuthUtil.get<CandidateRecord[]>(`/skill_evaluation/evaluations/${evId}/records/`);
+    return data;
   } catch (err) {
     console.error("Failed to fetch candidate records:", err);
     return [];
