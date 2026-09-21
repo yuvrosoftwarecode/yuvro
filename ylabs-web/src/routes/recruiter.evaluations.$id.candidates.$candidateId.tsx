@@ -102,6 +102,54 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
+export function MissingVitarkaSessionModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl border border-white/10 bg-[#121418] p-6 shadow-2xl transition-all"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between pb-4 border-b border-white/10">
+          <div className="flex items-center gap-2.5 text-amber-400 font-medium text-base">
+            <AlertCircle className="h-5 w-5 shrink-0" />
+            <span>No Vitarka Session Found</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-neutral-400 hover:bg-white/10 hover:text-white transition"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="py-5 text-sm text-neutral-300 leading-relaxed">
+          No active or completed Vitarka AI engineering discussion session was found for this candidate. The candidate must start and attempt the Vitarka discussion section before an interview session or evaluation report can be generated.
+        </div>
+        <div className="flex justify-end pt-3 border-t border-white/10">
+          <button
+            onClick={onClose}
+            className="rounded-lg bg-white/10 px-4 py-2 text-xs font-medium text-white hover:bg-white/20 transition"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+import LoadingSkeleton from "@/components/common/LoadingSkeleton";
+
 export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$candidateId")({
   head: () => ({
     meta: [{ title: "Candidate — Yuvro Labs" }, { name: "robots", content: "noindex" }],
@@ -130,7 +178,7 @@ function CandidateWorkspace() {
         return;
       }
       setEv(e);
-      const cands = getCandidates(e.id, subs || []);
+      const cands = getCandidates(e.id, subs || [], [], e);
       const cand = cands.find((x) => x.id === candidateId);
       setCandidate(cand || null);
       setLoading(false);
@@ -150,16 +198,21 @@ function CandidateWorkspace() {
   const [activity, setActivity] = useState<ActivityEvent[]>([]);
   const [vitarkaSubmission, setVitarkaSubmission] = useState<any>(null);
   const [generatingReport, setGeneratingReport] = useState(false);
+  const [showMissingSessionModal, setShowMissingSessionModal] = useState(false);
 
   useEffect(() => {
     if (!ev || !candidate) return;
     const discSec = ev.sections?.find(
       (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
     );
-    if (!discSec) {
-      setVitarkaSubmission(null);
+    if (!discSec) return;
+
+    const rawSub = candidate.rawSubmission;
+    if (rawSub?.vitarka_submission) {
+      setVitarkaSubmission(rawSub.vitarka_submission);
       return;
     }
+
     let mockInterviewId = discSec?.mockInterviewId;
     if (!mockInterviewId && discSec?.description) {
       try {
@@ -180,11 +233,6 @@ function CandidateWorkspace() {
         .then((res) => {
           if (res && res.length > 0) {
             setVitarkaSubmission(res[0]);
-            const cands = getCandidates(id, ev?.submissions || [], res, ev);
-            const cand = cands.find((x) => x.id === candidateId);
-            if (cand) {
-              setCandidate(cand);
-            }
           }
         })
         .catch(console.error);
@@ -228,7 +276,7 @@ function CandidateWorkspace() {
     }
 
     if (!sub?.id) {
-      notify("No Vitarka interview session found for this candidate.");
+      setShowMissingSessionModal(true);
       return;
     }
 
@@ -308,7 +356,14 @@ function CandidateWorkspace() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  if (loading) return <div className="p-16 text-center text-neutral-400">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="p-8 max-w-7xl mx-auto space-y-6">
+        <LoadingSkeleton type="metrics" />
+        <LoadingSkeleton type="table" count={5} />
+      </div>
+    );
+  }
 
   if (!candidate) {
     return (
@@ -794,6 +849,11 @@ function CandidateWorkspace() {
       </main>
 
       {openLab && <LabDrawer data={openLab} evaluationId={id} onClose={() => setOpenLab(null)} />}
+
+      <MissingVitarkaSessionModal
+        isOpen={showMissingSessionModal}
+        onClose={() => setShowMissingSessionModal(false)}
+      />
 
       {toast && (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-white/10 bg-neutral-900 px-4 py-2 text-[12px] text-white shadow-xl">
@@ -2127,7 +2187,7 @@ export function VitarkaPane({
   const [showTranscript, setShowTranscript] = useState(false);
   const [showMarkdown, setShowMarkdown] = useState(false);
 
-  // Extract any raw dynamic interview turns from submission state
+  // Extract raw dynamic interview turns from submission state
   const rawTurns: any[] = submission?.session_state?.turns || submission?.turns || [];
   const normalizedSessionTurns = rawTurns.map((t: any, idx: number) => {
     const isAi = t.speaker === "assistant" || t.role === "assistant" || t.speaker === "AI" || t.role === "system";
@@ -2138,7 +2198,28 @@ export function VitarkaPane({
     };
   });
 
+  // Check whether any transcript content exists
+  const hasTranscript =
+    (report?.transcript && Array.isArray(report.transcript) && report.transcript.length > 0) ||
+    (normalizedSessionTurns && normalizedSessionTurns.length > 0) ||
+    (detail?.vitarka?.transcript && detail.vitarka.transcript.length > 0);
+
+  // Determine actual Vitarka session lifecycle state
+  const effStatus = submissionStatus || submission?.status;
+  const vitarkaState: "not_attempted" | "in_progress" | "completed" | "evaluation_generated" = report
+    ? "evaluation_generated"
+    : effStatus === "completed"
+    ? "completed"
+    : effStatus === "in_progress" || normalizedSessionTurns.length > 0
+    ? "in_progress"
+    : (!submission || !submission.id || effStatus === "not_attempted")
+    ? "not_attempted"
+    : "not_attempted";
+
   const downloadTranscript = () => {
+    if (!hasTranscript) return;
+    onDownload();
+
     let text = `# Vitarka Interview Transcript\n`;
     text += `Candidate: ${candidate?.name || "Candidate"}\n`;
     text += `Date: ${new Date().toLocaleDateString()}\n\n---\n\n`;
@@ -2157,7 +2238,7 @@ export function VitarkaPane({
       normalizedSessionTurns.forEach((t) => {
         text += `**${t.speaker}** (${t.time}):\n${t.text}\n\n`;
       });
-    } else if (detail.vitarka.transcript && detail.vitarka.transcript.length > 0) {
+    } else if (detail?.vitarka?.transcript && detail.vitarka.transcript.length > 0) {
       detail.vitarka.transcript.forEach((t) => {
         text += `**${t.speaker}** (${t.time}):\n${t.text}\n\n`;
       });
@@ -2173,9 +2254,98 @@ export function VitarkaPane({
     document.body.removeChild(link);
   };
 
-  // If dynamic Vitarka report is available from backend
+  // Status Badge formatting helper
+  const getStatusBadge = () => {
+    switch (vitarkaState) {
+      case "evaluation_generated":
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Evaluation Generated
+          </span>
+        );
+      case "completed":
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-0.5 text-[11px] font-medium text-amber-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Completed (Pending Analysis)
+          </span>
+        );
+      case "in_progress":
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-400/20 bg-blue-400/10 px-2.5 py-0.5 text-[11px] font-medium text-blue-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" /> Session In Progress
+          </span>
+        );
+      case "not_attempted":
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium text-neutral-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-neutral-500" /> Not Attempted
+          </span>
+        );
+    }
+  };
+
+  // 1. Vitarka Not Attempted View (Items 70, 71, 72)
+  if (vitarkaState === "not_attempted") {
+    return (
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2.5">
+                <SectionHeading>Vitarka Engineering Discussion</SectionHeading>
+                {getStatusBadge()}
+              </div>
+              <p className="mt-1 text-[13px] text-neutral-400">
+                AI-driven dynamic technical conversation and competency evaluation.
+              </p>
+            </div>
+
+            {onGenerateReport && (
+              <button
+                onClick={onGenerateReport}
+                disabled={generatingReport}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3.5 py-1.5 text-[12px] font-medium text-neutral-300 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+              >
+                {generatingReport ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                )}
+                {generatingReport ? "Checking Session..." : "Generate AI Evaluation Report"}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Empty State Card */}
+        <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-12 text-center">
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/5 text-neutral-400">
+            <Sparkles className="h-6 w-6 text-neutral-400" />
+          </div>
+          <h3 className="mt-4 text-[16px] font-medium text-white">Vitarka Interview Not Attempted</h3>
+          <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-neutral-400">
+            The candidate has not initiated or attempted the Vitarka AI discussion session for this evaluation yet. No scores or AI analysis are available.
+          </p>
+          <div className="mt-6 flex justify-center gap-3">
+            <button
+              disabled={!hasTranscript}
+              onClick={downloadTranscript}
+              title={hasTranscript ? "Download transcript" : "No transcript available"}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-[12px] font-medium text-neutral-400 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <FileDown className="h-3.5 w-3.5" />
+              Download Transcript
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Vitarka Report Available View (evaluation_generated)
   if (report) {
-    const overallScore100 = report.overall_score != null ? Math.round(report.overall_score * 10) : detail.vitarka.overall;
+    const overallScore100 = report.overall_score != null ? Math.round(report.overall_score * 10) : detail?.vitarka?.overall || 0;
     const recommendation = report.recommendation || (overallScore100 >= 80 ? "Strong proceed" : overallScore100 >= 60 ? "Proceed" : overallScore100 >= 40 ? "Needs review" : "Do not proceed");
     const recColor = recommendation.toLowerCase().includes("strong")
       ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"
@@ -2205,6 +2375,7 @@ export function VitarkaPane({
             <div>
               <div className="flex items-center gap-2">
                 <SectionHeading>Vitarka Engineering Discussion</SectionHeading>
+                {getStatusBadge()}
                 {report.mode && (
                   <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-neutral-400">
                     {report.mode} Mode
@@ -2329,6 +2500,7 @@ export function VitarkaPane({
             <SecondaryAction
               icon={<ScrollText className="h-3.5 w-3.5" />}
               onClick={() => setShowTranscript((v) => !v)}
+              disabled={!hasTranscript}
             >
               {showTranscript ? "Hide" : "View"} Transcript
             </SecondaryAction>
@@ -2340,7 +2512,11 @@ export function VitarkaPane({
                 {showMarkdown ? "Hide" : "View"} Markdown Report
               </SecondaryAction>
             )}
-            <SecondaryAction icon={<FileDown className="h-3.5 w-3.5" />} onClick={downloadTranscript}>
+            <SecondaryAction
+              icon={<FileDown className="h-3.5 w-3.5" />}
+              onClick={downloadTranscript}
+              disabled={!hasTranscript}
+            >
               Download Transcript (.md)
             </SecondaryAction>
             <SecondaryAction icon={<FileDown className="h-3.5 w-3.5" />} onClick={downloadMarkdownReport}>
@@ -2388,7 +2564,7 @@ export function VitarkaPane({
         )}
 
         {/* Dynamic Transcript View */}
-        {showTranscript && (
+        {showTranscript && hasTranscript && (
           <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
             <div className="flex items-center justify-between">
               <div className="text-[11px] uppercase tracking-widest text-neutral-500">Interview Transcript</div>
@@ -2462,7 +2638,7 @@ export function VitarkaPane({
                   </div>
                 ))
               ) : (
-                detail.vitarka.transcript.map((l, i) => (
+                (detail?.vitarka?.transcript || []).map((l, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div
                       className={`mt-0.5 grid h-7 w-7 place-items-center rounded-full text-[10px] font-medium ${l.speaker === "AI" ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300"}`}
@@ -2485,70 +2661,70 @@ export function VitarkaPane({
     );
   }
 
-  // Pending State or No Report Yet
+  // 3. Vitarka In Progress or Completed Session (Pending Report Generation) View
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
-        <div className="flex items-baseline justify-between">
-          <SectionHeading>Vitarka Engineering Discussion</SectionHeading>
-          <div className="text-right">
-            <div className="text-[11px] uppercase tracking-widest text-neutral-500">Overall</div>
-            <div className={`text-[32px] font-medium leading-none ${eciColor(detail.vitarka.overall)}`}>
-              {detail.vitarka.overall}
-              <span className="text-[13px] text-neutral-500">/100</span>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <SectionHeading>Vitarka Engineering Discussion</SectionHeading>
+              {getStatusBadge()}
             </div>
+            <p className="mt-1 text-[13px] text-neutral-400">
+              {vitarkaState === "completed"
+                ? "Candidate has completed the session. Click 'Generate AI Evaluation Report' to summarize."
+                : "Candidate is currently in an active Vitarka session or has un-synthesized transcript turns."}
+            </p>
           </div>
-        </div>
 
-        {onGenerateReport && (
-          <div className="mt-4 rounded-xl border border-amber-400/20 bg-amber-400/[0.04] p-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="text-[13px] font-medium text-amber-300">
-                {submissionStatus === "completed" ? "Interview is completed" : "Dynamic session active"}
-              </div>
-              <p className="text-[11px] text-neutral-400">
-                Generate the AI report to synthesize candidate answers and observations into structured competencies.
-              </p>
-            </div>
+          {onGenerateReport && (
             <button
               onClick={onGenerateReport}
               disabled={generatingReport}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3.5 py-2 text-[12px] font-medium text-black transition hover:bg-emerald-400 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-4 py-2 text-[12px] font-medium text-black transition hover:bg-emerald-400 disabled:opacity-50"
             >
               {generatingReport ? (
                 <Loader2 className="h-4 w-4 animate-spin text-black" />
               ) : (
                 <Sparkles className="h-4 w-4 text-black" />
               )}
-              {generatingReport ? "Generating Report..." : "Generate AI Evaluation Report"}
+              {generatingReport ? "Generating Analysis..." : "Generate AI Evaluation Report"}
             </button>
+          )}
+        </div>
+
+        {detail?.vitarka?.signals && detail.vitarka.signals.length > 0 && (
+          <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4 border-t border-white/5 pt-5">
+            {detail.vitarka.signals.map((s) => (
+              <div key={s.label} className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+                <div className="text-[10px] uppercase tracking-widest text-neutral-500">
+                  {s.label}
+                </div>
+                <div className="mt-1 flex items-baseline gap-1">
+                  <div className={`text-[20px] font-medium ${eciColor(s.score)}`}>{s.score}</div>
+                  <div className="text-[11px] text-neutral-500">/100</div>
+                </div>
+                <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/5">
+                  <div
+                    className={`h-full ${s.score >= 70 ? "bg-emerald-400" : s.score >= 55 ? "bg-amber-400" : "bg-red-400"}`}
+                    style={{ width: `${s.score}%` }}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         )}
-
-        <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {detail.vitarka.signals.map((s) => (
-            <div key={s.label} className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
-              <div className="text-[10px] uppercase tracking-widest text-neutral-500">
-                {s.label}
-              </div>
-              <div className="mt-1 flex items-baseline gap-1">
-                <div className={`text-[20px] font-medium ${eciColor(s.score)}`}>{s.score}</div>
-                <div className="text-[11px] text-neutral-500">/100</div>
-              </div>
-              <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/5">
-                <div
-                  className={`h-full ${s.score >= 70 ? "bg-emerald-400" : s.score >= 55 ? "bg-amber-400" : "bg-red-400"}`}
-                  style={{ width: `${s.score}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
-        <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-neutral-500">
-          <Sparkles className="h-3.5 w-3.5 text-emerald-400" /> AI summary
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-neutral-500">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-400" /> Recorded Session Activity
+          </div>
+          <div className="text-[12px] text-neutral-400">
+            {normalizedSessionTurns.length} turns recorded
+          </div>
         </div>
         
         {normalizedSessionTurns.length === 0 ? (
@@ -2593,11 +2769,15 @@ export function VitarkaPane({
         </div>
       </div>
 
-      {showTranscript && (
+      {showTranscript && hasTranscript && (
         <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
           <div className="flex items-center justify-between">
             <div className="text-[11px] uppercase tracking-widest text-neutral-500">Transcript</div>
-            <button onClick={downloadTranscript} className="text-[11px] text-emerald-400 hover:underline">
+            <button
+              onClick={downloadTranscript}
+              disabled={!hasTranscript}
+              className="text-[11px] text-emerald-400 hover:underline disabled:opacity-50 disabled:no-underline"
+            >
               Download (.md)
             </button>
           </div>
@@ -2619,7 +2799,7 @@ export function VitarkaPane({
                 </div>
               ))
             ) : (
-              detail.vitarka.transcript.map((l, i) => (
+              (detail?.vitarka?.transcript || []).map((l, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <div
                     className={`mt-0.5 grid h-7 w-7 place-items-center rounded-full text-[10px] font-medium ${l.speaker === "AI" ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300"}`}
@@ -3506,12 +3686,14 @@ function SecondaryAction({
   icon,
   danger,
   active,
+  disabled,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   icon?: React.ReactNode;
   danger?: boolean;
   active?: boolean;
+  disabled?: boolean;
 }) {
   let colorClasses = "border-white/10 text-neutral-200 hover:bg-white/5 hover:border-white/20";
   if (danger) {
@@ -3525,7 +3707,8 @@ function SecondaryAction({
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] transition ${colorClasses}`}
+      disabled={disabled}
+      className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] transition ${colorClasses} disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent`}
     >
       {icon}
       {children}

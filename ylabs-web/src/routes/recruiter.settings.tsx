@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { Check } from "lucide-react";
+import { TIMEZONES, EXPIRY_OPTIONS, DURATION_OPTIONS } from "@/lib/recruiter";
 
 export const Route = createFileRoute("/recruiter/settings")({
   head: () => ({
@@ -16,9 +17,38 @@ function SettingsPage() {
   const [email, setEmail] = useState(user?.email ?? "recruiter@yuvro.com");
   const [org, setOrg] = useState("Yuvro Talent Co.");
   const [notif, setNotif] = useState({ candidate: true, weekly: true, ai: false });
+  const [duration, setDuration] = useState("90 min");
+  const [expiry, setExpiry] = useState("14");
+  const [timezone, setTimezone] = useState(
+    typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "Asia/Kolkata"
+  );
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pl-recruiter-settings");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.name) setName(parsed.name);
+          if (parsed.email) setEmail(parsed.email);
+          if (parsed.org) setOrg(parsed.org);
+          if (parsed.notif) setNotif(parsed.notif);
+          if (parsed.duration) setDuration(parsed.duration);
+          if (parsed.expiry) setExpiry(parsed.expiry);
+          if (parsed.timezone) setTimezone(parsed.timezone);
+        }
+      } catch {}
+    }
+  }, []);
+
   const save = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "pl-recruiter-settings",
+        JSON.stringify({ name, email, org, notif, duration, expiry, timezone })
+      );
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   };
@@ -61,13 +91,13 @@ function SettingsPage() {
         </Card>
         <Card title="Workspace" desc="Recruiter workspace prefs.">
           <FieldRow label="Default duration">
-            <Input value="90 min" onChange={() => {}} />
+            <Select value={duration} onChange={setDuration} options={DURATION_OPTIONS} />
           </FieldRow>
           <FieldRow label="Default expiry">
-            <Input value="14 days" onChange={() => {}} />
+            <Select value={expiry} onChange={setExpiry} options={EXPIRY_OPTIONS} />
           </FieldRow>
           <FieldRow label="Time zone">
-            <Input value="Asia / Kolkata" onChange={() => {}} />
+            <Select value={timezone} onChange={setTimezone} options={TIMEZONES} />
           </FieldRow>
         </Card>
       </div>
@@ -110,6 +140,7 @@ function Card({
     </div>
   );
 }
+
 function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
@@ -118,6 +149,7 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
     </div>
   );
 }
+
 function Input({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
     <input
@@ -127,6 +159,31 @@ function Input({ value, onChange }: { value: string; onChange: (v: string) => vo
     />
   );
 }
+
+function Select({
+  value,
+  onChange,
+  options,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: readonly { value: string; label: string }[];
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[13px] text-white outline-none transition focus:border-emerald-400/60"
+    >
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value} className="bg-[#121214] text-white">
+          {opt.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 function Toggle({
   label,
   checked,

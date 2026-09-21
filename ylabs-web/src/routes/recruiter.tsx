@@ -13,11 +13,14 @@ import {
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/hooks/use-theme";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { requireRecruiterAuth } from "@/utils/authGuards";
 import { PricingContent } from "./pricing";
 import { DeployInfo } from "@/components/common/DeployInfo";
 import { PanelLeftClose, Menu } from "lucide-react";
+import LoadingSkeleton from "@/components/common/LoadingSkeleton";
 
 export const Route = createFileRoute("/recruiter")({
+  beforeLoad: ({ location }) => requireRecruiterAuth(location.href),
   head: () => ({
     meta: [{ title: "Recruiter — Yuvro Labs" }, { name: "robots", content: "noindex" }],
   }),
@@ -48,6 +51,16 @@ function RecruiterLayout() {
   }, []);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("access");
+      if (!token) {
+        nav({ to: "/auth", search: { tab: "signin", redirect: window.location.pathname } });
+        return;
+      }
+    }
+  }, [user, nav]);
+
+  useEffect(() => {
     async function checkPlan() {
       try {
         const res = await yhubApiAuthUtil.get<any[]>("/payment/entitlements/");
@@ -62,13 +75,17 @@ function RecruiterLayout() {
         if (isTrialPlan && plan.revoked_at) {
           setExpiryDate(plan.revoked_at);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to fetch entitlements", err);
+        if (err?.status === 401 || !localStorage.getItem("access")) {
+          nav({ to: "/auth", search: { tab: "signin", redirect: window.location.pathname } });
+          return;
+        }
         setHasPlan(false);
       }
     }
     checkPlan();
-  }, []);
+  }, [nav]);
   const items = [
     { to: "/recruiter/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
     { to: "/recruiter/evaluations", label: "Evaluations", icon: ClipboardList },
@@ -78,15 +95,7 @@ function RecruiterLayout() {
   const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname.startsWith(to);
 
-  if (hasPlan === null) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0b] flex items-center justify-center text-white text-sm">
-        Loading workspace...
-      </div>
-    );
-  }
-
-  if (!hasPlan) {
+  if (hasPlan === false) {
     return (
       <div className="bg-[#FAFAF8] min-h-screen text-[#0A0A0A] antialiased selection:bg-[#0A0A0A] selection:text-white pb-20">
         <div className="fixed top-0 inset-x-0 h-16 bg-white/80 backdrop-blur-md border-b z-50 flex items-center justify-between px-6">

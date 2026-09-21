@@ -108,6 +108,11 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 data['status'] = submission.hiring_status
                 data['completed_at'] = submission.completed_at.isoformat() if submission.completed_at else None
 
+        is_expired = False
+        if instance.expiry_datetime and timezone.now() > instance.expiry_datetime:
+            is_expired = True
+        data['is_expired'] = is_expired
+
         return Response(data)
     
     def perform_create(self, serializer):

@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { EvalShell, PrimaryButton, Spinner } from "@/components/evaluation/EvalShell";
 import { clearGlobalProctoringData } from "@/utils/proctoringStore";
+import { evaluationService } from "../services/evaluationService";
 
 export const Route = createFileRoute("/evaluation/complete")({
   head: () => ({
@@ -13,12 +14,39 @@ export const Route = createFileRoute("/evaluation/complete")({
 function CompletePage() {
   const nav = useNavigate();
   const [phase, setPhase] = useState<"submitting" | "done">("submitting");
+  const [maxScore, setMaxScore] = useState<number | null>(null);
+
+  const searchParams = new URLSearchParams(
+    typeof window !== "undefined" ? window.location.search : ""
+  );
+  const evaluationId = searchParams.get("e") || "";
 
   useEffect(() => {
     clearGlobalProctoringData();
+    if (evaluationId) {
+      evaluationService.getWorkspaceData(evaluationId).then((res) => {
+        let tot = 0;
+        (res.sections || []).forEach((sec: any) => {
+          if (sec.type === "LAB") {
+            (sec.questions || []).forEach((q: any) => {
+              tot += Number(q.marks || (Array.isArray(q.tasks) ? q.tasks.length * 10 : 10));
+            });
+          } else if (sec.type === "KNOWLEDGE_ASSESSMENT") {
+            (sec.questions || []).forEach((q: any) => {
+              tot += Number(q.marks || 1);
+            });
+          } else if (sec.type === "VITARKA_AI_INTERVIEW") {
+            let meta: any = {};
+            try { meta = typeof sec.description === "string" ? JSON.parse(sec.description) : {}; } catch {}
+            tot += Number(meta.marks ?? meta.max_score ?? sec.marks ?? 25);
+          }
+        });
+        if (tot > 0) setMaxScore(tot);
+      }).catch(() => {});
+    }
     const t = setTimeout(() => setPhase("done"), 2400);
     return () => clearTimeout(t);
-  }, []);
+  }, [evaluationId]);
 
   if (phase === "submitting") {
     return (
@@ -73,6 +101,13 @@ function CompletePage() {
           You've completed your Yuvro Labs engineering evaluation. The hiring team will review your
           work and be in touch shortly.
         </p>
+
+        {maxScore !== null && (
+          <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2 text-[13px] font-medium text-neutral-800">
+            <span>Evaluation Maximum Score:</span>
+            <span className="font-mono text-emerald-600 font-semibold">{maxScore} pts</span>
+          </div>
+        )}
 
         <div className="mt-12 text-left">
           <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">

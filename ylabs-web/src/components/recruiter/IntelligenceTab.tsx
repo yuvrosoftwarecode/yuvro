@@ -29,6 +29,7 @@ import { Link } from "@tanstack/react-router";
 import type { Evaluation } from "@/lib/recruiter";
 import type { Candidate } from "@/lib/recruiterCandidates";
 import { experienceBucket, vitarkaLabel } from "@/lib/recruiterCandidates";
+import EmptyState from "@/components/common/EmptyState";
 
 // -------- section nav --------
 const SECTIONS = [
@@ -56,6 +57,18 @@ export function IntelligenceTab({
 }) {
   const [section, setSection] = useState<(typeof SECTIONS)[number]["id"]>("health");
   const [globalQ, setGlobalQ] = useState("");
+
+  if (candidates.length === 0) {
+    return (
+      <div className="p-6">
+        <EmptyState
+          icon={Sparkles}
+          title="No Intelligence Data Available"
+          description="AI insights, performance metrics, and section analytics will be generated automatically as candidates complete this evaluation."
+        />
+      </div>
+    );
+  }
   const submitted = useMemo(
     () => candidates.filter((c) => c.status === "Submitted" || c.status === "Completed"),
     [candidates],

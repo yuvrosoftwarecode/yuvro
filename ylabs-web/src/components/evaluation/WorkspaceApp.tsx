@@ -130,6 +130,9 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,
                 test_command: q.test_command || undefined,
+                marks: q.marks || q.points || q.max_score || 10,
+                points: q.marks || q.points || q.max_score || 10,
+                max_score: q.marks || q.points || q.max_score || 10,
                 tasks: Array.isArray(q.tasks) 
                   ? q.tasks.map((t: any) => ({
                       id: t.id || "",
@@ -329,26 +332,13 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     if (!activeSection) return null;
 
     if (activeSection.type === "LAB") {
-      if (openLab) {
-        const lab = activeSection.labs.find(l => l.id === openLab);
-        const isSub = submittedLabs.has(openLab);
-        return {
-          key: `eval_${evalPrefix}_timer_lab_${openLab}`,
-          title: activeSection.title || "Engineering Labs",
-          subTitle: lab?.title || "Lab",
-          durationSeconds: (lab?.minutes || 30) * 60,
-          isSubmitted: isSub,
-          type: "LAB_ITEM",
-          labId: openLab,
-          sectionId: activeSection.id,
-        };
-      }
       const isSub = isSectionCompleted(activeSection);
       const totalSecs = activeSection.labs.reduce((acc, l) => acc + (l.minutes || 30) * 60, 0) || 30 * 60;
+      const activeLab = openLab ? activeSection.labs.find(l => l.id === openLab) : null;
       return {
         key: `eval_${evalPrefix}_timer_sec_${activeSection.id}`,
         title: activeSection.title || "Engineering Labs",
-        subTitle: "Overview",
+        subTitle: activeLab ? activeLab.title : "Overview",
         durationSeconds: totalSecs,
         isSubmitted: isSub,
         type: "LAB_SECTION",
@@ -606,6 +596,11 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   // Listen for lab submission from iframe
   useEffect(() => {
     const onMessage = async (e: MessageEvent) => {
+      if (e.data?.type === "LAB_SAVED" && e.data?.labId) {
+        setOpenLab(null);
+        setModal(null);
+        return;
+      }
       if (e.data?.type === "LAB_SUBMITTED" && e.data?.labId) {
         const activeSection = appSections.find(s => s.id === section);
         if (activeSection?.type === "KNOWLEDGE_ASSESSMENT") {
@@ -621,11 +616,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
           }
         }
 
-        try {
-          if (evaluationId) await evaluationService.submitLab?.(evaluationId, e.data.labId, { status: "done", score: e.data.score });
-        } catch (err) {
-          console.error(err);
+        if (evaluationId) {
+          evaluationService.submitLab?.(evaluationId, e.data.labId, { status: "done", score: e.data.score }).catch(console.error);
         }
+
         setSubmittedLabs(prev => {
           const nextLabs = new Set(prev).add(e.data.labId);
           const activeLabSec = appSections.find(s => s.type === "LAB" && s.labs.some(l => l.id === e.data.labId));
@@ -741,6 +735,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     setModal(null);
   };
   const confirmSubmitSection = async (secId: string) => {
+    setModal({ kind: "submitting-evaluation" });
     try {
       const sec = appSections.find(s => s.id === secId);
       const richAnswers: any[] = [];
@@ -782,14 +777,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     } catch (e) {}
     setSubmittedSections(prev => new Set(prev).add(secId));
     setActiveQuestionId(null);
-    setModal(null);
     const idx = appSections.findIndex(s => s.id === secId);
     if (idx !== -1 && idx + 1 < appSections.length) {
       setSection(appSections[idx + 1].id);
       setOpenLab(null);
       setQIndex(0);
+      setModal(null);
     } else {
-      setModal({ kind: "submit-evaluation" });
+      await submitEvaluation(false);
     }
   };
 
@@ -1064,6 +1059,9 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   common_mistakes: [],
                   startup_command: lab.startup_command,
                   test_command: (lab as any).test_command,
+                  marks: (lab as any).marks || 10,
+                  points: (lab as any).points || (lab as any).marks || 10,
+                  max_score: (lab as any).max_score || (lab as any).marks || 10,
                 };
                 return (
                   <TicketIDE

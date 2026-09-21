@@ -140,6 +140,15 @@ class EvaluationSerializer(serializers.ModelSerializer):
             'completed_candidates_count', 'candidates_invited_count', 'total_candidates_count'
         ]
 
+    def validate_domain(self, value):
+        if not value:
+            return QuestionDomain.OTHER
+        normalized = str(value).strip().upper().replace(" ", "_")
+        valid_choices = [c[0] for c in QuestionDomain.choices]
+        if normalized in valid_choices:
+            return normalized
+        return QuestionDomain.OTHER
+
     def get_created_by(self, obj):
         if obj.created_by:
             name = f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()

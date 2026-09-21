@@ -2,13 +2,15 @@ import type { Candidate } from "@/lib/recruiterCandidates";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search, ChevronDown, Columns3, Download, MoreHorizontal, X, Filter,
-  Eye, FileText, Link2, PhoneCall, BellPlus, ArrowUpDown, Check,
+  Eye, FileText, Link2, PhoneCall, BellPlus, ArrowUpDown, Check, Users,
 } from "lucide-react";
 import type { Evaluation } from "@/lib/recruiter";
 import {
   fetchCandidateRecords, recordTotals, fmtDate, fmtTime,
   type CandidateRecord, type RecordSource, type RecordStatus, type RecordResult,
 } from "@/lib/candidateRecords";
+import EmptyState from "@/components/common/EmptyState";
+import LoadingSkeleton from "@/components/common/LoadingSkeleton";
 
 type SortKey = "sent_desc" | "sent_asc" | "sub_desc" | "score_desc" | "score_asc" | "name_asc";
 
@@ -338,14 +340,18 @@ export function CandidateRecordsTab({
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={cols.length + 1} className="px-3 py-16 text-center text-[13px] text-neutral-500">
-                    Loading candidate records...
+                  <td colSpan={cols.length + 1} className="px-3 py-12">
+                    <LoadingSkeleton type="table" count={5} />
                   </td>
                 </tr>
               ) : slice.length === 0 ? (
                 <tr>
-                  <td colSpan={cols.length + 1} className="px-3 py-16 text-center text-[13px] text-neutral-500">
-                    No candidates match these filters.
+                  <td colSpan={cols.length + 1} className="px-3 py-12">
+                    <EmptyState
+                      icon={Users}
+                      title="No Candidates Found"
+                      description="No candidate records match your active search and filter criteria."
+                    />
                   </td>
                 </tr>
               ) : (

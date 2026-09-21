@@ -10,6 +10,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import { listEvaluations, createEvaluation, Evaluation, evaluationTotals } from "@/lib/recruiter";
+import LoadingSkeleton from "@/components/common/LoadingSkeleton";
+import EmptyState from "@/components/common/EmptyState";
+import ErrorState from "@/components/common/ErrorState";
 
 export const Route = createFileRoute("/recruiter/dashboard")({
   head: () => ({
@@ -20,9 +23,27 @@ export const Route = createFileRoute("/recruiter/dashboard")({
 
 function RecruiterDashboard() {
   const [evals, setEvals] = useState<Evaluation[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const nav = useNavigate();
+
+  const loadData = () => {
+    setLoading(true);
+    setError(null);
+    listEvaluations()
+      .then((data) => {
+        setEvals(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Failed to load dashboard evaluations.");
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
-    listEvaluations().then(setEvals).catch(console.error);
+    loadData();
   }, []);
 
   const total = evals.length;
@@ -105,20 +126,10 @@ function RecruiterDashboard() {
         ))}
       </div>
 
-      <div className="mt-10 rounded-2xl border border-white/5 bg-white">
-        <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
-          <div>
-            <div className="text-[13px] font-medium">Recent Evaluations</div>
-            <div className="text-[11px] text-neutral-500">
-              Your latest work — pick up where you left off.
-            </div>
-          </div>
-          <Link
-            to="/recruiter/evaluations"
-            className="inline-flex items-center gap-1 text-[12px] text-neutral-400 hover:text-white"
-          >
-            View all <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
+      {loading ? (
+        <div className="mt-10 space-y-10">
+          <LoadingSkeleton type="metrics" />
+          <LoadingSkeleton type="table" count={5} />
         </div>
         {evals.length === 0 ? (
           <div className="p-10 text-center text-[13px] text-neutral-500">
@@ -158,8 +169,66 @@ function RecruiterDashboard() {
               );
             })}
           </div>
-        )}
-      </div>
+
+          <div className="mt-10 rounded-2xl border border-white/5 bg-white">
+            <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
+              <div>
+                <div className="text-[13px] font-medium">Recent Evaluations</div>
+                <div className="text-[11px] text-neutral-500">
+                  Your latest work — pick up where you left off.
+                </div>
+              </div>
+              <Link
+                to="/recruiter/evaluations"
+                className="inline-flex items-center gap-1 text-[12px] text-neutral-400 hover:text-white"
+              >
+                View all <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+            {evals.length === 0 ? (
+              <div className="p-8">
+                <EmptyState
+                  icon={ClipboardList}
+                  title="No evaluations yet"
+                  description="Create your first evaluation to start testing candidates."
+                  action={{ label: "Create Evaluation", onClick: onCreate, icon: Plus }}
+                />
+              </div>
+            ) : (
+              <div className="divide-y divide-white/5">
+                {evals.slice(0, 5).map((e) => {
+                  const t = evaluationTotals(e);
+                  return (
+                    <Link
+                      key={e.id}
+                      to="/recruiter/evaluations/$id"
+                      params={{ id: e.id }}
+                      className="group grid grid-cols-[1fr_auto_auto_auto] items-center gap-6 px-5 py-4 transition hover:bg-white/[0.02]"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate text-[14px] text-white">{e.title}</span>
+                          <StatusPill status={e.status} />
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-neutral-500">
+                          {e.domain || "—"} · {t.sections} sections · {t.minutes} min · {t.marks} marks
+                        </div>
+                      </div>
+                      <div className="text-right text-[11px] text-neutral-500">
+                        Invited<div className="text-[13px] text-white">{e.candidatesInvited}</div>
+                      </div>
+                      <div className="text-right text-[11px] text-neutral-500">
+                        Completed<div className="text-[13px] text-white">{e.candidatesCompleted}</div>
+                      </div>
+                      <ArrowUpRight className="h-4 w-4 text-neutral-500 transition group-hover:text-emerald-400" />
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
