@@ -998,9 +998,6 @@ function RecordRowView({ row, evId, notify, onOpen, onRemove, onToggleFollowups,
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-xl z-50">
-            <DropdownMenuItem onClick={onOpen} className="flex cursor-pointer items-center gap-2 px-3 py-2 text-[12.5px] text-neutral-700 hover:bg-neutral-50 focus:bg-neutral-50 focus:outline-none">
-              <Eye className="h-3.5 w-3.5" /> View Communication History
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={async () => {
               notify("Sending reminder...");
               const ok = await sendReminderNow(evId, row.email);

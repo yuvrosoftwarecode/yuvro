@@ -293,7 +293,7 @@ function Workspace() {
           {/* Tabs & Actions */}
           <div className="mt-6 flex items-center justify-between">
             <nav className="flex items-center gap-1">
-              {(["overview", "candidates", "followups", "records", "intelligence", "settings"] as const).map(
+              {(["overview", "candidates", "followups", "records"] as const).map(
                 (t) => (
                   <button
                     key={t}
