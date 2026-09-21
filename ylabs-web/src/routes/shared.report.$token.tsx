@@ -15,8 +15,10 @@ import { getSharedReportByToken } from "@/lib/recruiter";
 import { getCandidates } from "@/lib/recruiterCandidates";
 import {
   getCandidateDetail,
+  loadTimelineEvents,
   type TimelineEvent,
 } from "@/lib/recruiterCandidateDetail";
+import { buildEvaluationSummary } from "@/lib/evaluationSummary";
 import {
   OverviewPane,
   LabsPane,
@@ -75,11 +77,11 @@ function SharedReportWorkspace() {
         setEv(data.evaluation);
         
         // Pass the single submission into getCandidates to perfectly hydrate scores, names, and logic
-        const cands = getCandidates(data.evaluation.id, [data.submission]);
+        const cands = getCandidates(data.evaluation.id, [data.submission], [], data.evaluation);
         const hydratedCand = cands[0] || {
           id: data.submission.id,
-          name: data.submission.user?.full_name || data.submission.user?.username || data.submission.email?.split('@')[0] || "Candidate",
-          email: data.submission.user?.email || data.submission.email || "",
+          name: data.submission.full_name || data.submission.name || data.submission.user?.full_name || data.submission.user?.username || data.submission.email?.split('@')[0] || "Candidate",
+          email: data.submission.email || data.submission.user?.email || "",
           phone: data.submission.phone || data.submission.user?.phone || "",
           hiringStatus: data.submission.hiring_status || "Pending Review",
           eci: 0,
@@ -94,7 +96,14 @@ function SharedReportWorkspace() {
           rawSubmission: data.submission
         });
         
-        if (data.timelineEvents) {
+        if (data.evaluation?.id && hydratedCand.email) {
+          const realTimeline = await loadTimelineEvents(data.evaluation.id, hydratedCand.email);
+          if (realTimeline && realTimeline.length > 0) {
+            setTimelineEvents(realTimeline);
+          } else if (data.timelineEvents && data.timelineEvents.length > 0) {
+            setTimelineEvents(data.timelineEvents);
+          }
+        } else if (data.timelineEvents) {
           setTimelineEvents(data.timelineEvents);
         }
         setLoading(false);
@@ -279,6 +288,37 @@ function SharedReportWorkspace() {
     discussionMaxScore,
   });
 
+  const downloadReport = async () => {
+    try {
+      const { downloadCandidateReportPdf } = await import("@/lib/candidateReportPdf");
+      downloadCandidateReportPdf({
+        name: displayCandidate.name,
+        email: displayCandidate.email,
+        phone: displayCandidate.phone,
+        college: displayCandidate.college,
+        company: displayCandidate.company,
+        experience: displayCandidate.experience,
+        eci: displayCandidate.eci,
+        recommendation: displayCandidate.recommendation,
+        confidence: detail.confidence,
+        labsScore: displayCandidate.labsScore,
+        assessmentScore: displayCandidate.assessmentScore,
+        vitarkaScore: displayCandidate.vitarkaScore,
+        labsMaxScore,
+        assessmentMaxScore,
+        discussionMaxScore,
+        strengths: detail.strengths,
+        weaknesses: detail.weaknesses,
+        aiSummary: detail.aiSummary,
+        nextStep: detail.nextStep,
+        evaluationTitle: ev?.title || "Evaluation Report",
+        summary: buildEvaluationSummary(displayCandidate, hasLabs, hasAssessment, hasVitarka),
+      });
+    } catch (err) {
+      console.error("Failed to generate PDF report:", err);
+    }
+  };
+
   const tabsToDisplay: Tab[] = ["overview"];
   if (hasLabs) tabsToDisplay.push("labs");
   if (hasAssessment) tabsToDisplay.push("assessment");
@@ -300,10 +340,20 @@ function SharedReportWorkspace() {
                   </h1>
                   <StatusPill s={candidate.hiringStatus} />
                   
+                  {/* Export PDF Button */}
+                  <button
+                    onClick={downloadReport}
+                    className={`ml-3 inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium border transition ${isLightMode ? 'bg-white border-neutral-300 text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}`}
+                    title="Export PDF Report"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Export PDF
+                  </button>
+
                   {/* Theme Toggle */}
                   <button
                     onClick={() => setIsLightMode(!isLightMode)}
-                    className={`ml-3 flex items-center justify-center rounded-full p-2 transition ${isLightMode ? 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900' : 'bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-white'}`}
+                    className={`ml-2 flex items-center justify-center rounded-full p-2 transition ${isLightMode ? 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900' : 'bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-white'}`}
                     title={isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}
                   >
                     {isLightMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
@@ -379,7 +429,12 @@ function SharedReportWorkspace() {
           {tab === "assessment" && <AssessmentPane ev={ev} candidate={displayCandidate} />}
           {tab === "vitarka" && (
             <VitarkaPane
+              candidate={displayCandidate}
               detail={detail}
+              report={liveVitarkaReport}
+              reportBundle={reportBundle}
+              submission={vitarkaSubmission}
+              submissionStatus={vitarkaSubmission?.status}
               onDownload={() => {
                 alert("Transcript downloaded");
               }}

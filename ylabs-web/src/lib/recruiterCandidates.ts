@@ -252,19 +252,15 @@ export function getCandidates(
   for (let i = 0; i < submissions.length; i++) {
     const sub = submissions[i];
     const user = sub.user || {};
-    const firstName = user.first_name || pick(r, REAL_NAMES).split(' ')[0];
-    const lastName = user.last_name || '';
-    const name = `${firstName} ${lastName}`.trim();
-    const email = user.email || `${firstName.toLowerCase()}.${lastName.toLowerCase()}${Math.floor(r() * 900) + 100}@example.com`;
-    const experience = Math.floor(r() * 12); // 0..11
-    const college = pick(r, COLLEGES);
-    const company =
-      experience === 0
-        ? "Fresher"
-        : pick(
-            r,
-            COMPANIES.filter((c) => c !== "Fresher"),
-          );
+    const candEmail = sub.email || sub.candidate_email || user.email || sub.user_email || "";
+    const fullName = sub.full_name || sub.name || sub.candidate_name || (user.full_name ? user.full_name : (user.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : "")) || (sub.first_name ? `${sub.first_name} ${sub.last_name || ''}`.trim() : "") || user.username || (candEmail ? candEmail.split('@')[0] : "");
+
+    const name = fullName || pick(r, REAL_NAMES);
+    const email = candEmail || `${name.toLowerCase().replace(/[^a-z0-9]/g, '.')}${Math.floor(r() * 900) + 100}@example.com`;
+    const phone = sub.phone || sub.phone_number || sub.candidate_phone || user.phone || user.phone_number || "";
+    const experience = sub.experience != null ? Number(sub.experience) : (user.experience != null ? Number(user.experience) : Math.floor(r() * 12));
+    const college = sub.college || sub.education || sub.candidate_college || user.college || user.education || pick(r, COLLEGES);
+    const company = sub.company || sub.current_company || sub.candidate_company || user.company || user.current_company || (experience === 0 ? "Fresher" : pick(r, COMPANIES.filter((c) => c !== "Fresher")));
     const isDemo = evaluationId.startsWith("7700") || evaluationId.startsWith("demo");
     let labs = 0;
     let assess = 0;
@@ -484,11 +480,11 @@ export function getCandidates(
       }
 
       out.push({
-        id: `${evaluationId.slice(0, 4)}-${(1000 + i).toString(36)}`,
-        realUserId: user.id,
+        id: sub.id ? String(sub.id) : `${evaluationId.slice(0, 4)}-${(1000 + i).toString(36)}`,
+        realUserId: user.id || sub.user_id || sub.candidate_id,
         name,
         email,
-        phone: sub.phone || user.phone || sub.rawSubmission?.phone || (isDemo ? `+91 ${Math.floor(r() * 9000000000) + 1000000000}` : "—"),
+        phone: phone || sub.phone || user.phone || sub.rawSubmission?.phone || (isDemo ? `+91 ${Math.floor(r() * 9000000000) + 1000000000}` : "—"),
         experience,
         college,
         company,

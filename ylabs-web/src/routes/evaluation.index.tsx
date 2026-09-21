@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useRouter, useSearch } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EvalShell, EvalStepHeader, PrimaryButton, Field } from "@/components/evaluation/EvalShell";
 import { evaluationService, setTempResumeFile } from "../services/evaluationService";
 
@@ -25,8 +25,34 @@ function EvaluationInvite() {
   const [err, setErr] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const searchParams = useSearch({ strict: false });
-  const evaluationId = (searchParams as any).e || "";
+  const searchParams = useSearch({ strict: false }) as Record<string, string>;
+  const evaluationId = searchParams?.e || searchParams?.evaluationId || "";
+  const [estMinutes, setEstMinutes] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!evaluationId) return;
+    evaluationService.getWorkspaceData(evaluationId).then((data) => {
+      if (data?.sections) {
+        let total = 0;
+        data.sections.forEach((sec: any) => {
+          if (sec.type === "LAB") {
+            (sec.questions || []).forEach((q: any) => {
+              total += Number(q.duration_minutes || 30);
+            });
+          } else if (sec.type === "KNOWLEDGE_ASSESSMENT") {
+            (sec.questions || []).forEach((q: any) => {
+              total += Number(q.duration_minutes || 2);
+            });
+          } else if (sec.type === "VITARKA_AI_INTERVIEW") {
+            let meta: any = {};
+            try { meta = typeof sec.description === "string" ? JSON.parse(sec.description) : {}; } catch {}
+            total += Number(meta.duration || sec.duration_minutes || 15);
+          }
+        });
+        if (total > 0) setEstMinutes(total);
+      }
+    }).catch(() => {});
+  }, [evaluationId]);
 
   const onFiles = (list: FileList | null) => {
     const f = list?.[0];
@@ -48,6 +74,11 @@ function EvaluationInvite() {
     setErr(null);
     try {
       const checkRes = await evaluationService.checkRegistration(evaluationId, email);
+      if (checkRes.is_expired) {
+        setErr(checkRes.error || "This evaluation has expired and is no longer accepting submissions.");
+        setLoading(false);
+        return;
+      }
       if (checkRes.registered) {
         setErr("The user is already evaluated with this mail");
         setLoading(false);
@@ -242,15 +273,8 @@ function EvaluationInvite() {
             </p>
           </form>
 
-          <div className="mt-6 flex items-center justify-between px-1 text-[11px] text-neutral-500">
-            <span>Est. 60 minutes · works best on Chrome, Safari or Edge</span>
-            <Link
-              to="/auth"
-              search={{ tab: "signin" }}
-              className="hover:text-neutral-900 transition"
-            >
-              Recruiter sign in →
-            </Link>
+          <div className="mt-6 text-center text-[11px] text-neutral-500">
+            <span>Est. {estMinutes ? `${estMinutes} minutes` : "30–60 minutes"} · works best on Chrome, Safari or Edge</span>
           </div>
         </section>
       </div>
