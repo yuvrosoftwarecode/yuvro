@@ -51,6 +51,7 @@ import {
   Evaluation,
   getEvaluationSubmissions,
   inviteCandidates,
+  generateSharedReportLink,
 } from "@/lib/recruiter";
 import {
   getCandidates,
@@ -292,7 +293,7 @@ function Workspace() {
           {/* Tabs & Actions */}
           <div className="mt-6 flex items-center justify-between">
             <nav className="flex items-center gap-1">
-              {(["overview", "candidates", "followups", "records", "intelligence", "settings"] as const).map(
+              {(["overview", "candidates", "followups", "records"] as const).map(
                 (t) => (
                   <button
                     key={t}
@@ -331,7 +332,7 @@ function Workspace() {
           <CandidatesTab evId={ev.id} ev={ev} candidates={candidates} notify={notify} onRefresh={refreshSubmissions} />
         )}
         {tab === "followups" && <FollowUpsTab ev={ev} notify={notify} />}
-        {tab === "records" && <CandidateRecordsTab ev={ev} notify={notify} onGotoFollowUps={() => goto("followups")} />}
+        {tab === "records" && <CandidateRecordsTab ev={ev} notify={notify} onGotoFollowUps={() => goto("followups")} candidates={candidates} />}
         {tab === "intelligence" && (
           <IntelligenceTab ev={ev} candidates={candidates} notify={notify} />
         )}
@@ -1086,6 +1087,83 @@ function CandidatesTab({
       await saveDecision(evId, c.id, c.email, decision);
       notify(`${label} applied to ${c.name}`);
       onRefresh();
+    } else if (label === "Resume opened") {
+      nav({
+        to: "/recruiter/evaluations/$id/candidates/$candidateId",
+        params: { id: evId, candidateId: c.id },
+        search: { view: "edit", tab: "resume" } as any,
+      });
+    } else if (label === "Note added") {
+      nav({
+        to: "/recruiter/evaluations/$id/candidates/$candidateId",
+        params: { id: evId, candidateId: c.id },
+        search: { view: "edit", tab: "notes" } as any,
+      });
+    } else if (label === "Report downloaded") {
+      try {
+        notify("Generating report PDF...");
+        const { getCandidateDetail } = await import("@/lib/recruiterCandidateDetail");
+        const { buildEvaluationSummary } = await import("@/lib/evaluationSummary");
+        const { downloadCandidateReportPdf } = await import("@/lib/candidateReportPdf");
+        
+        const detail = getCandidateDetail(c, {
+          labsMaxScore: c.labsMaxScore ?? 80,
+          assessmentMaxScore: c.assessmentMaxScore ?? 30,
+          discussionMaxScore: c.discussionMaxScore ?? 25,
+        });
+        
+        downloadCandidateReportPdf({
+          name: c.name,
+          email: c.email,
+          phone: c.phone,
+          college: c.college,
+          company: c.company,
+          experience: c.experience,
+          eci: c.eci,
+          recommendation: c.recommendation,
+          confidence: detail.confidence,
+          labsScore: c.labsScore,
+          assessmentScore: c.assessmentScore,
+          vitarkaScore: c.vitarkaScore,
+          labsMaxScore: c.labsMaxScore ?? 80,
+          assessmentMaxScore: c.assessmentMaxScore ?? 30,
+          discussionMaxScore: c.discussionMaxScore ?? 25,
+          strengths: detail.strengths,
+          weaknesses: detail.weaknesses,
+          aiSummary: detail.aiSummary,
+          nextStep: detail.nextStep,
+          evaluationTitle: ev?.title || "Evaluation Report",
+          summary: buildEvaluationSummary(c, hasLabs, hasAssessment, hasVitarka),
+        });
+        notify("Report downloaded");
+      } catch (err) {
+        console.error(err);
+        notify("Failed to download PDF report");
+      }
+    } else if (label === "Link copied") {
+      try {
+        const result = await generateSharedReportLink(evId, c.email, c.rawSubmission?.id || c.id);
+        if (result && result.token) {
+          const url = `${typeof window !== "undefined" ? window.location.origin : ""}/shared/report/${result.token}`;
+          if (navigator.clipboard) {
+            await navigator.clipboard.writeText(url);
+          } else {
+            // Fallback for non-secure contexts
+            const el = document.createElement('textarea');
+            el.value = url;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+          }
+          notify("Candidate report link copied");
+        } else {
+          notify("Failed to generate link");
+        }
+      } catch (e) {
+        console.error(e);
+        notify("Failed to copy link");
+      }
     } else {
       notify(label);
     }
