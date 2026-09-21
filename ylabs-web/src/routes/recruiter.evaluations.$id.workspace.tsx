@@ -481,7 +481,12 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
   };
 
   const isValid = recipients.length > 0 || (emailsInput.trim() && emailRegex.test(emailsInput.trim()));
-  const totalCount = recipients.length + (emailsInput.trim() && emailRegex.test(emailsInput.trim()) && !recipients.includes(emailsInput.trim()) ? 1 : 0);
+  const allEmailsToPreview = [...recipients];
+  if (emailsInput.trim() && emailRegex.test(emailsInput.trim()) && !recipients.includes(emailsInput.trim())) {
+    allEmailsToPreview.push(emailsInput.trim());
+  }
+  const totalCount = allEmailsToPreview.length;
+  const [showAllRecipients, setShowAllRecipients] = useState(false);
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-white text-neutral-900">
@@ -573,12 +578,29 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
           
           <div className="mt-8 flex-1 rounded-xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex flex-col">
             <div className="border-b border-neutral-100 bg-neutral-50/50 px-6 py-4">
-              <div className="mb-2 flex items-center text-[13px]">
-                <span className="w-16 font-medium text-neutral-500">To:</span>
-                <span className="text-neutral-700">
-                  {recipients[0] || (emailsInput && emailRegex.test(emailsInput.trim()) ? emailsInput.trim() : "candidate@example.com")}
-                  {totalCount > 1 ? ` (+${totalCount - 1} more)` : ""}
-                </span>
+              <div className="mb-2 flex items-start text-[13px]">
+                <span className="w-16 font-medium text-neutral-500 pt-0.5">To:</span>
+                <div className="flex-1 text-neutral-700">
+                  {showAllRecipients ? (
+                    <div className="flex flex-wrap gap-1">
+                      {allEmailsToPreview.length > 0 ? allEmailsToPreview.map((r, i) => <span key={i} className="bg-neutral-200/50 px-1.5 py-0.5 rounded text-[12px]">{r}</span>) : "candidate@example.com"}
+                      {allEmailsToPreview.length > 1 && (
+                        <button onClick={() => setShowAllRecipients(false)} className="text-amber-600 hover:underline text-[12px] px-1 ml-1 font-medium bg-amber-50 rounded">
+                          (collapse)
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <span>
+                      {allEmailsToPreview[0] || "candidate@example.com"}
+                      {totalCount > 1 && (
+                        <button onClick={() => setShowAllRecipients(true)} className="text-amber-600 hover:underline ml-1 font-medium bg-amber-50 px-1.5 py-0.5 rounded text-[12px]">
+                          (+{totalCount - 1} more)
+                        </button>
+                      )}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center text-[13px]">
                 <span className="w-16 font-medium text-neutral-500">Subject:</span>

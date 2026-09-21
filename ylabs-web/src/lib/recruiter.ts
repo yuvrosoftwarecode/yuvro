@@ -888,6 +888,8 @@ export async function generateSharedReportLink(
   }
 }
 
+import { formatTimelineEvents } from "./recruiterCandidateDetail";
+
 export async function getSharedReportByToken(token: string): Promise<any> {
   try {
     const res = await fetch(`${API_BASE}/shared-report/${token}/`);
@@ -896,19 +898,54 @@ export async function getSharedReportByToken(token: string): Promise<any> {
     return {
       evaluation: mapBackendToFrontend(data.evaluation),
       submission: data.submission,
-      timelineEvents: (data.timeline_events || []).map((r: any) => {
-        let tone = "neutral";
-        if (r.status === "SUCCESS") tone = "success";
-        else if (r.status === "WARNING" || r.status === "ERROR") tone = "warn";
-        return {
-          id: r.id || String(Math.random()),
-          label: r.title || "Event",
-          time: new Date(r.occurred_at).toLocaleString(),
-          tone,
-        };
-      })
+      timelineEvents: formatTimelineEvents(data.timeline_events || [])
     };
   } catch {
     return null;
   }
+}
+
+export async function toggleFollowUp(evId: string, email: string, enabled: boolean): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/evaluations/${evId}/toggle_followup/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("access") },
+    body: JSON.stringify({ email, enabled })
+  });
+  return res.ok;
+}
+
+export async function removeFollowUp(evId: string, email: string): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/evaluations/${evId}/remove_followup/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("access") },
+    body: JSON.stringify({ email })
+  });
+  return res.ok;
+}
+
+export async function triggerAiCall(evId: string, email: string): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/evaluations/${evId}/trigger_ai_call/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("access") },
+    body: JSON.stringify({ email })
+  });
+  return res.ok;
+}
+
+export async function sendReminderNow(evId: string, email: string): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/evaluations/${evId}/send_reminder/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("access") },
+    body: JSON.stringify({ email })
+  });
+  return res.ok;
+}
+
+export async function editCandidateDeadline(evId: string, email: string, deadline: string): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/evaluations/${evId}/edit_candidate_deadline/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("access") },
+    body: JSON.stringify({ email, deadline })
+  });
+  return res.ok;
 }

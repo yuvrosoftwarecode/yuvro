@@ -836,6 +836,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     defaults={
                         'name': cand.get('name', ''),
                         'phone': cand.get('phone', ''),
+                        'followups_enabled': config.smart_followups,
                         'created_by': evaluation.created_by
                     }
                 )
@@ -864,7 +865,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 evaluation.candidate_invited_emails = current_invited
                 evaluation.save(update_fields=['candidate_invited_emails', 'updated_at'])
             
-            if processed_emails:
+            if processed_emails and config.smart_followups:
                 from .email_utils import send_evaluation_email
                 send_evaluation_email(
                     evaluation, 
@@ -874,6 +875,98 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 )
             
             return Response({"status": "success"})
+
+    @action(detail=True, methods=['post'])
+    def toggle_followup(self, request, pk=None):
+        evaluation = self.get_object()
+        email = request.data.get('email')
+        enabled = request.data.get('enabled', True)
+        
+        if not email:
+            return Response({"error": "email is required"}, status=400)
+            
+        try:
+            candidate = FollowUpCandidate.objects.get(evaluation=evaluation, email=email)
+            candidate.followups_enabled = enabled
+            candidate.save(update_fields=['followups_enabled'])
+            return Response({"status": "success", "enabled": enabled})
+        except FollowUpCandidate.DoesNotExist:
+            return Response({"error": "Candidate not found"}, status=404)
+            
+    @action(detail=True, methods=['post'])
+    def remove_followup(self, request, pk=None):
+        evaluation = self.get_object()
+        email = request.data.get('email')
+        
+        if not email:
+            return Response({"error": "email is required"}, status=400)
+            
+        FollowUpCandidate.objects.filter(evaluation=evaluation, email=email).delete()
+        
+        # Also remove from candidate_invited_emails so they disappear from Candidate Records
+        invited = evaluation.candidate_invited_emails
+        if isinstance(invited, str):
+            import json
+            try:
+                invited = json.loads(invited)
+            except:
+                invited = []
+                
+        if isinstance(invited, list):
+            if email in invited:
+                invited.remove(email)
+                evaluation.candidate_invited_emails = invited
+                evaluation.save(update_fields=['candidate_invited_emails'])
+        elif isinstance(invited, dict):
+            if email in invited:
+                del invited[email]
+                evaluation.candidate_invited_emails = invited
+                evaluation.save(update_fields=['candidate_invited_emails'])
+                
+        return Response({"status": "success"})
+
+    @action(detail=True, methods=['post'])
+    def send_reminder(self, request, pk=None):
+        evaluation = self.get_object()
+        email = request.data.get('email')
+        
+        if not email:
+            return Response({"error": "email is required"}, status=400)
+            
+        from .email_utils import send_evaluation_email
+        config = FollowUpConfig.objects.filter(evaluation=evaluation).first()
+        try:
+            candidate = FollowUpCandidate.objects.get(evaluation=evaluation, email=email)
+            candidate.emails_sent_count += 1
+            candidate.activity = "Reminder Sent Manually"
+            candidate.save(update_fields=['emails_sent_count', 'activity'])
+        except:
+            pass
+            
+        send_evaluation_email(
+            evaluation, 
+            [email], 
+            is_reminder=True, 
+            custom_body=config.email_template if config and config.email_template else None
+        )
+        return Response({"status": "success"})
+        
+    @action(detail=True, methods=['post'])
+    def edit_candidate_deadline(self, request, pk=None):
+        evaluation = self.get_object()
+        email = request.data.get('email')
+        deadline = request.data.get('deadline')
+        
+        if not email or not deadline:
+            return Response({"error": "email and deadline are required"}, status=400)
+            
+        try:
+            candidate = FollowUpCandidate.objects.get(evaluation=evaluation, email=email)
+            candidate.deadline = deadline
+            candidate.save(update_fields=['deadline'])
+            return Response({"status": "success"})
+        except FollowUpCandidate.DoesNotExist:
+            return Response({"error": "Candidate not found"}, status=404)
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def update_candidate_status(self, request, pk=None):

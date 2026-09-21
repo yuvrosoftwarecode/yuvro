@@ -966,18 +966,82 @@ export interface TimelineEvent {
 
 import { formatDistanceToNow } from "date-fns";
 
-const MILESTONES = [
+const EVALUATION_MILESTONES = [
   "Evaluation invitation sent",
   "Candidate started evaluation",
   "Engineering Labs submitted",
   "Knowledge Assessment submitted",
   "Vitarka discussion completed",
   "Evaluation finished",
+];
+
+const RECRUITER_MILESTONES = [
   "Recruiter viewed profile",
   "Shortlisted",
   "Interview scheduled",
   "Offer sent"
 ];
+
+export function formatTimelineEvents(rawEvents: any[]): TimelineEvent[] {
+  const completed = rawEvents.sort((a, b) => new Date(a.occurred_at).getTime() - new Date(b.occurred_at).getTime()).map((r) => {
+    let tone: "success" | "warn" | "neutral" = "neutral";
+    if (r.status === "SUCCESS") tone = "success";
+    else if (r.status === "WARNING" || r.status === "ERROR") tone = "warn";
+
+    return {
+      id: r.id || String(Math.random()),
+      label: r.title,
+      time: formatDistanceToNow(new Date(r.occurred_at), { addSuffix: true }),
+      done: r.status !== "PENDING",
+      tone,
+    };
+  });
+
+  const completedMap = new Map(completed.map(e => [e.label, e]));
+  
+  const isFinished = completedMap.has("Evaluation finished") || completedMap.has("Auto submitted");
+  const sectionMilestones = [
+    "Engineering Labs submitted",
+    "Knowledge Assessment submitted",
+    "Vitarka discussion completed",
+  ];
+
+  const fullTimeline: TimelineEvent[] = [];
+
+  // 1. Fixed evaluation lifecycle
+  for (const m of EVALUATION_MILESTONES) {
+    if (m === "Evaluation finished" && completedMap.has("Auto submitted")) {
+      fullTimeline.push(completedMap.get("Auto submitted")!);
+    } else if (completedMap.has(m)) {
+      fullTimeline.push(completedMap.get(m)!);
+    } else {
+      let timeLabel = "pending";
+      if (isFinished && sectionMilestones.includes(m)) {
+        timeLabel = "Not submitted";
+      }
+      fullTimeline.push({ id: m, label: m, time: timeLabel, done: false, tone: "neutral" });
+    }
+  }
+
+  // 2. Chronological post-evaluation events (decisions, holds, etc)
+  const evalSet = new Set(EVALUATION_MILESTONES);
+  evalSet.add("Auto submitted");
+  
+  const postEvents = completed.filter(e => !evalSet.has(e.label));
+  for (const e of postEvents) {
+    fullTimeline.push(e);
+  }
+
+  // 3. Pending recruiter milestones
+  const postEventsSet = new Set(postEvents.map(e => e.label));
+  for (const m of RECRUITER_MILESTONES) {
+    if (!postEventsSet.has(m)) {
+      fullTimeline.push({ id: m, label: m, time: "pending", done: false, tone: "neutral" });
+    }
+  }
+  
+  return fullTimeline;
+}
 
 export async function loadTimelineEvents(evId: string, email: string): Promise<TimelineEvent[]> {
   if (evId.startsWith("7700") || evId.startsWith("demo")) {
@@ -985,58 +1049,7 @@ export async function loadTimelineEvents(evId: string, email: string): Promise<T
   }
   try {
     const res = await restApiAuthUtil.get<any[]>(`/skill_evaluation/timeline-events/?evaluation_id=${evId}&candidate_email=${encodeURIComponent(email)}`);
-    
-    const completed = res.sort((a, b) => new Date(a.occurred_at).getTime() - new Date(b.occurred_at).getTime()).map((r) => {
-      let tone: "success" | "warn" | "neutral" = "neutral";
-      if (r.status === "SUCCESS") tone = "success";
-      else if (r.status === "WARNING" || r.status === "ERROR") tone = "warn";
-
-      return {
-        id: r.id,
-        label: r.title,
-        time: formatDistanceToNow(new Date(r.occurred_at), { addSuffix: true }),
-        done: r.status !== "PENDING",
-        tone,
-      };
-    });
-
-    const completedMap = new Map(completed.map(e => [e.label, e]));
-    
-    const isFinished = completedMap.has("Evaluation finished") || completedMap.has("Auto submitted");
-    const sectionMilestones = [
-      "Engineering Labs submitted",
-      "Knowledge Assessment submitted",
-      "Vitarka discussion completed",
-    ];
-
-    const fullTimeline = MILESTONES.map(m => {
-      if (m === "Evaluation finished" && completedMap.has("Auto submitted")) {
-        return completedMap.get("Auto submitted")!;
-      }
-      if (completedMap.has(m)) {
-        return completedMap.get(m)!;
-      } else {
-        let timeLabel = "pending";
-        if (isFinished && sectionMilestones.includes(m)) {
-          timeLabel = "Not submitted";
-        }
-        return {
-          id: m,
-          label: m,
-          time: timeLabel,
-          done: false,
-          tone: "neutral" as const,
-        };
-      }
-    });
-
-    for (const e of completed) {
-      if (!MILESTONES.includes(e.label) && e.label !== "Auto submitted") {
-        fullTimeline.push(e);
-      }
-    }
-    
-    return fullTimeline;
+    return formatTimelineEvents(res);
   } catch (err) {
     console.error("Failed to load timeline events", err);
     return [];
