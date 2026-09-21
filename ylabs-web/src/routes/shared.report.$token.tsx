@@ -432,7 +432,7 @@ function SharedReportWorkspace() {
               candidate={displayCandidate}
               detail={detail}
               report={liveVitarkaReport}
-              reportBundle={reportBundle}
+              reportBundle={liveBundle}
               submission={vitarkaSubmission}
               submissionStatus={vitarkaSubmission?.status}
               onDownload={() => {
