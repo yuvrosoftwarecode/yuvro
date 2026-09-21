@@ -64,6 +64,12 @@ class KnowledgeQuestionBankAdmin(admin.ModelAdmin):
     list_filter = ("format", "domain", "experience", "difficulty")
     search_fields = ("title", "description", "content")
     ordering = ("-created_at",)
+    exclude = (
+        "programming_languages",
+        "databases",
+        "backend_frameworks",
+        "frontend_frameworks",
+    )
 
 @admin.register(CandidateNote)
 class CandidateNoteAdmin(admin.ModelAdmin):

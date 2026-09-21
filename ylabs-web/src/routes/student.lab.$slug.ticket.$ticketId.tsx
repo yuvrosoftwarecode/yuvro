@@ -4725,9 +4725,9 @@ function ProblemPanel({
                         <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary/10 border border-primary/20 text-[11px] text-primary font-bold">
                           {idx + 1}
                         </span>
-                        <div className="flex-1">
-                          <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
-                          {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{taskDesc}</p>}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
+                            {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">{taskDesc}</p>}
                           {(task.input !== undefined || (task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)))) && (
                             <div className="mt-2 text-xs bg-editor-bg rounded p-2.5 border border-border">
                               {task.input !== undefined && (

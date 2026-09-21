@@ -1,5 +1,5 @@
 from rest_framework import viewsets, mixins, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -884,6 +884,19 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         followup_cands = {c.email: c for c in evaluation.followup_candidates.all()}
         submissions = {s.user.email: s for s in evaluation.submissions.select_related('user').all()}
         
+        lab_subs = UserLabQuestionBankSubmission.objects.filter(evaluation=evaluation).select_related('user')
+        ka_subs = UserKnowledgeAssessmentSubmission.objects.filter(evaluation=evaluation).select_related('user')
+        
+        lab_scores_by_email = {}
+        for ls in lab_subs:
+            email = ls.user.email
+            lab_scores_by_email[email] = lab_scores_by_email.get(email, 0) + ls.score
+            
+        ka_scores_by_email = {}
+        for ks in ka_subs:
+            email = ks.user.email
+            ka_scores_by_email[email] = ka_scores_by_email.get(email, 0) + ks.score
+
         all_emails = invited_emails.union(followup_cands.keys()).union(submissions.keys())
         
         records_list = []
@@ -905,7 +918,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             phone = fc.phone if fc else ""
             
             submitted_at = int(sub.completed_at.timestamp() * 1000) if sub and sub.completed_at else None
-            status_val = "Submitted" if sub and sub.completed_at else ("In Progress" if sub else "Not Submitted")
+            status_val = "Submitted" if sub and sub.completed_at else "Not Submitted"
             
             sent_at = None
             if fc and fc.created_at:
@@ -924,6 +937,29 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             elif source == "Shared Link" and sub and sub.created_at:
                 sent_at = int(sub.created_at.timestamp() * 1000)
             
+            l_score = lab_scores_by_email.get(email)
+            a_score = ka_scores_by_email.get(email)
+            v_score = None
+            
+            total = 0
+            has_score = False
+            if l_score is not None:
+                total += l_score
+                has_score = True
+            if a_score is not None:
+                total += a_score
+                has_score = True
+                
+            final_score = total if has_score else None
+            
+            result_val = "Not Evaluated"
+            if sub and getattr(sub, 'hiring_status', None):
+                hs = sub.hiring_status
+                if hs in ["Passed", "Failed", "Not Evaluated"]:
+                    result_val = hs
+                else:
+                    result_val = "Passed" if (final_score and final_score >= 50) else "Failed"
+
             records_list.append({
                 "id": email,
                 "candidateId": email,
@@ -935,13 +971,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 "accessedAt": None,
                 "status": status_val,
                 "submittedAt": submitted_at,
-                "score": None,
-                "result": "Not Evaluated",
+                "score": final_score,
+                "result": result_val,
                 "followUp": fc.followups_enabled if fc else False,
-                "labsScore": None,
-                "assessmentScore": None,
-                "vitarkaScore": None,
-                "eci": None,
+                "labsScore": l_score,
+                "assessmentScore": a_score,
+                "vitarkaScore": v_score,
+                "eci": final_score,
                 "deadline": None,
                 "emailsSent": fc.emails_sent_count if fc else 0,
                 "aiCall": False,
@@ -955,36 +991,22 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 class LabQuestionBankViewSet(viewsets.ModelViewSet):
     queryset = LabQuestionBank.objects.all()
     serializer_class = LabQuestionBankSerializer
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        user = self.request.user if hasattr(self.request, 'user') and getattr(self.request.user, 'is_authenticated', False) else None
-        if not user:
-            User = get_user_model()
-            user = User.objects.first()
-            if not user:
-                user = User.objects.create(username="admin", email="admin@yuvro.com")
-        serializer.save(created_by=user)
+        serializer.save(created_by=self.request.user)
 
 
 class KnowledgeQuestionBankViewSet(viewsets.ModelViewSet):
     queryset = KnowledgeQuestionBank.objects.all().order_by('-created_at')
     serializer_class = KnowledgeQuestionBankSerializer
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         return KnowledgeQuestionBank.objects.all().order_by('-created_at')
 
     def perform_create(self, serializer):
-        user = self.request.user if hasattr(self.request, 'user') and getattr(self.request.user, 'is_authenticated', False) else None
-        if not user:
-            User = get_user_model()
-            user = User.objects.first()
-            if not user:
-                user = User.objects.create(username="admin", email="admin@yuvro.com")
-        
+        user = self.request.user
         company = user.recruiter_profiles.first().company if hasattr(user, 'recruiter_profiles') and user.recruiter_profiles.exists() else None
         serializer.save(created_by=user, company=company)
 

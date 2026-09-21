@@ -20,11 +20,23 @@ const TYPES = [
   "Coding Task", "Bug Scenario", "Debugging Case", "Security Vuln", "Optimization", "Database Issue", "API Problem", "Deployment Failure"
 ];
 
+const LAB_TYPES = ["DATABASE", "BACKEND", "FRONTEND", "FULL_STACK", "QUALITY_ASSURANCE", "DEVOPS"];
+const SCENARIOS = [
+  "DEBUGGING",
+  "FEATURE_DEVELOPMENT",
+  "API_OPTIMIZATION",
+  "SECURITY",
+  "ARCHITECTURE",
+  "PERFORMANCE",
+  "TESTING",
+  "PRODUCTION_INCIDENT",
+];
+
 const DEFAULT_FORM = {
   title: "",
   description: "",
   difficulty: "EASY",
-  domain: "OTHER",
+  type: "BACKEND",
   experience: "FRESHER",
   scenario: "FEATURE_DEVELOPMENT",
   marks: 10,
@@ -32,6 +44,7 @@ const DEFAULT_FORM = {
   git_repo_starter_url: "",
   git_repo_starter_branch: "main",
   startup_command: "",
+  test_command: "",
   programming_languages: [],
   databases: [],
   backend_frameworks: [],
@@ -69,6 +82,13 @@ function QuestionsPage() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => questionBankService.deleteLabQuestion(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["labQuestions"] });
+    },
+  });
+
   const openNewModal = () => {
     setEditingId(null);
     setFormData(DEFAULT_FORM);
@@ -81,7 +101,7 @@ function QuestionsPage() {
       title: q.title || "",
       description: q.description || "",
       difficulty: q.difficulty || "EASY",
-      domain: q.domain || "OTHER",
+      type: q.type || "BACKEND",
       experience: q.experience || "FRESHER",
       scenario: q.scenario || "FEATURE_DEVELOPMENT",
       marks: q.marks || 10,
@@ -89,6 +109,7 @@ function QuestionsPage() {
       git_repo_starter_url: q.git_repo_starter_url || "",
       git_repo_starter_branch: q.git_repo_starter_branch || "main",
       startup_command: q.startup_command || "",
+      test_command: q.test_command || "",
       programming_languages: q.programming_languages || [],
       databases: q.databases || [],
       backend_frameworks: q.backend_frameworks || [],
@@ -150,6 +171,7 @@ function QuestionsPage() {
     const payload = {
       ...formData,
       tasks: preparedTasks,
+      domain: "OTHER",
     };
 
     if (editingId) {
@@ -310,8 +332,17 @@ function QuestionsPage() {
                   </select>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="domain">Domain</Label>
-                  <Input id="domain" value={formData.domain} onChange={(e) => setFormData({ ...formData, domain: e.target.value })} />
+                  <Label htmlFor="type">Lab Role / Type</Label>
+                  <select 
+                    id="type"
+                    value={formData.type} 
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                  >
+                    {LAB_TYPES.map(t => (
+                      <option key={t} value={t}>{t.replace("_", " ")}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="experience">Experience</Label>
@@ -328,7 +359,16 @@ function QuestionsPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="scenario">Scenario</Label>
-                  <Input id="scenario" value={formData.scenario} onChange={(e) => setFormData({ ...formData, scenario: e.target.value })} />
+                  <select 
+                    id="scenario"
+                    value={formData.scenario} 
+                    onChange={(e) => setFormData({ ...formData, scenario: e.target.value })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                  >
+                    {SCENARIOS.map(s => (
+                      <option key={s} value={s}>{s.replace("_", " ")}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="marks">Marks</Label>
@@ -353,6 +393,10 @@ function QuestionsPage() {
               <div className="grid gap-2">
                 <Label htmlFor="startup_cmd">Startup Command</Label>
                 <Input id="startup_cmd" value={formData.startup_command} onChange={(e) => setFormData({ ...formData, startup_command: e.target.value })} />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="test_cmd">Test Command</Label>
+                <Input id="test_cmd" placeholder="e.g. npm run test" value={formData.test_command || ""} onChange={(e) => setFormData({ ...formData, test_command: e.target.value })} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">

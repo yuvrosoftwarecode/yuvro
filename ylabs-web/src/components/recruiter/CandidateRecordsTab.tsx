@@ -106,6 +106,7 @@ export function CandidateRecordsTab({
   const [colsOpen, setColsOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [menuFor, setMenuFor] = useState<string | null>(null);
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
   const [detail, setDetail] = useState<CandidateRecord | null>(null);
 
   useEffect(() => {
@@ -365,48 +366,55 @@ export function CandidateRecordsTab({
                         {renderCell(r, c.key)}
                       </td>
                     ))}
-                    <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="relative inline-block">
-                        <button
-                          onClick={() => setMenuFor(menuFor === r.id ? null : r.id)}
-                          className="rounded p-1 text-neutral-500 hover:bg-black/5 hover:text-neutral-900"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
-                        {menuFor === r.id && (
-                          <>
-                            <div className="fixed inset-0 z-20" onClick={() => setMenuFor(null)} />
-                            <div className="absolute right-0 z-30 mt-1 w-56 overflow-hidden rounded-lg border border-black/10 bg-white py-1 text-left shadow-lg">
-                              <RowItem icon={<Eye className="h-3.5 w-3.5" />} onClick={() => { setDetail(r); setMenuFor(null); }}>View Candidate</RowItem>
-                              {r.status === "Submitted" && (
-                                <RowItem icon={<FileText className="h-3.5 w-3.5" />} onClick={() => { setDetail(r); setMenuFor(null); }}>View Result</RowItem>
-                              )}
-                              {r.followUp ? (
-                                <RowItem icon={<PhoneCall className="h-3.5 w-3.5" />} onClick={() => { setMenuFor(null); onGotoFollowUps(); }}>View Follow-up Activity</RowItem>
-                              ) : (
-                                <RowItem icon={<BellPlus className="h-3.5 w-3.5" />} onClick={() => { setMenuFor(null); setFollowUpFor(r); }}>Set Follow-up</RowItem>
-                              )}
-                              {r.followUp && (
-                                <RowItem icon={<BellPlus className="h-3.5 w-3.5" />} onClick={() => { setMenuFor(null); setFollowUpFor(r); }}>Edit Follow-up</RowItem>
-                              )}
-                              <RowItem
-                                icon={<Link2 className="h-3.5 w-3.5" />}
-                                onClick={() => {
-                                  navigator.clipboard?.writeText(`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${ev.id}&c=${r.candidateId}`);
-                                  notify("Assessment link copied");
-                                  setMenuFor(null);
-                                }}
+                      <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="relative inline-block">
+                          <button
+                            onClick={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setMenuPos({ top: rect.bottom, right: window.innerWidth - rect.right });
+                              setMenuFor(menuFor === r.id ? null : r.id);
+                            }}
+                            className="rounded p-1 text-neutral-500 hover:bg-black/5 hover:text-neutral-900"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </button>
+                          {menuFor === r.id && typeof window !== "undefined" && (
+                            <>
+                              <div className="fixed inset-0 z-20" onClick={() => setMenuFor(null)} />
+                              <div 
+                                className="fixed z-30 mt-1 w-56 overflow-hidden rounded-lg border border-black/10 bg-white py-1 text-left shadow-lg"
+                                style={{ top: menuPos.top, right: menuPos.right }}
                               >
-                                Copy Assessment Link
-                              </RowItem>
-                              {r.status === "Submitted" && (
-                                <RowItem icon={<Download className="h-3.5 w-3.5" />} onClick={() => { notify(`Downloading result for ${r.name}`); setMenuFor(null); }}>Download Result</RowItem>
-                              )}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </td>
+                                <RowItem icon={<Eye className="h-3.5 w-3.5" />} onClick={() => { setDetail(r); setMenuFor(null); }}>View Candidate</RowItem>
+                                {r.status === "Submitted" && (
+                                  <RowItem icon={<FileText className="h-3.5 w-3.5" />} onClick={() => { setDetail(r); setMenuFor(null); }}>View Result</RowItem>
+                                )}
+                                {r.followUp ? (
+                                  <RowItem icon={<PhoneCall className="h-3.5 w-3.5" />} onClick={() => { setMenuFor(null); onGotoFollowUps(); }}>View Follow-up Activity</RowItem>
+                                ) : (
+                                  <RowItem icon={<BellPlus className="h-3.5 w-3.5" />} onClick={() => { setMenuFor(null); setFollowUpFor(r); }}>Set Follow-up</RowItem>
+                                )}
+                                {r.followUp && (
+                                  <RowItem icon={<BellPlus className="h-3.5 w-3.5" />} onClick={() => { setMenuFor(null); setFollowUpFor(r); }}>Edit Follow-up</RowItem>
+                                )}
+                                <RowItem
+                                  icon={<Link2 className="h-3.5 w-3.5" />}
+                                  onClick={() => {
+                                    navigator.clipboard?.writeText(`${window.location.origin}/evaluation?e=${ev.id}&c=${r.candidateId}`);
+                                    notify("Assessment link copied");
+                                    setMenuFor(null);
+                                  }}
+                                >
+                                  Copy Assessment Link
+                                </RowItem>
+                                {r.status === "Submitted" && (
+                                  <RowItem icon={<Download className="h-3.5 w-3.5" />} onClick={() => { notify(`Downloading result for ${r.name}`); setMenuFor(null); }}>Download Result</RowItem>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </td>
                   </tr>
                 ))
               )}

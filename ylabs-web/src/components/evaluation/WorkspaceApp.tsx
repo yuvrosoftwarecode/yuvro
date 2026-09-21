@@ -392,7 +392,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     return null;
   }, [activeSection, openLab, submittedLabs, submittedSections, evalPrefix]);
 
+  const previewStorageRef = useRef(new Map<string, string>());
+
   const getStorageItem = (key: string) => {
+    if (isPreviewMode) return previewStorageRef.current.get(key) || null;
     try {
       return localStorage.getItem(key) || sessionStorage.getItem(key);
     } catch {
@@ -401,6 +404,10 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   };
 
   const setStorageItem = (key: string, val: string) => {
+    if (isPreviewMode) {
+      previewStorageRef.current.set(key, val);
+      return;
+    }
     try { localStorage.setItem(key, val); } catch {}
     try { sessionStorage.setItem(key, val); } catch {}
   };
@@ -480,7 +487,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   const { logActivity } = useProctoring({
     assessmentId: evaluationId,
     assessmentType: "skill_evaluation",
-    enabled: !!proctoringConfig.enableProctoring,
+    enabled: !!proctoringConfig.enableProctoring && !isPreviewMode,
     questionId: (activeSection?.type === "KNOWLEDGE_ASSESSMENT" ? activeSection.questions?.[qIndex]?.id : null) || activeQuestionId || openLab || section || undefined,
     questionTitle: activeDiscussionQuestion || undefined,
     mediaStream: proctoringData?.cameraStream,
@@ -511,7 +518,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   }, [proctoringData, logActivity]);
 
   useEffect(() => {
-    if (!anySectionNeedsProctoring) return;
+    if (!anySectionNeedsProctoring || isPreviewMode) return;
     
     if (!proctoringData || !proctoringData.cameraStream) {
        setMediaDisabled(true);
@@ -652,12 +659,19 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     if (typeof autoSubmit !== "boolean") autoSubmit = false;
     try {
       const pfx = `eval_${evalPrefix}_timer_`;
+      const toRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(pfx)) toRemove.push(k);
+      }
       for (let i = 0; i < sessionStorage.length; i++) {
         const k = sessionStorage.key(i);
-        if (k && k.startsWith(pfx)) {
-          sessionStorage.removeItem(k);
-        }
+        if (k && k.startsWith(pfx) && !toRemove.includes(k)) toRemove.push(k);
       }
+      toRemove.forEach(k => {
+        try { localStorage.removeItem(k); } catch {}
+        try { sessionStorage.removeItem(k); } catch {}
+      });
     } catch {}
     try {
       await evaluationService.finishEvaluation?.(evaluationId, autoSubmit);
@@ -982,7 +996,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   }
 
   return (
-    <div className={`eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 antialiased ${isRecruiterPreview ? "dark" : ""}`}>
+    <div className={`eval-theme flex h-screen w-screen flex-col overflow-hidden bg-[#fafaf7] dark:bg-[#09090b] text-neutral-900 dark:text-neutral-100 antialiased`}>
       <TopBar
         remaining={remaining}
         online={online}
