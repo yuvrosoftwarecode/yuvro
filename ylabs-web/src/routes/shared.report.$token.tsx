@@ -429,7 +429,12 @@ function SharedReportWorkspace() {
           {tab === "assessment" && <AssessmentPane ev={ev} candidate={displayCandidate} />}
           {tab === "vitarka" && (
             <VitarkaPane
+              candidate={displayCandidate}
               detail={detail}
+              report={liveVitarkaReport}
+              reportBundle={reportBundle}
+              submission={vitarkaSubmission}
+              submissionStatus={vitarkaSubmission?.status}
               onDownload={() => {
                 alert("Transcript downloaded");
               }}
