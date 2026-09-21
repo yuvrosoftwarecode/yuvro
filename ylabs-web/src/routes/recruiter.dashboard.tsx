@@ -131,44 +131,8 @@ function RecruiterDashboard() {
           <LoadingSkeleton type="metrics" />
           <LoadingSkeleton type="table" count={5} />
         </div>
-        {evals.length === 0 ? (
-          <div className="p-10 text-center text-[13px] text-neutral-500">
-            No evaluations yet. Create your first one.
-          </div>
-        ) : (
-          <div className="divide-y divide-white/5">
-            {evals.slice(0, 5).map((e) => {
-              const t = evaluationTotals(e);
-              return (
-                <Link
-                  key={e.id}
-                  to="/recruiter/evaluations/$id/workspace"
-                  params={{ id: e.id }}
-                  search={{ tab: "overview", view: "edit" } as any}
-                  className="group flex flex-col sm:grid sm:grid-cols-[1fr_auto_auto_auto] items-start sm:items-center gap-4 sm:gap-6 px-5 py-4 transition hover:bg-white/[0.02]"
-                >
-                  <div className="min-w-0 w-full sm:w-auto">
-                    <div className="flex items-center gap-2">
-                      <span className="truncate text-[14px] text-white">{e.title}</span>
-                      <StatusPill status={e.status} />
-                    </div>
-                    <div className="mt-0.5 text-[11px] text-neutral-500">
-                      {e.domain || "—"} · {t.sections} sections · {t.minutes} min · {t.marks} marks
-                    </div>
-                  </div>
-                  <div className="flex sm:contents w-full justify-between items-center mt-2 sm:mt-0">
-                    <div className="text-left sm:text-right text-[11px] text-neutral-500">
-                      Invited<div className="text-[13px] text-white">{e.candidatesInvited}</div>
-                    </div>
-                    <div className="text-left sm:text-right text-[11px] text-neutral-500">
-                      Completed<div className="text-[13px] text-white">{e.candidatesCompleted}</div>
-                    </div>
-                    <ArrowUpRight className="hidden sm:block h-4 w-4 text-neutral-500 transition group-hover:text-emerald-400" />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+      ) : (
+        <>
 
           <div className="mt-10 rounded-2xl border border-white/5 bg-white">
             <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
