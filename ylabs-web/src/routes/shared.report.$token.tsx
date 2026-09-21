@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { getSharedReportByToken } from "@/lib/recruiter";
 import { getCandidates } from "@/lib/recruiterCandidates";
+import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import {
   getCandidateDetail,
   loadTimelineEvents,
@@ -63,6 +64,7 @@ function SharedReportWorkspace() {
   const [tab, setTab] = useState<Tab>("overview");
   const [openLab, setOpenLab] = useState<any | null>(null);
   const [isLightMode, setIsLightMode] = useState(true); // Default to light mode (recruiter theme)
+  const [vitarkaSubmission, setVitarkaSubmission] = useState<any>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -76,8 +78,40 @@ function SharedReportWorkspace() {
 
         setEv(data.evaluation);
         
-        // Pass the single submission into getCandidates to perfectly hydrate scores, names, and logic
-        const cands = getCandidates(data.evaluation.id, [data.submission], [], data.evaluation);
+        let vitSub: any = null;
+        const discSec = data.evaluation?.sections?.find(
+          (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
+        );
+        if (discSec) {
+          let mockInterviewId = discSec?.mockInterviewId;
+          if (!mockInterviewId && discSec?.description) {
+            try {
+              mockInterviewId = JSON.parse(discSec.description).mockInterviewId;
+            } catch {}
+          }
+          const userId = data.submission?.user?.id || data.submission?.user_id;
+          const email = data.submission?.email || data.submission?.user?.email;
+
+          const params = new URLSearchParams();
+          if (mockInterviewId) params.append("mock_interview", mockInterviewId);
+          if (email) params.append("email", email);
+          if (userId && typeof userId === "string") params.append("user", userId);
+
+          if (params.toString()) {
+            try {
+              const res = await yhubApiAuthUtil.get<any[]>(`/interview/submissions/?${params.toString()}`);
+              if (res && res.length > 0) {
+                vitSub = res[0];
+                setVitarkaSubmission(vitSub);
+              }
+            } catch (err) {
+              console.error("Failed to load vitarka submission for shared report:", err);
+            }
+          }
+        }
+
+        // Pass the single submission and vitSub into getCandidates to perfectly hydrate scores, names, and logic
+        const cands = getCandidates(data.evaluation.id, [data.submission], vitSub ? [vitSub] : [], data.evaluation);
         const hydratedCand = cands[0] || {
           id: data.submission.id,
           name: data.submission.full_name || data.submission.name || data.submission.user?.full_name || data.submission.user?.username || data.submission.email?.split('@')[0] || "Candidate",
@@ -93,7 +127,10 @@ function SharedReportWorkspace() {
         
         setCandidate({
           ...hydratedCand,
-          rawSubmission: data.submission
+          rawSubmission: {
+            ...data.submission,
+            vitarka_submission: vitSub
+          }
         });
         
         if (data.evaluation?.id && hydratedCand.email) {
@@ -148,9 +185,9 @@ function SharedReportWorkspace() {
   }, 0) || (hasVitarka ? 25 : 0);
 
   const rawLabSubs = candidate?.rawSubmission?.lab_submissions || [];
-  const vitarkaSubmission = candidate?.rawSubmission?.vitarka_submission;
-  const liveBundle = hasVitarka ? (vitarkaSubmission?.report_bundle || vitarkaSubmission?.session_state?.report_bundle) : null;
-  const liveVitarkaReport = hasVitarka ? (liveBundle?.vitarka_report || vitarkaSubmission?.report || vitarkaSubmission?.session_state?.report) : null;
+  const activeVitSub = vitarkaSubmission || candidate?.rawSubmission?.vitarka_submission;
+  const liveBundle = hasVitarka ? (activeVitSub?.report_bundle || activeVitSub?.session_state?.report_bundle) : null;
+  const liveVitarkaReport = hasVitarka ? (liveBundle?.vitarka_report || activeVitSub?.report || activeVitSub?.session_state?.report) : null;
   const liveOverallReport = hasVitarka ? liveBundle?.overall_report : null;
   const liveLabsReport = liveBundle?.engineering_labs_report;
   const liveKnowledgeReport = liveBundle?.knowledge_assessment_report;
@@ -227,11 +264,13 @@ function SharedReportWorkspace() {
   const liveVitarkaScore = (
     liveVitarkaReport?.scaled_score != null
       ? liveVitarkaReport.scaled_score
-      : (vitarkaSubmission?.marks != null
-          ? vitarkaSubmission.marks
-          : (candidate?.vitarkaScore != null && candidate.vitarkaScore <= discussionMaxScore
-              ? candidate.vitarkaScore
-              : 0))
+      : (activeVitSub?.marks != null
+          ? activeVitSub.marks
+          : (liveVitarkaReport?.overall_score != null
+              ? Math.round((liveVitarkaReport.overall_score / 10) * discussionMaxScore)
+              : (candidate?.vitarkaScore != null && candidate.vitarkaScore <= discussionMaxScore
+                  ? candidate.vitarkaScore
+                  : Math.round(((candidate?.vitarkaScore || 0) / 100) * discussionMaxScore))))
   );
 
   const totalEarned = (hasLabs ? liveLabsScore : 0) + (hasAssessment ? liveAssessmentScore : 0) + (hasVitarka ? liveVitarkaScore : 0);
@@ -433,8 +472,8 @@ function SharedReportWorkspace() {
               detail={detail}
               report={liveVitarkaReport}
               reportBundle={liveBundle}
-              submission={vitarkaSubmission}
-              submissionStatus={vitarkaSubmission?.status}
+              submission={activeVitSub}
+              submissionStatus={activeVitSub?.status}
               onDownload={() => {
                 alert("Transcript downloaded");
               }}
