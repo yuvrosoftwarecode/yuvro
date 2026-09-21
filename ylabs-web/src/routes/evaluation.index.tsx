@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useRouter, useSearch } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EvalShell, EvalStepHeader, PrimaryButton, Field } from "@/components/evaluation/EvalShell";
 import { evaluationService, setTempResumeFile } from "../services/evaluationService";
 
@@ -14,10 +14,20 @@ export const Route = createFileRoute("/evaluation/")({
   component: EvaluationInvite,
 });
 
+const COUNTRIES = [
+  { code: "+91", label: "🇮🇳 India (+91)", digits: 10 },
+  { code: "+1", label: "🇺🇸 US/CA (+1)", digits: 10 },
+  { code: "+44", label: "🇬🇧 UK (+44)", digits: 10 },
+  { code: "+61", label: "🇦🇺 Australia (+61)", digits: 9 },
+  { code: "+65", label: "🇸🇬 Singapore (+65)", digits: 8 },
+  { code: "+971", label: "🇦🇪 UAE (+971)", digits: 9 },
+];
+
 function EvaluationInvite() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
   const [phone, setPhone] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -25,8 +35,34 @@ function EvaluationInvite() {
   const [err, setErr] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const searchParams = useSearch({ strict: false });
-  const evaluationId = (searchParams as any).e || "";
+  const searchParams = useSearch({ strict: false }) as Record<string, string>;
+  const evaluationId = searchParams?.e || searchParams?.evaluationId || "";
+  const [estMinutes, setEstMinutes] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!evaluationId) return;
+    evaluationService.getWorkspaceData(evaluationId).then((data) => {
+      if (data?.sections) {
+        let total = 0;
+        data.sections.forEach((sec: any) => {
+          if (sec.type === "LAB") {
+            (sec.questions || []).forEach((q: any) => {
+              total += Number(q.duration_minutes || 30);
+            });
+          } else if (sec.type === "KNOWLEDGE_ASSESSMENT") {
+            (sec.questions || []).forEach((q: any) => {
+              total += Number(q.duration_minutes || 2);
+            });
+          } else if (sec.type === "VITARKA_AI_INTERVIEW") {
+            let meta: any = {};
+            try { meta = typeof sec.description === "string" ? JSON.parse(sec.description) : {}; } catch {}
+            total += Number(meta.duration || sec.duration_minutes || 15);
+          }
+        });
+        if (total > 0) setEstMinutes(total);
+      }
+    }).catch(() => {});
+  }, [evaluationId]);
 
   const onFiles = (list: FileList | null) => {
     const f = list?.[0];
@@ -40,14 +76,19 @@ function EvaluationInvite() {
       setErr("First name, last name, email, phone number, and valid evaluation link are required.");
       return;
     }
-    if (phone.length !== 10) {
-      setErr("Please enter a valid 10-digit mobile number.");
-      return;
-    }
-    setLoading(true);
-    setErr(null);
+      if (phone.length < 5) {
+        setErr("Please enter a valid mobile number.");
+        return;
+      }
+      setLoading(true);
+      setErr(null);
     try {
       const checkRes = await evaluationService.checkRegistration(evaluationId, email);
+      if (checkRes.is_expired) {
+        setErr(checkRes.error || "This evaluation has expired and is no longer accepting submissions.");
+        setLoading(false);
+        return;
+      }
       if (checkRes.registered) {
         setErr("The user is already evaluated with this mail");
         setLoading(false);
@@ -57,7 +98,7 @@ function EvaluationInvite() {
       await evaluationService.sendRegistrationOtp(evaluationId, email, title);
       localStorage.setItem(
         "yuvro-eval-candidate",
-        JSON.stringify({ firstName, lastName, email, phone: `+91 ${phone}`, resume: file?.name, title }),
+        JSON.stringify({ firstName, lastName, email, phone: `${countryCode} ${phone}`, resume: file?.name, title }),
       );
       if (file) {
         setTempResumeFile(file);
@@ -160,20 +201,24 @@ function EvaluationInvite() {
                 />
               </Field>
               <Field label="Phone number" hint="Required for account recovery.">
-                <div className="relative flex items-center">
-                  <span className="pointer-events-none absolute left-4 text-[14px] text-neutral-500">
-                    +91
-                  </span>
+                <div className="flex gap-2">
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="eval-input !w-[160px] shrink-0"
+                  >
+                    {COUNTRIES.map(c => (
+                      <option key={c.code} value={c.code}>{c.label}</option>
+                    ))}
+                  </select>
                   <input
-                    type="tel"
-                    required
-                    pattern="[0-9]{10}"
-                    title="Please enter a valid 10-digit mobile number"
-                    maxLength={10}
+                    pattern="[0-9]*"
+                    title="Please enter a valid mobile number"
+                    maxLength={COUNTRIES.find(c => c.code === countryCode)?.digits || 15}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, COUNTRIES.find(c => c.code === countryCode)?.digits || 15))}
                     placeholder="Phone number"
-                    className="eval-input !pl-[44px]"
+                    className="eval-input flex-1"
                   />
                 </div>
               </Field>
@@ -242,15 +287,8 @@ function EvaluationInvite() {
             </p>
           </form>
 
-          <div className="mt-6 flex items-center justify-between px-1 text-[11px] text-neutral-500">
-            <span>Est. 60 minutes · works best on Chrome, Safari or Edge</span>
-            <Link
-              to="/auth"
-              search={{ tab: "signin" }}
-              className="hover:text-neutral-900 transition"
-            >
-              Recruiter sign in →
-            </Link>
+          <div className="mt-6 text-center text-[11px] text-neutral-500">
+            <span>Est. {estMinutes ? `${estMinutes} minutes` : "30–60 minutes"} · works best on Chrome, Safari or Edge</span>
           </div>
         </section>
       </div>

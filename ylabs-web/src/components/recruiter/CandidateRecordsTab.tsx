@@ -1,13 +1,16 @@
+import type { Candidate } from "@/lib/recruiterCandidates";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search, ChevronDown, Columns3, Download, MoreHorizontal, X, Filter,
-  Eye, FileText, Link2, PhoneCall, BellPlus, ArrowUpDown, Check,
+  Eye, FileText, Link2, PhoneCall, BellPlus, ArrowUpDown, Check, Users,
 } from "lucide-react";
 import type { Evaluation } from "@/lib/recruiter";
 import {
   fetchCandidateRecords, recordTotals, fmtDate, fmtTime,
   type CandidateRecord, type RecordSource, type RecordStatus, type RecordResult,
 } from "@/lib/candidateRecords";
+import EmptyState from "@/components/common/EmptyState";
+import LoadingSkeleton from "@/components/common/LoadingSkeleton";
 
 type SortKey = "sent_desc" | "sent_asc" | "sub_desc" | "score_desc" | "score_asc" | "name_asc";
 
@@ -50,14 +53,18 @@ const DEFAULT_COLS = COLUMNS.filter((c) => !c.optional).map((c) => c.key);
 const COLS_KEY = (id: string) => `yuvro-records-cols-${id}`;
 export const PREFILL_KEY = (id: string) => `yuvro-followup-prefill-${id}`;
 
+
+
 export function CandidateRecordsTab({
   ev,
   notify,
   onGotoFollowUps,
+  candidates,
 }: {
   ev: Evaluation;
   notify: (m: string) => void;
   onGotoFollowUps: () => void;
+  candidates: Candidate[];
 }) {
   const [all, setAll] = useState<CandidateRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +74,23 @@ export function CandidateRecordsTab({
     const load = () => {
       fetchCandidateRecords(ev.id).then(data => {
         if (mounted) {
-          setAll(data);
+          // Merge scores from the real candidates list!
+          const merged = data.map(record => {
+            const cand = candidates.find(c => c.email.toLowerCase() === record.email.toLowerCase());
+            if (cand) {
+              return {
+                ...record,
+                score: cand.totalEarned ?? cand.eci,
+                result: (cand.recommendation === "Reject" ? "Failed" : cand.recommendation === "Pending" ? "Not Evaluated" : "Passed") as RecordResult,
+                labsScore: cand.labsScore,
+                assessmentScore: cand.assessmentScore,
+                vitarkaScore: cand.vitarkaScore,
+                eci: cand.eci,
+              };
+            }
+            return record;
+          });
+          setAll(merged);
           setLoading(false);
         }
       });
@@ -86,7 +109,7 @@ export function CandidateRecordsTab({
       mounted = false;
       clearInterval(interval);
     };
-  }, [ev.id]);
+  }, [ev.id, candidates]);
 
   const totals = useMemo(() => recordTotals(all), [all]);
 
@@ -299,32 +322,6 @@ export function CandidateRecordsTab({
           <ChevronDown className="pointer-events-none absolute right-2.5 h-3.5 w-3.5 text-neutral-400" />
         </div>
 
-        <div className="relative">
-          <button onClick={() => { setColsOpen((v) => !v); setFiltersOpen(false); }} className={toolBtn}>
-            <Columns3 className="h-3.5 w-3.5" /> Columns <ChevronDown className="h-3.5 w-3.5" />
-          </button>
-          {colsOpen && (
-            <>
-              <div className="fixed inset-0 z-20" onClick={() => setColsOpen(false)} />
-              <div className="absolute right-0 z-30 mt-1 max-h-[380px] w-56 overflow-auto rounded-xl border border-black/10 bg-white py-1 shadow-lg">
-                {COLUMNS.map((c) => {
-                  const on = cols.includes(c.key);
-                  return (
-                    <button
-                      key={c.key}
-                      onClick={() => setColumns(on ? cols.filter((k) => k !== c.key) : [...cols, c.key])}
-                      className="flex w-full items-center justify-between px-3 py-1.5 text-left text-[12.5px] text-neutral-800 hover:bg-black/[0.03]"
-                    >
-                      <span>{c.label}</span>
-                      {on && <Check className="h-3.5 w-3.5 text-neutral-900" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </div>
-
           <button onClick={exportCsv} className={toolBtn}><Download className="h-3.5 w-3.5" /> Export</button>
         </div>
       </div>
@@ -344,14 +341,18 @@ export function CandidateRecordsTab({
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={cols.length + 1} className="px-3 py-16 text-center text-[13px] text-neutral-500">
-                    Loading candidate records...
+                  <td colSpan={cols.length + 1} className="px-3 py-12">
+                    <LoadingSkeleton type="table" count={5} />
                   </td>
                 </tr>
               ) : slice.length === 0 ? (
                 <tr>
-                  <td colSpan={cols.length + 1} className="px-3 py-16 text-center text-[13px] text-neutral-500">
-                    No candidates match these filters.
+                  <td colSpan={cols.length + 1} className="px-3 py-12">
+                    <EmptyState
+                      icon={Users}
+                      title="No Candidates Found"
+                      description="No candidate records match your active search and filter criteria."
+                    />
                   </td>
                 </tr>
               ) : (

@@ -237,20 +237,22 @@ function InstructionsPage() {
                 <p>
                   Your evaluation has {parsedSections.length === 1 ? "one section" : `${parsedSections.length} sections`} —{" "}
                   <span className="font-medium text-neutral-900">{sectionTitles.length > 0 ? sectionTitles.join(", ") : "evaluation tasks"}</span>.
-                  {totalCalculatedMarks > 0 && ` Total marks: ${totalCalculatedMarks}.`}
+                  {totalCalculatedMarks > 0 && ` Total marks: ${totalCalculatedMarks}.`} Total duration: <span className="font-medium text-neutral-900">{totalDurationMinutes} minutes</span>.
                 </p>
-                {hasDiscussion && (
-                  <p>
-                    <span className="text-neutral-900 font-medium">
-                      The last {discussionDuration} minutes are reserved for the {discussionTitle}.
-                    </span>{" "}
-                    When the timer reaches {discussionDuration}:00 remaining, the other sections lock automatically and the
-                    discussion begins. You cannot skip it.
-                  </p>
-                )}
-                <p>
-                  Work as you normally would. Move between tasks, use the terminal, and run tests. Autosave
-                  is continuous.
+                <div className="space-y-3 rounded-xl border border-neutral-200 bg-white p-4 text-[13px]">
+                  <div className="font-medium text-neutral-900">Timing & Section Navigation Rules:</div>
+                  <ul className="space-y-2 text-neutral-600 list-disc pl-4">
+                    <li><strong className="text-neutral-900">Section-Level Timer:</strong> The timer is allocated per section, not per individual question.</li>
+                    <li><strong className="text-neutral-900">Flexible Navigation:</strong> You can move freely between questions within an active section.</li>
+                    <li><strong className="text-neutral-900">One-Way Section Progress:</strong> Once a section is submitted, it cannot be revisited.</li>
+                    <li><strong className="text-neutral-900">Auto-Submission:</strong> If a section's time limit expires, all answered questions are automatically submitted.</li>
+                    {hasDiscussion && (
+                      <li><strong className="text-neutral-900">Vitarka AI Discussion:</strong> Starts automatically after completing preceding sections (~{discussionDuration} min).</li>
+                    )}
+                  </ul>
+                </div>
+                <p className="text-[13px] text-neutral-500">
+                  Autosave is continuous. Your code and answers save automatically as you work.
                 </p>
               </>
             )}

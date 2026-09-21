@@ -19,6 +19,9 @@ import {
   evaluationTotals,
   Evaluation,
 } from "@/lib/recruiter";
+import LoadingSkeleton from "@/components/common/LoadingSkeleton";
+import EmptyState from "@/components/common/EmptyState";
+import ErrorState from "@/components/common/ErrorState";
 
 export const Route = createFileRoute("/recruiter/evaluations/")({
   head: () => ({
@@ -29,9 +32,26 @@ export const Route = createFileRoute("/recruiter/evaluations/")({
 
 function EvaluationsList() {
   const [evals, setEvals] = useState<Evaluation[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const nav = useNavigate();
-  const refresh = () => listEvaluations().then(setEvals);
+
+  const refresh = () => {
+    setLoading(true);
+    setError(null);
+    listEvaluations()
+      .then((data) => {
+        setEvals(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Failed to load evaluations list.");
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
     refresh();
   }, []);
@@ -53,9 +73,12 @@ function EvaluationsList() {
     }
     refresh();
   };
-  const onDelete = async (id: string) => {
-    if (confirm("Delete this evaluation?")) {
-      await deleteEvaluation(id);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const onDelete = async () => {
+    if (deleteId) {
+      await deleteEvaluation(deleteId);
+      setDeleteId(null);
       refresh();
     }
   };
@@ -77,18 +100,20 @@ function EvaluationsList() {
         </button>
       </div>
 
-      {evals.length === 0 ? (
-        <div className="mt-16 rounded-2xl border border-dashed border-white/10 p-16 text-center">
-          <div className="text-[15px] text-white">No evaluations yet</div>
-          <div className="mt-1 text-[12px] text-neutral-500">
-            Design your first engineering evaluation in minutes.
-          </div>
-          <button
-            onClick={onCreate}
-            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-[12px] text-white hover:bg-white/15"
-          >
-            <Plus className="h-3.5 w-3.5" /> Create Evaluation
-          </button>
+      {error && <ErrorState message={error} onRetry={refresh} inline className="mt-6" />}
+
+      {loading ? (
+        <div className="mt-8">
+          <LoadingSkeleton type="cards" count={6} />
+        </div>
+      ) : evals.length === 0 ? (
+        <div className="mt-8">
+          <EmptyState
+            icon={Users}
+            title="No evaluations yet"
+            description="Design your first engineering evaluation in minutes."
+            action={{ label: "Create Evaluation", onClick: onCreate, icon: Plus }}
+          />
         </div>
       ) : (
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -134,7 +159,7 @@ function EvaluationsList() {
                       <div className="flex items-center gap-1 text-neutral-500">
                         <Users className="h-3 w-3" /> Candidates
                       </div>
-                      <div className="mt-1 text-[13px] text-white">{e.candidatesInvited}</div>
+                      <div className="mt-1 text-[13px] text-white">{e.candidatesTotal}</div>
                     </div>
                   </div>
                   <div className="mt-4 text-[11px] text-neutral-500">Created {rel}</div>
@@ -175,7 +200,7 @@ function EvaluationsList() {
                     </IconBtn>
                   </div>
                   <div className="flex items-center">
-                    <IconBtn title="Delete" onClick={() => onDelete(e.id)}>
+                    <IconBtn title="Delete" onClick={() => setDeleteId(e.id)}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </IconBtn>
                   </div>
@@ -189,6 +214,34 @@ function EvaluationsList() {
       {toast && (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-white/10 bg-neutral-900 px-4 py-2 text-[12px] text-white shadow-xl">
           {toast}
+        </div>
+      )}
+
+      {deleteId && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+        >
+          <div className="w-full max-w-sm rounded-2xl border border-white/5 bg-gradient-to-b from-white/[0.03] to-white/[0.01] p-6 shadow-2xl">
+            <h3 className="text-[18px] font-semibold text-white">Delete Evaluation</h3>
+            <p className="mt-2 text-[13px] text-neutral-500">
+              Are you sure you want to delete this evaluation? This action cannot be undone and will permanently remove all associated candidate data.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteId(null)}
+                className="rounded-lg px-4 py-2 text-[13px] font-medium text-neutral-400 hover:bg-white/5 hover:text-white transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onDelete}
+                className="rounded-lg bg-red-500/10 px-4 py-2 text-[13px] font-medium text-red-500 hover:bg-red-500/20 transition"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
