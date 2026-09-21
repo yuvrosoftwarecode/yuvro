@@ -1801,7 +1801,7 @@ export function TicketIDE({
           }
 
           const passedScore = parsedData.total_score ?? res.total_score ?? 0;
-          const maxScore = parsedData.max_possible_score ?? res.max_possible_score ?? 100;
+          const maxScore = parsedData.max_possible_score ?? res.max_possible_score ?? ticket?.marks ?? ticket?.points ?? ticket?.max_score ?? 10;
           setTicketScore({ passed: passedScore, total: maxScore });
           showToast(`Score: ${passedScore} / ${maxScore}`);
         } else {
@@ -3605,8 +3605,9 @@ function extractTasksReport(
   const evaluatedItems = items.filter((it) => it.passed !== null);
   const hasRan = evaluatedItems.length > 0;
   const passedCount = items.filter((it) => it.passed === true).length;
-  const totalScore = ticketScore ? ticketScore.passed : (parsedJson?.total_score ?? items.reduce((acc, it) => acc + (it.score || 0), 0));
-  const maxScore = ticketScore ? ticketScore.total : (parsedJson?.max_possible_score ?? (items.length * 20 || 100));
+  const defaultMax = ticket?.marks ?? ticket?.points ?? ticket?.max_score ?? ticket?.total_marks ?? 10;
+  const maxScore = ticketScore ? ticketScore.total : (parsedJson?.max_possible_score ?? defaultMax);
+  const totalScore = ticketScore ? ticketScore.passed : (parsedJson?.total_score ?? (hasRan ? items.reduce((acc, it) => acc + (it.score || 0), 0) : 0));
 
   return {
     hasRan,

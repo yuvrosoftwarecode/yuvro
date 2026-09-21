@@ -130,6 +130,9 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,
                 test_command: q.test_command || undefined,
+                marks: q.marks || q.points || q.max_score || 10,
+                points: q.marks || q.points || q.max_score || 10,
+                max_score: q.marks || q.points || q.max_score || 10,
                 tasks: Array.isArray(q.tasks) 
                   ? q.tasks.map((t: any) => ({
                       id: t.id || "",
@@ -740,6 +743,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     setModal(null);
   };
   const confirmSubmitSection = async (secId: string) => {
+    setModal({ kind: "submitting-evaluation" });
     try {
       const sec = appSections.find(s => s.id === secId);
       const richAnswers: any[] = [];
@@ -781,14 +785,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
     } catch (e) {}
     setSubmittedSections(prev => new Set(prev).add(secId));
     setActiveQuestionId(null);
-    setModal(null);
     const idx = appSections.findIndex(s => s.id === secId);
     if (idx !== -1 && idx + 1 < appSections.length) {
       setSection(appSections[idx + 1].id);
       setOpenLab(null);
       setQIndex(0);
+      setModal(null);
     } else {
-      setModal({ kind: "submit-evaluation" });
+      await submitEvaluation(false);
     }
   };
 
@@ -1063,6 +1067,9 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   common_mistakes: [],
                   startup_command: lab.startup_command,
                   test_command: (lab as any).test_command,
+                  marks: (lab as any).marks || 10,
+                  points: (lab as any).points || (lab as any).marks || 10,
+                  max_score: (lab as any).max_score || (lab as any).marks || 10,
                 };
                 return (
                   <TicketIDE
