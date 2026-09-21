@@ -1,0 +1,77 @@
+{
+  "lab_questions": [
+    {
+      "title": "Detect Circular Microservice Dependencies",
+      "type": "BACKEND",
+      "description": "A cloud microservices topology analyzer checks dependency relationships between N microservices (labeled 0 to N-1). A directed edge (u, v) indicates service u directly depends on service v. If a circular dependency exists (e.g., A -> B -> C -> A), the system will suffer a boot deadlock.\n\nRead N (number of services) and M (number of dependency links), followed by M pairs of (u, v). Print CYCLE_DETECTED if a circular dependency is found, or SAFE if no cycles exist.",
+      "difficulty": "MEDIUM",
+      "domain": "FINANCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 40,
+      "marks": 100,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "",
+      "git_repo_starter_branch": "",
+      "startup_command": "",
+      "test_command": "",
+      "programming_languages": [
+        "PYTHON",
+        "JAVA",
+        "C++",
+        "C"
+      ],
+      "databases": [],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "description": "Validate your code against test case 1.\nInput:\n3 3\n0 1\n1 2\n2 0\nExpected Output: CYCLE_DETECTED",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 1,
+          "solution": {
+            "python": "import sys\nsys.setrecursionlimit(2000)\ndata = list(map(int, sys.stdin.read().split()))\nif data:\n    n, m = data[0], data[1]\n    adj = [[] for _ in range(n)]\n    idx = 2\n    for _ in range(m):\n        u, v = data[idx], data[idx+1]\n        adj[u].append(v)\n        idx += 2\n    visited = [0] * n\n    has_cycle = False\n    def dfs(u):\n        nonlocal has_cycle\n        visited[u] = 1\n        for v in adj[u]:\n            if visited[v] == 1:\n                has_cycle = True\n                return\n            if visited[v] == 0:\n                dfs(v)\n        visited[u] = 2\n    for i in range(n):\n        if visited[i] == 0:\n            dfs(i)\n    print('CYCLE_DETECTED' if has_cycle else 'SAFE')"
+          }
+        },
+        {
+          "title": "Test Case 2",
+          "description": "Validate your code against test case 2.\nInput:\n4 3\n0 1\n1 2\n2 3\nExpected Output: SAFE",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 2,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 3",
+          "description": "Validate your code against test case 3.\nInput:\n4 4\n0 1\n1 2\n2 3\n3 1\nExpected Output: CYCLE_DETECTED",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 3,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "description": "Validate your code against test case 4.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 4,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "description": "Validate your code against test case 5.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 5,
+          "solution": {}
+        }
+      ]
+    }
+  ]
+}

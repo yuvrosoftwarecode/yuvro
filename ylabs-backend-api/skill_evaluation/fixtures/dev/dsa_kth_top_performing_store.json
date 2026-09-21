@@ -1,0 +1,77 @@
+{
+  "lab_questions": [
+    {
+      "title": "Find Kth Top Performing Store Revenue",
+      "type": "BACKEND",
+      "description": "A retail chain manages N stores and records daily sales figures for each store location. Regional management requests the K-th largest daily sales amount (1-indexed) to evaluate middle-tier sales benchmarks across stores.\n\nRead N (number of stores) and K (target rank), followed by N integers representing individual store revenues. Print the K-th highest revenue value.",
+      "difficulty": "EASY",
+      "domain": "RETAIL",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 100,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "",
+      "git_repo_starter_branch": "",
+      "startup_command": "",
+      "test_command": "",
+      "programming_languages": [
+        "PYTHON",
+        "JAVA",
+        "C++",
+        "C"
+      ],
+      "databases": [],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "description": "Validate your code against test case 1.\nInput:\n5 2\n1200 4500 3100 8900 2300\nExpected Output: 4500",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 1,
+          "solution": {
+            "python": "import sys\ndata = list(map(int, sys.stdin.read().split()))\nif data:\n    n, k = data[0], data[1]\n    arr = data[2:n+2]\n    arr.sort(reverse=True)\n    print(arr[k-1])"
+          }
+        },
+        {
+          "title": "Test Case 2",
+          "description": "Validate your code against test case 2.\nInput:\n6 1\n500 1200 300 4500 2200 1000\nExpected Output: 4500",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 2,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 3",
+          "description": "Validate your code against test case 3.\nInput:\n4 4\n10 20 30 40\nExpected Output: 10",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 3,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "description": "Validate your code against test case 4.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 4,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "description": "Validate your code against test case 5.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 5,
+          "solution": {}
+        }
+      ]
+    }
+  ]
+}

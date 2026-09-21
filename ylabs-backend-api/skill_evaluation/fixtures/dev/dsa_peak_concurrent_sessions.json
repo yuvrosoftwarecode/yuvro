@@ -1,0 +1,77 @@
+{
+  "lab_questions": [
+    {
+      "title": "Peak Concurrent User Sessions",
+      "type": "BACKEND",
+      "description": "A devops infrastructure monitoring tool tracks active user sessions on a web platform. Each session has a start time and an end time (both inclusive integer timestamps).\n\nYour task is to read the total number of sessions N, followed by N pairs of start and end timestamps, and calculate the maximum number of concurrent active user sessions recorded at any single timestamp.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "JUNIOR",
+      "duration_minutes": 35,
+      "marks": 100,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "",
+      "git_repo_starter_branch": "",
+      "startup_command": "",
+      "test_command": "",
+      "programming_languages": [
+        "PYTHON",
+        "JAVA",
+        "C++",
+        "C"
+      ],
+      "databases": [],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "description": "Validate your code against test case 1.\nInput:\n3\n1 5\n2 6\n4 8\nExpected Output: 3",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 1,
+          "solution": {
+            "python": "import sys\ndata = list(map(int, sys.stdin.read().split()))\nif data:\n    n = data[0]\n    events = []\n    idx = 1\n    for _ in range(n):\n        s, e = data[idx], data[idx+1]\n        events.append((s, 1))\n        events.append((e + 1, -1))\n        idx += 2\n    events.sort()\n    max_c = curr = 0\n    for t, delta in events:\n        curr += delta\n        max_c = max(max_c, curr)\n    print(max_c)"
+          }
+        },
+        {
+          "title": "Test Case 2",
+          "description": "Validate your code against test case 2.\nInput:\n3\n1 2\n3 4\n5 6\nExpected Output: 1",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 2,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 3",
+          "description": "Validate your code against test case 3.\nInput:\n4\n1 10\n2 3\n4 5\n6 7\nExpected Output: 2",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 3,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "description": "Validate your code against test case 4.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 4,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "description": "Validate your code against test case 5.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 5,
+          "solution": {}
+        }
+      ]
+    }
+  ]
+}

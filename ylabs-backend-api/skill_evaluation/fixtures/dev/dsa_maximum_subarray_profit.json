@@ -1,0 +1,77 @@
+{
+  "lab_questions": [
+    {
+      "title": "Maximum Continuous Stock Trading Profit",
+      "type": "BACKEND",
+      "description": "An algorithmic trading platform evaluates daily profit/loss figures of an asset over N consecutive trading days. Traders want to identify the maximum cumulative profit achievable across any contiguous sequence of trading days.\n\nRead N (number of days), followed by N integers representing daily gain/loss. Output the maximum sum of a contiguous subarray.",
+      "difficulty": "EASY",
+      "domain": "FINANCE",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 100,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "",
+      "git_repo_starter_branch": "",
+      "startup_command": "",
+      "test_command": "",
+      "programming_languages": [
+        "PYTHON",
+        "JAVA",
+        "C++",
+        "C"
+      ],
+      "databases": [],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "description": "Validate your code against test case 1.\nInput:\n8\n-2 1 -3 4 -1 2 1 -5\nExpected Output: 6",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 1,
+          "solution": {
+            "python": "import sys\ndata = list(map(int, sys.stdin.read().split()))\nif data:\n    n = data[0]\n    arr = data[1:n+1]\n    max_so_far = arr[0]\n    curr_max = arr[0]\n    for x in arr[1:]:\n        curr_max = max(x, curr_max + x)\n        max_so_far = max(max_so_far, curr_max)\n    print(max_so_far)"
+          }
+        },
+        {
+          "title": "Test Case 2",
+          "description": "Validate your code against test case 2.\nInput:\n1\n5\nExpected Output: 5",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 2,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 3",
+          "description": "Validate your code against test case 3.\nInput:\n4\n-5 -2 -8 -1\nExpected Output: -1",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 3,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "description": "Validate your code against test case 4.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 4,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "description": "Validate your code against test case 5.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 5,
+          "solution": {}
+        }
+      ]
+    }
+  ]
+}

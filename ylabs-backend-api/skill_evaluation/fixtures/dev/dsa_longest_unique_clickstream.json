@@ -1,0 +1,77 @@
+{
+  "lab_questions": [
+    {
+      "title": "Longest Unique Page Visit Clickstream",
+      "type": "BACKEND",
+      "description": "A web analytics engine tracks user navigation paths represented as a sequence of single-character page identifiers (e.g., 'abcabcbb'). Analysts want to find the maximum length of a continuous session segment in which the user visited distinct pages without repeating any page.\n\nRead a single string of page identifiers and output the length of the longest contiguous substring containing all unique characters.",
+      "difficulty": "MEDIUM",
+      "domain": "EDTECH",
+      "experience": "JUNIOR",
+      "duration_minutes": 35,
+      "marks": 100,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "",
+      "git_repo_starter_branch": "",
+      "startup_command": "",
+      "test_command": "",
+      "programming_languages": [
+        "PYTHON",
+        "JAVA",
+        "C++",
+        "C"
+      ],
+      "databases": [],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Test Case 1",
+          "description": "Validate your code against test case 1.\nInput:\nabcabcbb\nExpected Output: 3",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 1,
+          "solution": {
+            "python": "import sys\ns = sys.stdin.read().strip()\nseen = {}\nleft = 0\nmax_len = 0\nfor right, ch in enumerate(s):\n    if ch in seen and seen[ch] >= left:\n        left = seen[ch] + 1\n    seen[ch] = right\n    max_len = max(max_len, right - left + 1)\nprint(max_len)"
+          }
+        },
+        {
+          "title": "Test Case 2",
+          "description": "Validate your code against test case 2.\nInput:\nbbbbb\nExpected Output: 1",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 2,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 3",
+          "description": "Validate your code against test case 3.\nInput:\npwwkew\nExpected Output: 3",
+          "difficulty": "EASY",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 3,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 4 (Hidden/Advanced)",
+          "description": "Validate your code against test case 4.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 4,
+          "solution": {}
+        },
+        {
+          "title": "Test Case 5 (Hidden/Advanced)",
+          "description": "Validate your code against test case 5.",
+          "difficulty": "MEDIUM",
+          "marks": 20,
+          "duration_minutes": 3,
+          "order_index": 5,
+          "solution": {}
+        }
+      ]
+    }
+  ]
+}
