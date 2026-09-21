@@ -165,8 +165,9 @@ function RecruiterDashboard() {
                   return (
                     <Link
                       key={e.id}
-                      to="/recruiter/evaluations/$id"
+                      to="/recruiter/evaluations/$id/workspace"
                       params={{ id: e.id }}
+                      search={{ tab: "overview", view: "edit" } as any}
                       className="group grid grid-cols-[1fr_auto_auto_auto] items-center gap-6 px-5 py-4 transition hover:bg-white/[0.02]"
                     >
                       <div className="min-w-0">
