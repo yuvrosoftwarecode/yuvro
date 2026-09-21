@@ -1339,11 +1339,150 @@ function LabDrawer({
     fetchLabs().then(setLabs);
   }, []);
 
+  const availableDomains = useMemo(() => {
+    if (!labs.length) return [];
+    const set = new Set<string>();
+    DOMAINS.forEach((d) => {
+      if (
+        labs.some(
+          (l) =>
+            (l.domain || "").toUpperCase().replace(/_/g, " ") ===
+            d.toUpperCase().replace(/_/g, " ")
+        )
+      ) {
+        set.add(d);
+      }
+    });
+    labs.forEach((l) => {
+      if (l.domain) {
+        const formatted = l.domain.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        const match = Array.from(set).find((s) => s.toUpperCase() === formatted.toUpperCase());
+        if (!match) set.add(formatted);
+      }
+    });
+    return Array.from(set);
+  }, [labs]);
+
+  const availableLanguages = useMemo(() => {
+    if (!labs.length) return [];
+    const set = new Set<string>();
+    PROGRAMMING_LANGUAGES.forEach((langOpt) => {
+      if (
+        labs.some((l) =>
+          (l.programming_languages || []).some(
+            (x) => x.toUpperCase() === langOpt.toUpperCase()
+          )
+        )
+      ) {
+        set.add(langOpt);
+      }
+    });
+    labs.forEach((l) => {
+      (l.programming_languages || []).forEach((langItem) => {
+        if (langItem) {
+          const match = Array.from(set).find((s) => s.toUpperCase() === langItem.toUpperCase());
+          if (!match) set.add(langItem);
+        }
+      });
+    });
+    return Array.from(set);
+  }, [labs]);
+
+  const availableDatabases = useMemo(() => {
+    if (!labs.length) return [];
+    const set = new Set<string>();
+    DATABASES.forEach((dbOpt) => {
+      if (
+        labs.some((l) =>
+          (l.databases || []).some((x) => x.toUpperCase() === dbOpt.toUpperCase())
+        )
+      ) {
+        set.add(dbOpt);
+      }
+    });
+    labs.forEach((l) => {
+      (l.databases || []).forEach((dbItem) => {
+        if (dbItem) {
+          const match = Array.from(set).find((s) => s.toUpperCase() === dbItem.toUpperCase());
+          if (!match) set.add(dbItem);
+        }
+      });
+    });
+    return Array.from(set);
+  }, [labs]);
+
+  const availableScenarios = useMemo(() => {
+    if (!labs.length) return [];
+    const set = new Set<string>();
+    SCENARIOS.forEach((scOpt) => {
+      if (
+        labs.some((l) => {
+          const labSc = (l.scenario || "").toUpperCase();
+          const optSc = scOpt.toUpperCase().replace(/ /g, "_");
+          return labSc === optSc || labSc === scOpt.toUpperCase();
+        })
+      ) {
+        set.add(scOpt);
+      }
+    });
+    labs.forEach((l) => {
+      if (l.scenario) {
+        const scDisplay = l.scenario.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        const match = Array.from(set).find(
+          (s) =>
+            s.toUpperCase() === scDisplay.toUpperCase() ||
+            s.toUpperCase().replace(/ /g, "_") === l.scenario.toUpperCase()
+        );
+        if (!match) set.add(scDisplay);
+      }
+    });
+    return Array.from(set);
+  }, [labs]);
+
+  const availableDifficulties = useMemo(() => {
+    if (!labs.length) return [];
+    const set = new Set<string>();
+    DIFFICULTIES.forEach((dfOpt) => {
+      if (labs.some((l) => (l.difficulty || "").toUpperCase() === dfOpt.toUpperCase())) {
+        set.add(dfOpt);
+      }
+    });
+    labs.forEach((l) => {
+      if (l.difficulty) {
+        const formatted = l.difficulty.replace(/\b\w/g, (c) => c.toUpperCase());
+        const match = Array.from(set).find((s) => s.toUpperCase() === formatted.toUpperCase());
+        if (!match) set.add(formatted);
+      }
+    });
+    return Array.from(set);
+  }, [labs]);
+
+  useEffect(() => {
+    if (domain !== "All" && availableDomains.length > 0 && !availableDomains.some(d => d.toUpperCase() === domain.toUpperCase())) {
+      setDomain("All");
+    }
+    if (lang !== "All" && availableLanguages.length > 0 && !availableLanguages.some(l => l.toUpperCase() === lang.toUpperCase())) {
+      setLang("All");
+    }
+    if (db !== "All" && availableDatabases.length > 0 && !availableDatabases.some(d => d.toUpperCase() === db.toUpperCase())) {
+      setDb("All");
+    }
+    if (scenario !== "All" && availableScenarios.length > 0 && !availableScenarios.some(s => s.toUpperCase() === scenario.toUpperCase() || s.toUpperCase().replace(/ /g, "_") === scenario.toUpperCase())) {
+      setScenario("All");
+    }
+    if (diff !== "All" && availableDifficulties.length > 0 && !availableDifficulties.some(d => d.toUpperCase() === diff.toUpperCase())) {
+      setDiff("All");
+    }
+  }, [availableDomains, availableLanguages, availableDatabases, availableScenarios, availableDifficulties]);
+
   const filtered = useMemo(
     () =>
       labs.filter((l) => {
         const qmatch = !q || l.title.toLowerCase().includes(q.toLowerCase());
-        const domatch = domain === "All" || (l.domain || "").toUpperCase() === domain.toUpperCase();
+        const domatch =
+          domain === "All" ||
+          (l.domain || "").toUpperCase() === domain.toUpperCase() ||
+          (l.domain || "").toUpperCase().replace(/_/g, " ") === domain.toUpperCase();
         const lmatch =
           lang === "All" ||
           (l.programming_languages || []).map((x) => x.toUpperCase()).includes(lang.toUpperCase());
@@ -1352,7 +1491,8 @@ function LabDrawer({
           (l.databases || []).map((x) => x.toUpperCase()).includes(db.toUpperCase());
         const smatch =
           scenario === "All" ||
-          (l.scenario || "").toUpperCase() === scenario.toUpperCase().replace(" ", "_");
+          (l.scenario || "").toUpperCase() === scenario.toUpperCase().replace(" ", "_") ||
+          (l.scenario || "").toUpperCase().replace("_", " ") === scenario.toUpperCase();
         const dmatch = diff === "All" || (l.difficulty || "").toUpperCase() === diff.toUpperCase();
         return qmatch && domatch && lmatch && dbmatch && smatch && dmatch;
       }),
@@ -1407,31 +1547,46 @@ function LabDrawer({
             className="w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/[0.03] py-2 pl-8 pr-3 text-[12px] text-neutral-900 dark:text-white outline-none focus:border-emerald-400/60 focus:bg-white dark:focus:bg-black/30 focus:ring-2 focus:ring-emerald-400/20 dark:focus:ring-transparent placeholder-neutral-400 dark:placeholder-neutral-500 transition-colors"
           />
         </div>
-        <FilterRow
-          label="Domain"
-          value={domain}
-          setValue={setDomain}
-          options={["All", ...DOMAINS]}
-        />
-        <FilterRow
-          label="Programming Languages"
-          value={lang}
-          setValue={setLang}
-          options={["All", ...PROGRAMMING_LANGUAGES]}
-        />
-        <FilterRow label="Databases" value={db} setValue={setDb} options={["All", ...DATABASES]} />
-        <FilterRow
-          label="Scenario"
-          value={scenario}
-          setValue={setScenario}
-          options={["All", ...SCENARIOS]}
-        />
-        <FilterRow
-          label="Difficulty"
-          value={diff}
-          setValue={setDiff}
-          options={["All", ...DIFFICULTIES]}
-        />
+        {availableDomains.length > 0 && (
+          <FilterRow
+            label="Domain"
+            value={domain}
+            setValue={setDomain}
+            options={["All", ...availableDomains]}
+          />
+        )}
+        {availableLanguages.length > 0 && (
+          <FilterRow
+            label="Programming Languages"
+            value={lang}
+            setValue={setLang}
+            options={["All", ...availableLanguages]}
+          />
+        )}
+        {availableDatabases.length > 0 && (
+          <FilterRow
+            label="Databases"
+            value={db}
+            setValue={setDb}
+            options={["All", ...availableDatabases]}
+          />
+        )}
+        {availableScenarios.length > 0 && (
+          <FilterRow
+            label="Scenario"
+            value={scenario}
+            setValue={setScenario}
+            options={["All", ...availableScenarios]}
+          />
+        )}
+        {availableDifficulties.length > 0 && (
+          <FilterRow
+            label="Difficulty"
+            value={diff}
+            setValue={setDiff}
+            options={["All", ...availableDifficulties]}
+          />
+        )}
       </div>
       <div className="mt-3 space-y-2">
         {filtered.map((l) => {
