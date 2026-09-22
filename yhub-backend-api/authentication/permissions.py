@@ -85,6 +85,19 @@ class IsRecruiterFreelancerUser(BasePermission):
         )
 
 
+class IsRecruiterCompanyUser(BasePermission):
+    """
+    Permission class that allows access only to recruiter company users.
+    """
+
+    def has_permission(self, request, view):
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.is_recruiter_company()
+        )
+
+
 class IsMarketplaceUser(BasePermission):
     """
     Permission class that allows access to any user with a marketplace role.
