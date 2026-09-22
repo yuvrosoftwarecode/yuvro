@@ -641,7 +641,7 @@ function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetu
                   if (part === "{{link}}") {
                     return (
                       <div key={i} className="my-3">
-                        <span className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">Start Evaluation</span>
+                        <span className="inline-block rounded-lg bg-black text-white dark:bg-white dark:text-black px-6 py-2.5 text-[13px] font-medium transition">Start Evaluation</span>
                       </div>
                     );
                   }
@@ -1117,8 +1117,8 @@ function Toggle({ label, desc, value, onChange }: { label: string; desc?: string
         <div className="text-[13px] font-medium text-white">{label}</div>
         {desc && <div className="mt-1 text-[12px] text-neutral-400">{desc}</div>}
       </div>
-      <button onClick={() => onChange(!value)} className={`relative h-5 w-9 shrink-0 rounded-full transition ${value ? "bg-amber-400" : "bg-white/15"}`}>
-        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all ${value ? "left-4" : "left-0.5"}`} />
+      <button onClick={() => onChange(!value)} className={`relative h-5 w-9 shrink-0 rounded-full transition ${value ? "bg-neutral-800 dark:bg-white" : "bg-neutral-300 dark:bg-neutral-700"}`}>
+        <span className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${value ? "left-4 bg-white dark:bg-neutral-800" : "left-0.5 bg-white"}`} />
       </button>
     </div>
   );
