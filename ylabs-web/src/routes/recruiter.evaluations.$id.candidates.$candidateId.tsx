@@ -151,6 +151,12 @@ export function MissingVitarkaSessionModal({
 import LoadingSkeleton from "@/components/common/LoadingSkeleton";
 
 export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$candidateId")({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      view: search.view as string | undefined,
+      tab: search.tab as string | undefined,
+    }
+  },
   head: () => ({
     meta: [{ title: "Candidate — Yuvro Labs" }, { name: "robots", content: "noindex" }],
   }),
@@ -187,7 +193,14 @@ function CandidateWorkspace() {
     });
   }, [id, candidateId, nav]);
 
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>(() => {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search);
+      const t = p.get("tab") as Tab;
+      if (t) return t;
+    }
+    return "overview";
+  });
   const [toast, setToast] = useState<string | null>(null);
   const [decision, setDecision] = useState<HiringDecision>(() =>
     loadDecision(id, candidateId, candidate?.hiringStatus ?? "Pending Review"),

@@ -6,11 +6,12 @@ import {
 } from "lucide-react";
 import type { Evaluation } from "@/lib/recruiter";
 import {
-  fetchCandidateRecords, recordTotals, fmtDate, fmtTime,
+  recordTotals, fmtDate, fmtTime,
   type CandidateRecord, type RecordSource, type RecordStatus, type RecordResult,
 } from "@/lib/candidateRecords";
 import EmptyState from "@/components/common/EmptyState";
 import LoadingSkeleton from "@/components/common/LoadingSkeleton";
+
 
 type SortKey = "sent_desc" | "sent_asc" | "sub_desc" | "score_desc" | "score_asc" | "name_asc";
 
@@ -57,17 +58,42 @@ export const PREFILL_KEY = (id: string) => `yuvro-followup-prefill-${id}`;
 
 export function CandidateRecordsTab({
   ev,
+  candidates,
   notify,
   onGotoFollowUps,
-  candidates,
 }: {
   ev: Evaluation;
+  candidates: Candidate[];
   notify: (m: string) => void;
   onGotoFollowUps: () => void;
-  candidates: Candidate[];
 }) {
-  const [all, setAll] = useState<CandidateRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  const all: CandidateRecord[] = useMemo(() => {
+    return candidates.map(c => ({
+      id: c.id,
+      candidateId: c.id,
+      name: c.name,
+      email: c.email,
+      phone: c.phone,
+      source: "Yuvro Invite", // default or derived
+      sentAt: c.submittedAt - (c.completionMinutes * 60 * 1000) - (24 * 60 * 60 * 1000), // mock sent a day before
+      accessedAt: c.submittedAt - (c.completionMinutes * 60 * 1000),
+      status: (c.status === "Submitted" || c.status === "Completed") ? "Submitted" : "Not Submitted",
+      submittedAt: (c.status === "Submitted" || c.status === "Completed") ? c.submittedAt : null,
+      score: c.eci,
+      result: c.recommendation === "Reject" ? "Failed" : "Passed",
+      followUp: c.hiringStatus === "Interview Scheduled" || c.hiringStatus === "Selected",
+      labsScore: c.labsScore,
+      assessmentScore: c.assessmentScore,
+      vitarkaScore: c.vitarkaScore,
+      eci: c.eci,
+      deadline: c.submittedAt + (7 * 24 * 60 * 60 * 1000),
+      emailsSent: 1,
+      aiCall: c.hiringStatus === "Interview Scheduled",
+      lastActivity: c.submittedAt,
+      activity: []
+    }));
+  }, [candidates]);
 
   useEffect(() => {
     let mounted = true;
@@ -288,18 +314,24 @@ export function CandidateRecordsTab({
                   <Field label="Follow-up">
                     <Select value={followUp} onChange={(v) => setFollowUp(v as any)} options={["all", "enabled", "disabled"]} labels={{ enabled: "Enabled", disabled: "Not Enabled" }} />
                   </Field>
-                  <Field label="Sent Date">
-                    <div className="flex items-center gap-1">
-                      <input type="date" value={sentFrom} onChange={(e) => setSentFrom(e.target.value)} className={dateInput} />
-                      <input type="date" value={sentTo} onChange={(e) => setSentTo(e.target.value)} className={dateInput} />
-                    </div>
-                  </Field>
-                  <Field label="Submitted Date">
-                    <div className="flex items-center gap-1">
-                      <input type="date" value={subFrom} onChange={(e) => setSubFrom(e.target.value)} className={dateInput} />
-                      <input type="date" value={subTo} onChange={(e) => setSubTo(e.target.value)} className={dateInput} />
-                    </div>
-                  </Field>
+                  <div className="col-span-2">
+                    <Field label="Sent Date">
+                      <div className="flex items-center gap-2">
+                        <input type="date" value={sentFrom} onChange={(e) => setSentFrom(e.target.value)} className={dateInput} />
+                        <span className="text-[12px] text-neutral-400 font-medium">to</span>
+                        <input type="date" value={sentTo} onChange={(e) => setSentTo(e.target.value)} className={dateInput} />
+                      </div>
+                    </Field>
+                  </div>
+                  <div className="col-span-2">
+                    <Field label="Submitted Date">
+                      <div className="flex items-center gap-2">
+                        <input type="date" value={subFrom} onChange={(e) => setSubFrom(e.target.value)} className={dateInput} />
+                        <span className="text-[12px] text-neutral-400 font-medium">to</span>
+                        <input type="date" value={subTo} onChange={(e) => setSubTo(e.target.value)} className={dateInput} />
+                      </div>
+                    </Field>
+                  </div>
                 </div>
                 <div className="mt-4 flex items-center justify-between border-t border-black/5 pt-3">
                   <button onClick={resetFilters} className="text-[12px] text-neutral-500 hover:text-neutral-900">Reset all</button>
@@ -335,14 +367,14 @@ export function CandidateRecordsTab({
                 {COLUMNS.filter((c) => show(c.key)).map((c) => (
                   <th key={c.key} className="px-3 py-2.5 font-normal">{c.label}</th>
                 ))}
-                <th className="px-3 py-2.5 text-right font-normal">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {all.length === 0 ? (
                 <tr>
-                  <td colSpan={cols.length + 1} className="px-3 py-12">
-                    <LoadingSkeleton type="table" count={5} />
+                  <td colSpan={cols.length + 1} className="px-3 py-16 text-center text-[13px] text-neutral-500">
+                    No candidate records found.
+
                   </td>
                 </tr>
               ) : slice.length === 0 ? (
@@ -367,55 +399,6 @@ export function CandidateRecordsTab({
                         {renderCell(r, c.key)}
                       </td>
                     ))}
-                      <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
-                        <div className="relative inline-block">
-                          <button
-                            onClick={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              setMenuPos({ top: rect.bottom, right: window.innerWidth - rect.right });
-                              setMenuFor(menuFor === r.id ? null : r.id);
-                            }}
-                            className="rounded p-1 text-neutral-500 hover:bg-black/5 hover:text-neutral-900"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </button>
-                          {menuFor === r.id && typeof window !== "undefined" && (
-                            <>
-                              <div className="fixed inset-0 z-20" onClick={() => setMenuFor(null)} />
-                              <div 
-                                className="fixed z-30 mt-1 w-56 overflow-hidden rounded-lg border border-black/10 bg-white py-1 text-left shadow-lg"
-                                style={{ top: menuPos.top, right: menuPos.right }}
-                              >
-                                <RowItem icon={<Eye className="h-3.5 w-3.5" />} onClick={() => { setDetail(r); setMenuFor(null); }}>View Candidate</RowItem>
-                                {r.status === "Submitted" && (
-                                  <RowItem icon={<FileText className="h-3.5 w-3.5" />} onClick={() => { setDetail(r); setMenuFor(null); }}>View Result</RowItem>
-                                )}
-                                {r.followUp ? (
-                                  <RowItem icon={<PhoneCall className="h-3.5 w-3.5" />} onClick={() => { setMenuFor(null); onGotoFollowUps(); }}>View Follow-up Activity</RowItem>
-                                ) : (
-                                  <RowItem icon={<BellPlus className="h-3.5 w-3.5" />} onClick={() => { setMenuFor(null); setFollowUpFor(r); }}>Set Follow-up</RowItem>
-                                )}
-                                {r.followUp && (
-                                  <RowItem icon={<BellPlus className="h-3.5 w-3.5" />} onClick={() => { setMenuFor(null); setFollowUpFor(r); }}>Edit Follow-up</RowItem>
-                                )}
-                                <RowItem
-                                  icon={<Link2 className="h-3.5 w-3.5" />}
-                                  onClick={() => {
-                                    navigator.clipboard?.writeText(`${window.location.origin}/evaluation?e=${ev.id}&c=${r.candidateId}`);
-                                    notify("Assessment link copied");
-                                    setMenuFor(null);
-                                  }}
-                                >
-                                  Copy Assessment Link
-                                </RowItem>
-                                {r.status === "Submitted" && (
-                                  <RowItem icon={<Download className="h-3.5 w-3.5" />} onClick={() => { notify(`Downloading result for ${r.name}`); setMenuFor(null); }}>Download Result</RowItem>
-                                )}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </td>
                   </tr>
                 ))
               )}
