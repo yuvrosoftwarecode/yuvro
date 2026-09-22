@@ -333,6 +333,7 @@ function Workspace() {
         )}
         {tab === "followups" && <FollowUpsTab ev={ev} notify={notify} />}
         {tab === "records" && <CandidateRecordsTab ev={ev} notify={notify} onGotoFollowUps={() => goto("followups")} candidates={candidates} />}
+
         {tab === "intelligence" && (
           <IntelligenceTab ev={ev} candidates={candidates} notify={notify} />
         )}

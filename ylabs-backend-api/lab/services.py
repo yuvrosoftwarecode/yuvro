@@ -28,18 +28,25 @@ def evaluate_and_score_submission(submission):
         "expected_result": expected_result
     }
     
-    try:
-        executer_host = os.environ.get("CODE_EXECUTOR_URL", os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executor:8009"))
-        response = requests.post(f"{executer_host}/workspace/database_evaluate", json=payload, timeout=5)
-        if response.status_code == 200:
-            eval_data = response.json()
-            final_score_pct = eval_data.get("final_score_pct", 0.0)
-        else:
+    if ticket.sprint.lab.type == 'DATABASE':
+        try:
+            executer_host = os.environ.get("CODE_EXECUTOR_URL", os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executor:8009"))
+            response = requests.post(f"{executer_host}/workspace/database_evaluate", json=payload, timeout=5)
+            if response.status_code == 200:
+                eval_data = response.json()
+                final_score_pct = eval_data.get("final_score_pct", 0.0)
+            else:
+                final_score_pct = 0.0
+        except requests.RequestException:
             final_score_pct = 0.0
-    except requests.RequestException:
-        final_score_pct = 0.0
-        
-    total_points = int(ticket.yuvro_points * final_score_pct)
+            
+        total_points = int(ticket.yuvro_points * final_score_pct)
+    else:
+        # For non-database labs, we trust the status set by the frontend/other evaluators
+        if submission.ticket_status in [TicketProgressStatus.DONE, TicketProgressStatus.IN_REVIEW]:
+            total_points = ticket.yuvro_points
+        else:
+            total_points = 0
     
     if submission.solution_revealed:
         total_points = 0

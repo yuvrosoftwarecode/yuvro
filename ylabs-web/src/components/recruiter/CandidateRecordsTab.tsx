@@ -6,11 +6,12 @@ import {
 } from "lucide-react";
 import type { Evaluation } from "@/lib/recruiter";
 import {
-  fetchCandidateRecords, recordTotals, fmtDate, fmtTime,
+  recordTotals, fmtDate, fmtTime,
   type CandidateRecord, type RecordSource, type RecordStatus, type RecordResult,
 } from "@/lib/candidateRecords";
 import EmptyState from "@/components/common/EmptyState";
 import LoadingSkeleton from "@/components/common/LoadingSkeleton";
+
 
 type SortKey = "sent_desc" | "sent_asc" | "sub_desc" | "score_desc" | "score_asc" | "name_asc";
 
@@ -57,17 +58,42 @@ export const PREFILL_KEY = (id: string) => `yuvro-followup-prefill-${id}`;
 
 export function CandidateRecordsTab({
   ev,
+  candidates,
   notify,
   onGotoFollowUps,
-  candidates,
 }: {
   ev: Evaluation;
+  candidates: Candidate[];
   notify: (m: string) => void;
   onGotoFollowUps: () => void;
-  candidates: Candidate[];
 }) {
-  const [all, setAll] = useState<CandidateRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  const all: CandidateRecord[] = useMemo(() => {
+    return candidates.map(c => ({
+      id: c.id,
+      candidateId: c.id,
+      name: c.name,
+      email: c.email,
+      phone: c.phone,
+      source: "Yuvro Invite", // default or derived
+      sentAt: c.submittedAt - (c.completionMinutes * 60 * 1000) - (24 * 60 * 60 * 1000), // mock sent a day before
+      accessedAt: c.submittedAt - (c.completionMinutes * 60 * 1000),
+      status: (c.status === "Submitted" || c.status === "Completed") ? "Submitted" : "Not Submitted",
+      submittedAt: (c.status === "Submitted" || c.status === "Completed") ? c.submittedAt : null,
+      score: c.eci,
+      result: c.recommendation === "Reject" ? "Failed" : "Passed",
+      followUp: c.hiringStatus === "Interview Scheduled" || c.hiringStatus === "Selected",
+      labsScore: c.labsScore,
+      assessmentScore: c.assessmentScore,
+      vitarkaScore: c.vitarkaScore,
+      eci: c.eci,
+      deadline: c.submittedAt + (7 * 24 * 60 * 60 * 1000),
+      emailsSent: 1,
+      aiCall: c.hiringStatus === "Interview Scheduled",
+      lastActivity: c.submittedAt,
+      activity: []
+    }));
+  }, [candidates]);
 
   useEffect(() => {
     let mounted = true;
@@ -344,10 +370,11 @@ export function CandidateRecordsTab({
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {all.length === 0 ? (
                 <tr>
-                  <td colSpan={cols.length + 1} className="px-3 py-12">
-                    <LoadingSkeleton type="table" count={5} />
+                  <td colSpan={cols.length + 1} className="px-3 py-16 text-center text-[13px] text-neutral-500">
+                    No candidate records found.
+
                   </td>
                 </tr>
               ) : slice.length === 0 ? (
