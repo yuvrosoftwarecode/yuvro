@@ -145,22 +145,21 @@ function Hub() {
   useEffect(() => {
     loadStudentStats().then(setStudentStats).catch(console.error);
 
-    restApiAuthUtil.get("/lab/github-integration/").then((res: any) => {
-      if (res) setGhState({ connected: res.is_connected, username: res.github_username });
+    restApiAuthUtil.get("/lab/github-integration/").then((res) => {
+      if (res.data) setGhState({ connected: res.data.is_connected, username: res.data.github_username });
     }).catch(() => setGhState({ connected: false }));
 
     loadLabs().then(async data => {
       let enrSet = new Set<string>();
       let statsMap: Record<string, any> = {};
       try {
-        const statsRes: any = await restApiAuthUtil.get("/lab/tickets/my-stats/");
-        statsMap = statsRes || {};
+        const statsRes = await restApiAuthUtil.get("/lab/tickets/my-stats/");
+        statsMap = statsRes.data || {};
       } catch (e) {}
 
       try {
-        const enrollRes: any = await restApiAuthUtil.get("/lab/enrollments/");
-        const enrollmentsList = Array.isArray(enrollRes) ? enrollRes : (enrollRes.results || []);
-        enrollmentsList.forEach((e: any) => enrSet.add(String(e.lab)));
+        const enrollRes = await restApiAuthUtil.get("/lab/enrollments/");
+        enrollRes.data?.forEach((e: any) => enrSet.add(String(e.lab)));
       } catch (e) {
         console.warn("Failed to fetch enrollments from API, falling back to mock");
       }
