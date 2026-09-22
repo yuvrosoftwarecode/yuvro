@@ -1846,15 +1846,39 @@ export function TicketIDE({
 
         if (res.status === 'completed') {
           showToast(`Passed ${res.test_cases_passed} of ${res.total_test_cases} tests`);
-          if (res.test_cases_passed > 0 && res.test_cases_passed === res.total_test_cases) {
-             setTicketScore({ passed: res.test_cases_passed, total: res.total_test_cases });
-             setTestsRan(true);
-             setTests([{ name: "All Tests", pass: true, time: `${res.execution_time}s` }]);
-             const taskSlug = ticket.tasks?.[0]?.task_slug || "task-0";
-             setEvalResult(prev => ({ 
-               ...prev, 
-               [taskSlug]: { passed: true, reason: "" } 
-             }));
+          setTestsRan(true);
+
+          const newEvalResult: Record<string, { passed: boolean; reason: string }> = {};
+
+          (ticket.tasks || []).forEach((taskMeta: any, idx: number) => {
+            const tr = res.test_results?.results?.[idx];
+            const isPassed = tr ? tr.passed === true : (res.test_cases_passed > 0 && idx < res.test_cases_passed);
+            const reasonMsg = tr ? (tr.passed ? "Passed" : (tr.error || "Output mismatch")) : (isPassed ? "Passed" : "Task failed verification");
+
+            const itemEval = { passed: isPassed, reason: reasonMsg };
+
+            if (taskMeta?.task_slug) newEvalResult[taskMeta.task_slug] = itemEval;
+            if (taskMeta?.id) newEvalResult[String(taskMeta.id)] = itemEval;
+            newEvalResult[`task-${idx}`] = itemEval;
+            newEvalResult[`task${idx + 1}`] = itemEval;
+          });
+
+          setEvalResult(prev => ({ ...prev, ...newEvalResult }));
+          setTicketScore({ passed: res.test_cases_passed, total: res.total_test_cases });
+
+          if (res.test_results?.results && res.test_results.results.length > 0) {
+            setTests((ticket.tasks || []).map((tMeta: any, idx: number) => {
+              const tr = res.test_results?.results?.[idx];
+              return {
+                name: tMeta?.title || `Test Case ${idx + 1}`,
+                pass: tr ? tr.passed === true : false,
+                time: tr?.execution_time ? `${tr.execution_time.toFixed(2)}s` : "—",
+                expected: tr?.expected_output || "",
+                got: tr?.actual_output || tr?.error || ""
+              };
+            }));
+          } else {
+            setTests([{ name: "All Tests", pass: res.test_cases_passed === res.total_test_cases, time: `${res.execution_time}s` }]);
           }
         } else if (res.status === 'timeout') {
           showToast('Time Limit Exceeded');
@@ -3627,9 +3651,15 @@ function extractTasksReport(
       message = tObj.message || tObj.reason || (passed ? "Task requirements satisfied" : "Task failed verification");
     } else {
       const slug = tMeta?.task_slug || `task-${i}`;
-      if (evalResult && evalResult[slug]) {
-        passed = evalResult[slug].passed;
-        message = evalResult[slug].reason;
+      const altSlug = `task-${i}`;
+      const numKey = `task${i + 1}`;
+      const idKey = tMeta?.id ? String(tMeta.id) : undefined;
+
+      const evalItem = evalResult && (evalResult[slug] || evalResult[altSlug] || evalResult[numKey] || (idKey ? evalResult[idKey] : undefined));
+
+      if (evalItem) {
+        passed = evalItem.passed;
+        message = evalItem.reason;
         score = passed ? 20 : 0;
       }
     }

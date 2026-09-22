@@ -122,6 +122,34 @@ class Command(BaseCommand):
             )
 
             for task_data in q_data.get("tasks", []):
+                # --- Normalise expected_output -----------------------------------------
+                # The fixture may store expected_output as either:
+                #   a) A plain string  → e.g. "1500"
+                #   b) A dict          → e.g. {} (default) or {"value": "1500"}
+                #   c) Missing         → fall back to {}
+                # The model field is a JSONField. We store strings inside a wrapper dict
+                # {"value": "<string>"} so the frontend serialiser can reliably read them
+                # as `tc.expected_output` strings without hitting a 422 on the code executor.
+                raw_expected = task_data.get("expected_output", {})
+                if isinstance(raw_expected, str):
+                    expected_output_obj = {"value": raw_expected}
+                elif isinstance(raw_expected, dict) and "value" in raw_expected:
+                    expected_output_obj = raw_expected  # already normalised
+                else:
+                    expected_output_obj = {}  # unknown shape — keep as-is
+
+                # --- Merge explicit input into scoring_rules ----------------------------
+                # The fixture may include a top-level "input" string on each task for
+                # DSA scenario labs. Merge it into scoring_rules so the frontend can read
+                # it via the serialised task as `tc.scoring_rules.input`.
+                scoring_rules = dict(task_data.get("scoring_rules", {}))
+                fixture_input = task_data.get("input", "")
+                if fixture_input and isinstance(fixture_input, str):
+                    scoring_rules["input"] = fixture_input
+                # Also store the raw expected_output string for easy frontend access
+                if isinstance(raw_expected, str):
+                    scoring_rules["expected_output"] = raw_expected
+
                 LabQuestionBankTask.objects.update_or_create(
                     lab_question_bank=q,
                     title=task_data["title"],
@@ -131,8 +159,8 @@ class Command(BaseCommand):
                         "marks": task_data.get("marks", 5),
                         "duration_minutes": task_data.get("duration_minutes", 30),
                         "order_index": task_data.get("order_index", 0),
-                        "scoring_rules": task_data.get("scoring_rules", {}),
-                        "expected_output": task_data.get("expected_output", {}),
+                        "scoring_rules": scoring_rules,
+                        "expected_output": expected_output_obj,
                         "solution": task_data.get("solution", {}),
                         "created_by": admin_user,
                     },
