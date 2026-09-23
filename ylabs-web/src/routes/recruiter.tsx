@@ -204,14 +204,19 @@ function RecruiterLayout() {
           
           <div className={`border-t border-white/5 ${isSidebarOpen ? 'p-3' : 'p-2 flex flex-col items-center gap-4'}`}>
             {isTrial && expiryDate && isSidebarOpen && (
-              <div className="mb-2 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3">
-                <div className="flex items-center gap-2 text-[11px] font-medium text-amber-400">Free Trial Ends</div>
-                <div className="mt-1 font-mono text-[11px] text-amber-500/70">
+              <div className="mb-2 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-100/80 dark:bg-white/[0.04] p-3 backdrop-blur-sm">
+                <div className="flex items-center gap-2 text-[11px] font-semibold text-neutral-900 dark:text-neutral-200">
+                  Free Trial Ends
+                </div>
+                <div className="mt-1 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">
                   {new Date(expiryDate).toLocaleString(undefined, {
                     month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
                   })}
                 </div>
-                <Link to="/recruiter/billing" className="mt-3 block w-full text-center rounded-lg bg-amber-500/20 py-1.5 text-[11px] font-medium text-amber-400 transition hover:bg-amber-500/30">
+                <Link
+                  to="/recruiter/billing"
+                  className="mt-3 block w-full text-center rounded-lg bg-neutral-900 dark:bg-white py-1.5 text-[11px] font-semibold text-white dark:text-black transition hover:bg-neutral-800 dark:hover:bg-neutral-200 shadow-sm"
+                >
                   Upgrade Plan
                 </Link>
               </div>
