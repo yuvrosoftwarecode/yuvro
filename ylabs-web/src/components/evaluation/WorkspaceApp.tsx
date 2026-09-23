@@ -510,28 +510,48 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
   useEffect(() => {
     if (!anySectionNeedsProctoring || isPreviewMode) return;
     
-    if (!proctoringData || !proctoringData.cameraStream) {
-       setMediaDisabled(true);
-       return;
+    let isCancelled = false;
+    const stream = proctoringData?.cameraStream;
+
+    const isStreamValid = (s: MediaStream | null | undefined): boolean => {
+      if (!s) return false;
+      const vTracks = s.getVideoTracks();
+      if (vTracks.length === 0 || vTracks.some(t => t.readyState === 'ended' || !t.enabled)) return false;
+      const aTracks = s.getAudioTracks();
+      if (aTracks.length > 0 && aTracks.some(t => t.readyState === 'ended' || !t.enabled)) return false;
+      return true;
+    };
+
+    if (!isStreamValid(stream)) {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then((newStream) => {
+          if (isCancelled) return;
+          const currentData = getGlobalProctoringData() || { photoBlob: null, screenshotBlob: null, screenStream: null, cameraStream: null };
+          const newData = { ...currentData, cameraStream: newStream };
+          setGlobalProctoringData(newData);
+          setProctoringData(newData);
+          setMediaDisabled(false);
+        })
+        .catch(() => {
+          if (!isCancelled) setMediaDisabled(true);
+        });
+      return () => { isCancelled = true; };
     }
-    
-    const stream = proctoringData.cameraStream;
+
     const checkMedia = () => {
-      let disabled = false;
-      const vTracks = stream.getVideoTracks();
-      if (vTracks.length === 0 || vTracks.some(t => t.readyState === 'ended' || !t.enabled)) {
-        disabled = true;
+      if (!isStreamValid(proctoringData?.cameraStream)) {
+        setMediaDisabled(true);
+      } else {
+        setMediaDisabled(false);
       }
-      const aTracks = stream.getAudioTracks();
-      if (aTracks.length > 0 && aTracks.some(t => t.readyState === 'ended' || !t.enabled)) {
-        disabled = true;
-      }
-      setMediaDisabled(disabled);
     };
 
     const intervalId = setInterval(checkMedia, 1500);
     checkMedia();
-    return () => clearInterval(intervalId);
+    return () => {
+      isCancelled = true;
+      clearInterval(intervalId);
+    };
   }, [anySectionNeedsProctoring, proctoringData, isPreviewMode]);
 
   // Auto-submit after 1 minute of disabled media
@@ -983,7 +1003,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
             onClick={handleResumeMedia} 
             className="bg-white text-neutral-900 px-6 py-2 rounded-md font-medium text-sm hover:bg-neutral-200"
           >
-            Resume Evaluation
+            {submittedSections.size === 0 && !labSubmissionsData?.length ? "Start Evaluation" : "Resume Evaluation"}
           </button>
         </div>
       </div>

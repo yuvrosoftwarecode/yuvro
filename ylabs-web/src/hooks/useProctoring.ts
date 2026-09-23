@@ -321,24 +321,30 @@ export const useProctoring = ({
                 }
             }
 
+            const code = (e.code || '').toLowerCase();
+            const isDevToolsLetter = (
+                ['i', 'j', 'c', 'k', 'e', 's', 'm', 'u', 'ˆ', '∆', 'ç', '¨'].includes(key) ||
+                ['keyi', 'keyj', 'keyc', 'keyk', 'keye', 'keys', 'keym', 'keyu'].includes(code)
+            );
+
             // ── Cmd+Option+I/J/C (Mac DevTools — Chrome, Safari, Edge) ───────
-            if (meta && alt && ['i','j','c'].includes(key)) {
+            if (meta && alt && isDevToolsLetter) {
                 blocked = true;
-                logActivity('devtools_opened', { key: `Cmd+Option+${key.toUpperCase()}`, description: 'DevTools (Mac)' });
+                logActivity('devtools_opened', { key: `Cmd+Option+${code || key}`, description: 'DevTools (Mac) blocked' });
                 onViolationRef.current?.('devtools_opened');
             }
 
             // ── Cmd+Shift+I/J/C (Mac — Firefox DevTools) ──────────────────────
-            if (meta && shift && ['i','j','c'].includes(key)) {
+            if (meta && shift && isDevToolsLetter) {
                 blocked = true;
-                logActivity('devtools_opened', { key: `Cmd+Shift+${key.toUpperCase()}`, description: 'DevTools (Mac Firefox)' });
+                logActivity('devtools_opened', { key: `Cmd+Shift+${code || key}`, description: 'DevTools (Mac Firefox) blocked' });
                 onViolationRef.current?.('devtools_opened');
             }
 
             // ── Ctrl+Shift+I/J/C/K/E/S/M (Windows/Linux DevTools) ─────────────
-            if (ctrl && shift && ['i','j','c','k','e','s','m'].includes(key)) {
+            if (ctrl && (shift || alt) && isDevToolsLetter) {
                 blocked = true;
-                logActivity('devtools_opened', { key: `Ctrl+Shift+${key.toUpperCase()}`, description: 'DevTools' });
+                logActivity('devtools_opened', { key: `Ctrl+Shift+${code || key}`, description: 'DevTools blocked' });
                 onViolationRef.current?.('devtools_opened');
             }
 

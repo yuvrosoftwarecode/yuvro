@@ -89,7 +89,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 
         if user:
             submission = UserEvaluationSubmission.objects.filter(evaluation=instance, user=user).first()
-            if not submission and instance.created_by_id != user.id:
+            if not submission and instance.created_by_id != user.id and request.user and request.user.is_authenticated:
                 submission = UserEvaluationSubmission.objects.create(
                     evaluation=instance,
                     user=user,
@@ -241,7 +241,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             
         User = get_user_model()
         user = User.objects.filter(email=email).first()
-        if user and UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).exists():
+        if user and UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user, completed_at__isnull=False).exists():
             return Response({"registered": True, "title": evaluation.title})
         return Response({"registered": False, "title": evaluation.title})
 
@@ -747,11 +747,10 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         except LabQuestionBank.DoesNotExist:
             return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
             
-        if not lab.git_repo_starter_url:
-            return Response({"error": "Lab does not have a starter repository"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
-        starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
+        starter_repo_path = None
+        if lab.git_repo_starter_url:
+            starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
+            starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
         
         try:
             provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
@@ -775,16 +774,17 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     
                 try:
                     lab = LabQuestionBank.objects.get(id=lab_id)
+                    starter_repo_path = None
                     if lab.git_repo_starter_url:
                         starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
                         starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
-                        
-                        try:
-                            provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
-                            labs_provisioned += 1
-                        except Exception as e:
-                            logger = logging.getLogger(__name__)
-                            logger.error(f"Failed to provision lab workspace {lab_id}: {e}", exc_info=True)
+                    
+                    try:
+                        provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
+                        labs_provisioned += 1
+                    except Exception as e:
+                        logger = logging.getLogger(__name__)
+                        logger.error(f"Failed to provision lab workspace {lab_id}: {e}", exc_info=True)
                 except LabQuestionBank.DoesNotExist:
                     pass
 
