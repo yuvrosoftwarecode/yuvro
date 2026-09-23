@@ -1,0 +1,112 @@
+{
+  "lab_questions": [
+    {
+      "title": "Django Profile Validation and Behavior Fixes",
+      "type": "BACKEND",
+      "description": "Debug and fix 5 validation, partial update, and HTTP status code bugs in a Django REST Framework User Profile API. The API currently accepts missing and invalid email inputs, permits duplicate emails, corrupts profiles during partial updates, and returns incorrect HTTP status codes.",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 50,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "SD/django-profile-validation",
+      "startup_command": "python manage.py migrate && python manage.py runserver",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Fix Required Email Validation",
+          "description": "The API currently accepts profile creation (`POST /api/profiles/`) without an email address.\n\n**Testing in Swagger UI:**\n1. Open Swagger UI at `http://127.0.0.1:8000/`.\n2. Submit a `POST /api/profiles/` request without an `email` field (e.g., `{\"name\": \"Alice\"}`).\n3. Observe that the API accepts the profile without returning an error.\n\n**Goal:** Ensure `email` is mandatory. When missing, return **HTTP 400 Bad Request**.",
+          "difficulty": "EASY",
+          "marks": 2,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 2,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Fix Email Format Validation",
+          "description": "The API currently accepts malformed email values such as `'hello'` or `'user@'`.\n\n**Testing in Swagger UI:**\n1. Submit a `POST /api/profiles/` request with `\"email\": \"hello\"`.\n2. Observe that the API accepts the invalid email format.\n\n**Goal:** Enforce proper email format validation. Return **HTTP 400 Bad Request** for invalid email addresses.",
+          "difficulty": "EASY",
+          "marks": 2,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 2,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Fix Duplicate Email Validation",
+          "description": "The API currently allows multiple user profiles to be registered with the same email address.\n\n**Testing in Swagger UI:**\n1. Create a profile with email `\"john@example.com\"`.\n2. Submit another `POST /api/profiles/` request with the same email `\"john@example.com\"`.\n3. Observe that a duplicate profile is created.\n\n**Goal:** Enforce email uniqueness across all user profiles. Return **HTTP 400 Bad Request** when a duplicate email is submitted.",
+          "difficulty": "MEDIUM",
+          "marks": 2,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 2,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Fix PATCH Partial Update Support",
+          "description": "Updating only specific fields via `PATCH /api/profiles/<id>/` (e.g. updating `name`) erases or clears the existing `email` address.\n\n**Testing in Swagger UI:**\n1. Create a profile with `name` and `email`.\n2. Execute a `PATCH /api/profiles/{id}/` request passing only `{\"name\": \"John Updated\"}`.\n3. Observe that the returned profile's `email` is erased/cleared.\n\n**Goal:** Ensure `PATCH` supports partial updates correctly (`partial=True`), preserving untouched existing field values.",
+          "difficulty": "MEDIUM",
+          "marks": 2,
+          "duration_minutes": 10,
+          "order_index": 3,
+          "scoring_rules": {
+            "logic_score": 2,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Fix Profile Creation Status Code",
+          "description": "Creating a profile via `POST /api/profiles/` currently returns HTTP 200 OK instead of standard HTTP 201 Created.\n\n**Testing in Swagger UI:**\n1. Submit a valid `POST /api/profiles/` request.\n2. Observe that the response status code is `200 OK`.\n\n**Goal:** Change the successful creation response status code to **HTTP 201 Created**.",
+          "difficulty": "EASY",
+          "marks": 2,
+          "duration_minutes": 10,
+          "order_index": 4,
+          "scoring_rules": {
+            "logic_score": 2,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
