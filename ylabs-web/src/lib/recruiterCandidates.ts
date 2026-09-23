@@ -289,13 +289,15 @@ export function getCandidates(
       const knowSubs = sub.knowledge_submissions || [];
       
       if (labSubs.length > 0) {
+        const labCount = Math.max(1, labSubs.length);
+        const perLabMax = 100 / labCount;
         labs = Math.round(labSubs.reduce((acc: number, cur: any) => {
           let score = Number(cur.score || 0);
           if (score === 0 && cur.solution_output) {
             try {
               const parsed = typeof cur.solution_output === "string" ? JSON.parse(cur.solution_output) : cur.solution_output;
               if (parsed?.total_score != null) score = Number(parsed.total_score);
-              else if (parsed?.percentage != null) score = (Number(parsed.percentage) / 100) * 10;
+              else if (parsed?.percentage != null) score = Number(parsed.percentage);
             } catch {}
           }
           if (score === 0 && cur.solution && typeof cur.solution === "string") {
@@ -303,10 +305,15 @@ export function getCandidates(
               score = 2;
             }
           }
+          let earned = 0;
           if (score > 10 && score <= 100) {
-            score = (score / 100) * 10;
+            earned = (score / 100) * perLabMax;
+          } else if (score > 0 && score <= 10) {
+            earned = (score / 10) * perLabMax;
+          } else {
+            earned = score;
           }
-          return acc + score;
+          return acc + earned;
         }, 0));
       }
       if (knowSubs.length > 0) {

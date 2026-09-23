@@ -192,23 +192,39 @@ function SharedReportWorkspace() {
   const liveLabsReport = liveBundle?.engineering_labs_report;
   const liveKnowledgeReport = liveBundle?.knowledge_assessment_report;
 
+  const sharedLabSections = (ev?.sections || []).filter((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS");
+  const sharedAllLabs = sharedLabSections.flatMap((s: any) => (s.labs && s.labs.length > 0 ? s.labs : (s.questions || [])));
+  const sharedLabCount = Math.max(1, sharedAllLabs.length || rawLabSubs.length);
+
   const totalLabMarksEarned = rawLabSubs.length > 0
     ? rawLabSubs.reduce((acc: number, cur: any) => {
         let score = Number(cur.score || cur.marks_earned || 0);
         if (score === 0 && cur.test_results && Array.isArray(cur.test_results)) {
           const passed = cur.test_results.filter((t: any) => t.passed || t.status === "passed" || t.status === "PASS").length;
           const total = cur.test_results.length;
-          if (total > 0) score = Math.round((passed / total) * 10);
+          if (total > 0) score = Math.round((passed / total) * 100);
         }
         if (score === 0 && cur.solution && typeof cur.solution === "string") {
           if (cur.solution.includes("HTTP_201_CREATED") || cur.solution.includes("201_CREATED")) {
             score = 2;
           }
         }
+        const matchingLab = sharedAllLabs.find((l: any) => {
+          const targetId = String(l.id ?? l.lab_id ?? l.question_id ?? "");
+          const sLabId = String(cur.lab_question?.id ?? cur.lab_question ?? cur.lab_id ?? "");
+          return sLabId === targetId || (sLabId && targetId && (sLabId.includes(targetId) || targetId.includes(sLabId)));
+        });
+        const labMaxMarks = Number(matchingLab?.marks) || (labsMaxScore / sharedLabCount);
+
+        let earned = 0;
         if (score > 10 && score <= 100) {
-          score = (score / 100) * 10;
+          earned = (score / 100) * labMaxMarks;
+        } else if (score > 0 && score <= 10) {
+          earned = (score / 10) * labMaxMarks;
+        } else {
+          earned = score;
         }
-        return acc + score;
+        return acc + earned;
       }, 0)
     : (candidate?.labsScore != null ? candidate.labsScore : 0);
 

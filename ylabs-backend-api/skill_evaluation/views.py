@@ -475,6 +475,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 minutes_solved = 0
 
         score_val = request.data.get('score')
+        solution_output_val = request.data.get('solution_output')
         defaults = {
             'status': status_val,
             'minutes_solved': minutes_solved
@@ -486,6 +487,8 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 defaults['score'] = int(score_val)
             except (ValueError, TypeError):
                 pass
+        if solution_output_val is not None:
+            defaults['solution_output'] = solution_output_val
 
         submission, created = UserLabQuestionBankSubmission.objects.update_or_create(
             user=request.user,

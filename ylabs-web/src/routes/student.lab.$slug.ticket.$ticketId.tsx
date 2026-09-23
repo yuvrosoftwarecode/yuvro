@@ -1865,6 +1865,7 @@ export function TicketIDE({
 
           setEvalResult(prev => ({ ...prev, ...newEvalResult }));
           setTicketScore({ passed: res.test_cases_passed, total: res.total_test_cases });
+          setLastExecutionResult(res);
 
           if (res.test_results?.results && res.test_results.results.length > 0) {
             setTests((ticket.tasks || []).map((tMeta: any, idx: number) => {
@@ -2243,6 +2244,7 @@ export function TicketIDE({
     {},
   );
   const [ticketScore, setTicketScore] = useState<{ passed: number; total: number } | null>(null);
+  const [lastExecutionResult, setLastExecutionResult] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleEvaluate = async (
@@ -2332,24 +2334,58 @@ export function TicketIDE({
 
     if (isReal && ticket.tasks && ticket.tasks.length > 0) {
       setSubmitting(true);
-      const report = extractTasksReport(ticket, taskExecutionData, executionOutput || output, evalResult, ticketScore);
-      const computedScore = report.totalScore;
-      
+
+      // Compute score as a percentage (0–100) so the recruiter report
+      // can scale it correctly (it treats score > 10 && <= 100 as percent).
+      const totalTasks = Math.max(1, ticketScore?.total ?? ticket.tasks.length);
+      const passedTasks = ticketScore?.passed ?? 0;
+      const computedScore = Math.round((passedTasks / totalTasks) * 100);
+
+      // Build solution_output JSON from the last execution result so the
+      // recruiter report can show per-task pass/fail breakdown accurately.
+      let solutionOutput = "";
+      if (lastExecutionResult) {
+        const tasksMap: Record<string, any> = {};
+        (ticket.tasks || []).forEach((tMeta: any, idx: number) => {
+          const tr = lastExecutionResult.test_results?.results?.[idx];
+          const taskKey = tMeta?.task_slug || `task${idx + 1}`;
+          const isPassed = tr ? tr.passed === true : false;
+          const taskMarks = typeof tMeta?.marks === "number" ? tMeta.marks : 20;
+          tasksMap[taskKey] = {
+            result: isPassed ? "passed" : "failed",
+            score: isPassed ? taskMarks : 0,
+            max_score: taskMarks,
+            message: isPassed ? "Test passed" : (tr?.error || "Output mismatch"),
+            actual_output: tr?.actual_output || "",
+            expected_output: tr?.expected_output || "",
+          };
+        });
+        solutionOutput = JSON.stringify({
+          test_cases_passed: lastExecutionResult.test_cases_passed,
+          total_test_cases: lastExecutionResult.total_test_cases,
+          tasks: tasksMap,
+          total_score: computedScore,
+          max_possible_score: 100,
+          percentage: computedScore,
+        });
+      }
+
       if (slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          const payload: any = {
+            [submissionsStatusField]: "in_review",
+            solution: JSON.stringify(getFilesToSave()),
+            score: computedScore,
+            ...(solutionOutput ? { solution_output: solutionOutput } : {}),
+          };
           if (submissionId) {
-            api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(getFilesToSave()),
-              score: computedScore
-            }).catch(console.error).finally(() => setSubmitting(false));
+            api.patch(`${submissionsEndpoint}${submissionId}/`, payload)
+              .catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(getFilesToSave()),
-              score: computedScore
+              ...payload,
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
