@@ -50,7 +50,9 @@ export const evaluationService = {
     try {
       if (typeof window !== "undefined") {
         const cand = JSON.parse(localStorage.getItem("yuvro-eval-candidate") || "{}");
-        if (cand?.email) emailParam = `?email=${encodeURIComponent(cand.email)}`;
+        if (cand?.email && cand?.evaluationId === evaluationId) {
+          emailParam = `?email=${encodeURIComponent(cand.email)}`;
+        }
       }
     } catch {}
 

@@ -98,7 +98,7 @@ function EvaluationInvite() {
       await evaluationService.sendRegistrationOtp(evaluationId, email, title);
       localStorage.setItem(
         "yuvro-eval-candidate",
-        JSON.stringify({ firstName, lastName, email, phone: `${countryCode} ${phone}`, resume: file?.name, title }),
+        JSON.stringify({ evaluationId, firstName, lastName, email, phone: `${countryCode} ${phone}`, resume: file?.name, title }),
       );
       if (file) {
         setTempResumeFile(file);

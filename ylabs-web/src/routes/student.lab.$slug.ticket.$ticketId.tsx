@@ -1185,15 +1185,13 @@ export function TicketIDE({
         };
 
         let paths: Record<string, string> = {};
-        
-        // Poll for up to 10 seconds to allow Django to copy files and Docker to sync
-        for (let attempt = 0; attempt < 20; attempt++) {
+        // Poll max 3 times to allow copying files and Docker sync
+        for (let attempt = 0; attempt < 3; attempt++) {
           const res = await fetchFileTree(userId, labId, sprintId, starters, isSqliteLab ? "sqlite" : "other", isEvaluationMode ? evaluationId : undefined);
           paths = flatten(res.tree, {});
-          if (Object.keys(paths).length > 0) {
+          if (Object.keys(paths).length > 0 || slug === "knowledge" || attempt >= 1) {
             break;
           }
-          if (slug === "knowledge") break; // Do not poll for knowledge assessments
           await new Promise(r => setTimeout(r, 500));
         }
 
@@ -1209,27 +1207,29 @@ export function TicketIDE({
           }
         }));
 
-        if (Object.keys(paths).length > 0) {
-          setFiles(prev => {
-            const next = { ...paths };
-            for (const p of Object.keys(next)) {
-              if (prev[p] && prev[p] !== starters[p]) next[p] = prev[p];
-            }
-            return next;
-          });
-          const firstPath = Object.keys(paths)[0];
-          if (!forceUpdate && firstPath) {
-            setOpenTabs(prev => prev.includes(firstPath) ? prev : [...prev, firstPath]);
-            setActiveFile(firstPath);
-            try {
-              const content = await fetchFile(userId, labId, sprintId, firstPath, evaluationId);
-              setFiles(f => ({ ...f, [firstPath]: content }));
-            } catch { /* ignore */ }
+        setFiles(prev => {
+          const next = { ...paths };
+          for (const p of Object.keys(next)) {
+            if (prev[p] && prev[p] !== starters[p]) next[p] = prev[p];
           }
-          setWsLoaded(true);
+          return next;
+        });
+
+        const firstPath = Object.keys(paths)[0];
+        if (!forceUpdate && firstPath) {
+          setOpenTabs(prev => prev.includes(firstPath) ? prev : [...prev, firstPath]);
+          setActiveFile(firstPath);
+          try {
+            const content = await fetchFile(userId, labId, sprintId, firstPath, evaluationId);
+            setFiles(f => ({ ...f, [firstPath]: content }));
+          } catch { /* ignore */ }
+        } else if (!forceUpdate && !firstPath) {
+          setOpenTabs([]);
+          setActiveFile("");
         }
+        setWsLoaded(true);
       } catch {
-        setWsLoaded(true); // fall back to local starters on error
+        setWsLoaded(true); // fall back on error
       }
       setWsLoaded(true);
     } catch {
