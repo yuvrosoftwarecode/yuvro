@@ -442,6 +442,10 @@ function CandidateWorkspace() {
   }
 
   const rawLabSubs = candidate?.rawSubmission?.lab_submissions || [];
+  const labSectionsForScore = ev?.sections?.filter((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") || [];
+  const allLabsForScore = labSectionsForScore.flatMap((s: any) => (s.labs && s.labs.length > 0 ? s.labs : (s.questions || [])));
+  const totalLabCountForScore = Math.max(1, allLabsForScore.length || rawLabSubs.length);
+
   const totalLabMarksEarned = rawLabSubs.length > 0
     ? rawLabSubs.reduce((acc: number, cur: any) => {
         let score = Number(cur.score || 0);
@@ -449,7 +453,7 @@ function CandidateWorkspace() {
           try {
             const parsed = typeof cur.solution_output === "string" ? JSON.parse(cur.solution_output) : cur.solution_output;
             if (parsed?.total_score != null) score = Number(parsed.total_score);
-            else if (parsed?.percentage != null) score = (Number(parsed.percentage) / 100) * 10;
+            else if (parsed?.percentage != null) score = Number(parsed.percentage);
           } catch {}
         }
         if (score === 0 && cur.solution && typeof cur.solution === "string") {
@@ -457,10 +461,22 @@ function CandidateWorkspace() {
             score = 2;
           }
         }
+        const matchingLab = allLabsForScore.find((l: any) => {
+          const targetId = String(l.id ?? l.lab_id ?? l.question_id ?? "");
+          const sLabId = String(cur.lab_question?.id ?? cur.lab_question ?? cur.lab_id ?? "");
+          return sLabId === targetId || (sLabId && targetId && (sLabId.includes(targetId) || targetId.includes(sLabId)));
+        });
+        const labMaxMarks = Number(matchingLab?.marks) || (labsMaxScore / totalLabCountForScore);
+
+        let earned = 0;
         if (score > 10 && score <= 100) {
-          score = (score / 100) * 10;
+          earned = (score / 100) * labMaxMarks;
+        } else if (score > 0 && score <= 10) {
+          earned = (score / 10) * labMaxMarks;
+        } else {
+          earned = score;
         }
-        return acc + score;
+        return acc + earned;
       }, 0)
     : (candidate?.labsScore != null ? candidate.labsScore : 0);
 
@@ -1360,8 +1376,12 @@ function EvaluationSummary({
   let labsAttemptedCount = 0;
   let totalLabMinutes = 0;
 
-  allLabs.forEach((lab: any) => {
-    const sub = rawLabSubs.find((s: any) => s.lab_question === lab.id || s.lab_question === lab.lab_id);
+  allLabs.forEach((lab: any, idx: number) => {
+    const targetId = String(lab.id ?? lab.lab_id ?? lab.question_id ?? "");
+    const sub = rawLabSubs.find((s: any) => {
+      const sLabId = String(s.lab_question?.id ?? s.lab_question ?? s.lab_id ?? "");
+      return sLabId === targetId || (sLabId && targetId && (sLabId.includes(targetId) || targetId.includes(sLabId)));
+    }) || rawLabSubs[idx] || (rawLabSubs.length === 1 ? rawLabSubs[0] : undefined);
     if (sub) {
       if (sub.solution || sub.solution_output || Number(sub.score || 0) > 0) {
         labsAttemptedCount += 1;

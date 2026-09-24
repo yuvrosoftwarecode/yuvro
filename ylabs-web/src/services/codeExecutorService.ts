@@ -46,6 +46,74 @@ export function isTleError(error: unknown): boolean {
   );
 }
 
+/**
+ * Safely extract string `input` and `expected_output` from a LabQuestionBankTask object.
+ *
+ * Why this is needed:
+ * - `LabQuestionBankTask.expected_output` is a Django JSONField that defaults to `{}`.
+ * - In JS, `{} || ''` returns `{}` (truthy), so the old `tc.expected_output || ''`
+ *   would pass an object to FastAPI which expects a string → 422 Unprocessable Entity.
+ * - For DSA scenario labs the test case input and expected output are stored either as
+ *   explicit `tc.input` / `tc.expected_output` string fields, OR embedded inside
+ *   `tc.description` in the format:
+ *     "...Input:\n<input lines>\nExpected Output: <value>"
+ *
+ * Resolution priority:
+ *   1. Direct string field (tc.input / tc.expected_output)
+ *   2. Parse from tc.description (Input / Expected Output sections)
+ *   3. Fall back to empty string (never pass an object)
+ */
+function parseTestCaseInputOutput(tc: any): { input: string; expected_output: string } {
+  // --- input ---
+  let input = '';
+  if (typeof tc.input === 'string') {
+    input = tc.input;
+  }
+  // Also check scoring_rules.input (stored by load_skill_evaluations.py for DSA labs)
+  if (!input && typeof tc.scoring_rules?.input === 'string') {
+    input = tc.scoring_rules.input;
+  }
+
+  // --- expected_output ---
+  let expected_output = '';
+  if (typeof tc.expected_output === 'string') {
+    expected_output = tc.expected_output;
+  }
+  // expected_output JSONField stored as {"value": "..."} by the updated seeder
+  if (!expected_output && typeof tc.expected_output?.value === 'string') {
+    expected_output = tc.expected_output.value;
+  }
+  // Also check scoring_rules.expected_output (additional storage path)
+  if (!expected_output && typeof tc.scoring_rules?.expected_output === 'string') {
+    expected_output = tc.scoring_rules.expected_output;
+  }
+  // Objects (e.g. Django JSONField default {}) are intentionally ignored
+  // to prevent 422 validation errors in FastAPI (which expects a string)
+
+  // Final fallback: try to parse both from description if either is still missing
+  if ((!input || !expected_output) && typeof tc.description === 'string') {
+    const desc: string = tc.description;
+
+    // Extract input block: everything between "Input:" and "Expected Output:"
+    if (!input) {
+      const inputMatch = desc.match(/Input:\s*\n([\s\S]*?)(?:\nExpected Output:|$)/i);
+      if (inputMatch) {
+        input = inputMatch[1].trim();
+      }
+    }
+
+    // Extract expected output: value(s) after "Expected Output:"
+    if (!expected_output) {
+      const outputMatch = desc.match(/Expected Output:\s*([^\n]+(?:\n(?!\s*\n)(?!Input:)[^\n]+)*)/i);
+      if (outputMatch) {
+        expected_output = outputMatch[1].trim();
+      }
+    }
+  }
+
+  return { input, expected_output };
+}
+
 class CodeExecutorService {
   async getSupportedLanguagesAndTemplates(): Promise<any> {
     const data = await restApiUtilCodeExecuter.get<any>('/supported-languages-and-templates');
@@ -59,17 +127,19 @@ class CodeExecutorService {
     const data: any = await restApiUtilCodeExecuter.post('/execute-with-tests', {
       code: request.code,
       language: request.language,
-      test_cases_basic: (request.test_cases || []).map(tc => ({
-        input: tc.input || '',
-        expected_output: tc.expected_output || '',
-        weight: tc.weight || 1
-      })),
+      test_cases_basic: (request.test_cases || []).map(tc => {
+        const { input, expected_output } = parseTestCaseInputOutput(tc);
+        return {
+          input,
+          expected_output,
+          weight: (typeof tc.weight === 'number') ? tc.weight : 1
+        };
+      }),
       test_cases_advanced: [],
-      test_cases_custom: (request.test_cases_custom || []).map(tc => ({
-        input: tc.input || '',
-        expected_output: tc.expected_output || '',
-        weight: 1
-      })),
+      test_cases_custom: (request.test_cases_custom || []).map(tc => {
+        const { input, expected_output } = parseTestCaseInputOutput(tc);
+        return { input, expected_output, weight: 1 };
+      }),
       timeout: timeLimit + 5,
       time_limit: 60,
       memory_limit: memoryLimit
