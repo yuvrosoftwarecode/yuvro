@@ -2239,13 +2239,16 @@ export function VitarkaPane({
 
   // Determine actual Vitarka session lifecycle state
   const effStatus = submissionStatus || submission?.status;
+  const effStatusStr = String(effStatus || "").toLowerCase();
+  const isCompleted = ["completed", "submitted", "done", "in_review", "evaluated"].includes(effStatusStr);
+
   const vitarkaState: "not_attempted" | "in_progress" | "completed" | "evaluation_generated" = report
     ? "evaluation_generated"
-    : effStatus === "completed"
+    : (isCompleted || (hasTranscript && effStatusStr === "completed"))
     ? "completed"
-    : effStatus === "in_progress" || normalizedSessionTurns.length > 0
+    : (effStatusStr === "in_progress" || normalizedSessionTurns.length > 0 || hasTranscript)
     ? "in_progress"
-    : (!submission || !submission.id || effStatus === "not_attempted")
+    : (!submission || !submission.id || effStatusStr === "not_attempted")
     ? "not_attempted"
     : "not_attempted";
 
@@ -2760,13 +2763,13 @@ export function VitarkaPane({
           </div>
         </div>
         
-        {normalizedSessionTurns.length === 0 ? (
+        {!hasTranscript ? (
           <div className="mt-4 text-[13px] text-neutral-500 italic">
-            Candidate did not attempt this section.
+            Candidate did not attempt this section or no transcript is available.
           </div>
         ) : (
           <ul className="mt-3 space-y-2 text-[14px] text-neutral-200">
-            {detail.vitarka.summary.map((s, i) => (
+            {(detail?.vitarka?.summary || []).map((s: string, i: number) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="mt-2 h-1 w-1 rounded-full bg-emerald-400" /> {s}
               </li>
@@ -2775,7 +2778,7 @@ export function VitarkaPane({
         )}
         
         <div className="mt-6 flex flex-wrap gap-2">
-          {normalizedSessionTurns.length === 0 ? (
+          {!hasTranscript ? (
             <>
               <button disabled className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 px-3 py-1.5 text-[12px] font-medium text-neutral-400 bg-black/5 opacity-50 cursor-not-allowed">
                 <ScrollText className="h-3.5 w-3.5" />

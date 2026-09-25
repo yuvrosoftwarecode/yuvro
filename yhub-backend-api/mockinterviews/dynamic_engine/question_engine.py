@@ -697,7 +697,7 @@ class DynamicQuestionEngine:
 
         question = next((q for q in session.questions if q.id == question_id), None)
         is_intro = False
-        if quality in {"repeat_requested", "clarification_requested", "skip_requested", "unknown", "irrelevant"}:
+        if quality in {"repeat_requested", "clarification_requested", "skip_requested", "unknown", "irrelevant", "no_response"}:
             is_intro = False
         elif question and question.metadata.get("is_intro"):
             is_intro = True
@@ -946,6 +946,21 @@ class DynamicQuestionEngine:
         )
 
     def _dynamic_follow_up(self, session: InterviewSession) -> InterviewQuestion:
+        import datetime
+        duration_mins = session.metadata.get("duration_minutes") or 30
+        elapsed_seconds = (datetime.datetime.now(datetime.timezone.utc) - session.created_at).total_seconds()
+        remaining_minutes = duration_mins - (elapsed_seconds / 60)
+
+        if remaining_minutes <= 5 and not session.metadata.get("wrap_up_asked"):
+            session.metadata["wrap_up_asked"] = True
+            return InterviewQuestion(
+                prompt="That covers my questions, do you have any questions for me?",
+                kind=QuestionKind.DYNAMIC_FOLLOW_UP,
+                competency_targets=[Competency.COMMUNICATION],
+                rationale="Interview is in its final 5 minutes. Offering the candidate time to ask questions.",
+                metadata={"signature": "wrap_up:questions_for_me"}
+            )
+
         pending_answer = self._pending_dynamic_deep_follow_up_answer(session)
         if pending_answer is not None:
             return self._answer_depth_follow_up(session, pending_answer)
@@ -957,6 +972,7 @@ class DynamicQuestionEngine:
         event = self._best_unused_event(session)
         if event is not None:
             return self._question_from_event(event, session)
+            
         return self._question_from_candidate_context(session)
 
     def _pending_dynamic_deep_follow_up_answer(
@@ -972,7 +988,7 @@ class DynamicQuestionEngine:
             return None
 
         quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
-        if quality == "repeat_requested":
+        if quality in {"repeat_requested", "no_response"}:
             return answer
 
         if question.kind == QuestionKind.RECRUITER_REQUIRED:
@@ -1021,6 +1037,21 @@ class DynamicQuestionEngine:
         question = self._question_for_answer(session, answer)
         quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
 
+        if quality == "no_response":
+            return InterviewQuestion(
+                prompt="Are you still there? Can we wrap up or do you have any questions for me?",
+                kind=QuestionKind.REFRAME,
+                competency_targets=[Competency.COMMUNICATION],
+                evidence_answer_ids=[answer.id],
+                rationale="Candidate did not provide a response. Asking to wrap up.",
+                metadata={
+                    "signature": f"no_response:{answer.id}",
+                    "parent_answer_id": answer.id,
+                    "parent_question_id": question.id if question else None,
+                    "topic_key": self._topic_key_for_question(question) if question else "no_response",
+                }
+            )
+
         if quality == "repeat_requested":
             orig_prompt = question.prompt if question else "Could you explain your recent code changes?"
             clean_base = re.sub(
@@ -1031,14 +1062,14 @@ class DynamicQuestionEngine:
             ).strip()
             if not clean_base:
                 clean_base = orig_prompt
-            prompt = f"No problem, let me rephrase that: {clean_base}"
+            prompt = f"No problem, let me give you a brief summary of what I'm asking: {clean_base}"
             return InterviewQuestion(
                 prompt=prompt,
                 kind=QuestionKind.REFRAME,
                 competency_targets=question.competency_targets if question else [Competency.COMMUNICATION],
                 evidence_event_ids=question.evidence_event_ids if question else [],
                 evidence_answer_ids=[answer.id],
-                rationale="Candidate requested repeating or rephrasing the previous question.",
+                rationale="Candidate requested repeating or rephrasing. Please provide a brief, simplified summary of the previous question instead of repeating it fully.",
                 metadata={
                     "signature": f"repeat:{answer.id}",
                     "parent_answer_id": answer.id,
@@ -1055,7 +1086,7 @@ class DynamicQuestionEngine:
             file_mention = changed_files[0] if changed_files else "your recent lab code"
             prompt = (
                 f"To clarify, I'm referring to {file_mention} from your engineering lab. "
-                "Could you explain the main problem you were solving with your changes in that file?"
+                "Briefly, what was the main problem you were solving there?"
             )
             return InterviewQuestion(
                 prompt=prompt,
@@ -1063,7 +1094,7 @@ class DynamicQuestionEngine:
                 competency_targets=[Competency.COMMUNICATION, Competency.PROBLEM_SOLVING],
                 evidence_event_ids=[event.id] if event else [],
                 evidence_answer_ids=[answer.id],
-                rationale="Candidate requested clarification on the current problem/file.",
+                rationale="Candidate requested clarification. Provide a brief and simplified version of the current question context.",
                 metadata={
                     "signature": f"clarify:{answer.id}",
                     "parent_answer_id": answer.id,
@@ -1431,8 +1462,22 @@ class DynamicQuestionEngine:
 
     def _question_from_candidate_context(self, session: InterviewSession) -> InterviewQuestion:
         keywords = self._context_keywords(session)
-        if keywords:
-            keyword = keywords[session.turn_index % len(keywords)]
+        
+        fallback_questions = [
+            "Walk me through a recent engineering decision you made. What alternatives did you consider, and what evidence convinced you?",
+            "Tell me about a time you had to compromise on code quality to meet a deadline. How did you handle the technical debt?",
+            "Can you describe a challenging bug you recently resolved? What was your debugging process?",
+            "How do you ensure your code is maintainable and easily understood by other engineers?",
+            "Describe a situation where you disagreed with a technical direction. How did you communicate and resolve it?",
+            "What is the most complex system architecture you have worked on, and what was your specific contribution?",
+            "Tell me about a time you had to quickly learn a new technology or framework. How did you approach it?",
+            "How do you balance adding new features with improving system performance and reliability?",
+            "Describe a time when you received critical feedback on a pull request. How did you incorporate it?",
+            "Can you share an experience where you had to scale an application or optimize its performance? What metrics did you focus on?"
+        ]
+
+        if keywords and session.turn_index < len(keywords):
+            keyword = keywords[session.turn_index]
             prompt = (
                 f"The role and your background both point toward {keyword}. Walk me through a "
                 "specific engineering decision you made in that area, including the tradeoff you accepted."
@@ -1440,12 +1485,10 @@ class DynamicQuestionEngine:
             signature = f"context:{keyword}:{session.turn_index}"
             rationale = "Generated from the candidate resume and job description before live events arrived."
         else:
-            prompt = (
-                "Walk me through a recent engineering decision you made. What alternatives did you "
-                "consider, and what evidence convinced you?"
-            )
-            signature = f"context:general:{session.turn_index}"
-            rationale = "Generated as a broad opener because no assessment observations are available yet."
+            fallback_idx = (session.turn_index - (len(keywords) if keywords else 0)) % len(fallback_questions)
+            prompt = fallback_questions[fallback_idx]
+            signature = f"context:fallback:{fallback_idx}:{session.turn_index}"
+            rationale = "Generated from fresh technical/behavioral question pool to maintain interview flow."
 
         return InterviewQuestion(
             prompt=prompt,
@@ -1514,7 +1557,9 @@ class DynamicQuestionEngine:
 
     def _classify_answer(self, answer_text: str) -> str:
         normalized = self._normalize_answer(answer_text)
-        if not normalized or normalized in {"no voice response recorded", "skip", "pass", "i pass", "skip please", "please skip"}:
+        if not normalized or normalized == "no voice response recorded" or normalized == "no answer":
+            return "no_response"
+        if normalized in {"skip", "pass", "i pass", "skip please", "please skip"}:
             return "skip_requested"
         if any(pattern in normalized for pattern in REPEAT_OR_REPHRASE_PATTERNS):
             return "repeat_requested"
@@ -1538,7 +1583,7 @@ class DynamicQuestionEngine:
 
     def _is_unknown_answer(self, answer: CandidateAnswer) -> bool:
         quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
-        return quality in {"unknown", "skip_requested", "irrelevant"}
+        return quality in {"unknown", "skip_requested", "irrelevant", "no_response"}
 
     def _should_reframe_unknown_answer(
         self,
@@ -1546,7 +1591,7 @@ class DynamicQuestionEngine:
         answer: CandidateAnswer,
     ) -> bool:
         quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
-        if quality == "skip_requested":
+        if quality in {"skip_requested", "no_response"}:
             return False
         if quality != "unknown":
             return False
