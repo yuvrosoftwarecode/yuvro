@@ -117,45 +117,57 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                 "bash"
               ).toLowerCase();
 
+              let rawTasks = Array.isArray(q.tasks) 
+                ? q.tasks
+                : typeof q.tasks === 'number'
+                ? Array.from({ length: q.tasks }).map((_, i) => ({ id: `task-${i}`, title: `Task ${i + 1}`, description: "Fulfill the specified objective." }))
+                : [{ id: "main-task", title: "Main Task", description: "Complete the scenario requirements." }];
+
+              if (q.selected_task_id) {
+                const filtered = rawTasks.filter((t: any, idx: number) => {
+                  const tId = t.id || t.task_slug || `task-${idx}`;
+                  return String(tId) === String(q.selected_task_id);
+                });
+                if (filtered.length > 0) {
+                  rawTasks = filtered;
+                }
+              } else if (q.selected_task && typeof q.selected_task === "object") {
+                rawTasks = [q.selected_task];
+              }
+
+              const selectedTaskTitle = q.selected_task?.title || (q.selected_task_id && rawTasks.length === 1 ? rawTasks[0].title : null);
+
               mappedLabs.push({
                 id: q.id || Math.random().toString(),
-                title: q.title || "Untitled Lab",
+                title: selectedTaskTitle ? `${q.title} (${selectedTaskTitle})` : (q.title || "Untitled Lab"),
                 tag: detectedTag,
                 type: q.type,
                 ticket_type: q.ticket_type || q.type,
                 backend_frameworks: q.backend_frameworks || [],
                 programming_languages: q.programming_languages || [],
                 databases: q.databases || [],
-                minutes: q.duration_minutes || 30,
-                problem: q.description || q.scenario || "Complete the lab objectives.",
+                minutes: q.selected_task?.duration_minutes || q.duration_minutes || 30,
+                problem: q.selected_task?.description || q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,
                 test_command: q.test_command || undefined,
-                marks: q.marks || q.points || q.max_score || 10,
-                points: q.marks || q.points || q.max_score || 10,
-                max_score: q.marks || q.points || q.max_score || 10,
-                tasks: Array.isArray(q.tasks) 
-                  ? q.tasks.map((t: any) => ({
-                      id: t.id || "",
-                      title: t.title || "Task",
-                      description: t.description || "",
-                      scoring_rules: t.scoring_rules,
-                      solution: t.solution,
-                      expected_output: t.expected_output
-                    }))
-                  : typeof q.tasks === 'number'
-                  ? Array.from({ length: q.tasks }).map((_, i) => ({
-                      id: "",
-                      title: `Task ${i + 1}`,
-                      description: "Fulfill the specified objective."
-                    }))
-                  : [
-                      { id: "", title: "Main Task", description: "Complete the scenario requirements." }
-                    ],
+                marks: q.selected_task?.marks || q.marks || q.points || q.max_score || 10,
+                points: q.selected_task?.marks || q.marks || q.points || q.max_score || 10,
+                max_score: q.selected_task?.marks || q.marks || q.points || q.max_score || 10,
+                selected_task_id: q.selected_task_id,
+                selected_task: q.selected_task,
+                tasks: rawTasks.map((t: any) => ({
+                  id: t.id || "",
+                  title: t.title || "Task",
+                  description: t.description || "",
+                  scoring_rules: t.scoring_rules,
+                  solution: t.solution,
+                  expected_output: t.expected_output
+                })),
                 file: q.programming_languages?.includes("PYTHON") ? "main.py" : q.programming_languages?.includes("JAVA") ? "Main.java" : "index.js",
                 code: "// Code editor initialized.",
                 terminal: []
               });
-              durationMinutes += (q.duration_minutes || 30);
+              durationMinutes += (q.selected_task?.duration_minutes || q.duration_minutes || 30);
             });
             mappedSections.push({ type: "LAB", id: sec.id, title: sec.title || "Engineering Labs", labs: mappedLabs, proctoring: pc });
           } else if (sec.type === "KNOWLEDGE_ASSESSMENT") {

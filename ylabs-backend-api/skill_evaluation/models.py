@@ -197,6 +197,10 @@ class LabQuestionBank(QuestionBank):
         default="",
         help_text="Command to run scoring tests (e.g., 'python yuvro_scoring_rules/main_test.py')"
     )
+    allow_task_selection = models.BooleanField(
+        default=True,
+        help_text="Whether recruiters can select individual tasks from this lab question"
+    )
 
     def __str__(self):
         return self.title

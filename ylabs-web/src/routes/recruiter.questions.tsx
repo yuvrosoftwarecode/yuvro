@@ -59,6 +59,7 @@ const DEFAULT_LAB_FORM = {
   git_repo_starter_branch: "main",
   startup_command: "",
   test_command: "",
+  allow_task_selection: true,
   programming_languages: [],
   databases: [],
   backend_frameworks: [],
@@ -1353,6 +1354,19 @@ function RecruiterQuestionBankPage() {
                   className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
                 />
               </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/20 p-3">
+              <input
+                type="checkbox"
+                id="allow_task_selection"
+                checked={labFormData.allow_task_selection !== false}
+                onChange={(e) => setLabFormData({ ...labFormData, allow_task_selection: e.target.checked })}
+                className="h-4 w-4 rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+              />
+              <label htmlFor="allow_task_selection" className="text-[12px] text-neutral-700 dark:text-neutral-300 cursor-pointer select-none">
+                <span className="font-medium text-neutral-900 dark:text-white">Allow Task Selection:</span> Enable recruiters to select specific tasks from this question when building evaluations.
+              </label>
             </div>
 
             <div className="grid grid-cols-3 gap-3">

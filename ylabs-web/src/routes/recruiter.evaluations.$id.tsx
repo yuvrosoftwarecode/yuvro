@@ -369,12 +369,29 @@ function EvaluationWorkspace() {
         <LabDrawer
           existing={(
             (ev.sections.find((s) => s.id === labDrawerFor) as LabsSection | undefined)?.labs ?? []
-          ).map((l) => l.id)}
+          ).flatMap((l) => [
+            l.id,
+            ...(l.selected_task_id ? [`${l.id}:${l.selected_task_id}`] : [])
+          ])}
           onClose={() => setLabDrawerFor(null)}
-          onAdd={(lab) => {
+          onAdd={(lab, selectedTask) => {
             update((x) => {
               const sec = x.sections.find((s) => s.id === labDrawerFor) as LabsSection | undefined;
-              if (sec && !sec.labs.find((l) => l.id === lab.id)) sec.labs.push(lab);
+              if (sec) {
+                const taskId = selectedTask ? (selectedTask.id || selectedTask.task_slug || selectedTask.title) : undefined;
+                const itemToAdd = selectedTask
+                  ? {
+                      ...lab,
+                      selected_task_id: taskId,
+                      selected_task: selectedTask,
+                    }
+                  : lab;
+                
+                const already = sec.labs.some(
+                  (l) => l.id === lab.id && (taskId ? l.selected_task_id === taskId : !l.selected_task_id)
+                );
+                if (!already) sec.labs.push(itemToAdd);
+              }
             });
           }}
         />
@@ -554,14 +571,14 @@ function LabsSectionBody({
   onChange: (s: Section) => void;
   onAddLab: () => void;
 }) {
-  const minutes = section.labs.reduce((a, l) => a + (l.duration_minutes || 0), 0);
-  const marks = section.labs.reduce((a, l) => a + l.marks, 0);
-  const remove = (id: string) =>
-    onChange({ ...section, labs: section.labs.filter((l) => l.id !== id) });
-  const dup = (id: string) => {
-    const l = section.labs.find((x) => x.id === id);
+  const minutes = section.labs.reduce((a, l) => a + (l.selected_task?.duration_minutes || l.duration_minutes || 0), 0);
+  const marks = section.labs.reduce((a, l) => a + (l.selected_task?.marks || l.marks || 0), 0);
+  const removeAtIndex = (index: number) =>
+    onChange({ ...section, labs: section.labs.filter((_, idx) => idx !== index) });
+  const dupAtIndex = (index: number) => {
+    const l = section.labs[index];
     if (!l) return;
-    onChange({ ...section, labs: [...section.labs, { ...l, id: newUid() }] });
+    onChange({ ...section, labs: [...section.labs, { ...JSON.parse(JSON.stringify(l)), id: newUid() }] });
   };
   return (
     <div>
@@ -574,21 +591,28 @@ function LabsSectionBody({
         <ul className="mt-3 space-y-2">
           {section.labs.map((l, i) => (
             <li
-              key={l.id}
+              key={l.id + (l.selected_task_id ? `-${l.selected_task_id}` : `-${i}`)}
               className="flex items-center gap-3 rounded-lg border border-white/5 bg-black/20 px-3 py-2.5"
             >
               <span className="font-mono text-[10px] text-neutral-500">L{i + 1}</span>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] text-white">{l.title}</div>
+                <div className="truncate text-[13px] text-white flex items-center gap-2">
+                  <span>{l.title}</span>
+                  {l.selected_task && (
+                    <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400 border border-emerald-500/20">
+                      Task: {l.selected_task.title || l.selected_task_id}
+                    </span>
+                  )}
+                </div>
                 <div className="text-[11px] text-neutral-500">
                   {l.domain} · {l.programming_languages?.[0] || "Any"} · {l.scenario} ·{" "}
-                  {l.difficulty} · {l.duration_minutes} min · {l.marks} marks
+                  {l.difficulty} · {l.selected_task?.duration_minutes || l.duration_minutes} min · {l.selected_task?.marks || l.marks} marks
                 </div>
               </div>
-              <ToolBtn title="Duplicate" onClick={() => dup(l.id)}>
+              <ToolBtn title="Duplicate" onClick={() => dupAtIndex(i)}>
                 <Copy className="h-3.5 w-3.5" />
               </ToolBtn>
-              <ToolBtn title="Remove" onClick={() => remove(l.id)}>
+              <ToolBtn title="Remove" onClick={() => removeAtIndex(i)}>
                 <Trash2 className="h-3.5 w-3.5" />
               </ToolBtn>
             </li>
@@ -1323,7 +1347,7 @@ function LabDrawer({
 }: {
   existing: string[];
   onClose: () => void;
-  onAdd: (l: LabItem) => void;
+  onAdd: (l: LabItem, selectedTask?: any) => void;
 }) {
   const [q, setQ] = useState("");
   const [domain, setDomain] = useState<string>("All");
@@ -1334,6 +1358,7 @@ function LabDrawer({
 
   const [labs, setLabs] = useState<LabItem[]>([]);
   const [previewLab, setPreviewLab] = useState<any>(null);
+  const [expandedTasksLabId, setExpandedTasksLabId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchLabs().then(setLabs);
@@ -1591,11 +1616,20 @@ function LabDrawer({
       <div className="mt-3 space-y-2">
         {filtered.map((l) => {
           const added = existing.includes(l.id);
+          const supportsTaskSelection = l.allow_task_selection !== false && Array.isArray(l.tasks) && l.tasks.length > 0;
+          const isExpanded = expandedTasksLabId === l.id;
           return (
             <div key={l.id} className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] p-3 shadow-sm dark:shadow-none hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-[13px] font-medium text-neutral-900 dark:text-white">{l.title}</div>
+                  <div className="text-[13px] font-medium text-neutral-900 dark:text-white flex items-center gap-2">
+                    <span>{l.title}</span>
+                    {supportsTaskSelection && (
+                      <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9.5px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        Supports Task Selection ({l.tasks?.length})
+                      </span>
+                    )}
+                  </div>
                   <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px]">
                     <Chip>{l.domain}</Chip>
                     {l.programming_languages?.map((x) => (
@@ -1610,13 +1644,26 @@ function LabDrawer({
                     {l.marks} marks
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     onClick={() => setPreviewLab(l)}
                     className="inline-flex items-center gap-1 rounded-md border border-neutral-200 dark:border-white/10 px-2 py-1 text-[11px] text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors"
                   >
                     <Eye className="h-3 w-3" /> Preview
                   </button>
+                  {supportsTaskSelection && (
+                    <button
+                      onClick={() => setExpandedTasksLabId(isExpanded ? null : l.id)}
+                      className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors ${
+                        isExpanded
+                          ? "border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-300"
+                          : "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                      }`}
+                    >
+                      <ChevronDown className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                      Select Task
+                    </button>
+                  )}
                   <button
                     disabled={added}
                     onClick={() => onAdd(l)}
@@ -1628,12 +1675,63 @@ function LabDrawer({
                       </>
                     ) : (
                       <>
-                        <Plus className="h-3 w-3" /> Add
+                        <Plus className="h-3 w-3" /> Add Lab
                       </>
                     )}
                   </button>
                 </div>
               </div>
+              {supportsTaskSelection && isExpanded && (
+                <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.04] p-3 space-y-2">
+                  <div className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center justify-between">
+                    <span>Available Tasks ({l.tasks?.length})</span>
+                    <span className="text-[10px] normal-case text-neutral-500 dark:text-neutral-400">
+                      Pick a specific task to add
+                    </span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {l.tasks?.map((task: any, idx: number) => {
+                      const taskId = task.id || `task-${idx}`;
+                      const isTaskAdded = existing.includes(`${l.id}:${taskId}`);
+                      return (
+                        <div
+                          key={taskId}
+                          className="flex items-center justify-between gap-3 rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/40 p-2.5 text-[12px]"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="font-medium text-neutral-900 dark:text-white text-[12px] flex items-center gap-1.5">
+                              <span>{task.title || `Task ${idx + 1}`}</span>
+                              {task.marks != null && (
+                                <span className="text-[10px] text-neutral-500">({task.marks} marks)</span>
+                              )}
+                            </div>
+                            {task.description && (
+                              <div className="text-[11px] text-neutral-500 dark:text-neutral-400 line-clamp-1 mt-0.5">
+                                {task.description}
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            disabled={isTaskAdded}
+                            onClick={() => onAdd(l, task)}
+                            className="inline-flex items-center gap-1 shrink-0 rounded bg-emerald-600 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-emerald-500 disabled:bg-neutral-200 disabled:text-neutral-400 dark:disabled:bg-white/10 dark:disabled:text-neutral-500 transition-colors"
+                          >
+                            {isTaskAdded ? (
+                              <>
+                                <Check className="h-3 w-3" /> Selected
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="h-3 w-3" /> Select Task
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}

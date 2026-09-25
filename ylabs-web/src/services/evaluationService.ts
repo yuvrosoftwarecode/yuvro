@@ -65,9 +65,16 @@ export const evaluationService = {
       (evalData as any).sections.forEach((sec: any) => {
         if (sec.type === "LAB" && sec.questions) {
           sec.questions.forEach((q: any) => {
-            const fullLab = (allLabs as any[]).find(l => l.id === q.id);
+            const selectedTaskId = typeof q === 'object' ? q.selected_task_id : undefined;
+            const selectedTask = typeof q === 'object' ? q.selected_task : undefined;
+            const qId = typeof q === 'object' ? (q.id || q.lab_id) : q;
+            const fullLab = (allLabs as any[]).find(l => l.id === qId);
             if (fullLab) {
-              Object.assign(q, fullLab);
+              if (typeof q === 'object') {
+                Object.assign(q, fullLab);
+                if (selectedTaskId) q.selected_task_id = selectedTaskId;
+                if (selectedTask) q.selected_task = selectedTask;
+              }
             }
           });
         }

@@ -771,7 +771,12 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 continue
                 
             for question in section.questions:
-                lab_id = question.get('id')
+                if isinstance(question, dict):
+                    lab_id = question.get('id') or question.get('lab_id')
+                elif isinstance(question, str):
+                    lab_id = question
+                else:
+                    lab_id = str(question)
                 if not lab_id:
                     continue
                     

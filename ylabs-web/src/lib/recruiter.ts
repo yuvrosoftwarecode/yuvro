@@ -121,6 +121,9 @@ export interface LabItem {
   marks: number;
   duration_minutes: number;
   tasks?: any[]; // legacy optional for frontend UI compat, now using array from backend
+  allow_task_selection?: boolean;
+  selected_task_id?: string;
+  selected_task?: any;
 }
 
 export interface QuestionItem {
