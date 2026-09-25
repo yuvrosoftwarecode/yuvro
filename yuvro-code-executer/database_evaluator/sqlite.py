@@ -48,14 +48,16 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
             if getattr(body, 'scoring_rules', None) is not None or getattr(body, 'expected_query', None) or getattr(body, 'expected_output', None) or getattr(body, 'system_query', None):
                 actual_result = err_str if exit_code != 0 else out_str
                 
+                system_result = ""
                 if getattr(body, 'system_query', None):
-                    actual_result = await self.get_system_query_result(body, workspace_dir)
+                    system_result = await self.get_system_query_result(body, workspace_dir)
                         
                 eval_res = self.evaluate(
                     body=body,
                     execution_result={
                         "out_str": err_str if exit_code != 0 else out_str,
-                        "actual_result": actual_result
+                        "actual_result": actual_result,
+                        "system_result": system_result
                     }
                 )
                 result["evaluation"] = eval_res
@@ -73,39 +75,43 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
 
     def evaluate(self, body: Any, execution_result: Dict[str, Any]) -> Dict[str, Any]:
         scoring_rules = getattr(body, 'scoring_rules', {}) or {}
-        logic_score_weight = scoring_rules.get("logic_score", 100) / 100.0
         
-        expected_query = getattr(body, 'expected_query', None)
-        expected_query = (expected_query or "").strip()
-        user_query = getattr(body, 'query', None)
-        user_query = (user_query or "").strip()
+        expected_query = (getattr(body, 'expected_query', None) or "").strip()
+        user_query = (getattr(body, 'query', None) or "").strip()
+        user_output = execution_result.get("out_str", "")
+        system_result = execution_result.get("system_result", "")
+        actual_result = execution_result.get("actual_result", "")
+        expected_output = getattr(body, 'expected_output', None)
+        system_query = getattr(body, 'system_query', None) or ""
+        expected_result = getattr(body, 'expected_result', None) or ""
         
         def normalize_str(s):
             s = re.sub(r'--.*', '', s)
+            s = re.sub(r'/\*.*?\*/', '', s, flags=re.DOTALL)
             s = re.sub(r'\s+', ' ', s).strip().lower()
             s = re.sub(r'\s*\(\s*', '(', s)
             s = re.sub(r'\s*\)\s*', ')', s)
             s = re.sub(r'\s*,\s*', ',', s)
             s = re.sub(r'\s*;\s*', ';', s)
-            s = s.rstrip(';')
-            return s
+            return s.rstrip(';')
 
         norm_expected = normalize_str(expected_query)
         norm_user = normalize_str(user_query)
         
-        query_matches = (norm_expected in norm_user) if norm_expected else False
-        
-        output_matches = True
-        user_output = execution_result.get("out_str", "")
-        actual_result = execution_result.get("actual_result")
-        
-        expected_output = getattr(body, 'expected_output', None)
-        system_query = getattr(body, 'system_query', None)
-        expected_result = getattr(body, 'expected_result', None)
-        
-        if "Error:" in user_output or "Parse error" in user_output or re.search(r"exit code [^0]", user_output) or "Traceback" in user_output:
-            output_matches = False
+        # Check execution errors
+        if "Error:" in user_output or "Parse error" in user_output or re.search(r"exit code [^0]", user_output, re.IGNORECASE) or "Traceback" in user_output:
+            return {
+                "query_matches": False,
+                "output_matches": False,
+                "system_matches": False,
+                "earned_percentage": 0.0,
+                "final_score_pct": 0.0,
+                "passed": False,
+                "actual_result": actual_result,
+                "expected_result": expected_result
+            }
 
+        # Primary keyword check
         primary_keyword_match = True
         if norm_expected:
             keywords = ["select", "insert", "update", "delete", "create", "drop", "pragma", "with", "alter"]
@@ -114,55 +120,82 @@ class SqliteEvaluator(BaseDatabaseEvaluator):
                     if kw not in norm_user:
                         primary_keyword_match = False
                     break
-        
-        score_pct = 0.0
-        
-        if query_matches:
-            score_pct += 0.25
-            
-        system_is_valid = False
-        if system_query and expected_result:
-            if actual_result and expected_result.strip() in actual_result.strip():
-                system_is_valid = True
-                score_pct += 0.50
-        elif not system_query:
-            pass
-            
-        output_is_valid = output_matches
-        if expected_output is not None and output_is_valid:
-            if expected_output == "":
-                if user_output.strip() != "" or (not query_matches and not system_is_valid):
-                    output_is_valid = False
-            else:
-                try:
-                    if not re.search(expected_output, user_output, re.IGNORECASE) and expected_output not in user_output:
-                        output_is_valid = False
-                except re.error:
-                    if expected_output not in user_output:
-                        output_is_valid = False
-                        
-        if output_is_valid:
-            score_pct += 0.25
-            
-        if not system_query and output_is_valid:
-            score_pct += 0.50
-            system_is_valid = True
-                
-        if query_matches and system_is_valid and not output_is_valid:
-            output_is_valid = True
-            score_pct = 1.0
-            
+
         if not primary_keyword_match:
-            score_pct = 0.0
-            output_is_valid = False
-            system_is_valid = False
-                
+            return {
+                "query_matches": False,
+                "output_matches": False,
+                "system_matches": False,
+                "earned_percentage": 0.0,
+                "final_score_pct": 0.0,
+                "passed": False,
+                "actual_result": actual_result,
+                "expected_result": expected_result
+            }
+
+        # Query Matching (exact match or clause-based match)
+        query_matches = False
+        if norm_expected and norm_user:
+            if norm_expected in norm_user:
+                query_matches = True
+            else:
+                required_clauses = ["select", "from", "group by", "order by", "having", "join", "where", "with", "limit"]
+                clause_match_count = 0
+                total_clauses = 0
+                for clause in required_clauses:
+                    if clause in norm_expected:
+                        total_clauses += 1
+                        if clause in norm_user:
+                            clause_match_count += 1
+                if total_clauses > 0 and (clause_match_count / total_clauses) >= 0.70:
+                    query_matches = True
+
+        # Determine if this is a SELECT (query) task or a state-modifying task
+        is_select = norm_user.startswith("select") or norm_user.startswith("with") or norm_expected.startswith("select") or norm_expected.startswith("with")
+
+        if is_select:
+            result_matches = False
+            if expected_result:
+                if expected_result.strip().lower() in user_output.lower():
+                    result_matches = True
+            elif expected_output:
+                if str(expected_output).strip() != "":
+                    try:
+                        if re.search(str(expected_output), user_output, re.IGNORECASE) or str(expected_output).strip().lower() in user_output.lower():
+                            result_matches = True
+                    except re.error:
+                        if str(expected_output).strip().lower() in user_output.lower():
+                            result_matches = True
+            else:
+                result_matches = query_matches or (user_output.strip() != "")
+
+            score_pct = 1.0 if result_matches else 0.0
+            passed = result_matches
+            output_matches = result_matches
+            system_matches = result_matches
+            if result_matches:
+                query_matches = True
+        else:
+            # State-modifying query (INSERT, UPDATE, DELETE, etc.)
+            system_matches = False
+            if system_query and expected_result:
+                target_check = system_result if system_result else actual_result
+                if target_check and expected_result.strip().lower() in str(target_check).strip().lower():
+                    system_matches = True
+            elif not system_query:
+                system_matches = True
+
+            score_pct = 1.0 if system_matches else 0.0
+            passed = system_matches
+            output_matches = system_matches
+
         return {
             "query_matches": query_matches,
-            "output_matches": output_is_valid,
-            "system_matches": system_is_valid,
+            "output_matches": output_matches,
+            "system_matches": system_matches,
             "earned_percentage": score_pct,
             "final_score_pct": score_pct,
+            "passed": passed,
             "actual_result": actual_result,
             "expected_result": expected_result
         }

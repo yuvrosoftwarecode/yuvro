@@ -1932,10 +1932,12 @@ export function TicketIDE({
 
       const tTasks = ticket.tasks || [];
       let task = null;
+      let activeTaskIndex = 0;
       if (activeFile.startsWith("task")) {
          const numMatch = activeFile.match(/task(\d+)\.(sql|js)/);
          if (numMatch) {
             const idx = parseInt(numMatch[1], 10) - 1;
+            activeTaskIndex = Math.max(0, idx);
             if (tTasks[idx]) task = tTasks[idx];
          }
       }
@@ -2021,18 +2023,22 @@ export function TicketIDE({
             setTestsRan(true);
             setTests([{ name: "Ticket Check", pass: passed, time: "0ms" }]);
             
-            const taskSlug = task && typeof task === "object" && task.task_slug ? task.task_slug : "task-0";
+            const targetTaskSlug = task && typeof task === "object" && task.task_slug ? task.task_slug : `task-${activeTaskIndex}`;
+            const targetFallbackSlug = `task-${activeTaskIndex}`;
             setEvalResult(prev => ({ 
               ...prev, 
-              [taskSlug]: { passed, reason: passed ? "" : (sysQ ? "Check failed." : "Failed") } 
+              [targetTaskSlug]: { passed, reason: passed ? "" : (sysQ ? "Check failed." : "Failed") },
+              [targetFallbackSlug]: { passed, reason: passed ? "" : (sysQ ? "Check failed." : "Failed") } 
             }));
           }
           
           setOutput(outText);
+          setExecutionOutput(outText);
           setBottomTab("preview");
         })
         .catch((err) => {
           setOutput(`Error running script: ${err.message}`);
+          setExecutionOutput(`Error running script: ${err.message}`);
           setBottomTab("preview");
         })
         .finally(() => setRunning(false));
@@ -2291,22 +2297,58 @@ export function TicketIDE({
 
     if (isAnySql) {
       setSubmitting(true);
-      const computedSqlScore = ticketScore ? ticketScore.passed : 0;
+      const tTasks: any[] = ticket.tasks || [];
+      let passedTaskCount = 0;
+      const tasksMap: Record<string, any> = {};
+
+      if (tTasks.length > 0) {
+        tTasks.forEach((tMeta: any, idx: number) => {
+          const slug1 = tMeta?.task_slug || `task-${idx}`;
+          const slug2 = `task-${idx}`;
+          const isPassed = Boolean(evalResult[slug1]?.passed || evalResult[slug2]?.passed);
+          if (isPassed) passedTaskCount++;
+          const taskMarks = typeof tMeta?.marks === "number" ? tMeta.marks : 10;
+          tasksMap[`task_${idx + 1}`] = {
+            task_file: `task${idx + 1}.sql`,
+            name: tMeta?.title || `Task ${idx + 1}`,
+            passed: isPassed,
+            result: isPassed ? "passed" : "failed",
+            score: isPassed ? taskMarks : 0,
+            max_score: taskMarks,
+            message: isPassed ? "Test passed successfully" : (evalResult[slug1]?.reason || "Check failed"),
+          };
+        });
+      }
+
+      let computedSqlScore = 0;
+      if (tTasks.length > 0) {
+        computedSqlScore = Math.round((passedTaskCount / tTasks.length) * 100);
+      } else if (ticketScore) {
+        computedSqlScore = ticketScore.total > 0 ? Math.round((ticketScore.passed / ticketScore.total) * 100) : ticketScore.passed;
+      }
+
+      const sqlSolutionOutput = tTasks.length > 0 ? JSON.stringify({
+        tasks: Object.values(tasksMap),
+        percentage: computedSqlScore,
+        total_score: computedSqlScore,
+      }) : "";
+
       if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          const payload: any = {
+            [submissionsStatusField]: "in_review",
+            solution: JSON.stringify(getFilesToSave()),
+            score: computedSqlScore,
+            ...(sqlSolutionOutput ? { solution_output: sqlSolutionOutput } : {}),
+          };
           if (submissionId) {
-            api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(getFilesToSave()),
-              score: computedSqlScore
-            }).catch(console.error).finally(() => setSubmitting(false));
+            api.patch(`${submissionsEndpoint}${submissionId}/`, payload)
+              .catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(getFilesToSave()),
-              score: computedSqlScore
+              ...payload,
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedSqlScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -3968,7 +4010,7 @@ function FormattedResultsView({
 
   // 2. Database / SQL results (only for pure DB editor without task report)
   if (isSql) {
-    return <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
+    return <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} executionOutput={executionOutput || output} />;
   }
   if (isMongo) {
     return <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
@@ -5895,7 +5937,7 @@ function ExternalSqlResultsView({
   );
 }
 
-function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runId?: number, onQueryExecuted?: () => void }) {
+function SqlResultsView({ query, runId, onQueryExecuted, executionOutput }: { query: string, runId?: number, onQueryExecuted?: () => void, executionOutput?: string }) {
   const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
   const [res, setRes] = useState<{
     columns: string[];
@@ -5905,6 +5947,36 @@ function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runI
   } | null>(null);
 
   useEffect(() => {
+    if (executionOutput && (executionOutput.includes("-- Executed Query") || executionOutput.includes("Process finished"))) {
+      const cleanOut = executionOutput.replace(/^-- Executed Query\s*/, "").split(/✓ Process finished/)[0].trim();
+      if (cleanOut.startsWith("Error:")) {
+        setRes({ columns: [], rows: [], note: cleanOut, ms: 0 });
+      } else {
+        const lines = cleanOut.split("\n").map(l => l.trim()).filter(Boolean);
+        if (lines.length === 0) {
+          setRes({ columns: [], rows: [], note: "Query executed successfully. 0 row(s) returned.", ms: 0 });
+        } else {
+          const hasPipes = lines.some(l => l.includes("|"));
+          if (hasPipes) {
+            const rows = lines.map(l => {
+              const parts = l.split("|");
+              const rowObj: SqlRow = {};
+              parts.forEach((p, idx) => {
+                rowObj[`col_${idx + 1}`] = p.trim();
+              });
+              return rowObj;
+            });
+            const cols = Object.keys(rows[0] || {});
+            setRes({ columns: cols, rows, note: `${rows.length} row(s) returned`, ms: 0 });
+          } else {
+            setRes({ columns: [], rows: [], note: cleanOut, ms: 0 });
+          }
+        }
+      }
+      if (onQueryExecuted) onQueryExecuted();
+      return;
+    }
+
     if (!query) return;
     try {
       const result = runSqlQuery(query);
@@ -5914,7 +5986,7 @@ function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runI
     }
     // Refresh schema after query has executed and mutated db state
     if (onQueryExecuted) onQueryExecuted();
-  }, [query, runId, onQueryExecuted]);
+  }, [query, runId, onQueryExecuted, executionOutput]);
 
   if (!res) return null;
 

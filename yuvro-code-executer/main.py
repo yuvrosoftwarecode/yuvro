@@ -2278,12 +2278,13 @@ async def database_submit_endpoint(body: DatabaseSubmitRequest):
             
             eval_data = result.get("evaluation", {})
             score = eval_data.get("final_score_pct", 0.0)
+            is_passed = eval_data.get("passed", score >= 1.0)
             
             task_result = {
                 "task_id": task.task_id,
                 "task_file": task.task_file,
                 "score": score,
-                "passed": score >= 1.0,
+                "passed": is_passed,
                 "query_matches": eval_data.get("query_matches", False),
                 "system_matches": eval_data.get("system_matches", False),
                 "output_matches": eval_data.get("output_matches", False),

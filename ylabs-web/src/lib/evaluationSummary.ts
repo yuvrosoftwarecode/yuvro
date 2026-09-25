@@ -84,11 +84,11 @@ export function buildEvaluationSummary(
     });
   }
 
-  const overallStrengths = (overall === 0 || !hasVitarka)
+  const overallStrengths = overall === 0
     ? []
     : blocks.flatMap((b) => b.strengths).slice(0, 4);
 
-  const overallExplore = (overall === 0 || !hasVitarka)
+  const overallExplore = overall === 0
     ? []
     : blocks.map((b) => b.explore);
 

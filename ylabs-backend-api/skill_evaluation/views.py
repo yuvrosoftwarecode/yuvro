@@ -554,13 +554,35 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                             db_engine = rules.get("database_engine")
                         
                         task_ext = "js" if db_engine in ["mongodb", "mongo", "mongosh"] else "sql"
-                        expected_query = expected_sol.get("query.js") or expected_sol.get("query.sql") or ""
+                        
+                        expected_query = ""
+                        if isinstance(expected_sol, dict):
+                            expected_query = (
+                                expected_sol.get(f"task{i}.{task_ext}")
+                                or expected_sol.get(f"task_{i}.{task_ext}")
+                                or expected_sol.get(f"task{i}")
+                                or expected_sol.get(f"query.{task_ext}")
+                                or expected_sol.get("query.sql")
+                                or expected_sol.get("query.js")
+                                or (list(expected_sol.values())[0] if expected_sol else "")
+                            )
+                        elif isinstance(expected_sol, str):
+                            expected_query = expected_sol
+
+                        if not expected_query and rules.get("system_query"):
+                            expected_query = rules.get("system_query")
+
+                        exp_out = getattr(task, 'expected_output', None) or rules.get("expected_output", "")
+                        if isinstance(exp_out, (dict, list)):
+                            exp_out_str = json.dumps(exp_out)
+                        else:
+                            exp_out_str = str(exp_out) if exp_out is not None else ""
                         
                         payload_tasks.append({
                             "task_id": str(task.id),
                             "task_file": f"task{i}.{task_ext}",
                             "expected_query": expected_query,
-                            "expected_output": expected_sol.get("expected_output", ""),
+                            "expected_output": exp_out_str,
                             "scoring_rules": rules,
                             "system_query": rules.get("system_query", ""),
                             "expected_result": rules.get("expected_result", "")
@@ -574,13 +596,17 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                             "database_engine": db_engine,
                             "evaluation_id": str(evaluation.id),
                             "tasks": payload_tasks
-                        }, timeout=10)
+                        }, timeout=30)
                         if response.status_code == 200:
                             result_data = response.json()
                             submission.solution_output = json.dumps(result_data)
-                            calc_score = int(result_data.get("percentage", 0))
-                            if calc_score > 0 or submission.score == 0:
-                                submission.score = calc_score
+                            tasks_list = result_data.get("tasks", [])
+                            if tasks_list and len(tasks_list) > 0:
+                                passed_count = sum(1 for t in tasks_list if t.get("passed"))
+                                calc_score = round((passed_count / len(tasks_list)) * 100)
+                            else:
+                                calc_score = round(float(result_data.get("percentage", 0)))
+                            submission.score = calc_score
                             submission.save(update_fields=['solution_output', 'score'])
                     except Exception as e:
                         logger = logging.getLogger(__name__)
