@@ -1059,16 +1059,29 @@ export function TicketIDE({
   const userId = useMemo(() => {
     return user?.id?.toString() ?? "";
   }, [user]);
+  const effectiveUserId = useMemo(() => {
+    if (userId) return userId;
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem(`eval_user_${evaluationId}`);
+      if (stored) return stored;
+      try {
+        const cand = JSON.parse(localStorage.getItem("yuvro-eval-candidate") || "{}");
+        if (cand?.id) return String(cand.id);
+        if (cand?.userId) return String(cand.userId);
+      } catch {}
+    }
+    return "anon";
+  }, [userId, evaluationId]);
   const labId = slug;
   const sprintId = ticket.id?.toString() ?? "0";
 
   const candidateKey = useMemo(() => {
     if (isRecruiterPreview) return "preview_recruiter";
-    const userIdentifier = userId || (typeof window !== "undefined" ? (sessionStorage.getItem(`eval_user_${evaluationId}`) || "anon") : "anon");
+    const userIdentifier = effectiveUserId;
     const evalIdentifier = evaluationId || "direct";
     const labIdentifier = slug || ticket?.id || "lab";
     return `${userIdentifier}_${evalIdentifier}_${labIdentifier}`;
-  }, [userId, evaluationId, slug, ticket?.id, isRecruiterPreview]);
+  }, [effectiveUserId, evaluationId, slug, ticket?.id, isRecruiterPreview]);
 
   const candidatePort = useMemo(() => getCandidatePort(candidateKey), [candidateKey]);
 
@@ -1124,7 +1137,7 @@ export function TicketIDE({
       const keys = Object.keys(initialFiles).filter(k => k !== "README.md");
       if (keys.length > 0) return keys[0];
     }
-    return initialFileList[0];
+    return isReal && slug !== "knowledge" ? "" : initialFileList[0];
   });
   
   const [openTabs, setOpenTabs] = useState<string[]>(() => {
@@ -1152,7 +1165,7 @@ export function TicketIDE({
   // Load workspace file tree and first file content from executor on mount (real tickets only)
   const loadWorkspaceFiles = useCallback(async (forceUpdate: boolean = false) => {
     if (isLoading) return;
-    if (!isReal || !userId || slug === "knowledge") {
+    if (!isReal || (!effectiveUserId && !isEvaluationMode) || slug === "knowledge") {
       setWsLoaded(true);
       return;
     }
@@ -1168,7 +1181,7 @@ export function TicketIDE({
             : `/lab/labs/${labId}/`;
           const { default: api } = await import("@/utils/RestApiAuthUtil");
           const realLab = await api.get<any>(labEndpoint);
-          currentTitle = realLab.data?.title || realLab.data?.name || "";
+          currentTitle = (realLab as any)?.title || (realLab as any)?.name || (realLab as any)?.data?.title || "";
         } catch (e) {
           currentTitle = labs.find(l => l.slug === slug)?.name || "";
         }
@@ -1185,71 +1198,71 @@ export function TicketIDE({
         };
 
         let paths: Record<string, string> = {};
-        // Poll max 3 times to allow copying files and Docker sync
-        for (let attempt = 0; attempt < 3; attempt++) {
-          const res = await fetchFileTree(userId, labId, sprintId, starters, isSqliteLab ? "sqlite" : "other", isEvaluationMode ? evaluationId : undefined);
+        // Poll up to 6 times to allow copying files and Docker sync
+        for (let attempt = 0; attempt < 6; attempt++) {
+          const res = await fetchFileTree(effectiveUserId, labId, sprintId, starters, isSqliteLab ? "sqlite" : "other", isEvaluationMode ? evaluationId : undefined);
           paths = flatten(res.tree, {});
-          if (Object.keys(paths).length > 0 || slug === "knowledge" || attempt >= 1) {
+          if (Object.keys(paths).length > 0 || slug === "knowledge") {
             break;
           }
-          await new Promise(r => setTimeout(r, 500));
+          if (attempt < 5) {
+            await new Promise(r => setTimeout(r, 600));
+          }
         }
 
+        const fileKeys = Object.keys(paths);
+        setFiles(paths);
+
         const { fetchFile } = await import("@/services/workspaceService");
-        await Promise.all(Object.keys(paths).map(async (p) => {
-          if (isBinaryOrDatabaseFile(p)) return;
+        // Pick preferred active file: README.md, manage.py, main.py, or first non-binary file
+        const preferredFile = fileKeys.find(k => k === "README.md")
+          || fileKeys.find(k => k === "manage.py")
+          || fileKeys.find(k => k === "main.py")
+          || fileKeys.find(k => !isBinaryOrDatabaseFile(k))
+          || fileKeys[0];
+
+        if (preferredFile) {
+          setOpenTabs(prev => prev.includes(preferredFile) ? prev : [...prev, preferredFile]);
+          setActiveFile(preferredFile);
           try {
-            const fRes = await fetchFile(userId, labId, sprintId, p, isEvaluationMode ? evaluationId : undefined);
-            paths[p] = fRes;
-            loadedFiles.current.add(p);
+            const content = await fetchFile(effectiveUserId, labId, sprintId, preferredFile, isEvaluationMode ? evaluationId : undefined);
+            setFiles(f => ({ ...f, [preferredFile]: content }));
+            loadedFiles.current.add(preferredFile);
           } catch (err) {
-            console.error(`Failed to load ${p}`, err);
+            console.error("Failed to load preferred file content:", err);
           }
-        }));
-
-        setFiles(prev => {
-          const next = { ...paths };
-          for (const p of Object.keys(next)) {
-            if (prev[p] && prev[p] !== starters[p]) next[p] = prev[p];
-          }
-          return next;
-        });
-
-        const firstPath = Object.keys(paths)[0];
-        if (!forceUpdate && firstPath) {
-          setOpenTabs(prev => prev.includes(firstPath) ? prev : [...prev, firstPath]);
-          setActiveFile(firstPath);
-          try {
-            const content = await fetchFile(userId, labId, sprintId, firstPath, evaluationId);
-            setFiles(f => ({ ...f, [firstPath]: content }));
-          } catch { /* ignore */ }
-        } else if (!forceUpdate && !firstPath) {
+        } else if (!forceUpdate) {
           setOpenTabs([]);
           setActiveFile("");
         }
         setWsLoaded(true);
-      } catch {
+      } catch (err) {
+        console.error("Failed to fetch file tree:", err);
         setWsLoaded(true); // fall back on error
       }
-      setWsLoaded(true);
     } catch {
       setWsLoaded(true); // fall back to local starters on error
     }
-  }, [isReal, userId, labId, sprintId, starters, isLoading, isEvaluationMode, evaluationId]);
+  }, [isReal, effectiveUserId, labId, sprintId, starters, isLoading, isEvaluationMode, evaluationId]);
 
   useEffect(() => {
     if (isLoading) return;
+    if (isEvaluationMode && evaluationId && labId) {
+      evaluationService.startLab(evaluationId, labId).catch((err) => {
+        console.error("Failed to start lab workspace:", err);
+      });
+    }
     loadWorkspaceFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticket.id, isReal, userId, isLoading, evaluationId]);
+  }, [ticket.id, isReal, effectiveUserId, isLoading, evaluationId, labId]);
 
   // Lazy-load file content when the active file changes (real tickets only)
   const loadedFiles = useRef<Set<string>>(new Set());
   useEffect(() => {
-    if (!isReal || !wsLoaded) return;
+    if (!isReal || !wsLoaded || !activeFile) return;
     if (loadedFiles.current.has(activeFile)) return;
-    if (files[activeFile] !== "") { loadedFiles.current.add(activeFile); return; }
-    fetchFile(userId, labId, sprintId, activeFile, evaluationId)
+    if (files[activeFile] && files[activeFile] !== "") { loadedFiles.current.add(activeFile); return; }
+    fetchFile(effectiveUserId, labId, sprintId, activeFile, evaluationId)
       .then(content => {
         setFiles(f => ({ ...f, [activeFile]: content }));
         loadedFiles.current.add(activeFile);
@@ -1258,7 +1271,7 @@ export function TicketIDE({
         loadedFiles.current.add(activeFile);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeFile, isReal, wsLoaded]);
+  }, [activeFile, isReal, wsLoaded, effectiveUserId]);
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss" | "solution">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
@@ -1309,9 +1322,9 @@ export function TicketIDE({
   useEffect(() => {
     if (!isReal) {
       setFiles(starters);
+      setActiveFile(initialFileList[0]);
     }
     setDirty({});
-    setActiveFile(initialFileList[0]);
     setTestsRan(false);
     setOutput("");
     if (isMultiLang) {
@@ -3318,7 +3331,7 @@ export function TicketIDE({
                       <TerminalView
                         theme={theme}
                         isVisible={bottomTab === "terminal"}
-                        wsUrl={isReal && !isLoading && userId ? getTerminalWsUrl(userId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other", evaluationId) : null}
+                        wsUrl={isReal && !isLoading && effectiveUserId ? getTerminalWsUrl(effectiveUserId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other", evaluationId) : null}
                         onCommandRun={() => loadWorkspaceFiles(true)}
                         startupCommand={computedStartupCommand}
                         onStartupCommandRun={() => {

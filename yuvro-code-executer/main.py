@@ -1755,6 +1755,52 @@ def _build_tree(base: Path, rel: Path | None = None) -> dict:
     return {"name": name, "path": str(rel or ""), "type": "directory", "children": children}
 
 
+def _seed_from_starter_repo(ws: Path, lab_id: str, evaluation_id: Optional[str] = None) -> bool:
+    """If ws is empty, copy starter files from canonical starter repo clone if available."""
+    try:
+        starter_src = None
+        candidate_dirs = []
+        if evaluation_id:
+            candidate_dirs.append(WORKSPACES_ROOT / "evaluation" / str(evaluation_id) / "labs" / str(lab_id))
+        candidate_dirs.append(WORKSPACES_ROOT / "labs" / str(lab_id))
+
+        for candidate in candidate_dirs:
+            if not candidate.exists():
+                continue
+            if (candidate / ".git").exists() or any(f.is_file() for f in candidate.iterdir() if f.name not in (".git", "users")):
+                starter_src = candidate
+                break
+            for child in sorted(candidate.iterdir()):
+                if child.is_dir() and child.name not in (".git", "users") and any(child.iterdir()):
+                    starter_src = child
+                    break
+            if starter_src:
+                break
+        
+        if starter_src and starter_src.exists():
+            ignore = shutil.ignore_patterns('.git', 'yuvro_scoring_rules')
+            for item in starter_src.iterdir():
+                if item.name in ('.git', 'yuvro_scoring_rules'):
+                    continue
+                dst = ws / item.name
+                if item.is_dir():
+                    shutil.copytree(str(item), str(dst), ignore=ignore, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(str(item), str(dst))
+            try:
+                subprocess.run(["git", "init"], cwd=str(ws), check=True, capture_output=True)
+                subprocess.run(["git", "-c", "safe.directory=*", "add", "."], cwd=str(ws), check=True, capture_output=True)
+                subprocess.run(["git", "-c", "safe.directory=*", "config", "user.email", "bot@yuvro.ai"], cwd=str(ws), check=True)
+                subprocess.run(["git", "-c", "safe.directory=*", "config", "user.name", "Yuvro Bot"], cwd=str(ws), check=True)
+                subprocess.run(["git", "-c", "safe.directory=*", "commit", "--allow-empty", "-m", "Initial commit for lab workspace"], cwd=str(ws), check=True, capture_output=True)
+            except Exception:
+                pass
+            return True
+    except Exception as e:
+        print(f"Failed to auto-seed starter files into {ws}: {e}")
+    return False
+
+
 # Starter files seeded for each sprint on first access
 DEFAULT_STARTERS: Dict[str, str] = {
     "script.sh": "#!/usr/bin/env bash\n\n# Write your solution here\n",
@@ -1766,7 +1812,7 @@ DEFAULT_STARTERS: Dict[str, str] = {
 async def get_file_tree(
     user_id: str = Query(...),
     lab_id: str = Query(...),
-    sprint_id: str = Query(...),
+    sprint_id: Optional[str] = Query("", description="Sprint ID if applicable"),
     lab_type: Optional[str] = Query(None, description="Type of the lab (e.g. sqlite)"),
     starters: Optional[str] = Query(None, description="JSON map of filename->content to seed on first access"),
     evaluation_id: Optional[str] = Query(None, description="ID of the evaluation if this is an evaluation lab"),
@@ -1780,53 +1826,49 @@ async def get_file_tree(
       2. Fall back to inline starters JSON if provided
       3. Leave empty if nothing available (Git Lab — students work in terminal)
     """
-    ws = _workspace_dir(user_id, lab_id, sprint_id, evaluation_id)
+    ws = _workspace_dir(user_id, lab_id, sprint_id or "", evaluation_id)
     seeded = False
     if not ws.exists():
         ws.mkdir(parents=True, exist_ok=True)
 
-        # Parse any inline starters provided by the frontend
-        seed_files: dict = {}
-        if starters is not None:
-            try:
-                seed_files = json.loads(starters)
-            except Exception:
-                seed_files = {}
-
-        if seed_files:
-            # Inline starters provided (demo / preview mode)
-            for fname, content in seed_files.items():
-                fpath = ws / fname
-                fpath.parent.mkdir(parents=True, exist_ok=True)
-                fpath.write_text(content)
-            seeded = True
-        else:
-            # No inline starters (provisioning is handled by Django)
-            seeded = False
-            # If no starter exists (Git Lab), leave workspace empty;
-            # students work entirely through the terminal
-    else:
-        # Workspace already exists — check if it is empty (only .bash_history)
-        user_files = [
-            f for f in ws.iterdir()
-            if f.name not in (".bash_history", ".git") and (f.is_file() or (f.is_dir() and any(f.rglob("*"))))
-        ]
-        if not user_files:
-            # Empty workspace — try inline starters first, then starter repo
-            seed_files = {}
+        # Try seeding from starter repo first (canonical starter repo for evaluation / real labs)
+        seeded = _seed_from_starter_repo(ws, lab_id, evaluation_id)
+        if not seeded:
+            # Fall back to inline starters provided by frontend if any
+            seed_files: dict = {}
             if starters is not None:
                 try:
                     seed_files = json.loads(starters)
                 except Exception:
                     seed_files = {}
+
             if seed_files:
                 for fname, content in seed_files.items():
                     fpath = ws / fname
                     fpath.parent.mkdir(parents=True, exist_ok=True)
                     fpath.write_text(content)
                 seeded = True
-            else:
-                seeded = False
+    else:
+        # Workspace already exists — check if it is empty (only .bash_history or .git)
+        user_files = [
+            f for f in ws.iterdir()
+            if f.name not in (".bash_history", ".git") and (f.is_file() or (f.is_dir() and any(f.rglob("*"))))
+        ]
+        if not user_files:
+            seeded = _seed_from_starter_repo(ws, lab_id, evaluation_id)
+            if not seeded:
+                seed_files = {}
+                if starters is not None:
+                    try:
+                        seed_files = json.loads(starters)
+                    except Exception:
+                        seed_files = {}
+                if seed_files:
+                    for fname, content in seed_files.items():
+                        fpath = ws / fname
+                        fpath.parent.mkdir(parents=True, exist_ok=True)
+                        fpath.write_text(content)
+                    seeded = True
 
     tree = _build_tree(ws)
     return {"tree": tree, "seeded": seeded, "workspace": str(ws)}
@@ -1836,12 +1878,12 @@ async def get_file_tree(
 async def get_file(
     user_id: str = Query(...),
     lab_id: str = Query(...),
-    sprint_id: str = Query(...),
     path: str = Query(..., description="Relative file path inside workspace"),
+    sprint_id: Optional[str] = Query("", description="Sprint ID if applicable"),
     evaluation_id: Optional[str] = Query(None, description="ID of the evaluation if this is an evaluation lab"),
 ):
     """Return the text content of a file in the student's workspace."""
-    ws = _workspace_dir(user_id, lab_id, sprint_id, evaluation_id)
+    ws = _workspace_dir(user_id, lab_id, sprint_id or "", evaluation_id)
     fpath = _safe_path(ws, path)
     if not fpath.exists():
         raise HTTPException(status_code=404, detail=f"File not found: {path}")
@@ -1857,16 +1899,16 @@ async def get_file(
 class WriteFileRequest(BaseModel):
     user_id: str
     lab_id: str
-    sprint_id: str
     path: str
     content: str
+    sprint_id: Optional[str] = ""
     evaluation_id: Optional[str] = None
 
 
 @workspace_router.post("/file")
 async def write_file(body: WriteFileRequest):
     """Create or overwrite a file in the student's workspace."""
-    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, body.evaluation_id)
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id or "", body.evaluation_id)
     ws.mkdir(parents=True, exist_ok=True)
     fpath = _safe_path(ws, body.path)
     fpath.parent.mkdir(parents=True, exist_ok=True)
@@ -1877,15 +1919,15 @@ async def write_file(body: WriteFileRequest):
 class DeleteFileRequest(BaseModel):
     user_id: str
     lab_id: str
-    sprint_id: str
     path: str
+    sprint_id: Optional[str] = ""
     evaluation_id: Optional[str] = None
 
 
 @workspace_router.delete("/file")
 async def delete_file(body: DeleteFileRequest):
     """Delete a file or directory from the student's workspace."""
-    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, body.evaluation_id)
+    ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id or "", body.evaluation_id)
     fpath = _safe_path(ws, body.path)
     if not fpath.exists():
         raise HTTPException(status_code=404, detail=f"Path not found: {body.path}")
@@ -1899,7 +1941,7 @@ async def delete_file(body: DeleteFileRequest):
 class EvaluateRequest(BaseModel):
     user_id: str
     lab_id: str
-    sprint_id: str
+    sprint_id: Optional[str] = ""
     required_command: str = ""
     task_slug: Optional[str] = None
     scoring_rules: dict = {} 

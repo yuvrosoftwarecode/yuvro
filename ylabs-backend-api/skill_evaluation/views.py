@@ -737,7 +737,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             "expires_at": submission.share_token_expires_at
         })
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def start_lab(self, request, pk=None):
         evaluation = self.get_object()
         lab_id = request.data.get('lab_id')
@@ -754,24 +754,48 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         if lab.git_repo_starter_url:
             starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
             starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
+            if not os.path.exists(starter_repo_path):
+                try:
+                    from lab.workspace_manager import provision_evaluation_lab_starter_repo
+                    provision_evaluation_lab_starter_repo(evaluation.id, lab.id, lab.git_repo_starter_url, branch=lab.git_repo_starter_branch)
+                except Exception as e:
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Error provisioning starter repo for lab {lab.id}: {e}")
         
+        user = request.user if (request.user and request.user.is_authenticated) else None
+        user_id = user.id if user else (request.data.get('user_id') or "anon")
+
         try:
-            provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
+            provision_evaluation_user_repo(evaluation.id, lab.id, user_id, starter_repo_path)
             return Response({"status": "success", "message": "Lab workspace provisioned successfully"})
         except Exception as e:
             return Response({"error": f"Failed to provision workspace: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def provision_labs(self, request, pk=None):
         evaluation = self.get_object()
         
+        user = request.user if (request.user and request.user.is_authenticated) else None
+        user_id = user.id if user else (request.data.get('user_id') or "anon")
+
         labs_provisioned = 0
         for section in evaluation.sections.all():
             if section.type != 'LAB' or not section.questions:
                 continue
                 
             for question in section.questions:
-                lab_id = question.get('id')
+                lab_id = None
+                if isinstance(question, dict):
+                    lab_id = question.get('id')
+                elif isinstance(question, str):
+                    match = re.search(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', question)
+                    if match:
+                        lab_id = match.group(0)
+                    else:
+                        lab_id = question
+                else:
+                    lab_id = str(question)
+
                 if not lab_id:
                     continue
                     
@@ -781,9 +805,16 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     if lab.git_repo_starter_url:
                         starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
                         starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
+                        if not os.path.exists(starter_repo_path):
+                            try:
+                                from lab.workspace_manager import provision_evaluation_lab_starter_repo
+                                provision_evaluation_lab_starter_repo(evaluation.id, lab.id, lab.git_repo_starter_url, branch=lab.git_repo_starter_branch)
+                            except Exception as e:
+                                logger = logging.getLogger(__name__)
+                                logger.error(f"Error provisioning starter repo for lab {lab.id}: {e}")
                     
                     try:
-                        provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
+                        provision_evaluation_user_repo(evaluation.id, lab.id, user_id, starter_repo_path)
                         labs_provisioned += 1
                     except Exception as e:
                         logger = logging.getLogger(__name__)
