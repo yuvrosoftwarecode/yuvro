@@ -238,8 +238,8 @@ function CandidateWorkspace() {
     const params = new URLSearchParams();
     if (mockInterviewId) params.append("mock_interview", mockInterviewId);
     if (email) params.append("email", email);
-    if (userId) params.append("user", userId);
-      params.append("ordering", "-created_at");
+    else if (userId) params.append("user", userId);
+    params.append("ordering", "-created_at");
 
     if (params.toString()) {
       yhubApiAuthUtil
@@ -276,7 +276,7 @@ function CandidateWorkspace() {
       const params = new URLSearchParams();
       if (mockInterviewId) params.append("mock_interview", mockInterviewId);
       if (email) params.append("email", email);
-      if (userId) params.append("user", userId);
+      else if (userId) params.append("user", userId);
       params.append("ordering", "-created_at");
 
       try {
