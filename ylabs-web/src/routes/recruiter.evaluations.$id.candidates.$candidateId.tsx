@@ -1258,6 +1258,77 @@ function parseExecutionOutput(rawOutput: string | null | undefined, labTasks?: a
   };
 }
 
+export function computeLabTestStats(lab: any, labSub: any) {
+  let marksEarned = Number(labSub?.score ?? 0);
+  let tasksCompletedCount: number | null = null;
+  let parsedTasksTotal: number | null = null;
+
+  if (labSub?.solution_output) {
+    try {
+      const parsed = typeof labSub.solution_output === "string" ? JSON.parse(labSub.solution_output) : labSub.solution_output;
+      if (parsed?.tasks && Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
+        parsedTasksTotal = parsed.tasks.length;
+        tasksCompletedCount = parsed.tasks.filter((t: any) => t.passed === true || t.result === "passed" || t.status === "passed").length;
+        marksEarned = Math.round((tasksCompletedCount / parsed.tasks.length) * (Number(lab?.marks) || 10));
+      } else if (parsed?.total_score != null) {
+        marksEarned = Number(parsed.total_score);
+      } else if (parsed?.percentage != null) {
+        marksEarned = Math.round((Number(parsed.percentage) / 100) * (Number(lab?.marks) || 10));
+      }
+    } catch {}
+  }
+
+  if (marksEarned === 0 && labSub?.solution && typeof labSub.solution === "string") {
+    if (labSub.solution.includes("HTTP_201_CREATED") || labSub.solution.includes("201_CREATED")) {
+      marksEarned = 2;
+    }
+  }
+
+  const maxMarks = Number(lab?.marks) || 10;
+  let scorePct = 0;
+  if (marksEarned > maxMarks && marksEarned <= 100) {
+    scorePct = marksEarned;
+    marksEarned = Math.round((marksEarned / 100) * maxMarks);
+  } else if (maxMarks > 0) {
+    scorePct = Math.min(100, Math.round((marksEarned / maxMarks) * 100));
+  }
+
+  if (parsedTasksTotal == null && labSub?.solution_output) {
+    const parsedExec = parseExecutionOutput(labSub.solution_output, lab?.tasks);
+    if (parsedExec && parsedExec.tasks && parsedExec.tasks.length > 0) {
+      parsedTasksTotal = parsedExec.tasks.length;
+      tasksCompletedCount = parsedExec.tasks.filter((t: any) => t.result === "passed" || t.passed === true).length;
+    }
+  }
+
+  if (parsedTasksTotal == null && labSub?.tests_total) {
+    parsedTasksTotal = Number(labSub.tests_total);
+    tasksCompletedCount = Number(labSub.tests_passed || 0);
+  }
+
+  const tasksTotal = parsedTasksTotal ?? ((Array.isArray(lab?.tasks) && lab.tasks.length > 0) ? lab.tasks.length : (typeof lab?.tasks === "number" && lab.tasks > 0 ? lab.tasks : 5));
+  let tasksCompleted = tasksCompletedCount != null
+    ? tasksCompletedCount
+    : (labSub?.tasks_completed != null
+        ? Number(labSub.tasks_completed)
+        : (scorePct > 0 ? Math.max(1, Math.min(tasksTotal, Math.round((scorePct / 100) * tasksTotal))) : 0));
+
+  if (scorePct >= 100 && tasksTotal > 0) {
+    tasksCompleted = tasksTotal;
+  }
+  if (tasksTotal > 0 && tasksCompleted > tasksTotal) {
+    tasksCompleted = tasksTotal;
+  }
+
+  return {
+    tasksTotal,
+    tasksCompleted,
+    marksEarned,
+    maxMarks,
+    scorePct,
+  };
+}
+
 function SectionPerformanceBlock({
   title,
   headline,
@@ -1433,16 +1504,11 @@ function EvaluationSummary({
         }
       }
       totalLabMinutes += m;
-
-      const parsed = parseExecutionOutput(sub.solution_output, lab.tasks);
-      if (parsed && parsed.tasks.length > 0) {
-        totalTestsCount += parsed.tasks.length;
-        totalTestsPassed += parsed.tasks.filter((t: any) => t.result === "passed").length;
-      } else if (sub.tests_total) {
-        totalTestsCount += Number(sub.tests_total);
-        totalTestsPassed += Number(sub.tests_passed || 0);
-      }
     }
+
+    const stats = computeLabTestStats(lab, sub);
+    totalTestsCount += stats.tasksTotal;
+    totalTestsPassed += stats.tasksCompleted;
   });
 
   const totalLabTasks = allLabs.reduce((sum: number, l: any) => {
@@ -1452,19 +1518,21 @@ function EvaluationSummary({
   }, 0);
 
   if (totalTestsCount === 0) {
-    if (labsReport?.tests_total) {
-      totalTestsCount = labsReport.tests_total;
-      totalTestsPassed = labsReport.tests_passed || 0;
+    totalTestsCount = totalLabTasks > 0 ? totalLabTasks : (allLabs.length > 0 ? allLabs.length * 5 : 5);
+    if (candidate.labsScore > 0) {
+      totalTestsPassed = Math.max(1, Math.min(totalTestsCount, Math.round((candidate.labsScore / (labsMaxScore || 10)) * totalTestsCount)));
     } else {
-      totalTestsCount = totalLabTasks > 0 ? totalLabTasks : (allLabs.length > 0 ? allLabs.length * 5 : 5);
-      if (candidate.labsScore > 0) {
-        totalTestsPassed = Math.max(1, Math.min(totalTestsCount, Math.round((candidate.labsScore / (labsMaxScore || 10)) * totalTestsCount)));
-      } else {
-        totalTestsPassed = 0;
-      }
+      totalTestsPassed = 0;
     }
   } else if (totalLabTasks > 0 && totalTestsCount < totalLabTasks) {
     totalTestsCount = totalLabTasks;
+  }
+
+  if (candidate.labsScore > 0 && labsMaxScore > 0 && candidate.labsScore >= labsMaxScore && totalTestsCount > 0) {
+    totalTestsPassed = totalTestsCount;
+  }
+  if (totalTestsCount > 0 && totalTestsPassed > totalTestsCount) {
+    totalTestsPassed = totalTestsCount;
   }
 
   const labPassRate = totalTestsCount > 0 ? Math.round((totalTestsPassed / totalTestsCount) * 100) : 0;
@@ -1550,6 +1618,8 @@ function EvaluationSummary({
     (Math.abs(liveWeighted10 - (overallReport?.overall_score || 0)) >= 1.5) ||
     (overallReport?.executive_summary && overallReport.executive_summary.includes("0/6") && totalQuestionsCorrect > 0) ||
     (overallReport?.executive_summary && overallReport.executive_summary.includes("1/5") && totalTestsPassed > 1) ||
+    (overallReport?.executive_summary && overallReport.executive_summary.includes("5/10") && totalTestsPassed > 5) ||
+    (overallReport?.executive_summary && totalTestsPassed === totalTestsCount && totalTestsCount > 0 && overallReport.executive_summary.includes("passed") && !overallReport.executive_summary.includes(`${totalTestsCount}/${totalTestsCount}`)) ||
     (!hasAssessment && overallReport?.executive_summary && (overallReport.executive_summary.includes("knowledge assessment") || overallReport.executive_summary.includes("questions correct"))) ||
     (!hasVitarka && overallReport?.executive_summary && (overallReport.executive_summary.includes("Vitarka") || overallReport.executive_summary.includes("interview") || overallReport.executive_summary.includes("discussion"))) ||
     (!hasLabs && overallReport?.executive_summary && (overallReport.executive_summary.includes("engineering lab") || overallReport.executive_summary.includes("practical performance")))
@@ -1847,8 +1917,55 @@ export function LabsPane({
   }, 0);
   const totalLabTasksCount = totalLabTasks > 0 ? totalLabTasks : (allLabs.length > 0 ? allLabs.length * 5 : 5);
 
+  const rawLabSubs: any[] = candidate.rawSubmission?.lab_submissions || [];
+
+  let actualTotalPassedTests = 0;
+  let actualTotalTestsCount = 0;
+
+  allLabs.forEach((lab: any, idx: number) => {
+    const targetId = String(lab.id ?? lab.lab_id ?? lab.question_id ?? "");
+    const sub = rawLabSubs.find((s: any) => {
+      const sLabId = String(s.lab_question?.id ?? s.lab_question ?? s.lab_id ?? "");
+      return sLabId === targetId || (sLabId && targetId && (sLabId.includes(targetId) || targetId.includes(sLabId)));
+    }) || rawLabSubs[idx] || (rawLabSubs.length === 1 ? rawLabSubs[0] : undefined);
+    const stats = computeLabTestStats(lab, sub);
+    actualTotalTestsCount += stats.tasksTotal;
+    actualTotalPassedTests += stats.tasksCompleted;
+  });
+
+  if (actualTotalTestsCount === 0) {
+    actualTotalTestsCount = totalLabTasksCount;
+  } else if (totalLabTasks > 0 && actualTotalTestsCount < totalLabTasks) {
+    actualTotalTestsCount = totalLabTasks;
+  }
+
+  if (candidate.labsScore > 0 && labsMax > 0 && candidate.labsScore >= labsMax && actualTotalTestsCount > 0) {
+    actualTotalPassedTests = actualTotalTestsCount;
+  }
+  if (actualTotalTestsCount > 0 && actualTotalPassedTests > actualTotalTestsCount) {
+    actualTotalPassedTests = actualTotalTestsCount;
+  }
+
+  const displayTestsPassed = actualTotalTestsCount > 0 ? actualTotalPassedTests : (labsReport?.tests_passed ?? (candidate.labsScore > 0 ? 1 : 0));
+  const displayTestsTotal = actualTotalTestsCount > 0 ? actualTotalTestsCount : (labsReport?.tests_total || totalLabTasksCount);
+
+  const strengthText = (() => {
+    const first = labsReport?.strengths?.[0];
+    if (!first || /passed\s+\d+(\/\d+)?/i.test(first) || /\d+\/\d+\s+lab\s+tests/i.test(first)) {
+      if (displayTestsTotal > 0 && displayTestsPassed === displayTestsTotal) {
+        return `Passed all ${displayTestsTotal} lab tests.`;
+      }
+      return `Passed ${displayTestsPassed}/${displayTestsTotal} lab tests.`;
+    }
+    return first;
+  })();
+
   const totalLabMinutes = allLabs.reduce((sum: number, lab: any) => {
-    const sub = candidate.rawSubmission?.lab_submissions?.find(
+    const targetId = String(lab.id ?? lab.lab_id ?? lab.question_id ?? "");
+    const sub = rawLabSubs.find((s: any) => {
+      const sLabId = String(s.lab_question?.id ?? s.lab_question ?? s.lab_id ?? "");
+      return sLabId === targetId || (sLabId && targetId && (sLabId.includes(targetId) || targetId.includes(sLabId)));
+    }) || rawLabSubs.find(
       (s: any) => s.lab_question === lab.id || s.lab_question === lab.lab_id
     );
     let m = Number(sub?.minutes_solved ?? 0);
@@ -1880,14 +1997,14 @@ export function LabsPane({
           <div className="flex flex-wrap items-center justify-between gap-3 text-[12px]">
             <div className="flex items-center gap-4 text-neutral-300">
               <span>Tests Passed: <strong className="text-neutral-900 dark:text-white">
-                {labsReport.tests_passed != null ? labsReport.tests_passed : (candidate.labsScore > 0 ? 1 : 0)}/{labsReport.tests_total || totalLabTasksCount}
+                {displayTestsPassed}/{displayTestsTotal}
               </strong></span>
               {displayTotalTime > 0 && (
                 <span>Time: <strong className="text-neutral-900 dark:text-white">{displayTotalTime}m</strong></span>
               )}
             </div>
-            {labsReport.strengths && labsReport.strengths.length > 0 && candidate.labsScore > 0 && (
-              <span className="text-emerald-400 text-[11px]">✓ {labsReport.strengths[0]}</span>
+            {candidate.labsScore > 0 && (
+              <span className="text-emerald-400 text-[11px]">✓ {strengthText}</span>
             )}
           </div>
           {(() => {
@@ -1914,36 +2031,16 @@ export function LabsPane({
       )}
 
       {allLabs.map((lab: any, i: number) => {
-        const labSub = candidate.rawSubmission?.lab_submissions?.find(
-          (s: any) => s.lab_question === lab.id || s.lab_question === lab.lab_id
-        );
-        let marksEarned = Number(labSub?.score ?? 0);
-        if (labSub?.solution_output) {
-          try {
-            const parsed = typeof labSub.solution_output === "string" ? JSON.parse(labSub.solution_output) : labSub.solution_output;
-            if (parsed?.tasks && Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
-              const passedCount = parsed.tasks.filter((t: any) => t.passed === true || t.result === "passed").length;
-              marksEarned = Math.round((passedCount / parsed.tasks.length) * (Number(lab.marks) || 10));
-            } else if (parsed?.total_score != null) {
-              marksEarned = Number(parsed.total_score);
-            } else if (parsed?.percentage != null) {
-              marksEarned = Math.round((Number(parsed.percentage) / 100) * (Number(lab.marks) || 10));
-            }
-          } catch {}
-        }
-        if (marksEarned === 0 && labSub?.solution && typeof labSub.solution === "string") {
-          if (labSub.solution.includes("HTTP_201_CREATED") || labSub.solution.includes("201_CREATED")) {
-            marksEarned = 2;
-          }
-        }
-        const maxMarks = Number(lab.marks) || 10;
-        let scorePct = 0;
-        if (marksEarned > maxMarks && marksEarned <= 100) {
-          scorePct = marksEarned;
-          marksEarned = Math.round((marksEarned / 100) * maxMarks);
-        } else if (maxMarks > 0) {
-          scorePct = Math.min(100, Math.round((marksEarned / maxMarks) * 100));
-        }
+        const targetId = String(lab.id ?? lab.lab_id ?? lab.question_id ?? "");
+        const labSub = rawLabSubs.find((s: any) => {
+          const sLabId = String(s.lab_question?.id ?? s.lab_question ?? s.lab_id ?? "");
+          return sLabId === targetId || (sLabId && targetId && (sLabId.includes(targetId) || targetId.includes(sLabId)));
+        }) || rawLabSubs[i] || (rawLabSubs.length === 1 ? rawLabSubs[0] : undefined);
+
+        const stats = computeLabTestStats(lab, labSub);
+        const marksEarned = stats.marksEarned;
+        const maxMarks = stats.maxMarks;
+        const scorePct = stats.scorePct;
 
         let timeTaken = Number(labSub?.minutes_solved ?? 0);
         if (timeTaken === 0 && labSub?.created_at && labSub?.updated_at) {
@@ -3484,36 +3581,12 @@ function FormattedExecutionOutput({
 // ============ Lab drawer ============
 
 export function generateMockLabAttempt(lab: any, labSub: any, labsReport?: any) {
-  let marksEarned = Number(labSub?.score ?? 0);
-  let tasksCompletedCount: number | null = null;
-  let parsedTasksTotal: number | null = null;
-  if (labSub?.solution_output) {
-    try {
-      const parsed = typeof labSub.solution_output === "string" ? JSON.parse(labSub.solution_output) : labSub.solution_output;
-      if (parsed?.tasks && Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
-        parsedTasksTotal = parsed.tasks.length;
-        tasksCompletedCount = parsed.tasks.filter((t: any) => t.passed === true || t.result === "passed").length;
-        marksEarned = Math.round((tasksCompletedCount / parsed.tasks.length) * (Number(lab.marks) || 10));
-      } else if (parsed?.total_score != null) {
-        marksEarned = Number(parsed.total_score);
-      } else if (parsed?.percentage != null) {
-        marksEarned = Math.round((Number(parsed.percentage) / 100) * (Number(lab.marks) || 10));
-      }
-    } catch {}
-  }
-  if (marksEarned === 0 && labSub?.solution && typeof labSub.solution === "string") {
-    if (labSub.solution.includes("HTTP_201_CREATED") || labSub.solution.includes("201_CREATED")) {
-      marksEarned = 2;
-    }
-  }
-  const maxMarks = Number(lab.marks) || 10;
-  let scorePct = 0;
-  if (marksEarned > maxMarks && marksEarned <= 100) {
-    scorePct = marksEarned;
-    marksEarned = Math.round((marksEarned / 100) * maxMarks);
-  } else if (maxMarks > 0) {
-    scorePct = Math.min(100, Math.round((marksEarned / maxMarks) * 100));
-  }
+  const stats = computeLabTestStats(lab, labSub);
+  const marksEarned = stats.marksEarned;
+  const maxMarks = stats.maxMarks;
+  const scorePct = stats.scorePct;
+  const tasksTotal = stats.tasksTotal;
+  const tasksCompleted = stats.tasksCompleted;
 
   let timeTaken = Number(labSub?.minutes_solved ?? 0);
   if (timeTaken === 0 && labSub?.created_at && labSub?.updated_at) {
@@ -3524,11 +3597,6 @@ export function generateMockLabAttempt(lab: any, labSub: any, labsReport?: any) 
     }
   }
   const timeLimit = lab.duration_minutes ?? lab.duration ?? 0;
-
-  const tasksTotal = parsedTasksTotal ?? ((lab.tasks && lab.tasks.length > 0) ? lab.tasks.length : 5);
-  const tasksCompleted = tasksCompletedCount != null 
-    ? tasksCompletedCount 
-    : (labSub?.tasks_completed ?? (scorePct > 0 ? Math.max(1, Math.round((scorePct / 100) * tasksTotal)) : 0));
 
   const changedFiles: string[] = [];
   const solutionStr = labSub?.solution || "";
