@@ -325,7 +325,7 @@ export function getCandidates(
       const hasAssessmentSec = sectionsList.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT");
       const hasVitarkaSec = sectionsList.some((s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka");
       vitSub = hasVitarkaSec ? vitarkaSubmissions.find((vs: any) =>
-        (email && (vs.user?.email === email || vs.candidate_email === email)) ||
+        (email && (vs.user?.email === email || vs.user_email === email || vs.candidate_email === email)) ||
         (user.id && (vs.user === user.id || vs.user?.id === user.id)) ||
         (sub.id && (vs.candidate_id === sub.id || vs.candidate_id === String(user.id)))
       ) : null;

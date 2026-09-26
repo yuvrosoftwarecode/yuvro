@@ -118,7 +118,7 @@ function InstructionsPage() {
       } else if (sec.type === "VITARKA_AI_INTERVIEW") {
         foundDiscussion = true;
         marks = meta.marks ?? meta.max_score ?? sec.marks ?? 25;
-        durationMinutes = meta.duration ?? sec.duration_minutes ?? 15;
+        durationMinutes = meta.duration ?? meta.duration_minutes ?? sec.duration_minutes ?? sec.duration ?? 15;
         discDuration = durationMinutes;
         discTitle = sec.title || "Engineering Discussion";
         subtitle = `AI-led technical discussion · ${marks} marks · ~${durationMinutes} min`;

@@ -184,7 +184,7 @@ export const VitarkaInterviewScreen = forwardRef<
 
     const resumeListening = () => {
       if (isFinishedRef.current || isUnmountedRef.current) {
-        setTimeout(() => handleEndConfirm(), 1000);
+        setTimeout(() => handleEndRequest(), 1000);
       } else {
         // Small delay to prevent speaker reverberation from triggering mic
         setTimeout(() => {
@@ -394,8 +394,6 @@ export const VitarkaInterviewScreen = forwardRef<
         console.error("Failed to mark interview as completed", err);
       }
     }
-
-    onEnd();
   };
 
   if (!hasPermissions) {
