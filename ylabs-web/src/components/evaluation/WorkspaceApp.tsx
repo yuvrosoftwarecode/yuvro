@@ -368,7 +368,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
       const isSub = submittedSections.has(activeSection.id);
       let meta: any = {};
       try { meta = JSON.parse(activeSection.description || "{}"); } catch {}
-      const durationMinutes = meta.duration_minutes || 15;
+      const durationMinutes = meta.duration ?? meta.duration_minutes ?? (activeSection as any).duration_minutes ?? (activeSection as any).duration ?? 15;
       return {
         key: `eval_${evalPrefix}_timer_sec_${activeSection.id}`,
         title: activeSection.title || "Engineering Discussion",

@@ -56,7 +56,7 @@ function EvaluationInvite() {
           } else if (sec.type === "VITARKA_AI_INTERVIEW") {
             let meta: any = {};
             try { meta = typeof sec.description === "string" ? JSON.parse(sec.description) : {}; } catch {}
-            total += Number(meta.duration || sec.duration_minutes || 15);
+            total += Number(meta.duration || meta.duration_minutes || sec.duration_minutes || sec.duration || 15);
           }
         });
         if (total > 0) setEstMinutes(total);

@@ -127,7 +127,7 @@ export function MissingVitarkaSessionModal({
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-neutral-400 hover:bg-white/10 hover:text-white transition"
+            className="rounded-lg p-1 text-neutral-400 hover:bg-white/10 hover:text-neutral-900 dark:text-white transition"
           >
             <X className="h-5 w-5" />
           </button>
@@ -138,7 +138,7 @@ export function MissingVitarkaSessionModal({
         <div className="flex justify-end pt-3 border-t border-white/10">
           <button
             onClick={onClose}
-            className="rounded-lg bg-white/10 px-4 py-2 text-xs font-medium text-white hover:bg-white/20 transition"
+            className="rounded-lg bg-white/10 px-4 py-2 text-xs font-medium text-neutral-900 dark:text-white hover:bg-white/20 transition"
           >
             Close
           </button>
@@ -238,7 +238,8 @@ function CandidateWorkspace() {
     const params = new URLSearchParams();
     if (mockInterviewId) params.append("mock_interview", mockInterviewId);
     if (email) params.append("email", email);
-    if (userId) params.append("user", userId);
+    else if (userId) params.append("user", userId);
+    params.append("ordering", "-created_at");
 
     if (params.toString()) {
       yhubApiAuthUtil
@@ -275,7 +276,8 @@ function CandidateWorkspace() {
       const params = new URLSearchParams();
       if (mockInterviewId) params.append("mock_interview", mockInterviewId);
       if (email) params.append("email", email);
-      if (userId) params.append("user", userId);
+      else if (userId) params.append("user", userId);
+      params.append("ordering", "-created_at");
 
       try {
         const res = await yhubApiAuthUtil.get<any[]>(`/interview/submissions/?${params.toString()}`);
@@ -385,7 +387,7 @@ function CandidateWorkspace() {
         <Link
           to="/recruiter/evaluations/$id"
           params={{ id }}
-          className="mt-4 inline-flex items-center gap-2 text-[13px] text-neutral-300 hover:text-white"
+          className="mt-4 inline-flex items-center gap-2 text-[13px] text-neutral-300 hover:text-neutral-900 dark:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to evaluation
@@ -730,7 +732,7 @@ function CandidateWorkspace() {
             to="/recruiter/evaluations/$id/workspace"
             params={{ id }}
             search={{ tab: "candidates", view: "edit" } as any}
-            className="inline-flex items-center gap-1.5 text-[12px] text-neutral-500 hover:text-white"
+            className="inline-flex items-center gap-1.5 text-[12px] text-neutral-500 hover:text-neutral-900 dark:text-white"
           >
             <ChevronLeft className="h-3.5 w-3.5" /> {ev.title} · Candidates
           </Link>
@@ -740,7 +742,7 @@ function CandidateWorkspace() {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <Avatar name={candidate.name} hue={candidate.avatarHue} size="xl" />
-                  <h1 className="text-[26px] font-medium leading-tight text-white">
+                  <h1 className="text-[26px] font-medium leading-tight text-neutral-900 dark:text-white">
                     {candidate.name}
                   </h1>
                   <StatusPill s={decision} />
@@ -748,13 +750,13 @@ function CandidateWorkspace() {
                 <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-neutral-300">
                   <button
                     onClick={() => copy(candidate.email, "Email")}
-                    className="inline-flex items-center gap-1.5 hover:text-white"
+                    className="inline-flex items-center gap-1.5 hover:text-neutral-900 dark:text-white"
                   >
                     <Mail className="h-3.5 w-3.5 text-neutral-500" /> {candidate.email}
                   </button>
                   <button
                     onClick={() => copy(candidate.phone, "Phone")}
-                    className="inline-flex items-center gap-1.5 hover:text-white"
+                    className="inline-flex items-center gap-1.5 hover:text-neutral-900 dark:text-white"
                   >
                     <Phone className="h-3.5 w-3.5 text-neutral-500" /> {candidate.phone}
                   </button>
@@ -816,7 +818,7 @@ function CandidateWorkspace() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`relative shrink-0 px-3 py-2 text-[13px] transition ${tab === t ? "text-white" : "text-neutral-500 hover:text-neutral-300"}`}
+            className={`relative shrink-0 px-3 py-2 text-[13px] transition ${tab === t ? "text-neutral-900 dark:text-white" : "text-neutral-500 hover:text-neutral-300"}`}
           >
             {tabLabel(t)}
             {tab === t && <span className="absolute inset-x-3 -bottom-[13px] h-px bg-white" />}
@@ -903,7 +905,7 @@ function CandidateWorkspace() {
       />
 
       {toast && (
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-white/10 bg-neutral-900 px-4 py-2 text-[12px] text-white shadow-xl">
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-white/10 bg-neutral-900 px-4 py-2 text-[12px] text-neutral-900 dark:text-white shadow-xl">
           {toast}
         </div>
       )}
@@ -967,14 +969,14 @@ export function OverviewPane({
             <div className="text-[11px] uppercase tracking-widest text-neutral-500">
               Engineering Capability
             </div>
-            <div className="mt-1 flex items-baseline gap-1.5 text-[24px] font-medium text-white">
-              <span>{displayTotalEarned}</span>
+            <div className="mt-1 flex items-baseline gap-1.5 text-[24px] font-medium text-neutral-900 dark:text-white">
+              <span>{candidate.totalEarned ?? candidate.eci}</span>
               <span className="text-[14px] text-neutral-500">
                 / {maxTotalScore}
               </span>
             </div>
             <div className="mt-0.5 text-[13px] text-neutral-400">
-              Recommendation: <span className="text-white">{candidate.recommendation}</span>
+              Recommendation: <span className="text-neutral-900 dark:text-white">{candidate.recommendation}</span>
             </div>
             <div className="mt-3 flex items-center gap-2 text-[11px] text-neutral-500">
               <BadgeCheck className="h-3.5 w-3.5 text-emerald-400" /> {detail.confidence}%
@@ -992,7 +994,7 @@ export function OverviewPane({
                     className={`mt-1 h-1.5 w-1.5 rounded-full ${e.kind === "pos" ? "bg-emerald-400" : e.kind === "neg" ? "bg-amber-400" : "bg-neutral-500"}`}
                   />
                   <span className="text-neutral-400">{e.label}:</span>
-                  <span className="text-white">{e.contribution}</span>
+                  <span className="text-neutral-900 dark:text-white">{e.contribution}</span>
                 </li>
               ))}
             </ul>
@@ -1270,7 +1272,7 @@ function SectionPerformanceBlock({
   tone?: "emerald" | "blue" | "amber";
 }) {
   return (
-    <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 flex flex-col justify-between">
+    <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-5 flex flex-col justify-between">
       <div>
         <div className="flex items-baseline justify-between">
           <div className="text-[11px] uppercase tracking-widest text-neutral-500">{title}</div>
@@ -1286,7 +1288,7 @@ function SectionPerformanceBlock({
             }`}>
               <CheckCircle2 className="h-4 w-4" />
             </div>
-            <div className="text-[13px] font-medium text-white truncate">
+            <div className="text-[13px] font-medium text-neutral-900 dark:text-white truncate">
               {headline}
             </div>
           </div>
@@ -1302,7 +1304,7 @@ function SectionPerformanceBlock({
           {stats.map((st, i) => (
             <div key={i} className="rounded-xl border border-white/5 bg-white/[0.015] p-2.5">
               <div className="text-[10px] uppercase tracking-wider text-neutral-500 truncate">{st.label}</div>
-              <div className="mt-1 text-[14px] font-medium text-white">{st.value}</div>
+              <div className="mt-1 text-[14px] font-medium text-neutral-900 dark:text-white">{st.value}</div>
               {st.sub && <div className="mt-0.5 text-[10px] text-neutral-400 truncate">{st.sub}</div>}
             </div>
           ))}
@@ -1332,11 +1334,11 @@ function SummaryBlock({
   showScore?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
+    <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-5">
       <div className="flex items-baseline justify-between">
         <div className="text-[11px] uppercase tracking-widest text-neutral-500">{title}</div>
         {showScore && score != null && (
-          <div className="text-[13px] font-medium text-white">
+          <div className="text-[13px] font-medium text-neutral-900 dark:text-white">
             {score}
             <span className="text-neutral-500">/{maxScore}</span>
           </div>
@@ -1735,7 +1737,7 @@ function EvaluationSummary({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="text-[11px] uppercase tracking-widest text-neutral-400">Overall recommendation</div>
           <div className="flex items-center gap-3">
-            <div className="text-[13px] font-medium text-white">
+            <div className="text-[13px] font-medium text-neutral-900 dark:text-white">
               {overall10}
               <span className="text-neutral-500">/10</span>
             </div>
@@ -1874,14 +1876,14 @@ export function LabsPane({
       </div>
 
       {labsReport && (
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 space-y-3">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3 text-[12px]">
             <div className="flex items-center gap-4 text-neutral-300">
-              <span>Tests Passed: <strong className="text-white">
+              <span>Tests Passed: <strong className="text-neutral-900 dark:text-white">
                 {labsReport.tests_passed != null ? labsReport.tests_passed : (candidate.labsScore > 0 ? 1 : 0)}/{labsReport.tests_total || totalLabTasksCount}
               </strong></span>
               {displayTotalTime > 0 && (
-                <span>Time: <strong className="text-white">{displayTotalTime}m</strong></span>
+                <span>Time: <strong className="text-neutral-900 dark:text-white">{displayTotalTime}m</strong></span>
               )}
             </div>
             {labsReport.strengths && labsReport.strengths.length > 0 && candidate.labsScore > 0 && (
@@ -1957,7 +1959,7 @@ export function LabsPane({
           <button
             key={lab.id || i}
             onClick={() => onOpen({ section: lab, labSub, candidate, labsReport })}
-            className="group block w-full rounded-2xl border border-white/5 bg-white/[0.02] p-5 text-left transition hover:border-white/15 hover:bg-white/[0.04]"
+            className="group block w-full rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-5 text-left transition hover:border-white/15 hover:bg-white/[0.04]"
           >
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex items-start gap-3">
@@ -1965,7 +1967,7 @@ export function LabsPane({
                   L{i + 1}
                 </div>
                 <div>
-                  <div className="text-[15px] font-medium text-white">{lab.title || lab.name || 'Engineering Lab'}</div>
+                  <div className="text-[15px] font-medium text-neutral-900 dark:text-white">{lab.title || lab.name || 'Engineering Lab'}</div>
                   <div className="mt-0.5 text-[12px] text-neutral-500">
                     {lab.domain || 'Backend'} · {timeTaken}m of {timeLimit}m
                   </div>
@@ -1981,10 +1983,10 @@ export function LabsPane({
                     {marksEarned}/{maxMarks} marks
                   </div>
                 </div>
-                <ChevronRight className="h-4 w-4 text-neutral-500 transition group-hover:translate-x-0.5 group-hover:text-white" />
+                <ChevronRight className="h-4 w-4 text-neutral-500 transition group-hover:translate-x-0.5 group-hover:text-neutral-900 dark:text-white" />
               </div>
             </div>
-            <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/5">
+            <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
               <div
                 className={`h-full ${scorePct >= 70 ? "bg-emerald-400" : scorePct >= 55 ? "bg-amber-400" : "bg-red-400"}`}
                 style={{ width: `${scorePct}%` }}
@@ -2200,20 +2202,20 @@ export function AssessmentPane({ ev, candidate, knowledgeReport }: { ev: any; ca
         return (
           <div
             key={subId}
-            className="overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02]"
+            className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none"
           >
             <button
               onClick={() => setOpen(isOpen ? null : (sub.name || sub.title))}
               className="flex w-full items-center gap-4 p-5 text-left transition hover:bg-white/[0.03]"
             >
               <div className="flex-1">
-                <div className="text-[15px] font-medium text-white">{sub.title || sub.name}</div>
+                <div className="text-[15px] font-medium text-neutral-900 dark:text-white">{sub.title || sub.name}</div>
                 <div className="mt-0.5 text-[12px] text-neutral-500">
                   {score}/{total} correct · {pct}%
                 </div>
               </div>
               <div className="hidden w-40 sm:block">
-                <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
+                <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
                   <div
                     className={`h-full ${pct >= 70 ? "bg-emerald-400" : pct >= 55 ? "bg-amber-400" : "bg-red-400"}`}
                     style={{ width: `${pct}%` }}
@@ -2233,7 +2235,7 @@ export function AssessmentPane({ ev, candidate, knowledgeReport }: { ev: any; ca
                         <div className="text-[11px] uppercase tracking-widest text-neutral-500">
                           Question {i + 1} · {q.difficulty || 'Medium'}
                         </div>
-                        <div className="mt-1 text-[14px] text-white">{q.text || q.q}</div>
+                        <div className="mt-1 text-[14px] text-neutral-900 dark:text-white">{q.text || q.q}</div>
                       </div>
                       <span
                         className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] ${q.correct ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" : "border-red-400/30 bg-red-400/10 text-red-300"}`}
@@ -2253,7 +2255,7 @@ export function AssessmentPane({ ev, candidate, knowledgeReport }: { ev: any; ca
                         <div className="text-[10px] uppercase tracking-widest text-neutral-500">
                           Candidate answer
                         </div>
-                        <div className="mt-1 text-white">
+                        <div className="mt-1 text-neutral-900 dark:text-white">
                           {q.format === "Coding" ? (
                             <CodingAnswerViewer q={q} userId={candidate.rawSubmission?.user?.id || candidate.id} evaluationId={ev.id} />
                           ) : (
@@ -2265,7 +2267,7 @@ export function AssessmentPane({ ev, candidate, knowledgeReport }: { ev: any; ca
                         <div className="text-[10px] uppercase tracking-widest text-neutral-500">
                           Correct answer
                         </div>
-                        <div className="mt-1 text-white">
+                        <div className="mt-1 text-neutral-900 dark:text-white">
                           {q.format === "Coding" ? (
                             <pre className="whitespace-pre-wrap font-mono text-xs">{q.correctAnswer}</pre>
                           ) : (
@@ -2316,14 +2318,20 @@ export function VitarkaPane({
   const [showTranscript, setShowTranscript] = useState(false);
   const [showMarkdown, setShowMarkdown] = useState(false);
 
-  // Extract raw dynamic interview turns from submission state
-  const rawTurns: any[] = submission?.session_state?.turns || submission?.turns || [];
+  let rawTurnsSource = submission?.transcript?.length ? submission.transcript : (submission?.session_state?.turns?.length ? submission.session_state.turns : submission?.turns);
+  if ((!rawTurnsSource || rawTurnsSource.length === 0) && submission?.session_state?.questions) {
+    rawTurnsSource = submission.session_state.questions.map((q: any, i: number) => [
+      { role: "assistant", content: q.prompt || q.question, timestamp: q.asked_at },
+      submission.session_state.answers && submission.session_state.answers[i] ? { role: "user", content: submission.session_state.answers[i].answer || submission.session_state.answers[i].content, timestamp: submission.session_state.answers[i].answered_at } : null
+    ]).flat().filter(Boolean);
+  }
+  const rawTurns: any[] = rawTurnsSource || [];
   const normalizedSessionTurns = rawTurns.map((t: any, idx: number) => {
-    const isAi = t.speaker === "assistant" || t.role === "assistant" || t.speaker === "AI" || t.role === "system";
+    const isAi = t.speaker === "assistant" || t.role === "assistant" || t.speaker === "AI" || t.role === "system" || t.message_type === "assistant";
     return {
       speaker: isAi ? "AI" : "Candidate",
       text: t.text || t.content || t.message || "",
-      time: t.timestamp ? new Date(t.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : `${t.seconds_from_start || (idx * 30)}s`,
+      time: t.timestamp || t.created_at ? new Date(t.timestamp || t.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : `${t.seconds_from_start || (idx * 30)}s`,
     };
   });
 
@@ -2335,13 +2343,16 @@ export function VitarkaPane({
 
   // Determine actual Vitarka session lifecycle state
   const effStatus = submissionStatus || submission?.status;
+  const effStatusStr = String(effStatus || "").toLowerCase();
+  const isCompleted = ["completed", "submitted", "done", "in_review", "evaluated"].includes(effStatusStr);
+
   const vitarkaState: "not_attempted" | "in_progress" | "completed" | "evaluation_generated" = report
     ? "evaluation_generated"
-    : effStatus === "completed"
+    : (isCompleted || (hasTranscript && effStatusStr === "completed"))
     ? "completed"
-    : effStatus === "in_progress" || normalizedSessionTurns.length > 0
+    : (effStatusStr === "in_progress" || normalizedSessionTurns.length > 0 || hasTranscript)
     ? "in_progress"
-    : (!submission || !submission.id || effStatus === "not_attempted")
+    : (!submission || !submission.id || effStatusStr === "not_attempted")
     ? "not_attempted"
     : "not_attempted";
 
@@ -2407,7 +2418,7 @@ export function VitarkaPane({
       case "not_attempted":
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium text-neutral-400">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white dark:border-white/10 dark:bg-white/5 shadow-sm dark:shadow-none text-neutral-700 dark:text-neutral-300 px-2.5 py-0.5 text-[11px] font-medium text-neutral-400">
             <span className="h-1.5 w-1.5 rounded-full bg-neutral-500" /> Not Attempted
           </span>
         );
@@ -2418,7 +2429,7 @@ export function VitarkaPane({
   if (vitarkaState === "not_attempted") {
     return (
       <div className="space-y-6">
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2.5">
@@ -2434,7 +2445,7 @@ export function VitarkaPane({
               <button
                 onClick={onGenerateReport}
                 disabled={generatingReport}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3.5 py-1.5 text-[12px] font-medium text-neutral-300 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white dark:border-white/10 dark:bg-white/5 shadow-sm dark:shadow-none text-neutral-700 dark:text-neutral-300 px-3.5 py-1.5 text-[12px] font-medium text-neutral-300 transition hover:bg-white/10 hover:text-neutral-900 dark:text-white disabled:opacity-50"
               >
                 {generatingReport ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
@@ -2449,10 +2460,10 @@ export function VitarkaPane({
 
         {/* Empty State Card */}
         <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-12 text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/5 text-neutral-400">
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-white/5 shadow-sm dark:shadow-none text-neutral-700 dark:text-neutral-300 text-neutral-400">
             <Sparkles className="h-6 w-6 text-neutral-400" />
           </div>
-          <h3 className="mt-4 text-[16px] font-medium text-white">Vitarka Interview Not Attempted</h3>
+          <h3 className="mt-4 text-[16px] font-medium text-neutral-900 dark:text-white">Vitarka Interview Not Attempted</h3>
           <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-neutral-400">
             The candidate has not initiated or attempted the Vitarka AI discussion session for this evaluation yet. No scores or AI analysis are available.
           </p>
@@ -2461,7 +2472,7 @@ export function VitarkaPane({
               disabled={!hasTranscript}
               onClick={downloadTranscript}
               title={hasTranscript ? "Download transcript" : "No transcript available"}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-[12px] font-medium text-neutral-400 transition disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white dark:border-white/10 dark:bg-white/5 shadow-sm dark:shadow-none text-neutral-700 dark:text-neutral-300 px-3.5 py-2 text-[12px] font-medium text-neutral-400 transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <FileDown className="h-3.5 w-3.5" />
               Download Transcript
@@ -2476,13 +2487,15 @@ export function VitarkaPane({
   if (report) {
     const overallScore100 = report.overall_score != null ? Math.round(report.overall_score * 10) : detail?.vitarka?.overall || 0;
     const recommendation = report.recommendation || (overallScore100 >= 80 ? "Strong proceed" : overallScore100 >= 60 ? "Proceed" : overallScore100 >= 40 ? "Needs review" : "Do not proceed");
-    const recColor = recommendation.toLowerCase().includes("strong")
-      ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"
-      : recommendation.toLowerCase().includes("proceed")
-        ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"
-        : recommendation.toLowerCase().includes("review")
-          ? "bg-amber-400/10 text-amber-400 border-amber-400/20"
-          : "bg-red-400/10 text-red-400 border-red-400/20";
+    
+    const isStrong = recommendation.toLowerCase().includes("strong");
+    const isProceed = recommendation.toLowerCase().includes("proceed") || recommendation.toLowerCase().includes("hire");
+    const isReview = recommendation.toLowerCase().includes("review") || recommendation.toLowerCase().includes("maybe");
+    const recColor = isStrong || isProceed
+      ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-400/10 dark:text-emerald-400 dark:border-emerald-400/20"
+      : isReview
+        ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-400/10 dark:text-amber-400 dark:border-amber-400/20"
+        : "bg-red-50 text-red-700 border-red-200 dark:bg-red-400/10 dark:text-red-400 dark:border-red-400/20";
 
     const downloadMarkdownReport = () => {
       const mdContent = report.markdown || `# Vitarka Interview Report\n\nScore: ${overallScore100}/100\nRecommendation: ${recommendation}\n\n${report.executive_summary || ""}`;
@@ -2499,28 +2512,28 @@ export function VitarkaPane({
     return (
       <div className="space-y-6">
         {/* Header Overview Card */}
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
+            <div className="flex-1 max-w-[80%]">
               <div className="flex items-center gap-2">
                 <SectionHeading>Vitarka Engineering Discussion</SectionHeading>
                 {getStatusBadge()}
                 {report.mode && (
-                  <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-neutral-400">
+                  <span className="rounded-md border border-neutral-200 bg-neutral-100 dark:border-white/10 dark:bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
                     {report.mode} Mode
                   </span>
                 )}
                 {report.rubric_version && (
-                  <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400">
+                  <span className="rounded-md border border-neutral-200 bg-neutral-100 dark:border-white/10 dark:bg-white/5 px-2 py-0.5 text-[10px] text-neutral-500 dark:text-neutral-400">
                     Rubric {report.rubric_version}
                   </span>
                 )}
               </div>
-              <div className="mt-2 flex items-center gap-2">
-                <span className="text-[12px] text-neutral-400">Hiring Signal:</span>
-                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${recColor}`}>
+              <div className="mt-4 flex items-start gap-4">
+                <span className="mt-0.5 text-[12px] uppercase tracking-widest text-neutral-500 shrink-0">Hiring Signal:</span>
+                <div className={`flex-1 rounded-xl border px-4 py-3 text-[13px] leading-relaxed font-medium ${recColor}`}>
                   {recommendation}
-                </span>
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -2528,7 +2541,7 @@ export function VitarkaPane({
                 <button
                   onClick={onGenerateReport}
                   disabled={generatingReport}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-neutral-300 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white dark:border-white/10 dark:bg-white/5 shadow-sm dark:shadow-none text-neutral-700 dark:text-neutral-300 px-3 py-1.5 text-[11px] font-medium text-neutral-300 transition hover:bg-white/10 hover:text-neutral-900 dark:text-white disabled:opacity-50"
                   title="Re-run evaluation prompt and narrative generation"
                 >
                   {generatingReport ? (
@@ -2558,10 +2571,10 @@ export function VitarkaPane({
                   const score100 = (c.score || 0) * 10;
                   const label = (c.competency || "").replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase());
                   return (
-                    <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] p-3.5 flex flex-col justify-between">
+                    <div key={i} className="rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-3.5 flex flex-col justify-between">
                       <div>
                         <div className="flex items-center justify-between">
-                          <div className="text-[12px] font-medium text-white">{label}</div>
+                          <div className="text-[12px] font-medium text-neutral-900 dark:text-white">{label}</div>
                           <div className="flex items-baseline gap-1">
                             <span className={`text-[16px] font-semibold ${eciColor(score100)}`}>{c.score}</span>
                             <span className="text-[10px] text-neutral-500">/10</span>
@@ -2569,7 +2582,7 @@ export function VitarkaPane({
                         </div>
                         <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-400">{c.guidance}</p>
                       </div>
-                      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
                         <div
                           className={`h-full transition-all duration-500 ${score100 >= 70 ? "bg-emerald-400" : score100 >= 50 ? "bg-amber-400" : "bg-red-400"}`}
                           style={{ width: `${Math.min(100, Math.max(5, score100))}%` }}
@@ -2584,7 +2597,7 @@ export function VitarkaPane({
         </div>
 
         {/* Executive Summary & AI Narrative */}
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-6">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-neutral-500">
             <Sparkles className="h-3.5 w-3.5 text-emerald-400" /> Executive Narrative
           </div>
@@ -2656,7 +2669,7 @@ export function VitarkaPane({
 
         {/* Evidence Highlights */}
         {report.evidence_highlights && report.evidence_highlights.length > 0 && (
-          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+          <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-6">
             <div className="text-[11px] uppercase tracking-widest text-neutral-500">Observed Telemetry & Evidence Highlights</div>
             <div className="mt-4 space-y-2.5">
               {report.evidence_highlights.map((evItem: any, i: number) => {
@@ -2694,7 +2707,7 @@ export function VitarkaPane({
 
         {/* Dynamic Transcript View */}
         {showTranscript && hasTranscript && (
-          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+          <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-6">
             <div className="flex items-center justify-between">
               <div className="text-[11px] uppercase tracking-widest text-neutral-500">Interview Transcript</div>
               <button onClick={downloadTranscript} className="text-[11px] text-emerald-400 hover:underline">
@@ -2793,7 +2806,7 @@ export function VitarkaPane({
   // 3. Vitarka In Progress or Completed Session (Pending Report Generation) View
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5">
@@ -2826,7 +2839,7 @@ export function VitarkaPane({
         {detail?.vitarka?.signals && detail.vitarka.signals.length > 0 && (
           <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4 border-t border-white/5 pt-5">
             {detail.vitarka.signals.map((s) => (
-              <div key={s.label} className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
+              <div key={s.label} className="rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-3">
                 <div className="text-[10px] uppercase tracking-widest text-neutral-500">
                   {s.label}
                 </div>
@@ -2834,7 +2847,7 @@ export function VitarkaPane({
                   <div className={`text-[20px] font-medium ${eciColor(s.score)}`}>{s.score}</div>
                   <div className="text-[11px] text-neutral-500">/100</div>
                 </div>
-                <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/5">
+                <div className="mt-2 h-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
                   <div
                     className={`h-full ${s.score >= 70 ? "bg-emerald-400" : s.score >= 55 ? "bg-amber-400" : "bg-red-400"}`}
                     style={{ width: `${s.score}%` }}
@@ -2846,7 +2859,7 @@ export function VitarkaPane({
         )}
       </div>
 
-      <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-neutral-500">
             <Sparkles className="h-3.5 w-3.5 text-emerald-400" /> Recorded Session Activity
@@ -2856,13 +2869,13 @@ export function VitarkaPane({
           </div>
         </div>
         
-        {normalizedSessionTurns.length === 0 ? (
+        {!hasTranscript ? (
           <div className="mt-4 text-[13px] text-neutral-500 italic">
-            Candidate did not attempt this section.
+            Candidate did not attempt this section or no transcript is available.
           </div>
         ) : (
           <ul className="mt-3 space-y-2 text-[14px] text-neutral-200">
-            {detail.vitarka.summary.map((s, i) => (
+            {(detail?.vitarka?.summary || []).map((s: string, i: number) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="mt-2 h-1 w-1 rounded-full bg-emerald-400" /> {s}
               </li>
@@ -2871,7 +2884,7 @@ export function VitarkaPane({
         )}
         
         <div className="mt-6 flex flex-wrap gap-2">
-          {normalizedSessionTurns.length === 0 ? (
+          {!hasTranscript ? (
             <>
               <button disabled className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 px-3 py-1.5 text-[12px] font-medium text-neutral-400 bg-black/5 opacity-50 cursor-not-allowed">
                 <ScrollText className="h-3.5 w-3.5" />
@@ -2899,7 +2912,7 @@ export function VitarkaPane({
       </div>
 
       {showTranscript && hasTranscript && (
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-6">
           <div className="flex items-center justify-between">
             <div className="text-[11px] uppercase tracking-widest text-neutral-500">Transcript</div>
             <button
@@ -3067,7 +3080,7 @@ export function TimelinePane({ events, detail, isDemo, hasLabs, hasAssessment, h
     return (
       <div>
         <SectionHeading>Timeline</SectionHeading>
-        <div className="mt-4 rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-sm text-neutral-500">
+        <div className="mt-4 rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-6 text-sm text-neutral-500">
           No timeline events yet.
         </div>
       </div>
@@ -3077,14 +3090,14 @@ export function TimelinePane({ events, detail, isDemo, hasLabs, hasAssessment, h
   return (
     <div>
       <SectionHeading>Timeline</SectionHeading>
-      <div className="mt-4 rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+      <div className="mt-4 rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-6">
         <ol className="relative space-y-5 border-l border-white/10 pl-6">
           {displayEvents.map((t, i) => (
             <li key={i} className="relative">
               <span
                 className={`absolute -left-[27px] mt-1 grid h-3.5 w-3.5 place-items-center rounded-full border ${t.done ? (t.tone === "warn" ? "border-amber-400 bg-amber-400" : "border-emerald-400 bg-emerald-400") : "border-white/20 bg-neutral-900"}`}
               />
-              <div className={`text-[13px] ${t.done ? "text-white" : "text-neutral-500"}`}>
+              <div className={`text-[13px] ${t.done ? "text-neutral-900 dark:text-white" : "text-neutral-500"}`}>
                 {t.label}
               </div>
               <div className="text-[11px] text-neutral-500">
@@ -3145,18 +3158,18 @@ function NotesPane({
   return (
     <div className="space-y-5">
       <SectionHeading>Recruiter Notes</SectionHeading>
-      <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-5">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Add a note. Mention teammates with @, add tags below…"
-          className="min-h-[110px] w-full resize-y rounded-lg border border-white/10 bg-black/20 p-3 text-[13px] text-white placeholder-neutral-500 outline-none focus:border-white/25"
+          className="min-h-[110px] w-full resize-y rounded-lg border border-white/10 bg-black/20 p-3 text-[13px] text-neutral-900 dark:text-white placeholder-neutral-500 outline-none focus:border-white/25"
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
             onClick={add}
             disabled={!text.trim()}
-            className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-neutral-900 px-4 py-1.5 text-[12px] font-medium text-white disabled:bg-neutral-100 disabled:text-neutral-400 hover:bg-neutral-800 transition-colors"
+            className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-neutral-900 px-4 py-1.5 text-[12px] font-medium text-neutral-900 dark:text-white disabled:bg-neutral-100 disabled:text-neutral-400 hover:bg-neutral-800 transition-colors"
           >
             <Send className="h-3.5 w-3.5" /> Save note
           </button>
@@ -3172,7 +3185,7 @@ function NotesPane({
       ) : (
         <div className="space-y-2">
           {notes.map((n) => (
-            <div key={n.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+            <div key={n.id} className="rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-4">
               <div className="flex items-center gap-2 text-[11px] text-neutral-500">
                 <span
                   className={`inline-flex h-1.5 w-1.5 rounded-full ${n.priority === "high" ? "bg-red-400" : n.priority === "medium" ? "bg-amber-400" : "bg-neutral-500"}`}
@@ -3257,7 +3270,7 @@ export function StickySidebar({
   return (
     <aside className="lg:sticky lg:top-6 lg:h-fit">
       <div className="space-y-4">
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-4">
           <div className="text-[10px] uppercase tracking-widest text-neutral-500">
             Engineering Capability
           </div>
@@ -3277,7 +3290,7 @@ export function StickySidebar({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-4">
           <div className="text-[10px] uppercase tracking-widest text-neutral-500">
             Overall status
           </div>
@@ -3287,10 +3300,10 @@ export function StickySidebar({
           <div className="mt-4 text-[10px] uppercase tracking-widest text-neutral-500">
             Next suggested action
           </div>
-          <div className="mt-1.5 text-[13px] text-white">{detail.nextStep}</div>
+          <div className="mt-1.5 text-[13px] text-neutral-900 dark:text-white">{detail.nextStep}</div>
         </div>
 
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-4">
           <div className="text-[10px] uppercase tracking-widest text-neutral-500">
             Suggested actions
           </div>
@@ -3361,7 +3374,7 @@ function FormattedExecutionOutput({
         {parsed?.hasTasks && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-[12px]">
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5 font-medium text-white">
+              <span className="flex items-center gap-1.5 font-medium text-neutral-900 dark:text-white">
                 <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                 <span>{passedCount} of {totalCount} tasks passed</span>
               </span>
@@ -3375,7 +3388,7 @@ function FormattedExecutionOutput({
 
             <button
               onClick={() => setShowRaw(!showRaw)}
-              className="inline-flex items-center gap-1 text-[11px] text-neutral-400 hover:text-white transition"
+              className="inline-flex items-center gap-1 text-[11px] text-neutral-400 hover:text-neutral-900 dark:text-white transition"
             >
               <ScrollText className="h-3 w-3" />
               {showRaw ? "Hide raw logs" : "View raw logs"}
@@ -3405,7 +3418,7 @@ function FormattedExecutionOutput({
                         <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400/80" />
                       )}
                       <div>
-                        <div className="text-[13px] font-medium text-white">
+                        <div className="text-[13px] font-medium text-neutral-900 dark:text-white">
                           {task.name}
                         </div>
                         {task.message && (
@@ -3878,12 +3891,12 @@ function SideAction({
 }
 function MetaCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+    <div className="rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-4">
       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-neutral-500">
         {icon}
         {label}
       </div>
-      <div className="mt-1.5 truncate text-[14px] text-white">{value}</div>
+      <div className="mt-1.5 truncate text-[14px] text-neutral-900 dark:text-white">{value}</div>
     </div>
   );
 }
@@ -3984,7 +3997,7 @@ function MiniBar({ label, v, max }: { label: string; v: number; max?: number }) 
         <span>{label}</span>
         <span className={eciColor(pct)}>{max ? `${v}/${max}` : v}</span>
       </div>
-      <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5">
+      <div className="mt-1 h-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
         <div
           className={`h-full ${pct >= 70 ? "bg-emerald-400" : pct >= 55 ? "bg-amber-400" : "bg-red-400"}`}
           style={{ width: `${pct}%` }}
@@ -4027,7 +4040,7 @@ function EmptyBlock({ icon, title, desc }: { icon: React.ReactNode; title: strin
       <div className="mx-auto grid h-11 w-11 place-items-center rounded-full border border-white/10 text-neutral-500">
         {icon}
       </div>
-      <div className="mt-3 text-[14px] text-white">{title}</div>
+      <div className="mt-3 text-[14px] text-neutral-900 dark:text-white">{title}</div>
       <div className="mt-1 text-[12px] text-neutral-500">{desc}</div>
     </div>
   );
@@ -4088,7 +4101,7 @@ export function Avatar({
         : "h-7 w-7 text-[11px]";
   return (
     <span
-      className={`grid ${cls} shrink-0 place-items-center rounded-full font-medium text-white`}
+      className={`grid ${cls} shrink-0 place-items-center rounded-full font-medium text-neutral-900 dark:text-white`}
       style={{
         background: `linear-gradient(135deg, hsl(${hue} 60% 40%), hsl(${(hue + 60) % 360} 55% 30%))`,
       }}
