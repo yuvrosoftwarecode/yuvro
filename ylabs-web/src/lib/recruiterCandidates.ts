@@ -289,32 +289,58 @@ export function getCandidates(
       const knowSubs = sub.knowledge_submissions || [];
       
       if (labSubs.length > 0) {
-        const labCount = Math.max(1, labSubs.length);
-        const perLabMax = 100 / labCount;
-        labs = Math.round(labSubs.reduce((acc: number, cur: any) => {
-          let score = Number(cur.score || 0);
-          if (score === 0 && cur.solution_output) {
-            try {
-              const parsed = typeof cur.solution_output === "string" ? JSON.parse(cur.solution_output) : cur.solution_output;
-              if (parsed?.total_score != null) score = Number(parsed.total_score);
-              else if (parsed?.percentage != null) score = Number(parsed.percentage);
-            } catch {}
-          }
-          if (score === 0 && cur.solution && typeof cur.solution === "string") {
-            if (cur.solution.includes("HTTP_201_CREATED") || cur.solution.includes("201_CREATED")) {
-              score = 2;
+        const labSections = sectionsList.filter(
+          (s: any) => s.type === "LAB" || s.type === "ENGINEERING_LABS" || s.kind === "labs" || s.kind === "lab"
+        );
+        const allLabs = labSections.flatMap((s: any) =>
+          s.labs && s.labs.length > 0 ? s.labs : (s.questions || [])
+        );
+        const defaultPerLab = labsMaxScore / Math.max(1, allLabs.length || labSubs.length);
+
+        labs = Math.round(
+          labSubs.reduce((acc: number, cur: any) => {
+            const matchingLab = allLabs.find((l: any) => {
+              const targetId = String(l.id ?? l.lab_id ?? l.question_id ?? "");
+              const sLabId = String(cur.lab_question?.id ?? cur.lab_question ?? cur.lab_id ?? "");
+              return sLabId === targetId || (sLabId && targetId && (sLabId.includes(targetId) || targetId.includes(sLabId)));
+            });
+            const labMaxMarks = Number(matchingLab?.marks) || defaultPerLab;
+
+            let score = Number(cur.score || 0);
+            if (cur.solution_output) {
+              try {
+                const parsed = typeof cur.solution_output === "string" ? JSON.parse(cur.solution_output) : cur.solution_output;
+                if (parsed?.tasks && Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
+                  const passedTasks = parsed.tasks.filter((t: any) => t.passed === true || t.result === "passed").length;
+                  score = (passedTasks / parsed.tasks.length) * 100;
+                } else if (parsed?.percentage != null) {
+                  score = Number(parsed.percentage);
+                } else if (parsed?.total_score != null) {
+                  score = Number(parsed.total_score);
+                }
+              } catch {}
             }
-          }
-          let earned = 0;
-          if (score > 10 && score <= 100) {
-            earned = (score / 100) * perLabMax;
-          } else if (score > 0 && score <= 10) {
-            earned = (score / 10) * perLabMax;
-          } else {
-            earned = score;
-          }
-          return acc + earned;
-        }, 0));
+            if (score === 0 && cur.solution && typeof cur.solution === "string") {
+              if (cur.solution.includes("HTTP_201_CREATED") || cur.solution.includes("201_CREATED")) {
+                score = 2;
+              }
+            }
+            let earned = 0;
+            if (score > 10 && score <= 100) {
+              earned = (score / 100) * labMaxMarks;
+            } else if (score > 0 && score <= 10) {
+              earned = (score / 10) * labMaxMarks;
+            } else {
+              earned = score;
+            }
+            if (Math.abs(Math.round(earned) - earned) < 0.15) {
+              earned = Math.round(earned);
+            } else {
+              earned = Math.round(earned * 10) / 10;
+            }
+            return acc + earned;
+          }, 0)
+        );
       }
       if (knowSubs.length > 0) {
         assess = Math.round(knowSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0));

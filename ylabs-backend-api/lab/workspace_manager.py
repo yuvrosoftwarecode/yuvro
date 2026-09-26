@@ -135,9 +135,29 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
         # workspaces/evaluation/<evaluation_uuid>/users/<user_uuid>/labs/<lab_uuid>
         user_dir = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation_uuid), "users", str(user_uuid), "labs", str(lab_uuid))
         
-        if os.path.exists(user_dir) and any(item for item in os.listdir(user_dir) if item != ".bash_history"):
+        if os.path.exists(user_dir) and any(item for item in os.listdir(user_dir) if item not in (".bash_history", ".git")):
             logger.info(f"Evaluation user repo already provisioned at {user_dir}")
             return user_dir
+
+        if not starter_repo_path or not os.path.exists(starter_repo_path):
+            parent_lab_dir = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation_uuid), "labs", str(lab_uuid))
+            if os.path.exists(parent_lab_dir):
+                for sub in os.listdir(parent_lab_dir):
+                    sub_path = os.path.join(parent_lab_dir, sub)
+                    if os.path.isdir(sub_path) and any(item for item in os.listdir(sub_path) if item != '.git'):
+                        starter_repo_path = sub_path
+                        break
+
+        if not starter_repo_path or not os.path.exists(starter_repo_path):
+            try:
+                from skill_evaluation.models import LabQuestionBank
+                lab_obj = LabQuestionBank.objects.filter(id=lab_uuid).first()
+                if lab_obj and lab_obj.git_repo_starter_url:
+                    starter_repo_path = provision_evaluation_lab_starter_repo(
+                        evaluation_uuid, lab_uuid, lab_obj.git_repo_starter_url, branch=lab_obj.git_repo_starter_branch
+                    )
+            except Exception as clone_err:
+                logger.warning(f"Could not auto-clone starter repo for lab {lab_uuid}: {clone_err}")
 
         logger.info(f"Copying contents of {starter_repo_path} to {user_dir}")
         os.makedirs(user_dir, exist_ok=True)
