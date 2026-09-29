@@ -60,12 +60,12 @@ const TOTAL_SECONDS = 60 * 60;
 const DISCUSSION_LOCK_SECONDS = 15 * 60;
 
 
-export function Workspace({ previewData }: { previewData?: any } = {}) {
+export function Workspace({ previewData, evaluationId: propEvaluationId }: { previewData?: any; evaluationId?: string } = {}) {
   const nav = useNavigate({ from: undefined as any });
   const search: any = useRouterState({ select: (s) => s.location.search });
-  const evaluationId = previewData ? '' : (search.e || '');
+  const evaluationId = propEvaluationId || previewData?.id || previewData?.evaluation_id || (search?.e || '');
   const isRecruiterPreview = !!previewData;
-  const isPreviewMode = search.preview === "true" || !!previewData;
+  const isPreviewMode = search?.preview === "true" || !!previewData;
 
   const [appSections, setAppSections] = useState<AppSection[]>([]);
   const [labsData, setLabsData] = useState<RealLab[]>([]);
@@ -368,7 +368,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
       const isSub = submittedSections.has(activeSection.id);
       let meta: any = {};
       try { meta = JSON.parse(activeSection.description || "{}"); } catch {}
-      const durationMinutes = meta.duration_minutes || 15;
+      const durationMinutes = meta.duration ?? meta.duration_minutes ?? (activeSection as any).duration_minutes ?? (activeSection as any).duration ?? 15;
       return {
         key: `eval_${evalPrefix}_timer_sec_${activeSection.id}`,
         title: activeSection.title || "Engineering Discussion",
@@ -1038,6 +1038,11 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
               if (isSectionUnlocked(secIdx) && !submittedSections.has(labSec.id)) {
                 setSection(labSec.id);
                 setOpenLab(id);
+                if (evaluationId && id) {
+                  evaluationService.startLab(evaluationId, id).catch((err) => {
+                    console.error("Failed to start lab workspace from sidebar:", err);
+                  });
+                }
               }
             }
           }}
@@ -1064,7 +1069,8 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
             if (sec.id !== section) return null;
             if (sec.type === "LAB") {
               return openLab ? (() => {
-                const lab = sec.labs.find(l => l.id === openLab)!;
+                const lab = sec.labs.find(l => l.id === openLab);
+                if (!lab) return null;
                 const mappedTicket = {
                   id: lab.id,
                   title: lab.title,
@@ -1103,6 +1109,7 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                     ticket={mappedTicket}
                     previewOverride={null}
                     isEvaluationMode={true}
+                    isRecruiterPreview={isRecruiterPreview}
                     evaluationId={evaluationId}
                   />
                 );
@@ -1111,8 +1118,14 @@ export function Workspace({ previewData }: { previewData?: any } = {}) {
                   key={sec.id}
                   labs={sec.labs}
                   submitted={submittedLabs}
-                  onOpen={(id) => setOpenLab(id)}
-                  nextSectionTitle={appSections.findIndex(s => s.id === sec.id) + 1 < appSections.length ? appSections[appSections.findIndex(s => s.id === sec.id) + 1].title : undefined}
+                  onOpen={(id) => {
+                    setOpenLab(id);
+                    if (evaluationId && id) {
+                      evaluationService.startLab(evaluationId, id).catch((err) => {
+                        console.error("Failed to start lab workspace:", err);
+                      });
+                    }
+                  }}
                   onFinishSection={() => {
                     setSubmittedSections(prev => new Set(prev).add(sec.id));
                     const idx = appSections.findIndex(s => s.id === sec.id);

@@ -30,7 +30,7 @@ export async function fetchFileTree(
   evaluationId?: string
 ): Promise<FileTreeResponse> {
   const params = new URLSearchParams({ user_id: userId, lab_id: labId, sprint_id: sprintId });
-  if (starters) params.set("starters", JSON.stringify(starters));
+  if (starters && Object.keys(starters).length > 0) params.set("starters", JSON.stringify(starters));
   if (labType) params.set("lab_type", labType);
   if (evaluationId) params.set("evaluation_id", evaluationId);
   const res = await fetch(`${EXECUTOR_BASE}/workspace/filetree?${params}`);

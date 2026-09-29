@@ -515,9 +515,24 @@ export function getCandidateDetail(
     ],
     2,
   );
+  const labsMax = sectionMaxScores?.labsMaxScore ?? 80;
+  const assessMax = sectionMaxScores?.assessmentMaxScore ?? (sectionMaxScores ? 0 : 30);
+  const vitarkaMax = sectionMaxScores?.discussionMaxScore ?? (sectionMaxScores ? 0 : 25);
+
+  const summaryParts: string[] = [];
+  if (labsMax > 0) {
+    summaryParts.push(`Labs performance was ${c.labsScore >= (labsMax * 0.8) ? "consistently high" : c.labsScore >= (labsMax * 0.65) ? "reliable" : "inconsistent"}`);
+  }
+  if (assessMax > 0) {
+    summaryParts.push(`assessment coverage was ${c.assessmentScore >= (assessMax * 0.8) ? "wide and accurate" : "focused on core topics"}`);
+  }
+  if (vitarkaMax > 0) {
+    summaryParts.push(`the Vitarka discussion showed ${vitarkaOverall >= 80 ? "clear articulation and depth" : "room for sharper reasoning"}`);
+  }
+  const summaryDetails = summaryParts.length > 0 ? `. ${summaryParts.join(", and ")}.` : ".";
   const summary = c.eci === 0
     ? "Candidate did not record passing scores, submissions, or interview responses across the evaluation."
-    : `Candidate demonstrated ${rec === "Strong Hire" ? "exceptional" : rec === "Hire" ? "strong" : rec === "Maybe" ? "solid but uneven" : "below-bar"} engineering behaviour across the evaluation. Labs performance was ${c.labsScore >= 80 ? "consistently high" : c.labsScore >= 65 ? "reliable" : "inconsistent"}, assessment coverage was ${c.assessmentScore >= 80 ? "wide and accurate" : "focused on core topics"}, and the Vitarka discussion showed ${vitarkaOverall >= 80 ? "clear articulation and depth" : "room for sharper reasoning"}.`;
+    : `Candidate demonstrated ${rec === "Strong Hire" ? "exceptional" : rec === "Hire" ? "strong" : rec === "Maybe" ? "solid but uneven" : "below-bar"} engineering behaviour across the evaluation${summaryDetails}`;
   const nextStep = c.eci === 0
     ? "Do not proceed — Candidate did not complete or pass evaluation requirements."
     : (rec === "Strong Hire"
@@ -528,16 +543,18 @@ export function getCandidateDetail(
           ? NEXT_STEPS[2]
           : NEXT_STEPS[4]);
 
-  const labsMax = sectionMaxScores?.labsMaxScore ?? 80;
-  const assessMax = sectionMaxScores?.assessmentMaxScore ?? (sectionMaxScores ? 0 : 30);
-  const vitarkaMax = sectionMaxScores?.discussionMaxScore ?? (sectionMaxScores ? 0 : 25);
-
   const ecIBreakdown: { label: string; contribution: string; kind: "pos" | "neg" | "neu" }[] = [];
+
+  const roundContribution = (val: number) => {
+    const num = Number(val);
+    if (!Number.isFinite(num)) return val;
+    return Math.abs(Math.round(num) - num) < 0.15 ? Math.round(num) : Number(num.toFixed(1));
+  };
 
   if (labsMax > 0) {
     ecIBreakdown.push({
       label: "Engineering Labs",
-      contribution: `+${c.labsScore} of a possible ${labsMax}`,
+      contribution: `+${roundContribution(c.labsScore)} of a possible ${labsMax}`,
       kind: (labsMax > 0 && c.labsScore / labsMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
     });
   }
@@ -545,7 +562,7 @@ export function getCandidateDetail(
   if (assessMax > 0) {
     ecIBreakdown.push({
       label: "Knowledge Assessment",
-      contribution: `+${c.assessmentScore} of a possible ${assessMax}`,
+      contribution: `+${roundContribution(c.assessmentScore)} of a possible ${assessMax}`,
       kind: (assessMax > 0 && c.assessmentScore / assessMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
     });
   }
@@ -553,7 +570,7 @@ export function getCandidateDetail(
   if (vitarkaMax > 0) {
     ecIBreakdown.push({
       label: "Vitarka Discussion",
-      contribution: `+${c.vitarkaScore} of a possible ${vitarkaMax}`,
+      contribution: `+${roundContribution(c.vitarkaScore)} of a possible ${vitarkaMax}`,
       kind: (vitarkaMax > 0 && c.vitarkaScore / vitarkaMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
     });
   }

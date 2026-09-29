@@ -2,13 +2,13 @@
   "lab_questions": [
     {
       "title": "Practical SQLite Evaluation: E-Commerce Order Management",
-      "type": "BACKEND",
+      "type": "DATABASE",
       "description": "Evaluate candidates on practical SQL skills using a realistic e-commerce database. Tasks cover multi-table JOINs with aggregation and HAVING, subqueries/NOT EXISTS filtering for un-ordered products, and top-N revenue analysis.",
       "difficulty": "MEDIUM",
-      "domain": "BACKEND",
+      "domain": "OTHER",
       "experience": "MID_LEVEL",
-      "duration_minutes": 45,
-      "marks": 60,
+      "duration_minutes": 30,
+      "marks": 30,
       "scenario": "FEATURE_DEVELOPMENT",
       "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_practical_sql_lab",
       "git_repo_starter_branch": "SD/feature/create-sqlite-practical-question",
@@ -26,7 +26,7 @@
           "title": "Task 1: Customers with Multiple Completed Orders",
           "description": "Write a query to find all customers who have placed at least 2 'Completed' orders. Return customer full name (first_name || ' ' || last_name) as customer_name, total number of completed orders as completed_orders, and total amount spent as total_spent. Sort by total_spent descending, then customer_name ascending.",
           "difficulty": "EASY",
-          "marks": 15,
+          "marks": 10,
           "duration_minutes": 10,
           "order_index": 0,
           "scoring_rules": {
@@ -76,8 +76,8 @@
           "title": "Task 2: Products Never Included in Completed Orders",
           "description": "Write a query to find all products that have never been included in any 'Completed' order (including products never ordered at all or only ordered in Pending, Processing, or Cancelled status). Return product_id, product_name, and category_name. Sort by product_id ascending.",
           "difficulty": "MEDIUM",
-          "marks": 20,
-          "duration_minutes": 15,
+          "marks": 10,
+          "duration_minutes": 10,
           "order_index": 1,
           "scoring_rules": {
             "logic_score": 100,
@@ -111,8 +111,8 @@
           "title": "Task 3: Top 5 Best-Selling Products by Revenue",
           "description": "Write a query to determine the top 5 best-selling products based on total revenue generated from 'Completed' orders. Return product_name, category_name, total_quantity_sold, and total_revenue. Sort by total_revenue descending, then product_name ascending. Limit to 5 records.",
           "difficulty": "MEDIUM",
-          "marks": 25,
-          "duration_minutes": 20,
+          "marks": 10,
+          "duration_minutes": 10,
           "order_index": 2,
           "scoring_rules": {
             "logic_score": 100,

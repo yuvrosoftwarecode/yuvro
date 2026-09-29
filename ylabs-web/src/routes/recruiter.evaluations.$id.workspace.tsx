@@ -146,7 +146,7 @@ function Workspace() {
         }
         if (mockInterviewId) {
           yhubApiAuthUtil
-            .get<any[]>(`/interview/submissions/?mock_interview=${mockInterviewId}`)
+            .get<any[]>(`/interview/submissions/?mock_interview=${mockInterviewId}&ordering=-created_at`)
             .then((res) => {
               if (Array.isArray(res)) setVitarkaSubmissions(res);
             })
