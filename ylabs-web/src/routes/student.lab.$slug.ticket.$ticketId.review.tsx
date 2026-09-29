@@ -26,6 +26,7 @@ import {
   Flag,
   ArrowLeft,
 } from "lucide-react";
+import { TicketSolutionViewer } from "@/components/TicketSolutionViewer";
 
 export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId/review")({
   component: Review,
@@ -33,6 +34,7 @@ export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId/review
 
 function Review() {
   const { slug, ticketId } = useParams({ from: "/student/lab/$slug/ticket/$ticketId/review" });
+  const { from } = Route.useSearch() as any;
   const [lab, setLab] = useState<any>(null);
   const [ticket, setTicket] = useState<any>(null);
   const [submission, setSubmission] = useState<any>(null);
@@ -44,22 +46,28 @@ function Review() {
       Promise.all([
         api.get<any>(`/lab/tickets/${ticketId}/`).catch(() => null as any),
         api.get<any>(`/lab/labs/${slug}/`).catch(() => null as any),
-        api.get<any[]>(`/lab/submissions/?lab_sprint_ticket=${ticketId}`).catch(() => [] as any)
-      ]).then(([ticketRes, labRes, subsRes]) => {
-        if (!active) return;
-        setTicket(ticketRes ?? { id: ticketId, title: "Ticket" });
-        setLab((labRes as any)?.data ?? (labRes as any) ?? { name: slug });
-        
-        const subsList = Array.isArray(subsRes) ? subsRes : (subsRes as any)?.data ?? [];
-        const sub = subsList.find((s: any) => String(s.lab_sprint_ticket) === String(ticketId)) || subsList[0];
-        setSubmission(sub);
-        setLoading(false);
-      }).catch((e) => {
-        console.error(e);
-        if (active) setLoading(false);
-      });
+        api.get<any[]>(`/lab/submissions/?lab_sprint_ticket=${ticketId}`).catch(() => [] as any),
+      ])
+        .then(([ticketRes, labRes, subsRes]) => {
+          if (!active) return;
+          setTicket(ticketRes ?? { id: ticketId, title: "Ticket" });
+          setLab((labRes as any)?.data ?? (labRes as any) ?? { name: slug });
+
+          const subsList = Array.isArray(subsRes) ? subsRes : ((subsRes as any)?.data ?? []);
+          const sub =
+            subsList.find((s: any) => String(s.lab_sprint_ticket) === String(ticketId)) ||
+            subsList[0];
+          setSubmission(sub);
+          setLoading(false);
+        })
+        .catch((e) => {
+          console.error(e);
+          if (active) setLoading(false);
+        });
     });
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [ticketId, slug]);
 
   if (loading) {
@@ -71,49 +79,74 @@ function Review() {
     );
   }
 
-  const score = submission?.yuvro_points ?? 0;
-  const grade = score >= 90 ? "A" : score >= 80 ? "B" : score >= 70 ? "C" : score >= 60 ? "D" : "F";
-  const baseXp = ticket?.xp ?? 100;
-  const totalXp = Math.floor(baseXp * (score / 100));
-  
+  const maxXp = ticket?.yuvro_points ?? 0;
+
+  // The ONLY reliable source for test score is solution_output JSON.
+  // submission.yuvro_points = YP awarded by backend (stays 0 until human/AI review)
+  // submission.score field does NOT exist in the API response
+  // solution_output.percentage = actual test pass % calculated at submission time
+  let testPercentage = 0;
+  if (submission?.solution_output) {
+    try {
+      const parsed =
+        typeof submission.solution_output === "string"
+          ? JSON.parse(submission.solution_output)
+          : submission.solution_output;
+      testPercentage = parsed?.percentage ?? parsed?.total_score ?? 0;
+    } catch (e) {}
+  }
+
+  const percentage =
+    submission?.yuvro_points > 0
+      ? Math.round((submission.yuvro_points / maxXp) * 100)
+      : testPercentage;
+
+  const earnedXp = maxXp > 0 ? Math.round((percentage / 100) * maxXp) : 0;
+
+  const grade =
+    percentage >= 90
+      ? "A"
+      : percentage >= 80
+        ? "B"
+        : percentage >= 70
+          ? "C"
+          : percentage >= 60
+            ? "D"
+            : "F";
+
+  let formattedTime = "N/A";
+  if (submission?.minutes_solved) {
+    const m = submission.minutes_solved;
+    formattedTime = `${m}m`;
+  }
+
   // Parse solution output
   let parsedOutput: any = null;
   if (submission?.solution_output) {
     try {
       parsedOutput = JSON.parse(submission.solution_output);
-    } catch(e) {
+    } catch (e) {
       // not json
     }
   }
 
-  // Parse your solution
-  let parsedSolution: any = null;
-  let parsedDiffFiles: { filename: string, content: string }[] = [];
-  if (submission?.solution) {
-    try {
-      parsedSolution = JSON.parse(submission.solution);
-    } catch(e) {
-      // not json, check if it's a git diff
-      if (typeof submission.solution === 'string' && submission.solution.includes('diff --git ')) {
-        const parts = submission.solution.split(/^diff --git /m).filter(Boolean);
-        for (const part of parts) {
-          const lines = part.split('\n');
-          const headerLine = lines[0]; // e.g. "a/file.txt b/file.txt"
-          const match = headerLine.match(/^a\/(.+?) b\/(.+)$/);
-          const filename = match ? match[2] : headerLine;
-          if (filename === '__none__' || filename.trim() === '') continue;
-          
-          parsedDiffFiles.push({ filename, content: 'diff --git ' + part.trim() });
-        }
-      }
-    }
-  }
+  // Parsing is now handled in TicketSolutionViewer
 
   return (
     <div className="min-h-screen relative overflow-hidden">
       <Confetti />
       <TopNav />
       <main className="mx-auto max-w-[1200px] px-4 py-8 space-y-6 relative">
+        {from === "report" && (
+          <Link
+            to="/student/lab/$slug/report"
+            params={{ slug }}
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Report
+          </Link>
+        )}
         {/* Header */}
         <div className="rounded-2xl border bg-gradient-to-br from-success/10 via-card to-background p-6 sm:p-8 relative overflow-hidden">
           <div className="absolute -top-10 -right-10 h-56 w-56 rounded-full bg-success/20 blur-3xl" />
@@ -124,16 +157,17 @@ function Review() {
             </div>
             <div className="min-w-0">
               <div className="text-xs uppercase tracking-wide text-muted-foreground">
-                {ticket?.id} · {lab?.name} · {submission?.ticket_status === 'done' ? '✅ Completed' : '🔄 In Review'}
+                {ticket?.id} · {lab?.name} ·{" "}
+                {submission?.ticket_status === "done" ? "✅ Completed" : "🔄 In Review"}
               </div>
               <h1 className="text-2xl sm:text-3xl font-semibold mt-0.5">{ticket?.title}</h1>
               <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
                   <Clock className="h-4 w-4" />
-                  Solved in {submission?.minutes_solved ?? 0}m
+                  Solved in {formattedTime}
                 </span>
                 <span className="inline-flex items-center gap-1">
-                  <Zap className="h-4 w-4 text-primary" />+{totalXp} XP
+                  <Zap className="h-4 w-4 text-primary" />+{earnedXp} YP
                 </span>
               </div>
             </div>
@@ -145,8 +179,14 @@ function Review() {
                 <div className="text-xs text-muted-foreground mt-1">Performance grade</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-semibold text-success">{score}</div>
-                <div className="text-xs text-muted-foreground">/ 100 score</div>
+                <div className="text-4xl font-semibold text-success">
+                  {earnedXp} <span className="text-2xl text-muted-foreground">/ {maxXp}</span>
+                </div>
+                <div className="text-xs text-muted-foreground">Actual YP earned</div>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl font-semibold text-primary">{percentage}%</div>
+                <div className="text-xs text-muted-foreground">Calculated percentage</div>
               </div>
             </div>
           </div>
@@ -161,11 +201,13 @@ function Review() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat
               icon={CheckCircle2}
-              label="Tests passed"
-              value={score >= 100 ? "Pass" : score + "%"}
-              sub="Correctness"
-              tone={score >= 75 ? "success" : "warning"}
-              pct={score}
+              label="Resolution"
+              value={submission?.ticket_status === "done" ? "Resolved" : percentage + "%"}
+              sub="Status"
+              tone={
+                percentage >= 75 || submission?.ticket_status === "done" ? "success" : "warning"
+              }
+              pct={percentage}
             />
             <Stat
               icon={Gauge}
@@ -173,96 +215,64 @@ function Review() {
               value={grade}
               sub="Overall grade"
               tone="info"
-              pct={score}
+              pct={percentage}
             />
             <Stat
               icon={Clock}
               label="Time efficiency"
-              value={`${submission?.minutes_solved ?? 0}m`}
+              value={formattedTime}
               sub="Time spent"
               tone="success"
               pct={100}
             />
             <Stat
               icon={Zap}
-              label="XP earned"
-              value={`+${totalXp}`}
-              sub={`Base XP awarded`}
+              label="YP earned"
+              value={`${earnedXp} / ${maxXp} YP`}
+              sub={`Actual YP earned`}
               tone="primary"
-              pct={(totalXp / Math.max(baseXp, 1)) * 100}
+              pct={percentage}
             />
           </div>
-          <AnimatedBar label={`Total XP awarded: ${totalXp}`} pct={(totalXp / Math.max(baseXp, 1)) * 100} />
+          <AnimatedBar label={`Total YP awarded: ${earnedXp}`} pct={percentage} />
         </div>
 
         {/* Output or Errors */}
-        <Card title="Evaluation Output" icon={Code2}>
-          <pre className="rounded-md bg-editor-bg border p-3 text-xs font-mono overflow-auto max-h-72 scrollbar-thin text-muted-foreground whitespace-pre-wrap">
-            {submission?.solution_output ? (
-              typeof parsedOutput === 'object' && parsedOutput !== null ? (
-                JSON.stringify(parsedOutput, null, 2)
-              ) : (
-                submission.solution_output
-              )
-            ) : (
-              "No evaluation output recorded."
-            )}
-          </pre>
-        </Card>
+        {submission?.solution_output ? (
+          <Card title="Evaluation Output" icon={Code2}>
+            <pre className="rounded-md bg-editor-bg border p-3 text-xs font-mono overflow-auto max-h-72 scrollbar-thin text-muted-foreground whitespace-pre-wrap">
+              {typeof parsedOutput === "object" && parsedOutput !== null
+                ? JSON.stringify(parsedOutput, null, 2)
+                : submission.solution_output}
+            </pre>
+          </Card>
+        ) : null}
 
         {/* Your solution */}
-        <Card title="Your Solution" icon={Code2}>
-          <div className="rounded-md bg-editor-bg border overflow-hidden flex flex-col">
-            {typeof parsedSolution === 'object' && parsedSolution !== null ? (
-              <div className="flex flex-col">
-                {Object.entries(parsedSolution)
-                  .filter(([k]) => k !== "__none__" && k.trim() !== "")
-                  .map(([filename, content], index) => (
-                    <div key={filename} className="border-b last:border-b-0 border-border/50">
-                      <div className="bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground border-b border-border/50">{filename}</div>
-                      <pre className="p-3 text-xs font-mono overflow-x-auto max-h-[300px] scrollbar-thin text-muted-foreground whitespace-pre-wrap">
-                        {String(content) || "(empty file)"}
-                      </pre>
-                    </div>
-                  ))}
-              </div>
-            ) : parsedDiffFiles.length > 0 ? (
-              <div className="flex flex-col">
-                {parsedDiffFiles.map(({ filename, content }) => (
-                  <div key={filename} className="border-b last:border-b-0 border-border/50">
-                    <div className="bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground border-b border-border/50">{filename}</div>
-                    <pre className="p-3 text-xs font-mono overflow-x-auto max-h-[300px] scrollbar-thin text-muted-foreground whitespace-pre-wrap">
-                      {content || "(empty file)"}
-                    </pre>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <pre className="p-3 text-xs font-mono overflow-auto max-h-[500px] scrollbar-thin text-muted-foreground whitespace-pre-wrap">
-                {submission?.solution ? submission.solution : "No solution recorded."}
-              </pre>
-            )}
-          </div>
-        </Card>
+        <div className="mt-8">
+          <TicketSolutionViewer solution={submission?.solution} />
+        </div>
 
         {/* Action bar */}
-        <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-4">
-          <Link
-            to="/student/lab/$slug/ticket/$ticketId"
-            params={{ slug, ticketId }}
-            className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Ticket
-          </Link>
-          <Link
-            to="/student/lab/$slug"
-            params={{ slug: lab?.slug ?? slug }}
-            className="rounded-md border px-3 py-2 text-sm hover:bg-accent ml-auto"
-          >
-            ← Lab dashboard
-          </Link>
-        </div>
+        {from !== "report" && (
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-4">
+            <Link
+              to="/student/lab/$slug/ticket/$ticketId"
+              params={{ slug, ticketId }}
+              className="rounded-md border px-3 py-2 text-sm hover:bg-accent inline-flex items-center gap-1"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Ticket
+            </Link>
+            <Link
+              to="/student/lab/$slug"
+              params={{ slug }}
+              className="rounded-md border px-3 py-2 text-sm hover:bg-accent ml-auto"
+            >
+              ← Lab dashboard
+            </Link>
+          </div>
+        )}
       </main>
     </div>
   );

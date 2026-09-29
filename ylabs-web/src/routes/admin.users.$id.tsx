@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { AdminShell, KpiCard, Panel, Badge } from "@/components/admin/AdminShell";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 
 export const Route = createFileRoute("/admin/users/$id")({ component: UserProfile });
 
@@ -28,7 +29,7 @@ function UserProfile() {
             to="/admin/users"
             className="text-xs px-3 py-1.5 rounded-md border border-border hover:bg-accent"
           >
-            ← Back
+            â† Back
           </Link>
           <button className="text-xs px-3 py-1.5 rounded-md border border-border hover:bg-accent">
             Reset password
@@ -51,7 +52,7 @@ function UserProfile() {
               <Badge tone="muted">Student</Badge>
             </div>
             <div className="text-sm text-muted-foreground">
-              priya@yuvrolabs.com · BITS Pilani · ID {id}
+              priya@yuvrolabs.com Â· BITS Pilani Â· ID {id}
             </div>
             <div className="mt-3 flex flex-wrap gap-4 text-xs">
               <span>
@@ -115,12 +116,65 @@ function UserProfile() {
             </div>
           </div>
         )}
-        {tab !== "Overview" && (
+        {tab === "Labs" && (
+          <UserLabsTab userId={id} />
+        )}
+        {tab !== "Overview" && tab !== "Labs" && (
           <div className="text-sm text-muted-foreground">
             Detailed {tab.toLowerCase()} timeline rendered here from production data.
           </div>
         )}
       </Panel>
     </AdminShell>
+  );
+}
+function UserLabsTab({ userId }: { userId: string }) {
+  const [enrollments, setEnrollments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    restApiAuthUtil.get<any>("/lab/enrollments/?user_id=" + userId).then((data) => {
+      if (active) {
+        setEnrollments(data?.results || data || []);
+        setLoading(false);
+      }
+    }).catch((err) => {
+      console.error(err);
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
+  }, [userId]);
+
+  if (loading) {
+    return <div className="text-sm text-muted-foreground animate-pulse">Loading labs...</div>;
+  }
+
+  if (enrollments.length === 0) {
+    return <div className="text-sm text-muted-foreground">User is not enrolled in any labs.</div>;
+  }
+
+  return (
+    <div className="space-y-3">
+      {enrollments.map((enr) => {
+        const l = enr.lab_details; 
+        if (!l) return null;
+        return (
+          <div key={enr.id} className="flex items-center justify-between p-4 rounded-xl border border-border/50 bg-card">
+            <div>
+              <div className="font-medium">{l.title}</div>
+              <div className="text-xs text-muted-foreground mt-1">{l.type}</div>
+            </div>
+            <Link 
+              to="/admin/users/$id/labs/$slug/report"
+              params={{ id: userId, slug: l.slug }}
+              className="text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              View Full Report
+            </Link>
+          </div>
+        );
+      })}
+    </div>
   );
 }
