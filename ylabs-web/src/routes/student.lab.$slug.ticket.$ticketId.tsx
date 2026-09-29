@@ -68,6 +68,16 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId")({
   component: TicketEditorRoute,
@@ -411,7 +421,19 @@ Open http://127.0.0.1:8000/ to use the app.
 /* ---------- Per-lab starter kits ---------- */
 
 type KitName =
-  "java" | "django" | "python" | "sql" | "mongo" | "ui" | "bash" | "mysql" | "postgresql";
+  | "java"
+  | "django"
+  | "python"
+  | "sql"
+  | "mongo"
+  | "ui"
+  | "bash"
+  | "mysql"
+  | "postgresql"
+  | "js"
+  | "c"
+  | "cpp"
+  | "git";
 interface Kit {
   name: KitName;
   files: Record<string, string>;
@@ -842,7 +864,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
 }
 
 type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string };
-type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff";
+type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff" | "testcases";
 
 export function StudentTicketView({
   slug,
@@ -1152,8 +1174,41 @@ export function TicketIDE({
   type ProgLang = "python" | "c" | "cpp" | "js" | "java";
   const PROG_EXT: Record<ProgLang, string> = { python: "py", c: "c", cpp: "cpp", js: "js", java: "java" };
   const PROG_LABEL: Record<ProgLang, string> = { python: "Python 3", c: "C (gcc)", cpp: "C++ (g++)", js: "Node.js", java: "Java" };
+
+  const defaultLang: ProgLang = useMemo(() => {
+    // 1. If ticket specifies a file or starterPath, infer from extension
+    const filePath = ticket.starterPath || (ticket as any).starter_path || ticket.file || "";
+    if (filePath) {
+      const ext = filePath.split(".").pop()?.toLowerCase();
+      if (ext === "py") return "python";
+      if (ext === "java") return "java";
+      if (ext === "c") return "c";
+      if (ext === "cpp" || ext === "cc" || ext === "cxx") return "cpp";
+      if (ext === "js" || ext === "ts") return "js";
+    }
+
+    // 2. Check ticket.tag
+    const rawTag = (ticket.tag || "").toLowerCase();
+    if (rawTag === "python" || rawTag.includes("python") || rawTag === "py") return "python";
+    if (rawTag === "java" || rawTag.includes("java")) return "java";
+    if (rawTag === "cpp" || rawTag === "c++" || rawTag.includes("cpp") || rawTag.includes("c++")) return "cpp";
+    if (rawTag === "c") return "c";
+    if (rawTag === "javascript" || rawTag === "js" || rawTag === "node") return "js";
+
+    // 3. Check programming_languages in the specified order
+    const plangs = (ticket.programming_languages || []).map((l: string) => (l || "").toLowerCase());
+    for (const l of plangs) {
+      if (l === "python" || l === "py") return "python";
+      if (l === "java") return "java";
+      if (l === "cpp" || l === "c++") return "cpp";
+      if (l === "c") return "c";
+      if (l === "javascript" || l === "js" || l === "node") return "js";
+    }
+
+    return "python";
+  }, [ticket.tag, ticket.programming_languages, ticket.file, ticket.starterPath, (ticket as any).starter_path]);
+
   const [progLang, setProgLang] = useState<ProgLang>(() => {
-    // If initialFiles exists, try to guess the language from the file extension
     if (initialFiles) {
       const keys = Object.keys(initialFiles).filter(k => k.startsWith('main.'));
       if (keys.length > 0) {
@@ -1162,13 +1217,64 @@ export function TicketIDE({
         if (extToLang[ext]) return extToLang[ext];
       }
     }
-    return "python";
+    return defaultLang;
   });
+
+  const defaultPrimaryFile = useMemo(() => {
+    if (ticket.starterPath) return ticket.starterPath;
+    if ((ticket as any).starter_path) return (ticket as any).starter_path;
+    if (ticket.file) return ticket.file;
+    if (kit.primary) return kit.primary;
+    const ext = PROG_EXT[defaultLang] || "py";
+    return defaultLang === "java" ? "Main.java" : `main.${ext}`;
+  }, [ticket.starterPath, (ticket as any).starter_path, ticket.file, kit.primary, defaultLang]);
+
+  const defaultStarterCode = useMemo(() => {
+    const fileExt = (defaultPrimaryFile || "").split(".").pop()?.toLowerCase();
+    const effectiveLang: ProgLang = fileExt === "py" ? "python" 
+      : fileExt === "java" ? "java" 
+      : fileExt === "c" ? "c" 
+      : (fileExt === "cpp" || fileExt === "cc") ? "cpp" 
+      : (fileExt === "js" || fileExt === "ts") ? "js" 
+      : defaultLang;
+
+    const startersByLang: Record<string, string> = {
+      python: "# Write your solution here\n",
+      js: "// Write your solution here\n",
+      java: "public class Main {\n    public static void main(String[] args) {\n        // Write your solution here\n    }\n}\n",
+      c: "#include <stdio.h>\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n",
+      cpp: "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n",
+    };
+
+    const customCode = previewOverride?.starterCode || ticket.starterCode || (ticket as any).starter_code || ((ticket as any).code && (ticket as any).code !== "// Code editor initialized." ? (ticket as any).code : undefined);
+
+    if (customCode) {
+      const isJavaCode = customCode.includes("public class") || customCode.includes("System.out.println");
+      if (effectiveLang === "python" && isJavaCode) {
+        return startersByLang["python"];
+      }
+      return customCode;
+    }
+
+    if (isSql || isMysql || isPostgres || fileExt === "sql") return "-- Write your query here\n";
+    if (isBash || fileExt === "sh") return "#!/usr/bin/env bash\n\n# Write your solution here\n";
+    if (isReal && slug !== "knowledge") {
+      return startersByLang[effectiveLang] || "# Write your solution here\n";
+    }
+    return kit.files[kit.primary] || startersByLang[effectiveLang] || "# Write your solution here\n";
+  }, [previewOverride, ticket.starterCode, (ticket as any).starter_code, (ticket as any).code, isReal, slug, isSql, isMysql, isPostgres, isBash, defaultLang, defaultPrimaryFile, kit]);
+
   const [isExamplesPanelOpen, setIsExamplesPanelOpen] = useState(false);
   const initialFileList: readonly string[] = kit.fileList;
   const starters: Record<string, string> = useMemo(() => {
     if (initialFiles) return initialFiles;
-    if (isReal && slug !== "knowledge") return {};
+    if (isReal && slug !== "knowledge") {
+      const s: Record<string, string> = {};
+      if (defaultPrimaryFile) {
+        s[defaultPrimaryFile] = defaultStarterCode;
+      }
+      return s;
+    }
     const s = { ...kit.files };
     if (isReal && s["README.md"]) {
       s["README.md"] = `# ${ticket.title}\n\n${ticket.description}`;
@@ -1177,29 +1283,46 @@ export function TicketIDE({
       s[kit.primary] = previewOverride.starterCode;
     }
     return s;
-  }, [kit, isReal, previewOverride, ticket.title, ticket.description, initialFiles]);
-  const primaryFile = kit.primary;
+  }, [initialFiles, isReal, slug, defaultPrimaryFile, defaultStarterCode, kit, ticket.title, ticket.description, previewOverride]);
+  const primaryFile = defaultPrimaryFile || kit.primary;
   
   const [files, setFiles] = useState<Record<string, string>>(starters);
   const [dirty, setDirty] = useState<Record<string, boolean>>({});
 
-  const fileList = useMemo(() => Object.keys(files), [files]);
+  const fileList = useMemo(() => Object.keys(files).filter(k => Boolean(k && k.trim())), [files]);
   
   const [activeFile, setActiveFile] = useState<FileName>(() => {
     if (initialFiles) {
       const keys = Object.keys(initialFiles).filter(k => k !== "README.md");
       if (keys.length > 0) return keys[0];
     }
-    return isReal && slug !== "knowledge" ? "" : initialFileList[0];
+    return defaultPrimaryFile || (isReal && slug !== "knowledge" ? "" : initialFileList[0]);
   });
   
   const [openTabs, setOpenTabs] = useState<string[]>(() => {
+    if (initialFiles) return Object.keys(initialFiles).filter(k => Boolean(k && k.trim()));
+    if (defaultPrimaryFile) return [defaultPrimaryFile];
     if (isReal && slug !== "knowledge") return [];
-    if (initialFiles) return Object.keys(initialFiles);
     return [...initialFileList];
   });
 
+  const [inlineAction, setInlineAction] = useState<InlineTreeAction | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    confirmLabel?: string;
+    destructive?: boolean;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  });
+
   function openFile(path: string) {
+    if (!path || !path.trim()) return;
     setOpenTabs((prev) => (prev.includes(path) ? prev : [...prev, path]));
     setActiveFile(path);
   }
@@ -1244,9 +1367,11 @@ export function TicketIDE({
 
       try {
         const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
-          if (node.name === ".bash_history") return acc;
-          if (node.type === "file") { acc[node.path] = ""; }
-          else node.children?.forEach(c => flatten(c, acc));
+          if (!node) return acc;
+          if (node.name === ".bash_history" || !node.name) return acc;
+          if (node.type === "file") {
+            if (node.path && node.path.trim()) acc[node.path] = "";
+          } else node.children?.forEach(c => flatten(c, acc));
           return acc;
         };
 
@@ -1263,40 +1388,81 @@ export function TicketIDE({
           }
         }
 
-        const fileKeys = Object.keys(paths);
-        setFiles(paths);
+        // If paths is still empty (lab with no starter repo), seed default primary file
+        if (Object.keys(paths).length === 0 && defaultPrimaryFile) {
+          paths = { [defaultPrimaryFile]: defaultStarterCode };
+          if (isReal) {
+            wsWriteFile(effectiveUserId, labId, sprintId, defaultPrimaryFile, defaultStarterCode, evaluationId)
+              .then(() => loadedFiles.current.add(defaultPrimaryFile))
+              .catch(console.error);
+          }
+        }
+
+        const fileKeys = Object.keys(paths).filter(k => Boolean(k && k.trim()));
+        setFiles(prev => {
+          const next = { ...paths };
+          for (const k of fileKeys) {
+            if (prev[k] && prev[k] !== "") next[k] = prev[k];
+          }
+          return next;
+        });
 
         const { fetchFile } = await import("@/services/workspaceService");
-        // Pick preferred active file: README.md, manage.py, main.py, or first non-binary file
-        const preferredFile = fileKeys.find(k => k === "README.md")
+        // Pick preferred active file: defaultPrimaryFile, README.md, manage.py, main.py, or first non-binary file
+        const preferredFile = (defaultPrimaryFile && fileKeys.includes(defaultPrimaryFile) ? defaultPrimaryFile : null)
+          || fileKeys.find(k => k === "README.md")
           || fileKeys.find(k => k === "manage.py")
           || fileKeys.find(k => k === "main.py")
           || fileKeys.find(k => !isBinaryOrDatabaseFile(k))
-          || fileKeys[0];
+          || fileKeys[0]
+          || defaultPrimaryFile;
 
         if (preferredFile) {
-          setOpenTabs(prev => prev.includes(preferredFile) ? prev : [...prev, preferredFile]);
+          setOpenTabs(prev => {
+            const clean = prev.filter(t => Boolean(t && t.trim()));
+            return clean.includes(preferredFile) ? clean : [...clean, preferredFile];
+          });
           setActiveFile(preferredFile);
-          try {
-            const content = await fetchFile(effectiveUserId, labId, sprintId, preferredFile, isEvaluationMode ? evaluationId : undefined);
-            setFiles(f => ({ ...f, [preferredFile]: content }));
+          if (paths[preferredFile] && paths[preferredFile] !== "") {
             loadedFiles.current.add(preferredFile);
-          } catch (err) {
-            console.error("Failed to load preferred file content:", err);
+          } else {
+            try {
+              let content = await fetchFile(effectiveUserId, labId, sprintId, preferredFile, isEvaluationMode ? evaluationId : undefined);
+              if (preferredFile.endsWith(".py") && (content.includes("public class") || content.includes("System.out.println"))) {
+                content = "# Write your solution here\n";
+                if (isReal) {
+                  wsWriteFile(effectiveUserId, labId, sprintId, preferredFile, content, evaluationId).catch(console.error);
+                }
+              }
+              setFiles(f => ({ ...f, [preferredFile]: content }));
+              loadedFiles.current.add(preferredFile);
+            } catch (err) {
+              console.error("Failed to load preferred file content:", err);
+            }
           }
         } else if (!forceUpdate) {
-          setOpenTabs([]);
-          setActiveFile("");
+          setOpenTabs(defaultPrimaryFile ? [defaultPrimaryFile] : []);
+          setActiveFile(defaultPrimaryFile || "");
         }
         setWsLoaded(true);
       } catch (err) {
         console.error("Failed to fetch file tree:", err);
+        if (defaultPrimaryFile) {
+          setFiles(f => ({ ...starters, ...f, [defaultPrimaryFile]: f[defaultPrimaryFile] ?? defaultStarterCode }));
+          setOpenTabs(prev => prev.includes(defaultPrimaryFile) ? prev : [...prev, defaultPrimaryFile]);
+          setActiveFile(defaultPrimaryFile);
+        }
         setWsLoaded(true); // fall back on error
       }
     } catch {
+      if (defaultPrimaryFile) {
+        setFiles(f => ({ ...starters, ...f, [defaultPrimaryFile]: f[defaultPrimaryFile] ?? defaultStarterCode }));
+        setOpenTabs(prev => prev.includes(defaultPrimaryFile) ? prev : [...prev, defaultPrimaryFile]);
+        setActiveFile(defaultPrimaryFile);
+      }
       setWsLoaded(true); // fall back to local starters on error
     }
-  }, [isReal, effectiveUserId, labId, sprintId, starters, isLoading, isEvaluationMode, evaluationId]);
+  }, [isLoading, isReal, effectiveUserId, isEvaluationMode, slug, labId, sprintId, starters, defaultPrimaryFile, defaultStarterCode, evaluationId]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -1317,7 +1483,14 @@ export function TicketIDE({
     if (files[activeFile] && files[activeFile] !== "") { loadedFiles.current.add(activeFile); return; }
     fetchFile(effectiveUserId, labId, sprintId, activeFile, evaluationId)
       .then(content => {
-        setFiles(f => ({ ...f, [activeFile]: content }));
+        let cleanContent = content;
+        if (activeFile.endsWith(".py") && (cleanContent.includes("public class") || cleanContent.includes("System.out.println"))) {
+          cleanContent = "# Write your solution here\n";
+          if (isReal) {
+            wsWriteFile(effectiveUserId, labId, sprintId, activeFile, cleanContent, evaluationId).catch(console.error);
+          }
+        }
+        setFiles(f => ({ ...f, [activeFile]: cleanContent }));
         loadedFiles.current.add(activeFile);
       })
       .catch(() => {
@@ -1494,12 +1667,13 @@ export function TicketIDE({
   function switchProgLang(next: ProgLang) {
     if (next === progLang) return;
     const ext = PROG_EXT[next];
-    const fname = `main.${ext}`;
+    const fname = next === "java" ? "Main.java" : `main.${ext}`;
     setProgLang(next);
     setFiles((f) => {
       if (f[fname] !== undefined) return f;
       return { ...f, [fname]: progStarter(next, ticket.title) };
     });
+    setOpenTabs((prev) => prev.includes(fname) ? prev : [...prev, fname]);
     setActiveFile(fname);
   }
 
@@ -1516,11 +1690,12 @@ export function TicketIDE({
     setOpenTabs((prev) => (prev.includes(trimmed) ? prev : [...prev, trimmed]));
     setActiveFile(trimmed);
     if (isReal) {
-      wsWriteFile(userId, labId, sprintId, trimmed, contents, evaluationId)
+      wsWriteFile(effectiveUserId, labId, sprintId, trimmed, contents, evaluationId)
         .then(() => loadedFiles.current.add(trimmed))
         .catch(() => showToast(`⚠ Could not persist ${trimmed}`));
     }
   }
+
   function renameFile(oldPath: string, newPath: string) {
     const trimmed = newPath.trim().replace(/^\/+/, "");
     if (!trimmed || trimmed === oldPath) return;
@@ -1537,58 +1712,83 @@ export function TicketIDE({
       const { [oldPath]: was, ...rest } = d;
       return { ...rest, [trimmed]: true };
     });
+    setOpenTabs((tabs) => tabs.map((t) => (t === oldPath ? trimmed : t)));
     if (activeFile === oldPath) setActiveFile(trimmed);
     if (isReal) {
-      wsWriteFile(userId, labId, sprintId, trimmed, content, evaluationId)
-        .then(() => deleteWorkspaceFile(userId, labId, sprintId, oldPath, evaluationId))
+      wsWriteFile(effectiveUserId, labId, sprintId, trimmed, content, evaluationId)
+        .then(() => deleteWorkspaceFile(effectiveUserId, labId, sprintId, oldPath, evaluationId))
         .catch(() => showToast(`⚠ Could not rename ${oldPath}`));
     }
   }
+
   function deleteFile(path: string) {
-    if (!confirm(`Delete ${path}?`)) return;
-    setFiles((f) => {
-      const { [path]: _drop, ...rest } = f;
-      return rest;
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete File",
+      description: `Are you sure you want to delete ${path}? This action cannot be undone.`,
+      confirmLabel: "Delete",
+      destructive: true,
+      onConfirm: () => {
+        setFiles((f) => {
+          const { [path]: _drop, ...rest } = f;
+          return rest;
+        });
+        setDirty((d) => {
+          const { [path]: _drop, ...rest } = d;
+          return rest;
+        });
+        setOpenTabs((tabs) => {
+          const next = tabs.filter((t) => t !== path);
+          if (activeFile === path) {
+            setActiveFile(next.length > 0 ? next[next.length - 1] : "");
+          }
+          return next;
+        });
+        if (isReal) {
+          deleteWorkspaceFile(effectiveUserId, labId, sprintId, path, evaluationId)
+            .catch(() => showToast(`⚠ Could not delete ${path}`));
+        }
+      },
     });
-    setDirty((d) => {
-      const { [path]: _drop, ...rest } = d;
-      return rest;
-    });
-    if (activeFile === path) {
-      const next = Object.keys(files).filter((p) => p !== path)[0];
-      if (next) setActiveFile(next);
-    }
-    if (isReal) {
-      deleteWorkspaceFile(userId, labId, sprintId, path, evaluationId)
-        .catch(() => showToast(`⚠ Could not delete ${path}`));
-    }
   }
+
   function deleteFolder(prefix: string) {
     const targets = Object.keys(files).filter((p) => p === prefix || p.startsWith(prefix + "/"));
     if (targets.length === 0) return;
-    if (!confirm(`Delete folder ${prefix}/ and ${targets.length} file(s)?`)) return;
-    setFiles((f) => {
-      const next = { ...f };
-      targets.forEach((p) => {
-        delete next[p];
-      });
-      return next;
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Folder",
+      description: `Are you sure you want to delete folder ${prefix}/ and ${targets.length} file(s)?`,
+      confirmLabel: "Delete",
+      destructive: true,
+      onConfirm: () => {
+        setFiles((f) => {
+          const next = { ...f };
+          targets.forEach((p) => {
+            delete next[p];
+          });
+          return next;
+        });
+        setDirty((d) => {
+          const next = { ...d };
+          targets.forEach((p) => {
+            delete next[p];
+          });
+          return next;
+        });
+        setOpenTabs((tabs) => {
+          const next = tabs.filter((t) => !targets.includes(t));
+          if (targets.includes(activeFile)) {
+            setActiveFile(next.length > 0 ? next[next.length - 1] : "");
+          }
+          return next;
+        });
+        if (isReal) {
+          deleteWorkspaceFile(effectiveUserId, labId, sprintId, prefix, evaluationId)
+            .catch(() => showToast(`⚠ Could not delete folder ${prefix}`));
+        }
+      },
     });
-    setDirty((d) => {
-      const next = { ...d };
-      targets.forEach((p) => {
-        delete next[p];
-      });
-      return next;
-    });
-    if (targets.includes(activeFile)) {
-      const remaining = Object.keys(files).filter((p) => !targets.includes(p));
-      if (remaining[0]) setActiveFile(remaining[0]);
-    }
-    if (isReal) {
-      deleteWorkspaceFile(userId, labId, sprintId, prefix, evaluationId)
-        .catch(() => showToast(`⚠ Could not delete folder ${prefix}`));
-    }
   }
   const [output, setOutput] = useState<string>("");
   const [running, setRunning] = useState(false);
@@ -1785,7 +1985,7 @@ export function TicketIDE({
       setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
       try {
         const { evaluateTask } = await import("@/services/workspaceService");
-        const result = await evaluateTask(userId, labId, sprintId, reqCmd, taskSlug, scoringRules, evaluationId);
+        const result = await evaluateTask(effectiveUserId, labId, sprintId, reqCmd, taskSlug, scoringRules, evaluationId);
         setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
         if (result.passed) passedCount++;
       } catch (err: any) {
@@ -1802,7 +2002,7 @@ export function TicketIDE({
     if (isReal) {
       const filesToSave = getFilesToSave();
       Promise.all(
-        Object.keys(filesToSave).map(p => wsWriteFile(userId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
+        Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
       ).catch(console.error);
     }
     setRunning(true);
@@ -1812,7 +2012,7 @@ export function TicketIDE({
     if (ticket.test_command && ticket.test_command.trim()) {
       try {
         const { runTestCommand } = await import("@/services/workspaceService");
-        const res = await runTestCommand(userId, labId, sprintId, ticket.test_command.trim(), evaluationId);
+        const res = await runTestCommand(effectiveUserId, labId, sprintId, ticket.test_command.trim(), evaluationId);
 
         let outText = res.stdout || "";
         if (res.stderr && res.stderr.trim()) {
@@ -2341,7 +2541,7 @@ export function TicketIDE({
       const filesToSave = getFilesToSave();
       try {
         await Promise.all(
-          Object.keys(filesToSave).map(p => wsWriteFile(userId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
+          Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
         );
       } catch (err) {
         console.error(err);
@@ -2647,7 +2847,7 @@ export function TicketIDE({
       const filesToSave = getFilesToSave();
       // Persist loaded files to the workspace so disk is always in sync
       Promise.all(
-        Object.keys(filesToSave).map(p => wsWriteFile(userId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
+        Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
       ).catch(() => showToast("⚠ Some files could not be saved to workspace"));
 
       // Also save to database so the IDE loads it perfectly on refresh
@@ -2676,13 +2876,25 @@ export function TicketIDE({
   }
 
   function handleReset() {
-    if (!confirm("Reset code to starter template?")) return;
-    setFiles({ ...starters });
-    setDirty({});
-    setActiveFile(initialFileList[0]);
-    setTestsRan(false);
-    setOutput("");
-    showToast("Code reset");
+    setConfirmDialog({
+      isOpen: true,
+      title: "Reset Code",
+      description: "Reset code to starter template? All unsaved edits will be lost.",
+      confirmLabel: "Reset",
+      destructive: true,
+      onConfirm: () => {
+        setFiles({ ...starters });
+        setDirty({});
+        const target = defaultPrimaryFile || initialFileList[0] || "";
+        if (target) {
+          setActiveFile(target);
+          setOpenTabs([target]);
+        }
+        setTestsRan(false);
+        setOutput("");
+        showToast("Code reset");
+      },
+    });
   }
 
   async function handleCopy() {
@@ -2708,26 +2920,35 @@ export function TicketIDE({
   }
 
   function updateCode(v: string) {
-    setFiles((f) => ({ ...f, [activeFile]: v }));
-    setDirty((d) => ({ ...d, [activeFile]: true }));
+    let target = activeFile;
+    if (!target) {
+      target = defaultPrimaryFile || "main.py";
+      setActiveFile(target);
+      setOpenTabs((prev) => (prev.includes(target) ? prev : [...prev, target]));
+    }
+    setFiles((f) => ({ ...f, [target]: v }));
+    setDirty((d) => ({ ...d, [target]: true }));
   }
 
   const handleResetProgress = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to reset your progress? This will delete all your files and restart the ticket.",
-      )
-    )
-      return;
-    try {
-      const { deleteWorkspaceFile } = await import("@/services/workspaceService");
-      await deleteWorkspaceFile(userId, labId, sprintId, "", evaluationId);
-      setTicketScore(null);
-      setEvalResult({});
-      window.location.reload();
-    } catch (e: any) {
-      showToast("Failed to reset progress: " + e.message);
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: "Reset Progress",
+      description: "Are you sure you want to reset your progress? This will delete all your files and restart the ticket.",
+      confirmLabel: "Reset Progress",
+      destructive: true,
+      onConfirm: async () => {
+        try {
+          const { deleteWorkspaceFile } = await import("@/services/workspaceService");
+          await deleteWorkspaceFile(effectiveUserId, labId, sprintId, "", evaluationId);
+          setTicketScore(null);
+          setEvalResult({});
+          window.location.reload();
+        } catch (e: any) {
+          showToast("Failed to reset progress: " + e.message);
+        }
+      },
+    });
   };
 
   if (reviewMatch) return <Outlet />;
@@ -3004,8 +3225,8 @@ export function TicketIDE({
                     <button
                       title="New File"
                       onClick={() => {
-                        const name = prompt("New file path (e.g. todos/utils.py)");
-                        if (name) createFile(name);
+                        setInlineAction({ type: "new-file", folderPath: "" });
+                        setOpenFolders(o => ({ ...o, [""]: true, ["__root__"]: true }));
                       }}
                       className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
                     >
@@ -3014,11 +3235,8 @@ export function TicketIDE({
                     <button
                       title="New Folder"
                       onClick={() => {
-                        const name = prompt("New folder path (e.g. todos/api)");
-                        if (name) {
-                          const folder = name.replace(/\/+$/, "");
-                          createFile(`${folder}/.gitkeep`, "");
-                        }
+                        setInlineAction({ type: "new-folder", folderPath: "" });
+                        setOpenFolders(o => ({ ...o, [""]: true, ["__root__"]: true }));
                       }}
                       className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
                     >
@@ -3051,6 +3269,8 @@ export function TicketIDE({
                     paths={fileList}
                     activeFile={activeFile}
                     dirty={dirty}
+                    inlineAction={inlineAction}
+                    setInlineAction={setInlineAction}
                     onOpenFile={openFile}
                     onCreateFile={createFile}
                     onRenameFile={renameFile}
@@ -3599,6 +3819,33 @@ export function TicketIDE({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* In-app Confirmation Dialog (Never exits full-screen) */}
+      <AlertDialog
+        open={confirmDialog.isOpen}
+        onOpenChange={(open) => !open && setConfirmDialog((d) => ({ ...d, isOpen: false }))}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription>{confirmDialog.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setConfirmDialog((d) => ({ ...d, isOpen: false }))}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className={confirmDialog.destructive ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+              onClick={() => {
+                confirmDialog.onConfirm();
+                setConfirmDialog((d) => ({ ...d, isOpen: false }));
+              }}
+            >
+              {confirmDialog.confirmLabel || "Continue"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {/* Modals */}
       {isExamplesPanelOpen && (
         <ExamplesPanel
@@ -4072,7 +4319,7 @@ function FormattedResultsView({
     return <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
   }
   if (isExternalDb) {
-    return <ExternalSqlResultsView query={executedQuery} dbType={dbType!} />;
+    return <ExternalSqlResultsView query={executedQuery} dbType={(dbType as "mysql" | "postgresql") || "postgresql"} />;
   }
 
   // 3. UI preview
@@ -5422,10 +5669,12 @@ type TreeNode = {
 function buildTree(paths: readonly string[]): TreeNode {
   const root: TreeNode = { name: "", path: "", isFile: false, children: [] };
   for (const full of paths) {
+    if (!full || !full.trim()) continue;
     const parts = full.split("/");
     let cursor = root;
     for (let i = 0; i < parts.length; i++) {
       const seg = parts[i];
+      if (!seg) continue;
       const isLast = i === parts.length - 1;
       const segPath = parts.slice(0, i + 1).join("/");
       let next = cursor.children.find((c) => c.name === seg && c.isFile === isLast);
@@ -5447,11 +5696,85 @@ function buildTree(paths: readonly string[]): TreeNode {
   return root;
 }
 
+export type InlineTreeAction =
+  | { type: "new-file"; folderPath: string }
+  | { type: "new-folder"; folderPath: string }
+  | { type: "rename-file"; path: string; currentName: string }
+  | { type: "rename-folder"; path: string; currentName: string };
+
+function InlineInput({
+  initialValue = "",
+  placeholder = "",
+  icon,
+  onCommit,
+  onCancel,
+  paddingLeft,
+}: {
+  initialValue?: string;
+  placeholder?: string;
+  icon: React.ReactNode;
+  onCommit: (val: string) => void;
+  onCancel: () => void;
+  paddingLeft: number;
+}) {
+  const [val, setVal] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      if (initialValue) {
+        const dot = initialValue.lastIndexOf(".");
+        if (dot > 0) {
+          inputRef.current.setSelectionRange(0, dot);
+        } else {
+          inputRef.current.select();
+        }
+      }
+    }
+  }, [initialValue]);
+
+  return (
+    <div
+      style={{ paddingLeft }}
+      className="flex items-center gap-1.5 py-0.5 pr-2 bg-accent/40 rounded my-0.5"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <span className="w-3" />
+      {icon}
+      <input
+        ref={inputRef}
+        type="text"
+        value={val}
+        placeholder={placeholder}
+        onChange={(e) => setVal(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.stopPropagation();
+            onCommit(val);
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation();
+            onCancel();
+          }
+        }}
+        onBlur={() => {
+          onCommit(val);
+        }}
+        className="flex-1 bg-background border border-primary text-foreground text-xs px-1.5 py-0.5 rounded outline-none h-6 min-w-0"
+      />
+    </div>
+  );
+}
+
 type FileTreeProps = {
   rootLabel: string;
   paths: readonly string[];
   activeFile: string;
   dirty: Record<string, boolean>;
+  inlineAction: InlineTreeAction | null;
+  setInlineAction: (action: InlineTreeAction | null) => void;
   onOpenFile: (path: string) => void;
   onCreateFile: (path: string, contents?: string) => void;
   onRenameFile: (oldPath: string, newPath: string) => void;
@@ -5481,6 +5804,8 @@ function TreeFolderNode({
   isRoot,
   activeFile,
   dirty,
+  inlineAction,
+  setInlineAction,
   onOpenFile,
   onCreateFile,
   onRenameFile,
@@ -5496,80 +5821,130 @@ function TreeFolderNode({
   const open = isFolderOpen(key);
   const pad = { paddingLeft: depth * 10 + 4 };
 
+  const isRenamingThis = inlineAction?.type === "rename-folder" && inlineAction.path === node.path;
+  const isCreatingInside = inlineAction && (inlineAction.type === "new-file" || inlineAction.type === "new-folder") && inlineAction.folderPath === node.path;
+
   const handleNewFile = () => {
-    const seed = node.path ? `${node.path}/new-file.py` : "new-file.py";
-    const v = prompt("New file path", seed);
-    if (v) onCreateFile(v);
+    if (!open) toggleFolder(key);
+    setInlineAction({ type: "new-file", folderPath: node.path });
   };
   const handleNewFolder = () => {
-    const seed = node.path ? `${node.path}/new-folder` : "new-folder";
-    const v = prompt("New folder path", seed);
-    if (v) onCreateFile(`${v.replace(/\/+$/, "")}/.gitkeep`, "");
+    if (!open) toggleFolder(key);
+    setInlineAction({ type: "new-folder", folderPath: node.path });
   };
 
   return (
     <div>
-      <ContextMenu>
-        <ContextMenuTrigger asChild>
-          <button
-            onClick={() => toggleFolder(key)}
-            style={pad}
-            className="group flex w-full items-center gap-1 rounded py-0.5 pr-1 text-left hover:bg-accent/60"
-          >
-            {open ? (
-              <ChevronDown className="h-3 w-3 shrink-0" />
-            ) : (
-              <ChevronRight className="h-3 w-3 shrink-0" />
+      {isRenamingThis ? (
+        <InlineInput
+          initialValue={node.name}
+          icon={<FolderOpen className="h-3 w-3 shrink-0 text-info" />}
+          paddingLeft={depth * 10 + 4}
+          onCommit={(nextName) => {
+            const trimmed = nextName.trim().replace(/\/+$/, "");
+            if (trimmed && trimmed !== node.name) {
+              const parts = node.path.split("/");
+              parts[parts.length - 1] = trimmed;
+              const newPath = parts.join("/");
+              const prefix = node.path + "/";
+              const newPrefix = newPath + "/";
+              const affected = props_get_paths_under(node, prefix);
+              affected.forEach((p) => onRenameFile(p, p.replace(prefix, newPrefix)));
+            }
+            setInlineAction(null);
+          }}
+          onCancel={() => setInlineAction(null)}
+        />
+      ) : (
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <button
+              onClick={() => toggleFolder(key)}
+              style={pad}
+              className="group flex w-full items-center gap-1 rounded py-0.5 pr-1 text-left hover:bg-accent/60"
+            >
+              {open ? (
+                <ChevronDown className="h-3 w-3 shrink-0" />
+              ) : (
+                <ChevronRight className="h-3 w-3 shrink-0" />
+              )}
+              {open ? (
+                <FolderOpen className="h-3 w-3 shrink-0 text-info" />
+              ) : (
+                <Folder className="h-3 w-3 shrink-0 text-info" />
+              )}
+              <span className="truncate">{node.name}</span>
+            </button>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-44">
+            <ContextMenuItem onSelect={handleNewFile}>
+              <FilePlus className="mr-2 h-3.5 w-3.5" />
+              New File
+            </ContextMenuItem>
+            <ContextMenuItem onSelect={handleNewFolder}>
+              <FolderPlus className="mr-2 h-3.5 w-3.5" />
+              New Folder
+            </ContextMenuItem>
+            {!isRoot && (
+              <>
+                <ContextMenuSeparator />
+                <ContextMenuItem
+                  onSelect={() => {
+                    setInlineAction({ type: "rename-folder", path: node.path, currentName: node.name });
+                  }}
+                >
+                  <Pencil className="mr-2 h-3.5 w-3.5" />
+                  Rename Folder
+                </ContextMenuItem>
+                <ContextMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onSelect={() => onDeleteFolder(node.path)}
+                >
+                  <Trash2 className="mr-2 h-3.5 w-3.5" />
+                  Delete Folder
+                </ContextMenuItem>
+              </>
             )}
-            {open ? (
-              <FolderOpen className="h-3 w-3 shrink-0 text-info" />
-            ) : (
-              <Folder className="h-3 w-3 shrink-0 text-info" />
-            )}
-            <span className="truncate">{node.name}</span>
-          </button>
-        </ContextMenuTrigger>
-        <ContextMenuContent className="w-44">
-          <ContextMenuItem onSelect={handleNewFile}>
-            <FilePlus className="mr-2 h-3.5 w-3.5" />
-            New File
-          </ContextMenuItem>
-          <ContextMenuItem onSelect={handleNewFolder}>
-            <FolderPlus className="mr-2 h-3.5 w-3.5" />
-            New Folder
-          </ContextMenuItem>
-          {!isRoot && (
-            <>
-              <ContextMenuSeparator />
-              <ContextMenuItem
-                onSelect={() => {
-                  const next = prompt("Rename folder", node.path);
-                  if (next && next !== node.path) {
-                    // rename every file under prefix
-                    const prefix = node.path + "/";
-                    const newPrefix = next.replace(/\/+$/, "") + "/";
-                    // gather then rename one-by-one
-                    const affected = props_get_paths_under(node, prefix);
-                    affected.forEach((p) => onRenameFile(p, p.replace(prefix, newPrefix)));
-                  }
-                }}
-              >
-                <Pencil className="mr-2 h-3.5 w-3.5" />
-                Rename Folder
-              </ContextMenuItem>
-              <ContextMenuItem
-                className="text-destructive focus:text-destructive"
-                onSelect={() => onDeleteFolder(node.path)}
-              >
-                <Trash2 className="mr-2 h-3.5 w-3.5" />
-                Delete Folder
-              </ContextMenuItem>
-            </>
-          )}
-        </ContextMenuContent>
-      </ContextMenu>
+          </ContextMenuContent>
+        </ContextMenu>
+      )}
+
       {open && (
         <div>
+          {isCreatingInside && (
+            inlineAction?.type === "new-file" ? (
+              <InlineInput
+                placeholder="filename.py"
+                icon={<FileCode2 className="h-3 w-3 shrink-0 text-muted-foreground" />}
+                paddingLeft={(depth + 1) * 10 + 4}
+                onCommit={(name) => {
+                  const trimmed = name.trim();
+                  if (trimmed) {
+                    const fullPath = node.path ? `${node.path}/${trimmed}` : trimmed;
+                    onCreateFile(fullPath);
+                  }
+                  setInlineAction(null);
+                }}
+                onCancel={() => setInlineAction(null)}
+              />
+            ) : (
+              <InlineInput
+                placeholder="folder-name"
+                icon={<Folder className="h-3 w-3 shrink-0 text-info" />}
+                paddingLeft={(depth + 1) * 10 + 4}
+                onCommit={(name) => {
+                  const trimmed = name.trim().replace(/\/+$/, "");
+                  if (trimmed) {
+                    const fullPath = node.path ? `${node.path}/${trimmed}` : trimmed;
+                    onCreateFile(`${fullPath}/.gitkeep`, "");
+                  }
+                  setInlineAction(null);
+                }}
+                onCancel={() => setInlineAction(null)}
+              />
+            )
+          )}
+
           {node.children.map((child) =>
             child.isFile ? (
               <TreeFileNode
@@ -5578,6 +5953,8 @@ function TreeFolderNode({
                 depth={depth + 1}
                 active={activeFile === child.path}
                 modified={dirty[child.path]}
+                inlineAction={inlineAction}
+                setInlineAction={setInlineAction}
                 onOpenFile={onOpenFile}
                 onRenameFile={onRenameFile}
                 onDeleteFile={onDeleteFile}
@@ -5589,6 +5966,8 @@ function TreeFolderNode({
                 depth={depth + 1}
                 activeFile={activeFile}
                 dirty={dirty}
+                inlineAction={inlineAction}
+                setInlineAction={setInlineAction}
                 onOpenFile={onOpenFile}
                 onCreateFile={onCreateFile}
                 onRenameFile={onRenameFile}
@@ -5621,6 +6000,8 @@ function TreeFileNode({
   depth,
   active,
   modified,
+  inlineAction,
+  setInlineAction,
   onOpenFile,
   onRenameFile,
   onDeleteFile,
@@ -5629,11 +6010,35 @@ function TreeFileNode({
   depth: number;
   active: boolean;
   modified?: boolean;
+  inlineAction: InlineTreeAction | null;
+  setInlineAction: (action: InlineTreeAction | null) => void;
   onOpenFile: (path: string) => void;
   onRenameFile: (oldPath: string, newPath: string) => void;
   onDeleteFile: (path: string) => void;
 }) {
   const pad = { paddingLeft: depth * 10 + 4 };
+  const isRenaming = inlineAction?.type === "rename-file" && inlineAction.path === node.path;
+
+  if (isRenaming) {
+    return (
+      <InlineInput
+        initialValue={node.name}
+        icon={<FileCode2 className="h-3 w-3 shrink-0 text-info" />}
+        paddingLeft={depth * 10 + 4}
+        onCommit={(nextName) => {
+          const trimmed = nextName.trim();
+          if (trimmed && trimmed !== node.name) {
+            const parts = node.path.split("/");
+            parts[parts.length - 1] = trimmed;
+            onRenameFile(node.path, parts.join("/"));
+          }
+          setInlineAction(null);
+        }}
+        onCancel={() => setInlineAction(null)}
+      />
+    );
+  }
+
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
@@ -5655,8 +6060,7 @@ function TreeFileNode({
         <ContextMenuSeparator />
         <ContextMenuItem
           onSelect={() => {
-            const next = prompt("Rename file", node.path);
-            if (next && next !== node.path) onRenameFile(node.path, next);
+            setInlineAction({ type: "rename-file", path: node.path, currentName: node.name });
           }}
         >
           <Pencil className="mr-2 h-3.5 w-3.5" />

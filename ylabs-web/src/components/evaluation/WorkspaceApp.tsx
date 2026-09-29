@@ -151,8 +151,8 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                   : [
                       { id: "", title: "Main Task", description: "Complete the scenario requirements." }
                     ],
-                file: q.programming_languages?.includes("PYTHON") ? "main.py" : q.programming_languages?.includes("JAVA") ? "Main.java" : "index.js",
-                code: "// Code editor initialized.",
+                file: (q as any).starter_path || (q as any).starterPath || q.file || (q.programming_languages?.includes("PYTHON") ? "main.py" : q.programming_languages?.includes("JAVA") ? "Main.java" : "main.js"),
+                code: (q as any).starter_code || (q as any).starterCode || q.code || "",
                 terminal: []
               });
               durationMinutes += (q.duration_minutes || 30);
@@ -1101,13 +1101,18 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                   marks: (lab as any).marks || 10,
                   points: (lab as any).points || (lab as any).marks || 10,
                   max_score: (lab as any).max_score || (lab as any).marks || 10,
+                  file: (lab as any).starterPath || (lab as any).starter_path || lab.file,
+                  code: (lab as any).starterCode || (lab as any).starter_code || lab.code,
+                  starterCode: (lab as any).starterCode || (lab as any).starter_code || (lab.code !== "// Code editor initialized." ? lab.code : undefined),
+                  starterPath: (lab as any).starterPath || (lab as any).starter_path || lab.file,
                 };
+                const starterCodeVal = (lab as any).starterCode || (lab as any).starter_code || ((lab.code && lab.code !== "// Code editor initialized.") ? lab.code : undefined);
                 return (
                   <TicketIDE
                     key={lab.id}
                     slug={lab.id}
                     ticket={mappedTicket}
-                    previewOverride={null}
+                    previewOverride={starterCodeVal ? { starterCode: starterCodeVal } : null}
                     isEvaluationMode={true}
                     isRecruiterPreview={isRecruiterPreview}
                     evaluationId={evaluationId}
