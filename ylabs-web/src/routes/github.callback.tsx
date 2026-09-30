@@ -31,7 +31,13 @@ function GithubCallbackComponent() {
         // Fetch updated user to reflect github_connected status
         const userData = await authService.getCurrentUser();
         updateUser(userData);
-        navigate({ to: "/student/dashboard" });
+        const savedRedirect = typeof window !== "undefined" ? sessionStorage.getItem("github_oauth_redirect") : null;
+        if (savedRedirect) {
+          sessionStorage.removeItem("github_oauth_redirect");
+          window.location.href = savedRedirect;
+        } else {
+          navigate({ to: "/student/dashboard" });
+        }
       } catch (err: any) {
         // If it fails, allow retry
         hasRun.current = false;
