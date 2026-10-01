@@ -409,17 +409,19 @@ class InterviewEvaluator:
             )
 
         for competency, keywords in ANSWER_KEYWORDS.items():
-            if any(keyword in normalized for keyword in keywords):
-                if competency not in targets and answer_length >= 25:
-                    positive_counts[competency] += 1
-                    adjustments[competency] += 1
-                    evidence_by_competency[competency].append(
-                        EvaluationEvidence(
-                            source="answer",
-                            reference_id=answer.id,
-                            note=self._answer_note(answer.answer_text),
+            for keyword in keywords:
+                if keyword in normalized and not self._is_negated(normalized, keyword):
+                    if competency not in targets and answer_length >= 25:
+                        positive_counts[competency] += 1
+                        adjustments[competency] += 1
+                        evidence_by_competency[competency].append(
+                            EvaluationEvidence(
+                                source="answer",
+                                reference_id=answer.id,
+                                note=self._answer_note(answer.answer_text),
+                            )
                         )
-                    )
+                    break
 
         if answer_length >= 35 and has_substance:
             adjustments[Competency.COMMUNICATION] += 1
@@ -710,6 +712,10 @@ class InterviewEvaluator:
                 "just want to check how you will generate report",
             )
         )
+
+    def _is_negated(self, text: str, keyword: str) -> bool:
+        pattern = re.compile(rf"\b(no|not|don't|didn't|doesn't|wouldn't|shouldn't|can't|cannot|never|without|instead of|against)\s+(?:\w+\s+){{0,3}}{re.escape(keyword)}\b", re.IGNORECASE)
+        return bool(pattern.search(text))
 
     def _label(self, competency: Competency) -> str:
         return competency.value.replace("_", " ").title()
