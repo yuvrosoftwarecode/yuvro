@@ -88,7 +88,7 @@ export function StartLabModal({
             <span className={`grid h-5 w-5 place-items-center rounded-full text-[11px] font-bold ${!isConnected ? "bg-primary text-primary-foreground" : "bg-success/20 text-success"}`}>
               {isConnected ? "✓" : "1"}
             </span>
-            <span>1. Connect GitHub</span>
+            <span>Connect GitHub</span>
           </div>
 
           <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/60" />
@@ -97,7 +97,7 @@ export function StartLabModal({
             <span className={`grid h-5 w-5 place-items-center rounded-full text-[11px] font-bold ${isConnected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
               2
             </span>
-            <span>2. Enter Repo Name</span>
+            <span>Enter Repo Name</span>
           </div>
         </div>
 
