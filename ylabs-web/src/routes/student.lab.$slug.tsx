@@ -45,6 +45,11 @@ export const Route = createFileRoute("/student/lab/$slug")({
   component: LabDashboard,
 });
 
+const isDsaLab = (name: string) => {
+  const n = (name || "").toLowerCase().trim();
+  return n.includes("dsa") || n.includes("data structure");
+};
+
 type SprintStatus = "Completed" | "Active" | "Upcoming";
 interface Sprint {
   id: string;
@@ -579,7 +584,19 @@ function LabDashboard() {
     setEnrollModalOpen(true);
   };
 
+  const isDsa = isDsaLab(lab.name);
+
+  useEffect(() => {
+    if (!isDsa && activeSprint) {
+      setActiveSprint(null);
+    }
+  }, [isDsa, activeSprint]);
+
   const openSprint = (sprintId: string, index: number, sprint?: { is_locked?: boolean }) => {
+    if (!isDsa) {
+      toast.info("This lab is upcoming. Sprints are for preview only.");
+      return;
+    }
     if (realLab && isEnrolled === false) {
       handleStartLabPrompt();
       return;
@@ -706,6 +723,11 @@ function LabDashboard() {
   };
 
   const handleTicketClick = (e: React.MouseEvent) => {
+    if (!isDsa) {
+      e.preventDefault();
+      toast.info("This lab is upcoming. Sprint tickets are for preview only.");
+      return;
+    }
     if (realLab && isEnrolled === false) {
       e.preventDefault();
       handleStartLabPrompt();
@@ -758,7 +780,14 @@ function LabDashboard() {
                 <LabIcon name={lab.name} icon={lab.icon} size="h-10 w-10" />
                 <div>
                   <div className="font-semibold">{lab.name}</div>
-                  <DiffBadge value={lab.difficulty} />
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <DiffBadge value={lab.difficulty} />
+                    {!isDsa && (
+                      <span className="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold text-purple-600 dark:text-purple-400">
+                        Upcoming
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="mt-4">
@@ -833,14 +862,19 @@ function LabDashboard() {
                   <div>
                     <h2 className="text-base font-semibold">Sprints</h2>
                     <p className="text-xs text-muted-foreground">
-                      {tier === "free" && "All sprints are unlocked."}
-                      {tier === "freemium" &&
-                        !unlocked &&
-                        `Sprint 1 is free. Unlock the full track for ${sprints.length - freeSprintCount(tier)} more sprints.`}
-                      {tier === "premium" &&
-                        !unlocked &&
-                        "All sprints are locked. Unlock the premium track to begin."}
-                      {tier !== "free" && unlocked && "Full track unlocked. Enjoy every sprint."}
+                      {!isDsa ? (
+                        <span className="text-purple-600 dark:text-purple-400 font-semibold">
+                          Upcoming Lab · Sprints are shown for preview only and are not clickable.
+                        </span>
+                      ) : tier === "free" ? (
+                        "All sprints are unlocked."
+                      ) : tier === "freemium" && !unlocked ? (
+                        `Sprint 1 is free. Unlock the full track for ${sprints.length - freeSprintCount(tier)} more sprints.`
+                      ) : tier === "premium" && !unlocked ? (
+                        "All sprints are locked. Unlock the premium track to begin."
+                      ) : (
+                        "Full track unlocked. Enjoy every sprint."
+                      )}
                     </p>
                   </div>
                   <span className="text-xs text-muted-foreground">
@@ -873,19 +907,27 @@ function LabDashboard() {
                     return (
                       <button
                         key={s.id}
+                        disabled={!isDsa}
                         onClick={() => openSprint(s.id, idx, realSprint)}
-                        className="text-left relative overflow-hidden rounded-xl border bg-card p-4 hover:border-primary/60 hover:shadow-md transition"
+                        className={`text-left relative overflow-hidden rounded-xl border bg-card p-4 transition ${
+                          !isDsa
+                            ? "opacity-80 cursor-not-allowed"
+                            : "hover:border-primary/60 hover:shadow-md cursor-pointer"
+                        }`}
                       >
-                        {locked && (
+                        {!isDsa ? (
+                          <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-md border border-purple-500/40 bg-purple-500/10 px-1.5 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-400">
+                            Upcoming
+                          </span>
+                        ) : locked ? (
                           <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-md border border-warning/40 bg-warning/10 px-1.5 py-0.5 text-[10px] font-medium text-warning">
                             Locked
                           </span>
-                        )}
-                        {!locked && tier === "freemium" && (
+                        ) : !locked && tier === "freemium" ? (
                           <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-md border border-success/40 bg-success/10 px-1.5 py-0.5 text-[10px] font-medium text-success">
                             Free preview
                           </span>
-                        )}
+                        ) : null}
                         <div
                           className={`flex flex-col h-full ${locked ? "opacity-70 grayscale" : ""}`}
                         >

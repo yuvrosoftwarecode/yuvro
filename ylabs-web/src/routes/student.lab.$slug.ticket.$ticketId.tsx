@@ -1055,6 +1055,31 @@ export function TicketIDE({
 
   const isReal = slug !== "knowledge" && !tickets.some((t) => t.id === ticket.id);
 
+  const isDsa = (slug || "").toLowerCase().includes("dsa") || (slug || "").toLowerCase().includes("data structure") || (ticket?.title || "").toLowerCase().includes("dsa") || (ticket?.title || "").toLowerCase().includes("data structure");
+
+  if (!isEvaluationMode && !isRecruiterPreview && !isDsa) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="max-w-md rounded-xl border bg-card p-6 text-center shadow-lg space-y-4">
+          <span className="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-600 dark:text-purple-400">
+            Upcoming Lab
+          </span>
+          <h2 className="text-xl font-semibold">Lab Workspace Not Available</h2>
+          <p className="text-sm text-muted-foreground">
+            This lab is currently upcoming. Sprints and tickets are for preview only.
+          </p>
+          <Link
+            to="/student/lab/$slug"
+            params={{ slug }}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+          >
+            Back to Lab Overview
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const { user, isLoading } = useAuth();
   const userId = useMemo(() => {
     return user?.id?.toString() ?? "";

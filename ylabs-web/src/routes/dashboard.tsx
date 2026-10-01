@@ -58,8 +58,9 @@ interface CatalogLab {
   difficulty: "Beginner" | "Intermediate" | "Advanced";
   total: number;
   completed: number;
-  isReal: boolean;
+  isReal?: boolean;
   color: string;
+  hoursLeft?: number;
 }
 
 type Category = "Backend" | "Frontend" | "Database" | "DevOps" | "QA" | "Security";
@@ -490,7 +491,34 @@ function Hub() {
     }));
 
     const realNames = new Set(realLabs.map((l) => l.title.toLowerCase()));
-    const dummyEntries: CatalogLab[] = [];
+    const requestedDummyLabs = [
+      {
+        id: "aiml",
+        name: "AI/ML Lab",
+        description: "Artificial Intelligence & Machine Learning: neural networks, LLMs, prompt engineering and model fine-tuning.",
+        difficulty: "Advanced" as const,
+        icon: "🤖",
+        color: "prog",
+        total: 24,
+        completed: 0,
+        isReal: false,
+      },
+      {
+        id: "systemdesign",
+        name: "System Design Lab",
+        description: "Design scalable systems: load balancing, caching, sharding, queues and event-driven architectures.",
+        difficulty: "Advanced" as const,
+        icon: "🏛️",
+        color: "prog",
+        total: 16,
+        completed: 0,
+        isReal: false,
+      },
+    ];
+
+    const dummyEntries: CatalogLab[] = requestedDummyLabs.filter(
+      (dl) => !realNames.has(dl.name.toLowerCase())
+    );
 
     return [...realEntries, ...dummyEntries];
   }, [realLabs, labTicketCounts]);
@@ -499,13 +527,71 @@ function Hub() {
     () => allCatalogLabs.filter((l) => enrolledIds.has(l.id)),
     [allCatalogLabs, enrolledIds],
   );
-  const featuredLabs = useMemo(
-    () =>
-      FEATURED_SLUGS.map((s) => allCatalogLabs.find((l) => l.id === s)).filter(
-        Boolean,
-      ) as CatalogLab[],
-    [allCatalogLabs],
-  );
+  const featuredLabs = useMemo(() => {
+    const isExcluded = (name: string) => {
+      const n = (name || "").toLowerCase();
+      return n.includes("mongo") || n.includes("mysql") || n.includes("taskflow");
+    };
+
+    const filtered = allCatalogLabs.filter((l) => !isExcluded(l.name));
+
+    let dsaLab = filtered.find(
+      (l) =>
+        (l.name.toLowerCase().includes("dsa") || l.name.toLowerCase().includes("data structure")) &&
+        !l.name.toLowerCase().includes("scenario")
+    );
+    if (!dsaLab) {
+      dsaLab = {
+        id: "dsa_lab",
+        name: "Data Structures Lab",
+        description: "Core data structures: arrays, linked lists, trees, graphs, heaps and hashing.",
+        difficulty: "Intermediate",
+        icon: "🧩",
+        color: "prog",
+        total: 30,
+        completed: 0,
+        hoursLeft: 24,
+      };
+    }
+
+    let dsaScenarioLab = filtered.find(
+      (l) =>
+        (l.name.toLowerCase().includes("dsa") || l.name.toLowerCase().includes("data structure")) &&
+        l.name.toLowerCase().includes("scenario")
+    );
+    if (!dsaScenarioLab) {
+      dsaScenarioLab = {
+        id: "dsa_scenario_lab",
+        name: "Data Structures Lab Scenario",
+        description: "Real-world problem solving scenarios using advanced data structures.",
+        difficulty: "Advanced",
+        icon: "🧩",
+        color: "prog",
+        total: 20,
+        completed: 0,
+        hoursLeft: 24,
+      };
+    }
+
+    const featuredList: CatalogLab[] = [];
+    const addedIds = new Set<string>();
+
+    [dsaLab, dsaScenarioLab].forEach((item) => {
+      if (item && !addedIds.has(item.id)) {
+        featuredList.push(item);
+        addedIds.add(item.id);
+      }
+    });
+
+    filtered.forEach((lab) => {
+      if (!addedIds.has(lab.id) && featuredList.length < 6) {
+        featuredList.push(lab);
+        addedIds.add(lab.id);
+      }
+    });
+
+    return featuredList.slice(0, 6);
+  }, [allCatalogLabs]);
 
   const [q, setQ] = useState("");
   const [cats, setCats] = useState<Category[]>([]);
@@ -546,6 +632,11 @@ function Hub() {
   const rank = userAny?.rank ?? me.rank;
   const displayName = user?.first_name || user?.username || me.name.split(" ")[0];
 
+  const isFirstLogin = useMemo(() => {
+    if (typeof window === "undefined" || !user?.id) return false;
+    return localStorage.getItem(`is_first_login_${user.id}`) === "true";
+  }, [user?.id]);
+
   return (
     <div className="min-h-screen">
       <TopNav />
@@ -556,7 +647,7 @@ function Hub() {
           <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:gap-6">
             <div className="min-w-0">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                <Sparkles className="h-3 w-3" /> Welcome back, {displayName}
+                <Sparkles className="h-3 w-3" /> {isFirstLogin ? `Welcome, ${displayName}` : `Welcome back, ${displayName}`}
               </span>
               <h1 className="mt-3 truncate text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
                 Your <span className="text-primary">Individual Hub</span>
@@ -971,6 +1062,11 @@ function EnrolledCard({ lab }: { lab: CatalogLab }) {
   );
 }
 
+const isDsaLab = (name: string) => {
+  const n = (name || "").toLowerCase().trim();
+  return n.includes("dsa") || n.includes("data structure");
+};
+
 function FeaturedCard({
   lab,
   isEnrolled,
@@ -982,15 +1078,23 @@ function FeaturedCard({
   isLoading: boolean;
   onToggle: () => void;
 }) {
+  const isDsa = isDsaLab(lab.name);
   return (
     <div className="group relative overflow-hidden rounded-xl border bg-gradient-to-br from-card via-card to-accent/20 p-5 transition hover:border-primary/50">
       <div
         className="absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl opacity-30"
         style={{ background: `var(--${lab.color})` }}
       />
-      <span className="inline-flex items-center gap-1 rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
-        <Star className="h-3 w-3" /> Featured
-      </span>
+      <div className="flex items-center justify-between w-full">
+        <span className="inline-flex items-center gap-1 rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
+          <Star className="h-3 w-3" /> Featured
+        </span>
+        {!isDsa && (
+          <span className="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-400">
+            Upcoming
+          </span>
+        )}
+      </div>
       <div className="mt-3 flex items-start gap-3">
         <div className="text-3xl">{lab.icon}</div>
         <div className="min-w-0">
@@ -1012,8 +1116,15 @@ function FeaturedCard({
         </Link>
         <button
           onClick={onToggle}
-          disabled={isLoading}
-          className={`flex-1 inline-flex items-center justify-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition disabled:opacity-60 ${isEnrolled ? "border border-success/40 bg-success/10 text-success" : "bg-primary text-primary-foreground hover:opacity-90"}`}
+          disabled={isLoading || !isDsa}
+          title={!isDsa ? "Enrollment disabled for upcoming lab" : undefined}
+          className={`flex-1 inline-flex items-center justify-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+            isEnrolled
+              ? "border border-success/40 bg-success/10 text-success"
+              : !isDsa
+              ? "border border-border bg-muted/60 text-muted-foreground cursor-not-allowed opacity-60"
+              : "bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60"
+          }`}
         >
           {isLoading ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1043,16 +1154,24 @@ function CatalogCard({
   isLoading: boolean;
   onToggle: () => void;
 }) {
+  const isDsa = isDsaLab(lab.name);
   return (
     <div className="rounded-xl border bg-card p-4 transition hover:border-primary/40">
-      <div className="flex min-w-0 items-start gap-2.5">
-        <div className="shrink-0 text-xl">{lab.icon}</div>
-        <div className="min-w-0">
-          <div className="truncate text-sm font-medium">{lab.name}</div>
-          <div className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">
-            {lab.description}
+      <div className="flex items-start justify-between gap-3 flex-1">
+        <div className="flex min-w-0 items-start gap-2.5">
+          <div className="shrink-0 text-xl">{lab.icon}</div>
+          <div className="min-w-0">
+            <div className="truncate text-sm font-medium">{lab.name}</div>
+            <div className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">
+              {lab.description}
+            </div>
           </div>
         </div>
+        {!isDsa && (
+          <span className="shrink-0 inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold text-purple-600 dark:text-purple-400">
+            Upcoming
+          </span>
+        )}
       </div>
       <div className="mt-3 flex items-center justify-between text-[11px]">
         <div className="flex items-center gap-2">
@@ -1069,8 +1188,15 @@ function CatalogCard({
           </Link>
           <button
             onClick={onToggle}
-            disabled={isLoading}
-            className={`inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium transition disabled:opacity-60 ${isEnrolled ? "border border-success/40 bg-success/10 text-success" : "bg-primary text-primary-foreground hover:opacity-90"}`}
+            disabled={isLoading || !isDsa}
+            title={!isDsa ? "Enrollment disabled for upcoming lab" : undefined}
+            className={`inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium transition ${
+              isEnrolled
+                ? "border border-success/40 bg-success/10 text-success"
+                : !isDsa
+                ? "border border-border bg-muted/60 text-muted-foreground cursor-not-allowed opacity-60"
+                : "bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60"
+            }`}
           >
             {isLoading ? (
               <Loader2 className="h-3 w-3 animate-spin" />

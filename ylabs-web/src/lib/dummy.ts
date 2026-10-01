@@ -277,6 +277,24 @@ export const labs: Lab[] = [
       { name: "CI/CD", pct: 0 },
     ],
   },
+  {
+    slug: "aiml",
+    name: "AI/ML Lab",
+    icon: "🤖",
+    color: "python",
+    difficulty: "Advanced",
+    completed: 0,
+    total: 24,
+    hoursLeft: 36,
+    description:
+      "Artificial Intelligence & Machine Learning: neural networks, LLMs, prompt engineering and model fine-tuning.",
+    skills: [
+      { name: "Neural Networks", pct: 0 },
+      { name: "LLMs & RAG", pct: 0 },
+      { name: "Prompt Engineering", pct: 0 },
+      { name: "Model Tuning", pct: 0 },
+    ],
+  },
 ];
 
 export const tickets: Ticket[] = [

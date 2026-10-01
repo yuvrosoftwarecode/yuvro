@@ -204,6 +204,9 @@ function SignInForm() {
     setErr("");
     try {
       const res = await authService.login(email, password);
+      if (res.user?.id) {
+        localStorage.removeItem(`is_first_login_${res.user.id}`);
+      }
       login(res.user, res.access);
       const role = res.user.roles?.ylabs || res.user.roles?.ycode || res.user.role;
       const r = role?.toLowerCase();
@@ -321,6 +324,11 @@ function SignUpForm() {
           password_confirm: confirm,
         }),
       );
+      if (res.user?.id) {
+        localStorage.setItem(`is_first_login_${res.user.id}`, "true");
+        localStorage.removeItem("mock_enrollments");
+        localStorage.removeItem(`mock_enrollments_${res.user.id}`);
+      }
       login(res.user, res.access);
       const userRole = res.user.roles?.ylabs || res.user.roles?.ycode || res.user.role;
       if (redirect) {
