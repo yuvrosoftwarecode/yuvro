@@ -13,6 +13,7 @@ export interface User {
     ylabs?: string;
   };
   is_active?: boolean;
+  is_guest_user?: boolean;
   date_joined?: string;
   last_login?: string;
   github_connected?: boolean;

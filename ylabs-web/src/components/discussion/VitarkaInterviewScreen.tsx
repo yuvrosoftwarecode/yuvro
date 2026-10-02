@@ -57,6 +57,7 @@ export const VitarkaInterviewScreen = forwardRef<
   const currentUserAnswerRef = useRef(currentUserAnswer);
   const sessionInfoRef = useRef(sessionInfo);
   const isFinishedRef = useRef(false);
+  const isSubmittingRef = useRef(false);
   const processingRef = useRef(false);
 
   useImperativeHandle(ref, () => ({
@@ -413,6 +414,7 @@ export const VitarkaInterviewScreen = forwardRef<
   };
 
   const handleEndRequest = () => {
+    if (isSubmittingRef.current) return;
     try {
       window.speechSynthesis.pause();
     } catch (e) {}
@@ -425,6 +427,7 @@ export const VitarkaInterviewScreen = forwardRef<
   };
 
   const handleEndConfirm = async () => {
+    isSubmittingRef.current = true;
     isFinishedRef.current = true;
     try {
       window.speechSynthesis.cancel();
