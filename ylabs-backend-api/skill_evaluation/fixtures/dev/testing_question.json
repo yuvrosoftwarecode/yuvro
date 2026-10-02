@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Django Practical Testing: Mocks, Queries, and Side Effects",
+      "type": "BACKEND",
+      "description": "Evaluate a candidate's ability to write robust automated tests in Django. The lab covers mocking external network calls with unittest.mock.patch, enforcing database query optimization constraints with assertNumQueries, and verifying email side-effects using django.core.mail.outbox.",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 30,
+      "scenario": "TESTING_AND_DEBUGGING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "MG/django-practical-task",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Mock an Unavailable External API",
+          "description": "Our `payment` application has a test `test_payment_success` that verifies our checkout view. However, the test directly hits a third-party API that is currently down, causing our CI pipeline to fail with a ConnectionError.\n\n**Goal:** Update `payment/tests.py` and use `unittest.mock.patch` to mock the external API call so the test passes reliably without hitting the network. Ensure it returns a simulated successful response (200 OK) so the internal assertions pass.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 20,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Enforce Maximum Database Query Limits",
+          "description": "The `library` application exposes an optimized `/api/library/authors/` endpoint. Currently, there is no test to prevent a future developer from accidentally introducing an N+1 query bug.\n\n**Goal:** Open `library/tests.py` and update the test to wrap the API call in Django's `self.assertNumQueries(2)`. This ensures that exactly 2 database queries are executed for this endpoint.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 20,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Verify Email Dispatch Behavior",
+          "description": "The `notifications` application handles user registration via `POST /api/notifications/register/`. It currently sends a welcome email. The existing test only checks if the API returns a 201 Success status code, but fails to actually verify the email side-effects.\n\n**Goal:** Open `notifications/tests.py` and use Django's built-in `mail.outbox` to assert three things:\n1. Exactly 1 email was sent in total.\n2. The subject of the sent email is exactly 'Welcome to our platform!'\n3. The recipient matches the email address provided in the test payload.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 20,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
