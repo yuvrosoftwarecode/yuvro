@@ -1,8 +1,8 @@
 # docker-compose.dev-ymarketplace.yml
-# Dev overrides for YMarketplace only.
-# Used by deploy-ymarketplace.sh so it doesn't pull in unrelated services
-# (e.g. yuvro-code-executor) from the shared docker-compose.dev.yml.
-# Also removes the ymarketplace-db dependency since dev uses RDS.
+# Standalone dev/EC2 compose for YMarketplace.
+# Does NOT include docker-compose.ymarketplace.yml as a base — that file
+# defines a local Postgres container with a depends_on that cannot be
+# cleanly overridden. In dev we connect to RDS, so no DB container is needed.
 
 services:
   ymarketplace-backend:
@@ -12,6 +12,9 @@ services:
       target: dev
       args:
         - CACHEBUST=${CACHEBUST:-1}
+    container_name: yuvro-ymarketplace-backend-1
+    ports:
+      - "8004:8004"
     env_file:
       - path: ./ymarketplace/backend/.env.dev
         required: false
@@ -21,8 +24,15 @@ services:
       sh -c "python manage.py migrate --noinput &&
              python manage.py collectstatic --noinput &&
              gunicorn --bind 0.0.0.0:8004 --workers 3 --timeout 120 config.wsgi:application"
-    # Remove local DB dependency — dev uses RDS
-    depends_on: {}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/api/health/"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    restart: always
+    networks:
+      - ymarketplace
 
   ymarketplace-frontend:
     build:
@@ -33,22 +43,28 @@ services:
         - VITE_BACKEND_API_BASE_URL=${YMARKETPLACE_VITE_BACKEND_API_BASE_URL:-https://backend-marketplace-dev.yuvro.ai/api}
         - VITE_YHUB_BACKEND_API_BASE_URL=${YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL:-https://backend-hub-dev.yuvro.ai/api}
         - CACHEBUST=${CACHEBUST:-1}
+    container_name: yuvro-ymarketplace-frontend-1
+    ports:
+      - "3004:3004"
     env_file:
       - path: ./ymarketplace/frontend/.env.dev
         required: false
       - path: ./ymarketplace/frontend/.env.dev-secrets
         required: false
-    ports:
-      - "3004:3004"
-    stdin_open: false
-    tty: false
+    depends_on:
+      ymarketplace-backend:
+        condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3004/"]
       interval: 15s
       timeout: 10s
       retries: 5
-      start_period: 30s
-    # Only depend on backend, not the local DB container
-    depends_on:
-      ymarketplace-backend:
-        condition: service_started
+      start_period: 60s
+    restart: always
+    networks:
+      - ymarketplace
+
+networks:
+  ymarketplace:
+    external: true
+    name: yuvro_marketplace

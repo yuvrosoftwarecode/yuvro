@@ -161,7 +161,7 @@ compose_files_for() {
         ycampus)      echo "$base -f docker-compose.ycampus.yml -f docker-compose.dev.yml" ;;
         ylabs)        echo "$base -f docker-compose.ylabs.yml -f docker-compose.dev.yml" ;;
         yhub)         echo "$base -f docker-compose.yhub.yml -f docker-compose.dev.yml" ;;
-        ymarketplace) echo "-f docker-compose.ymarketplace.yml -f docker-compose.dev-ymarketplace.yml" ;;
+        ymarketplace) echo "-f docker-compose.dev-ymarketplace.yml" ;;
         code-executor) echo "-f docker-compose.code-executor.yml" ;;
         all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.ymarketplace.yml -f docker-compose.code-executor.yml -f docker-compose.dev.yml" ;;
     esac
