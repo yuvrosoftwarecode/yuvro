@@ -53,7 +53,7 @@ function Analytics() {
           <div className="lg:col-span-2 rounded-xl border bg-card p-5">
             <div className="flex items-center justify-between">
               <div className="text-sm font-medium">Weekly activity</div>
-              <div className="text-xs text-muted-foreground">XP per day · last 7 days</div>
+              <div className="text-xs text-muted-foreground">YP per day · last 7 days</div>
             </div>
             <div className="mt-6 flex items-end gap-3 h-48">
               {weekly.map((v, i) => (

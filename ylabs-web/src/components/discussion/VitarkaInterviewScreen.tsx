@@ -50,6 +50,8 @@ export const VitarkaInterviewScreen = forwardRef<
   const recognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const inactivityAttemptsRef = useRef(0);
+  const isWaitingForConfirmationRef = useRef(false);
   const interviewStateRef = useRef(interviewState);
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const currentUserAnswerRef = useRef(currentUserAnswer);
@@ -117,16 +119,13 @@ export const VitarkaInterviewScreen = forwardRef<
     if (isFinishedRef.current) return;
     inactivityTimerRef.current = setTimeout(() => {
       handleInactivityTimeout();
-    }, 6000);
+    }, 15000);
   };
 
   const INACTIVITY_PHRASES = [
-    "Are you still there? Shall I repeat again?",
-    "Are you there? Would you like me to repeat the question?",
-    "I didn't hear a response. Shall I repeat that for you?",
-    "Are you still with me? Let me know if you'd like me to repeat the question.",
-    "Still there? Would you like me to say the question once more?",
-    "I'm listening. Shall I repeat the question for you?",
+    "Are you there?",
+    "Are you still with me?",
+    "I'm listening, are you still there?",
   ];
 
   const handleInactivityTimeout = () => {
@@ -139,13 +138,34 @@ export const VitarkaInterviewScreen = forwardRef<
       return;
     }
 
-    const promptText = INACTIVITY_PHRASES[Math.floor(Math.random() * INACTIVITY_PHRASES.length)];
+    if (isWaitingForConfirmationRef.current) {
+      const promptText = "Okay, thanks for your time. I am ending the interview.";
+      setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
+      setCurrentUserAnswer("");
+      speakText(promptText, () => {
+        handleEndConfirm();
+      });
+      return;
+    }
+
+    inactivityAttemptsRef.current += 1;
+
+    if (inactivityAttemptsRef.current > 3) {
+      isWaitingForConfirmationRef.current = true;
+      const promptText = "I haven't received a response. Would you like to continue the interview?";
+      setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
+      setCurrentUserAnswer("");
+      speakText(promptText);
+      return;
+    }
+
+    const promptText = INACTIVITY_PHRASES[inactivityAttemptsRef.current % INACTIVITY_PHRASES.length];
     setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
     setCurrentUserAnswer("");
     speakText(promptText);
   };
 
-  const speakText = (text: string) => {
+  const speakText = (text: string, onEndCallback?: () => void) => {
     window.speechSynthesis.cancel();
     if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
@@ -158,13 +178,17 @@ export const VitarkaInterviewScreen = forwardRef<
     setCurrentUserAnswer("");
 
     // Clean text for speech synthesis so symbols like ` are not read aloud as "back quote"
-    const cleanSpeechText = text
+    let cleanSpeechText = text
       .replace(/`+/g, "")
-      .replace(/[*_#~]/g, "")
+      .replace(/[*#~]/g, "")
+      .replace(/_/g, " ")
       .replace(/[""]/g, '"')
       .replace(/['']/g, "'")
       .replace(/\s+/g, " ")
       .trim();
+
+    // Convert ALL CAPS words (length > 3) to lowercase so they are spoken as words instead of acronyms
+    cleanSpeechText = cleanSpeechText.replace(/\b[A-Z]{4,}\b/g, (match) => match.toLowerCase());
 
     const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
 
@@ -182,7 +206,11 @@ export const VitarkaInterviewScreen = forwardRef<
       } catch (e) {}
     };
 
-    const resumeListening = () => {
+    const handleSpeakEnd = () => {
+      if (onEndCallback) {
+        onEndCallback();
+        return;
+      }
       if (isFinishedRef.current || isUnmountedRef.current) {
         setTimeout(() => handleEndRequest(), 1000);
       } else {
@@ -200,8 +228,8 @@ export const VitarkaInterviewScreen = forwardRef<
       }
     };
 
-    utterance.onend = resumeListening;
-    utterance.onerror = resumeListening;
+    utterance.onend = handleSpeakEnd;
+    utterance.onerror = handleSpeakEnd;
 
     window.speechSynthesis.speak(utterance);
   };
@@ -321,6 +349,30 @@ export const VitarkaInterviewScreen = forwardRef<
       setInterviewState("listening");
       resetInactivityTimer();
       return;
+    }
+
+    inactivityAttemptsRef.current = 0;
+    
+    if (isWaitingForConfirmationRef.current) {
+      const lowerAnswer = cleanAnswer.toLowerCase();
+      isWaitingForConfirmationRef.current = false;
+      
+      setConversation((prev) => [...prev, { type: "user", content: cleanAnswer }]);
+      setCurrentUserAnswer("");
+      
+      if (lowerAnswer.includes("no") || lowerAnswer.includes("stop") || lowerAnswer.includes("end") || lowerAnswer.includes("quit") || lowerAnswer.includes("exit")) {
+        const promptText = "Okay, thanks for your time. I am ending the interview.";
+        setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
+        speakText(promptText, () => {
+          handleEndConfirm();
+        });
+        return;
+      } else {
+        const promptText = "Great, let's continue. Could you please provide your answer to the previous question?";
+        setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
+        speakText(promptText);
+        return;
+      }
     }
 
     processingRef.current = true;

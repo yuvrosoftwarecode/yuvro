@@ -78,6 +78,17 @@ UNKNOWN_ANSWER_PATTERNS = {
     "don't know much about this",
     "do not know much about this",
     "just want to check how you will generate report",
+    "nope",
+    "no",
+    "not me",
+    "didn't implement",
+    "did not implement",
+    "i haven't implemented it",
+    "i haven't implemented that",
+    "i have not implemented it",
+    "i have not implemented that",
+    "i didn't work on that",
+    "i did not work on that",
 }
 
 SKIP_OR_TOPIC_CHANGE_PATTERNS = {
@@ -107,6 +118,15 @@ SKIP_OR_TOPIC_CHANGE_PATTERNS = {
     "pass on this",
     "pass this",
     "i pass",
+    "skip",
+    "pass",
+    "i haven't implemented",
+    "i didn't implement",
+    "i have not implemented",
+    "i did not implement",
+    "i didn't work on",
+    "i did not work on",
+    "was not implemented by me",
 }
 
 CLARIFICATION_PATTERNS = {
@@ -740,11 +760,14 @@ class DynamicQuestionEngine:
                     if f not in retired_files:
                         retired_files.append(f)
             elif quality == "unknown" and question.metadata.get("unknown_recovery"):
-                if topic_key and topic_key not in retired_topics:
-                    retired_topics.append(topic_key)
-                for f in changed_files:
-                    if f not in retired_files:
-                        retired_files.append(f)
+                struggles = session.metadata.get("topic_struggles", {})
+                struggle_count = struggles.get(topic_key, 0)
+                if struggle_count >= 2:
+                    if topic_key and topic_key not in retired_topics:
+                        retired_topics.append(topic_key)
+                    for f in changed_files:
+                        if f not in retired_files:
+                            retired_files.append(f)
             elif quality not in {"clarification_requested", "intro", "repeat_requested"} and self._topic_limit_reached(session, topic_key):
                 if topic_key and topic_key not in retired_topics:
                     retired_topics.append(topic_key)
@@ -951,14 +974,14 @@ class DynamicQuestionEngine:
         elapsed_seconds = (datetime.datetime.now(datetime.timezone.utc) - session.created_at).total_seconds()
         remaining_minutes = duration_mins - (elapsed_seconds / 60)
 
-        if remaining_minutes <= 5 and not session.metadata.get("wrap_up_asked"):
+        if remaining_minutes <= 2 and not session.metadata.get("wrap_up_asked"):
             session.metadata["wrap_up_asked"] = True
             return InterviewQuestion(
-                prompt="That covers my questions, do you have any questions for me?",
+                prompt="We are in the final 2 minutes. Briefly, could you share a time you worked on a tight deadline with a team? And finally, do you have any questions for us?",
                 kind=QuestionKind.DYNAMIC_FOLLOW_UP,
-                competency_targets=[Competency.COMMUNICATION],
-                rationale="Interview is in its final 5 minutes. Offering the candidate time to ask questions.",
-                metadata={"signature": "wrap_up:questions_for_me"}
+                competency_targets=[Competency.COMMUNICATION, Competency.OWNERSHIP_COLLABORATION],
+                rationale="Interview is in its final 2 minutes. Asking a behavioral question and offering the candidate time to ask questions.",
+                metadata={"signature": "wrap_up:behavioral_and_questions"}
             )
 
         pending_answer = self._pending_dynamic_deep_follow_up_answer(session)
@@ -1603,7 +1626,15 @@ class DynamicQuestionEngine:
         topic_key = self._topic_key_for_question(question)
         if topic_key in session.metadata.get("retired_topics", []):
             return False
-        return not question.metadata.get("unknown_recovery")
+            
+        struggles = session.metadata.get("topic_struggles", {})
+        struggle_count = struggles.get(topic_key, 0)
+        
+        # Reframe once for practical (struggle_count 0 -> 1), once for theoretical (1 -> 2)
+        if struggle_count >= 2:
+            return False
+            
+        return True
 
     def _unknown_answer_recovery_question(
         self,
@@ -1617,7 +1648,27 @@ class DynamicQuestionEngine:
         code_insights = event.details.get("code_insights") if event else None
         topic_key = self._topic_key_for_question(question)
 
-        if isinstance(code_insights, dict):
+        struggles = session.metadata.setdefault("topic_struggles", {})
+        struggle_count = struggles.get(topic_key, 0)
+        struggles[topic_key] = struggle_count + 1
+        session.metadata["topic_struggles"] = struggles
+
+        is_theoretical = struggle_count >= 1
+
+        if is_theoretical:
+            if isinstance(code_insights, dict):
+                prompt = (
+                    f"Let's step away from the specific code implementation. "
+                    f"In general theoretical terms, what is the core concept behind this approach and when would you choose to use it?"
+                )
+            else:
+                prompt = (
+                    "Let's look at this theoretically. Conceptually speaking, what is the main principle behind this pattern?"
+                )
+            targets = [Competency.TECHNICAL_KNOWLEDGE, Competency.COMMUNICATION]
+            rationale = "Candidate struggled with practical implementation. Falling back to theoretical question."
+            probe_axis = "theoretical_fallback"
+        elif isinstance(code_insights, dict):
             focus = self._code_focus_phrase(code_insights)
             prompt = (
                 f"Let's reframe it through the code instead of repeating the same question. "
@@ -1629,6 +1680,8 @@ class DynamicQuestionEngine:
                 Competency.DEBUGGING_ABILITY,
                 Competency.TESTING_MINDSET,
             ]
+            rationale = "Candidate gave an unknown answer, so Vitarka reframed instead of repeating."
+            probe_axis = "practical_reframe"
         elif custom_scope and question is not None:
             scope = question.metadata.get("scope_prompt") or question.prompt
             prompt = (
@@ -1637,6 +1690,8 @@ class DynamicQuestionEngine:
                 "and what evidence would help you answer it."
             )
             targets = [Competency.COMMUNICATION, Competency.LEARNING_ABILITY]
+            rationale = "Candidate gave an unknown answer, so Vitarka reframed instead of repeating."
+            probe_axis = "practical_reframe"
         else:
             prompt = (
                 "Let's approach it from a smaller angle. What is one fact from the assessment "
@@ -1647,6 +1702,8 @@ class DynamicQuestionEngine:
                 Competency.PROBLEM_SOLVING,
                 Competency.COMMUNICATION,
             ]
+            rationale = "Candidate gave an unknown answer, so Vitarka reframed instead of repeating."
+            probe_axis = "practical_reframe"
 
         return InterviewQuestion(
             prompt=prompt,
@@ -1654,12 +1711,13 @@ class DynamicQuestionEngine:
             competency_targets=targets,
             evidence_event_ids=[event.id] if event else [],
             evidence_answer_ids=[answer.id],
-            rationale="Candidate gave an unknown answer, so Vitarka reframed instead of repeating.",
+            rationale=rationale,
             metadata={
-                "signature": f"unknown-reframe:{answer.id}",
+                "signature": f"unknown-reframe:{answer.id}:{probe_axis}",
                 "parent_answer_id": answer.id,
                 "parent_question_id": question.id if question else None,
                 "unknown_recovery": True,
+                "is_theoretical": is_theoretical,
                 "topic_key": topic_key,
             },
         )
