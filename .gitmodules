@@ -1,0 +1,3 @@
+[submodule "ymarketplace"]
+	path = ymarketplace
+	url = git@github.com:yuvrosoftwarecode/yuvro-marketplace.git
