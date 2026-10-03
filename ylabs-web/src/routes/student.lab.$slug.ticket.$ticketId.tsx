@@ -1030,8 +1030,21 @@ export function TicketIDE({
     from: "/student/lab/$slug/ticket/$ticketId/review",
     shouldThrow: false,
   });
+  const isDsaLabMatch = (str?: string) => {
+    if (!str) return false;
+    const s = str.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
+    return (
+      s.includes("dsa") ||
+      s.includes("data structure") ||
+      s.includes("datastructure") ||
+      s.includes("ds lab") ||
+      s.includes("ds scenario")
+    );
+  };
+
   const isAlgo = !ticket.tag?.toLowerCase().includes("sql") && !ticket.tag?.toLowerCase().includes("mysql") && !ticket.tag?.toLowerCase().includes("postgres") && !ticket.tag?.toLowerCase().includes("mongo") && (
     slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || 
+    isDsaLabMatch(slug) || isDsaLabMatch(ticket?.title) ||
     ticket.ticket_type === "algo" || ticket.type === "algo" || ticket.lab_type === "algo" || 
     ticket.ticket_type === "ALGO" || ticket.type === "ALGO" || ticket.lab_type === "ALGO" ||
     (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined && t.input !== "" && t.input !== null))
@@ -1054,6 +1067,37 @@ export function TicketIDE({
   const isGit = kit.name === "git";
 
   const isReal = slug !== "knowledge" && !tickets.some((t) => t.id === ticket.id);
+
+  const isDsa =
+    isReal ||
+    isDsaLabMatch(slug) ||
+    isDsaLabMatch(ticket?.title) ||
+    isDsaLabMatch(ticket?.tag) ||
+    isDsaLabMatch(ticket?.lab_type) ||
+    isDsaLabMatch(ticket?.lab_name);
+
+  if (!isEvaluationMode && !isRecruiterPreview && !isDsa) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="max-w-md rounded-xl border bg-card p-6 text-center shadow-lg space-y-4">
+          <span className="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-600 dark:text-purple-400">
+            Upcoming Lab
+          </span>
+          <h2 className="text-xl font-semibold">Lab Workspace Not Available</h2>
+          <p className="text-sm text-muted-foreground">
+            This lab is currently upcoming. Sprints and tickets are for preview only.
+          </p>
+          <Link
+            to="/student/lab/$slug"
+            params={{ slug }}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+          >
+            Back to Lab Overview
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const { user, isLoading } = useAuth();
   const userId = useMemo(() => {

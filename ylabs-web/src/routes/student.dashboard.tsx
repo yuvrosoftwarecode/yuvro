@@ -38,11 +38,14 @@ const LAB_CATEGORY: Record<string, Category> = {
   datastructures: "Backend",
   systemdesign: "Backend",
   ui: "Frontend",
+  react: "Frontend",
   sql: "Database",
   postgres: "Database",
   mongo: "Database",
   git: "DevOps",
   linux: "DevOps",
+  devops: "DevOps",
+  aws: "DevOps",
   qa: "QA",
   cybersecurity: "Security",
 };
@@ -57,11 +60,14 @@ const LAB_LANGUAGES: Record<string, string[]> = {
   datastructures: ["Python", "Java", "C++"],
   systemdesign: [],
   ui: ["HTML", "CSS", "JavaScript"],
+  react: ["JavaScript", "TypeScript", "HTML", "CSS"],
   sql: ["SQL"],
   postgres: ["SQL"],
   mongo: ["JavaScript"],
   git: ["Bash"],
   linux: ["Bash"],
+  devops: ["Bash", "Docker"],
+  aws: ["Bash", "Python"],
   qa: ["JavaScript"],
   cybersecurity: ["Python", "Bash"],
 };
@@ -164,11 +170,15 @@ function Hub() {
       } catch (e) {
         console.warn("Failed to fetch enrollments from API, falling back to mock");
       }
-        // Always merge mock enrollments so UI interactions persist across refresh
+        // Always merge mock enrollments per user so UI interactions persist across refresh
         try {
-          const saved = localStorage.getItem("mock_enrollments");
-          if (saved) {
-            JSON.parse(saved).forEach((id: string) => enrSet.add(id));
+          const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
+          const isFirst = user?.id ? localStorage.getItem(`is_first_login_${user.id}`) === "true" : false;
+          if (!isFirst) {
+            const saved = localStorage.getItem(userMockKey);
+            if (saved) {
+              JSON.parse(saved).forEach((id: string) => enrSet.add(id));
+            }
           }
         } catch {}
         setEnrolledIds(enrSet);
@@ -225,11 +235,119 @@ function Hub() {
         };
       }));
 
-      // Integrate dummy labs from the codebase to ensure both real and dummy are present
-      const mappedDummy: CatalogLab[] = [];
+      // Integrate catalog dummy labs (AI/ML, System Design, DevOps, AWS, Cybersecurity, React) with real labs
+      const realNames = new Set(mapped.map((l) => l.name.toLowerCase()));
+      const requestedDummyLabs: CatalogLab[] = [
+        {
+          id: "aiml",
+          name: "AI/ML Lab",
+          description: "Artificial Intelligence & Machine Learning: neural networks, LLMs, prompt engineering and model fine-tuning.",
+          difficulty: "Advanced",
+          icon: "🤖",
+          color: "python",
+          total: 24,
+          completed: 0,
+          payment_tier: "free",
+          hoursLeft: 36,
+        },
+        {
+          id: "systemdesign",
+          name: "System Design Lab",
+          description: "Design scalable systems: load balancing, caching, sharding, queues and event-driven architectures.",
+          difficulty: "Advanced",
+          icon: "🏛️",
+          color: "sysd",
+          total: 16,
+          completed: 0,
+          payment_tier: "free",
+          hoursLeft: 32,
+        },
+        {
+          id: "devops",
+          name: "DevOps Lab",
+          description: "Master CI/CD pipelines, Docker containerization, Kubernetes orchestration, Infrastructure as Code and monitoring.",
+          difficulty: "Intermediate",
+          icon: "♾️",
+          color: "prog",
+          total: 18,
+          completed: 0,
+          payment_tier: "free",
+          hoursLeft: 24,
+        },
+        {
+          id: "aws",
+          name: "AWS Lab",
+          description: "Amazon Web Services cloud architecture: EC2, S3, Lambda, IAM, VPC, and CloudFormation infrastructure setup.",
+          difficulty: "Intermediate",
+          icon: "☁️",
+          color: "prog",
+          total: 20,
+          completed: 0,
+          payment_tier: "free",
+          hoursLeft: 28,
+        },
+        {
+          id: "cybersecurity",
+          name: "Cybersecurity Lab",
+          description: "Hands-on offensive & defensive security: OWASP Top 10, AuthN/AuthZ, cryptography, network scanning and cloud hardening.",
+          difficulty: "Advanced",
+          icon: "🛡️",
+          color: "sec",
+          total: 18,
+          completed: 0,
+          payment_tier: "free",
+          hoursLeft: 30,
+        },
+        {
+          id: "react",
+          name: "React Lab",
+          description: "Build modern, scalable user interfaces using React: components, JSX, custom hooks, state management, and Router.",
+          difficulty: "Intermediate",
+          icon: "⚛️",
+          color: "ui",
+          total: 22,
+          completed: 0,
+          payment_tier: "free",
+          hoursLeft: 24,
+        },
+      ];
 
-      // Combine both arrays
-      setAllCatalogLabs([...mapped, ...mappedDummy]);
+      const mappedDummy: CatalogLab[] = requestedDummyLabs.filter(
+        (dl) => !realNames.has(dl.name.toLowerCase())
+      );
+
+      const hasDsaScenario = [...mapped, ...mappedDummy].some(
+        (l) =>
+          (l.name.toLowerCase().includes("dsa") || l.name.toLowerCase().includes("data structure")) &&
+          l.name.toLowerCase().includes("scenario")
+      );
+      if (!hasDsaScenario) {
+        mappedDummy.push({
+          id: "dsa_scenario_lab",
+          name: "Data Structures Lab Scenario",
+          description: "Real-world problem solving scenarios using advanced data structures.",
+          difficulty: "Advanced",
+          icon: "🧩",
+          color: "ds",
+          total: 20,
+          completed: 0,
+          payment_tier: "free",
+          hoursLeft: 24,
+        });
+      }
+
+      // Ensure AI/ML Lab and System Design Lab come at the very top of all labs
+      const priorityOrder = ["aiml", "systemdesign"];
+      const sortedCatalog = [...mapped, ...mappedDummy].sort((a, b) => {
+        const idxA = priorityOrder.indexOf(a.id);
+        const idxB = priorityOrder.indexOf(b.id);
+        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+        if (idxA !== -1) return -1;
+        if (idxB !== -1) return 1;
+        return 0;
+      });
+
+      setAllCatalogLabs(sortedCatalog);
       setLabsLoading(false);
     }).catch(console.error);
   }, []);
@@ -238,10 +356,73 @@ function Hub() {
     () => allCatalogLabs.filter((l) => enrolledIds.has(l.id)),
     [allCatalogLabs, enrolledIds],
   );
-  const featuredLabs = useMemo(
-    () => allCatalogLabs.slice(0, Math.min(6, allCatalogLabs.length)),
-    [allCatalogLabs],
-  );
+  const featuredLabs = useMemo(() => {
+    const isExcluded = (name: string) => {
+      const n = (name || "").toLowerCase();
+      return n.includes("mongo") || n.includes("mysql") || n.includes("taskflow");
+    };
+
+    const filtered = allCatalogLabs.filter((l) => !isExcluded(l.name));
+
+    let dsaLab = filtered.find(
+      (l) =>
+        (l.name.toLowerCase().includes("dsa") || l.name.toLowerCase().includes("data structure")) &&
+        !l.name.toLowerCase().includes("scenario")
+    );
+    if (!dsaLab) {
+      dsaLab = {
+        id: "dsa_lab",
+        name: "Data Structures Lab",
+        description: "Core data structures: arrays, linked lists, trees, graphs, heaps and hashing.",
+        difficulty: "Intermediate",
+        icon: "🧩",
+        color: "ds",
+        total: 30,
+        completed: 0,
+        payment_tier: "free",
+        hoursLeft: 24,
+      };
+    }
+
+    let dsaScenarioLab = filtered.find(
+      (l) =>
+        (l.name.toLowerCase().includes("dsa") || l.name.toLowerCase().includes("data structure")) &&
+        l.name.toLowerCase().includes("scenario")
+    );
+    if (!dsaScenarioLab) {
+      dsaScenarioLab = {
+        id: "dsa_scenario_lab",
+        name: "Data Structures Lab Scenario",
+        description: "Real-world problem solving scenarios using advanced data structures.",
+        difficulty: "Advanced",
+        icon: "🧩",
+        color: "ds",
+        total: 20,
+        completed: 0,
+        payment_tier: "free",
+        hoursLeft: 24,
+      };
+    }
+
+    const featuredList: CatalogLab[] = [];
+    const addedIds = new Set<string>();
+
+    [dsaLab, dsaScenarioLab].forEach((item) => {
+      if (item && !addedIds.has(item.id)) {
+        featuredList.push(item);
+        addedIds.add(item.id);
+      }
+    });
+
+    filtered.forEach((lab) => {
+      if (!addedIds.has(lab.id) && featuredList.length < 6) {
+        featuredList.push(lab);
+        addedIds.add(lab.id);
+      }
+    });
+
+    return featuredList.slice(0, 6);
+  }, [allCatalogLabs]);
 
   const filteredAll = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -260,13 +441,14 @@ function Hub() {
   const toggle = (id: string) => {
     setEnrollLoading((prev) => ({ ...prev, [id]: true }));
     const isEnrolled = enrolledIds.has(id);
+    const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
 
     if (isEnrolled) {
       setEnrolledIds((prev) => {
         const next = new Set(prev);
         next.delete(id);
         try {
-          localStorage.setItem("mock_enrollments", JSON.stringify([...next]));
+          localStorage.setItem(userMockKey, JSON.stringify([...next]));
         } catch {}
         return next;
       });
@@ -287,7 +469,7 @@ function Hub() {
             const next = new Set(prev);
             next.add(id);
             try {
-              localStorage.setItem("mock_enrollments", JSON.stringify([...next]));
+              localStorage.setItem(userMockKey, JSON.stringify([...next]));
             } catch {}
             return next;
           });
@@ -319,6 +501,11 @@ function Hub() {
     return enrolledLabs.length > 0 ? enrolledLabs[0] : null;
   }, [allCatalogLabs, enrolledLabs]);
 
+  const isFirstLogin = useMemo(() => {
+    if (typeof window === "undefined" || !user?.id) return false;
+    return localStorage.getItem(`is_first_login_${user.id}`) === "true";
+  }, [user?.id]);
+
   return (
     <div className="min-h-screen">
       <TopNav />
@@ -330,7 +517,7 @@ function Hub() {
           <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:gap-6">
             <div className="min-w-0">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                <Sparkles className="h-3 w-3" /> Welcome back, {displayName}
+                <Sparkles className="h-3 w-3" /> {isFirstLogin ? `Welcome, ${displayName}` : `Welcome back, ${displayName}`}
               </span>
               <h1 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight truncate">
                 Your <span className="text-primary">Simulation Lab</span>
@@ -614,10 +801,18 @@ function CheckRow({
   );
 }
 
-function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab, sizeClass?: string }) {
+function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab; sizeClass?: string }) {
+  const [imgErr, setImgErr] = useState(false);
   const devIconUrl = getLabIconUrl(lab.name);
-  if (devIconUrl) {
-    return <img src={devIconUrl} alt={lab.name} className={`${sizeClass} object-contain`} />;
+  if (devIconUrl && !imgErr) {
+    return (
+      <img
+        src={devIconUrl}
+        alt={lab.name}
+        className={`${sizeClass} object-contain`}
+        onError={() => setImgErr(true)}
+      />
+    );
   }
   if (lab.name.toLowerCase().includes("data structure") && lab.name.toLowerCase().includes("scenario")) {
     return <Boxes className={`${sizeClass} text-primary`} />;
@@ -628,19 +823,35 @@ function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab, sizeClass?: 
   if (lab.name === "Portfolio Lab" || lab.name.toLowerCase().includes("portfolio")) {
     return <Briefcase className={`${sizeClass} text-warning`} />;
   }
-  return <span className="text-inherit">{lab.icon}</span>;
+  return <span className="text-inherit">{lab.icon || "💻"}</span>;
 }
 
-function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab; isEnrolled: boolean; isLoading: boolean; onToggle: () => void }) {
+const isDsaLab = (name?: string, id?: string) => {
+  if (!name && !id) return false;
+  const s = `${name || ""} ${id || ""}`.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
   return (
-    <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border bg-gradient-to-br from-card via-card to-accent/20 p-5 hover:border-primary/50 transition">
-      <div
-        className="absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl opacity-30"
-        style={{ background: `var(--${lab.color})` }}
-      />
-      <span className="self-start inline-flex items-center gap-1 rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
-        <Star className="h-3 w-3" /> Featured
-      </span>
+    s.includes("dsa") ||
+    s.includes("data structure") ||
+    s.includes("datastructure") ||
+    s.includes("ds lab") ||
+    s.includes("ds scenario")
+  );
+};
+
+function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab; isEnrolled: boolean; isLoading: boolean; onToggle: () => void }) {
+  const isDsa = isDsaLab(lab.name, lab.id);
+  return (
+    <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border bg-card p-5 hover:border-primary/50 transition">
+      <div className="flex items-center justify-between w-full">
+        <span className="inline-flex items-center gap-1 rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
+          <Star className="h-3 w-3" /> Featured
+        </span>
+        {!isDsa && (
+          <span className="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-400">
+            Upcoming
+          </span>
+        )}
+      </div>
       <div className="mt-3 flex items-start gap-3 flex-1">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center text-3xl">
           <LabIcon lab={lab} />
@@ -667,8 +878,15 @@ function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLa
         </Link>
         <button
           onClick={onToggle}
-          disabled={isLoading}
-          className={`flex-1 inline-flex items-center justify-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition disabled:opacity-60 ${isEnrolled ? "border border-success/40 bg-success/10 text-success" : "bg-primary text-primary-foreground hover:opacity-90"}`}
+          disabled={isLoading || !isDsa}
+          title={!isDsa ? "Enrollment disabled for upcoming lab" : undefined}
+          className={`flex-1 inline-flex items-center justify-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition ${
+            isEnrolled
+              ? "border border-success/40 bg-success/10 text-success"
+              : !isDsa
+              ? "border border-border bg-muted/60 text-muted-foreground cursor-not-allowed opacity-60"
+              : "bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60"
+          }`}
         >
           {isLoading ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -725,6 +943,7 @@ function EnrolledCard({ lab }: { lab: CatalogLab }) {
 }
 
 function CatalogCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab; isEnrolled: boolean; isLoading: boolean; onToggle: () => void }) {
+  const isDsa = isDsaLab(lab.name, lab.id);
   return (
     <div className="flex flex-col h-full rounded-xl border bg-card p-4 hover:border-primary/40 transition">
       <div className="flex items-start justify-between gap-3 flex-1">
@@ -739,6 +958,11 @@ function CatalogCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab
             </div>
           </div>
         </div>
+        {!isDsa && (
+          <span className="shrink-0 inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold text-purple-600 dark:text-purple-400">
+            Upcoming
+          </span>
+        )}
       </div>
       <div className="mt-3 flex items-center justify-between text-[11px]">
         <div className="flex items-center gap-2">
@@ -756,8 +980,15 @@ function CatalogCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab
           </Link>
           <button
             onClick={onToggle}
-            disabled={isLoading}
-            className={`inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium transition disabled:opacity-60 ${isEnrolled ? "border border-success/40 bg-success/10 text-success" : "bg-primary text-primary-foreground hover:opacity-90"}`}
+            disabled={isLoading || !isDsa}
+            title={!isDsa ? "Enrollment disabled for upcoming lab" : undefined}
+            className={`inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium transition ${
+              isEnrolled
+                ? "border border-success/40 bg-success/10 text-success"
+                : !isDsa
+                ? "border border-border bg-muted/60 text-muted-foreground cursor-not-allowed opacity-60"
+                : "bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60"
+            }`}
           >
             {isLoading ? (
               <Loader2 className="h-3 w-3 animate-spin" />
