@@ -273,7 +273,31 @@ wire_secrets() {
         _set_kv "$f" "DB_PASSWORD" "$YMARKETPLACE_DB_PASS"
         print_success "YMarketplace RDS: $YMARKETPLACE_DB_HOST/$YMARKETPLACE_DB_NAME"
     else
-        print_warning "YMarketplace RDS endpoint not available — keeping existing DATABASE_URL"
+        # No dedicated RDS yet — reuse the YLabs RDS instance with a separate database
+        if [ -n "$YLABS_DB_HOST" ]; then
+            local mp_db_name="yuvro_marketplace_db"
+            local mp_db_user="${YLABS_DB_USER}"
+            local mp_db_pass="${YLABS_DB_PASS}"
+            local f="$SECRETS_DIR/ymarketplace/backend/.env.dev-secrets"
+            # Create the database on the shared RDS if it doesn't exist
+            print_step "Creating marketplace DB on shared RDS (${YLABS_DB_HOST}) if not exists..."
+            PGPASSWORD="$mp_db_pass" psql \
+                -h "$YLABS_DB_HOST" -p 5432 -U "$mp_db_user" -d postgres \
+                -tc "SELECT 1 FROM pg_database WHERE datname='${mp_db_name}'" 2>/dev/null \
+                | grep -q 1 || \
+            PGPASSWORD="$mp_db_pass" psql \
+                -h "$YLABS_DB_HOST" -p 5432 -U "$mp_db_user" -d postgres \
+                -c "CREATE DATABASE \"${mp_db_name}\";" 2>/dev/null \
+                && print_success "Created database: ${mp_db_name}" \
+                || print_warning "DB create skipped (already exists or psql not available locally)"
+            _set_kv "$f" "DATABASE_URL" "postgres://${mp_db_user}:${mp_db_pass}@${YLABS_DB_HOST}:5432/${mp_db_name}"
+            _set_kv "$f" "DB_HOST" "$YLABS_DB_HOST"; _set_kv "$f" "DB_PORT" "5432"
+            _set_kv "$f" "DB_NAME" "$mp_db_name"; _set_kv "$f" "DB_USER" "$mp_db_user"
+            _set_kv "$f" "DB_PASSWORD" "$mp_db_pass"
+            print_success "YMarketplace DB wired on shared YLabs RDS: ${YLABS_DB_HOST}/${mp_db_name}"
+        else
+            print_warning "YMarketplace RDS endpoint not available — keeping existing DATABASE_URL"
+        fi
     fi
 }
 
@@ -397,6 +421,23 @@ if [ -d yuvro ]; then
     git pull origin "$branch"
 else
     git clone -b "$branch" "$repo_url" yuvro && cd yuvro
+fi
+# Initialize submodules — clear stale directories first if they exist but aren't registered
+git submodule sync
+git submodule foreach --recursive 'git fetch origin 2>/dev/null || true'
+# Remove any stale unregistered submodule directories so init can succeed
+git ls-files --others --directory --no-empty-directory | grep -E '/$' | while read d; do
+    if [ -d ".git/modules/\${d%/}" ]; then
+        rm -rf ".git/modules/\${d%/}"
+    fi
+done
+# If ymarketplace dir exists but isn't a proper submodule, reset it
+if [ -d "ymarketplace" ] && [ ! -f "ymarketplace/.git" ]; then
+    echo "   ⚠ stale ymarketplace dir — clearing for submodule init..."
+    rm -rf ymarketplace
+    git config --file .gitmodules --get submodule.ymarketplace.url >/dev/null 2>&1 && \
+        git config --remove-section submodule.ymarketplace 2>/dev/null || true
+    rm -rf .git/modules/ymarketplace
 fi
 git submodule update --init --recursive
 echo "   ✓ git  [elapsed \$(( \$(date +%s)-T1 ))s]"
