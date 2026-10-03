@@ -12,10 +12,24 @@ setup_nginx() {
     local ip=$1 app="${2:-ymarketplace}"
     print_header "Setting up Nginx + SSL for YMarketplace"
 
-    # Use the parent-repo nginx config (has all three domains with proper HTTPS blocks)
-    scp_ec2 "$PROJECT_ROOT/ymarketplace-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ymarketplace.conf"
-    ssh_ec2 "ubuntu@$ip" "sudo cp /tmp/ymarketplace.conf /etc/nginx/sites-available/yuvro-ymarketplace.conf && \
-        sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace.conf /etc/nginx/sites-enabled/yuvro-ymarketplace.conf"
+    # First copy a minimal HTTP-only nginx config for certbot challenges
+    # This config serves the .well-known/acme-challenge path and redirects everything else to HTTPS
+    ssh_ec2 "ubuntu@$ip" bash << 'PRECERTBOT'
+sudo apt-get install -y nginx certbot python3-certbot-nginx -q
+sudo mkdir -p /var/www/certbot
+sudo rm -f /etc/nginx/sites-enabled/default
+cat > /etc/nginx/sites-available/yuvro-ymarketplace.conf << 'NGINXCONF'
+server {
+    listen 80;
+    server_name marketplace-dev.yuvro.ai marketplace-backend-dev.yuvro.ai marketplace.yuvro.ai;
+    location /.well-known/acme-challenge/ { root /var/www/certbot; }
+    location / { return 301 https://\$host\$request_uri; }
+}
+NGINXCONF
+sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace.conf /etc/nginx/sites-enabled/yuvro-ymarketplace.conf
+sudo nginx -t && sudo systemctl reload nginx
+echo "✓ HTTP nginx ready for certbot"
+PRECERTBOT
 
     # All three domains
     local domains="marketplace-dev.yuvro.ai marketplace-backend-dev.yuvro.ai marketplace.yuvro.ai"
@@ -23,18 +37,6 @@ setup_nginx() {
     ssh_ec2 "ubuntu@$ip" bash << CERTBOT
 DOMAINS=( $domains )
 CERT_EMAIL="rohith@yuvro.ai"
-
-# Ensure certbot + nginx are installed
-command -v certbot >/dev/null 2>&1 || sudo apt-get install -y certbot python3-certbot-nginx -q
-command -v nginx   >/dev/null 2>&1 || sudo apt-get install -y nginx -q
-sudo mkdir -p /var/www/certbot
-
-# Remove default nginx config to avoid conflicts
-sudo rm -f /etc/nginx/sites-enabled/default
-
-# First pass: serve HTTP only so certbot webroot challenge works
-# Strip SSL blocks by using a plain HTTP config for initial cert issuance
-sudo nginx -t && sudo systemctl reload nginx 2>/dev/null || sudo systemctl restart nginx
 
 # Request SSL certs for each domain
 for d in "\${DOMAINS[@]}"; do
@@ -47,15 +49,20 @@ for d in "\${DOMAINS[@]}"; do
             || echo "⚠ certbot failed for \$d (check DNS points to this server)"
     fi
 done
+CERTBOT
 
-# Reload nginx with full HTTPS config now that certs exist
+    # Now copy the full HTTPS nginx config with all SSL blocks
+    scp_ec2 "$PROJECT_ROOT/ymarketplace-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ymarketplace.conf"
+    ssh_ec2 "ubuntu@$ip" "sudo cp /tmp/ymarketplace.conf /etc/nginx/sites-available/yuvro-ymarketplace.conf && \
+        sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace.conf /etc/nginx/sites-enabled/yuvro-ymarketplace.conf"
+
+    ssh_ec2 "ubuntu@$ip" bash << 'HTTPSNGINX'
 sudo nginx -t && sudo systemctl reload nginx && echo "✓ HTTPS config active" || { echo "⚠ nginx config error:"; sudo nginx -t; }
-
 # Auto-renew cron (idempotent)
 CRON="0 3 * * * certbot renew --quiet --deploy-hook 'systemctl reload nginx'"
 ( sudo crontab -l 2>/dev/null | grep -v 'certbot renew'; echo "\$CRON" ) | sudo crontab -
 echo "✓ certbot renewal cron set"
-CERTBOT
+HTTPSNGINX
 
     print_success "Nginx + SSL ready for YMarketplace"
 }
