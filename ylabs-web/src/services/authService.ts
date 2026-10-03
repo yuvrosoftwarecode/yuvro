@@ -13,6 +13,8 @@ export interface RegisterRequest {
   username: string;
   password: string;
   password_confirm: string;
+  first_name?: string;
+  last_name?: string;
   roles?: Record<string, string>;
 }
 
