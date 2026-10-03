@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useRouter, useSearch } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EvalShell, EvalStepHeader, PrimaryButton, Field } from "@/components/evaluation/EvalShell";
 import { evaluationService, setTempResumeFile } from "../services/evaluationService";
 
@@ -14,19 +14,56 @@ export const Route = createFileRoute("/evaluation/")({
   component: EvaluationInvite,
 });
 
+const COUNTRIES = [
+  { code: "+91", label: "🇮🇳 India (+91)", digits: 10 },
+  { code: "+1", label: "🇺🇸 US/CA (+1)", digits: 10 },
+  { code: "+44", label: "🇬🇧 UK (+44)", digits: 10 },
+  { code: "+61", label: "🇦🇺 Australia (+61)", digits: 9 },
+  { code: "+65", label: "🇸🇬 Singapore (+65)", digits: 8 },
+  { code: "+971", label: "🇦🇪 UAE (+971)", digits: 9 },
+];
+
 function EvaluationInvite() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
   const [phone, setPhone] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const searchParams = useSearch({ strict: false });
-  const evaluationId = (searchParams as any).e || "";
+  const searchParams = useSearch({ strict: false }) as Record<string, string>;
+  const evaluationId = searchParams?.e || searchParams?.evaluationId || "";
+  const [estMinutes, setEstMinutes] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!evaluationId) return;
+    evaluationService.getWorkspaceData(evaluationId).then((data) => {
+      if (data?.sections) {
+        let total = 0;
+        data.sections.forEach((sec: any) => {
+          if (sec.type === "LAB") {
+            (sec.questions || []).forEach((q: any) => {
+              total += Number(q.duration_minutes || 30);
+            });
+          } else if (sec.type === "KNOWLEDGE_ASSESSMENT") {
+            (sec.questions || []).forEach((q: any) => {
+              total += Number(q.duration_minutes || 2);
+            });
+          } else if (sec.type === "VITARKA_AI_INTERVIEW") {
+            let meta: any = {};
+            try { meta = typeof sec.description === "string" ? JSON.parse(sec.description) : {}; } catch {}
+            total += Number(meta.duration || meta.duration_minutes || sec.duration_minutes || sec.duration || 15);
+          }
+        });
+        if (total > 0) setEstMinutes(total);
+      }
+    }).catch(() => {});
+  }, [evaluationId]);
 
   const onFiles = (list: FileList | null) => {
     const f = list?.[0];
@@ -36,18 +73,38 @@ function EvaluationInvite() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName || !lastName || !email || !phone || !evaluationId) {
-      setErr("First name, last name, email, phone number, and valid evaluation link are required.");
+    const missing: string[] = [];
+    if (!firstName.trim()) missing.push("firstName");
+    if (!lastName.trim()) missing.push("lastName");
+    if (!email.trim()) missing.push("email");
+    if (!phone.trim()) missing.push("phone");
+
+    if (missing.length > 0 || !evaluationId) {
+      setMissingFields(missing);
+      if (!evaluationId) {
+        setErr("A valid evaluation link is required.");
+      } else {
+        setErr(null);
+      }
       return;
     }
-    if (phone.length !== 10) {
-      setErr("Please enter a valid 10-digit mobile number.");
+    
+    if (phone.length < 5) {
+      setErr("Please enter a valid mobile number.");
+      setMissingFields(["phone"]);
       return;
     }
+    
     setLoading(true);
     setErr(null);
+    setMissingFields([]);
     try {
       const checkRes = await evaluationService.checkRegistration(evaluationId, email);
+      if (checkRes.is_expired) {
+        setErr(checkRes.error || "This evaluation has expired and is no longer accepting submissions.");
+        setLoading(false);
+        return;
+      }
       if (checkRes.registered) {
         setErr("The user is already evaluated with this mail");
         setLoading(false);
@@ -57,7 +114,7 @@ function EvaluationInvite() {
       await evaluationService.sendRegistrationOtp(evaluationId, email, title);
       localStorage.setItem(
         "yuvro-eval-candidate",
-        JSON.stringify({ firstName, lastName, email, phone: `+91 ${phone}`, resume: file?.name, title }),
+        JSON.stringify({ evaluationId, firstName, lastName, email, phone: `${countryCode} ${phone}`, resume: file?.name, title }),
       );
       if (file) {
         setTempResumeFile(file);
@@ -110,6 +167,7 @@ function EvaluationInvite() {
 
         <section className="lg:pl-6">
           <form
+            noValidate
             onSubmit={submit}
             className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-[0_1px_0_rgba(0,0,0,0.02),0_20px_60px_-30px_rgba(0,0,0,0.15)] sm:p-10"
           >
@@ -128,52 +186,68 @@ function EvaluationInvite() {
 
             <div className="mt-8 space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <Field label="First name" hint="Required">
+                <Field label="First name" hint={missingFields.includes("firstName") ? <span className="text-red-500">Required</span> : "Required"}>
                   <input
                     type="text"
                     required
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                      setMissingFields((prev) => prev.filter((f) => f !== "firstName"));
+                    }}
                     placeholder="First name"
-                    className="eval-input"
+                    className={`eval-input ${missingFields.includes("firstName") ? "!border-red-500" : ""}`}
                   />
                 </Field>
-                <Field label="Last name" hint="Required">
+                <Field label="Last name" hint={missingFields.includes("lastName") ? <span className="text-red-500">Required</span> : "Required"}>
                   <input
                     type="text"
                     required
                     value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    onChange={(e) => {
+                      setLastName(e.target.value);
+                      setMissingFields((prev) => prev.filter((f) => f !== "lastName"));
+                    }}
                     placeholder="Last name"
-                    className="eval-input"
+                    className={`eval-input ${missingFields.includes("lastName") ? "!border-red-500" : ""}`}
                   />
                 </Field>
               </div>
-              <Field label="Email address" hint="We'll send a one-time verification code.">
+              <Field label="Email address" hint={missingFields.includes("email") ? <span className="text-red-500">Required</span> : "We'll send a one-time verification code."}>
                 <input
                   type="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setMissingFields((prev) => prev.filter((f) => f !== "email"));
+                  }}
                   placeholder="Email address"
-                  className="eval-input"
+                  className={`eval-input ${missingFields.includes("email") ? "!border-red-500" : ""}`}
                 />
               </Field>
-              <Field label="Phone number" hint="Required for account recovery.">
-                <div className="relative flex items-center">
-                  <span className="pointer-events-none absolute left-4 text-[14px] text-neutral-500">
-                    +91
-                  </span>
+              <Field label="Phone number" hint={missingFields.includes("phone") ? <span className="text-red-500">Required for account recovery.</span> : "Required for account recovery."}>
+                <div className="flex gap-2">
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="eval-input !w-[160px] shrink-0"
+                  >
+                    {COUNTRIES.map(c => (
+                      <option key={c.code} value={c.code}>{c.label}</option>
+                    ))}
+                  </select>
                   <input
-                    type="tel"
-                    required
-                    pattern="[0-9]{10}"
-                    title="Please enter a valid 10-digit mobile number"
-                    maxLength={10}
+                    pattern="[0-9]*"
+                    title="Please enter a valid mobile number"
+                    maxLength={COUNTRIES.find(c => c.code === countryCode)?.digits || 15}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    onChange={(e) => {
+                      setPhone(e.target.value.replace(/\D/g, "").slice(0, COUNTRIES.find(c => c.code === countryCode)?.digits || 15));
+                      setMissingFields((prev) => prev.filter((f) => f !== "phone"));
+                    }}
                     placeholder="Phone number"
-                    className="eval-input !pl-[44px]"
+                    className={`eval-input flex-1 ${missingFields.includes("phone") ? "!border-red-500" : ""}`}
                   />
                 </div>
               </Field>
@@ -242,15 +316,8 @@ function EvaluationInvite() {
             </p>
           </form>
 
-          <div className="mt-6 flex items-center justify-between px-1 text-[11px] text-neutral-500">
-            <span>Est. 60 minutes · works best on Chrome, Safari or Edge</span>
-            <Link
-              to="/auth"
-              search={{ tab: "signin" }}
-              className="hover:text-neutral-900 transition"
-            >
-              Recruiter sign in →
-            </Link>
+          <div className="mt-6 text-center text-[11px] text-neutral-500">
+            <span>Est. {estMinutes ? `${estMinutes} minutes` : "30–60 minutes"} · works best on Chrome, Safari or Edge</span>
           </div>
         </section>
       </div>

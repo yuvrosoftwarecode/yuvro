@@ -118,11 +118,11 @@ const CustomTooltipContent = ({ data, label, setActiveLightboxImg }: any) => {
     
     return (
         <div className="space-y-3">
-            {label && <div className="font-mono text-[10px] text-slate-500 mb-1">{label}</div>}
-            {data?.time && label !== data.time && <div className="font-mono text-[10px] text-slate-500 mb-2">{data.time}</div>}
+            {label && <div className="font-mono text-[10px] text-slate-500 dark:text-neutral-400 mb-1">{label}</div>}
+            {data?.time && label !== data.time && <div className="font-mono text-[10px] text-slate-500 dark:text-neutral-400 mb-2">{data.time}</div>}
             {log.question_no && (
-                <div className="text-xs text-slate-500 font-medium mb-2 border-b border-neutral-200 pb-2">
-                    <span className="font-semibold text-slate-900">Question:</span> {log.question_no}
+                <div className="text-xs text-slate-500 dark:text-neutral-400 font-medium mb-2 border-b border-neutral-200 dark:border-white/10 pb-2">
+                    <span className="font-semibold text-slate-900 dark:text-white">Question:</span> {log.question_no}
                 </div>
             )}
             <div className="flex items-center gap-2 mb-3">
@@ -132,19 +132,19 @@ const CustomTooltipContent = ({ data, label, setActiveLightboxImg }: any) => {
             
             {!isPureSnapshot && log.activity_type && (
                 <div className="space-y-1">
-                    <span className="font-semibold capitalize text-xs text-slate-900 block">
+                    <span className="font-semibold capitalize text-xs text-slate-900 dark:text-white block">
                         {log.activity_type.replace(/_/g, ' ')}
                     </span>
                     {log.meta_data && Object.keys(log.meta_data).length > 0 && (
-                        <div className="mt-2 space-y-1 pt-2 border-t border-neutral-200">
+                        <div className="mt-2 space-y-1 pt-2 border-t border-neutral-200 dark:border-white/10">
                             {log.meta_data.key && (
-                                <div className="text-[10px] truncate"><span className="text-slate-500">Key:</span> <kbd className="px-1 border border-neutral-200 bg-slate-100 font-mono rounded">{log.meta_data.key}</kbd></div>
+                                <div className="text-[10px] truncate"><span className="text-slate-500 dark:text-neutral-400">Key:</span> <kbd className="px-1 border border-neutral-200 dark:border-white/10 bg-slate-100 dark:bg-white/10 font-mono rounded">{log.meta_data.key}</kbd></div>
                             )}
                             {log.meta_data.copied_text && (
-                                <div className="text-[10px] truncate" title={log.meta_data.copied_text}><span className="text-slate-500">Copy:</span> "{log.meta_data.copied_text}"</div>
+                                <div className="text-[10px] truncate" title={log.meta_data.copied_text}><span className="text-slate-500 dark:text-neutral-400">Copy:</span> "{log.meta_data.copied_text}"</div>
                             )}
                             {log.meta_data.pasted_text && (
-                                <div className="text-[10px] truncate" title={log.meta_data.pasted_text}><span className="text-slate-500">Paste:</span> "{log.meta_data.pasted_text}"</div>
+                                <div className="text-[10px] truncate" title={log.meta_data.pasted_text}><span className="text-slate-500 dark:text-neutral-400">Paste:</span> "{log.meta_data.pasted_text}"</div>
                             )}
                         </div>
                     )}
@@ -152,14 +152,14 @@ const CustomTooltipContent = ({ data, label, setActiveLightboxImg }: any) => {
             )}
 
             {(log.image_path || log.screen_path) && (
-                <div className={`space-y-2 ${!isPureSnapshot ? 'pt-2 border-t border-neutral-200' : ''}`}>
+                <div className={`space-y-2 ${!isPureSnapshot ? 'pt-2 border-t border-neutral-200 dark:border-white/10' : ''}`}>
                     <div className="flex items-center gap-1.5 text-blue-600  text-xs font-semibold">
                         <Camera className="h-3 w-3" /> Snapshot Captured
                     </div>
                     <div className={`grid ${log.image_path && log.screen_path ? 'grid-cols-2 gap-2' : 'grid-cols-1'}`}>
                         {log.image_path && (
                             <div className="space-y-1">
-                                <span className="text-[10px] text-slate-500">Camera</span>
+                                <span className="text-[10px] text-slate-500 dark:text-neutral-400">Camera</span>
                                 {(() => {
                                     const isFaceViolation = ['face_not_detected', 'no_face_detected', 'multiple_faces_detected', 'face_mismatch', 'face_recognition_failed'].includes(log.activity_type || '');
                                     return (
@@ -170,7 +170,7 @@ const CustomTooltipContent = ({ data, label, setActiveLightboxImg }: any) => {
                         )}
                         {log.screen_path && (
                             <div className="space-y-1">
-                                <span className="text-[10px] text-slate-500">Screen</span>
+                                <span className="text-[10px] text-slate-500 dark:text-neutral-400">Screen</span>
                                 <img src={getImageUrl(log.screen_path)} alt="Screen Snapshot" className="w-full object-cover bg-black rounded cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setActiveLightboxImg?.(getImageUrl(log.screen_path))} />
                             </div>
                         )}
@@ -186,7 +186,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         const data = payload[0].payload;
         if (!data.log || data.isBaseline) return null;
         return (
-            <div className="bg-white p-3 rounded-lg shadow-xl border border-neutral-200 max-w-[240px]">
+            <div className="bg-white dark:bg-[#121215] p-3 rounded-lg shadow-xl border border-neutral-200 dark:border-white/10 max-w-[240px] -translate-y-12">
                 <CustomTooltipContent data={data} label={label} />
             </div>
         );
@@ -224,12 +224,47 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
             }
 
             if (turns) {
-                const aiQuestions = turns
-                    .filter((t: any) => t.speaker === 'assistant' || t.role === 'assistant' || t.speaker === 'AI' || t.role === 'system')
-                    .map((t: any, idx: number) => ({
-                        id: `v-q-${idx}`,
-                        title: t.text || t.content || `Question ${idx + 1}`
-                    }));
+                let aiQuestions: any[] = [];
+                let currentAiQ: any = null;
+                if (Array.isArray(turns)) {
+                    turns.forEach((t: any, idx: number) => {
+                        const isAi = t.speaker === 'assistant' || t.role === 'assistant' || t.speaker === 'AI' || t.role === 'system' || t.type === 'ai';
+                        if (isAi) {
+                            currentAiQ = {
+                                id: `v-q-${aiQuestions.length}`,
+                                title: t.text || t.content || `Question ${aiQuestions.length + 1}`,
+                                answer: null
+                            };
+                            aiQuestions.push(currentAiQ);
+                        } else if (currentAiQ) {
+                            const ansText = t.text || t.content || '';
+                            if (ansText) {
+                                currentAiQ.answer = (currentAiQ.answer ? currentAiQ.answer + '\n' : '') + ansText;
+                            }
+                        }
+                    });
+                }
+                setVitarkaQuestions(aiQuestions);
+            } else {
+                // Fallback: extract questions from general_events if turns are missing
+                const aiQuestions: any[] = [];
+                const seenTitles = new Set<string>();
+                const vitarkaSecId = evaluation?.sections?.find((s: any) => s.type === "VITARKA_AI_INTERVIEW")?.id;
+                
+                if (submission?.general_events && Array.isArray(submission.general_events)) {
+                    submission.general_events.forEach((ev: any) => {
+                        if (ev.question_title && (!vitarkaSecId || ev.question_id === vitarkaSecId)) {
+                            if (!seenTitles.has(ev.question_title)) {
+                                seenTitles.add(ev.question_title);
+                                aiQuestions.push({
+                                    id: `v-q-${aiQuestions.length}`,
+                                    title: ev.question_title,
+                                    answer: null
+                                });
+                            }
+                        }
+                    });
+                }
                 setVitarkaQuestions(aiQuestions);
             }
         };
@@ -306,12 +341,13 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
             'copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected',
             'right_click_detected', 'screenshot_detected', 'keyboard_shortcut',
             'suspicious_movement', 'audio_anomaly', 'audio_anomaly_detected',
-            'network_disconnected', 'network_connected', 'violation_warning', 'violation'
+            'network_disconnected', 'network_connected', 'violation_warning', 'violation',
+            'camera_disabled', 'mic_disabled', 'camera_stopped', 'mic_stopped'
         ];
 
         uniqueEvents.forEach(e => {
             const type = e.activity_type;
-            if (['snapshot', 'camera_enabled', 'camera_disabled'].includes(type)) {
+            if (['snapshot', 'camera_enabled'].includes(type)) {
                 return;
             }
 
@@ -327,7 +363,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
 
         uniqueEvents.forEach(e => {
             const type = e.activity_type;
-            if (['network_disconnected', 'network_connected', 'camera_enabled', 'camera_disabled', 'focus_gained', 'session_start', 'session_submit'].includes(type)) {
+            if (['network_disconnected', 'network_connected', 'camera_enabled', 'camera_disabled', 'camera_stopped', 'mic_disabled', 'mic_stopped', 'focus_gained', 'session_start', 'session_submit'].includes(type)) {
                 if (!systemLogs.some(sl => sl.activity_type === type && sl.timestamp === e.timestamp)) {
                     systemLogs.push(e);
                 }
@@ -427,19 +463,19 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
     return (
         <div className="px-6 py-6 space-y-6">
             {/* Unified Top Banner */}
-            <div className="bg-white border border-neutral-200 shadow-sm rounded-2xl flex flex-col xl:flex-row overflow-hidden">
+            <div className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 shadow-sm rounded-2xl flex flex-col xl:flex-row overflow-hidden">
                 {/* Left Side: Stats Grid */}
-                <div className="flex-1 flex flex-col p-5 border-b xl:border-b-0 xl:border-r border-neutral-200">
+                <div className="flex-1 flex flex-col p-5 border-b xl:border-b-0 xl:border-r border-neutral-200 dark:border-white/10">
                     {/* Row 1 */}
-                    <div className="flex flex-col sm:flex-row gap-4 pb-4 border-b border-neutral-200">
+                    <div className="flex flex-col sm:flex-row gap-4 pb-4 border-b border-neutral-200 dark:border-white/10">
                         {/* Score */}
                         <div className="flex items-center gap-3 flex-1">
                             <div className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-orange-50 text-orange-500">
                                 <Trophy className="w-4 h-4" />
                             </div>
                             <div>
-                                <p className="text-xl font-bold tracking-tight text-slate-900">{candidate.eci !== undefined ? `${candidate.eci}` : '-'}</p>
-                                <p className="text-xs font-medium text-slate-500">Total Score (ECI)</p>
+                                <p className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">{candidate.eci !== undefined ? `${candidate.eci}` : '-'}</p>
+                                <p className="text-xs font-medium text-slate-500 dark:text-neutral-400">Total Score (ECI)</p>
                             </div>
                         </div>
                         <div className="hidden sm:block w-px bg-neutral-200 self-stretch" />
@@ -449,8 +485,8 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                 <Activity className="w-4 h-4" />
                             </div>
                             <div>
-                                <p className="text-lg font-bold tracking-tight text-slate-900 capitalize">{candidate?.status?.replace('_', ' ') || ''}</p>
-                                <p className="text-xs font-medium text-slate-500">Submission Status</p>
+                                <p className="text-lg font-bold tracking-tight text-slate-900 dark:text-white capitalize">{candidate?.status?.replace('_', ' ') || ''}</p>
+                                <p className="text-xs font-medium text-slate-500 dark:text-neutral-400">Submission Status</p>
                             </div>
                         </div>
                         <div className="hidden sm:block w-px bg-neutral-200 self-stretch" />
@@ -460,8 +496,8 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                 {riskAnalysis.level === 'Clean' ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
                             </div>
                             <div>
-                                <p className="text-lg font-bold tracking-tight text-slate-900 capitalize">{riskAnalysis.level}</p>
-                                <p className="text-xs font-medium text-slate-500">Risk Level</p>
+                                <p className="text-lg font-bold tracking-tight text-slate-900 dark:text-white capitalize">{riskAnalysis.level}</p>
+                                <p className="text-xs font-medium text-slate-500 dark:text-neutral-400">Risk Level</p>
                             </div>
                         </div>
                     </div>
@@ -473,9 +509,9 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                 <AlertTriangle className="w-4 h-4" />
                             </div>
                             <div className="flex flex-col justify-center">
-                                <p className="text-xl font-bold tracking-tight text-slate-900">{totalViolations}</p>
-                                <p className="text-xs font-medium text-slate-500 mb-1.5">Total Violations</p>
-                                <div className="flex items-center gap-2.5 text-[10px] text-slate-500">
+                                <p className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">{totalViolations}</p>
+                                <p className="text-xs font-medium text-slate-500 dark:text-neutral-400 mb-1.5">Total Violations</p>
+                                <div className="flex items-center gap-2.5 text-[10px] text-slate-500 dark:text-neutral-400">
                                     <div className="flex items-center gap-1 font-medium"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>{riskAnalysis.normalCount}</div>
                                     <div className="flex items-center gap-1 font-medium"><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>{riskAnalysis.generalCount}</div>
                                     <div className="flex items-center gap-1 font-medium"><div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>{riskAnalysis.criticalCount}</div>
@@ -489,7 +525,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                 <Clock className="w-4 h-4" />
                             </div>
                             <div>
-                                <p className="text-lg font-bold tracking-tight text-slate-900">{candidate.submittedAt ? format(new Date(candidate.submittedAt), 'MMM d, h:mm a') : '-'}</p>
+                                <p className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">{candidate.submittedAt ? format(new Date(candidate.submittedAt), 'MMM d, h:mm a') : '-'}</p>
                                 <p className="text-xs font-bold text-purple-600 mt-0.5">Submitted At</p>
                             </div>
                         </div>
@@ -499,7 +535,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
 
                 {/* Right Side: Identity */}
                 {(latestPassport || latestScreenshot) && (
-                    <div className="flex gap-6 items-center justify-center p-6 xl:p-8 shrink-0 bg-white">
+                    <div className="flex gap-6 items-center justify-center p-6 xl:p-8 shrink-0 bg-white dark:bg-[#121215]">
                         {latestPassport && (
                             <div className="flex flex-col items-center gap-3">
                                 <div 
@@ -529,10 +565,10 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid grid-cols-4 w-full md:w-[650px] mb-6 bg-slate-100 text-slate-500 p-1 rounded-lg">
-                    <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Overview</TabsTrigger>
-                    <TabsTrigger value="sections" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Section Breakdown</TabsTrigger>
-                    <TabsTrigger value="violations" className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+                <TabsList className="grid grid-cols-4 w-full md:w-[650px] mb-6 bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-neutral-400 p-1 rounded-lg">
+                    <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:dark:bg-[#121215] data-[state=active]:text-slate-900 data-[state=active]:dark:text-white data-[state=active]:shadow-sm">Overview</TabsTrigger>
+                    <TabsTrigger value="sections" className="data-[state=active]:bg-white data-[state=active]:dark:bg-[#121215] data-[state=active]:text-slate-900 data-[state=active]:dark:text-white data-[state=active]:shadow-sm">Section Breakdown</TabsTrigger>
+                    <TabsTrigger value="violations" className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:dark:bg-[#121215] data-[state=active]:text-slate-900 data-[state=active]:dark:text-white data-[state=active]:shadow-sm">
                         Violations
                         {totalViolations > 0 && (
                             <Badge variant="destructive" className="text-white h-4 min-w-4 px-1 flex items-center justify-center text-[10px]">
@@ -540,21 +576,21 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                             </Badge>
                         )}
                     </TabsTrigger>
-                    <TabsTrigger value="system" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">System & Network</TabsTrigger>
+                    <TabsTrigger value="system" className="data-[state=active]:bg-white data-[state=active]:dark:bg-[#121215] data-[state=active]:text-slate-900 data-[state=active]:dark:text-white data-[state=active]:shadow-sm">System & Network</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-6">
-                    <Card className="border border-neutral-200 rounded-2xl bg-slate-50/40 shadow-none p-2 text-slate-900">
+                    <Card className="border border-neutral-200 dark:border-white/10 rounded-2xl bg-slate-50/40 dark:bg-white/5 shadow-none p-2 text-slate-900 dark:text-white">
                         <CardHeader>
-                            <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                                <ShieldAlert className="h-5 w-5 text-slate-500" />
+                            <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 dark:text-neutral-400 flex items-center gap-2">
+                                <ShieldAlert className="h-5 w-5 text-slate-500 dark:text-neutral-400" />
                                 Risk Score Breakdown
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                <div className="flex justify-between items-center pb-3 border-b border-neutral-200">
-                                    <span className="text-sm font-medium text-slate-500">Computed Risk Score:</span>
+                                <div className="flex justify-between items-center pb-3 border-b border-neutral-200 dark:border-white/10">
+                                    <span className="text-sm font-medium text-slate-500 dark:text-neutral-400">Computed Risk Score:</span>
                                     <Badge className={`text-sm font-bold px-3 py-1 ${riskAnalysis.colorClass}`}>
                                         {riskAnalysis.score} pts ({riskAnalysis.level})
                                     </Badge>
@@ -569,13 +605,13 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                     <div className="space-y-3">
                                         {riskAnalysis.details.map((detail, idx) => (
                                             <div key={idx} className="flex justify-between items-center text-sm">
-                                                <span className="capitalize text-slate-500">
+                                                <span className="capitalize text-slate-500 dark:text-neutral-400">
                                                     {detail.type?.replace(/_/g, ' ') || ''}
-                                                    <span className="text-xs text-slate-500 ml-1.5 font-normal">
+                                                    <span className="text-xs text-slate-500 dark:text-neutral-400 ml-1.5 font-normal">
                                                         (x{detail.count})
                                                     </span>
                                                 </span>
-                                                <span className="font-semibold text-slate-900">+{detail.points} pts</span>
+                                                <span className="font-semibold text-slate-900 dark:text-white">+{detail.points} pts</span>
                                             </div>
                                         ))}
                                     </div>
@@ -585,11 +621,11 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                     </Card>
 
                     {/* Overall Session Timeline */}
-                    <Card className="border border-neutral-200 rounded-2xl mt-6 bg-slate-50/50 text-slate-900 shadow-none">
-                        <CardHeader className="pb-3 border-b border-neutral-200 mb-4">
+                    <Card className="border border-neutral-200 dark:border-white/10 rounded-2xl mt-6 bg-slate-50/50 dark:bg-white/10 text-slate-900 dark:text-white shadow-none">
+                        <CardHeader className="pb-3 border-b border-neutral-200 dark:border-white/10 mb-4">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                                    <Activity className="h-5 w-5 text-slate-500" />
+                                <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 dark:text-neutral-400 flex items-center gap-2">
+                                    <Activity className="h-5 w-5 text-slate-500 dark:text-neutral-400" />
                                     Overall Test Timeline
                                 </CardTitle>
                                 <div className="flex items-center gap-4 text-xs">
@@ -601,7 +637,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                         </CardHeader>
                         <CardContent>
                             {riskAnalysis.uniqueEvents.length === 0 ? (
-                                <div className="text-slate-500 italic text-xs py-4 text-center">No proctoring events recorded for this session.</div>
+                                <div className="text-slate-500 dark:text-neutral-400 italic text-xs py-4 text-center">No proctoring events recorded for this session.</div>
                             ) : (
                                 <ScrollArea className="w-full pb-4">
                                     <div className="relative" style={{ width: Math.max(800, riskAnalysis.uniqueEvents.length * 60), height: 450 }}>
@@ -653,7 +689,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                         <stop offset="100%" stopColor="#f43f5e" stopOpacity={1}/>
                                                     </linearGradient>
                                                 </defs>
-                                                <XAxis dataKey="name" tick={{ fontSize: 10 }} tickMargin={15} stroke="hsl(var(--muted-foreground))" />
+                                                <XAxis dataKey="name" tick={{ fontSize: 10 }} tickMargin={15} stroke="#888888" />
                                                 <YAxis 
                                                     domain={[0, 2.2]} 
                                                     ticks={[0, 1, 2]} 
@@ -662,7 +698,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                     width={60}
                                                     stroke="none"
                                                 />
-                                                <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={false} stroke="hsl(var(--border))" strokeOpacity={0.5} />
+                                                <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={false} stroke="#555555" strokeOpacity={0.5} />
                                                 
                                                 {/* Horizontal reference lines for each level */}
                                                 <ReferenceLine y={2} stroke="#f43f5e" strokeDasharray="3 3" strokeOpacity={0.4} />
@@ -674,7 +710,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                         if (frozenLog) return null;
                                                         return <CustomTooltip {...props} />;
                                                     }} 
-                                                    cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1, strokeDasharray: '3 3' }} 
+                                                    cursor={{ stroke: '#555555', strokeWidth: 1, strokeDasharray: '3 3' }} 
                                                 />
                                                 
                                                 <Area 
@@ -684,12 +720,12 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                     fillOpacity={1} 
                                                     fill="url(#colorSeverityOverall)" 
                                                     strokeWidth={2}
-                                                    activeDot={{ r: 6, strokeWidth: 2, stroke: 'white', cursor: 'pointer' }}
+                                                    activeDot={{ r: 6, strokeWidth: 2, stroke: '#ffffff', className: 'dark:!stroke-[#121215]', cursor: 'pointer' }}
                                                     dot={(props) => {
                                                         const { cx, cy, payload } = props;
                                                         if (!cx || !cy) return null;
                                                         const fill = payload.severity === 2 ? '#f43f5e' : payload.severity === 1 ? '#f59e0b' : '#10b981';
-                                                        return <circle key={`dot-overall-${payload.name}-${cx}`} cx={cx} cy={cy} r={4} fill={fill} stroke="white" strokeWidth={1.5} />;
+                                                        return <circle key={`dot-overall-${payload.name}-${cx}`} cx={cx} cy={cy} r={4} fill={fill} stroke="#ffffff" className="dark:!stroke-[#121215]" strokeWidth={1.5} />;
                                                     }}
                                                 />
                                             </AreaChart>
@@ -701,13 +737,13 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                             >
                                                 {/* Tooltip positioned smartly based on space available */}
                                                 <div 
-                                                    className={`relative -translate-x-1/2 ${frozenLog.y < 225 ? 'translate-y-4' : '-translate-y-[calc(100%+20px)]'} bg-white/95 backdrop-blur-sm p-3 rounded-lg shadow-xl border border-neutral-200 max-w-[240px]`}
+                                                    className={`relative -translate-x-1/2 ${frozenLog.y < 225 ? 'translate-y-4' : '-translate-y-[calc(100%+20px)]'} bg-white dark:bg-[#121215]/95 backdrop-blur-sm p-3 rounded-lg shadow-xl border border-neutral-200 dark:border-white/10 max-w-[240px]`}
                                                     onClick={(e) => e.stopPropagation()}
                                                 >
                                                     <Button 
                                                         variant="ghost" 
                                                         size="icon" 
-                                                        className="absolute top-1 right-1 h-5 w-5 rounded-full hover:bg-slate-100 text-slate-500" 
+                                                        className="absolute top-1 right-1 h-5 w-5 rounded-full hover:bg-slate-100 text-slate-500 dark:text-neutral-400" 
                                                         onClick={(e) => { e.stopPropagation(); setFrozenLog(null); }}
                                                     >
                                                         <X className="h-3.5 w-3.5"/>
@@ -725,23 +761,23 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
 
                     {/* Proctoring Snapshots Section */}
                     <Tabs defaultValue="camera" className="w-full mt-6">
-                        <Card className="border border-neutral-200 rounded-2xl bg-slate-50/40 shadow-none p-2 text-slate-900">
+                        <Card className="border border-neutral-200 dark:border-white/10 rounded-2xl bg-slate-50/40 dark:bg-white/5 shadow-none p-2 text-slate-900 dark:text-white">
                             <CardHeader className="pb-3">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                                        <Camera className="h-5 w-5 text-slate-500" />
+                                    <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 dark:text-neutral-400 flex items-center gap-2">
+                                        <Camera className="h-5 w-5 text-slate-500 dark:text-neutral-400" />
                                         Proctoring Images
                                     </CardTitle>
-                                    <TabsList className="grid grid-cols-2 w-full sm:w-[300px] bg-slate-100 text-slate-500 p-1 rounded-lg">
-                                        <TabsTrigger value="camera" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Camera ({generalSnapshots.filter(s => s.type === 'camera').length})</TabsTrigger>
-                                        <TabsTrigger value="screen" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Screen ({generalSnapshots.filter(s => s.type === 'screen').length})</TabsTrigger>
+                                    <TabsList className="grid grid-cols-2 w-full sm:w-[300px] bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-neutral-400 p-1 rounded-lg">
+                                        <TabsTrigger value="camera" className="data-[state=active]:bg-white data-[state=active]:dark:bg-[#121215] data-[state=active]:text-slate-900 data-[state=active]:dark:text-white data-[state=active]:shadow-sm">Camera ({generalSnapshots.filter(s => s.type === 'camera').length})</TabsTrigger>
+                                        <TabsTrigger value="screen" className="data-[state=active]:bg-white data-[state=active]:dark:bg-[#121215] data-[state=active]:text-slate-900 data-[state=active]:dark:text-white data-[state=active]:shadow-sm">Screen ({generalSnapshots.filter(s => s.type === 'screen').length})</TabsTrigger>
                                     </TabsList>
                                 </div>
                             </CardHeader>
                             <CardContent>
                                 <TabsContent value="camera" className="mt-0 space-y-0">
                                     {generalSnapshots.filter(i => i.type === 'camera').length === 0 ? (
-                                        <div className="text-center py-10 text-slate-500 italic bg-gray-50  border border-dashed rounded-lg">
+                                        <div className="text-center py-10 text-slate-500 dark:text-neutral-400 italic bg-gray-50 dark:bg-white/5  border border-dashed border-neutral-200 dark:border-white/10 rounded-lg">
                                             No camera snapshots were recorded.
                                         </div>
                                     ) : (
@@ -752,7 +788,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                 return (
                                                     <div 
                                                         key={`cam-${i}`} 
-                                                        className="group relative border border-neutral-200 rounded-lg overflow-hidden cursor-zoom-in bg-black shadow-sm hover:shadow-md transition-all duration-200"
+                                                        className="group relative border border-neutral-200 dark:border-white/10 rounded-lg overflow-hidden cursor-zoom-in bg-black shadow-sm hover:shadow-md transition-all duration-200"
                                                         onClick={() => setActiveLightboxImg(imgUrl)}
                                                     >
                                                         <div className="aspect-video w-full relative">
@@ -773,7 +809,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                                 <Eye className="h-6 w-6 text-white" />
                                                             </div>
                                                         </div>
-                                                        <div className="bg-white text-slate-900 text-[10px] p-2 flex justify-between items-center border-t">
+                                                        <div className="bg-white dark:bg-[#121215] text-slate-900 dark:text-white text-[10px] p-2 flex justify-between items-center border-t border-neutral-200 dark:border-white/10">
                                                             <span className="font-medium">{formatEventTime(event.timestamp)}</span>
                                                             {event.activity_type !== 'snapshot' && event.activity_type && (
                                                                 <Badge variant="destructive" className="text-white h-4 px-1 py-0 text-[8px] capitalize">
@@ -789,7 +825,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                 </TabsContent>
                                 <TabsContent value="screen" className="mt-0 space-y-0">
                                     {generalSnapshots.filter(i => i.type === 'screen').length === 0 ? (
-                                        <div className="text-center py-10 text-slate-500 italic bg-gray-50  border border-dashed rounded-lg">
+                                        <div className="text-center py-10 text-slate-500 dark:text-neutral-400 italic bg-gray-50 dark:bg-white/5  border border-dashed border-neutral-200 dark:border-white/10 rounded-lg">
                                             No screen share screenshots were recorded.
                                         </div>
                                     ) : (
@@ -800,7 +836,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                 return (
                                                     <div 
                                                         key={`scr-${i}`} 
-                                                        className="group relative border border-neutral-200 rounded-lg overflow-hidden cursor-zoom-in bg-black shadow-sm hover:shadow-md transition-all duration-200"
+                                                        className="group relative border border-neutral-200 dark:border-white/10 rounded-lg overflow-hidden cursor-zoom-in bg-black shadow-sm hover:shadow-md transition-all duration-200"
                                                         onClick={() => setActiveLightboxImg(imgUrl)}
                                                     >
                                                         <div className="aspect-video w-full relative">
@@ -816,7 +852,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                                 <Eye className="h-6 w-6 text-white" />
                                                             </div>
                                                         </div>
-                                                        <div className="bg-white text-slate-900 text-[10px] p-2 flex justify-between items-center border-t">
+                                                        <div className="bg-white dark:bg-[#121215] text-slate-900 dark:text-white text-[10px] p-2 flex justify-between items-center border-t border-neutral-200 dark:border-white/10">
                                                             <span className="font-medium">{formatEventTime(event.timestamp)}</span>
                                                             {event.activity_type !== 'snapshot' && event.activity_type && (
                                                                 <Badge variant="destructive" className="text-white h-4 px-1 py-0 text-[8px] capitalize">
@@ -837,16 +873,16 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
 
                 {/* 2. Section Breakdown Tab */}
                 <TabsContent value="sections" className="space-y-6">
-                    <Card className="border border-neutral-200 rounded-2xl bg-slate-50/40 shadow-none p-2 text-slate-900">
+                    <Card className="border border-neutral-200 dark:border-white/10 rounded-2xl bg-slate-50/40 dark:bg-white/5 shadow-none p-2 text-slate-900 dark:text-white">
                         <CardHeader>
-                            <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                                <FileText className="h-5 w-5 text-slate-500" />
+                            <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 dark:text-neutral-400 flex items-center gap-2">
+                                <FileText className="h-5 w-5 text-slate-500 dark:text-neutral-400" />
                                 Section-by-Section Activity
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             {!candidate.proctoringData?.sections ? (
-                                <div className="text-center py-8 text-slate-500">No section activity data recorded.</div>
+                                <div className="text-center py-8 text-slate-500 dark:text-neutral-400">No section activity data recorded.</div>
                             ) : (
                                 (() => {
                                     const rawSections = evaluation?.sections || [];
@@ -857,7 +893,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                     }));
 
                                     if (activeSections.length === 0) {
-                                        return <div className="text-center py-8 text-slate-500">No section activity data recorded for this candidate.</div>;
+                                        return <div className="text-center py-8 text-slate-500 dark:text-neutral-400">No section activity data recorded for this candidate.</div>;
                                     }
 
                                     return (
@@ -868,12 +904,12 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                             const firstSec = activeSections[0];
                                             return firstSec.id || (firstSec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : 'vitarka');
                                         })()} className="w-full">
-                                            <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-slate-100 p-1 text-slate-500 mb-4 max-w-full overflow-x-auto">
+                                            <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-slate-100 dark:bg-white/10 p-1 text-slate-500 dark:text-neutral-400 mb-4 max-w-full overflow-x-auto">
                                                 {activeSections.map((sec: any, index: number) => {
                                                     const sectionTitle = sec.title || (sec.type === 'LAB' ? 'Engineering Labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'Knowledge Assessment' : 'Vitarka AI Discussion');
                                                     const sectionKey = sec.type === 'LAB' ? 'labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : 'vitarka';
                                                     return (
-                                                        <TabsTrigger key={`trigger-${sec.id || sectionKey}`} value={sec.id || sectionKey} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm text-[13px]">
+                                                        <TabsTrigger key={`trigger-${sec.id || sectionKey}`} value={sec.id || sectionKey} className="data-[state=active]:bg-white data-[state=active]:dark:bg-[#121215] data-[state=active]:text-slate-900 data-[state=active]:dark:text-white data-[state=active]:shadow-sm text-[13px]">
                                                             {sectionTitle}
                                                         </TabsTrigger>
                                                     );
@@ -950,12 +986,26 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                             return true;
                                         });
                                         
-                                        // Use real time spent calculated from section events
-                                        let realTimeSpent = sectionMock.timeSpent || 0;
-                                        if (allSectionEvents && allSectionEvents.length > 1) {
-                                            const sortedEvents = [...allSectionEvents].sort((a: any, b: any) => a.timestamp - b.timestamp);
-                                            const firstEvt = sortedEvents[0].timestamp;
-                                            const lastEvt = sortedEvents[sortedEvents.length - 1].timestamp;
+                                        // Use real time spent calculated from all section events
+                                        let realTimeSpent = 0;
+                                        const sectionAllEvents = riskAnalysis.uniqueEvents.filter((e: any) => {
+                                            const vQId = e.question_id || (e.meta_data && e.meta_data.question_id);
+                                            const vQTitle = e.question_title || (e.meta_data && e.meta_data.question_title);
+                                            
+                                            // If the event explicitly belongs to ANOTHER section, exclude it!
+                                            if (vQId && (otherSectionQuestionIds.has(String(vQId)) || otherSectionIds.has(String(vQId))) && !secQuestionIds.has(String(vQId)) && String(vQId) !== String(sec.id)) {
+                                                return false;
+                                            }
+                                            if (vQTitle && otherSectionQuestionTitles.has(vQTitle)) {
+                                                return false;
+                                            }
+                                            return true;
+                                        });
+
+                                        if (sectionAllEvents && sectionAllEvents.length > 1) {
+                                            const sortedEvents = [...sectionAllEvents].sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+                                            const firstEvt = new Date(sortedEvents[0].timestamp).getTime();
+                                            const lastEvt = new Date(sortedEvents[sortedEvents.length - 1].timestamp).getTime();
                                             // duration in minutes
                                             const diffMinutes = (lastEvt - firstEvt) / (1000 * 60);
                                             if (diffMinutes > 0) {
@@ -970,15 +1020,15 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                         
                                         return (
                                             <TabsContent key={`content-${sec.id || sectionKey}`} value={sec.id || sectionKey} className="mt-0 outline-none">
-                                                <div className="border border-neutral-200 rounded-lg p-5 bg-white shadow-sm transition-all duration-200">
-                                                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 pb-3 border-b border-neutral-200">
+                                                <div className="border border-neutral-200 dark:border-white/10 rounded-lg p-5 bg-white dark:bg-[#121215] shadow-sm transition-all duration-200">
+                                                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 pb-3 border-b border-neutral-200 dark:border-white/10">
                                                         <div>
                                                             <div className="flex items-center gap-2 mb-1">
-                                                                <span className="font-bold text-base text-slate-900">
+                                                                <span className="font-bold text-base text-slate-900 dark:text-white">
                                                                     Section {index + 1}: {sectionTitle}
                                                                 </span>
                                                             </div>
-                                                            <div className="text-xs text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1">
+                                                            <div className="text-xs text-slate-500 dark:text-neutral-400 flex flex-wrap items-center gap-x-4 gap-y-1">
                                                                 <div className="flex items-center gap-1.5">
                                                                     <Clock className="h-3.5 w-3.5" />
                                                                     Time Spent: {realTimeSpent}m
@@ -991,15 +1041,17 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                         </div>
                                                     </div>
 
-                                                    <div className="bg-slate-50 rounded-lg p-4 text-sm border border-neutral-200 overflow-hidden">
+                                                    <div className="bg-slate-50 dark:bg-white/5 rounded-lg p-4 text-sm border border-neutral-200 dark:border-white/10 overflow-hidden">
                                                         <div className="flex items-center justify-between mb-4">
-                                                            <h5 className="font-semibold text-slate-900 flex items-center gap-2">
-                                                                <Activity className="h-4 w-4 text-slate-500" /> Question-Wise Proctoring Breakdown
+                                                            <h5 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                                                                <Activity className="h-4 w-4 text-slate-500 dark:text-neutral-400" /> Question-Wise Proctoring Breakdown
                                                             </h5>
                                                         </div>
                                                         {(() => {
                                                             let resolvedQuestions = sec.questions || [];
-                                                            if (resolvedQuestions.length > 0 && typeof resolvedQuestions[0] === 'string') {
+                                                            if (sec.type === 'VITARKA_AI_INTERVIEW' && vitarkaQuestions && vitarkaQuestions.length > 0) {
+                                                                resolvedQuestions = vitarkaQuestions;
+                                                            } else if (resolvedQuestions.length > 0 && typeof resolvedQuestions[0] === 'string') {
                                                                 resolvedQuestions = resolvedQuestions.map((qId: string, idx: number) => ({
                                                                     id: qId,
                                                                     title: `Engineering Lab ${idx + 1}`
@@ -1043,8 +1095,10 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                                     const vQId = v.question_id || (v.meta_data && v.meta_data.question_id);
                                                                     const isSectionId = activeSections.some((s: any) => s.id === vQId);
                                                                     const t = v.question_title || (isSectionId ? 'General Section Activity' : (vQId ? `Question ${vQId.slice(0,8)}` : 'General / Unknown Question'));
-                                                                    if (!groups.has(t)) groups.set(t, []);
-                                                                    groups.get(t)!.push(v);
+                                                                    if (t !== 'General Section Activity' && t !== 'General / Unknown Question') {
+                                                                        if (!groups.has(t)) groups.set(t, []);
+                                                                        groups.get(t)!.push(v);
+                                                                    }
                                                                 });
                                                                 Array.from(groups.entries()).forEach(([title, events]) => {
                                                                     sectionQuestions.push({ title, events: events.sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) });
@@ -1054,16 +1108,16 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                             // Filter out sectionQuestions that are actually from other sections if possible
                                                             // Or just render them.
                                                             if (sectionQuestions.length === 0) {
-                                                                return <div className="text-slate-500 italic text-xs">No questions found or candidate did not attempt.</div>;
+                                                                return <div className="text-slate-500 dark:text-neutral-400 italic text-xs">No questions found or candidate did not attempt.</div>;
                                                             }
 
                                                             return (
                                                                 <Accordion type="single" collapsible className="w-full space-y-2">
                                                                     {sectionQuestions.map((q, qIdx) => (
-                                                                        <AccordionItem key={qIdx} value={`q-${qIdx}`} className="bg-white border border-neutral-200 rounded-lg px-3 overflow-hidden shadow-sm">
+                                                                        <AccordionItem key={qIdx} value={`q-${qIdx}`} className="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-lg px-3 overflow-hidden shadow-sm">
                                                                             <AccordionTrigger className="py-3 hover:no-underline flex justify-between group">
                                                                                 <div className="flex items-center gap-2 text-left">
-                                                                                    <span className="font-semibold text-slate-800 text-sm group-hover:text-blue-600 transition-colors">{qIdx + 1}. {q.title}</span>
+                                                                                    <span className="font-semibold text-slate-800 dark:text-neutral-200 text-sm group-hover:text-blue-600 transition-colors">{qIdx + 1}. {q.title}</span>
                                                                                 </div>
                                                                                 <div className="flex items-center gap-3 pr-2">
                                                                                     {q.events.length > 0 && (
@@ -1074,13 +1128,19 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                                                 </div>
                                                                             </AccordionTrigger>
                                                                             <AccordionContent className="pt-2 pb-4 border-t border-neutral-100">
+                                                                                {sec.type === 'VITARKA_AI_INTERVIEW' && (q as any).answer && (
+                                                                                    <div className="mb-4 mt-2 bg-slate-50 dark:bg-white/5 p-3 rounded-lg text-sm text-slate-700 dark:text-neutral-200 border border-slate-200 dark:border-white/10">
+                                                                                        <span className="font-semibold text-slate-900 dark:text-white block mb-1">Candidate's Answer:</span>
+                                                                                        {(q as any).answer}
+                                                                                    </div>
+                                                                                )}
                                                                                 {q.events.length === 0 ? (
-                                                                                    <div className="text-slate-500 italic text-xs py-2 px-1 flex items-center gap-2">
+                                                                                    <div className="text-slate-500 dark:text-neutral-400 italic text-xs py-2 px-1 flex items-center gap-2">
                                                                                         <ShieldCheck className="w-4 h-4 text-emerald-500" /> No anomalies recorded for this question.
                                                                                     </div>
                                                                                 ) : (
                                                                                     <div className="space-y-4 px-1 mt-2">
-                                                                                        <div className="h-[180px] w-full border border-neutral-200 rounded-lg bg-slate-50/50 p-2 relative">
+                                                                                        <div className="h-[180px] w-full border border-neutral-200 dark:border-white/10 rounded-lg bg-slate-50/50 dark:bg-white/10 p-2 relative">
                                                                                             <ResponsiveContainer width="100%" height="100%">
                                                                                                 <AreaChart 
                                                                                                     data={(() => {
@@ -1127,7 +1187,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                                                                             <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
                                                                                                         </linearGradient>
                                                                                                     </defs>
-                                                                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                                                                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#555555" strokeOpacity={0.3} />
                                                                                                     <XAxis dataKey="time" tick={{fontSize: 9, fill: '#64748b'}} tickLine={false} axisLine={false} minTickGap={30} />
                                                                                                     <YAxis hide domain={[0, 2.2]} />
                                                                                                     <Tooltip content={<CustomTooltip setActiveLightboxImg={setActiveLightboxImg} />} cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '4 4' }} />
@@ -1158,7 +1218,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
 
                 {/* 3. Violations Tab */}
                 <TabsContent value="violations" className="space-y-6">
-                    <Card className="border border-neutral-200 rounded-2xl bg-slate-50/40 shadow-none p-2 text-slate-900">
+                    <Card className="border border-neutral-200 dark:border-white/10 rounded-2xl bg-slate-50/40 dark:bg-white/5 shadow-none p-2 text-slate-900 dark:text-white">
                         <CardHeader>
                             <CardTitle className="text-[10px] uppercase tracking-widest text-rose-600 flex items-center gap-2 font-bold">
                                 <AlertCircle className="h-5 w-5" />
@@ -1167,13 +1227,13 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                         </CardHeader>
                         <CardContent>
                             {totalViolations === 0 ? (
-                                <div className="text-center py-12 text-emerald-600  flex flex-col items-center justify-center gap-3 bg-emerald-50/20  border border-dashed border-emerald-200  rounded-lg">
+                                <div className="text-center py-12 text-emerald-600  flex flex-col items-center justify-center gap-3 bg-emerald-50/20  border border-dashed border-neutral-200 dark:border-white/10 border-emerald-200  rounded-lg">
                                     <ShieldCheck className="h-10 w-10 text-emerald-500" />
                                     <div className="font-semibold text-base">Perfect Session Integrity!</div>
-                                    <p className="text-xs text-slate-500">The student did not trigger any proctoring flags during the assessment.</p>
+                                    <p className="text-xs text-slate-500 dark:text-neutral-400">The student did not trigger any proctoring flags during the assessment.</p>
                                 </div>
                             ) : (
-                                <div className="relative border-l border-neutral-200 pl-6 ml-3 space-y-6">
+                                <div className="relative border-l border-neutral-200 dark:border-white/10 pl-6 ml-3 space-y-6">
                                     {riskAnalysis.violations.map((event, idx) => {
                                         const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
                                         const isCritical = criticalTypes.some(vt => event.activity_type.includes(vt));
@@ -1200,49 +1260,49 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                     <IconComponent className="h-3.5 w-3.5" />
                                                 </div>
 
-                                                <div className={`p-4 rounded-lg border border-neutral-200 bg-white shadow-sm hover:shadow-md transition-shadow ${isCritical ? 'border-rose-200 ' : 'border-neutral-200'}`}>
+                                                <div className={`p-4 rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#121215] shadow-sm hover:shadow-md transition-shadow ${isCritical ? 'border-rose-200 ' : 'border-neutral-200 dark:border-white/10'}`}>
                                                     <div className="flex justify-between items-start mb-2">
                                                         <div className="flex items-center gap-2">
-                                                            <span className={`font-bold text-sm capitalize ${isCritical ? 'text-rose-600 ' : 'text-slate-900'}`}>
+                                                            <span className={`font-bold text-sm capitalize ${isCritical ? 'text-rose-600 ' : 'text-slate-900 dark:text-white'}`}>
                                                                 {event.activity_type?.replace(/_/g, ' ') || ''}
                                                             </span>
-                                                            <Badge variant={isCritical ? 'destructive' : 'outline'} className="text-slate-900 border-neutral-200 text-[10px] h-4 px-1 py-0 uppercase">
+                                                            <Badge variant={isCritical ? 'destructive' : 'outline'} className="text-slate-900 dark:text-white border-neutral-200 dark:border-white/10 text-[10px] h-4 px-1 py-0 uppercase">
                                                                 {isCritical ? 'Critical' : 'General'}
                                                             </Badge>
                                                         </div>
-                                                        <span className="text-[10px] text-slate-500">
+                                                        <span className="text-[10px] text-slate-500 dark:text-neutral-400">
                                                             {formatEventTime(event.timestamp)}
                                                         </span>
                                                     </div>
 
                                                     {/* Meta detail description */}
-                                                    <div className="text-xs text-slate-500 space-y-1">
+                                                    <div className="text-xs text-slate-500 dark:text-neutral-400 space-y-1">
                                                         {event.meta_data?.method && (
-                                                            <div><strong>Method:</strong> <Badge variant="secondary" className="text-slate-900 bg-slate-100 text-[10px] h-4 py-0 px-1 ml-1">{event.meta_data.method}</Badge></div>
+                                                            <div><strong>Method:</strong> <Badge variant="secondary" className="text-slate-900 dark:text-white bg-slate-100 dark:bg-white/10 text-[10px] h-4 py-0 px-1 ml-1">{event.meta_data.method}</Badge></div>
                                                         )}
                                                         {event.meta_data?.platform && (
                                                             <div><strong>Platform/Browser:</strong> {event.meta_data.platform}</div>
                                                         )}
                                                         {event.meta_data?.key && (
-                                                            <div><strong>Trigger Key:</strong> <kbd className="px-1 border border-neutral-200 bg-slate-100 font-mono">{event.meta_data.key}</kbd></div>
+                                                            <div><strong>Trigger Key:</strong> <kbd className="px-1 border border-neutral-200 dark:border-white/10 bg-slate-100 dark:bg-white/10 font-mono">{event.meta_data.key}</kbd></div>
                                                         )}
                                                         {event.meta_data?.copied_text && (
-                                                            <div className="bg-slate-100/40 p-2 border border-neutral-200 rounded font-mono text-[11px] truncate max-w-full">
+                                                            <div className="bg-slate-100/40 dark:bg-white/10 p-2 border border-neutral-200 dark:border-white/10 rounded font-mono text-[11px] truncate max-w-full">
                                                                 <strong>Text Copied:</strong> "{event.meta_data.copied_text}"
                                                             </div>
                                                         )}
                                                         {event.meta_data?.pasted_text && (
-                                                            <div className="bg-slate-100/40 p-2 border border-neutral-200 rounded font-mono text-[11px] truncate max-w-full">
+                                                            <div className="bg-slate-100/40 dark:bg-white/10 p-2 border border-neutral-200 dark:border-white/10 rounded font-mono text-[11px] truncate max-w-full">
                                                                 <strong>Text Pasted:</strong> "{event.meta_data.pasted_text}"
                                                             </div>
                                                         )}
                                                         {event.meta_data?.cut_text && (
-                                                            <div className="bg-slate-100/40 p-2 border border-neutral-200 rounded font-mono text-[11px] truncate max-w-full">
+                                                            <div className="bg-slate-100/40 dark:bg-white/10 p-2 border border-neutral-200 dark:border-white/10 rounded font-mono text-[11px] truncate max-w-full">
                                                                 <strong>Text Cut:</strong> "{event.meta_data.cut_text}"
                                                             </div>
                                                         )}
                                                         {event.meta_data?.selected_text && (
-                                                            <div className="bg-slate-100/40 p-2 border border-neutral-200 rounded font-mono text-[11px] truncate max-w-full">
+                                                            <div className="bg-slate-100/40 dark:bg-white/10 p-2 border border-neutral-200 dark:border-white/10 rounded font-mono text-[11px] truncate max-w-full">
                                                                 <strong>Text Selected:</strong> "{event.meta_data.selected_text}"
                                                             </div>
                                                         )}
@@ -1262,16 +1322,16 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
 
                 {/* 4. System & Network Tab */}
                 <TabsContent value="system" className="space-y-6">
-                    <Card className="border border-neutral-200 rounded-2xl bg-slate-50/40 shadow-none p-2 text-slate-900">
+                    <Card className="border border-neutral-200 dark:border-white/10 rounded-2xl bg-slate-50/40 dark:bg-white/5 shadow-none p-2 text-slate-900 dark:text-white">
                         <CardHeader>
-                            <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                                <Network className="h-5 w-5 text-slate-500" />
+                            <CardTitle className="text-[10px] uppercase tracking-widest text-slate-500 dark:text-neutral-400 flex items-center gap-2">
+                                <Network className="h-5 w-5 text-slate-500 dark:text-neutral-400" />
                                 Network Status & System Events Log
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             {riskAnalysis.systemLogs.length === 0 ? (
-                                <div className="text-center py-10 text-slate-500 italic bg-gray-50  border border-dashed rounded-lg">
+                                <div className="text-center py-10 text-slate-500 dark:text-neutral-400 italic bg-gray-50 dark:bg-white/5  border border-dashed border-neutral-200 dark:border-white/10 rounded-lg">
                                     No system, camera, or network logs were recorded.
                                 </div>
                             ) : (
@@ -1281,7 +1341,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                         const isDis = event.activity_type === 'network_disconnected' || event.activity_type === 'camera_disabled' || event.activity_type === 'focus_lost';
                                         
                                         return (
-                                            <div key={idx} className="flex justify-between items-center text-[13px] p-3 bg-white rounded-lg border border-neutral-200">
+                                            <div key={idx} className="flex justify-between items-center text-[13px] p-3 bg-white dark:bg-[#121215] rounded-lg border border-neutral-200 dark:border-white/10">
                                                 <div className="flex items-center gap-3">
                                                     {isConn ? (
                                                         <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500" />
@@ -1290,17 +1350,17 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                     ) : (
                                                         <Activity className="h-4.5 w-4.5 text-blue-500" />
                                                     )}
-                                                    <span className="font-semibold text-sm capitalize text-slate-900">
+                                                    <span className="font-semibold text-sm capitalize text-slate-900 dark:text-white">
                                                         {event.activity_type?.replace(/_/g, ' ') || ''}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     {event.meta_data?.platform && (
-                                                        <span className="text-[10px] border border-neutral-200 px-1.5 py-0.5 rounded bg-slate-100">
+                                                        <span className="text-[10px] border border-neutral-200 dark:border-white/10 px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/10">
                                                             {event.meta_data.platform}
                                                         </span>
                                                     )}
-                                                    <span className="text-xs text-slate-500">
+                                                    <span className="text-xs text-slate-500 dark:text-neutral-400">
                                                         {formatEventTime(event.timestamp)}
                                                     </span>
                                                 </div>
@@ -1345,5 +1405,16 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
 };
 
 export { CandidateAnalyticsViewer };
+
+
+
+
+
+
+
+
+
+
+
 
 

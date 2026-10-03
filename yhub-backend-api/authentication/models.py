@@ -22,6 +22,9 @@ YLABS_ROLE_CHOICES = [
 MARKETPLACE_ROLE_CHOICES = [
     ("recruiter_account_manager", "Recruiter Account Manager"),
     ("recruiter_freelancer", "Recruiter Freelancer"),
+    ("recruiter_company", "Recruiter Company"),
+    ("recruiter_company_employee", "Recruiter Company Employee"),
+    ("recruiter_company_manager", "Recruiter Company Manager"),
 ]
 
 
@@ -51,7 +54,14 @@ class User(AbstractUser):
 
     def is_recruiter(self):
         return any(
-            role in ["recruiter", "recruiter_account_manager", "recruiter_freelancer"]
+            role in [
+                "recruiter",
+                "recruiter_account_manager",
+                "recruiter_freelancer",
+                "recruiter_company",
+                "recruiter_company_employee",
+                "recruiter_company_manager",
+            ]
             for role in self.roles.values()
         )
 
@@ -60,6 +70,15 @@ class User(AbstractUser):
 
     def is_recruiter_freelancer(self):
         return any(role == "recruiter_freelancer" for role in self.roles.values())
+
+    def is_recruiter_company(self):
+        return any(role == "recruiter_company" for role in self.roles.values())
+
+    def is_recruiter_company_employee(self):
+        return any(role == "recruiter_company_employee" for role in self.roles.values())
+
+    def is_recruiter_company_manager(self):
+        return any(role == "recruiter_company_manager" for role in self.roles.values())
 
     def is_student(self):
         return any(role == "student" for role in self.roles.values())

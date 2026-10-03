@@ -515,9 +515,24 @@ export function getCandidateDetail(
     ],
     2,
   );
+  const labsMax = sectionMaxScores?.labsMaxScore ?? 80;
+  const assessMax = sectionMaxScores?.assessmentMaxScore ?? (sectionMaxScores ? 0 : 30);
+  const vitarkaMax = sectionMaxScores?.discussionMaxScore ?? (sectionMaxScores ? 0 : 25);
+
+  const summaryParts: string[] = [];
+  if (labsMax > 0) {
+    summaryParts.push(`Labs performance was ${c.labsScore >= (labsMax * 0.8) ? "consistently high" : c.labsScore >= (labsMax * 0.65) ? "reliable" : "inconsistent"}`);
+  }
+  if (assessMax > 0) {
+    summaryParts.push(`assessment coverage was ${c.assessmentScore >= (assessMax * 0.8) ? "wide and accurate" : "focused on core topics"}`);
+  }
+  if (vitarkaMax > 0) {
+    summaryParts.push(`the Vitarka discussion showed ${vitarkaOverall >= 80 ? "clear articulation and depth" : "room for sharper reasoning"}`);
+  }
+  const summaryDetails = summaryParts.length > 0 ? `. ${summaryParts.join(", and ")}.` : ".";
   const summary = c.eci === 0
     ? "Candidate did not record passing scores, submissions, or interview responses across the evaluation."
-    : `Candidate demonstrated ${rec === "Strong Hire" ? "exceptional" : rec === "Hire" ? "strong" : rec === "Maybe" ? "solid but uneven" : "below-bar"} engineering behaviour across the evaluation. Labs performance was ${c.labsScore >= 80 ? "consistently high" : c.labsScore >= 65 ? "reliable" : "inconsistent"}, assessment coverage was ${c.assessmentScore >= 80 ? "wide and accurate" : "focused on core topics"}, and the Vitarka discussion showed ${vitarkaOverall >= 80 ? "clear articulation and depth" : "room for sharper reasoning"}.`;
+    : `Candidate demonstrated ${rec === "Strong Hire" ? "exceptional" : rec === "Hire" ? "strong" : rec === "Maybe" ? "solid but uneven" : "below-bar"} engineering behaviour across the evaluation${summaryDetails}`;
   const nextStep = c.eci === 0
     ? "Do not proceed — Candidate did not complete or pass evaluation requirements."
     : (rec === "Strong Hire"
@@ -528,32 +543,48 @@ export function getCandidateDetail(
           ? NEXT_STEPS[2]
           : NEXT_STEPS[4]);
 
-  const labsMax = sectionMaxScores?.labsMaxScore ?? 80;
-  const assessMax = sectionMaxScores?.assessmentMaxScore ?? 30;
-  const vitarkaMax = sectionMaxScores?.discussionMaxScore ?? 25;
+  const ecIBreakdown: { label: string; contribution: string; kind: "pos" | "neg" | "neu" }[] = [];
 
-  const ecIBreakdown = [
-    {
+  const roundContribution = (val: number) => {
+    const num = Number(val);
+    if (!Number.isFinite(num)) return val;
+    return Math.abs(Math.round(num) - num) < 0.15 ? Math.round(num) : Number(num.toFixed(1));
+  };
+
+  if (labsMax > 0) {
+    ecIBreakdown.push({
       label: "Engineering Labs",
-      contribution: `+${c.labsScore} of a possible ${labsMax}`,
-      kind: (c.labsScore / labsMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
-    },
-    {
+      contribution: `+${roundContribution(c.labsScore)} of a possible ${labsMax}`,
+      kind: (labsMax > 0 && c.labsScore / labsMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
+    });
+  }
+
+  if (assessMax > 0) {
+    ecIBreakdown.push({
       label: "Knowledge Assessment",
-      contribution: `+${c.assessmentScore} of a possible ${assessMax}`,
-      kind: (c.assessmentScore / assessMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
-    },
-    {
+      contribution: `+${roundContribution(c.assessmentScore)} of a possible ${assessMax}`,
+      kind: (assessMax > 0 && c.assessmentScore / assessMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
+    });
+  }
+
+  if (vitarkaMax > 0) {
+    ecIBreakdown.push({
       label: "Vitarka Discussion",
-      contribution: `+${c.vitarkaScore} of a possible ${vitarkaMax}`,
-      kind: (c.vitarkaScore / vitarkaMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
-    },
-    {
+      contribution: `+${roundContribution(c.vitarkaScore)} of a possible ${vitarkaMax}`,
+      kind: (vitarkaMax > 0 && c.vitarkaScore / vitarkaMax >= 0.7 ? "pos" : "neg") as "pos" | "neg",
+    });
+  }
+
+  if (labsMax > 0) {
+    ecIBreakdown.push({
       label: "Debugging signal",
       contribution: c.labsScore === 0 ? "No lab activity" : c.labsScore >= (labsMax * 0.85) ? "Excellent" : c.labsScore >= (labsMax * 0.7) ? "Strong" : "Average",
       kind: (c.labsScore === 0 ? "neg" : "neu") as "pos" | "neg" | "neu",
-    },
-    {
+    });
+  }
+
+  if (vitarkaMax > 0) {
+    ecIBreakdown.push({
       label: "Architecture signal",
       contribution:
         c.vitarkaScore === 0
@@ -564,8 +595,8 @@ export function getCandidateDetail(
               ? "Reasonable"
               : "Minor gaps",
       kind: (c.vitarkaScore === 0 ? "neg" : "neu") as "pos" | "neg" | "neu",
-    },
-  ];
+    });
+  }
 
   const resume = {
     summary: `${c.experience === 0 ? "Recent graduate" : `${c.experience}+ year engineer`} focused on ${c.domain.toLowerCase()} systems. Currently at ${c.company}, with a track record of shipping production services and mentoring peers.`,
@@ -660,7 +691,7 @@ function fmtClock(s: number) {
   return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
 }
 function buildTimeline(c: Candidate): CandidateDetail["timeline"] {
-  const submitted = c.status === "Submitted" || c.status === "Completed";
+  const submitted = c.status === "Submitted" || c.status === "Completed" || !!c.hasVitarkaSubmission;
   const shortlisted =
     c.hiringStatus === "Shortlisted" ||
     c.hiringStatus === "Interview Scheduled" ||
@@ -709,8 +740,8 @@ function buildTimeline(c: Candidate): CandidateDetail["timeline"] {
       icon: "chat",
       label: "Vitarka discussion completed",
       time: rel(safeTime(anchor - 2 * d)),
-      done: submitted || c.vitarkaScore > 0,
-      tone: (submitted || c.vitarkaScore > 0 ? "good" : "neutral") as "good" | "neutral",
+      done: c.vitarkaScore > 0 || !!c.hasVitarkaSubmission,
+      tone: (c.vitarkaScore > 0 || !!c.hasVitarkaSubmission ? "good" : "neutral") as "good" | "neutral",
     },
     {
       icon: "check",
@@ -952,18 +983,82 @@ export interface TimelineEvent {
 
 import { formatDistanceToNow } from "date-fns";
 
-const MILESTONES = [
+const EVALUATION_MILESTONES = [
   "Evaluation invitation sent",
   "Candidate started evaluation",
   "Engineering Labs submitted",
   "Knowledge Assessment submitted",
   "Vitarka discussion completed",
   "Evaluation finished",
+];
+
+const RECRUITER_MILESTONES = [
   "Recruiter viewed profile",
   "Shortlisted",
   "Interview scheduled",
   "Offer sent"
 ];
+
+export function formatTimelineEvents(rawEvents: any[]): TimelineEvent[] {
+  const completed = rawEvents.sort((a, b) => new Date(a.occurred_at).getTime() - new Date(b.occurred_at).getTime()).map((r) => {
+    let tone: "success" | "warn" | "neutral" = "neutral";
+    if (r.status === "SUCCESS") tone = "success";
+    else if (r.status === "WARNING" || r.status === "ERROR") tone = "warn";
+
+    return {
+      id: r.id || String(Math.random()),
+      label: r.title,
+      time: formatDistanceToNow(new Date(r.occurred_at), { addSuffix: true }),
+      done: r.status !== "PENDING",
+      tone,
+    };
+  });
+
+  const completedMap = new Map(completed.map(e => [e.label, e]));
+  
+  const isFinished = completedMap.has("Evaluation finished") || completedMap.has("Auto submitted");
+  const sectionMilestones = [
+    "Engineering Labs submitted",
+    "Knowledge Assessment submitted",
+    "Vitarka discussion completed",
+  ];
+
+  const fullTimeline: TimelineEvent[] = [];
+
+  // 1. Fixed evaluation lifecycle
+  for (const m of EVALUATION_MILESTONES) {
+    if (m === "Evaluation finished" && completedMap.has("Auto submitted")) {
+      fullTimeline.push(completedMap.get("Auto submitted")!);
+    } else if (completedMap.has(m)) {
+      fullTimeline.push(completedMap.get(m)!);
+    } else {
+      let timeLabel = "pending";
+      if (isFinished && sectionMilestones.includes(m)) {
+        timeLabel = "Not submitted";
+      }
+      fullTimeline.push({ id: m, label: m, time: timeLabel, done: false, tone: "neutral" });
+    }
+  }
+
+  // 2. Chronological post-evaluation events (decisions, holds, etc)
+  const evalSet = new Set(EVALUATION_MILESTONES);
+  evalSet.add("Auto submitted");
+  
+  const postEvents = completed.filter(e => !evalSet.has(e.label));
+  for (const e of postEvents) {
+    fullTimeline.push(e);
+  }
+
+  // 3. Pending recruiter milestones
+  const postEventsSet = new Set(postEvents.map(e => e.label));
+  for (const m of RECRUITER_MILESTONES) {
+    if (!postEventsSet.has(m)) {
+      fullTimeline.push({ id: m, label: m, time: "pending", done: false, tone: "neutral" });
+    }
+  }
+  
+  return fullTimeline;
+}
 
 export async function loadTimelineEvents(evId: string, email: string): Promise<TimelineEvent[]> {
   if (evId.startsWith("7700") || evId.startsWith("demo")) {
@@ -971,55 +1066,7 @@ export async function loadTimelineEvents(evId: string, email: string): Promise<T
   }
   try {
     const res = await restApiAuthUtil.get<any[]>(`/skill_evaluation/timeline-events/?evaluation_id=${evId}&candidate_email=${encodeURIComponent(email)}`);
-    
-    const completed = res.sort((a, b) => new Date(a.occurred_at).getTime() - new Date(b.occurred_at).getTime()).map((r) => {
-      let tone: "success" | "warn" | "neutral" = "neutral";
-      if (r.status === "SUCCESS") tone = "success";
-      else if (r.status === "WARNING" || r.status === "ERROR") tone = "warn";
-
-      return {
-        id: r.id,
-        label: r.title,
-        time: formatDistanceToNow(new Date(r.occurred_at), { addSuffix: true }),
-        done: r.status !== "PENDING",
-        tone,
-      };
-    });
-
-    const completedMap = new Map(completed.map(e => [e.label, e]));
-    
-    const isFinished = completedMap.has("Evaluation finished");
-    const sectionMilestones = [
-      "Engineering Labs submitted",
-      "Knowledge Assessment submitted",
-      "Vitarka discussion completed",
-    ];
-
-    const fullTimeline = MILESTONES.map(m => {
-      if (completedMap.has(m)) {
-        return completedMap.get(m)!;
-      } else {
-        let timeLabel = "pending";
-        if (isFinished && sectionMilestones.includes(m)) {
-          timeLabel = "Not submitted";
-        }
-        return {
-          id: m,
-          label: m,
-          time: timeLabel,
-          done: false,
-          tone: "neutral" as const,
-        };
-      }
-    });
-
-    for (const e of completed) {
-      if (!MILESTONES.includes(e.label)) {
-        fullTimeline.push(e);
-      }
-    }
-    
-    return fullTimeline;
+    return formatTimelineEvents(res);
   } catch (err) {
     console.error("Failed to load timeline events", err);
     return [];

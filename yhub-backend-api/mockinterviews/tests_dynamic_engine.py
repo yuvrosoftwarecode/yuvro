@@ -101,7 +101,7 @@ class DynamicEngineIntegrationTest(unittest.TestCase):
             def generate_question(self, session, fallback_question):
                 return None
 
-            def generate_report_narrative(self, session, evaluation):
+            def generate_report_narrative(self, session, evaluation, lab_stats=None):
                 return None
 
         engine = DynamicQuestionEngine(llm_client=FakeLLM())
@@ -162,8 +162,8 @@ Knowledge Assessment Score: 1/2
 
         bundle = InterviewReportService().create_report_bundle(session)
 
-        self.assertIsNone(bundle.engineering_labs_report)
-        self.assertIsNone(bundle.knowledge_assessment_report)
+        self.assertIsNotNone(bundle.engineering_labs_report)
+        self.assertIsNotNone(bundle.knowledge_assessment_report)
         self.assertEqual("Overall Interview Report", bundle.overall_report.title)
         self.assertIsNotNone(bundle.vitarka_report)
         self.assertEqual(3, len(bundle.overall_report.section_scores))
@@ -390,7 +390,7 @@ Code Diff:
             def generate_question(self, session, fallback_question):
                 return None
 
-            def generate_report_narrative(self, session, evaluation):
+            def generate_report_narrative(self, session, evaluation, **kwargs):
                 return GeneratedReportNarrative(
                     executive_summary="He demonstrated strong knowledge and his code was well structured.",
                     recommendation="Hire him immediately.",
@@ -552,6 +552,104 @@ Tests: 5 passed out of 5
         report = reporter.create_report(session)
         self.assertEqual(report.max_score, 40.0)
         self.assertEqual(report.scaled_score, 34.0)  # (8.5 / 10) * 40 = 34.0
+
+    def test_intro_only_evaluates_to_zero_score(self):
+        from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
+        from mockinterviews.dynamic_engine.models import CandidateAnswer
+
+        session = InterviewSession.from_create_request(
+            InterviewCreateRequest(
+                mode=InterviewMode.AUTOMATIC,
+                candidate=CandidateContext(candidate_id="cand-intro-only"),
+            )
+        )
+        # Candidate only introduces themselves
+        answer = CandidateAnswer(
+            question_id="intro-q1",
+            answer_text="Hello I am manikanda",
+            metadata={"answer_quality": "intro", "is_intro": True},
+        )
+        session.answers.append(answer)
+
+        evaluator = InterviewEvaluator()
+        evaluation = evaluator.evaluate(session)
+
+        self.assertEqual(evaluation.overall_score, 0.0)
+        self.assertEqual(evaluation.coverage.covered_competencies, 0)
+        for score in evaluation.scores:
+            self.assertEqual(score.score, 0)
+
+    def test_irrelevant_answer_evaluates_to_low_score_and_refocuses(self):
+        from mockinterviews.dynamic_engine.evaluator import InterviewEvaluator
+        from mockinterviews.dynamic_engine.models import CandidateAnswer
+
+        engine = DynamicQuestionEngine()
+        session = InterviewSession.from_create_request(
+            InterviewCreateRequest(
+                mode=InterviewMode.AUTOMATIC,
+                candidate=CandidateContext(candidate_id="cand-irrelevant"),
+            )
+        )
+        q1 = engine.next_question(session)
+        answer = engine.record_answer(session, q1.id, "I love eating pizza and watching cricket on weekends")
+
+        self.assertEqual(answer.metadata["answer_quality"], "irrelevant")
+
+        evaluator = InterviewEvaluator()
+        evaluation = evaluator.evaluate(session)
+        self.assertLessEqual(evaluation.overall_score, 2.0)
+
+        q2 = engine.next_question(session)
+        self.assertNotIn("good point", q2.prompt.lower())
+        self.assertIn("stay focused", q2.prompt.lower())
+
+    def test_fix_lab_percentage_hallucinations(self):
+        reporter = InterviewReportService()
+        lab_stats = {"tests_passed": 1, "tests_total": 5, "score": 2.0}
+        text = "leading to a score of 2% in the lab exercise."
+        fixed = reporter._fix_lab_percentage_hallucinations(text, lab_stats)
+        self.assertEqual("leading to a score of 20% in the lab exercise.", fixed)
+
+    def test_lab_stats_deduplication_and_camelcase_key_preserves_test_counts(self):
+        context = """--- Lab: Engineering Lab 1 ---
+Time spent: 15 minutes
+Tests: 2 passed out of 5
+Score: 40%
+
+Code Diff:
+```diff
+diff --git a/app.py b/app.py
+--- a/app.py
++++ b/app.py
+@@ -1,1 +1,3 @@
++# Fix implementation
++def process(): return True
+```
+"""
+        payload = UnifiedAssessmentPayload.model_validate({
+            "engineering_labs": [{
+                "lab_id": "lab_1",
+                "title": "Engineering Lab 1",
+                "performance": {"testsPassed": 2, "testsTotal": 5},
+            }],
+            "candidate_context": context,
+        })
+        adapter = UnifiedPayloadAdapter()
+        engine = DynamicQuestionEngine()
+        session = InterviewSession.from_create_request(adapter.to_create_request(payload))
+        for event in adapter.to_assessment_events(payload):
+            engine.ingest_event(session, event)
+        question = engine.next_question(session)
+        engine.record_answer(session, question.id, "I implemented the fix.")
+
+        reporter = InterviewReportService()
+        stats = reporter._get_engineering_stats(session)
+        self.assertEqual(2, stats["tests_passed"])
+        self.assertEqual(5, stats["tests_total"])
+
+        bundle = reporter.create_report_bundle(session)
+        self.assertIn("2/5 tests passed", bundle.overall_report.executive_summary)
+        self.assertNotIn("0/5 tests passed", bundle.overall_report.executive_summary)
 
 
 if __name__ == "__main__":

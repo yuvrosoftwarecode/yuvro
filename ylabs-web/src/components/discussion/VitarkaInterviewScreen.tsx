@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { yhubApiAuthUtil } from "../../utils/RestApiAuthUtil";
 
 interface Message {
@@ -6,21 +6,34 @@ interface Message {
   content: string;
 }
 
-export function VitarkaInterviewScreen({
-  mockInterviewId,
-  onEnd,
-  candidateContext,
-  discussionMaxScore,
-  onQuestionChange,
-  onSessionStart,
-}: {
+export interface VitarkaInterviewScreenRef {
+  cancelEnd: () => void;
+  confirmEnd: () => Promise<void>;
+}
+
+export interface VitarkaInterviewScreenProps {
   mockInterviewId: string;
   onEnd: () => void;
   candidateContext?: string;
   discussionMaxScore?: number;
   onQuestionChange?: (question: string) => void;
   onSessionStart?: (sessionId: string) => void;
-}) {
+}
+
+export const VitarkaInterviewScreen = forwardRef<
+  VitarkaInterviewScreenRef,
+  VitarkaInterviewScreenProps
+>(function VitarkaInterviewScreen(
+  {
+    mockInterviewId,
+    onEnd,
+    candidateContext,
+    discussionMaxScore,
+    onQuestionChange,
+    onSessionStart,
+  },
+  ref
+) {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [conversation, setConversation] = useState<Message[]>([]);
   const [currentUserAnswer, setCurrentUserAnswer] = useState("");
@@ -36,12 +49,33 @@ export function VitarkaInterviewScreen({
   const videoRef = useRef<HTMLVideoElement>(null);
   const recognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const inactivityAttemptsRef = useRef(0);
+  const isWaitingForConfirmationRef = useRef(false);
   const interviewStateRef = useRef(interviewState);
   const conversationEndRef = useRef<HTMLDivElement>(null);
   const currentUserAnswerRef = useRef(currentUserAnswer);
   const sessionInfoRef = useRef(sessionInfo);
   const isFinishedRef = useRef(false);
   const processingRef = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    cancelEnd: () => {
+      try {
+        window.speechSynthesis.resume();
+      } catch (e) {}
+      if (!isFinishedRef.current && !isUnmountedRef.current) {
+        setInterviewState("listening");
+        resetInactivityTimer();
+        try {
+          recognitionRef.current?.start();
+        } catch (e) {}
+      }
+    },
+    confirmEnd: async () => {
+      await handleEndConfirm();
+    },
+  }));
 
   useEffect(() => {
     interviewStateRef.current = interviewState;
@@ -58,6 +92,7 @@ export function VitarkaInterviewScreen({
   }, [conversation, currentUserAnswer]);
 
   const requestPermissions = async () => {
+    onSessionStart?.("started");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setMediaStream(stream);
@@ -79,17 +114,81 @@ export function VitarkaInterviewScreen({
     };
   }, [mediaStream]);
 
-  const speakText = (text: string) => {
+  const resetInactivityTimer = () => {
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    if (isFinishedRef.current) return;
+    inactivityTimerRef.current = setTimeout(() => {
+      handleInactivityTimeout();
+    }, 15000);
+  };
+
+  const INACTIVITY_PHRASES = [
+    "Are you there?",
+    "Are you still with me?",
+    "I'm listening, are you still there?",
+  ];
+
+  const handleInactivityTimeout = () => {
+    if (
+      isFinishedRef.current ||
+      processingRef.current ||
+      interviewStateRef.current !== "listening" ||
+      currentUserAnswerRef.current.replace(/ \[interim\].*$/, "").trim().length > 0
+    ) {
+      return;
+    }
+
+    if (isWaitingForConfirmationRef.current) {
+      const promptText = "Okay, thanks for your time. I am ending the interview.";
+      setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
+      setCurrentUserAnswer("");
+      speakText(promptText, () => {
+        handleEndConfirm();
+      });
+      return;
+    }
+
+    inactivityAttemptsRef.current += 1;
+
+    if (inactivityAttemptsRef.current > 3) {
+      isWaitingForConfirmationRef.current = true;
+      const promptText = "I haven't received a response. Would you like to continue the interview?";
+      setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
+      setCurrentUserAnswer("");
+      speakText(promptText);
+      return;
+    }
+
+    const promptText = INACTIVITY_PHRASES[inactivityAttemptsRef.current % INACTIVITY_PHRASES.length];
+    setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
+    setCurrentUserAnswer("");
+    speakText(promptText);
+  };
+
+  const speakText = (text: string, onEndCallback?: () => void) => {
     window.speechSynthesis.cancel();
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
+    // Immediately stop listening so the microphone does NOT pick up AI audio from speakers
+    setInterviewState("speaking");
+    try {
+      recognitionRef.current?.abort();
+    } catch (e) {}
+    setCurrentUserAnswer("");
 
     // Clean text for speech synthesis so symbols like ` are not read aloud as "back quote"
-    const cleanSpeechText = text
+    let cleanSpeechText = text
       .replace(/`+/g, "")
-      .replace(/[*_#~]/g, "")
+      .replace(/[*#~]/g, "")
+      .replace(/_/g, " ")
       .replace(/[""]/g, '"')
       .replace(/['']/g, "'")
       .replace(/\s+/g, " ")
       .trim();
+
+    // Convert ALL CAPS words (length > 3) to lowercase so they are spoken as words instead of acronyms
+    cleanSpeechText = cleanSpeechText.replace(/\b[A-Z]{4,}\b/g, (match) => match.toLowerCase());
 
     const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
 
@@ -99,30 +198,38 @@ export function VitarkaInterviewScreen({
     if (selectedVoice) utterance.voice = selectedVoice;
 
     utterance.onstart = () => {
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       setInterviewState("speaking");
+      try {
+        recognitionRef.current?.abort();
+      } catch (e) {}
     };
 
-    utterance.onend = () => {
-      if (isFinishedRef.current) {
-        setTimeout(() => handleEnd(), 1000);
+    const handleSpeakEnd = () => {
+      if (onEndCallback) {
+        onEndCallback();
+        return;
+      }
+      if (isFinishedRef.current || isUnmountedRef.current) {
+        setTimeout(() => handleEndRequest(), 1000);
       } else {
-        setInterviewState("listening");
-        try {
-          recognitionRef.current?.start();
-        } catch (e) {}
+        // Small delay to prevent speaker reverberation from triggering mic
+        setTimeout(() => {
+          if (!isFinishedRef.current && !isUnmountedRef.current && !window.speechSynthesis.speaking) {
+            setInterviewState("listening");
+            setCurrentUserAnswer("");
+            resetInactivityTimer();
+            try {
+              recognitionRef.current?.start();
+            } catch (e) {}
+          }
+        }, 400);
       }
     };
 
-    utterance.onerror = () => {
-      if (isFinishedRef.current) {
-        setTimeout(() => handleEnd(), 1000);
-      } else {
-        setInterviewState("listening");
-        try {
-          recognitionRef.current?.start();
-        } catch (e) {}
-      }
-    };
+    utterance.onend = handleSpeakEnd;
+    utterance.onerror = handleSpeakEnd;
 
     window.speechSynthesis.speak(utterance);
   };
@@ -179,8 +286,15 @@ export function VitarkaInterviewScreen({
       recognition.lang = "en-US";
 
       recognition.onresult = (event: any) => {
-        if (interviewStateRef.current !== "listening" || isUnmountedRef.current) return;
+        if (
+          interviewStateRef.current !== "listening" ||
+          isUnmountedRef.current ||
+          window.speechSynthesis.speaking
+        ) {
+          return;
+        }
 
+        if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = setTimeout(() => {
           handleAutoSubmit();
@@ -218,6 +332,7 @@ export function VitarkaInterviewScreen({
       try {
         recognitionRef.current?.abort();
       } catch (e) {}
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       window.speechSynthesis.cancel();
       mediaStream?.getTracks().forEach((t) => t.stop());
@@ -225,13 +340,39 @@ export function VitarkaInterviewScreen({
   }, [hasPermissions]);
 
   const handleAutoSubmit = async () => {
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     if (processingRef.current || isFinishedRef.current || interviewStateRef.current !== "listening")
       return;
 
     let cleanAnswer = currentUserAnswerRef.current.replace(/ \[interim\].*$/, "").trim();
     if (!cleanAnswer) {
       setInterviewState("listening");
+      resetInactivityTimer();
       return;
+    }
+
+    inactivityAttemptsRef.current = 0;
+    
+    if (isWaitingForConfirmationRef.current) {
+      const lowerAnswer = cleanAnswer.toLowerCase();
+      isWaitingForConfirmationRef.current = false;
+      
+      setConversation((prev) => [...prev, { type: "user", content: cleanAnswer }]);
+      setCurrentUserAnswer("");
+      
+      if (lowerAnswer.includes("no") || lowerAnswer.includes("stop") || lowerAnswer.includes("end") || lowerAnswer.includes("quit") || lowerAnswer.includes("exit")) {
+        const promptText = "Okay, thanks for your time. I am ending the interview.";
+        setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
+        speakText(promptText, () => {
+          handleEndConfirm();
+        });
+        return;
+      } else {
+        const promptText = "Great, let's continue. Could you please provide your answer to the previous question?";
+        setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
+        speakText(promptText);
+        return;
+      }
     }
 
     processingRef.current = true;
@@ -271,12 +412,28 @@ export function VitarkaInterviewScreen({
     }
   };
 
-  const handleEnd = async () => {
+  const handleEndRequest = () => {
+    try {
+      window.speechSynthesis.pause();
+    } catch (e) {}
+    try {
+      recognitionRef.current?.stop();
+    } catch (e) {}
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    onEnd();
+  };
+
+  const handleEndConfirm = async () => {
     isFinishedRef.current = true;
-    window.speechSynthesis.cancel();
+    try {
+      window.speechSynthesis.cancel();
+    } catch (e) {}
     try {
       recognitionRef.current?.abort();
     } catch (e) {}
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     mediaStream?.getTracks().forEach((t) => t.stop());
 
     if (sessionInfoRef.current?.interview_session_id) {
@@ -289,8 +446,6 @@ export function VitarkaInterviewScreen({
         console.error("Failed to mark interview as completed", err);
       }
     }
-
-    onEnd();
   };
 
   if (!hasPermissions) {
@@ -369,7 +524,7 @@ export function VitarkaInterviewScreen({
           <video ref={videoRef} muted playsInline className="h-48 w-full object-cover" />
           <div className="flex justify-center p-4">
             <button
-              onClick={handleEnd}
+              onClick={handleEndRequest}
               className="rounded-lg bg-red-500/10 px-5 py-2 text-[13px] font-medium text-red-500 transition hover:bg-red-500/20"
             >
               End Discussion
@@ -399,4 +554,4 @@ export function VitarkaInterviewScreen({
       </div>
     </div>
   );
-}
+});

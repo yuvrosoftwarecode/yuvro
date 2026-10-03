@@ -1,5 +1,5 @@
 from rest_framework import viewsets, mixins, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -14,6 +14,7 @@ import time
 from .models import (
     Evaluation,
     LabQuestionBank,
+    KnowledgeQuestionBank,
     UserEvaluationSubmission,
     DiscussionMode,
     FollowUpConfig, 
@@ -27,6 +28,7 @@ from .models import (
 from .serializers import (
     EvaluationSerializer,
     LabQuestionBankSerializer,
+    KnowledgeQuestionBankSerializer,
     UserEvaluationSubmissionSerializer,
     FollowUpConfigSerializer, 
     FollowUpCandidateSerializer,
@@ -87,18 +89,29 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 
         if user:
             submission = UserEvaluationSubmission.objects.filter(evaluation=instance, user=user).first()
-            if not submission and instance.created_by_id != user.id:
+            if not submission and instance.created_by_id != user.id and request.user and request.user.is_authenticated:
                 submission = UserEvaluationSubmission.objects.create(
                     evaluation=instance,
                     user=user,
                     duration=0,
                     discussion_mode=DiscussionMode.AUTOMATIC
                 )
+                CandidateTimelineEvent.objects.get_or_create(
+                    evaluation=instance,
+                    candidate_email=user.email,
+                    title=CandidateTimelineEventType.STARTED,
+                    defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+                )
             if submission:
                 data['submission_id'] = submission.id
                 data['started_at'] = submission.created_at.isoformat()
                 data['status'] = submission.hiring_status
                 data['completed_at'] = submission.completed_at.isoformat() if submission.completed_at else None
+
+        is_expired = False
+        if instance.expiry_datetime and timezone.now() > instance.expiry_datetime:
+            is_expired = True
+        data['is_expired'] = is_expired
 
         return Response(data)
     
@@ -177,19 +190,21 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             return Response({"error": "Authentication required. Please verify OTP first."}, status=status.HTTP_401_UNAUTHORIZED)
             
         user = request.user
+        phone = request.data.get('phone', '')
         
-        # We allow any email to register via the public link.
-        # They will be tracked as 'Shared Link' source if not explicitly invited.
-            
-        if UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).exists():
-            return Response({"error": "This email is already registered for this evaluation"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        UserEvaluationSubmission.objects.create(
-            evaluation=evaluation, 
-            user=user,
-            duration=0,
-            discussion_mode=DiscussionMode.AUTOMATIC
-        )
+        submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).first()
+        if submission:
+            if phone and not submission.phone:
+                submission.phone = phone
+                submission.save(update_fields=['phone'])
+        else:
+            UserEvaluationSubmission.objects.create(
+                evaluation=evaluation, 
+                user=user,
+                duration=0,
+                discussion_mode=DiscussionMode.AUTOMATIC,
+                phone=phone or ""
+            )
         
         resume_url = request.data.get('resume_url')
         if resume_url:
@@ -226,7 +241,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             
         User = get_user_model()
         user = User.objects.filter(email=email).first()
-        if user and UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user).exists():
+        if user and UserEvaluationSubmission.objects.filter(evaluation=evaluation, user=user, completed_at__isnull=False).exists():
             return Response({"registered": True, "title": evaluation.title})
         return Response({"registered": False, "title": evaluation.title})
 
@@ -235,7 +250,14 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             attempt_count = 1
             ts = str(int(time.time() * 1000))
             prefix = prefix_override or "snapshot"
-            filename = f"{prefix}_{ts}.png"
+            
+            ext = "png"
+            if file_obj and hasattr(file_obj, 'name') and file_obj.name:
+                parts = file_obj.name.rsplit('.', 1)
+                if len(parts) > 1:
+                    ext = parts[-1].lower()
+                    
+            filename = f"{prefix}_{ts}.{ext}"
             
             user_id = str(user.id)
             object_key = f"{user_id}/skill_evaluation/{evaluation.id}/attempt-{attempt_count}/{filename}"
@@ -334,6 +356,26 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def update_candidate_status(self, request, pk=None):
+        evaluation = self.get_object()
+        email = request.data.get('email')
+        new_status = request.data.get('status')
+        
+        if not email or not new_status:
+            return Response({"error": "email and status are required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user__email=email).first()
+        if not submission:
+            # Fallback if email doesn't strictly match a user submission (e.g. they haven't started but are invited)
+            # Yuvro currently tracks hiring status on the submission model.
+            return Response({"error": "Submission not found for this email"}, status=status.HTTP_404_NOT_FOUND)
+            
+        submission.hiring_status = new_status
+        submission.save(update_fields=['hiring_status'])
+        
+        return Response({"status": "success", "message": f"Updated hiring status to {new_status}"})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def finish(self, request, pk=None):
         evaluation = self.get_object()
         user = request.user
@@ -345,20 +387,51 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         submission.completed_at = timezone.now()
         submission.save(update_fields=['completed_at'])
         
+        CandidateTimelineEvent.objects.get_or_create(
+            evaluation=evaluation,
+            candidate_email=user.email,
+            title=CandidateTimelineEventType.STARTED,
+            defaults={"status": "SUCCESS", "occurred_at": submission.created_at or timezone.now(), "created_by": user}
+        )
 
         has_vitarka = any(sec.type == "VITARKA_AI_INTERVIEW" for sec in evaluation.sections.all())
-        if has_vitarka:
+        has_started_vitarka = False
+        if has_vitarka and isinstance(submission.general_events, list):
+            for event in submission.general_events:
+                if isinstance(event, dict) and event.get('activity_type') == 'vitarka_session_started':
+                    has_started_vitarka = True
+                    break
+                    
+        if has_vitarka and has_started_vitarka:
             CandidateTimelineEvent.objects.get_or_create(
                 evaluation=evaluation,
                 candidate_email=user.email,
                 title=CandidateTimelineEventType.VITARKA_COMPLETED,
                 defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
             )
+            
+        if UserLabQuestionBankSubmission.objects.filter(user=user, evaluation=evaluation).exists():
+            CandidateTimelineEvent.objects.get_or_create(
+                evaluation=evaluation,
+                candidate_email=user.email,
+                title=CandidateTimelineEventType.LABS_SUBMITTED,
+                defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+            )
+
+        if UserKnowledgeAssessmentSubmission.objects.filter(user=user, evaluation=evaluation).exists():
+            CandidateTimelineEvent.objects.get_or_create(
+                evaluation=evaluation,
+                candidate_email=user.email,
+                title=CandidateTimelineEventType.ASSESSMENT_SUBMITTED,
+                defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+            )
+
+        auto_submitted = request.data.get('auto_submitted', False)
 
         CandidateTimelineEvent.objects.get_or_create(
             evaluation=evaluation,
             candidate_email=user.email,
-            title=CandidateTimelineEventType.EVALUATION_FINISHED,
+            title=CandidateTimelineEventType.AUTO_SUBMITTED if auto_submitted else CandidateTimelineEventType.EVALUATION_FINISHED,
             defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
         )
         
@@ -373,6 +446,15 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def submit_lab(self, request, pk=None):
         evaluation = self.get_object()
         lab_id = request.data.get('lab_id')
+        
+        if not lab_id:
+            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            lab = LabQuestionBank.objects.get(id=lab_id)
+        except LabQuestionBank.DoesNotExist:
+            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
+            
         status_val = request.data.get('status', 'in_review')
         solution = request.data.get('solution', '')
         minutes_solved = request.data.get('minutes_solved')
@@ -393,6 +475,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 minutes_solved = 0
 
         score_val = request.data.get('score')
+        solution_output_val = request.data.get('solution_output')
         defaults = {
             'status': status_val,
             'minutes_solved': minutes_solved
@@ -404,6 +487,8 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 defaults['score'] = int(score_val)
             except (ValueError, TypeError):
                 pass
+        if solution_output_val is not None:
+            defaults['solution_output'] = solution_output_val
 
         submission, created = UserLabQuestionBankSubmission.objects.update_or_create(
             user=request.user,
@@ -469,13 +554,35 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                             db_engine = rules.get("database_engine")
                         
                         task_ext = "js" if db_engine in ["mongodb", "mongo", "mongosh"] else "sql"
-                        expected_query = expected_sol.get("query.js") or expected_sol.get("query.sql") or ""
+                        
+                        expected_query = ""
+                        if isinstance(expected_sol, dict):
+                            expected_query = (
+                                expected_sol.get(f"task{i}.{task_ext}")
+                                or expected_sol.get(f"task_{i}.{task_ext}")
+                                or expected_sol.get(f"task{i}")
+                                or expected_sol.get(f"query.{task_ext}")
+                                or expected_sol.get("query.sql")
+                                or expected_sol.get("query.js")
+                                or (list(expected_sol.values())[0] if expected_sol else "")
+                            )
+                        elif isinstance(expected_sol, str):
+                            expected_query = expected_sol
+
+                        if not expected_query and rules.get("system_query"):
+                            expected_query = rules.get("system_query")
+
+                        exp_out = getattr(task, 'expected_output', None) or rules.get("expected_output", "")
+                        if isinstance(exp_out, (dict, list)):
+                            exp_out_str = json.dumps(exp_out)
+                        else:
+                            exp_out_str = str(exp_out) if exp_out is not None else ""
                         
                         payload_tasks.append({
                             "task_id": str(task.id),
                             "task_file": f"task{i}.{task_ext}",
                             "expected_query": expected_query,
-                            "expected_output": expected_sol.get("expected_output", ""),
+                            "expected_output": exp_out_str,
                             "scoring_rules": rules,
                             "system_query": rules.get("system_query", ""),
                             "expected_result": rules.get("expected_result", "")
@@ -489,13 +596,17 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                             "database_engine": db_engine,
                             "evaluation_id": str(evaluation.id),
                             "tasks": payload_tasks
-                        }, timeout=10)
+                        }, timeout=30)
                         if response.status_code == 200:
                             result_data = response.json()
                             submission.solution_output = json.dumps(result_data)
-                            calc_score = int(result_data.get("percentage", 0))
-                            if calc_score > 0 or submission.score == 0:
-                                submission.score = calc_score
+                            tasks_list = result_data.get("tasks", [])
+                            if tasks_list and len(tasks_list) > 0:
+                                passed_count = sum(1 for t in tasks_list if t.get("passed"))
+                                calc_score = round((passed_count / len(tasks_list)) * 100)
+                            else:
+                                calc_score = round(float(result_data.get("percentage", 0)))
+                            submission.score = calc_score
                             submission.save(update_fields=['solution_output', 'score'])
                     except Exception as e:
                         logger = logging.getLogger(__name__)
@@ -616,18 +727,31 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def generate_share_link(self, request, pk=None):
         evaluation = self.get_object()
         candidate_email = request.data.get('candidate_email')
-        if not candidate_email:
-            return Response({"error": "candidate_email is required"}, status=status.HTTP_400_BAD_REQUEST)
+        candidate_id = request.data.get('candidate_id')
         
-        # In a real system, you would check if the request.user has permission to share this evaluation
-        # For this prototype, we'll proceed if the submission exists
-        submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user__email=candidate_email).first()
-        if not submission:
-            return Response({"error": "Candidate submission not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        # Generate a new token and set expiration to 30 days from now
+        from django.db.models import Q
         import secrets
         from datetime import timedelta
+
+        query = Q(evaluation=evaluation)
+        if candidate_id and candidate_email:
+            query &= (Q(id=candidate_id) | Q(user__id=candidate_id) | Q(user__email__iexact=candidate_email))
+        elif candidate_id:
+            query &= (Q(id=candidate_id) | Q(user__id=candidate_id))
+        elif candidate_email:
+            query &= Q(user__email__iexact=candidate_email)
+        else:
+            return Response({"error": "candidate_email or candidate_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        submission = UserEvaluationSubmission.objects.filter(query).first()
+        if not submission:
+            # Fallback: find submission in this evaluation by candidate email or candidate id
+            if candidate_email:
+                submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, user__email__iexact=candidate_email).first()
+            if not submission and candidate_id:
+                submission = UserEvaluationSubmission.objects.filter(evaluation=evaluation, id=candidate_id).first()
+            if not submission:
+                return Response({"error": "Candidate submission not found"}, status=status.HTTP_404_NOT_FOUND)
         
         token = secrets.token_urlsafe(12)
         submission.share_token = token
@@ -639,7 +763,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             "expires_at": submission.share_token_expires_at
         })
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def start_lab(self, request, pk=None):
         evaluation = self.get_object()
         lab_id = request.data.get('lab_id')
@@ -652,44 +776,75 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         except LabQuestionBank.DoesNotExist:
             return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
             
-        if not lab.git_repo_starter_url:
-            return Response({"error": "Lab does not have a starter repository"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
-        starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
+        starter_repo_path = None
+        if lab.git_repo_starter_url:
+            starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
+            starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
+            if not os.path.exists(starter_repo_path):
+                try:
+                    from lab.workspace_manager import provision_evaluation_lab_starter_repo
+                    provision_evaluation_lab_starter_repo(evaluation.id, lab.id, lab.git_repo_starter_url, branch=lab.git_repo_starter_branch)
+                except Exception as e:
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Error provisioning starter repo for lab {lab.id}: {e}")
         
+        user = request.user if (request.user and request.user.is_authenticated) else None
+        user_id = user.id if user else (request.data.get('user_id') or "anon")
+
         try:
-            provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
+            provision_evaluation_user_repo(evaluation.id, lab.id, user_id, starter_repo_path)
             return Response({"status": "success", "message": "Lab workspace provisioned successfully"})
         except Exception as e:
             return Response({"error": f"Failed to provision workspace: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def provision_labs(self, request, pk=None):
         evaluation = self.get_object()
         
+        user = request.user if (request.user and request.user.is_authenticated) else None
+        user_id = user.id if user else (request.data.get('user_id') or "anon")
+
         labs_provisioned = 0
         for section in evaluation.sections.all():
             if section.type != 'LAB' or not section.questions:
                 continue
                 
             for question in section.questions:
-                lab_id = question.get('id')
+                lab_id = None
+                if isinstance(question, dict):
+                    lab_id = question.get('id')
+                elif isinstance(question, str):
+                    match = re.search(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', question)
+                    if match:
+                        lab_id = match.group(0)
+                    else:
+                        lab_id = question
+                else:
+                    lab_id = str(question)
+
                 if not lab_id:
                     continue
                     
                 try:
                     lab = LabQuestionBank.objects.get(id=lab_id)
+                    starter_repo_path = None
                     if lab.git_repo_starter_url:
                         starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
                         starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
-                        
-                        try:
-                            provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
-                            labs_provisioned += 1
-                        except Exception as e:
-                            logger = logging.getLogger(__name__)
-                            logger.error(f"Failed to provision lab workspace {lab_id}: {e}", exc_info=True)
+                        if not os.path.exists(starter_repo_path):
+                            try:
+                                from lab.workspace_manager import provision_evaluation_lab_starter_repo
+                                provision_evaluation_lab_starter_repo(evaluation.id, lab.id, lab.git_repo_starter_url, branch=lab.git_repo_starter_branch)
+                            except Exception as e:
+                                logger = logging.getLogger(__name__)
+                                logger.error(f"Error provisioning starter repo for lab {lab.id}: {e}")
+                    
+                    try:
+                        provision_evaluation_user_repo(evaluation.id, lab.id, user_id, starter_repo_path)
+                        labs_provisioned += 1
+                    except Exception as e:
+                        logger = logging.getLogger(__name__)
+                        logger.error(f"Failed to provision lab workspace {lab_id}: {e}", exc_info=True)
                 except LabQuestionBank.DoesNotExist:
                     pass
 
@@ -746,6 +901,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     defaults={
                         'name': cand.get('name', ''),
                         'phone': cand.get('phone', ''),
+                        'followups_enabled': config.smart_followups,
                         'created_by': evaluation.created_by
                     }
                 )
@@ -774,7 +930,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 evaluation.candidate_invited_emails = current_invited
                 evaluation.save(update_fields=['candidate_invited_emails', 'updated_at'])
             
-            if processed_emails:
+            if processed_emails and config.smart_followups:
                 from .email_utils import send_evaluation_email
                 send_evaluation_email(
                     evaluation, 
@@ -784,6 +940,98 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 )
             
             return Response({"status": "success"})
+
+    @action(detail=True, methods=['post'])
+    def toggle_followup(self, request, pk=None):
+        evaluation = self.get_object()
+        email = request.data.get('email')
+        enabled = request.data.get('enabled', True)
+        
+        if not email:
+            return Response({"error": "email is required"}, status=400)
+            
+        try:
+            candidate = FollowUpCandidate.objects.get(evaluation=evaluation, email=email)
+            candidate.followups_enabled = enabled
+            candidate.save(update_fields=['followups_enabled'])
+            return Response({"status": "success", "enabled": enabled})
+        except FollowUpCandidate.DoesNotExist:
+            return Response({"error": "Candidate not found"}, status=404)
+            
+    @action(detail=True, methods=['post'])
+    def remove_followup(self, request, pk=None):
+        evaluation = self.get_object()
+        email = request.data.get('email')
+        
+        if not email:
+            return Response({"error": "email is required"}, status=400)
+            
+        FollowUpCandidate.objects.filter(evaluation=evaluation, email=email).delete()
+        
+        # Also remove from candidate_invited_emails so they disappear from Candidate Records
+        invited = evaluation.candidate_invited_emails
+        if isinstance(invited, str):
+            import json
+            try:
+                invited = json.loads(invited)
+            except:
+                invited = []
+                
+        if isinstance(invited, list):
+            if email in invited:
+                invited.remove(email)
+                evaluation.candidate_invited_emails = invited
+                evaluation.save(update_fields=['candidate_invited_emails'])
+        elif isinstance(invited, dict):
+            if email in invited:
+                del invited[email]
+                evaluation.candidate_invited_emails = invited
+                evaluation.save(update_fields=['candidate_invited_emails'])
+                
+        return Response({"status": "success"})
+
+    @action(detail=True, methods=['post'])
+    def send_reminder(self, request, pk=None):
+        evaluation = self.get_object()
+        email = request.data.get('email')
+        
+        if not email:
+            return Response({"error": "email is required"}, status=400)
+            
+        from .email_utils import send_evaluation_email
+        config = FollowUpConfig.objects.filter(evaluation=evaluation).first()
+        try:
+            candidate = FollowUpCandidate.objects.get(evaluation=evaluation, email=email)
+            candidate.emails_sent_count += 1
+            candidate.activity = "Reminder Sent Manually"
+            candidate.save(update_fields=['emails_sent_count', 'activity'])
+        except:
+            pass
+            
+        send_evaluation_email(
+            evaluation, 
+            [email], 
+            is_reminder=True, 
+            custom_body=config.email_template if config and config.email_template else None
+        )
+        return Response({"status": "success"})
+        
+    @action(detail=True, methods=['post'])
+    def edit_candidate_deadline(self, request, pk=None):
+        evaluation = self.get_object()
+        email = request.data.get('email')
+        deadline = request.data.get('deadline')
+        
+        if not email or not deadline:
+            return Response({"error": "email and deadline are required"}, status=400)
+            
+        try:
+            candidate = FollowUpCandidate.objects.get(evaluation=evaluation, email=email)
+            candidate.deadline = deadline
+            candidate.save(update_fields=['deadline'])
+            return Response({"status": "success"})
+        except FollowUpCandidate.DoesNotExist:
+            return Response({"error": "Candidate not found"}, status=404)
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def update_candidate_status(self, request, pk=None):
@@ -814,6 +1062,19 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         followup_cands = {c.email: c for c in evaluation.followup_candidates.all()}
         submissions = {s.user.email: s for s in evaluation.submissions.select_related('user').all()}
         
+        lab_subs = UserLabQuestionBankSubmission.objects.filter(evaluation=evaluation).select_related('user')
+        ka_subs = UserKnowledgeAssessmentSubmission.objects.filter(evaluation=evaluation).select_related('user')
+        
+        lab_scores_by_email = {}
+        for ls in lab_subs:
+            email = ls.user.email
+            lab_scores_by_email[email] = lab_scores_by_email.get(email, 0) + ls.score
+            
+        ka_scores_by_email = {}
+        for ks in ka_subs:
+            email = ks.user.email
+            ka_scores_by_email[email] = ka_scores_by_email.get(email, 0) + ks.score
+
         all_emails = invited_emails.union(followup_cands.keys()).union(submissions.keys())
         
         records_list = []
@@ -835,7 +1096,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             phone = fc.phone if fc else ""
             
             submitted_at = int(sub.completed_at.timestamp() * 1000) if sub and sub.completed_at else None
-            status_val = "Submitted" if sub and sub.completed_at else ("In Progress" if sub else "Not Submitted")
+            status_val = "Submitted" if sub and sub.completed_at else "Not Submitted"
             
             sent_at = None
             if fc and fc.created_at:
@@ -854,6 +1115,29 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             elif source == "Shared Link" and sub and sub.created_at:
                 sent_at = int(sub.created_at.timestamp() * 1000)
             
+            l_score = lab_scores_by_email.get(email)
+            a_score = ka_scores_by_email.get(email)
+            v_score = None
+            
+            total = 0
+            has_score = False
+            if l_score is not None:
+                total += l_score
+                has_score = True
+            if a_score is not None:
+                total += a_score
+                has_score = True
+                
+            final_score = total if has_score else None
+            
+            result_val = "Not Evaluated"
+            if sub and getattr(sub, 'hiring_status', None):
+                hs = sub.hiring_status
+                if hs in ["Passed", "Failed", "Not Evaluated"]:
+                    result_val = hs
+                else:
+                    result_val = "Passed" if (final_score and final_score >= 50) else "Failed"
+
             records_list.append({
                 "id": email,
                 "candidateId": email,
@@ -865,13 +1149,13 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 "accessedAt": None,
                 "status": status_val,
                 "submittedAt": submitted_at,
-                "score": None,
-                "result": "Not Evaluated",
+                "score": final_score,
+                "result": result_val,
                 "followUp": fc.followups_enabled if fc else False,
-                "labsScore": None,
-                "assessmentScore": None,
-                "vitarkaScore": None,
-                "eci": None,
+                "labsScore": l_score,
+                "assessmentScore": a_score,
+                "vitarkaScore": v_score,
+                "eci": final_score,
                 "deadline": None,
                 "emailsSent": fc.emails_sent_count if fc else 0,
                 "aiCall": False,
@@ -885,17 +1169,25 @@ class EvaluationViewSet(viewsets.ModelViewSet):
 class LabQuestionBankViewSet(viewsets.ModelViewSet):
     queryset = LabQuestionBank.objects.all()
     serializer_class = LabQuestionBankSerializer
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        user = self.request.user if hasattr(self.request, 'user') and getattr(self.request.user, 'is_authenticated', False) else None
-        if not user:
-            User = get_user_model()
-            user = User.objects.first()
-            if not user:
-                user = User.objects.create(username="admin", email="admin@yuvro.com")
-        serializer.save(created_by=user)
+        serializer.save(created_by=self.request.user)
+
+
+class KnowledgeQuestionBankViewSet(viewsets.ModelViewSet):
+    queryset = KnowledgeQuestionBank.objects.all().order_by('-created_at')
+    serializer_class = KnowledgeQuestionBankSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return KnowledgeQuestionBank.objects.all().order_by('-created_at')
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        company = user.recruiter_profiles.first().company if hasattr(user, 'recruiter_profiles') and user.recruiter_profiles.exists() else None
+        serializer.save(created_by=user, company=company)
+
 
 class UserLabQuestionBankSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = UserLabQuestionBankSubmissionSerializer
@@ -1051,10 +1343,13 @@ class SharedReportView(APIView):
         sub_serializer = UserEvaluationSubmissionSerializer(submission)
         
         # Include timeline events specifically for this candidate and evaluation
-        events = CandidateTimelineEvent.objects.filter(
-            evaluation=evaluation, 
-            candidate_email=submission.user.email
-        )
+        candidate_email = submission.user.email if submission.user else submission.email
+        events = []
+        if candidate_email:
+            events = CandidateTimelineEvent.objects.filter(
+                evaluation=evaluation, 
+                candidate_email=candidate_email
+            )
         from .serializers import CandidateTimelineEventSerializer
         event_serializer = CandidateTimelineEventSerializer(events, many=True)
         

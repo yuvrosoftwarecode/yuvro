@@ -239,7 +239,9 @@ class UnifiedPayloadAdapter:
             common_details = {
                 "lab_id": lab.get("lab_id"),
                 "title": title,
-                "scenario": lab.get("scenario"),
+                "scenario": lab.get("scenario") or lab.get("description"),
+                "description": lab.get("description"),
+                "tasks": lab.get("tasks"),
                 "performance": performance,
                 "time_spent_seconds": lab.get("time_spent_seconds")
                 or performance.get("total_time_seconds"),
@@ -382,9 +384,24 @@ class UnifiedPayloadAdapter:
             minutes = self._parse_minutes(body)
             code_diff = self._parse_code_diff(body)
 
+            description = (
+                self._extract_block_value(body, "Description", stop_labels=("Problem Statement", "Tasks", "Score", "Time spent", "Code Diff", "Submitted Code", "Status"))
+                or self._extract_block_value(body, "Problem Statement", stop_labels=("Tasks", "Score", "Time spent", "Code Diff", "Submitted Code", "Status"))
+            )
+            tasks = self._extract_block_value(body, "Tasks", stop_labels=("Score", "Time spent", "Code Diff", "Submitted Code", "Status"))
+
             tests_match = re.search(r"Tests:\s*(?P<passed>\d+)\s*passed\s*out\s*of\s*(?P<total>\d+)", body, re.IGNORECASE)
             tests_passed = self._as_int(tests_match.group("passed")) if tests_match else None
             tests_total = self._as_int(tests_match.group("total")) if tests_match else None
+
+            score_match = re.search(r"Score:\s*(?P<score>\d+(?:\.\d+)?)\s*(?:/\s*(?P<max>\d+(?:\.\d+)?)|%)?", body, re.IGNORECASE)
+            if score_match and (tests_passed is None or tests_total is None):
+                raw_score = self._as_float(score_match.group("score"))
+                raw_max = self._as_float(score_match.group("max")) or 100.0
+                if raw_score is not None:
+                    pct = max(0.0, min(1.0, (raw_score / raw_max) if raw_max else 1.0))
+                    tests_total = tests_total or 5
+                    tests_passed = tests_passed if tests_passed is not None else int(round(pct * tests_total))
 
             errors_match = re.search(r"Errors(?:\s+encountered)?:\s*(?P<errors>\d+)", body, re.IGNORECASE)
             errors_encountered = self._as_int(errors_match.group("errors")) if errors_match else None
@@ -396,7 +413,9 @@ class UnifiedPayloadAdapter:
                 {
                     "lab_id": f"context_lab_{index}",
                     "title": title,
-                    "scenario": None,
+                    "scenario": description or None,
+                    "description": description or None,
+                    "tasks": tasks or None,
                     "time_spent_seconds": minutes * 60 if minutes is not None else None,
                     "performance": {
                         "total_time_seconds": minutes * 60 if minutes is not None else None,
@@ -510,40 +529,159 @@ class UnifiedPayloadAdapter:
 
     def _normalize_lab(self, lab: dict[str, Any], index: int) -> dict[str, Any]:
         performance = lab.get("performance") if isinstance(lab.get("performance"), dict) else {}
+
+        def pick_int(*vals):
+            for v in vals:
+                res = self._as_int(v)
+                if res is not None:
+                    return res
+            return None
+
         time_spent_seconds = (
             self._as_int(lab.get("time_spent_seconds"))
             or self._as_int(performance.get("total_time_seconds"))
+            or self._as_int(performance.get("time_spent_seconds"))
             or self._minutes_to_seconds(lab.get("time_spent_minutes"))
         )
+
+        tests_passed = pick_int(
+            performance.get("tests_passed"),
+            performance.get("testsPassed"),
+            performance.get("passed_tests"),
+            performance.get("passed"),
+            lab.get("tests_passed"),
+            lab.get("testsPassed"),
+            lab.get("passed_tests"),
+            lab.get("passed"),
+        )
+
+        tests_total = pick_int(
+            performance.get("tests_total"),
+            performance.get("testsTotal"),
+            performance.get("total_tests"),
+            performance.get("total"),
+            lab.get("tests_total"),
+            lab.get("testsTotal"),
+            lab.get("total_tests"),
+            lab.get("total"),
+        )
+
+        terminal_commands_run = pick_int(
+            performance.get("terminal_commands_run"),
+            performance.get("terminalCommandsRun"),
+            performance.get("commands_run"),
+            lab.get("terminal_commands_run"),
+            lab.get("terminalCommandsRun"),
+        )
+
+        errors_encountered = pick_int(
+            performance.get("errors_encountered"),
+            performance.get("errorsEncountered"),
+            performance.get("errors"),
+            lab.get("errors_encountered"),
+            lab.get("errorsEncountered"),
+        )
+
         solution_patch = lab.get("solution_patch") or lab.get("code_diff") or lab.get("submission_content")
         return {
             **lab,
             "lab_id": lab.get("lab_id") or lab.get("id") or f"lab_{index}",
             "title": str(lab.get("title") or lab.get("name") or lab.get("lab_id") or f"Engineering Lab {index}"),
-            "scenario": lab.get("scenario"),
+            "scenario": lab.get("scenario") or lab.get("description"),
             "time_spent_seconds": time_spent_seconds,
             "performance": {
                 **performance,
                 "total_time_seconds": time_spent_seconds,
-                "tests_passed": self._as_int(performance.get("tests_passed")),
-                "tests_total": self._as_int(performance.get("tests_total")),
-                "terminal_commands_run": self._as_int(performance.get("terminal_commands_run")),
-                "errors_encountered": self._as_int(performance.get("errors_encountered")),
+                "tests_passed": tests_passed,
+                "tests_total": tests_total,
+                "terminal_commands_run": terminal_commands_run,
+                "errors_encountered": errors_encountered,
             },
             "solution_patch": solution_patch,
             "code_diff_format": lab.get("code_diff_format") or self._code_payload_format(solution_patch),
             "source": lab.get("source") or "structured_payload",
         }
 
+    def _merge_lab_entries(self, existing: dict[str, Any], new_lab: dict[str, Any]) -> dict[str, Any]:
+        merged = dict(existing)
+        for field in ("scenario", "description", "tasks", "solution_patch", "code_diff_format"):
+            if not merged.get(field) and new_lab.get(field):
+                merged[field] = new_lab[field]
+
+        p_existing = merged.get("performance") if isinstance(merged.get("performance"), dict) else {}
+        p_new = new_lab.get("performance") if isinstance(new_lab.get("performance"), dict) else {}
+
+        def max_or_first(*vals):
+            valid = [self._as_int(v) for v in vals if v is not None and self._as_int(v) is not None]
+            return max(valid) if valid else None
+
+        tests_passed = max_or_first(
+            p_existing.get("tests_passed"), p_existing.get("testsPassed"), p_existing.get("passed_tests"),
+            merged.get("tests_passed"), merged.get("testsPassed"),
+            p_new.get("tests_passed"), p_new.get("testsPassed"), p_new.get("passed_tests"),
+            new_lab.get("tests_passed"), new_lab.get("testsPassed")
+        )
+
+        tests_total = max_or_first(
+            p_existing.get("tests_total"), p_existing.get("testsTotal"), p_existing.get("total_tests"),
+            merged.get("tests_total"), merged.get("testsTotal"),
+            p_new.get("tests_total"), p_new.get("testsTotal"), p_new.get("total_tests"),
+            new_lab.get("tests_total"), new_lab.get("testsTotal")
+        )
+
+        errors = max_or_first(
+            p_existing.get("errors_encountered"), p_existing.get("errorsEncountered"),
+            p_new.get("errors_encountered"), p_new.get("errorsEncountered")
+        )
+
+        commands = max_or_first(
+            p_existing.get("terminal_commands_run"), p_existing.get("terminalCommandsRun"),
+            p_new.get("terminal_commands_run"), p_new.get("terminalCommandsRun")
+        )
+
+        time_spent = max_or_first(
+            merged.get("time_spent_seconds"), p_existing.get("total_time_seconds"),
+            new_lab.get("time_spent_seconds"), p_new.get("total_time_seconds")
+        )
+
+        merged["time_spent_seconds"] = time_spent
+        merged["performance"] = {
+            **p_existing,
+            **p_new,
+            "tests_passed": tests_passed,
+            "tests_total": tests_total,
+            "errors_encountered": errors,
+            "terminal_commands_run": commands,
+            "total_time_seconds": time_spent,
+        }
+        return merged
+
     def _dedupe_labs(self, labs: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        deduped = []
-        seen = set()
+        deduped: list[dict[str, Any]] = []
+        seen: dict[str, int] = {}
         for lab in labs:
-            key = str(lab.get("lab_id") or lab.get("title") or "").lower()
-            if not key or key in seen:
+            lab_id = str(lab.get("lab_id") or "").lower().strip()
+            title = str(lab.get("title") or "").lower().strip()
+            key = lab_id or title
+            if not key:
                 continue
-            seen.add(key)
-            deduped.append(lab)
+
+            matched_idx = None
+            if key in seen:
+                matched_idx = seen[key]
+            else:
+                for idx, existing in enumerate(deduped):
+                    e_id = str(existing.get("lab_id") or "").lower().strip()
+                    e_title = str(existing.get("title") or "").lower().strip()
+                    if (lab_id and lab_id == e_id) or (title and title == e_title) or (title and e_title and (title in e_title or e_title in title)):
+                        matched_idx = idx
+                        break
+
+            if matched_idx is not None:
+                deduped[matched_idx] = self._merge_lab_entries(deduped[matched_idx], lab)
+            else:
+                seen[key] = len(deduped)
+                deduped.append(lab)
         return deduped
 
     def _empty_knowledge_assessment(self) -> dict[str, Any]:
@@ -556,19 +694,82 @@ class UnifiedPayloadAdapter:
         value = self._as_float(match.group("minutes"))
         return int(round(value)) if value is not None else None
 
+    def _filter_internal_files_from_diff(self, diff_str: str | None) -> str | None:
+        if not diff_str or not isinstance(diff_str, str):
+            return None
+
+        internal_patterns = (
+            "yuvro_scoring_rules",
+            "scoring_rules",
+            ".git",
+            ".vscode",
+            "__pycache__",
+            "node_modules",
+            ".pytest_cache",
+            ".venv",
+        )
+
+        if diff_str.strip().startswith("{"):
+            try:
+                import json
+                parsed = json.loads(diff_str)
+                if isinstance(parsed, dict):
+                    clean_dict = {
+                        k: v for k, v in parsed.items()
+                        if not any(pat in k for pat in internal_patterns)
+                    }
+                    return json.dumps(clean_dict, indent=2) if clean_dict else None
+            except Exception:
+                pass
+
+        lines = diff_str.splitlines()
+        filtered_lines = []
+        skip_block = False
+
+        for line in lines:
+            if line.startswith("diff --git") or line.startswith("--- a/") or line.startswith("+++ b/"):
+                if any(pat in line for pat in internal_patterns):
+                    skip_block = True
+                    continue
+                else:
+                    skip_block = False
+            elif line.startswith("Index:") or line.startswith("Property changes on:"):
+                if any(pat in line for pat in internal_patterns):
+                    skip_block = True
+                    continue
+                else:
+                    skip_block = False
+
+            if skip_block:
+                continue
+            filtered_lines.append(line)
+
+        res = "\n".join(filtered_lines).strip()
+        return res if res else None
+
     def _parse_code_diff(self, text: str) -> str | None:
+        raw_code = None
         match = re.search(
-            r"Code Diff:\s*```(?:[A-Za-z0-9_-]+)?\s*\n(?P<code>.*?)(?:\n```|$)",
+            r"(?:Code Diff|Submitted Code|Code Implementation|Solution):\s*```(?:[A-Za-z0-9_-]+)?\s*\n(?P<code>.*?)(?:\n```|$)",
             text,
             re.IGNORECASE | re.DOTALL,
         )
         if match:
-            return match.group("code").strip()
+            raw_code = match.group("code").strip()
+        else:
+            match2 = re.search(
+                r"```(?:diff|python|javascript|typescript|json|bash|sh)?\s*\n(?P<code>.*?)(?:\n```|$)",
+                text,
+                re.IGNORECASE | re.DOTALL,
+            )
+            if match2:
+                raw_code = match2.group("code").strip()
+            else:
+                marker = re.search(r"(?:Code Diff|Submitted Code):\s*(?P<code>.*)", text, re.IGNORECASE | re.DOTALL)
+                if marker:
+                    raw_code = marker.group("code").strip()
 
-        marker = re.search(r"Code Diff:\s*(?P<code>.*)", text, re.IGNORECASE | re.DOTALL)
-        if marker:
-            return marker.group("code").strip()
-        return None
+        return self._filter_internal_files_from_diff(raw_code)
 
     def _extract_block_value(
         self,

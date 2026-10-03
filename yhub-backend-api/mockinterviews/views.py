@@ -319,7 +319,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
             candidate_name = f"{user.first_name} {user.last_name}".strip() or user.username or ""
             if candidate_name:
-                dyn_session.candidate.metadata["name"] = candidate_name
+                dyn_session.candidate.metadata["profile_name"] = candidate_name
 
             greeting = f"Hello! I'm your AI interviewer today. We'll be discussing the {mock_interview.title} role. To start, could you please introduce yourself?"
             
@@ -407,11 +407,11 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     max_followups_per_topic=settings.max_followups_per_topic,
                 )
                 
-                # Ensure candidate name is known
-                if not dyn_session.candidate.metadata.get("name") and request.user:
+                # Store profile name if not present; candidate conversational name is learned from spoken intro
+                if not dyn_session.candidate.metadata.get("profile_name") and request.user:
                     user_display = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username
                     if user_display:
-                        dyn_session.candidate.metadata["name"] = user_display
+                        dyn_session.candidate.metadata["profile_name"] = user_display
 
                 # First handle any answer provided
                 if user_answer and user_answer.strip():

@@ -1,23 +1,45 @@
-import { restApiUtil } from "../utils/RestApiUtil";
+import { restApiAuthUtil } from "../utils/RestApiAuthUtil";
 
 export const questionBankService = {
   async getLabQuestions(): Promise<any[]> {
-    return restApiUtil.get(`/skill_evaluation/lab-questions/`);
+    return restApiAuthUtil.get(`/skill_evaluation/lab-questions/`);
   },
   
   async getLabQuestion(id: string): Promise<any> {
-    return restApiUtil.get(`/skill_evaluation/lab-questions/${id}/`);
+    return restApiAuthUtil.get(`/skill_evaluation/lab-questions/${id}/`);
   },
 
   async createLabQuestion(data: any): Promise<any> {
-    return restApiUtil.post(`/skill_evaluation/lab-questions/`, data);
+    return restApiAuthUtil.post(`/skill_evaluation/lab-questions/`, data);
   },
 
   async updateLabQuestion(id: string, data: any): Promise<any> {
-    return restApiUtil.put(`/skill_evaluation/lab-questions/${id}/`, data);
+    return restApiAuthUtil.put(`/skill_evaluation/lab-questions/${id}/`, data);
   },
 
   async deleteLabQuestion(id: string): Promise<any> {
-    return restApiUtil.delete(`/skill_evaluation/lab-questions/${id}/`);
+    return restApiAuthUtil.delete(`/skill_evaluation/lab-questions/${id}/`);
+  },
+
+  async getKnowledgeQuestions(): Promise<any[]> {
+    const data: any = await restApiAuthUtil.get(`/skill_evaluation/knowledge-questions/`);
+    return Array.isArray(data) ? data : data?.results || [];
+  },
+
+  async getKnowledgeQuestion(id: string): Promise<any> {
+    return restApiAuthUtil.get(`/skill_evaluation/knowledge-questions/${id}/`);
+  },
+
+  async createKnowledgeQuestion(data: any): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/knowledge-questions/`, data);
+  },
+
+  async updateKnowledgeQuestion(id: string, data: any): Promise<any> {
+    return restApiAuthUtil.put(`/skill_evaluation/knowledge-questions/${id}/`, data);
+  },
+
+  async deleteKnowledgeQuestion(id: string): Promise<any> {
+    return restApiAuthUtil.delete(`/skill_evaluation/knowledge-questions/${id}/`);
   }
 };
+

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { getLabIconUrl } from "@/lib/labIcons";
 import { Network, Briefcase, Boxes } from "lucide-react";
 
@@ -9,9 +10,17 @@ interface LabIconProps {
 }
 
 export function LabIcon({ name, icon, size = "h-8 w-8", className = "" }: LabIconProps) {
+  const [imgErr, setImgErr] = useState(false);
   const url = getLabIconUrl(name);
-  if (url) {
-    return <img src={url} alt={name} className={`${size} object-contain shrink-0 ${className}`} />;
+  if (url && !imgErr) {
+    return (
+      <img
+        src={url}
+        alt={name}
+        className={`${size} object-contain shrink-0 ${className}`}
+        onError={() => setImgErr(true)}
+      />
+    );
   }
 
   if (name.toLowerCase().includes("data structure") && name.toLowerCase().includes("scenario")) {

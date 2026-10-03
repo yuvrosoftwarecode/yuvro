@@ -6,7 +6,8 @@ import {
   MailOpen, MousePointerClick, FileCheck2,
 } from "lucide-react";
 import type { Evaluation } from "@/lib/recruiter";
-import { fetchFollowUps, saveFollowUps } from "@/lib/recruiter";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { fetchFollowUps, saveFollowUps, toggleFollowUp, removeFollowUp, sendReminderNow, editCandidateDeadline } from "@/lib/recruiter";
 
 const KEY = (id: string) => `yuvro-followups-v2-${id}`;
 
@@ -52,6 +53,15 @@ const TZS = ["Asia/Kolkata", "America/Los_Angeles", "America/New_York", "Europe/
 const LANGS: Lang[] = ["English", "Hindi", "Spanish", "French", "German"];
 const VOICES: Voice[] = ["Aria (Female)", "Ryan (Male)", "Nova (Female)", "Atlas (Male)"];
 
+const COUNTRIES = [
+  { code: "+91", label: "🇮🇳 India (+91)", digits: 10 },
+  { code: "+1", label: "🇺🇸 US/CA (+1)", digits: 10 },
+  { code: "+44", label: "🇬🇧 UK (+44)", digits: 10 },
+  { code: "+61", label: "🇦🇺 Australia (+61)", digits: 9 },
+  { code: "+65", label: "🇸🇬 Singapore (+65)", digits: 8 },
+  { code: "+971", label: "🇦🇪 UAE (+971)", digits: 9 },
+];
+
 const BULK_DEFAULT: BulkSetup = {
   candidates: [],
   startDate: "", deadline: "", timezone: "Asia/Kolkata",
@@ -79,7 +89,8 @@ const DEFAULTS: Persisted = { bulk: BULK_DEFAULT, individual: IND_DEFAULT };
 
 type Activity =
   | "Submitted Test" | "Opened Link" | "Email Opened"
-  | "Reminder Sent" | "No Action" | "AI Call Answered" | "AI Call Missed";
+  | "Reminder Sent" | "No Action" | "AI Call Answered" | "AI Call Missed"
+  | "Reminder Sent Manually";
 
 type RecordRow = {
   id: string;
@@ -187,7 +198,7 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
             name: c.name || "",
             email: c.email || "",
             phone: c.phone || "",
-            deadline: config?.deadline ? new Date(config.deadline).toLocaleString() : "-",
+            deadline: c.deadline ? new Date(c.deadline).toLocaleString() : (config?.deadline ? new Date(config.deadline).toLocaleString() : "-"),
             followups: c.followups_enabled ?? true,
             aiCall: c.ai_call_enabled ?? false,
             emailsSent: c.emails_sent_count || 0,
@@ -424,7 +435,7 @@ export function FollowUpsTab({ ev, notify }: { ev: Evaluation; notify: (m: strin
 
       <div>
         {page === "bulk" && <BulkPage bulk={data.bulk} onChange={handleBulkChange} onSave={handleSaveBulk} isSaving={isSaving} notify={notify} />}
-        {page === "records" && <RecordsPage records={records} setRecords={setRecords} notify={notify} />}
+        {page === "records" && <RecordsPage evId={ev.id} records={records} setRecords={setRecords} notify={notify} />}
       </div>
     </div>
   );
@@ -529,7 +540,26 @@ function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetu
                 <tr key={c.id} className="border-t border-white/5">
                   <td className="px-3 py-2"><input value={c.name} onChange={(e) => updRow(c.id, { name: e.target.value })} className={cellInp} placeholder="Enter candidate name" /></td>
                   <td className="px-3 py-2"><input value={c.email} onChange={(e) => updRow(c.id, { email: e.target.value })} className={cellInp} placeholder="Enter candidate email" /></td>
-                  <td className="px-3 py-2"><input value={c.phone} onChange={(e) => updRow(c.id, { phone: e.target.value.replace(/\D/g, '').slice(0, 10) })} className={cellInp} placeholder="9000000000" maxLength={10} /></td>
+                  <td className="px-3 py-2">
+                    <div className="flex gap-1 items-center">
+                      <select
+                        value={c.phone.split(" ")[0] || "+91"}
+                        onChange={(e) => updRow(c.id, { phone: `${e.target.value} ${(c.phone.split(" ")[1] || c.phone).replace(/\D/g, '').slice(0, COUNTRIES.find(x => x.code === e.target.value)?.digits || 15)}` })}
+                        className={`${cellInp} !w-[140px] !px-1 shrink-0 bg-transparent cursor-pointer`}
+                      >
+                        {COUNTRIES.map(ctry => (
+                          <option key={ctry.code} value={ctry.code}>{ctry.label}</option>
+                        ))}
+                      </select>
+                      <input 
+                        value={(c.phone.includes(" ") ? c.phone.split(" ")[1] : c.phone).replace(/\D/g, '').slice(0, COUNTRIES.find(x => x.code === (c.phone.split(" ")[0] || "+91"))?.digits || 15)} 
+                        onChange={(e) => updRow(c.id, { phone: `${c.phone.split(" ")[0] || "+91"} ${e.target.value.replace(/\D/g, '').slice(0, COUNTRIES.find(x => x.code === (c.phone.split(" ")[0] || "+91"))?.digits || 15)}` })} 
+                        className={cellInp} 
+                        placeholder="9000000000" 
+                        maxLength={COUNTRIES.find(x => x.code === (c.phone.split(" ")[0] || "+91"))?.digits || 15} 
+                      />
+                    </div>
+                  </td>
                   <td className="px-3 py-2 text-right">
                     <button onClick={() => delRow(c.id)} className="rounded-md p-1.5 text-neutral-400 hover:bg-white/5 hover:text-red-300"><Trash2 className="h-3.5 w-3.5" /></button>
                   </td>
@@ -611,7 +641,7 @@ function BulkPage({ bulk, onChange, onSave, isSaving, notify }: { bulk: BulkSetu
                   if (part === "{{link}}") {
                     return (
                       <div key={i} className="my-3">
-                        <span className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">Start Evaluation</span>
+                        <span className="inline-block rounded-lg bg-black text-white dark:bg-white dark:text-black px-6 py-2.5 text-[13px] font-medium transition">Start Evaluation</span>
                       </div>
                     );
                   }
@@ -674,7 +704,26 @@ function IndividualPage({ ind, onChange, onSave, isSaving, notify }: { ind: Indi
         <div className="grid gap-4 md:grid-cols-3">
           <Field label="Candidate Name"><input value={ind.name} onChange={(e) => set("name", e.target.value)} className={inp} placeholder="Enter candidate name" /></Field>
           <Field label="Email Address"><input value={ind.email} onChange={(e) => set("email", e.target.value)} className={inp} placeholder="Enter candidate email" /></Field>
-          <Field label="Phone Number"><input value={ind.phone} onChange={(e) => set("phone", e.target.value.replace(/\D/g, '').slice(0, 10))} className={inp} placeholder="9000000000" maxLength={10} /></Field>
+          <Field label="Phone Number">
+            <div className="flex gap-1 items-center">
+              <select
+                value={ind.phone.split(" ")[0] || "+91"}
+                onChange={(e) => set("phone", `${e.target.value} ${(ind.phone.split(" ")[1] || ind.phone).replace(/\D/g, '').slice(0, COUNTRIES.find(x => x.code === e.target.value)?.digits || 15)}`)}
+                className={`${inp} !w-[140px] !px-1 shrink-0 bg-transparent cursor-pointer`}
+              >
+                {COUNTRIES.map(ctry => (
+                  <option key={ctry.code} value={ctry.code}>{ctry.label}</option>
+                ))}
+              </select>
+              <input 
+                value={(ind.phone.includes(" ") ? ind.phone.split(" ")[1] : ind.phone).replace(/\D/g, '').slice(0, COUNTRIES.find(x => x.code === (ind.phone.split(" ")[0] || "+91"))?.digits || 15)} 
+                onChange={(e) => set("phone", `${ind.phone.split(" ")[0] || "+91"} ${e.target.value.replace(/\D/g, '').slice(0, COUNTRIES.find(x => x.code === (ind.phone.split(" ")[0] || "+91"))?.digits || 15)}`)} 
+                className={inp} 
+                placeholder="9000000000" 
+                maxLength={COUNTRIES.find(x => x.code === (ind.phone.split(" ")[0] || "+91"))?.digits || 15} 
+              />
+            </div>
+          </Field>
         </div>
       </Section>
 
@@ -787,8 +836,8 @@ function IndividualPage({ ind, onChange, onSave, isSaving, notify }: { ind: Indi
 type FilterKey = "all" | "submitted" | "not_submitted" | "ai_on" | "ai_off" | "rem_on" | "rem_off";
 type SortKey = "deadline" | "activity" | "emails" | "aiCalls" | "submitted";
 
-function RecordsPage({ records, setRecords, notify }: {
-  records: RecordRow[]; setRecords: React.Dispatch<React.SetStateAction<RecordRow[]>>; notify: (m: string) => void;
+function RecordsPage({ evId, records, setRecords, notify }: {
+  evId: string; records: RecordRow[]; setRecords: React.Dispatch<React.SetStateAction<RecordRow[]>>; notify: (m: string) => void;
 }) {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
@@ -876,10 +925,12 @@ function RecordsPage({ records, setRecords, notify }: {
           </thead>
           <tbody>
             {filtered.map((r) => (
-              <RecordRowView key={r.id} row={r} notify={notify}
+              <RecordRowView key={r.id} row={r} evId={evId} notify={notify}
                 onOpen={() => setDrawer(r)}
                 onRemove={() => setRecords((rs) => rs.filter((x) => x.id !== r.id))}
                 onToggleFollowups={() => setRecords((rs) => rs.map((x) => x.id === r.id ? { ...x, followups: !x.followups } : x))}
+                onUpdateDeadline={(d) => setRecords((rs) => rs.map((x) => x.id === r.id ? { ...x, deadline: d } : x))}
+                onReminderSent={() => setRecords((rs) => rs.map((x) => x.id === r.id ? { ...x, emailsSent: x.emailsSent + 1, activity: "Reminder Sent Manually" } : x))}
               />
             ))}
             {filtered.length === 0 && (
@@ -894,16 +945,43 @@ function RecordsPage({ records, setRecords, notify }: {
   );
 }
 
-function RecordRowView({ row, notify, onOpen, onRemove, onToggleFollowups }: {
-  row: RecordRow; notify: (m: string) => void; onOpen: () => void; onRemove: () => void; onToggleFollowups: () => void;
+function RecordRowView({ row, evId, notify, onOpen, onRemove, onToggleFollowups, onUpdateDeadline, onReminderSent }: {
+  row: RecordRow; evId: string; notify: (m: string) => void; onOpen: () => void; onRemove: () => void; onToggleFollowups: () => void; onUpdateDeadline: (d: string) => void; onReminderSent: () => void;
 }) {
-  const [open, setOpen] = useState(false);
   const act = activityMeta(row.activity);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newDeadline, setNewDeadline] = useState("");
+
+  const handleSave = async () => {
+    if (!newDeadline) return;
+    const ok = await editCandidateDeadline(evId, row.email, new Date(newDeadline).toISOString());
+    if (ok) {
+      onUpdateDeadline(new Date(newDeadline).toLocaleString());
+      setIsEditing(false);
+      notify("Deadline updated");
+    } else {
+      notify("Failed to update deadline");
+    }
+  };
+
   return (
-    <tr className="border-t border-white/5 text-neutral-200">
-      <td className="px-3 py-3 font-medium text-white">{row.name}</td>
-      <td className="px-3 py-3 text-neutral-400">{row.email}</td>
-      <td className="px-3 py-3">{row.deadline}</td>
+    <tr className="border-t border-neutral-100 text-neutral-700 hover:bg-neutral-50 transition">
+      <td className="px-3 py-3 font-medium text-neutral-900">{row.name}</td>
+      <td className="px-3 py-3 text-neutral-500">{row.email}</td>
+      <td className="px-3 py-3">
+        {isEditing ? (
+          <div className="flex items-center gap-2">
+            <input 
+              type="datetime-local" 
+              value={newDeadline} 
+              onChange={(e) => setNewDeadline(e.target.value)} 
+              className="rounded-md border border-neutral-200 px-2 py-1 text-[12px] focus:outline-none"
+            />
+            <button onClick={handleSave} className="rounded border bg-neutral-900 px-2 py-1 text-white text-[11px] hover:bg-neutral-800"><Save className="h-3 w-3" /></button>
+            <button onClick={() => setIsEditing(false)} className="rounded border bg-white px-2 py-1 text-neutral-600 text-[11px] hover:bg-neutral-100"><X className="h-3 w-3" /></button>
+          </div>
+        ) : row.deadline}
+      </td>
       <td className="px-3 py-3">{row.followups ? "Enabled" : "Disabled"}</td>
       <td className="px-3 py-3">{row.aiCall ? "Yes" : "No"}</td>
       <td className="px-3 py-3">{row.emailsSent}</td>
@@ -913,23 +991,52 @@ function RecordRowView({ row, notify, onOpen, onRemove, onToggleFollowups }: {
         </span>
       </td>
       <td className="px-3 py-3 text-right">
-        <div className="relative inline-block">
-          <button onClick={() => setOpen((v) => !v)} className="rounded-md border border-white/10 p-1.5 text-neutral-300 hover:bg-white/5"><MoreHorizontal className="h-3.5 w-3.5" /></button>
-          {open && (
-            <>
-              <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-              <div className="absolute right-0 top-full z-20 mt-1 w-56 overflow-hidden rounded-lg border border-white/10 bg-neutral-950 text-left shadow-2xl">
-                <Item icon={<Eye className="h-3.5 w-3.5" />} onClick={() => { onOpen(); setOpen(false); }}>View Communication History</Item>
-                <Item icon={<Send className="h-3.5 w-3.5" />} onClick={() => { notify("Reminder sent"); setOpen(false); }}>Send Reminder Now</Item>
-                <Item icon={<PhoneCall className="h-3.5 w-3.5" />} onClick={() => { notify("AI call triggered"); setOpen(false); }}>Trigger AI Call</Item>
-                <Item icon={<Pencil className="h-3.5 w-3.5" />} onClick={() => { notify("Edit deadline"); setOpen(false); }}>Edit Deadline</Item>
-                <Item icon={<PowerOff className="h-3.5 w-3.5" />} onClick={() => { onToggleFollowups(); setOpen(false); }}>{row.followups ? "Disable" : "Enable"} Follow-ups</Item>
-                <div className="h-px bg-white/5" />
-                <Item icon={<Trash2 className="h-3.5 w-3.5" />} danger onClick={() => { onRemove(); setOpen(false); notify("Candidate deleted"); }}>Delete Candidate</Item>
-              </div>
-            </>
-          )}
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="rounded-md border border-neutral-200 p-1.5 text-neutral-700 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-200">
+              <MoreHorizontal className="h-3.5 w-3.5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-xl z-50">
+            <DropdownMenuItem onClick={async () => {
+              notify("Sending reminder...");
+              const ok = await sendReminderNow(evId, row.email);
+              if (ok) onReminderSent();
+              notify(ok ? "Reminder sent successfully" : "Failed to send reminder");
+            }} className="flex cursor-pointer items-center gap-2 px-3 py-2 text-[12.5px] text-neutral-700 hover:bg-neutral-50 focus:bg-neutral-50 focus:outline-none">
+              <Send className="h-3.5 w-3.5" /> Send Reminder Now
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled className="flex cursor-pointer items-center gap-2 px-3 py-2 text-[12.5px] text-neutral-400 focus:outline-none">
+              <PhoneCall className="h-3.5 w-3.5" /> Trigger AI Call (Coming Soon)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => { setIsEditing(true); setNewDeadline(""); }} className="flex cursor-pointer items-center gap-2 px-3 py-2 text-[12.5px] text-neutral-700 hover:bg-neutral-50 focus:bg-neutral-50 focus:outline-none">
+              <Pencil className="h-3.5 w-3.5" /> Edit Deadline
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={async () => {
+              const ok = await toggleFollowUp(evId, row.email, !row.followups);
+              if (ok) {
+                onToggleFollowups();
+                notify(row.followups ? "Follow-ups disabled" : "Follow-ups enabled");
+              } else {
+                notify("Failed to toggle follow-ups");
+              }
+            }} className="flex cursor-pointer items-center gap-2 px-3 py-2 text-[12.5px] text-neutral-700 hover:bg-neutral-50 focus:bg-neutral-50 focus:outline-none">
+              <PowerOff className="h-3.5 w-3.5" /> {row.followups ? "Disable" : "Enable"} Follow-ups
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="h-px bg-neutral-100 my-1" />
+            <DropdownMenuItem onClick={async () => { 
+              const ok = await removeFollowUp(evId, row.email);
+              if (ok) {
+                onRemove(); 
+                notify("Candidate deleted");
+              } else {
+                notify("Failed to delete candidate");
+              }
+            }} className="flex cursor-pointer items-center gap-2 px-3 py-2 text-[12.5px] text-red-600 hover:bg-red-50 focus:bg-red-50 focus:outline-none">
+              <Trash2 className="h-3.5 w-3.5" /> Delete Candidate
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </td>
     </tr>
   );
@@ -1010,8 +1117,8 @@ function Toggle({ label, desc, value, onChange }: { label: string; desc?: string
         <div className="text-[13px] font-medium text-white">{label}</div>
         {desc && <div className="mt-1 text-[12px] text-neutral-400">{desc}</div>}
       </div>
-      <button onClick={() => onChange(!value)} className={`relative h-5 w-9 shrink-0 rounded-full transition ${value ? "bg-amber-400" : "bg-white/15"}`}>
-        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all ${value ? "left-4" : "left-0.5"}`} />
+      <button onClick={() => onChange(!value)} className={`relative h-5 w-9 shrink-0 rounded-full transition ${value ? "bg-neutral-800 dark:bg-white" : "bg-neutral-300 dark:bg-neutral-700"}`}>
+        <span className={`absolute top-0.5 h-4 w-4 rounded-full transition-all ${value ? "left-4 bg-white dark:bg-neutral-800" : "left-0.5 bg-white"}`} />
       </button>
     </div>
   );

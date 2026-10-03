@@ -77,6 +77,8 @@ reload-data-clear:
 	fi
 	@echo "✅ Test data cleared and reloaded!"
 
+reload-fixtures-data: reload-data-clear
+
 # ============================================================================
 # Database
 # ============================================================================

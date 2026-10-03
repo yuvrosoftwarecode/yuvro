@@ -7,6 +7,9 @@ from authentication.models import MARKETPLACE_ROLE_CHOICES
 from authentication.permissions import (
     IsRecruiterAccountManagerUser,
     IsRecruiterFreelancerUser,
+    IsRecruiterCompanyUser,
+    IsRecruiterCompanyEmployeeUser,
+    IsRecruiterCompanyManagerUser,
     IsMarketplaceUser,
     IsRecruiterUser,
 )
@@ -20,6 +23,9 @@ class MarketplaceRoleModelTests(TestCase):
         valid_keys = [choice[0] for choice in MARKETPLACE_ROLE_CHOICES]
         self.assertIn("recruiter_account_manager", valid_keys)
         self.assertIn("recruiter_freelancer", valid_keys)
+        self.assertIn("recruiter_company", valid_keys)
+        self.assertIn("recruiter_company_employee", valid_keys)
+        self.assertIn("recruiter_company_manager", valid_keys)
 
     def test_valid_marketplace_roles_save_successfully(self):
         user1 = User.objects.create_user(
@@ -30,6 +36,7 @@ class MarketplaceRoleModelTests(TestCase):
         )
         self.assertTrue(user1.is_recruiter_account_manager())
         self.assertFalse(user1.is_recruiter_freelancer())
+        self.assertFalse(user1.is_recruiter_company())
         self.assertTrue(user1.is_recruiter())
 
         user2 = User.objects.create_user(
@@ -40,7 +47,39 @@ class MarketplaceRoleModelTests(TestCase):
         )
         self.assertFalse(user2.is_recruiter_account_manager())
         self.assertTrue(user2.is_recruiter_freelancer())
+        self.assertFalse(user2.is_recruiter_company())
         self.assertTrue(user2.is_recruiter())
+
+        user3 = User.objects.create_user(
+            username="company_test",
+            email="company@test.com",
+            password="securepassword123",
+            roles={"marketplace": "recruiter_company"},
+        )
+        self.assertFalse(user3.is_recruiter_account_manager())
+        self.assertFalse(user3.is_recruiter_freelancer())
+        self.assertTrue(user3.is_recruiter_company())
+        self.assertTrue(user3.is_recruiter())
+
+        user4 = User.objects.create_user(
+            username="employee_test",
+            email="employee@test.com",
+            password="securepassword123",
+            roles={"marketplace": "recruiter_company_employee"},
+        )
+        self.assertTrue(user4.is_recruiter_company_employee())
+        self.assertFalse(user4.is_recruiter_company_manager())
+        self.assertTrue(user4.is_recruiter())
+
+        user5 = User.objects.create_user(
+            username="cmp_mgr_test",
+            email="cmp_mgr@test.com",
+            password="securepassword123",
+            roles={"marketplace": "recruiter_company_manager"},
+        )
+        self.assertFalse(user5.is_recruiter_company_employee())
+        self.assertTrue(user5.is_recruiter_company_manager())
+        self.assertTrue(user5.is_recruiter())
 
     def test_invalid_marketplace_role_raises_validation_error(self):
         user = User(
@@ -69,6 +108,24 @@ class MarketplacePermissionsTests(TestCase):
             password="password123",
             roles={"marketplace": "recruiter_freelancer"},
         )
+        self.company_user = User.objects.create_user(
+            username="cmp_user",
+            email="cmp@test.com",
+            password="password123",
+            roles={"marketplace": "recruiter_company"},
+        )
+        self.employee_user = User.objects.create_user(
+            username="emp_user",
+            email="emp@test.com",
+            password="password123",
+            roles={"marketplace": "recruiter_company_employee"},
+        )
+        self.company_mgr_user = User.objects.create_user(
+            username="cmp_mgr_user",
+            email="cmp_mgr@test.com",
+            password="password123",
+            roles={"marketplace": "recruiter_company_manager"},
+        )
         self.student_user = User.objects.create_user(
             username="student_user",
             email="student@test.com",
@@ -86,6 +143,9 @@ class MarketplacePermissionsTests(TestCase):
         request.user = self.freelancer_user
         self.assertFalse(permission.has_permission(request, None))
 
+        request.user = self.company_user
+        self.assertFalse(permission.has_permission(request, None))
+
         request.user = self.student_user
         self.assertFalse(permission.has_permission(request, None))
 
@@ -97,6 +157,51 @@ class MarketplacePermissionsTests(TestCase):
         self.assertTrue(permission.has_permission(request, None))
 
         request.user = self.manager_user
+        self.assertFalse(permission.has_permission(request, None))
+
+        request.user = self.company_user
+        self.assertFalse(permission.has_permission(request, None))
+
+        request.user = self.student_user
+        self.assertFalse(permission.has_permission(request, None))
+
+    def test_company_permission(self):
+        permission = IsRecruiterCompanyUser()
+        request = self.factory.get("/")
+
+        request.user = self.company_user
+        self.assertTrue(permission.has_permission(request, None))
+
+        request.user = self.manager_user
+        self.assertFalse(permission.has_permission(request, None))
+
+        request.user = self.freelancer_user
+        self.assertFalse(permission.has_permission(request, None))
+
+        request.user = self.student_user
+        self.assertFalse(permission.has_permission(request, None))
+
+    def test_company_employee_permission(self):
+        permission = IsRecruiterCompanyEmployeeUser()
+        request = self.factory.get("/")
+
+        request.user = self.employee_user
+        self.assertTrue(permission.has_permission(request, None))
+
+        request.user = self.company_mgr_user
+        self.assertFalse(permission.has_permission(request, None))
+
+        request.user = self.student_user
+        self.assertFalse(permission.has_permission(request, None))
+
+    def test_company_manager_permission(self):
+        permission = IsRecruiterCompanyManagerUser()
+        request = self.factory.get("/")
+
+        request.user = self.company_mgr_user
+        self.assertTrue(permission.has_permission(request, None))
+
+        request.user = self.employee_user
         self.assertFalse(permission.has_permission(request, None))
 
         request.user = self.student_user
@@ -112,6 +217,15 @@ class MarketplacePermissionsTests(TestCase):
         request.user = self.freelancer_user
         self.assertTrue(permission.has_permission(request, None))
 
+        request.user = self.company_user
+        self.assertTrue(permission.has_permission(request, None))
+
+        request.user = self.employee_user
+        self.assertTrue(permission.has_permission(request, None))
+
+        request.user = self.company_mgr_user
+        self.assertTrue(permission.has_permission(request, None))
+
         request.user = self.student_user
         self.assertFalse(permission.has_permission(request, None))
 
@@ -123,6 +237,15 @@ class MarketplacePermissionsTests(TestCase):
         self.assertTrue(permission.has_permission(request, None))
 
         request.user = self.freelancer_user
+        self.assertTrue(permission.has_permission(request, None))
+
+        request.user = self.company_user
+        self.assertTrue(permission.has_permission(request, None))
+
+        request.user = self.employee_user
+        self.assertTrue(permission.has_permission(request, None))
+
+        request.user = self.company_mgr_user
         self.assertTrue(permission.has_permission(request, None))
 
         request.user = self.student_user

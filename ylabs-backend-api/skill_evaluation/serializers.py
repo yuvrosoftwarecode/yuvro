@@ -7,6 +7,7 @@ from .models import (
     Evaluation,
     EvaluationSection,
     LabQuestionBank,
+    KnowledgeQuestionBank,
     QuestionDomain,
     ExperienceLevel,
     Difficulty,
@@ -58,14 +59,20 @@ def provision_evaluation_labs(evaluation):
 
 class SubmissionUserSerializer(serializers.ModelSerializer):
     resume_url = serializers.SerializerMethodField()
+    phone = serializers.SerializerMethodField()
     
     class Meta:
         model = get_user_model()
-        fields = ['id', 'email', 'first_name', 'last_name', 'resume_url']
+        fields = ['id', 'email', 'first_name', 'last_name', 'resume_url', 'phone']
 
     def get_resume_url(self, obj):
         if hasattr(obj, 'profile') and obj.profile.resume_file:
             return obj.profile.resume_file
+        return None
+
+    def get_phone(self, obj):
+        if hasattr(obj, 'profile') and hasattr(obj.profile, 'phone'):
+            return obj.profile.phone
         return None
 
 class UserEvaluationSubmissionSerializer(serializers.ModelSerializer):
@@ -118,6 +125,10 @@ class EvaluationSectionSerializer(serializers.ModelSerializer):
 
 class EvaluationSerializer(serializers.ModelSerializer):
     sections = EvaluationSectionSerializer(many=True, required=False)
+    created_by = serializers.SerializerMethodField()
+    completed_candidates_count = serializers.SerializerMethodField()
+    candidates_invited_count = serializers.SerializerMethodField()
+    total_candidates_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Evaluation
@@ -125,8 +136,38 @@ class EvaluationSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'is_public', 'domain', 
             'candidate_invited_emails', 'experience_level', 
             'maximum_attempts', 'expiry_datetime', 'is_published', 
-            'settings', 'sections', 'created_at', 'updated_at'
+            'settings', 'sections', 'created_at', 'updated_at', 'created_by',
+            'completed_candidates_count', 'candidates_invited_count', 'total_candidates_count'
         ]
+
+    def validate_domain(self, value):
+        if not value:
+            return QuestionDomain.OTHER
+        normalized = str(value).strip().upper().replace(" ", "_")
+        valid_choices = [c[0] for c in QuestionDomain.choices]
+        if normalized in valid_choices:
+            return normalized
+        return QuestionDomain.OTHER
+
+    def get_created_by(self, obj):
+        if obj.created_by:
+            name = f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()
+            return name or obj.created_by.email or obj.created_by.username
+        return None
+
+    def get_completed_candidates_count(self, obj):
+        return obj.submissions.count()
+
+    def get_candidates_invited_count(self, obj):
+        followup_emails = set(obj.followup_candidates.values_list('email', flat=True))
+        invited_emails = set(obj.candidate_invited_emails or [])
+        return len(followup_emails.union(invited_emails))
+
+    def get_total_candidates_count(self, obj):
+        followup_emails = set(obj.followup_candidates.values_list('email', flat=True))
+        invited_emails = set(obj.candidate_invited_emails or [])
+        submission_emails = set(obj.submissions.values_list('user__email', flat=True))
+        return len(followup_emails.union(invited_emails).union(submission_emails))
 
     def create(self, validated_data):
         sections_data = validated_data.pop('sections', [])
@@ -306,3 +347,20 @@ class RecruiterActivityLogSerializer(serializers.ModelSerializer):
         if obj.recruiter:
             return f"{obj.recruiter.first_name} {obj.recruiter.last_name}".strip() or obj.recruiter.email
         return None
+
+
+class KnowledgeQuestionBankSerializer(serializers.ModelSerializer):
+    created_by_email = serializers.SerializerMethodField()
+    company_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = KnowledgeQuestionBank
+        fields = '__all__'
+        read_only_fields = ('created_by', 'company')
+
+    def get_created_by_email(self, obj):
+        return obj.created_by.email if obj.created_by else None
+
+    def get_company_name(self, obj):
+        return obj.company.name if obj.company else None
+

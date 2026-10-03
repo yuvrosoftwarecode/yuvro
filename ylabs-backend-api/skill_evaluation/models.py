@@ -142,6 +142,7 @@ class UserEvaluationSubmission(BaseTimestampedModel):
     anomalies_detected = models.JSONField(default=list, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     hiring_status = models.CharField(max_length=50, default="Pending Review")
+    phone = models.CharField(max_length=20, blank=True, help_text="Candidate phone number collected during registration")
 
     class Meta:
         unique_together = ("user", "evaluation")
@@ -228,6 +229,57 @@ class VitarkaAIInterviewQuestionBank(QuestionBank):
     def __str__(self):
         return self.title
 
+
+class KnowledgeQuestionFormat(models.TextChoices):
+    MCQ = "MCQ", "MCQ (Single Choice)"
+    MULTIPLE_SELECT = "MULTIPLE SELECT", "Multiple Select"
+    CODING = "CODING", "Coding"
+    DESCRIPTION = "DESCRIPTION", "Description"
+
+
+class KnowledgeQuestionBank(QuestionBank):
+    company = models.ForeignKey(
+        "recruiter.Company",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="knowledge_questions",
+        help_text="Company owning this knowledge question"
+    )
+    format = models.CharField(
+        max_length=40,
+        choices=KnowledgeQuestionFormat.choices,
+        default=KnowledgeQuestionFormat.MCQ,
+    )
+    content = models.TextField(blank=True, help_text="Full question text or prompt")
+    mcq_options = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of MCQ options [{id, text, is_correct, explanation}]"
+    )
+    test_cases = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of coding test cases [{input, expected_output, is_hidden}]"
+    )
+    hints = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of hints"
+    )
+    solutions = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of solution objects [{title, language, code, is_primary}]"
+    )
+    solution_explanation = models.TextField(blank=True)
+    course = models.CharField(max_length=255, blank=True)
+    topic = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f"[{self.format}] {self.title}"
+
+
 class UserLabQuestionBankSubmission(BaseTimestampedModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="evaluation_lab_submissions"
@@ -300,6 +352,8 @@ class FollowUpCandidate(BaseTimestampedAdminModel):
     email = models.EmailField()
     phone = models.CharField(max_length=50, blank=True)
     
+    deadline = models.DateTimeField(null=True, blank=True)
+    
     reminder1_sent = models.BooleanField(default=False)
     reminder2_sent = models.BooleanField(default=False)
     
@@ -356,6 +410,7 @@ class CandidateTimelineEventType(models.TextChoices):
     ASSESSMENT_SUBMITTED = "Knowledge Assessment submitted", "Knowledge Assessment submitted"
     VITARKA_COMPLETED = "Vitarka discussion completed", "Vitarka discussion completed"
     EVALUATION_FINISHED = "Evaluation finished", "Evaluation finished"
+    AUTO_SUBMITTED = "Auto submitted", "Auto submitted"
     RECRUITER_VIEWED = "Recruiter viewed profile", "Recruiter viewed profile"
     SHORTLISTED = "Shortlisted", "Shortlisted"
     ON_HOLD = "Placed on hold", "Placed on hold"

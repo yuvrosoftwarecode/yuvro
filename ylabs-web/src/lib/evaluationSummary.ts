@@ -89,7 +89,7 @@ export function buildEvaluationSummary(
     : blocks.flatMap((b) => b.strengths).slice(0, 4);
 
   const overallExplore = overall === 0
-    ? ["Core technical fundamentals", "Hands-on engineering execution"]
+    ? []
     : blocks.map((b) => b.explore);
 
   const overallText = overall === 0

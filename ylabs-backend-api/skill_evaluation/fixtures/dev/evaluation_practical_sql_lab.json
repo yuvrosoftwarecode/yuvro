@@ -1,0 +1,163 @@
+{
+  "lab_questions": [
+    {
+      "title": "Practical SQLite Evaluation: E-Commerce Order Management",
+      "type": "DATABASE",
+      "description": "Evaluate candidates on practical SQL skills using a realistic e-commerce database. Tasks cover multi-table JOINs with aggregation and HAVING, subqueries/NOT EXISTS filtering for un-ordered products, and top-N revenue analysis.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 30,
+      "marks": 30,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_practical_sql_lab",
+      "git_repo_starter_branch": "SD/feature/create-sqlite-practical-question",
+      "startup_command": "sqlite3 lab.db < seed.sql",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1: Customers with Multiple Completed Orders",
+          "description": "Write a query to find all customers who have placed at least 2 'Completed' orders. Return customer full name (first_name || ' ' || last_name) as customer_name, total number of completed orders as completed_orders, and total amount spent as total_spent. Sort by total_spent descending, then customer_name ascending.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "SELECT c.first_name || ' ' || c.last_name AS customer_name, COUNT(o.order_id) AS completed_orders, SUM(o.total_amount) AS total_spent FROM customers c JOIN orders o ON c.customer_id = o.customer_id WHERE o.status = 'Completed' GROUP BY c.customer_id, c.first_name, c.last_name HAVING COUNT(o.order_id) >= 2 ORDER BY total_spent DESC, customer_name ASC;",
+            "expected_result": "Alice Smith"
+          },
+          "expected_output": [
+            {
+              "customer_name": "Alice Smith",
+              "completed_orders": 3,
+              "total_spent": 605.0
+            },
+            {
+              "customer_name": "Charlie Brown",
+              "completed_orders": 2,
+              "total_spent": 535.0
+            },
+            {
+              "customer_name": "Diana Prince",
+              "completed_orders": 3,
+              "total_spent": 415.0
+            },
+            {
+              "customer_name": "George Clark",
+              "completed_orders": 2,
+              "total_spent": 325.0
+            },
+            {
+              "customer_name": "Bob Jones",
+              "completed_orders": 2,
+              "total_spent": 310.0
+            },
+            {
+              "customer_name": "Hannah Abbott",
+              "completed_orders": 2,
+              "total_spent": 180.0
+            }
+          ],
+          "solution": {
+            "task1.sql": "SELECT c.first_name || ' ' || c.last_name AS customer_name, COUNT(o.order_id) AS completed_orders, SUM(o.total_amount) AS total_spent FROM customers c JOIN orders o ON c.customer_id = o.customer_id WHERE o.status = 'Completed' GROUP BY c.customer_id, c.first_name, c.last_name HAVING COUNT(o.order_id) >= 2 ORDER BY total_spent DESC, customer_name ASC;"
+          }
+        },
+        {
+          "title": "Task 2: Products Never Included in Completed Orders",
+          "description": "Write a query to find all products that have never been included in any 'Completed' order (including products never ordered at all or only ordered in Pending, Processing, or Cancelled status). Return product_id, product_name, and category_name. Sort by product_id ascending.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "SELECT p.product_id, p.product_name, c.category_name FROM products p JOIN categories c ON p.category_id = c.category_id WHERE NOT EXISTS (SELECT 1 FROM order_items oi JOIN orders o ON oi.order_id = o.order_id WHERE oi.product_id = p.product_id AND o.status = 'Completed') ORDER BY p.product_id ASC;",
+            "expected_result": "Non-Stick Ceramic Frying Pan"
+          },
+          "expected_output": [
+            {
+              "product_id": 13,
+              "product_name": "Non-Stick Ceramic Frying Pan",
+              "category_name": "Home & Kitchen"
+            },
+            {
+              "product_id": 14,
+              "product_name": "Standing Desk Converter",
+              "category_name": "Home & Kitchen"
+            },
+            {
+              "product_id": 16,
+              "product_name": "Adjustable Dumbbell Set",
+              "category_name": "Sports & Outdoors"
+            }
+          ],
+          "solution": {
+            "task2.sql": "SELECT p.product_id, p.product_name, c.category_name FROM products p JOIN categories c ON p.category_id = c.category_id WHERE NOT EXISTS (SELECT 1 FROM order_items oi JOIN orders o ON oi.order_id = o.order_id WHERE oi.product_id = p.product_id AND o.status = 'Completed') ORDER BY p.product_id ASC;"
+          }
+        },
+        {
+          "title": "Task 3: Top 5 Best-Selling Products by Revenue",
+          "description": "Write a query to determine the top 5 best-selling products based on total revenue generated from 'Completed' orders. Return product_name, category_name, total_quantity_sold, and total_revenue. Sort by total_revenue descending, then product_name ascending. Limit to 5 records.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "SELECT p.product_name, cat.category_name, SUM(oi.quantity) AS total_quantity_sold, SUM(oi.quantity * oi.unit_price) AS total_revenue FROM products p JOIN categories cat ON p.category_id = cat.category_id JOIN order_items oi ON p.product_id = oi.product_id JOIN orders o ON oi.order_id = o.order_id WHERE o.status = 'Completed' GROUP BY p.product_id, p.product_name, cat.category_name ORDER BY total_revenue DESC, p.product_name ASC LIMIT 5;",
+            "expected_result": "Wireless Noise-Canceling Headphones"
+          },
+          "expected_output": [
+            {
+              "product_name": "Wireless Noise-Canceling Headphones",
+              "category_name": "Electronics",
+              "total_quantity_sold": 7,
+              "total_revenue": 1050.0
+            },
+            {
+              "product_name": "Mechanical Gaming Keyboard",
+              "category_name": "Electronics",
+              "total_quantity_sold": 4,
+              "total_revenue": 360.0
+            },
+            {
+              "product_name": "Ultra HD 4K Monitor",
+              "category_name": "Electronics",
+              "total_quantity_sold": 1,
+              "total_revenue": 350.0
+            },
+            {
+              "product_name": "Lightweight Running Shoes",
+              "category_name": "Clothing",
+              "total_quantity_sold": 3,
+              "total_revenue": 240.0
+            },
+            {
+              "product_name": "Slim Fit Denim Jeans",
+              "category_name": "Clothing",
+              "total_quantity_sold": 3,
+              "total_revenue": 180.0
+            }
+          ],
+          "solution": {
+            "task3.sql": "SELECT p.product_name, cat.category_name, SUM(oi.quantity) AS total_quantity_sold, SUM(oi.quantity * oi.unit_price) AS total_revenue FROM products p JOIN categories cat ON p.category_id = cat.category_id JOIN order_items oi ON p.product_id = oi.product_id JOIN orders o ON oi.order_id = o.order_id WHERE o.status = 'Completed' GROUP BY p.product_id, p.product_name, cat.category_name ORDER BY total_revenue DESC, p.product_name ASC LIMIT 5;"
+          }
+        }
+      ]
+    }
+  ]
+}

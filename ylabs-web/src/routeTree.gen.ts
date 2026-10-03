@@ -30,6 +30,7 @@ import { Route as StudentDashboardRouteImport } from './routes/student.dashboard
 import { Route as StudentCertificatesRouteImport } from './routes/student.certificates'
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
 import { Route as RecruiterSettingsRouteImport } from './routes/recruiter.settings'
+import { Route as RecruiterQuestionsRouteImport } from './routes/recruiter.questions'
 import { Route as RecruiterDashboardRouteImport } from './routes/recruiter.dashboard'
 import { Route as RecruiterBillingRouteImport } from './routes/recruiter.billing'
 import { Route as GithubCallbackRouteImport } from './routes/github.callback'
@@ -39,11 +40,11 @@ import { Route as EvaluationProctoringRouteImport } from './routes/evaluation.pr
 import { Route as EvaluationOtpRouteImport } from './routes/evaluation.otp'
 import { Route as EvaluationInstructionsRouteImport } from './routes/evaluation.instructions'
 import { Route as EvaluationCompleteRouteImport } from './routes/evaluation.complete'
-import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminRecruitersRouteImport } from './routes/admin.recruiters'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminLabsRouteImport } from './routes/admin.labs'
 import { Route as RecruiterEvaluationsIndexRouteImport } from './routes/recruiter.evaluations.index'
+import { Route as AdminUsersIndexRouteImport } from './routes/admin.users.index'
 import { Route as AdminLabsIndexRouteImport } from './routes/admin.labs.index'
 import { Route as StudentLabSlugRouteImport } from './routes/student.lab.$slug'
 import { Route as SharedReportTokenRouteImport } from './routes/shared.report.$token'
@@ -51,10 +52,13 @@ import { Route as ResetPasswordUidb64TokenRouteImport } from './routes/reset-pas
 import { Route as RecruiterEvaluationsIdRouteImport } from './routes/recruiter.evaluations.$id'
 import { Route as AdminUsersIdRouteImport } from './routes/admin.users.$id'
 import { Route as AdminLabsNewRouteImport } from './routes/admin.labs.new'
+import { Route as StudentLabSlugReportRouteImport } from './routes/student.lab.$slug.report'
 import { Route as StudentCollaborationSprintIdRouteImport } from './routes/student.collaboration.sprint.$id'
 import { Route as RecruiterEvaluationsIdWorkspaceRouteImport } from './routes/recruiter.evaluations.$id.workspace'
+import { Route as AdminStudentReportUserIdLabIdRouteImport } from './routes/admin.student-report.$userId.$labId'
 import { Route as AdminLabsIdSprintsRouteImport } from './routes/admin.labs.$id.sprints'
 import { Route as AdminLabsIdEditRouteImport } from './routes/admin.labs.$id.edit'
+import { Route as AdminLabsIdAnalyticsRouteImport } from './routes/admin.labs.$id.analytics'
 import { Route as StudentLabSlugTicketTicketIdRouteImport } from './routes/student.lab.$slug.ticket.$ticketId'
 import { Route as StudentCollaborationSprintIdWorkspaceRouteImport } from './routes/student.collaboration.sprint.$id.workspace'
 import { Route as RecruiterEvaluationsIdCandidatesCandidateIdRouteImport } from './routes/recruiter.evaluations.$id.candidates.$candidateId'
@@ -63,6 +67,8 @@ import { Route as StudentLabSlugTicketTicketIdReviewRouteImport } from './routes
 import { Route as StudentCollaborationSprintIdTicketTicketIdRouteImport } from './routes/student.collaboration.sprint.$id.ticket.$ticketId'
 import { Route as StudentCollaborationSprintIdReportTeamRouteImport } from './routes/student.collaboration.sprint.$id.report.team'
 import { Route as StudentCollaborationSprintIdReportIndividualRouteImport } from './routes/student.collaboration.sprint.$id.report.individual'
+import { Route as AdminUsersIdLabsSlugReportRouteImport } from './routes/admin.users.$id.labs.$slug.report'
+import { Route as AdminStudentReportUserIdLabIdTicketTicketIdReviewRouteImport } from './routes/admin.student-report.$userId.$labId.ticket.$ticketId.review'
 
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
@@ -169,6 +175,11 @@ const RecruiterSettingsRoute = RecruiterSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => RecruiterRoute,
 } as any)
+const RecruiterQuestionsRoute = RecruiterQuestionsRouteImport.update({
+  id: '/questions',
+  path: '/questions',
+  getParentRoute: () => RecruiterRoute,
+} as any)
 const RecruiterDashboardRoute = RecruiterDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -214,11 +225,6 @@ const EvaluationCompleteRoute = EvaluationCompleteRouteImport.update({
   path: '/complete',
   getParentRoute: () => EvaluationRoute,
 } as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminRecruitersRoute = AdminRecruitersRouteImport.update({
   id: '/recruiters',
   path: '/recruiters',
@@ -240,6 +246,11 @@ const RecruiterEvaluationsIndexRoute =
     path: '/evaluations/',
     getParentRoute: () => RecruiterRoute,
   } as any)
+const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLabsIndexRoute = AdminLabsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -267,14 +278,19 @@ const RecruiterEvaluationsIdRoute = RecruiterEvaluationsIdRouteImport.update({
   getParentRoute: () => RecruiterRoute,
 } as any)
 const AdminUsersIdRoute = AdminUsersIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AdminUsersRoute,
+  id: '/users/$id',
+  path: '/users/$id',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminLabsNewRoute = AdminLabsNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => AdminLabsRoute,
+} as any)
+const StudentLabSlugReportRoute = StudentLabSlugReportRouteImport.update({
+  id: '/report',
+  path: '/report',
+  getParentRoute: () => StudentLabSlugRoute,
 } as any)
 const StudentCollaborationSprintIdRoute =
   StudentCollaborationSprintIdRouteImport.update({
@@ -288,6 +304,12 @@ const RecruiterEvaluationsIdWorkspaceRoute =
     path: '/workspace',
     getParentRoute: () => RecruiterEvaluationsIdRoute,
   } as any)
+const AdminStudentReportUserIdLabIdRoute =
+  AdminStudentReportUserIdLabIdRouteImport.update({
+    id: '/student-report/$userId/$labId',
+    path: '/student-report/$userId/$labId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminLabsIdSprintsRoute = AdminLabsIdSprintsRouteImport.update({
   id: '/$id/sprints',
   path: '/$id/sprints',
@@ -296,6 +318,11 @@ const AdminLabsIdSprintsRoute = AdminLabsIdSprintsRouteImport.update({
 const AdminLabsIdEditRoute = AdminLabsIdEditRouteImport.update({
   id: '/$id/edit',
   path: '/$id/edit',
+  getParentRoute: () => AdminLabsRoute,
+} as any)
+const AdminLabsIdAnalyticsRoute = AdminLabsIdAnalyticsRouteImport.update({
+  id: '/$id/analytics',
+  path: '/$id/analytics',
   getParentRoute: () => AdminLabsRoute,
 } as any)
 const StudentLabSlugTicketTicketIdRoute =
@@ -346,6 +373,18 @@ const StudentCollaborationSprintIdReportIndividualRoute =
     path: '/report/individual',
     getParentRoute: () => StudentCollaborationSprintIdRoute,
   } as any)
+const AdminUsersIdLabsSlugReportRoute =
+  AdminUsersIdLabsSlugReportRouteImport.update({
+    id: '/labs/$slug/report',
+    path: '/labs/$slug/report',
+    getParentRoute: () => AdminUsersIdRoute,
+  } as any)
+const AdminStudentReportUserIdLabIdTicketTicketIdReviewRoute =
+  AdminStudentReportUserIdLabIdTicketTicketIdReviewRouteImport.update({
+    id: '/ticket/$ticketId/review',
+    path: '/ticket/$ticketId/review',
+    getParentRoute: () => AdminStudentReportUserIdLabIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -362,7 +401,6 @@ export interface FileRoutesByFullPath {
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
-  '/admin/users': typeof AdminUsersRouteWithChildren
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -372,6 +410,7 @@ export interface FileRoutesByFullPath {
   '/github/callback': typeof GithubCallbackRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
+  '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/certificates': typeof StudentCertificatesRoute
@@ -383,25 +422,31 @@ export interface FileRoutesByFullPath {
   '/evaluation/': typeof EvaluationIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
-  '/admin/users/$id': typeof AdminUsersIdRoute
+  '/admin/users/$id': typeof AdminUsersIdRouteWithChildren
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/lab/$slug': typeof StudentLabSlugRouteWithChildren
   '/admin/labs/': typeof AdminLabsIndexRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
   '/recruiter/evaluations/': typeof RecruiterEvaluationsIndexRoute
+  '/admin/labs/$id/analytics': typeof AdminLabsIdAnalyticsRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
+  '/admin/student-report/$userId/$labId': typeof AdminStudentReportUserIdLabIdRouteWithChildren
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
+  '/student/lab/$slug/report': typeof StudentLabSlugReportRoute
   '/admin/labs/$id/sprints/$sprintId': typeof AdminLabsIdSprintsSprintIdRoute
   '/recruiter/evaluations/$id/candidates/$candidateId': typeof RecruiterEvaluationsIdCandidatesCandidateIdRoute
   '/student/collaboration/sprint/$id/workspace': typeof StudentCollaborationSprintIdWorkspaceRoute
   '/student/lab/$slug/ticket/$ticketId': typeof StudentLabSlugTicketTicketIdRouteWithChildren
+  '/admin/users/$id/labs/$slug/report': typeof AdminUsersIdLabsSlugReportRoute
   '/student/collaboration/sprint/$id/report/individual': typeof StudentCollaborationSprintIdReportIndividualRoute
   '/student/collaboration/sprint/$id/report/team': typeof StudentCollaborationSprintIdReportTeamRoute
   '/student/collaboration/sprint/$id/ticket/$ticketId': typeof StudentCollaborationSprintIdTicketTicketIdRoute
   '/student/lab/$slug/ticket/$ticketId/review': typeof StudentLabSlugTicketTicketIdReviewRoute
+  '/admin/student-report/$userId/$labId/ticket/$ticketId/review': typeof AdminStudentReportUserIdLabIdTicketTicketIdReviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -414,7 +459,6 @@ export interface FileRoutesByTo {
   '/student': typeof StudentRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
-  '/admin/users': typeof AdminUsersRouteWithChildren
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -424,6 +468,7 @@ export interface FileRoutesByTo {
   '/github/callback': typeof GithubCallbackRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
+  '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/certificates': typeof StudentCertificatesRoute
@@ -435,25 +480,31 @@ export interface FileRoutesByTo {
   '/evaluation': typeof EvaluationIndexRoute
   '/recruiter': typeof RecruiterIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
-  '/admin/users/$id': typeof AdminUsersIdRoute
+  '/admin/users/$id': typeof AdminUsersIdRouteWithChildren
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/lab/$slug': typeof StudentLabSlugRouteWithChildren
   '/admin/labs': typeof AdminLabsIndexRoute
+  '/admin/users': typeof AdminUsersIndexRoute
   '/recruiter/evaluations': typeof RecruiterEvaluationsIndexRoute
+  '/admin/labs/$id/analytics': typeof AdminLabsIdAnalyticsRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
+  '/admin/student-report/$userId/$labId': typeof AdminStudentReportUserIdLabIdRouteWithChildren
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
+  '/student/lab/$slug/report': typeof StudentLabSlugReportRoute
   '/admin/labs/$id/sprints/$sprintId': typeof AdminLabsIdSprintsSprintIdRoute
   '/recruiter/evaluations/$id/candidates/$candidateId': typeof RecruiterEvaluationsIdCandidatesCandidateIdRoute
   '/student/collaboration/sprint/$id/workspace': typeof StudentCollaborationSprintIdWorkspaceRoute
   '/student/lab/$slug/ticket/$ticketId': typeof StudentLabSlugTicketTicketIdRouteWithChildren
+  '/admin/users/$id/labs/$slug/report': typeof AdminUsersIdLabsSlugReportRoute
   '/student/collaboration/sprint/$id/report/individual': typeof StudentCollaborationSprintIdReportIndividualRoute
   '/student/collaboration/sprint/$id/report/team': typeof StudentCollaborationSprintIdReportTeamRoute
   '/student/collaboration/sprint/$id/ticket/$ticketId': typeof StudentCollaborationSprintIdTicketTicketIdRoute
   '/student/lab/$slug/ticket/$ticketId/review': typeof StudentLabSlugTicketTicketIdReviewRoute
+  '/admin/student-report/$userId/$labId/ticket/$ticketId/review': typeof AdminStudentReportUserIdLabIdTicketTicketIdReviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -471,7 +522,6 @@ export interface FileRoutesById {
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
-  '/admin/users': typeof AdminUsersRouteWithChildren
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -481,6 +531,7 @@ export interface FileRoutesById {
   '/github/callback': typeof GithubCallbackRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
+  '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/certificates': typeof StudentCertificatesRoute
@@ -492,25 +543,31 @@ export interface FileRoutesById {
   '/evaluation/': typeof EvaluationIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
-  '/admin/users/$id': typeof AdminUsersIdRoute
+  '/admin/users/$id': typeof AdminUsersIdRouteWithChildren
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/lab/$slug': typeof StudentLabSlugRouteWithChildren
   '/admin/labs/': typeof AdminLabsIndexRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
   '/recruiter/evaluations/': typeof RecruiterEvaluationsIndexRoute
+  '/admin/labs/$id/analytics': typeof AdminLabsIdAnalyticsRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
+  '/admin/student-report/$userId/$labId': typeof AdminStudentReportUserIdLabIdRouteWithChildren
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
+  '/student/lab/$slug/report': typeof StudentLabSlugReportRoute
   '/admin/labs/$id/sprints/$sprintId': typeof AdminLabsIdSprintsSprintIdRoute
   '/recruiter/evaluations/$id/candidates/$candidateId': typeof RecruiterEvaluationsIdCandidatesCandidateIdRoute
   '/student/collaboration/sprint/$id/workspace': typeof StudentCollaborationSprintIdWorkspaceRoute
   '/student/lab/$slug/ticket/$ticketId': typeof StudentLabSlugTicketTicketIdRouteWithChildren
+  '/admin/users/$id/labs/$slug/report': typeof AdminUsersIdLabsSlugReportRoute
   '/student/collaboration/sprint/$id/report/individual': typeof StudentCollaborationSprintIdReportIndividualRoute
   '/student/collaboration/sprint/$id/report/team': typeof StudentCollaborationSprintIdReportTeamRoute
   '/student/collaboration/sprint/$id/ticket/$ticketId': typeof StudentCollaborationSprintIdTicketTicketIdRoute
   '/student/lab/$slug/ticket/$ticketId/review': typeof StudentLabSlugTicketTicketIdReviewRoute
+  '/admin/student-report/$userId/$labId/ticket/$ticketId/review': typeof AdminStudentReportUserIdLabIdTicketTicketIdReviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -529,7 +586,6 @@ export interface FileRouteTypes {
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
-    | '/admin/users'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -539,6 +595,7 @@ export interface FileRouteTypes {
     | '/github/callback'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
+    | '/recruiter/questions'
     | '/recruiter/settings'
     | '/student/analytics'
     | '/student/certificates'
@@ -556,19 +613,25 @@ export interface FileRouteTypes {
     | '/shared/report/$token'
     | '/student/lab/$slug'
     | '/admin/labs/'
+    | '/admin/users/'
     | '/recruiter/evaluations/'
+    | '/admin/labs/$id/analytics'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
+    | '/admin/student-report/$userId/$labId'
     | '/recruiter/evaluations/$id/workspace'
     | '/student/collaboration/sprint/$id'
+    | '/student/lab/$slug/report'
     | '/admin/labs/$id/sprints/$sprintId'
     | '/recruiter/evaluations/$id/candidates/$candidateId'
     | '/student/collaboration/sprint/$id/workspace'
     | '/student/lab/$slug/ticket/$ticketId'
+    | '/admin/users/$id/labs/$slug/report'
     | '/student/collaboration/sprint/$id/report/individual'
     | '/student/collaboration/sprint/$id/report/team'
     | '/student/collaboration/sprint/$id/ticket/$ticketId'
     | '/student/lab/$slug/ticket/$ticketId/review'
+    | '/admin/student-report/$userId/$labId/ticket/$ticketId/review'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -581,7 +644,6 @@ export interface FileRouteTypes {
     | '/student'
     | '/admin/questions'
     | '/admin/recruiters'
-    | '/admin/users'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -591,6 +653,7 @@ export interface FileRouteTypes {
     | '/github/callback'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
+    | '/recruiter/questions'
     | '/recruiter/settings'
     | '/student/analytics'
     | '/student/certificates'
@@ -608,19 +671,25 @@ export interface FileRouteTypes {
     | '/shared/report/$token'
     | '/student/lab/$slug'
     | '/admin/labs'
+    | '/admin/users'
     | '/recruiter/evaluations'
+    | '/admin/labs/$id/analytics'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
+    | '/admin/student-report/$userId/$labId'
     | '/recruiter/evaluations/$id/workspace'
     | '/student/collaboration/sprint/$id'
+    | '/student/lab/$slug/report'
     | '/admin/labs/$id/sprints/$sprintId'
     | '/recruiter/evaluations/$id/candidates/$candidateId'
     | '/student/collaboration/sprint/$id/workspace'
     | '/student/lab/$slug/ticket/$ticketId'
+    | '/admin/users/$id/labs/$slug/report'
     | '/student/collaboration/sprint/$id/report/individual'
     | '/student/collaboration/sprint/$id/report/team'
     | '/student/collaboration/sprint/$id/ticket/$ticketId'
     | '/student/lab/$slug/ticket/$ticketId/review'
+    | '/admin/student-report/$userId/$labId/ticket/$ticketId/review'
   id:
     | '__root__'
     | '/'
@@ -637,7 +706,6 @@ export interface FileRouteTypes {
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
-    | '/admin/users'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -647,6 +715,7 @@ export interface FileRouteTypes {
     | '/github/callback'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
+    | '/recruiter/questions'
     | '/recruiter/settings'
     | '/student/analytics'
     | '/student/certificates'
@@ -664,19 +733,25 @@ export interface FileRouteTypes {
     | '/shared/report/$token'
     | '/student/lab/$slug'
     | '/admin/labs/'
+    | '/admin/users/'
     | '/recruiter/evaluations/'
+    | '/admin/labs/$id/analytics'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
+    | '/admin/student-report/$userId/$labId'
     | '/recruiter/evaluations/$id/workspace'
     | '/student/collaboration/sprint/$id'
+    | '/student/lab/$slug/report'
     | '/admin/labs/$id/sprints/$sprintId'
     | '/recruiter/evaluations/$id/candidates/$candidateId'
     | '/student/collaboration/sprint/$id/workspace'
     | '/student/lab/$slug/ticket/$ticketId'
+    | '/admin/users/$id/labs/$slug/report'
     | '/student/collaboration/sprint/$id/report/individual'
     | '/student/collaboration/sprint/$id/report/team'
     | '/student/collaboration/sprint/$id/ticket/$ticketId'
     | '/student/lab/$slug/ticket/$ticketId/review'
+    | '/admin/student-report/$userId/$labId/ticket/$ticketId/review'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -845,6 +920,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecruiterSettingsRouteImport
       parentRoute: typeof RecruiterRoute
     }
+    '/recruiter/questions': {
+      id: '/recruiter/questions'
+      path: '/questions'
+      fullPath: '/recruiter/questions'
+      preLoaderRoute: typeof RecruiterQuestionsRouteImport
+      parentRoute: typeof RecruiterRoute
+    }
     '/recruiter/dashboard': {
       id: '/recruiter/dashboard'
       path: '/dashboard'
@@ -908,13 +990,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EvaluationCompleteRouteImport
       parentRoute: typeof EvaluationRoute
     }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/recruiters': {
       id: '/admin/recruiters'
       path: '/recruiters'
@@ -942,6 +1017,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/recruiter/evaluations/'
       preLoaderRoute: typeof RecruiterEvaluationsIndexRouteImport
       parentRoute: typeof RecruiterRoute
+    }
+    '/admin/users/': {
+      id: '/admin/users/'
+      path: '/users'
+      fullPath: '/admin/users/'
+      preLoaderRoute: typeof AdminUsersIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/labs/': {
       id: '/admin/labs/'
@@ -980,10 +1062,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/users/$id': {
       id: '/admin/users/$id'
-      path: '/$id'
+      path: '/users/$id'
       fullPath: '/admin/users/$id'
       preLoaderRoute: typeof AdminUsersIdRouteImport
-      parentRoute: typeof AdminUsersRoute
+      parentRoute: typeof AdminRoute
     }
     '/admin/labs/new': {
       id: '/admin/labs/new'
@@ -991,6 +1073,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/labs/new'
       preLoaderRoute: typeof AdminLabsNewRouteImport
       parentRoute: typeof AdminLabsRoute
+    }
+    '/student/lab/$slug/report': {
+      id: '/student/lab/$slug/report'
+      path: '/report'
+      fullPath: '/student/lab/$slug/report'
+      preLoaderRoute: typeof StudentLabSlugReportRouteImport
+      parentRoute: typeof StudentLabSlugRoute
     }
     '/student/collaboration/sprint/$id': {
       id: '/student/collaboration/sprint/$id'
@@ -1006,6 +1095,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecruiterEvaluationsIdWorkspaceRouteImport
       parentRoute: typeof RecruiterEvaluationsIdRoute
     }
+    '/admin/student-report/$userId/$labId': {
+      id: '/admin/student-report/$userId/$labId'
+      path: '/student-report/$userId/$labId'
+      fullPath: '/admin/student-report/$userId/$labId'
+      preLoaderRoute: typeof AdminStudentReportUserIdLabIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/labs/$id/sprints': {
       id: '/admin/labs/$id/sprints'
       path: '/$id/sprints'
@@ -1018,6 +1114,13 @@ declare module '@tanstack/react-router' {
       path: '/$id/edit'
       fullPath: '/admin/labs/$id/edit'
       preLoaderRoute: typeof AdminLabsIdEditRouteImport
+      parentRoute: typeof AdminLabsRoute
+    }
+    '/admin/labs/$id/analytics': {
+      id: '/admin/labs/$id/analytics'
+      path: '/$id/analytics'
+      fullPath: '/admin/labs/$id/analytics'
+      preLoaderRoute: typeof AdminLabsIdAnalyticsRouteImport
       parentRoute: typeof AdminLabsRoute
     }
     '/student/lab/$slug/ticket/$ticketId': {
@@ -1076,6 +1179,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentCollaborationSprintIdReportIndividualRouteImport
       parentRoute: typeof StudentCollaborationSprintIdRoute
     }
+    '/admin/users/$id/labs/$slug/report': {
+      id: '/admin/users/$id/labs/$slug/report'
+      path: '/labs/$slug/report'
+      fullPath: '/admin/users/$id/labs/$slug/report'
+      preLoaderRoute: typeof AdminUsersIdLabsSlugReportRouteImport
+      parentRoute: typeof AdminUsersIdRoute
+    }
+    '/admin/student-report/$userId/$labId/ticket/$ticketId/review': {
+      id: '/admin/student-report/$userId/$labId/ticket/$ticketId/review'
+      path: '/ticket/$ticketId/review'
+      fullPath: '/admin/student-report/$userId/$labId/ticket/$ticketId/review'
+      preLoaderRoute: typeof AdminStudentReportUserIdLabIdTicketTicketIdReviewRouteImport
+      parentRoute: typeof AdminStudentReportUserIdLabIdRoute
+    }
   }
 }
 
@@ -1093,6 +1210,7 @@ const AdminLabsIdSprintsRouteWithChildren =
 interface AdminLabsRouteChildren {
   AdminLabsNewRoute: typeof AdminLabsNewRoute
   AdminLabsIndexRoute: typeof AdminLabsIndexRoute
+  AdminLabsIdAnalyticsRoute: typeof AdminLabsIdAnalyticsRoute
   AdminLabsIdEditRoute: typeof AdminLabsIdEditRoute
   AdminLabsIdSprintsRoute: typeof AdminLabsIdSprintsRouteWithChildren
 }
@@ -1100,6 +1218,7 @@ interface AdminLabsRouteChildren {
 const AdminLabsRouteChildren: AdminLabsRouteChildren = {
   AdminLabsNewRoute: AdminLabsNewRoute,
   AdminLabsIndexRoute: AdminLabsIndexRoute,
+  AdminLabsIdAnalyticsRoute: AdminLabsIdAnalyticsRoute,
   AdminLabsIdEditRoute: AdminLabsIdEditRoute,
   AdminLabsIdSprintsRoute: AdminLabsIdSprintsRouteWithChildren,
 }
@@ -1108,32 +1227,52 @@ const AdminLabsRouteWithChildren = AdminLabsRoute._addFileChildren(
   AdminLabsRouteChildren,
 )
 
-interface AdminUsersRouteChildren {
-  AdminUsersIdRoute: typeof AdminUsersIdRoute
+interface AdminUsersIdRouteChildren {
+  AdminUsersIdLabsSlugReportRoute: typeof AdminUsersIdLabsSlugReportRoute
 }
 
-const AdminUsersRouteChildren: AdminUsersRouteChildren = {
-  AdminUsersIdRoute: AdminUsersIdRoute,
+const AdminUsersIdRouteChildren: AdminUsersIdRouteChildren = {
+  AdminUsersIdLabsSlugReportRoute: AdminUsersIdLabsSlugReportRoute,
 }
 
-const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
-  AdminUsersRouteChildren,
+const AdminUsersIdRouteWithChildren = AdminUsersIdRoute._addFileChildren(
+  AdminUsersIdRouteChildren,
 )
+
+interface AdminStudentReportUserIdLabIdRouteChildren {
+  AdminStudentReportUserIdLabIdTicketTicketIdReviewRoute: typeof AdminStudentReportUserIdLabIdTicketTicketIdReviewRoute
+}
+
+const AdminStudentReportUserIdLabIdRouteChildren: AdminStudentReportUserIdLabIdRouteChildren =
+  {
+    AdminStudentReportUserIdLabIdTicketTicketIdReviewRoute:
+      AdminStudentReportUserIdLabIdTicketTicketIdReviewRoute,
+  }
+
+const AdminStudentReportUserIdLabIdRouteWithChildren =
+  AdminStudentReportUserIdLabIdRoute._addFileChildren(
+    AdminStudentReportUserIdLabIdRouteChildren,
+  )
 
 interface AdminRouteChildren {
   AdminLabsRoute: typeof AdminLabsRouteWithChildren
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminRecruitersRoute: typeof AdminRecruitersRoute
-  AdminUsersRoute: typeof AdminUsersRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminUsersIdRoute: typeof AdminUsersIdRouteWithChildren
+  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
+  AdminStudentReportUserIdLabIdRoute: typeof AdminStudentReportUserIdLabIdRouteWithChildren
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminLabsRoute: AdminLabsRouteWithChildren,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminRecruitersRoute: AdminRecruitersRoute,
-  AdminUsersRoute: AdminUsersRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
+  AdminUsersIdRoute: AdminUsersIdRouteWithChildren,
+  AdminUsersIndexRoute: AdminUsersIndexRoute,
+  AdminStudentReportUserIdLabIdRoute:
+    AdminStudentReportUserIdLabIdRouteWithChildren,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -1182,6 +1321,7 @@ const RecruiterEvaluationsIdRouteWithChildren =
 interface RecruiterRouteChildren {
   RecruiterBillingRoute: typeof RecruiterBillingRoute
   RecruiterDashboardRoute: typeof RecruiterDashboardRoute
+  RecruiterQuestionsRoute: typeof RecruiterQuestionsRoute
   RecruiterSettingsRoute: typeof RecruiterSettingsRoute
   RecruiterIndexRoute: typeof RecruiterIndexRoute
   RecruiterEvaluationsIdRoute: typeof RecruiterEvaluationsIdRouteWithChildren
@@ -1191,6 +1331,7 @@ interface RecruiterRouteChildren {
 const RecruiterRouteChildren: RecruiterRouteChildren = {
   RecruiterBillingRoute: RecruiterBillingRoute,
   RecruiterDashboardRoute: RecruiterDashboardRoute,
+  RecruiterQuestionsRoute: RecruiterQuestionsRoute,
   RecruiterSettingsRoute: RecruiterSettingsRoute,
   RecruiterIndexRoute: RecruiterIndexRoute,
   RecruiterEvaluationsIdRoute: RecruiterEvaluationsIdRouteWithChildren,
@@ -1217,10 +1358,12 @@ const StudentLabSlugTicketTicketIdRouteWithChildren =
   )
 
 interface StudentLabSlugRouteChildren {
+  StudentLabSlugReportRoute: typeof StudentLabSlugReportRoute
   StudentLabSlugTicketTicketIdRoute: typeof StudentLabSlugTicketTicketIdRouteWithChildren
 }
 
 const StudentLabSlugRouteChildren: StudentLabSlugRouteChildren = {
+  StudentLabSlugReportRoute: StudentLabSlugReportRoute,
   StudentLabSlugTicketTicketIdRoute:
     StudentLabSlugTicketTicketIdRouteWithChildren,
 }

@@ -24,6 +24,7 @@ IGNORED_FILENAMES = {
     ".dockerignore", "requirements.txt", "package.json", "package-lock.json",
     "yarn.lock", "pnpm-lock.yaml", "poetry.lock", ".bash_history", ".bashrc",
     ".profile", ".ds_store", "thumbs.db", "db.sqlite3", "schema2.yml",
+    "__init__.py", "asgi.py", "wsgi.py",
 }
 
 IGNORED_PATH_SEGMENTS = {
@@ -116,19 +117,27 @@ class CodeInsightExtractor:
             if isinstance(content, str):
                 if is_binary_content(content):
                     continue
+                stripped_content = content.replace("\x00", "").replace("\u0000", "").strip()
+                if not stripped_content:
+                    continue
                 files[path] = content.replace("\x00", "").replace("\u0000", "")
             elif content is None:
-                files[path] = ""
+                continue
             else:
                 return None
 
         return files or None
 
     def _workspace_snapshot_insights(self, files: dict[str, Any]) -> dict[str, Any]:
-        changed_files = [
+        raw_files = [
             str(path).strip() for path in files
             if str(path).strip() and not is_ignored_path(str(path))
         ]
+        app_files = [
+            f for f in raw_files
+            if not f.startswith("config/") and not f.startswith("settings/") and not f.endswith("__init__.py") and not f.endswith("asgi.py") and not f.endswith("wsgi.py")
+        ]
+        changed_files = app_files if app_files else raw_files
         return {
             "changed_files": changed_files,
             "file_changes": [],
@@ -210,7 +219,17 @@ class CodeInsightExtractor:
                 if file_change is not None:
                     file_change["removed_lines"].append(removed_line)
 
-        changed_files = [file for file in changed_files if file and not is_ignored_path(file)]
+        actual_changed_files = [
+            path for path, change in file_changes.items()
+            if path and not is_ignored_path(path) and (len(change.get("added_lines", [])) > 0 or len(change.get("removed_lines", [])) > 0)
+        ]
+
+        app_files = [
+            f for f in actual_changed_files
+            if not f.startswith("config/") and not f.startswith("settings/") and not f.endswith("__init__.py") and not f.endswith("asgi.py") and not f.endswith("wsgi.py")
+        ]
+        changed_files = app_files if app_files else actual_changed_files
+
         added_code = "\n".join(added_lines)
         removed_code = "\n".join(removed_lines)
         file_change_summaries = [

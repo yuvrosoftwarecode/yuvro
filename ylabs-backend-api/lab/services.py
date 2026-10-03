@@ -28,18 +28,33 @@ def evaluate_and_score_submission(submission):
         "expected_result": expected_result
     }
     
-    try:
-        executer_host = os.environ.get("CODE_EXECUTOR_URL", os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executor:8009"))
-        response = requests.post(f"{executer_host}/workspace/database_evaluate", json=payload, timeout=5)
-        if response.status_code == 200:
-            eval_data = response.json()
-            final_score_pct = eval_data.get("final_score_pct", 0.0)
-        else:
+    if ticket.sprint.lab.type == 'DATABASE':
+        try:
+            executer_host = os.environ.get("CODE_EXECUTOR_URL", os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executor:8009"))
+            response = requests.post(f"{executer_host}/workspace/database_evaluate", json=payload, timeout=5)
+            if response.status_code == 200:
+                eval_data = response.json()
+                final_score_pct = eval_data.get("final_score_pct", 0.0)
+            else:
+                final_score_pct = 0.0
+        except requests.RequestException:
             final_score_pct = 0.0
-    except requests.RequestException:
-        final_score_pct = 0.0
-        
-    total_points = int(ticket.yuvro_points * final_score_pct)
+            
+        total_points = int(ticket.yuvro_points * final_score_pct)
+    else:
+        # For non-database labs, we trust the status and test results set by the frontend/other evaluators
+        try:
+            import json
+            parsed = json.loads(submission.solution_output)
+            test_pct = parsed.get("percentage", parsed.get("total_score", 0.0))
+            final_score_pct = float(test_pct) / 100.0
+        except Exception:
+            if submission.ticket_status in [TicketProgressStatus.DONE, TicketProgressStatus.IN_REVIEW]:
+                final_score_pct = 1.0
+            else:
+                final_score_pct = 0.0
+                
+        total_points = int(ticket.yuvro_points * final_score_pct)
     
     if submission.solution_revealed:
         total_points = 0

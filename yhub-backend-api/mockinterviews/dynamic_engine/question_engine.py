@@ -78,6 +78,17 @@ UNKNOWN_ANSWER_PATTERNS = {
     "don't know much about this",
     "do not know much about this",
     "just want to check how you will generate report",
+    "nope",
+    "no",
+    "not me",
+    "didn't implement",
+    "did not implement",
+    "i haven't implemented it",
+    "i haven't implemented that",
+    "i have not implemented it",
+    "i have not implemented that",
+    "i didn't work on that",
+    "i did not work on that",
 }
 
 SKIP_OR_TOPIC_CHANGE_PATTERNS = {
@@ -107,6 +118,15 @@ SKIP_OR_TOPIC_CHANGE_PATTERNS = {
     "pass on this",
     "pass this",
     "i pass",
+    "skip",
+    "pass",
+    "i haven't implemented",
+    "i didn't implement",
+    "i have not implemented",
+    "i did not implement",
+    "i didn't work on",
+    "i did not work on",
+    "was not implemented by me",
 }
 
 CLARIFICATION_PATTERNS = {
@@ -133,6 +153,39 @@ CLARIFICATION_PATTERNS = {
     "what are you referring to",
     "which one are you referring to",
     "what is this about",
+}
+
+
+IRRELEVANT_PATTERNS = {
+    "pizza",
+    "cricket",
+    "football",
+    "movie",
+    "weather",
+    "whatever",
+    "who cares",
+    "i dont care",
+    "i don't care",
+    "do not care",
+    "asdf",
+    "qwerty",
+    "test test",
+    "testing testing",
+    "random answer",
+    "you tell me",
+    "why are you asking",
+    "not your business",
+    "ignore instructions",
+    "ignore previous",
+    "prompt injection",
+    "help in some way",
+    "help in some more",
+    "not going to change",
+    "just want to check how you will generate report",
+    "testing how you generate",
+    "dont think so it is going to change",
+    "don't think so it is going to change",
+    "do not think so it is going to change",
 }
 
 
@@ -487,7 +540,7 @@ class DynamicQuestionEngine:
         if last_quality == "intro":
             has_greeting = bool(
                 re.match(
-                    r"^(hello|hi|welcome|hey|great to meet you)\b",
+                    r"^(hello|hi|welcome|hey|great to meet you|thanks for introducing)\b",
                     prompt_text,
                     re.IGNORECASE,
                 )
@@ -496,7 +549,7 @@ class DynamicQuestionEngine:
                 greet_prefix = (
                     f"Hello {cand_name}! Great to meet you. "
                     if cand_name
-                    else "Hello! Great to meet you. "
+                    else "Great to meet you! "
                 )
                 prompt_text = f"{greet_prefix}{prompt_text}"
         elif last_quality == "repeat_requested":
@@ -519,8 +572,29 @@ class DynamicQuestionEngine:
             )
             if not has_pivot:
                 prompt_text = f"Got it, let's move on. {prompt_text}"
+        elif last_quality == "irrelevant":
+            prompt_text = re.sub(
+                r"^(good point|great|makes sense|nice|excellent|thanks|thank you|understood)[,!.]?\s*",
+                "",
+                prompt_text,
+                flags=re.IGNORECASE,
+            ).strip()
+            has_pivot = bool(
+                re.match(
+                    r"^(let's stay focused|lets stay focused)\b",
+                    prompt_text,
+                    re.IGNORECASE,
+                )
+            )
+            if not has_pivot:
+                prompt_text = f"Understood, but let's stay focused on the technical question. {prompt_text}"
         elif last_quality in {"substantive", "thin"}:
-            # If the LLM used "let's move on" when the candidate gave a valid answer, replace it with a positive acknowledgment
+            prompt_text = re.sub(
+                r"^(good point|great job|excellent)[,!.]?\s*",
+                "Understood. ",
+                prompt_text,
+                flags=re.IGNORECASE,
+            ).strip()
             prompt_text = re.sub(
                 r"^(got it|understood|no problem)?[,.]?\s*let's move on[.,!]?\s*",
                 "",
@@ -535,13 +609,13 @@ class DynamicQuestionEngine:
             ).strip()
             has_ack = bool(
                 re.match(
-                    r"^(understood|got it|makes sense|sure|great|nice|thanks|thank you|no problem|good point)\b",
+                    r"^(understood|got it|makes sense|sure|great|nice|thanks|thank you|no problem)\b",
                     prompt_text,
                     re.IGNORECASE,
                 )
             )
             if not has_ack:
-                prompt_text = f"Understood! {prompt_text}"
+                prompt_text = f"Understood. {prompt_text}"
 
         final_question.prompt = prompt_text
         return final_question
@@ -643,9 +717,11 @@ class DynamicQuestionEngine:
 
         question = next((q for q in session.questions if q.id == question_id), None)
         is_intro = False
-        if question and question.metadata.get("is_intro"):
+        if quality in {"repeat_requested", "clarification_requested", "skip_requested", "unknown", "irrelevant", "no_response"}:
+            is_intro = False
+        elif question and question.metadata.get("is_intro"):
             is_intro = True
-        elif len(session.answers) == 0:
+        elif len(session.answers) == 0 and not quality.startswith("skip"):
             is_intro = True
         elif re.match(r"^(hello|hi|hey)?\s*(i am|i'm|my name is)\b", answer_text.strip(), re.IGNORECASE):
             is_intro = True
@@ -684,11 +760,14 @@ class DynamicQuestionEngine:
                     if f not in retired_files:
                         retired_files.append(f)
             elif quality == "unknown" and question.metadata.get("unknown_recovery"):
-                if topic_key and topic_key not in retired_topics:
-                    retired_topics.append(topic_key)
-                for f in changed_files:
-                    if f not in retired_files:
-                        retired_files.append(f)
+                struggles = session.metadata.get("topic_struggles", {})
+                struggle_count = struggles.get(topic_key, 0)
+                if struggle_count >= 2:
+                    if topic_key and topic_key not in retired_topics:
+                        retired_topics.append(topic_key)
+                    for f in changed_files:
+                        if f not in retired_files:
+                            retired_files.append(f)
             elif quality not in {"clarification_requested", "intro", "repeat_requested"} and self._topic_limit_reached(session, topic_key):
                 if topic_key and topic_key not in retired_topics:
                     retired_topics.append(topic_key)
@@ -890,6 +969,21 @@ class DynamicQuestionEngine:
         )
 
     def _dynamic_follow_up(self, session: InterviewSession) -> InterviewQuestion:
+        import datetime
+        duration_mins = session.metadata.get("duration_minutes") or 30
+        elapsed_seconds = (datetime.datetime.now(datetime.timezone.utc) - session.created_at).total_seconds()
+        remaining_minutes = duration_mins - (elapsed_seconds / 60)
+
+        if remaining_minutes <= 2 and not session.metadata.get("wrap_up_asked"):
+            session.metadata["wrap_up_asked"] = True
+            return InterviewQuestion(
+                prompt="We are in the final 2 minutes. Briefly, could you share a time you worked on a tight deadline with a team? And finally, do you have any questions for us?",
+                kind=QuestionKind.DYNAMIC_FOLLOW_UP,
+                competency_targets=[Competency.COMMUNICATION, Competency.OWNERSHIP_COLLABORATION],
+                rationale="Interview is in its final 2 minutes. Asking a behavioral question and offering the candidate time to ask questions.",
+                metadata={"signature": "wrap_up:behavioral_and_questions"}
+            )
+
         pending_answer = self._pending_dynamic_deep_follow_up_answer(session)
         if pending_answer is not None:
             return self._answer_depth_follow_up(session, pending_answer)
@@ -901,6 +995,7 @@ class DynamicQuestionEngine:
         event = self._best_unused_event(session)
         if event is not None:
             return self._question_from_event(event, session)
+            
         return self._question_from_candidate_context(session)
 
     def _pending_dynamic_deep_follow_up_answer(
@@ -916,7 +1011,7 @@ class DynamicQuestionEngine:
             return None
 
         quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
-        if quality == "repeat_requested":
+        if quality in {"repeat_requested", "no_response"}:
             return answer
 
         if question.kind == QuestionKind.RECRUITER_REQUIRED:
@@ -937,8 +1032,24 @@ class DynamicQuestionEngine:
             return None
         if quality == "clarification_requested":
             return answer
-        if self._is_unknown_answer(answer) or question.evidence_event_ids or len(answer.answer_text.split()) < 18:
+        if self._is_unknown_answer(answer) or question.evidence_event_ids or quality in {"substantive", "thin"} or len(answer.answer_text.split()) >= 4:
             return answer
+        return None
+
+    def _extract_key_topic_from_answer(self, answer_text: str) -> str | None:
+        if not answer_text or not isinstance(answer_text, str):
+            return None
+        clean = re.sub(r"[^a-zA-Z0-9\s_-]", " ", answer_text)
+        matches = re.findall(
+            r"\b(?:status code[s]?|duplicate\s*\w+|edge case[s]?|error handling|logging|database|query|api|validation|exception|try\s*except|500|404|409|400|200|201|performance|latency|cache|concurrency|thread|async|await|test case[s]?|mock|fixture|payload|response|request)\b",
+            clean,
+            re.IGNORECASE,
+        )
+        if matches:
+            return matches[0].strip()
+        words = clean.split()
+        if len(words) >= 4:
+            return " ".join(words[:4])
         return None
 
     def _answer_depth_follow_up(
@@ -948,6 +1059,21 @@ class DynamicQuestionEngine:
     ) -> InterviewQuestion:
         question = self._question_for_answer(session, answer)
         quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
+
+        if quality == "no_response":
+            return InterviewQuestion(
+                prompt="Are you still there? Can we wrap up or do you have any questions for me?",
+                kind=QuestionKind.REFRAME,
+                competency_targets=[Competency.COMMUNICATION],
+                evidence_answer_ids=[answer.id],
+                rationale="Candidate did not provide a response. Asking to wrap up.",
+                metadata={
+                    "signature": f"no_response:{answer.id}",
+                    "parent_answer_id": answer.id,
+                    "parent_question_id": question.id if question else None,
+                    "topic_key": self._topic_key_for_question(question) if question else "no_response",
+                }
+            )
 
         if quality == "repeat_requested":
             orig_prompt = question.prompt if question else "Could you explain your recent code changes?"
@@ -959,14 +1085,14 @@ class DynamicQuestionEngine:
             ).strip()
             if not clean_base:
                 clean_base = orig_prompt
-            prompt = f"No problem, let me rephrase that: {clean_base}"
+            prompt = f"No problem, let me give you a brief summary of what I'm asking: {clean_base}"
             return InterviewQuestion(
                 prompt=prompt,
                 kind=QuestionKind.REFRAME,
                 competency_targets=question.competency_targets if question else [Competency.COMMUNICATION],
                 evidence_event_ids=question.evidence_event_ids if question else [],
                 evidence_answer_ids=[answer.id],
-                rationale="Candidate requested repeating or rephrasing the previous question.",
+                rationale="Candidate requested repeating or rephrasing. Please provide a brief, simplified summary of the previous question instead of repeating it fully.",
                 metadata={
                     "signature": f"repeat:{answer.id}",
                     "parent_answer_id": answer.id,
@@ -983,7 +1109,7 @@ class DynamicQuestionEngine:
             file_mention = changed_files[0] if changed_files else "your recent lab code"
             prompt = (
                 f"To clarify, I'm referring to {file_mention} from your engineering lab. "
-                "Could you explain the main problem you were solving with your changes in that file?"
+                "Briefly, what was the main problem you were solving there?"
             )
             return InterviewQuestion(
                 prompt=prompt,
@@ -991,7 +1117,7 @@ class DynamicQuestionEngine:
                 competency_targets=[Competency.COMMUNICATION, Competency.PROBLEM_SOLVING],
                 evidence_event_ids=[event.id] if event else [],
                 evidence_answer_ids=[answer.id],
-                rationale="Candidate requested clarification on the current problem/file.",
+                rationale="Candidate requested clarification. Provide a brief and simplified version of the current question context.",
                 metadata={
                     "signature": f"clarify:{answer.id}",
                     "parent_answer_id": answer.id,
@@ -1006,18 +1132,33 @@ class DynamicQuestionEngine:
 
         event = self._event_for_question(session, question)
         code_insights = event.details.get("code_insights") if event else None
-        answer_excerpt = self._compact(answer.answer_text, 100)
+        key_topic = self._extract_key_topic_from_answer(answer.answer_text)
 
         if isinstance(code_insights, dict):
             focus = self._code_focus_phrase(code_insights)
-            prompt = (
-                f"Understood. Regarding {focus}: "
-                "which line or design choice would you defend or change?"
-            )
+            if key_topic:
+                prompt = (
+                    f"Understood. Regarding {key_topic} in {focus}: "
+                    "which line or design choice would you defend or change?"
+                )
+            else:
+                prompt = (
+                    f"Understood. Regarding {focus}: "
+                    "which line or design choice would you defend or change?"
+                )
             targets = [
                 Competency.CODE_QUALITY,
                 Competency.PROBLEM_SOLVING,
                 Competency.TESTING_MINDSET,
+            ]
+        elif key_topic:
+            prompt = (
+                f"Understood. Regarding {key_topic}: what was the exact implementation detail and tradeoff behind that choice?"
+            )
+            targets = [
+                Competency.ENGINEERING_DECISION_MAKING,
+                Competency.CODE_QUALITY,
+                Competency.PROBLEM_SOLVING,
             ]
         elif len(answer.answer_text.split()) < 18:
             prompt = (
@@ -1109,7 +1250,15 @@ class DynamicQuestionEngine:
         axis: str,
         signature: str,
     ) -> InterviewQuestion:
-        files = self._join(code_insights.get("changed_files"), default="the submitted code")
+        changed_files_list = code_insights.get("changed_files") or []
+        if isinstance(changed_files_list, list):
+            app_files = [
+                f for f in changed_files_list
+                if not str(f).startswith("config/") and not str(f).startswith("settings/") and not str(f).endswith("__init__.py") and not str(f).endswith("asgi.py") and not str(f).endswith("wsgi.py")
+            ]
+            if app_files:
+                changed_files_list = app_files
+        files = self._join(changed_files_list, default="the submitted code")
         file_change_summary = self._file_change_summary(code_insights)
         added_line = self._first(
             code_insights.get("notable_added_lines")
@@ -1336,8 +1485,22 @@ class DynamicQuestionEngine:
 
     def _question_from_candidate_context(self, session: InterviewSession) -> InterviewQuestion:
         keywords = self._context_keywords(session)
-        if keywords:
-            keyword = keywords[session.turn_index % len(keywords)]
+        
+        fallback_questions = [
+            "Walk me through a recent engineering decision you made. What alternatives did you consider, and what evidence convinced you?",
+            "Tell me about a time you had to compromise on code quality to meet a deadline. How did you handle the technical debt?",
+            "Can you describe a challenging bug you recently resolved? What was your debugging process?",
+            "How do you ensure your code is maintainable and easily understood by other engineers?",
+            "Describe a situation where you disagreed with a technical direction. How did you communicate and resolve it?",
+            "What is the most complex system architecture you have worked on, and what was your specific contribution?",
+            "Tell me about a time you had to quickly learn a new technology or framework. How did you approach it?",
+            "How do you balance adding new features with improving system performance and reliability?",
+            "Describe a time when you received critical feedback on a pull request. How did you incorporate it?",
+            "Can you share an experience where you had to scale an application or optimize its performance? What metrics did you focus on?"
+        ]
+
+        if keywords and session.turn_index < len(keywords):
+            keyword = keywords[session.turn_index]
             prompt = (
                 f"The role and your background both point toward {keyword}. Walk me through a "
                 "specific engineering decision you made in that area, including the tradeoff you accepted."
@@ -1345,12 +1508,10 @@ class DynamicQuestionEngine:
             signature = f"context:{keyword}:{session.turn_index}"
             rationale = "Generated from the candidate resume and job description before live events arrived."
         else:
-            prompt = (
-                "Walk me through a recent engineering decision you made. What alternatives did you "
-                "consider, and what evidence convinced you?"
-            )
-            signature = f"context:general:{session.turn_index}"
-            rationale = "Generated as a broad opener because no assessment observations are available yet."
+            fallback_idx = (session.turn_index - (len(keywords) if keywords else 0)) % len(fallback_questions)
+            prompt = fallback_questions[fallback_idx]
+            signature = f"context:fallback:{fallback_idx}:{session.turn_index}"
+            rationale = "Generated from fresh technical/behavioral question pool to maintain interview flow."
 
         return InterviewQuestion(
             prompt=prompt,
@@ -1419,7 +1580,9 @@ class DynamicQuestionEngine:
 
     def _classify_answer(self, answer_text: str) -> str:
         normalized = self._normalize_answer(answer_text)
-        if not normalized or normalized in {"no voice response recorded", "skip", "pass", "i pass", "skip please", "please skip"}:
+        if not normalized or normalized == "no voice response recorded" or normalized == "no answer":
+            return "no_response"
+        if normalized in {"skip", "pass", "i pass", "skip please", "please skip"}:
             return "skip_requested"
         if any(pattern in normalized for pattern in REPEAT_OR_REPHRASE_PATTERNS):
             return "repeat_requested"
@@ -1429,6 +1592,8 @@ class DynamicQuestionEngine:
             answer_text.strip().endswith("?") and len(normalized.split()) <= 16
         ):
             return "clarification_requested"
+        if any(pattern in normalized for pattern in IRRELEVANT_PATTERNS):
+            return "irrelevant"
         if normalized in UNKNOWN_ANSWER_PATTERNS:
             return "unknown"
         if any(pattern in normalized for pattern in UNKNOWN_ANSWER_PATTERNS) and len(
@@ -1441,7 +1606,7 @@ class DynamicQuestionEngine:
 
     def _is_unknown_answer(self, answer: CandidateAnswer) -> bool:
         quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
-        return quality in {"unknown", "skip_requested"}
+        return quality in {"unknown", "skip_requested", "irrelevant", "no_response"}
 
     def _should_reframe_unknown_answer(
         self,
@@ -1449,7 +1614,7 @@ class DynamicQuestionEngine:
         answer: CandidateAnswer,
     ) -> bool:
         quality = answer.metadata.get("answer_quality") or self._classify_answer(answer.answer_text)
-        if quality == "skip_requested":
+        if quality in {"skip_requested", "no_response"}:
             return False
         if quality != "unknown":
             return False
@@ -1461,7 +1626,15 @@ class DynamicQuestionEngine:
         topic_key = self._topic_key_for_question(question)
         if topic_key in session.metadata.get("retired_topics", []):
             return False
-        return not question.metadata.get("unknown_recovery")
+            
+        struggles = session.metadata.get("topic_struggles", {})
+        struggle_count = struggles.get(topic_key, 0)
+        
+        # Reframe once for practical (struggle_count 0 -> 1), once for theoretical (1 -> 2)
+        if struggle_count >= 2:
+            return False
+            
+        return True
 
     def _unknown_answer_recovery_question(
         self,
@@ -1475,7 +1648,27 @@ class DynamicQuestionEngine:
         code_insights = event.details.get("code_insights") if event else None
         topic_key = self._topic_key_for_question(question)
 
-        if isinstance(code_insights, dict):
+        struggles = session.metadata.setdefault("topic_struggles", {})
+        struggle_count = struggles.get(topic_key, 0)
+        struggles[topic_key] = struggle_count + 1
+        session.metadata["topic_struggles"] = struggles
+
+        is_theoretical = struggle_count >= 1
+
+        if is_theoretical:
+            if isinstance(code_insights, dict):
+                prompt = (
+                    f"Let's step away from the specific code implementation. "
+                    f"In general theoretical terms, what is the core concept behind this approach and when would you choose to use it?"
+                )
+            else:
+                prompt = (
+                    "Let's look at this theoretically. Conceptually speaking, what is the main principle behind this pattern?"
+                )
+            targets = [Competency.TECHNICAL_KNOWLEDGE, Competency.COMMUNICATION]
+            rationale = "Candidate struggled with practical implementation. Falling back to theoretical question."
+            probe_axis = "theoretical_fallback"
+        elif isinstance(code_insights, dict):
             focus = self._code_focus_phrase(code_insights)
             prompt = (
                 f"Let's reframe it through the code instead of repeating the same question. "
@@ -1487,6 +1680,8 @@ class DynamicQuestionEngine:
                 Competency.DEBUGGING_ABILITY,
                 Competency.TESTING_MINDSET,
             ]
+            rationale = "Candidate gave an unknown answer, so Vitarka reframed instead of repeating."
+            probe_axis = "practical_reframe"
         elif custom_scope and question is not None:
             scope = question.metadata.get("scope_prompt") or question.prompt
             prompt = (
@@ -1495,6 +1690,8 @@ class DynamicQuestionEngine:
                 "and what evidence would help you answer it."
             )
             targets = [Competency.COMMUNICATION, Competency.LEARNING_ABILITY]
+            rationale = "Candidate gave an unknown answer, so Vitarka reframed instead of repeating."
+            probe_axis = "practical_reframe"
         else:
             prompt = (
                 "Let's approach it from a smaller angle. What is one fact from the assessment "
@@ -1505,6 +1702,8 @@ class DynamicQuestionEngine:
                 Competency.PROBLEM_SOLVING,
                 Competency.COMMUNICATION,
             ]
+            rationale = "Candidate gave an unknown answer, so Vitarka reframed instead of repeating."
+            probe_axis = "practical_reframe"
 
         return InterviewQuestion(
             prompt=prompt,
@@ -1512,12 +1711,13 @@ class DynamicQuestionEngine:
             competency_targets=targets,
             evidence_event_ids=[event.id] if event else [],
             evidence_answer_ids=[answer.id],
-            rationale="Candidate gave an unknown answer, so Vitarka reframed instead of repeating.",
+            rationale=rationale,
             metadata={
-                "signature": f"unknown-reframe:{answer.id}",
+                "signature": f"unknown-reframe:{answer.id}:{probe_axis}",
                 "parent_answer_id": answer.id,
                 "parent_question_id": question.id if question else None,
                 "unknown_recovery": True,
+                "is_theoretical": is_theoretical,
                 "topic_key": topic_key,
             },
         )

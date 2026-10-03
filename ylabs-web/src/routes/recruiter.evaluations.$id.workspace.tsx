@@ -37,6 +37,12 @@ import {
   GitCompare,
 } from "lucide-react";
 import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
   getEvaluation,
   evaluationTotals,
   saveEvaluation,
@@ -45,6 +51,7 @@ import {
   Evaluation,
   getEvaluationSubmissions,
   inviteCandidates,
+  generateSharedReportLink,
 } from "@/lib/recruiter";
 import {
   getCandidates,
@@ -68,7 +75,9 @@ import {
   loadViewed,
   loadNotedSet,
   pushActivity,
+  saveDecision,
   type AttentionGroup,
+  type HiringDecision,
 } from "@/lib/recruiterCandidateDetail";
 import { IntelligenceTab } from "@/components/recruiter/IntelligenceTab";
 import { SettingsTab } from "@/components/recruiter/SettingsTab";
@@ -137,7 +146,7 @@ function Workspace() {
         }
         if (mockInterviewId) {
           yhubApiAuthUtil
-            .get<any[]>(`/interview/submissions/?mock_interview=${mockInterviewId}`)
+            .get<any[]>(`/interview/submissions/?mock_interview=${mockInterviewId}&ordering=-created_at`)
             .then((res) => {
               if (Array.isArray(res)) setVitarkaSubmissions(res);
             })
@@ -233,6 +242,10 @@ function Workspace() {
     }
   };
 
+  const refreshSubmissions = () => {
+    getEvaluationSubmissions(ev.id).then(setSubmissions).catch(() => setSubmissions([]));
+  };
+
   return (
     <div className="min-h-screen">
       {/* Top header */}
@@ -264,7 +277,7 @@ function Workspace() {
                   <b className="font-normal text-neutral-300">{fmtRel(ev.createdAt)}</b>
                 </span>
                 <span>
-                  Created by <b className="font-normal text-neutral-300">Riya Recruiter</b>
+                  Created by <b className="font-normal text-neutral-300">{ev.createdBy || "Recruiter"}</b>
                 </span>
                 <span>
                   Duration <b className="font-normal text-neutral-300">{totals.minutes} min</b>
@@ -280,7 +293,7 @@ function Workspace() {
           {/* Tabs & Actions */}
           <div className="mt-6 flex items-center justify-between">
             <nav className="flex items-center gap-1">
-              {(["overview", "candidates", "followups", "records", "intelligence", "settings"] as const).map(
+              {(["overview", "candidates", "followups", "records"] as const).map(
                 (t) => (
                   <button
                     key={t}
@@ -316,10 +329,11 @@ function Workspace() {
           <OverviewTab ev={ev} candidates={candidates} onGoto={goto} notify={notify} />
         )}
         {tab === "candidates" && (
-          <CandidatesTab evId={ev.id} candidates={candidates} notify={notify} />
+          <CandidatesTab evId={ev.id} ev={ev} candidates={candidates} notify={notify} onRefresh={refreshSubmissions} />
         )}
         {tab === "followups" && <FollowUpsTab ev={ev} notify={notify} />}
-        {tab === "records" && <CandidateRecordsTab ev={ev} notify={notify} onGotoFollowUps={() => goto("followups")} />}
+        {tab === "records" && <CandidateRecordsTab ev={ev} notify={notify} onGotoFollowUps={() => goto("followups")} candidates={candidates} />}
+
         {tab === "intelligence" && (
           <IntelligenceTab ev={ev} candidates={candidates} notify={notify} />
         )}
@@ -450,7 +464,13 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
           if (part === "{{link}}") {
             return (
               <div key={i} className="my-4">
-                <a href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
+                <a
+                  href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-semibold !text-white transition hover:bg-opacity-90 shadow-sm"
+                  style={{ color: "#ffffff" }}
+                >
                   Start Evaluation
                 </a>
               </div>
@@ -463,7 +483,12 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
   };
 
   const isValid = recipients.length > 0 || (emailsInput.trim() && emailRegex.test(emailsInput.trim()));
-  const totalCount = recipients.length + (emailsInput.trim() && emailRegex.test(emailsInput.trim()) ? 1 : 0);
+  const allEmailsToPreview = [...recipients];
+  if (emailsInput.trim() && emailRegex.test(emailsInput.trim()) && !recipients.includes(emailsInput.trim())) {
+    allEmailsToPreview.push(emailsInput.trim());
+  }
+  const totalCount = allEmailsToPreview.length;
+  const [showAllRecipients, setShowAllRecipients] = useState(false);
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-white text-neutral-900">
@@ -555,12 +580,29 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
           
           <div className="mt-8 flex-1 rounded-xl border border-neutral-200 bg-white shadow-sm overflow-hidden flex flex-col">
             <div className="border-b border-neutral-100 bg-neutral-50/50 px-6 py-4">
-              <div className="mb-2 flex items-center text-[13px]">
-                <span className="w-16 font-medium text-neutral-500">To:</span>
-                <span className="text-neutral-700">
-                  {recipients[0] || (emailsInput && emailRegex.test(emailsInput.trim()) ? emailsInput.trim() : "candidate@example.com")}
-                  {totalCount > 1 ? ` (+${totalCount - 1} more)` : ""}
-                </span>
+              <div className="mb-2 flex items-start text-[13px]">
+                <span className="w-16 font-medium text-neutral-500 pt-0.5">To:</span>
+                <div className="flex-1 text-neutral-700">
+                  {showAllRecipients ? (
+                    <div className="flex flex-wrap gap-1">
+                      {allEmailsToPreview.length > 0 ? allEmailsToPreview.map((r, i) => <span key={i} className="bg-neutral-200/50 px-1.5 py-0.5 rounded text-[12px]">{r}</span>) : "candidate@example.com"}
+                      {allEmailsToPreview.length > 1 && (
+                        <button onClick={() => setShowAllRecipients(false)} className="text-amber-600 hover:underline text-[12px] px-1 ml-1 font-medium bg-amber-50 rounded">
+                          (collapse)
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <span>
+                      {allEmailsToPreview[0] || "candidate@example.com"}
+                      {totalCount > 1 && (
+                        <button onClick={() => setShowAllRecipients(true)} className="text-amber-600 hover:underline ml-1 font-medium bg-amber-50 px-1.5 py-0.5 rounded text-[12px]">
+                          (+{totalCount - 1} more)
+                        </button>
+                      )}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center text-[13px]">
                 <span className="w-16 font-medium text-neutral-500">Subject:</span>
@@ -573,7 +615,13 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
                   if (part === "{{link}}") {
                     return (
                       <div key={i} className="my-4">
-                        <a href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`} target="_blank" rel="noopener noreferrer" className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-opacity-90">
+                        <a
+                          href={`${typeof window !== "undefined" ? window.location.origin : ""}/evaluation/${evId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block rounded-lg bg-[#F5A623] px-6 py-2.5 text-[13px] font-semibold !text-white transition hover:bg-opacity-90 shadow-sm"
+                          style={{ color: "#ffffff" }}
+                        >
                           Start Evaluation
                         </a>
                       </div>
@@ -589,14 +637,15 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
       </div>
       
       {/* Footer */}
-      <div className="flex items-center justify-end gap-3 p-5 bg-white">
+      <div className="flex items-center justify-end gap-3 p-5 bg-white border-t border-neutral-200">
         <button onClick={onClose} className="rounded-lg px-6 py-2.5 text-[13px] font-medium text-neutral-600 hover:bg-neutral-100 transition-colors">
           Cancel
         </button>
         <button 
           onClick={onSubmit} 
           disabled={sending || !isValid} 
-          className="inline-flex items-center justify-center rounded-lg bg-[#F5A623] px-8 py-2.5 text-[13px] font-semibold text-white transition-all hover:bg-opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center rounded-lg bg-[#F5A623] px-8 py-2.5 text-[13px] font-semibold !text-white transition-all hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          style={{ color: "#ffffff" }}
         >
           {sending ? "Sending..." : `Send Invites ${totalCount > 0 ? `(${totalCount})` : ''}`}
         </button>
@@ -631,15 +680,13 @@ function OverviewTab({
   }, [ev.id]);
 
   const stats = useMemo(() => {
-    // 1. Funnel from both records and candidates
-    const invited = records.length > 0 ? records.length : candidates.length; 
+    // 1. Funnel
+    const invited = ev.candidatesTotal; 
     const submitted = candidates.filter((c) => c.status === "Submitted").length;
     const completed = candidates.filter((c) => c.status === "Completed").length;
     const inProgress = candidates.filter((c) => c.status === "In Progress").length;
-    const notStarted = records.length > 0 
-      ? records.filter((r) => r.status === "Not Submitted").length 
-      : candidates.filter((c) => c.status === "Not Started").length;
     const expired = candidates.filter((c) => c.status === "Expired").length;
+    const notStarted = Math.max(0, invited - (submitted + completed + inProgress + expired));
 
     // 2. Hiring Status from candidates (from submissions)
     const pending = candidates.filter((c) => c.hiringStatus === "Pending Review").length;
@@ -647,6 +694,7 @@ function OverviewTab({
     const interview = candidates.filter((c) => c.hiringStatus === "Interview Scheduled").length;
     const selected = candidates.filter((c) => c.hiringStatus === "Selected").length;
     const rejected = candidates.filter((c) => c.hiringStatus === "Rejected").length;
+    
     const submittedList = candidates.filter(
       (c) => c.status === "Submitted" || c.status === "Completed",
     );
@@ -673,7 +721,7 @@ function OverviewTab({
       avgEci,
       avgTime,
     };
-  }, [candidates]);
+  }, [candidates, ev.candidatesTotal]);
 
   const activity = useMemo(() => buildActivity(candidates), [candidates]);
 
@@ -883,12 +931,16 @@ const COLS_KEY = "yuvro-cand-cols-v2";
 
 function CandidatesTab({
   evId,
+  ev,
   candidates,
   notify,
+  onRefresh,
 }: {
   evId: string;
+  ev?: Evaluation;
   candidates: Candidate[];
   notify: (m: string) => void;
+  onRefresh: () => void;
 }) {
   const nav = useNavigate();
   const [filters, setFilters] = useState<CandidateFilters>(emptyFilters());
@@ -906,14 +958,27 @@ function CandidatesTab({
   const [viewed, setViewed] = useState<Set<string>>(new Set());
   const [noted, setNoted] = useState<Set<string>>(new Set());
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [cols, setCols] = useState<Set<ColKey>>(() => {
-    if (typeof window === "undefined") return new Set(DEFAULT_COLS);
-    try {
-      const raw = localStorage.getItem(COLS_KEY);
-      if (raw) return new Set(JSON.parse(raw));
-    } catch {}
-    return new Set(DEFAULT_COLS);
-  });
+
+  const sections = ev?.sections || [];
+  const hasSections = sections.length > 0;
+  const hasLabs = hasSections ? sections.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") : false;
+  const hasAssessment = hasSections ? sections.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT") : false;
+  const hasVitarka = hasSections ? sections.some((s: any) => s.kind === "discussion" || s.kind === "vitarka" || s.type === "VITARKA_AI_INTERVIEW") : false;
+
+  const defaultColsSet = useMemo(() => {
+    const list: ColKey[] = ["candidate"];
+    if (hasLabs) list.push("labs");
+    if (hasAssessment) list.push("assessment");
+    if (hasVitarka) list.push("vitarka");
+    list.push("eci", "recommendation", "submitted", "status");
+    return new Set(list);
+  }, [hasLabs, hasAssessment, hasVitarka]);
+
+  const [cols, setCols] = useState<Set<ColKey>>(defaultColsSet);
+
+  useEffect(() => {
+    setCols(defaultColsSet);
+  }, [defaultColsSet]);
 
   useEffect(() => {
     try {
@@ -1000,17 +1065,110 @@ function CandidatesTab({
       params: { id: evId, candidateId: c.id },
       search: { view: "edit" } as any,
     });
-  const bulk = async (label: string) => {
+    
+  const bulk = async (label: string, decision?: HiringDecision) => {
     for (const c of selected) {
       const candidateObj = candidates.find(cand => cand.id === c);
       if (candidateObj?.email) {
+        if (decision) {
+          await saveDecision(evId, candidateObj.id, candidateObj.email, decision);
+        }
         await pushActivity(evId, candidateObj.email, label, `Bulk applied ${label}`);
       }
     }
     notify(`${label} applied to ${selected.size} candidate${selected.size === 1 ? "" : "s"}`);
     setSelected(new Set());
+    if (decision) {
+      onRefresh();
+    }
   };
 
+  const handleRowAction = async (c: Candidate, label: string, decision?: HiringDecision) => {
+    if (decision && c.email) {
+      await saveDecision(evId, c.id, c.email, decision);
+      notify(`${label} applied to ${c.name}`);
+      onRefresh();
+    } else if (label === "Resume opened") {
+      nav({
+        to: "/recruiter/evaluations/$id/candidates/$candidateId",
+        params: { id: evId, candidateId: c.id },
+        search: { view: "edit", tab: "resume" } as any,
+      });
+    } else if (label === "Note added") {
+      nav({
+        to: "/recruiter/evaluations/$id/candidates/$candidateId",
+        params: { id: evId, candidateId: c.id },
+        search: { view: "edit", tab: "notes" } as any,
+      });
+    } else if (label === "Report downloaded") {
+      try {
+        notify("Generating report PDF...");
+        const { getCandidateDetail } = await import("@/lib/recruiterCandidateDetail");
+        const { buildEvaluationSummary } = await import("@/lib/evaluationSummary");
+        const { downloadCandidateReportPdf } = await import("@/lib/candidateReportPdf");
+        
+        const detail = getCandidateDetail(c, {
+          labsMaxScore: c.labsMaxScore ?? 80,
+          assessmentMaxScore: c.assessmentMaxScore ?? 30,
+          discussionMaxScore: c.discussionMaxScore ?? 25,
+        });
+        
+        downloadCandidateReportPdf({
+          name: c.name,
+          email: c.email,
+          phone: c.phone,
+          college: c.college,
+          company: c.company,
+          experience: c.experience,
+          eci: c.eci,
+          recommendation: c.recommendation,
+          confidence: detail.confidence,
+          labsScore: c.labsScore,
+          assessmentScore: c.assessmentScore,
+          vitarkaScore: c.vitarkaScore,
+          labsMaxScore: c.labsMaxScore ?? 80,
+          assessmentMaxScore: c.assessmentMaxScore ?? 30,
+          discussionMaxScore: c.discussionMaxScore ?? 25,
+          strengths: detail.strengths,
+          weaknesses: detail.weaknesses,
+          aiSummary: detail.aiSummary,
+          nextStep: detail.nextStep,
+          evaluationTitle: ev?.title || "Evaluation Report",
+          summary: buildEvaluationSummary(c, hasLabs, hasAssessment, hasVitarka),
+        });
+        notify("Report downloaded");
+      } catch (err) {
+        console.error(err);
+        notify("Failed to download PDF report");
+      }
+    } else if (label === "Link copied") {
+      try {
+        const result = await generateSharedReportLink(evId, c.email, c.rawSubmission?.id || c.id);
+        if (result && result.token) {
+          const url = `${typeof window !== "undefined" ? window.location.origin : ""}/shared/report/${result.token}`;
+          if (navigator.clipboard) {
+            await navigator.clipboard.writeText(url);
+          } else {
+            // Fallback for non-secure contexts
+            const el = document.createElement('textarea');
+            el.value = url;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+          }
+          notify("Candidate report link copied");
+        } else {
+          notify("Failed to generate link");
+        }
+      } catch (e) {
+        console.error(e);
+        notify("Failed to copy link");
+      }
+    } else {
+      notify(label);
+    }
+  };
   const colleges = useMemo(
     () => Array.from(new Set(candidates.map((c) => c.college))).sort(),
     [candidates],
@@ -1125,30 +1283,9 @@ function CandidatesTab({
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2">
           <div className="text-[12px] font-medium text-neutral-900">{selected.size} selected</div>
           <div className="mx-2 h-4 w-px bg-neutral-200" />
-          <BulkBtn
-            onClick={() => {
-              if (selected.size < 2 || selected.size > 4)
-                return notify("Select 2 to 4 candidates to compare");
-              nav({
-                to: "/recruiter/evaluations/$id/compare",
-                params: { id: evId },
-                search: { ids: Array.from(selected).join(",") },
-              } as any);
-            }}
-            accent
-          >
-            Compare {selected.size >= 2 && selected.size <= 4 ? `(${selected.size})` : ""}
-          </BulkBtn>
-          <BulkBtn onClick={() => bulk("Moved to Hold")}>Hold</BulkBtn>
-          <BulkBtn onClick={() => bulk("Shortlisted")}>Shortlist</BulkBtn>
-          <BulkBtn onClick={() => bulk("Rejected")}>Reject</BulkBtn>
-          <BulkBtn onClick={() => bulk("Email sent")}>Send Email</BulkBtn>
-          <BulkBtn onClick={() => bulk("Reports downloaded")}>Download Reports</BulkBtn>
-          <BulkBtn onClick={() => bulk("Tag added")}>Add Tags</BulkBtn>
-          <BulkBtn onClick={() => bulk("Archived")}>Archive</BulkBtn>
-          <BulkBtn onClick={() => bulk("Deleted")} danger>
-            Delete
-          </BulkBtn>
+          <BulkBtn onClick={() => bulk("Moved to Hold", "Hold")}>Hold</BulkBtn>
+          <BulkBtn onClick={() => bulk("Shortlisted", "Shortlisted")}>Shortlist</BulkBtn>
+          <BulkBtn onClick={() => bulk("Rejected", "Rejected")}>Reject</BulkBtn>
           <button
             onClick={() => setSelected(new Set())}
             className="ml-auto text-[11px] text-neutral-500 hover:text-neutral-900"
@@ -1178,8 +1315,11 @@ function CandidatesTab({
             allChecked={paged.length > 0 && paged.every((r) => selected.has(r.id))}
             onOpen={openDetails}
             onPreview={setPreview}
-            onAction={(label) => notify(label)}
+            onAction={handleRowAction}
             highlight={filters.search}
+            hasLabs={hasLabs}
+            hasAssessment={hasAssessment}
+            hasVitarka={hasVitarka}
           />
         ) : (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -1191,7 +1331,10 @@ function CandidatesTab({
                 onToggle={() => toggleSelect(c.id)}
                 onOpen={() => openDetails(c)}
                 onPreview={() => setPreview(c)}
-                onAction={(l) => notify(l)}
+                onAction={(l, d) => handleRowAction(c, l, d)}
+                hasLabs={hasLabs}
+                hasAssessment={hasAssessment}
+                hasVitarka={hasVitarka}
               />
             ))}
           </div>
@@ -1260,7 +1403,7 @@ function CandidatesTab({
         onClose={() => setDrawerOpen(false)}
         filters={filters}
         setFilters={setFilters}
-        matchCount={filtered.length}
+        candidates={pipelineBase}
         colleges={colleges}
         companies={companies}
       />
@@ -1365,7 +1508,6 @@ function ExportMenu({
   selected: Candidate[];
   notify: (m: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const scope = selected.length > 0 ? selected : candidates;
   const label =
     selected.length > 0
@@ -1423,28 +1565,27 @@ function ExportMenu({
   };
 
   return (
-    <ToolbarBtn onClick={() => doCsv("xlsx")} icon={<Download className="h-3.5 w-3.5" />}>
-      Export
-    </ToolbarBtn>
-  );
-}
-function ExportItem({
-  children,
-  onClick,
-  icon,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12.5px] text-neutral-800 hover:bg-neutral-50"
-    >
-      {icon}
-      {children}
-    </button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-medium text-neutral-800 transition hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none">
+          <Download className="h-3.5 w-3.5" /> Export
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48 p-0 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg">
+        <DropdownMenuItem
+          onClick={() => doCsv("csv")}
+          className="block w-full cursor-pointer px-3 py-2 text-left text-[12.5px] text-neutral-800 hover:bg-neutral-50 focus:bg-neutral-50 focus:text-neutral-900 rounded-none border-none outline-none"
+        >
+          Export as CSV ({label})
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => doCsv("xlsx")}
+          className="block w-full cursor-pointer px-3 py-2 text-left text-[12.5px] text-neutral-800 hover:bg-neutral-50 focus:bg-neutral-50 focus:text-neutral-900 rounded-none border-none outline-none"
+        >
+          Export as Excel ({label})
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -1476,6 +1617,9 @@ function CandidateTable({
   onPreview,
   onAction,
   highlight,
+  hasLabs = true,
+  hasAssessment = true,
+  hasVitarka = true,
 }: {
   rows: Candidate[];
   cols: Set<ColKey>;
@@ -1485,10 +1629,19 @@ function CandidateTable({
   allChecked: boolean;
   onOpen: (c: Candidate) => void;
   onPreview: (c: Candidate) => void;
-  onAction: (label: string) => void;
+  onAction: (c: Candidate, label: string, decision?: HiringDecision) => void;
   highlight?: string;
+  hasLabs?: boolean;
+  hasAssessment?: boolean;
+  hasVitarka?: boolean;
 }) {
-  const show = (k: ColKey) => cols.has(k);
+  const show = (k: ColKey) => {
+    if (k === "labs" && !hasLabs) return false;
+    if (k === "assessment" && !hasAssessment) return false;
+    if (k === "vitarka" && !hasVitarka) return false;
+    return cols.has(k);
+  };
+
   return (
     <div className="-mx-1 overflow-x-auto">
       <table className="w-full min-w-[960px] border-collapse text-left text-[12.5px]">
@@ -1542,18 +1695,28 @@ function CandidateTable({
               {show("email") && (
                 <Td className="text-neutral-700">{highlightText(c.email, highlight || "")}</Td>
               )}
-              {show("phone") && <Td className="text-neutral-700">{c.phone}</Td>}
+              {show("phone") && <Td className="text-neutral-700">{c.phone || "—"}</Td>}
               {show("labs") && (
-                <Td className="text-right tabular-nums text-neutral-900">{c.labsScore}</Td>
+                <Td className="text-right tabular-nums text-neutral-900">
+                  <div className="font-medium">{c.labsScore}</div>
+                  <div className="text-[10.5px] text-neutral-500">
+                    {c.labsMaxScore ? `of ${c.labsMaxScore}` : ""}
+                  </div>
+                </Td>
               )}
               {show("assessment") && (
-                <Td className="text-right tabular-nums text-neutral-900">{c.assessmentScore}</Td>
+                <Td className="text-right tabular-nums text-neutral-900">
+                  <div className="font-medium">{c.assessmentScore}</div>
+                  <div className="text-[10.5px] text-neutral-500">
+                    {c.assessmentMaxScore ? `of ${c.assessmentMaxScore}` : ""}
+                  </div>
+                </Td>
               )}
               {show("vitarka") && (
                 <Td className="text-right tabular-nums text-neutral-900">
                   <div className="font-medium">{c.vitarkaScore}</div>
                   <div className="text-[10.5px] text-neutral-500">
-                    {c.discussionMaxScore ? `of ${c.discussionMaxScore}` : vitarkaLabel(c.vitarkaScore, 25)}
+                    {c.discussionMaxScore ? `of ${c.discussionMaxScore}` : ""}
                   </div>
                 </Td>
               )}
@@ -1579,7 +1742,7 @@ function CandidateTable({
                 </Td>
               )}
               <Td onClick={(e) => e.stopPropagation()}>
-                <RowMenu onOpen={() => onOpen(c)} onAction={onAction} />
+                <RowMenu onOpen={() => onOpen(c)} onAction={(l, d) => onAction(c, l, d)} />
               </Td>
             </tr>
           ))}
@@ -1589,49 +1752,42 @@ function CandidateTable({
   );
 }
 
-function RowMenu({ onOpen, onAction }: { onOpen: () => void; onAction: (l: string) => void }) {
-  const [open, setOpen] = useState(false);
+function RowMenu({ onOpen, onAction }: { onOpen: () => void; onAction: (l: string, d?: HiringDecision) => void }) {
   const items = [
     { label: "View Candidate", fn: onOpen },
     { label: "Open Resume", fn: () => onAction("Resume opened") },
     { label: "Download Report", fn: () => onAction("Report downloaded") },
-    { label: "Shortlist", fn: () => onAction("Shortlisted") },
-    { label: "Reject", fn: () => onAction("Rejected") },
-    { label: "Hold", fn: () => onAction("Moved to Hold") },
+    { label: "Shortlist", fn: () => onAction("Shortlisted", "Shortlisted") },
+    { label: "Reject", fn: () => onAction("Rejected", "Rejected") },
+    { label: "Hold", fn: () => onAction("Moved to Hold", "Hold") },
     { label: "Copy Candidate Link", fn: () => onAction("Link copied") },
     { label: "Add Notes", fn: () => onAction("Note added") },
   ];
   return (
-    <div className="relative">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen((v) => !v);
-        }}
-        className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
-      >
-        <MoreHorizontal className="h-3.5 w-3.5" />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full z-40 mt-1 w-48 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg">
-            {items.map((it) => (
-              <button
-                key={it.label}
-                onClick={() => {
-                  it.fn();
-                  setOpen(false);
-                }}
-                className="block w-full px-3 py-2 text-left text-[12.5px] text-neutral-800 hover:bg-neutral-50"
-              >
-                {it.label}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          onClick={(e) => e.stopPropagation()}
+          className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none"
+        >
+          <MoreHorizontal className="h-3.5 w-3.5" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48 overflow-hidden rounded-xl border border-neutral-200 bg-white p-0 shadow-lg">
+        {items.map((it) => (
+          <DropdownMenuItem
+            key={it.label}
+            onClick={(e) => {
+              e.stopPropagation();
+              it.fn();
+            }}
+            className="block w-full cursor-pointer px-3 py-2 text-left text-[12.5px] text-neutral-800 hover:bg-neutral-50 focus:bg-neutral-50 focus:text-neutral-900 rounded-none border-none outline-none"
+          >
+            {it.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -1642,13 +1798,19 @@ function CandidateCard({
   onOpen,
   onPreview,
   onAction,
+  hasLabs = true,
+  hasAssessment = true,
+  hasVitarka = true,
 }: {
   c: Candidate;
   selected: boolean;
   onToggle: () => void;
   onOpen: () => void;
   onPreview: () => void;
-  onAction: (l: string) => void;
+  onAction: (l: string, d?: HiringDecision) => void;
+  hasLabs?: boolean;
+  hasAssessment?: boolean;
+  hasVitarka?: boolean;
 }) {
   return (
     <div
@@ -1672,12 +1834,12 @@ function CandidateCard({
         </div>
         <dl className="mt-4 grid grid-cols-2 gap-1 text-[11px] text-neutral-600">
           <span className="truncate">{c.email}</span>
-          <span className="truncate text-right">{c.phone}</span>
+          <span className="truncate text-right">{c.phone || "—"}</span>
         </dl>
-        <div className="mt-4 grid grid-cols-4 gap-1.5">
-          <MiniScore label="Labs" v={c.labsScore} />
-          <MiniScore label="Assess" v={c.assessmentScore} />
-          <MiniScore label="Vitarka" v={c.vitarkaScore} />
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {hasLabs && <MiniScore label="Labs" v={c.labsScore} />}
+          {hasAssessment && <MiniScore label="Assess" v={c.assessmentScore} />}
+          {hasVitarka && <MiniScore label="Vitarka" v={c.vitarkaScore} />}
           <MiniScore label="Total" v={c.totalEarned != null ? c.totalEarned : c.eci} highlight />
         </div>
         <div className="mt-3 flex items-center justify-between text-[11px] text-neutral-600">
@@ -1738,7 +1900,7 @@ function AdvancedFiltersDrawer({
   onClose,
   filters,
   setFilters,
-  matchCount,
+  candidates,
   colleges,
   companies,
 }: {
@@ -1746,7 +1908,7 @@ function AdvancedFiltersDrawer({
   onClose: () => void;
   filters: CandidateFilters;
   setFilters: (f: CandidateFilters | ((p: CandidateFilters) => CandidateFilters)) => void;
-  matchCount: number;
+  candidates: Candidate[];
   colleges: string[];
   companies: string[];
 }) {
@@ -1781,6 +1943,8 @@ function AdvancedFiltersDrawer({
     setFilters(local);
     onClose();
   };
+
+  const localMatchCount = useMemo(() => applyFilters(candidates, local, "newest").length, [candidates, local]);
 
   return (
     <>
@@ -1894,28 +2058,22 @@ function AdvancedFiltersDrawer({
             title="Background"
             open={openSection === "background"}
             onToggle={setOpenSection}
-            count={
-              local.experience.size +
-              local.colleges.size +
-              local.companies.size +
-              local.skills.size +
-              local.domains.size
-            }
+            count={local.experience.size + local.colleges.size + local.companies.size}
           >
-            <SubLabel>Experience</SubLabel>
+            <SubLabel>Experience Level</SubLabel>
             <CheckGrid
               options={["Fresher", "1-3 Years", "3-5 Years", "5-8 Years", "8+"]}
               value={local.experience}
               onChange={(v) => setL({ experience: v })}
             />
-            <SubLabel>College</SubLabel>
+            <SubLabel>College / University</SubLabel>
             <SearchableList
               options={colleges}
               value={local.colleges}
               onChange={(v) => setL({ colleges: v })}
               placeholder="Search colleges"
             />
-            <SubLabel>Company</SubLabel>
+            <SubLabel>Current Company</SubLabel>
             <SearchableList
               options={companies}
               value={local.companies}
@@ -2000,10 +2158,9 @@ function AdvancedFiltersDrawer({
             onClick={apply}
             className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2 text-[13px] font-medium text-white hover:bg-neutral-800"
           >
-            Show {applyFilters(dryRunCandidates, local, "newest").length ? "matching" : ""}{" "}
-            candidates
+            Show {localMatchCount ? "matching" : ""} candidates
             <span className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] tabular-nums">
-              {matchCount.toLocaleString()}
+              {localMatchCount.toLocaleString()}
             </span>
           </button>
         </footer>
@@ -2267,7 +2424,6 @@ function buildActiveChips(f: CandidateFilters): ActiveChip[] {
 // -------------- Sort --------------
 
 function SortMenu({ value, onChange }: { value: SortKey; onChange: (v: SortKey) => void }) {
-  const [open, setOpen] = useState(false);
   const opts: [SortKey, string][] = [
     ["newest", "Newest submission"],
     ["oldest", "Oldest submission"],
@@ -2282,34 +2438,25 @@ function SortMenu({ value, onChange }: { value: SortKey; onChange: (v: SortKey) 
     ["name_desc", "Z → A"],
   ];
   return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1.5 text-[12px] text-neutral-300 hover:border-white/20"
-      >
-        <ArrowUpDown className="h-3.5 w-3.5" /> {opts.find((o) => o[0] === value)?.[1]}
-        <ChevronDown className="h-3 w-3" />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full z-40 mt-1 w-52 overflow-hidden rounded-lg border border-white/10 bg-neutral-950 shadow-2xl">
-            {opts.map(([k, l]) => (
-              <button
-                key={k}
-                onClick={() => {
-                  onChange(k);
-                  setOpen(false);
-                }}
-                className={`block w-full px-3 py-1.5 text-left text-[12px] hover:bg-white/5 ${value === k ? "text-white" : "text-neutral-300"}`}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-medium text-neutral-800 transition hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none">
+          <ArrowUpDown className="h-3.5 w-3.5" /> {opts.find((o) => o[0] === value)?.[1]}
+          <ChevronDown className="h-3.5 w-3.5 text-neutral-400" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-52 p-0 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg">
+        {opts.map(([k, l]) => (
+          <DropdownMenuItem
+            key={k}
+            onClick={() => onChange(k)}
+            className={`block w-full cursor-pointer px-3 py-2 text-left text-[12.5px] rounded-none border-none outline-none ${value === k ? "bg-neutral-50 font-medium text-neutral-900" : "text-neutral-800 hover:bg-neutral-50 focus:bg-neutral-50"}`}
+          >
+            {l}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -2388,10 +2535,10 @@ function PreviewPanel({
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          <ScoreBlock label="Labs" v={c.labsScore} big />
-          <ScoreBlock label="Assessment" v={c.assessmentScore} big />
-          <ScoreBlock label="Vitarka" v={c.vitarkaScore} big />
+        <div className="mt-4 flex flex-wrap gap-2">
+          {c.labsMaxScore ? <ScoreBlock label="Labs" v={c.labsScore} big /> : null}
+          {c.assessmentMaxScore ? <ScoreBlock label="Assessment" v={c.assessmentScore} big /> : null}
+          {c.discussionMaxScore ? <ScoreBlock label="Vitarka" v={c.vitarkaScore} big /> : null}
         </div>
 
         <div className="mt-6">
