@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AdminShell, Badge, KpiCard } from "@/components/admin/AdminShell";
-import { Plus, FlaskConical, Trash2, Pencil, CheckCircle2 } from "lucide-react";
+import { Plus, FlaskConical, Trash2, Pencil, CheckCircle2, BarChart2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   loadLabs,
@@ -81,7 +81,7 @@ function LabsPage() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search labs…"
+          placeholder="Search labs..."
           className="text-xs px-3 py-1.5 rounded-md border border-border bg-transparent w-56"
         />
         <button
@@ -178,6 +178,13 @@ function LabsPage() {
                   </td>
                   <td className="px-4 py-2.5 text-xs">
                     <div className="flex items-center gap-3">
+                        <Link
+                          to="/admin/labs/$id/analytics"
+                          params={{ id: l.id }}
+                          className="text-primary hover:underline inline-flex items-center gap-1"
+                        >
+                          <BarChart2 className="h-3 w-3" /> Analytics
+                        </Link>
                       <Link
                         to="/admin/labs/$id/edit"
                         params={{ id: l.id }}

@@ -405,15 +405,9 @@ function Hub() {
     loadLabs()
       .then((fetched) => {
         setRealLabs(fetched);
-        return Promise.all(
-          fetched.map(async (lab) => {
-            const sprints = await loadSprints(lab.id);
-            const count = sprints.reduce((acc, s) => acc + s.tasks.length, 0);
-            return [lab.id, count] as const;
-          }),
-        );
+        const counts = fetched.map((lab: any) => [lab.id, lab.total_tickets ?? 0] as const);
+        setLabTicketCounts(Object.fromEntries(counts));
       })
-      .then((entries) => setLabTicketCounts(Object.fromEntries(entries)))
       .catch(console.error)
       .finally(() => setLabsLoading(false));
   }, []);
@@ -559,7 +553,7 @@ function Hub() {
                 <Sparkles className="h-3 w-3" /> Welcome back, {displayName}
               </span>
               <h1 className="mt-3 truncate text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
-                Your <span className="text-primary">Individual Hub</span>
+                Your <span className="text-primary">Simulation Lab</span>
               </h1>
               <p className="mt-2 hidden max-w-xl text-sm text-muted-foreground sm:block">
                 Solve Jira-style tickets in a full in-browser IDE. Get progressive hints, run tests,

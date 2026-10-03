@@ -1,10 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { AdminShell, Badge, KpiCard } from "@/components/admin/AdminShell";
 import { Users, UserPlus, Download, Filter, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { restApiAuthUtil } from "@/utils/RestApiAuthUtil";
 
-export const Route = createFileRoute("/admin/users")({ component: UsersPage });
+export const Route = createFileRoute("/admin/users/")({ component: UsersPage });
 
 const ROLES = ["Student", "Job Seeker", "Recruiter", "Mentor", "Admin"];
 
@@ -205,7 +205,7 @@ function UsersPage() {
                       params={{ id: u.id }}
                       className="text-xs text-primary hover:underline"
                     >
-                      View →
+                      View &rarr;
                     </Link>
                   </td>
                 </tr>

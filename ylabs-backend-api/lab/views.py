@@ -39,7 +39,6 @@ class FrontendValidateView(APIView):
         user_html   = request.data.get("user_html", "")
         user_css    = request.data.get("user_css", "")
         user_js     = request.data.get("user_js", "")
-        # lab_id is the Lab UUID — used to resolve the starter repo path.
         # Falls back to the legacy "frontend-portfolio" folder if not provided.
         lab_id      = request.data.get("lab_id", "")
 
@@ -80,6 +79,11 @@ class FrontendValidateView(APIView):
 class LabViewSet(viewsets.ModelViewSet):
     queryset = Lab.objects.all()
     serializer_class = LabSerializer
+    
+    def get_queryset(self):
+        from django.db.models import Count
+        return Lab.objects.annotate(total_tickets=Count('sprints__tasks'))
+
     
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -185,7 +189,17 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return UserLabEnrollment.objects.filter(user=self.request.user)
+        user = self.request.user
+        if user.is_staff or user.is_superuser or getattr(user, 'role', '') == 'admin':
+            user_id = self.request.query_params.get('user_id')
+            lab_id = self.request.query_params.get('lab_id')
+            queryset = UserLabEnrollment.objects.all()
+            if user_id:
+                queryset = queryset.filter(user_id=user_id)
+            if lab_id:
+                queryset = queryset.filter(lab_id=lab_id)
+            return queryset
+        return UserLabEnrollment.objects.filter(user=user)
 
     def perform_create(self, serializer):
         
@@ -230,7 +244,16 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        qs = UserLabSprintTicketSubmission.objects.filter(user=self.request.user)
+        user = self.request.user
+        if user.is_staff or getattr(user, 'role', '') == 'admin':
+            user_id = self.request.query_params.get('user_id')
+            if user_id:
+                qs = UserLabSprintTicketSubmission.objects.filter(user_id=user_id)
+            else:
+                qs = UserLabSprintTicketSubmission.objects.filter(user=user)
+        else:
+            qs = UserLabSprintTicketSubmission.objects.filter(user=user)
+            
         ticket_id = self.request.query_params.get('lab_sprint_ticket')
         if ticket_id:
             qs = qs.filter(lab_sprint_ticket_id=ticket_id)
