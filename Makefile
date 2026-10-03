@@ -742,10 +742,10 @@ install-ymarketplace: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
-		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
+		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.local.yml) \
 			build --build-arg BUILDKIT_INLINE_CACHE=1; \
 		echo "🚀 Starting YMarketplace services..."; \
-		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
+		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.local.yml) up; \
 	else \
 		echo "❌ Kubernetes deployment for YMarketplace is not configured"; \
 	fi
@@ -849,16 +849,16 @@ run-ymarketplace: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
-		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up -d --wait || { \
+		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.local.yml) up -d --wait || { \
 			echo "❌ One or more YMarketplace services failed to become healthy. Showing logs:"; \
-			docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
-			docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs --tail=50; \
+			docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.local.yml) ps; \
+			docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.local.yml) logs --tail=50; \
 			exit 1; \
 		}; \
 		echo ""; \
 		echo "✅ YMarketplace services are up and healthy!"; \
 		echo ""; \
-		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) ps; \
+		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.local.yml) ps; \
 		echo ""; \
 		echo "🌐 Service URLs:"; \
 		echo "   YMarketplace Frontend:  http://localhost:3004"; \
@@ -870,19 +870,19 @@ run-ymarketplace: _validate-deploy
 stop-ymarketplace: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🛑 Stopping YMarketplace services..."; \
-		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down; \
+		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.local.yml) down; \
 	fi
 
 clean-ymarketplace: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🧹 Cleaning YMarketplace containers and volumes..."; \
-		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down -v --remove-orphans; \
+		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.local.yml) down -v --remove-orphans; \
 	fi
 
 logs-ymarketplace: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "📝 Viewing YMarketplace logs (Ctrl+C to exit)..."; \
-		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs -f; \
+		docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.local.yml) logs -f; \
 	fi
 
 # Code Executor
@@ -1364,7 +1364,7 @@ deployImages-yhub: _validate-deploy
 deployImages-ymarketplace: _validate-deploy
 	@echo "🐳 Building YMarketplace images (layer cache preserved)..."
 	@export CACHEBUST=$$(date +%s); \
-	docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
+	docker compose -f docker-compose.ymarketplace.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.local.yml) \
 		build --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg CACHEBUST=$$CACHEBUST \
 		ymarketplace-backend ymarketplace-frontend
 	@echo "✅ YMarketplace images built!"
