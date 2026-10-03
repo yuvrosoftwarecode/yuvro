@@ -2,6 +2,7 @@
 # Dev overrides for YMarketplace only.
 # Used by deploy-ymarketplace.sh so it doesn't pull in unrelated services
 # (e.g. yuvro-code-executor) from the shared docker-compose.dev.yml.
+# Also removes the ymarketplace-db dependency since dev uses RDS.
 
 services:
   ymarketplace-backend:
@@ -20,6 +21,8 @@ services:
       sh -c "python manage.py migrate --noinput &&
              python manage.py collectstatic --noinput &&
              gunicorn --bind 0.0.0.0:8004 --workers 3 --timeout 120 config.wsgi:application"
+    # Remove local DB dependency — dev uses RDS
+    depends_on: {}
 
   ymarketplace-frontend:
     build:
@@ -45,3 +48,7 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+    # Only depend on backend, not the local DB container
+    depends_on:
+      ymarketplace-backend:
+        condition: service_started
