@@ -40,7 +40,7 @@ services:
       dockerfile: Dockerfile
       target: dev
       args:
-        - VITE_BACKEND_API_BASE_URL=${YMARKETPLACE_VITE_BACKEND_API_BASE_URL:-https://backend-marketplace-dev.yuvro.ai/api}
+        - VITE_BACKEND_API_BASE_URL=${YMARKETPLACE_VITE_BACKEND_API_BASE_URL:-https://marketplace-backend-dev.yuvro.ai/api}
         - VITE_YHUB_BACKEND_API_BASE_URL=${YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL:-https://backend-hub-dev.yuvro.ai/api}
         - CACHEBUST=${CACHEBUST:-1}
     container_name: yuvro-ymarketplace-frontend-1

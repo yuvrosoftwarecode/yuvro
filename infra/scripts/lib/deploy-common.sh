@@ -324,8 +324,8 @@ app_domains_for() {
         ycampus)      echo "campus-dev.yuvro.ai backend-campus-dev.yuvro.ai" ;;
         ylabs)        echo "dev.yuvrolabs.com backend-dev.yuvrolabs.com" ;;
         yhub)         echo "backend-hub-dev.yuvro.ai" ;;
-        ymarketplace) echo "marketplace-dev.yuvro.ai backend-marketplace-dev.yuvro.ai" ;;
-        all|*)   echo "code-dev.yuvro.ai campus-dev.yuvro.ai dev.yuvrolabs.com marketplace-dev.yuvro.ai backend-code-dev.yuvro.ai backend-campus-dev.yuvro.ai backend-dev.yuvrolabs.com backend-hub-dev.yuvro.ai backend-marketplace-dev.yuvro.ai code-executer-dev.yuvro.ai" ;;
+        ymarketplace) echo "marketplace-dev.yuvro.ai marketplace-backend-dev.yuvro.ai marketplace.yuvro.ai" ;;
+        all|*)   echo "code-dev.yuvro.ai campus-dev.yuvro.ai dev.yuvrolabs.com marketplace-dev.yuvro.ai marketplace.yuvro.ai backend-code-dev.yuvro.ai backend-campus-dev.yuvro.ai backend-dev.yuvrolabs.com backend-hub-dev.yuvro.ai marketplace-backend-dev.yuvro.ai code-executer-dev.yuvro.ai" ;;
     esac
 }
 
@@ -336,9 +336,9 @@ app_nginx_config_for() {
         ycampus)      echo "ycampus-web/nginx.ec2.conf" ;;
         ylabs)        echo "ylabs-web/nginx.ec2.conf" ;;
         yhub)         echo "yhub-backend-api/nginx.ec2.conf" ;;
-        ymarketplace) echo "ymarketplace/frontend/nginx.ec2.conf" ;;
+        ymarketplace) echo "ymarketplace-web/nginx.ec2.conf" ;;
         code-executor) echo "yuvro-code-executer/nginx.ec2.conf" ;;
-        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/frontend/nginx.ec2.conf yuvro-code-executer/nginx.ec2.conf" ;;
+        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace-web/nginx.ec2.conf yuvro-code-executer/nginx.ec2.conf" ;;
     esac
 }
 
@@ -450,9 +450,9 @@ cat > ymarketplace/backend/.env.dev << 'MPBACKENDENV'
 DEPLOY_ENV=dev
 DEPLOY_TYPE=docker
 DEBUG=False
-ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,backend-marketplace-dev.yuvro.ai,marketplace-dev.yuvro.ai
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,marketplace-backend-dev.yuvro.ai,marketplace-dev.yuvro.ai,marketplace.yuvro.ai
 CORS_ALLOWED_ORIGINS=https://marketplace-dev.yuvro.ai,http://marketplace-dev.yuvro.ai
-CSRF_TRUSTED_ORIGINS=https://backend-marketplace-dev.yuvro.ai,https://marketplace-dev.yuvro.ai
+CSRF_TRUSTED_ORIGINS=https://marketplace-backend-dev.yuvro.ai,https://marketplace-dev.yuvro.ai,https://marketplace.yuvro.ai
 APP_NAME=yuvro-marketplace
 FRONTEND_URL=https://marketplace-dev.yuvro.ai
 STORAGE_BACKEND=s3
@@ -472,7 +472,7 @@ MPBACKENDENV
 cat > ymarketplace/frontend/.env.dev << 'MPFRONTENDENV'
 DEPLOY_ENV=dev
 DEPLOY_TYPE=docker
-VITE_BACKEND_API_BASE_URL=https://backend-marketplace-dev.yuvro.ai/api
+VITE_BACKEND_API_BASE_URL=https://marketplace-backend-dev.yuvro.ai/api
 VITE_YHUB_BACKEND_API_BASE_URL=https://backend-hub-dev.yuvro.ai/api
 VITE_APP_NAME=yuvro-marketplace
 VITE_DEPLOY_ENV=dev
@@ -496,7 +496,7 @@ export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
 export YLABS_VITE_BACKEND_API_BASE_URL="https://backend-dev.yuvrolabs.com/api"
 export YLABS_VITE_YHUB_BACKEND_API_BASE_URL="https://backend-hub-dev.yuvro.ai/api"
 export YLABS_VITE_YCODE_BACKEND_API_BASE_URL="https://backend-code-dev.yuvro.ai/api"
-export YMARKETPLACE_VITE_BACKEND_API_BASE_URL="https://backend-marketplace-dev.yuvro.ai/api"
+export YMARKETPLACE_VITE_BACKEND_API_BASE_URL="https://marketplace-backend-dev.yuvro.ai/api"
 export YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL="https://backend-hub-dev.yuvro.ai/api"
 export VITE_GOOGLE_CLIENT_ID="$vite_google"
 export YCAMPUS_VITE_GOOGLE_CLIENT_ID="$ycampus_google"
@@ -612,7 +612,7 @@ show_summary() {
     [ "$app" = "all" ] || [ "$app" = "ycampus" ]      && echo "  YCampus       https://campus-dev.yuvro.ai  |  https://backend-campus-dev.yuvro.ai"
     [ "$app" = "all" ] || [ "$app" = "ylabs" ]        && echo "  YLabs         https://dev.yuvrolabs.com  |  https://backend-dev.yuvrolabs.com"
     [ "$app" = "all" ] || [ "$app" = "yhub" ]         && echo "  YHub          https://backend-hub-dev.yuvro.ai"
-    [ "$app" = "all" ] || [ "$app" = "ymarketplace" ] && echo "  YMarketplace  https://marketplace-dev.yuvro.ai  |  https://backend-marketplace-dev.yuvro.ai"
+    [ "$app" = "all" ] || [ "$app" = "ymarketplace" ] && echo "  YMarketplace  https://marketplace-dev.yuvro.ai  |  https://marketplace-backend-dev.yuvro.ai"
     [ "$app" = "all" ]                                 && echo "  Executor      https://code-executer-dev.yuvro.ai"
     echo ""
 }
