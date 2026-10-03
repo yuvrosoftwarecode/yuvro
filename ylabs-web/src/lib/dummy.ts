@@ -295,6 +295,60 @@ export const labs: Lab[] = [
       { name: "Model Tuning", pct: 0 },
     ],
   },
+  {
+    slug: "devops",
+    name: "DevOps Lab",
+    icon: "♾️",
+    color: "prog",
+    difficulty: "Intermediate",
+    completed: 0,
+    total: 18,
+    hoursLeft: 24,
+    description:
+      "Master CI/CD pipelines, Docker containerization, Kubernetes orchestration, Infrastructure as Code and monitoring.",
+    skills: [
+      { name: "Docker", pct: 0 },
+      { name: "Kubernetes", pct: 0 },
+      { name: "CI/CD", pct: 0 },
+      { name: "Terraform", pct: 0 },
+    ],
+  },
+  {
+    slug: "aws",
+    name: "AWS Lab",
+    icon: "☁️",
+    color: "prog",
+    difficulty: "Intermediate",
+    completed: 0,
+    total: 20,
+    hoursLeft: 28,
+    description:
+      "Amazon Web Services cloud architecture: EC2, S3, Lambda, IAM, VPC, and CloudFormation infrastructure setup.",
+    skills: [
+      { name: "EC2 & VPC", pct: 0 },
+      { name: "S3 & IAM", pct: 0 },
+      { name: "Serverless Lambda", pct: 0 },
+      { name: "CloudFormation", pct: 0 },
+    ],
+  },
+  {
+    slug: "react",
+    name: "React Lab",
+    icon: "⚛️",
+    color: "ui",
+    difficulty: "Intermediate",
+    completed: 0,
+    total: 22,
+    hoursLeft: 24,
+    description:
+      "Build modern, scalable user interfaces using React: components, JSX, custom hooks, state management, and Router.",
+    skills: [
+      { name: "JSX & Components", pct: 0 },
+      { name: "Hooks & State", pct: 0 },
+      { name: "React Router", pct: 0 },
+      { name: "Context / Redux", pct: 0 },
+    ],
+  },
 ];
 
 export const tickets: Ticket[] = [

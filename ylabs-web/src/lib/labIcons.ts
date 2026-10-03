@@ -40,7 +40,7 @@ const ICON_MAP: { keywords: string[]; path: string }[] = [
   { keywords: ["kubernetes", "k8s"], path: "kubernetes/kubernetes-plain.svg" },
   {
     keywords: ["aws", "amazon web services", "ec2", "s3 bucket", "lambda"],
-    path: "amazonwebservices/amazonwebservices-original.svg",
+    path: "amazonwebservices/amazonwebservices-original-wordmark.svg",
   },
   { keywords: ["azure"], path: "azure/azure-original.svg" },
   { keywords: ["gcp", "google cloud"], path: "googlecloud/googlecloud-original.svg" },

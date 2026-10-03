@@ -38,11 +38,14 @@ const LAB_CATEGORY: Record<string, Category> = {
   datastructures: "Backend",
   systemdesign: "Backend",
   ui: "Frontend",
+  react: "Frontend",
   sql: "Database",
   postgres: "Database",
   mongo: "Database",
   git: "DevOps",
   linux: "DevOps",
+  devops: "DevOps",
+  aws: "DevOps",
   qa: "QA",
   cybersecurity: "Security",
 };
@@ -57,11 +60,14 @@ const LAB_LANGUAGES: Record<string, string[]> = {
   datastructures: ["Python", "Java", "C++"],
   systemdesign: [],
   ui: ["HTML", "CSS", "JavaScript"],
+  react: ["JavaScript", "TypeScript", "HTML", "CSS"],
   sql: ["SQL"],
   postgres: ["SQL"],
   mongo: ["JavaScript"],
   git: ["Bash"],
   linux: ["Bash"],
+  devops: ["Bash", "Docker"],
+  aws: ["Bash", "Python"],
   qa: ["JavaScript"],
   cybersecurity: ["Python", "Bash"],
 };
@@ -236,7 +242,7 @@ function Hub() {
         };
       }));
 
-      // Integrate only the 2 requested dummy labs (AI/ML Lab & System Design Lab) with real labs
+      // Integrate catalog dummy labs (AI/ML, System Design, DevOps, AWS, Cybersecurity, React) with real labs
       const realNames = new Set(mapped.map((l) => l.name.toLowerCase()));
       const requestedDummyLabs: CatalogLab[] = [
         {
@@ -262,6 +268,54 @@ function Hub() {
           completed: 0,
           payment_tier: "free",
           hoursLeft: 32,
+        },
+        {
+          id: "devops",
+          name: "DevOps Lab",
+          description: "Master CI/CD pipelines, Docker containerization, Kubernetes orchestration, Infrastructure as Code and monitoring.",
+          difficulty: "Intermediate",
+          icon: "♾️",
+          color: "prog",
+          total: 18,
+          completed: 0,
+          payment_tier: "free",
+          hoursLeft: 24,
+        },
+        {
+          id: "aws",
+          name: "AWS Lab",
+          description: "Amazon Web Services cloud architecture: EC2, S3, Lambda, IAM, VPC, and CloudFormation infrastructure setup.",
+          difficulty: "Intermediate",
+          icon: "☁️",
+          color: "prog",
+          total: 20,
+          completed: 0,
+          payment_tier: "free",
+          hoursLeft: 28,
+        },
+        {
+          id: "cybersecurity",
+          name: "Cybersecurity Lab",
+          description: "Hands-on offensive & defensive security: OWASP Top 10, AuthN/AuthZ, cryptography, network scanning and cloud hardening.",
+          difficulty: "Advanced",
+          icon: "🛡️",
+          color: "sec",
+          total: 18,
+          completed: 0,
+          payment_tier: "free",
+          hoursLeft: 30,
+        },
+        {
+          id: "react",
+          name: "React Lab",
+          description: "Build modern, scalable user interfaces using React: components, JSX, custom hooks, state management, and Router.",
+          difficulty: "Intermediate",
+          icon: "⚛️",
+          color: "ui",
+          total: 22,
+          completed: 0,
+          payment_tier: "free",
+          hoursLeft: 24,
         },
       ];
 
@@ -289,8 +343,18 @@ function Hub() {
         });
       }
 
-      // Combine real labs and the 2 added dummy labs (15 labs total)
-      setAllCatalogLabs([...mapped, ...mappedDummy]);
+      // Ensure AI/ML Lab and System Design Lab come at the very top of all labs
+      const priorityOrder = ["aiml", "systemdesign"];
+      const sortedCatalog = [...mapped, ...mappedDummy].sort((a, b) => {
+        const idxA = priorityOrder.indexOf(a.id);
+        const idxB = priorityOrder.indexOf(b.id);
+        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+        if (idxA !== -1) return -1;
+        if (idxB !== -1) return 1;
+        return 0;
+      });
+
+      setAllCatalogLabs(sortedCatalog);
       setLabsLoading(false);
     }).catch(console.error);
   }, []);
@@ -752,10 +816,18 @@ function CheckRow({
   );
 }
 
-function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab, sizeClass?: string }) {
+function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab; sizeClass?: string }) {
+  const [imgErr, setImgErr] = useState(false);
   const devIconUrl = getLabIconUrl(lab.name);
-  if (devIconUrl) {
-    return <img src={devIconUrl} alt={lab.name} className={`${sizeClass} object-contain`} />;
+  if (devIconUrl && !imgErr) {
+    return (
+      <img
+        src={devIconUrl}
+        alt={lab.name}
+        className={`${sizeClass} object-contain`}
+        onError={() => setImgErr(true)}
+      />
+    );
   }
   if (lab.name.toLowerCase().includes("data structure") && lab.name.toLowerCase().includes("scenario")) {
     return <Boxes className={`${sizeClass} text-primary`} />;
@@ -766,7 +838,7 @@ function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab, sizeClass?: 
   if (lab.name === "Portfolio Lab" || lab.name.toLowerCase().includes("portfolio")) {
     return <Briefcase className={`${sizeClass} text-warning`} />;
   }
-  return <span className="text-inherit">{lab.icon}</span>;
+  return <span className="text-inherit">{lab.icon || "💻"}</span>;
 }
 
 const isDsaLab = (name?: string, id?: string) => {
@@ -784,11 +856,7 @@ const isDsaLab = (name?: string, id?: string) => {
 function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab; isEnrolled: boolean; isLoading: boolean; onToggle: () => void }) {
   const isDsa = isDsaLab(lab.name, lab.id);
   return (
-    <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border bg-gradient-to-br from-card via-card to-accent/20 p-5 hover:border-primary/50 transition">
-      <div
-        className="absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl opacity-30"
-        style={{ background: `var(--${lab.color})` }}
-      />
+    <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border bg-card p-5 hover:border-primary/50 transition">
       <div className="flex items-center justify-between w-full">
         <span className="inline-flex items-center gap-1 rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
           <Star className="h-3 w-3" /> Featured
