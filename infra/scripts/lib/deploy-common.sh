@@ -442,6 +442,43 @@ fi
 git submodule update --init --recursive
 echo "   ✓ git  [elapsed \$(( \$(date +%s)-T1 ))s]"
 
+# ── ymarketplace env.dev (non-secret, generated inline) ──────────────────────
+# The submodule gitignores .env.dev so we write it directly on EC2
+echo "── ymarketplace env files ───────────────────────────"
+mkdir -p ymarketplace/backend ymarketplace/frontend
+cat > ymarketplace/backend/.env.dev << 'MPBACKENDENV'
+DEPLOY_ENV=dev
+DEPLOY_TYPE=docker
+DEBUG=False
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,backend-marketplace-dev.yuvro.ai,marketplace-dev.yuvro.ai
+CORS_ALLOWED_ORIGINS=https://marketplace-dev.yuvro.ai,http://marketplace-dev.yuvro.ai
+CSRF_TRUSTED_ORIGINS=https://backend-marketplace-dev.yuvro.ai,https://marketplace-dev.yuvro.ai
+APP_NAME=yuvro-marketplace
+FRONTEND_URL=https://marketplace-dev.yuvro.ai
+STORAGE_BACKEND=s3
+AWS_S3_REGION_NAME=ap-south-1
+AWS_S3_ADDRESSING_STYLE=virtual
+AWS_QUERYSTRING_AUTH=True
+OTEL_ENABLED=false
+OTEL_SERVICE_NAME=yuvro-marketplace-backend-dev
+OTEL_SERVICE_VERSION=1.0.0
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.hostinger.com
+EMAIL_PORT=465
+EMAIL_USE_SSL=True
+EMAIL_USE_TLS=False
+DEFAULT_FROM_EMAIL=contact@yuvro.ai
+MPBACKENDENV
+cat > ymarketplace/frontend/.env.dev << 'MPFRONTENDENV'
+DEPLOY_ENV=dev
+DEPLOY_TYPE=docker
+VITE_BACKEND_API_BASE_URL=https://backend-marketplace-dev.yuvro.ai/api
+VITE_YHUB_BACKEND_API_BASE_URL=https://backend-hub-dev.yuvro.ai/api
+VITE_APP_NAME=yuvro-marketplace
+VITE_DEPLOY_ENV=dev
+MPFRONTENDENV
+echo "   ✓ ymarketplace env files written"
+
 # secrets status
 echo "── secrets ─────────────────────────────────────────"
 for sf in yhub-backend-api/.env.dev-secrets ylabs-backend-api/.env.dev-secrets \

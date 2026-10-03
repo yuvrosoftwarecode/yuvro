@@ -164,7 +164,8 @@ services:
       args:
         - CACHEBUST=${CACHEBUST:-1}
     env_file:
-      - ./ymarketplace/backend/.env.dev
+      - path: ./ymarketplace/backend/.env.dev
+        required: false
       - path: ./ymarketplace/backend/.env.dev-secrets
         required: false
     command: >
@@ -182,7 +183,8 @@ services:
         - VITE_YHUB_BACKEND_API_BASE_URL=${YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL:-https://backend-hub-dev.yuvro.ai/api}
         - CACHEBUST=${CACHEBUST:-1}
     env_file:
-      - ./ymarketplace/frontend/.env.dev
+      - path: ./ymarketplace/frontend/.env.dev
+        required: false
       - path: ./ymarketplace/frontend/.env.dev-secrets
         required: false
     ports:
