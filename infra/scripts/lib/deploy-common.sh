@@ -398,6 +398,7 @@ if [ -d yuvro ]; then
 else
     git clone -b "$branch" "$repo_url" yuvro && cd yuvro
 fi
+git submodule update --init --recursive
 echo "   ✓ git  [elapsed \$(( \$(date +%s)-T1 ))s]"
 
 # secrets status
