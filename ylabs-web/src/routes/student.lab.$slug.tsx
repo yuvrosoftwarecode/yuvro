@@ -42,6 +42,7 @@ import { restApiAuthUtil, yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { toast } from "sonner";
 
 import { loadRazorpayScript } from "@/lib/razorpay";
+import { StartLabModal } from "@/components/student/StartLabModal";
 import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
 
 export const Route = createFileRoute("/student/lab/$slug")({
@@ -773,17 +774,19 @@ function LabDashboard() {
     }
   };
 
-  const confirmEnroll = async () => {
-    if (!realLab || !enrollRepoName.trim()) return;
+  const confirmEnroll = async (submittedRepoName?: string) => {
+    const repoNameToUse = submittedRepoName || enrollRepoName;
+    if (!realLab || !repoNameToUse.trim()) return;
     setEnrollLoading(true);
     try {
       const { default: api } = await import("@/utils/RestApiAuthUtil");
-      await api.post("/lab/enrollments/", { lab: realLab.id, github_repo_name: enrollRepoName });
+      await api.post("/lab/enrollments/", { lab: realLab.id, github_repo_name: repoNameToUse });
       setIsEnrolled(true);
       setEnrollModalOpen(false);
-    } catch (e) {
+      toast.success("Repository created and lab started successfully!");
+    } catch (e: any) {
       console.error("Failed to enroll in lab", e);
-      let errMsg = e instanceof Error ? e.message : typeof e === "string" ? e : "Failed to start lab. Please try again.";
+      let errMsg = e instanceof Error ? e.message : typeof e === "string" ? e : "Failed to create repository. Please try again.";
 
       try {
          if (errMsg.startsWith('["') && errMsg.endsWith('"]')) {
@@ -797,8 +800,8 @@ function LabDashboard() {
              else if (parsed.message) errMsg = parsed.message;
          }
       } catch {}
-      
-      alert(errMsg);
+
+      toast.error(errMsg);
     } finally {
       setEnrollLoading(false);
     }
@@ -865,7 +868,7 @@ function LabDashboard() {
               <div className="rounded-xl border bg-card p-4">
                 <div className="mb-3 text-sm font-medium">Skills</div>
                 <div className="space-y-3">
-                  {lab.skills.map((s: any) => (
+                  {lab.skills.map((s: { name: string; pct: number }) => (
                     <div key={s.name}>
                       <div className="flex justify-between text-xs">
                         <span>{s.name}</span>
@@ -1435,45 +1438,14 @@ function LabDashboard() {
       )}
 
       {/* Start Lab Modal */}
-      {enrollModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
-            <h2 className="text-lg font-semibold mb-2">Start Lab</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              A private GitHub repository will be created to store your code. You can customize the
-              repository name below.
-            </p>
-            <input
-              type="text"
-              value={enrollRepoName}
-              onChange={(e) => setEnrollRepoName(e.target.value)}
-              className="w-full rounded-md border bg-input/40 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40 mb-4"
-              placeholder="e.g. yuvro_python_basics"
-              autoFocus
-            />
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setEnrollModalOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium hover:bg-accent transition-colors"
-                disabled={enrollLoading}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmEnroll}
-                disabled={!enrollRepoName.trim() || enrollLoading}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-              >
-                {enrollLoading ? (
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-r-transparent" />
-                ) : (
-                  "Start Lab"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <StartLabModal
+        isOpen={enrollModalOpen}
+        onClose={() => setEnrollModalOpen(false)}
+        labName={lab.name}
+        defaultRepoName={enrollRepoName}
+        onConfirm={confirmEnroll}
+        isLoading={enrollLoading}
+      />
     </div>
   );
 }
