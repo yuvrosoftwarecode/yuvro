@@ -1062,9 +1062,16 @@ function EnrolledCard({ lab }: { lab: CatalogLab }) {
   );
 }
 
-const isDsaLab = (name: string) => {
-  const n = (name || "").toLowerCase().trim();
-  return n.includes("dsa") || n.includes("data structure");
+const isDsaLab = (name?: string, id?: string) => {
+  if (!name && !id) return false;
+  const s = `${name || ""} ${id || ""}`.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
+  return (
+    s.includes("dsa") ||
+    s.includes("data structure") ||
+    s.includes("datastructure") ||
+    s.includes("ds lab") ||
+    s.includes("ds scenario")
+  );
 };
 
 function FeaturedCard({
@@ -1078,7 +1085,7 @@ function FeaturedCard({
   isLoading: boolean;
   onToggle: () => void;
 }) {
-  const isDsa = isDsaLab(lab.name);
+  const isDsa = isDsaLab(lab.name, lab.id);
   return (
     <div className="group relative overflow-hidden rounded-xl border bg-gradient-to-br from-card via-card to-accent/20 p-5 transition hover:border-primary/50">
       <div
@@ -1154,7 +1161,7 @@ function CatalogCard({
   isLoading: boolean;
   onToggle: () => void;
 }) {
-  const isDsa = isDsaLab(lab.name);
+  const isDsa = isDsaLab(lab.name, lab.id);
   return (
     <div className="rounded-xl border bg-card p-4 transition hover:border-primary/40">
       <div className="flex items-start justify-between gap-3 flex-1">

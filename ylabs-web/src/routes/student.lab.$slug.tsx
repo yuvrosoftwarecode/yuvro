@@ -45,9 +45,16 @@ export const Route = createFileRoute("/student/lab/$slug")({
   component: LabDashboard,
 });
 
-const isDsaLab = (name: string) => {
-  const n = (name || "").toLowerCase().trim();
-  return n.includes("dsa") || n.includes("data structure");
+const isDsaLab = (name?: string, slug?: string) => {
+  if (!name && !slug) return false;
+  const s = `${name || ""} ${slug || ""}`.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
+  return (
+    s.includes("dsa") ||
+    s.includes("data structure") ||
+    s.includes("datastructure") ||
+    s.includes("ds lab") ||
+    s.includes("ds scenario")
+  );
 };
 
 type SprintStatus = "Completed" | "Active" | "Upcoming";
@@ -584,7 +591,7 @@ function LabDashboard() {
     setEnrollModalOpen(true);
   };
 
-  const isDsa = isDsaLab(lab.name);
+  const isDsa = Boolean(realLab) || isDsaLab(lab.name, slug);
 
   useEffect(() => {
     if (!isDsa && activeSprint) {
@@ -817,7 +824,7 @@ function LabDashboard() {
             <div className="rounded-xl border bg-card p-4">
               <div className="mb-3 text-sm font-medium">Skills</div>
               <div className="space-y-3">
-                {lab.skills.map((s) => (
+                {lab.skills.map((s: any) => (
                   <div key={s.name}>
                     <div className="flex justify-between text-xs">
                       <span>{s.name}</span>

@@ -769,13 +769,20 @@ function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab, sizeClass?: 
   return <span className="text-inherit">{lab.icon}</span>;
 }
 
-const isDsaLab = (name: string) => {
-  const n = (name || "").toLowerCase().trim();
-  return n.includes("dsa") || n.includes("data structure");
+const isDsaLab = (name?: string, id?: string) => {
+  if (!name && !id) return false;
+  const s = `${name || ""} ${id || ""}`.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
+  return (
+    s.includes("dsa") ||
+    s.includes("data structure") ||
+    s.includes("datastructure") ||
+    s.includes("ds lab") ||
+    s.includes("ds scenario")
+  );
 };
 
 function FeaturedCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab; isEnrolled: boolean; isLoading: boolean; onToggle: () => void }) {
-  const isDsa = isDsaLab(lab.name);
+  const isDsa = isDsaLab(lab.name, lab.id);
   return (
     <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border bg-gradient-to-br from-card via-card to-accent/20 p-5 hover:border-primary/50 transition">
       <div
@@ -883,7 +890,7 @@ function EnrolledCard({ lab }: { lab: CatalogLab }) {
 }
 
 function CatalogCard({ lab, isEnrolled, isLoading, onToggle }: { lab: CatalogLab; isEnrolled: boolean; isLoading: boolean; onToggle: () => void }) {
-  const isDsa = isDsaLab(lab.name);
+  const isDsa = isDsaLab(lab.name, lab.id);
   return (
     <div className="flex flex-col h-full rounded-xl border bg-card p-4 hover:border-primary/40 transition">
       <div className="flex items-start justify-between gap-3 flex-1">

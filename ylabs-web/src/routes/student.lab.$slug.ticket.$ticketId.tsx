@@ -1030,8 +1030,21 @@ export function TicketIDE({
     from: "/student/lab/$slug/ticket/$ticketId/review",
     shouldThrow: false,
   });
+  const isDsaLabMatch = (str?: string) => {
+    if (!str) return false;
+    const s = str.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
+    return (
+      s.includes("dsa") ||
+      s.includes("data structure") ||
+      s.includes("datastructure") ||
+      s.includes("ds lab") ||
+      s.includes("ds scenario")
+    );
+  };
+
   const isAlgo = !ticket.tag?.toLowerCase().includes("sql") && !ticket.tag?.toLowerCase().includes("mysql") && !ticket.tag?.toLowerCase().includes("postgres") && !ticket.tag?.toLowerCase().includes("mongo") && (
     slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || 
+    isDsaLabMatch(slug) || isDsaLabMatch(ticket?.title) ||
     ticket.ticket_type === "algo" || ticket.type === "algo" || ticket.lab_type === "algo" || 
     ticket.ticket_type === "ALGO" || ticket.type === "ALGO" || ticket.lab_type === "ALGO" ||
     (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined && t.input !== "" && t.input !== null))
@@ -1055,7 +1068,13 @@ export function TicketIDE({
 
   const isReal = slug !== "knowledge" && !tickets.some((t) => t.id === ticket.id);
 
-  const isDsa = (slug || "").toLowerCase().includes("dsa") || (slug || "").toLowerCase().includes("data structure") || (ticket?.title || "").toLowerCase().includes("dsa") || (ticket?.title || "").toLowerCase().includes("data structure");
+  const isDsa =
+    isReal ||
+    isDsaLabMatch(slug) ||
+    isDsaLabMatch(ticket?.title) ||
+    isDsaLabMatch(ticket?.tag) ||
+    isDsaLabMatch(ticket?.lab_type) ||
+    isDsaLabMatch(ticket?.lab_name);
 
   if (!isEvaluationMode && !isRecruiterPreview && !isDsa) {
     return (
