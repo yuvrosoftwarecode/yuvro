@@ -23,9 +23,10 @@ import { me } from "@/lib/dummy";
 import { useAuth } from "@/lib/auth";
 import { useEffect, useRef, useState } from "react";
 import { DeployInfo } from "@/components/common/DeployInfo";
+import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
 
 const primaryLinks = [
-  { to: "/student/dashboard", label: "Simulation Hub", icon: LayoutDashboard },
+  { to: "/student/dashboard", label: "Simulation Lab", icon: LayoutDashboard },
   // { to: "/student/hackathons", label: "Hackathons", icon: Rocket },
 ];
 
@@ -48,6 +49,15 @@ export function TopNav({
   const activePath = activeOverride ?? path;
   const [openOther, setOpenOther] = useState(false);
   const otherRef = useRef<HTMLDivElement | null>(null);
+
+  const [stats, setStats] = useState<StudentStats | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      loadStudentStats().then(setStats).catch(() => {});
+    }
+  }, [user]);
+
   useEffect(() => {
     if (!openOther) return;
     const onDown = (e: MouseEvent) => {
@@ -151,13 +161,13 @@ export function TopNav({
           </button>
           <span className="hidden sm:flex items-center gap-1 text-warning">
             <Flame className="h-4 w-4" />
-            {me.streak}
+            {stats?.day_streak ?? 0}
           </span>
           <span className="hidden sm:flex items-center gap-1 text-primary">
             <Zap className="h-4 w-4" />
-            {me.xp.toLocaleString()} XP
+            {(stats?.total_yp ?? 0).toLocaleString()} YP
           </span>
-          <span className="rounded-full bg-accent px-2 py-0.5 text-xs">Lv {me.level}</span>
+          {/* <span className="rounded-full bg-accent px-2 py-0.5 text-xs">Lv {me.level}</span> */}
 
           {user && !(user as any).github_connected && (
             <div className="relative flex items-center">

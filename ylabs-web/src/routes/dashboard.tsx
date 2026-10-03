@@ -9,6 +9,7 @@ import { loadSprints } from "@/lib/labSprints";
 import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
 import { useAuth } from "@/lib/auth";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
+import { StartLabModal } from "@/components/student/StartLabModal";
 import {
   ArrowRight,
   Sparkles,
@@ -406,15 +407,9 @@ function Hub() {
     loadLabs()
       .then((fetched) => {
         setRealLabs(fetched);
-        return Promise.all(
-          fetched.map(async (lab) => {
-            const sprints = await loadSprints(lab.id);
-            const count = sprints.reduce((acc, s) => acc + s.tasks.length, 0);
-            return [lab.id, count] as const;
-          }),
-        );
+        const counts = fetched.map((lab: any) => [lab.id, lab.total_tickets ?? 0] as const);
+        setLabTicketCounts(Object.fromEntries(counts));
       })
-      .then((entries) => setLabTicketCounts(Object.fromEntries(entries)))
       .catch(console.error)
       .finally(() => setLabsLoading(false));
   }, []);
@@ -650,7 +645,7 @@ function Hub() {
                 <Sparkles className="h-3 w-3" /> {isFirstLogin ? `Welcome, ${displayName}` : `Welcome back, ${displayName}`}
               </span>
               <h1 className="mt-3 truncate text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
-                Your <span className="text-primary">Individual Hub</span>
+                Your <span className="text-primary">Simulation Lab</span>
               </h1>
               <p className="mt-2 hidden max-w-xl text-sm text-muted-foreground sm:block">
                 Solve Jira-style tickets in a full in-browser IDE. Get progressive hints, run tests,
@@ -954,44 +949,18 @@ function Hub() {
           </section>
         </div>
       </main>
-      {enrollModalLabId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
-            <h2 className="text-lg font-semibold mb-2">Initialize Lab Workspace</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              We will create a GitHub repository for you with the lab's starter code. You can
-              customize the repository name below.
-            </p>
-            <input
-              type="text"
-              value={enrollModalRepoName}
-              onChange={(e) => setEnrollModalRepoName(e.target.value)}
-              className="input mb-4 w-full p-2 border rounded-md"
-              autoFocus
-            />
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setEnrollModalLabId(null)}
-                className="px-4 py-2 rounded-md text-sm font-medium hover:bg-accent transition-colors"
-                disabled={enrollLoading[enrollModalLabId]}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => toggleEnroll(enrollModalLabId, enrollModalRepoName)}
-                disabled={!enrollModalRepoName.trim() || enrollLoading[enrollModalLabId]}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-              >
-                {enrollLoading[enrollModalLabId] ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Start Lab"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <StartLabModal
+        isOpen={Boolean(enrollModalLabId)}
+        onClose={() => setEnrollModalLabId(null)}
+        labName={realLabs.find((l) => l.id === enrollModalLabId)?.title || "Lab"}
+        defaultRepoName={enrollModalRepoName}
+        onConfirm={async (repoName) => {
+          if (enrollModalLabId) {
+            await toggleEnroll(enrollModalLabId, repoName);
+          }
+        }}
+        isLoading={Boolean(enrollModalLabId && enrollLoading[enrollModalLabId])}
+      />
     </div>
   );
 }

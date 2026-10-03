@@ -20,6 +20,8 @@ import {
   Clock,
   Target,
   Flag,
+  PieChart,
+  ArrowRight,
 } from "lucide-react";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import type { Ticket, Status } from "@/lib/dummy";
@@ -40,6 +42,8 @@ import { restApiAuthUtil, yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { toast } from "sonner";
 
 import { loadRazorpayScript } from "@/lib/razorpay";
+import { StartLabModal } from "@/components/student/StartLabModal";
+import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
 
 export const Route = createFileRoute("/student/lab/$slug")({
   component: LabDashboard,
@@ -390,9 +394,17 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
   });
 }
 
+const normalizeDiff = (diff?: string) => {
+  if (diff === "HARD") return "Advanced";
+  if (diff === "MEDIUM") return "Intermediate";
+  if (diff === "EASY") return "Beginner";
+  return diff || "Beginner";
+};
+
 function LabDashboard() {
   const { slug } = useParams({ from: "/student/lab/$slug" });
   const ticketMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId", shouldThrow: false });
+  const reportMatch = useMatch({ from: "/student/lab/$slug/report", shouldThrow: false });
 
   const [realLab, setRealLab] = useState<AdminLab | null>(null);
   const [realSprints, setRealSprints] = useState<LabSprint[]>([]);
@@ -424,16 +436,26 @@ function LabDashboard() {
     };
   }, [slug]);
 
-  const [statusOverrides, setStatusOverrides] = useState<Record<string, Status>>({});
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, { status: Status, earnedXp: number }>>({});
   const [submissionIds, setSubmissionIds] = useState<Record<string, string>>({});
   const [payOpen, setPayOpen] = useState(false);
   const [unlockBump, setUnlockBump] = useState(0);
   const [isPaying, setIsPaying] = useState(false);
 
+  const [studentStats, setStudentStats] = useState<StudentStats | null>(null);
+
+  useEffect(() => {
+    loadStudentStats().then(setStudentStats).catch(console.error);
+  }, []);
+
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
   const [enrollRepoName, setEnrollRepoName] = useState("");
   const [enrollLoading, setEnrollLoading] = useState(false);
+
+  const [selectedDiffs, setSelectedDiffs] = useState<string[]>(["Beginner", "Intermediate", "Advanced"]);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["backlog", "in_progress", "in_review", "done"]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -465,14 +487,36 @@ function LabDashboard() {
         .get<any[]>("/lab/submissions/")
         .then((subs) => {
           if (!active) return;
-          const overrides: Record<string, Status> = {};
+          const overrides: Record<string, { status: Status, earnedXp: number }> = {};
           const subIds: Record<string, string> = {};
           subs.forEach((s) => {
             subIds[s.lab_sprint_ticket] = s.id;
             if (["backlog", "in_progress", "in_review", "done"].includes(s.ticket_status)) {
-              overrides[s.lab_sprint_ticket] = s.ticket_status as Status;
+              let testPct = 0;
+              if (s.solution_output) {
+                try {
+                  const p = typeof s.solution_output === "string" ? JSON.parse(s.solution_output) : s.solution_output;
+                  testPct = p?.percentage ?? p?.total_score ?? 0;
+                } catch (e) {}
+              }
+              overrides[s.lab_sprint_ticket] = {
+                status: s.ticket_status as Status,
+                earnedXp: s.yuvro_points > 0 ? s.yuvro_points : (testPct / 100),
+                fromApi: true,
+              };
             }
           });
+          try {
+            const localKanbanStr = localStorage.getItem(`kanban_${slug}`);
+            if (localKanbanStr) {
+              const localKanban = JSON.parse(localKanbanStr);
+              for (const [tId, status] of Object.entries(localKanban)) {
+                if (!overrides[tId]) {
+                  overrides[tId] = { status: status as Status, earnedXp: 0, fromApi: false };
+                }
+              }
+            }
+          } catch (e) {}
           setStatusOverrides(overrides);
           setSubmissionIds(subIds);
         })
@@ -481,8 +525,8 @@ function LabDashboard() {
     return () => {
       active = false;
     };
-  }, [slug]);
 
+  }, [slug]);
   const lab = useMemo(() => {
     if (realLab) {
       const isLinux = realLab.title.toLowerCase().includes("linux");
@@ -495,7 +539,8 @@ function LabDashboard() {
             : "💻";
       const completedCount = realSprints
         .flatMap((s) => s.tasks)
-        .filter((t) => statusOverrides[t.id] === "done").length;
+        .filter((t) => statusOverrides[t.id]?.fromApi && (statusOverrides[t.id]?.status ?? "backlog") === "done").length;
+      const total = realSprints.reduce((acc, s) => acc + s.tasks.length, 0);
       return {
         slug: realLab.id,
         name: realLab.title,
@@ -508,10 +553,13 @@ function LabDashboard() {
               ? "Intermediate"
               : "Beginner",
         completed: completedCount,
-        total: realSprints.reduce((acc, s) => acc + s.tasks.length, 0),
+        total,
         hoursLeft: 10,
         description: realLab.description,
-        skills: (realLab.skills || []).map((s) => ({ name: s, pct: 0 })),
+        skills: (realLab.skills?.length ? realLab.skills : (labs.find((l) => l.slug === slug)?.skills?.map(s => s.name) || [])).map((s, i) => ({ 
+          name: s, 
+          pct: total > 0 ? Math.min(100, Math.round((completedCount / total) * 100) + (i * 5)) : 0 
+        })),
       } as any;
     }
     return labs.find((l) => l.slug === slug) ?? labs[0];
@@ -549,23 +597,37 @@ function LabDashboard() {
           description: t.description,
         }));
     }
-    return baseData.map((t) => ({
-      ...t,
-      status: statusOverrides[t.id] ?? t.status,
-    }));
+    return baseData.map((t) => {
+      const override = statusOverrides[t.id];
+      // Only count YP if this status came from the API (real submission), not from drag-and-drop
+      const xpFractionOrValue = override?.fromApi ? (override?.earnedXp ?? 0) : 0;
+      // If fromApi: fraction<=1 is test%, >1 is actual yuvro_points
+      const calculatedEarnedXp = xpFractionOrValue > 1 ? xpFractionOrValue : Math.round(xpFractionOrValue * (t.xp || 0));
+      return {
+        ...t,
+        status: override?.status ?? t.status,
+        earnedXp: calculatedEarnedXp,
+        fromApi: override?.fromApi ?? false,
+      };
+    });
   }, [realLab, realSprints, statusOverrides]);
 
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [activeSprint, setActiveSprint] = useState<string | null>(null);
 
   const sprint = sprints.find((s) => s.id === activeSprint) ?? null;
-  const sprintTickets = sprint
-    ? allTickets.filter((t) => sprint.ticketIds.includes(t.id))
-    : allTickets;
+  const sprintTickets = (
+    sprint ? allTickets.filter((t) => sprint.ticketIds.includes(t.id)) : allTickets
+  ).filter((t) => 
+    selectedDiffs.includes(normalizeDiff(t.difficulty)) && 
+    selectedStatuses.includes(t.status) &&
+    t.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const cols: { key: Status; label: string }[] = [
     { key: "backlog", label: "Backlog" },
     { key: "in_progress", label: "In Progress" },
-    { key: "in_review", label: "In Review" },
+    // { key: "in_review", label: "In Review" },
     { key: "done", label: "Done" },
   ];
   const pct = lab.total > 0 ? Math.round((lab.completed / lab.total) * 100) : 0;
@@ -741,23 +803,40 @@ function LabDashboard() {
     }
   };
 
-  const confirmEnroll = async () => {
-    if (!realLab || !enrollRepoName.trim()) return;
+  const confirmEnroll = async (submittedRepoName?: string) => {
+    const repoNameToUse = submittedRepoName || enrollRepoName;
+    if (!realLab || !repoNameToUse.trim()) return;
     setEnrollLoading(true);
     try {
       const { default: api } = await import("@/utils/RestApiAuthUtil");
-      await api.post("/lab/enrollments/", { lab: realLab.id, github_repo_name: enrollRepoName });
+      await api.post("/lab/enrollments/", { lab: realLab.id, github_repo_name: repoNameToUse });
       setIsEnrolled(true);
       setEnrollModalOpen(false);
-    } catch (e) {
+      toast.success("Repository created and lab started successfully!");
+    } catch (e: any) {
       console.error("Failed to enroll in lab", e);
-      alert("Failed to start lab. Please try again.");
+      let errMsg = e instanceof Error ? e.message : typeof e === "string" ? e : "Failed to create repository. Please try again.";
+
+      try {
+         if (errMsg.startsWith('["') && errMsg.endsWith('"]')) {
+             const parsed = JSON.parse(errMsg);
+             if (Array.isArray(parsed) && parsed.length > 0) errMsg = parsed[0];
+         }
+         const jsonStart = errMsg.indexOf("{");
+         if (jsonStart !== -1) {
+             const parsed = JSON.parse(errMsg.substring(jsonStart));
+             if (parsed.errors?.[0]?.message) errMsg = parsed.errors[0].message;
+             else if (parsed.message) errMsg = parsed.message;
+         }
+      } catch {}
+
+      toast.error(errMsg);
     } finally {
       setEnrollLoading(false);
     }
   };
 
-  if (ticketMatch) return <Outlet />;
+  if (ticketMatch || reportMatch) return <Outlet />;
 
   if (isLoading) {
     return (
@@ -821,22 +900,24 @@ function LabDashboard() {
               </div>
             </div>
 
-            <div className="rounded-xl border bg-card p-4">
-              <div className="mb-3 text-sm font-medium">Skills</div>
-              <div className="space-y-3">
-                {lab.skills.map((s: any) => (
-                  <div key={s.name}>
-                    <div className="flex justify-between text-xs">
-                      <span>{s.name}</span>
-                      <span className="text-muted-foreground">{s.pct}%</span>
+            {lab.skills && lab.skills.length > 0 && (
+              <div className="rounded-xl border bg-card p-4">
+                <div className="mb-3 text-sm font-medium">Skills</div>
+                <div className="space-y-3">
+                  {lab.skills.map((s: { name: string; pct: number }) => (
+                    <div key={s.name}>
+                      <div className="flex justify-between text-xs">
+                        <span>{s.name}</span>
+                        <span className="text-muted-foreground">{s.pct}%</span>
+                      </div>
+                      <div className="mt-1 h-1 rounded-full bg-muted overflow-hidden">
+                        <div className="h-full bg-primary" style={{ width: `${s.pct}%` }} />
+                      </div>
                     </div>
-                    <div className="mt-1 h-1 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full bg-primary" style={{ width: `${s.pct}%` }} />
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="rounded-xl border bg-card p-4">
               <div className="mb-2 flex items-center gap-2 text-sm font-medium">
@@ -846,14 +927,36 @@ function LabDashboard() {
               <div className="space-y-2 text-xs">
                 {["Beginner", "Intermediate", "Advanced"].map((d) => (
                   <label key={d} className="flex items-center gap-2">
-                    <input type="checkbox" defaultChecked className="accent-[var(--primary)]" /> {d}
+                    <input
+                      type="checkbox"
+                      checked={selectedDiffs.includes(d)}
+                      onChange={(e) => {
+                        if (e.target.checked) setSelectedDiffs([...selectedDiffs, d]);
+                        else setSelectedDiffs(selectedDiffs.filter((x) => x !== d));
+                      }}
+                      className="accent-[var(--primary)]"
+                    />{" "}
+                    {d}
                   </label>
                 ))}
                 <div className="border-t pt-2 mt-2">
-                  {["Backlog", "In Progress", "In Review", "Done"].map((d) => (
-                    <label key={d} className="flex items-center gap-2">
-                      <input type="checkbox" defaultChecked className="accent-[var(--primary)]" />{" "}
-                      {d}
+                  {[
+                    { label: "Backlog", val: "backlog" },
+                    { label: "In Progress", val: "in_progress" },
+                    { label: "In Review", val: "in_review" },
+                    { label: "Done", val: "done" },
+                  ].map((d) => (
+                    <label key={d.val} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedStatuses.includes(d.val)}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedStatuses([...selectedStatuses, d.val]);
+                          else setSelectedStatuses(selectedStatuses.filter((x) => x !== d.val));
+                        }}
+                        className="accent-[var(--primary)]"
+                      />{" "}
+                      {d.label}
                     </label>
                   ))}
                 </div>
@@ -892,10 +995,16 @@ function LabDashboard() {
                   {sprints.map((s, idx) => {
                     const realSprint = realSprints[idx];
                     const locked = sprintLocked(idx, realSprint);
-                    const items = allTickets.filter((t) => s.ticketIds.includes(t.id));
-                    const done = items.filter((t) => t.status === "done").length;
+                    const items = allTickets.filter((t) => 
+                      s.ticketIds.includes(t.id) &&
+                      selectedDiffs.includes(normalizeDiff(t.difficulty)) &&
+                      selectedStatuses.includes(t.status) &&
+                      t.title.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+                    const done = items.filter((t) => (t as any).fromApi && t.status === "done").length;
                     const pctS = items.length ? Math.round((done / items.length) * 100) : 0;
                     const xp = items.reduce((a, t) => a + t.xp, 0);
+                    const earnedXpSprint = items.reduce((a: number, t: any) => a + (t.fromApi ? (t.earnedXp || 0) : 0), 0);
                     const mins = items.reduce((a, t) => a + t.estMin, 0);
                     const tone = locked
                       ? "muted-foreground"
@@ -971,7 +1080,7 @@ function LabDashboard() {
                             </span>
                             <span className="inline-flex items-center gap-1 text-primary">
                               <Zap className="h-3 w-3" />
-                              {xp} XP
+                              {earnedXpSprint} / {xp} YP
                             </span>
                           </div>
                           {locked && (
@@ -1007,6 +1116,8 @@ function LabDashboard() {
                       <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
                       <input
                         placeholder="Search tickets..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-56 rounded-md border bg-input/40 pl-8 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
                       />
                     </div>
@@ -1034,7 +1145,7 @@ function LabDashboard() {
                 </div>
 
                 {view === "kanban" ? (
-                  <div className="grid gap-3 md:grid-cols-4">
+                  <div className="grid gap-3 md:grid-cols-3">
                     {cols.map((c) => {
                       const items = sprintTickets.filter((t) => t.status === c.key);
                       return (
@@ -1045,36 +1156,17 @@ function LabDashboard() {
                             const tId = e.dataTransfer.getData("text/plain");
                             if (tId) {
                               const oldStatus =
-                                statusOverrides[tId] ||
+                                statusOverrides[tId]?.status ||
                                 sprintTickets.find((t) => t.id === tId)?.status ||
                                 "backlog";
                               if (oldStatus === c.key) return;
-
-                              setStatusOverrides((prev) => ({ ...prev, [tId]: c.key }));
-
-                              if (realLab) {
-                                try {
-                                  const { default: api } = await import("@/utils/RestApiAuthUtil");
-                                  const subId = submissionIds[tId];
-                                  if (subId) {
-                                    await api.patch(`/lab/submissions/${subId}/`, {
-                                      ticket_status: c.key,
-                                    });
-                                  } else {
-                                    const res = await api.post<any>("/lab/submissions/", {
-                                      lab_sprint_ticket: tId,
-                                      ticket_status: c.key,
-                                    });
-                                    setSubmissionIds((prev) => ({ ...prev, [tId]: res.id }));
-                                  }
-                                } catch (err) {
-                                  console.error("Failed to update status", err);
-                                  setStatusOverrides((prev) => ({
-                                    ...prev,
-                                    [tId]: oldStatus as Status,
-                                  }));
-                                }
-                              }
+                              setStatusOverrides((prev) => ({ ...prev, [tId]: { status: c.key as Status, earnedXp: prev[tId]?.earnedXp ?? 0, fromApi: prev[tId]?.fromApi ?? false } }));
+                              try {
+                                const localKanbanStr = localStorage.getItem(`kanban_${slug}`) || "{}";
+                                const localKanban = JSON.parse(localKanbanStr);
+                                localKanban[tId] = c.key;
+                                localStorage.setItem(`kanban_${slug}`, JSON.stringify(localKanban));
+                              } catch (err) {}
                             }
                           }}
                         >
@@ -1141,7 +1233,7 @@ function LabDashboard() {
                           <th className="text-left p-3">Title</th>
                           <th>Difficulty</th>
                           <th>Status</th>
-                          <th>XP</th>
+                          <th>YP</th>
                           <th>Time</th>
                           <th>Score</th>
                           <th></th>
@@ -1186,9 +1278,12 @@ function LabDashboard() {
               <div className="text-sm font-medium">Progress summary</div>
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                 <Mini label="Completion" value={`${pct}%`} />
-                <Mini label="Streak" value="7d" />
-                <Mini label="This week" value="+450 XP" />
-                <Mini label="Avg time" value="38m" />
+                <Mini label="Streak" value={`${studentStats?.day_streak ?? 0}d`} />
+                <Mini label="Earned YP" value={`${allTickets.filter((t: any) => t.fromApi && t.status === "done").reduce((acc: number, t: any) => acc + (t.earnedXp || 0), 0)} / ${allTickets.reduce((acc: number, t: any) => acc + (t.xp || 0), 0)} YP`} />
+                <Mini 
+                  label="Avg time" 
+                  value={`${allTickets.filter(t => t.status === "done").length > 0 ? Math.round(allTickets.filter(t => t.status === "done").reduce((acc, t) => acc + (t.estMin || 0), 0) / allTickets.filter(t => t.status === "done").length) : 0}m`} 
+                />
               </div>
             </div>
 
@@ -1257,6 +1352,23 @@ function LabDashboard() {
                   );
                 })}
               </div>
+            </div>
+
+            <div className="rounded-xl border bg-card p-4 mt-4">
+              <div className="mb-2 flex items-center gap-2 text-sm font-medium">
+                <PieChart className="h-4 w-4 text-primary" />
+                Lab Report
+              </div>
+              <p className="text-xs text-muted-foreground mb-4">
+                Detailed visualizations of your performance across all sprints and tickets.
+              </p>
+              <Link
+                to="/student/lab/$slug/report"
+                params={{ slug: lab.slug }}
+                className="flex items-center justify-center gap-2 w-full rounded-md border bg-accent/40 px-3 py-2 text-xs font-medium hover:bg-accent hover:text-foreground transition-colors"
+              >
+                View Full Report <ArrowRight className="h-3 w-3" />
+              </Link>
             </div>
 
             {tier !== "free" && (
@@ -1375,45 +1487,14 @@ function LabDashboard() {
       )}
 
       {/* Start Lab Modal */}
-      {enrollModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
-            <h2 className="text-lg font-semibold mb-2">Start Lab</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              A private GitHub repository will be created to store your code. You can customize the
-              repository name below.
-            </p>
-            <input
-              type="text"
-              value={enrollRepoName}
-              onChange={(e) => setEnrollRepoName(e.target.value)}
-              className="w-full rounded-md border bg-input/40 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40 mb-4"
-              placeholder="e.g. yuvro_python_basics"
-              autoFocus
-            />
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setEnrollModalOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium hover:bg-accent transition-colors"
-                disabled={enrollLoading}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmEnroll}
-                disabled={!enrollRepoName.trim() || enrollLoading}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-              >
-                {enrollLoading ? (
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-r-transparent" />
-                ) : (
-                  "Start Lab"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <StartLabModal
+        isOpen={enrollModalOpen}
+        onClose={() => setEnrollModalOpen(false)}
+        labName={lab.name}
+        defaultRepoName={enrollRepoName}
+        onConfirm={confirmEnroll}
+        isLoading={enrollLoading}
+      />
     </div>
   );
 }

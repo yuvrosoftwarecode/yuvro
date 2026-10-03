@@ -40,7 +40,7 @@ function Leaderboard() {
               </div>
               <div className="mt-2 font-medium">{u.name}</div>
               <div className="text-xs text-muted-foreground">
-                {u.xp.toLocaleString()} XP · {u.streak}d streak
+                {u.xp.toLocaleString()} YP · {u.streak}d streak
               </div>
             </div>
           ))}
@@ -52,7 +52,7 @@ function Leaderboard() {
               <tr>
                 <th className="p-3 text-left">Rank</th>
                 <th className="text-left">User</th>
-                <th>XP</th>
+                <th>YP</th>
                 <th>Streak</th>
                 <th>Labs</th>
               </tr>

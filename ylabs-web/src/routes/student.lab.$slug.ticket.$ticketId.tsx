@@ -1138,6 +1138,15 @@ export function TicketIDE({
   const submissionsEndpoint = isEvaluationMode ? "/skill_evaluation/lab-submissions/" : "/lab/submissions/";
   const submissionsIdField = isEvaluationMode ? "lab_question" : "lab_sprint_ticket";
   const submissionsStatusField = isEvaluationMode ? "status" : "ticket_status";
+
+  useEffect(() => {
+    if (!(window as any).__labSessionStartTime) {
+      (window as any).__labSessionStartTime = Date.now();
+    }
+    return () => {
+      delete (window as any).__labSessionStartTime;
+    };
+  }, [ticket?.id]);
   const [labTitle, setLabTitle] = useState("");
   const isMultiLang = isAlgo;
   type ProgLang = "python" | "c" | "cpp" | "js" | "java";
@@ -2123,7 +2132,7 @@ export function TicketIDE({
              const structScore = res.structural_score ?? 0;
              const isPass = uiScore >= 75 && structScore >= 75;
              api.patch(`${submissionsEndpoint}${ submissionId }/`, {
-               [submissionsStatusField]: isPass ? "in_review" : "in_progress",
+               [submissionsStatusField]: isPass ? "done" : "in_progress",
                solution: JSON.stringify(getFilesToSave()),
              }).catch(console.error);
           }
@@ -2194,7 +2203,7 @@ export function TicketIDE({
       if (isReal && submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           api.patch(`${submissionsEndpoint}${ submissionId }/`, {
-            [submissionsStatusField]: passedCount === tasks.length ? "in_review" : "in_progress",
+            [submissionsStatusField]: passedCount === tasks.length ? "done" : "in_progress",
             solution: JSON.stringify(getFilesToSave()),
           }).catch(console.error);
         });
@@ -2203,7 +2212,7 @@ export function TicketIDE({
           api.post(submissionsEndpoint, {
             [submissionsIdField]: ticket.id,
             ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-            [submissionsStatusField]: passedCount === tasks.length ? "in_review" : "in_progress",
+            [submissionsStatusField]: passedCount === tasks.length ? "done" : "in_progress",
             solution: JSON.stringify(getFilesToSave()),
           }).catch(console.error);
         });
@@ -2386,13 +2395,16 @@ export function TicketIDE({
             ...(sqlSolutionOutput ? { solution_output: sqlSolutionOutput } : {}),
           };
           if (submissionId) {
-            api.patch(`${submissionsEndpoint}${submissionId}/`, payload)
-              .catch(console.error).finally(() => setSubmitting(false));
+            api.patch(`${submissionsEndpoint}${submissionId}/`, {
+              ...payload,
+              [submissionsStatusField]: "done"
+            }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               ...payload,
+              [submissionsStatusField]: "done"
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedSqlScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -2410,7 +2422,7 @@ export function TicketIDE({
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: computedUiScore
             }).catch(console.error).finally(() => setSubmitting(false));
@@ -2418,7 +2430,7 @@ export function TicketIDE({
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: computedUiScore
             }).catch(console.error).finally(() => setSubmitting(false));
@@ -2472,7 +2484,7 @@ export function TicketIDE({
       if (slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           const payload: any = {
-            [submissionsStatusField]: "in_review",
+            [submissionsStatusField]: "done",
             solution: JSON.stringify(getFilesToSave()),
             score: computedScore,
             ...(solutionOutput ? { solution_output: solutionOutput } : {}),
@@ -2529,7 +2541,7 @@ export function TicketIDE({
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: next.filter(t => t.pass).length * 20
             }).catch(console.error);
@@ -2537,7 +2549,7 @@ export function TicketIDE({
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: next.filter(t => t.pass).length * 20
             }).catch(console.error);
@@ -2760,7 +2772,7 @@ export function TicketIDE({
         <DiffBadge value={ticket.difficulty} />
         {!isEvaluationMode && (
           <span className="text-muted-foreground inline-flex items-center gap-1">
-            <Zap className="h-3 w-3 text-primary" />+{ticket.xp} XP
+            <Zap className="h-3 w-3 text-primary" />+{ticket.xp} YP
           </span>
         )}
         <span className="text-muted-foreground inline-flex items-center gap-1">

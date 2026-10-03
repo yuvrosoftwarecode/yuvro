@@ -117,9 +117,12 @@ class CodeInsightExtractor:
             if isinstance(content, str):
                 if is_binary_content(content):
                     continue
+                stripped_content = content.replace("\x00", "").replace("\u0000", "").strip()
+                if not stripped_content:
+                    continue
                 files[path] = content.replace("\x00", "").replace("\u0000", "")
             elif content is None:
-                files[path] = ""
+                continue
             else:
                 return None
 
@@ -220,8 +223,6 @@ class CodeInsightExtractor:
             path for path, change in file_changes.items()
             if path and not is_ignored_path(path) and (len(change.get("added_lines", [])) > 0 or len(change.get("removed_lines", [])) > 0)
         ]
-        if not actual_changed_files:
-            actual_changed_files = [file for file in changed_files if file and not is_ignored_path(file)]
 
         app_files = [
             f for f in actual_changed_files

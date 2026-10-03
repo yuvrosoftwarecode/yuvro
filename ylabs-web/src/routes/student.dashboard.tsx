@@ -183,18 +183,11 @@ function Hub() {
         } catch {}
         setEnrolledIds(enrSet);
 
-        const { loadSprints } = await import("@/lib/labSprints");
-
         const mapped = await Promise.all(
           data.map(async (dbLab: any) => {
             const sid = String(dbLab.id);
-            let total_tickets = dbLab.total_tickets || 10;
-            let resolved_tickets = dbLab.resolved_tickets || 0;
-            
-            try {
-              const sprints = await loadSprints(sid);
-              total_tickets = sprints.reduce((acc, s) => acc + s.tasks.length, 0);
-            } catch {}
+            let total_tickets = dbLab.total_tickets ?? 0;
+            let resolved_tickets = dbLab.resolved_tickets ?? 0;
             
             try {
                const saved = localStorage.getItem(`ylabs-ticket-status-${sid}`);
@@ -527,21 +520,13 @@ function Hub() {
                 <Sparkles className="h-3 w-3" /> {isFirstLogin ? `Welcome, ${displayName}` : `Welcome back, ${displayName}`}
               </span>
               <h1 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight truncate">
-                Your <span className="text-primary">Individual Hub</span>
+                Your <span className="text-primary">Simulation Lab</span>
               </h1>
               <p className="mt-2 text-sm text-muted-foreground max-w-xl hidden sm:block">
                 Continue enrolled labs, explore featured tracks and dive into any lab in the
                 catalog.
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-xs sm:text-sm font-medium hover:bg-accent"
-                >
-                  <Github className="h-4 w-4" />{" "}
-                  {ghState.connected ? "GitHub Connected" : "Connect GitHub"}
-                </button>
                 {recentLab ? (
                   <Link
                     to="/student/lab/$slug"
