@@ -33,6 +33,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
     is_otp_login = models.BooleanField(default=False)
+    is_guest_user = models.BooleanField(default=False)
     
     profile_image = models.URLField(blank=True, null=True)
     cover_image = models.URLField(blank=True, null=True)
