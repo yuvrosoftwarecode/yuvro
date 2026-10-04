@@ -280,16 +280,12 @@ wire_secrets() {
             local mp_db_pass="${YLABS_DB_PASS}"
             local f="$SECRETS_DIR/ymarketplace/backend/.env.dev-secrets"
             # Create the database on the shared RDS if it doesn't exist
-            print_step "Creating marketplace DB on shared RDS (${YLABS_DB_HOST}) if not exists..."
-            PGPASSWORD="$mp_db_pass" psql \
-                -h "$YLABS_DB_HOST" -p 5432 -U "$mp_db_user" -d postgres \
-                -tc "SELECT 1 FROM pg_database WHERE datname='${mp_db_name}'" 2>/dev/null \
-                | grep -q 1 || \
+            print_step "Setting up marketplace DB on shared RDS (${YLABS_DB_HOST})..."
             PGPASSWORD="$mp_db_pass" psql \
                 -h "$YLABS_DB_HOST" -p 5432 -U "$mp_db_user" -d postgres \
                 -c "CREATE DATABASE \"${mp_db_name}\";" 2>/dev/null \
                 && print_success "Created database: ${mp_db_name}" \
-                || print_warning "DB create skipped (already exists or psql not available locally)"
+                || print_success "Database exists: ${mp_db_name}"
             _set_kv "$f" "DATABASE_URL" "postgres://${mp_db_user}:${mp_db_pass}@${YLABS_DB_HOST}:5432/${mp_db_name}"
             _set_kv "$f" "DB_HOST" "$YLABS_DB_HOST"; _set_kv "$f" "DB_PORT" "5432"
             _set_kv "$f" "DB_NAME" "$mp_db_name"; _set_kv "$f" "DB_USER" "$mp_db_user"
