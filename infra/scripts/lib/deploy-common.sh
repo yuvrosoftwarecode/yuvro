@@ -324,8 +324,8 @@ app_domains_for() {
         ycampus)      echo "campus-dev.yuvro.ai backend-campus-dev.yuvro.ai" ;;
         ylabs)        echo "dev.yuvrolabs.com backend-dev.yuvrolabs.com" ;;
         yhub)         echo "backend-hub-dev.yuvro.ai" ;;
-        ymarketplace) echo "marketplace-dev.yuvro.ai marketplace-backend-dev.yuvro.ai marketplace.yuvro.ai" ;;
-        all|*)   echo "code-dev.yuvro.ai campus-dev.yuvro.ai dev.yuvrolabs.com marketplace-dev.yuvro.ai marketplace.yuvro.ai backend-code-dev.yuvro.ai backend-campus-dev.yuvro.ai backend-dev.yuvrolabs.com backend-hub-dev.yuvro.ai marketplace-backend-dev.yuvro.ai code-executer-dev.yuvro.ai" ;;
+        ymarketplace) echo "marketplace-dev.yuvro.ai backend-marketplace-dev.yuvro.ai marketplace.yuvro.ai" ;;
+        all|*)   echo "code-dev.yuvro.ai campus-dev.yuvro.ai dev.yuvrolabs.com marketplace-dev.yuvro.ai marketplace.yuvro.ai backend-code-dev.yuvro.ai backend-campus-dev.yuvro.ai backend-dev.yuvrolabs.com backend-hub-dev.yuvro.ai backend-marketplace-dev.yuvro.ai code-executer-dev.yuvro.ai" ;;
     esac
 }
 
