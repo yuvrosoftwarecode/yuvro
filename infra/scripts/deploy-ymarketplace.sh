@@ -24,8 +24,9 @@ setup_nginx() {
 DOMAINS=( $domains )
 CERT_EMAIL="rohith@yuvro.ai"
 
-# Remove default nginx config
+# Remove default nginx config and clean up old combined configs
 sudo rm -f /etc/nginx/sites-enabled/default
+sudo rm -f /etc/nginx/sites-enabled/yuvro-dev
 
 # Reload nginx to verify config before certbot
 sudo nginx -t && sudo systemctl reload nginx || sudo systemctl restart nginx
