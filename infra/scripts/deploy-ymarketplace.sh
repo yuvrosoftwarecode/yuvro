@@ -18,7 +18,7 @@ setup_nginx() {
     ssh_ec2 "ubuntu@$ip" "sudo cp /tmp/ymarketplace.conf /etc/nginx/sites-available/yuvro-ymarketplace.conf && sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace.conf /etc/nginx/sites-enabled/"
 
     # YMarketplace domains - note: marketplace-backend-dev.yuvro.ai has no DNS, so HTTP-only
-    local domains="marketplace-dev.yuvro.ai marketplace.yuvro.ai"
+    local domains="marketplace-dev.yuvro.ai marketplace-backend-dev.yuvro.ai marketplace.yuvro.ai"
 
     ssh_ec2 "ubuntu@$ip" bash << CERTBOT
 DOMAINS=( $domains )
