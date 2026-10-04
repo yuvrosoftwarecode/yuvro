@@ -14,19 +14,18 @@ setup_nginx() {
     print_header "Setting up Nginx + SSL for YMarketplace"
 
     # Copy YMarketplace nginx config
-    scp_ec2 "$PROJECT_ROOT/ymarketplace-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ymarketplace.conf"
+    scp_ec2 "$PROJECT_ROOT/ymarketplace/frontend/nginx.ec2.conf" "ubuntu@$ip:/tmp/ymarketplace.conf"
     ssh_ec2 "ubuntu@$ip" "sudo cp /tmp/ymarketplace.conf /etc/nginx/sites-available/yuvro-ymarketplace.conf && sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace.conf /etc/nginx/sites-enabled/"
 
-    # YMarketplace domains
-    local domains="marketplace-dev.yuvro.ai marketplace-backend-dev.yuvro.ai marketplace.yuvro.ai"
+    # YMarketplace domains - note: marketplace-backend-dev.yuvro.ai has no DNS, so HTTP-only
+    local domains="marketplace-dev.yuvro.ai marketplace.yuvro.ai"
 
     ssh_ec2 "ubuntu@$ip" bash << CERTBOT
 DOMAINS=( $domains )
 CERT_EMAIL="rohith@yuvro.ai"
 
-# Remove default nginx config and clean up old combined configs
+# Remove default nginx config
 sudo rm -f /etc/nginx/sites-enabled/default
-sudo rm -f /etc/nginx/sites-enabled/yuvro-dev
 
 # Reload nginx to verify config before certbot
 sudo nginx -t && sudo systemctl reload nginx || sudo systemctl restart nginx

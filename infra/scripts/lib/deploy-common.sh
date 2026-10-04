@@ -336,9 +336,9 @@ app_nginx_config_for() {
         ycampus)      echo "ycampus-web/nginx.ec2.conf" ;;
         ylabs)        echo "ylabs-web/nginx.ec2.conf" ;;
         yhub)         echo "yhub-backend-api/nginx.ec2.conf" ;;
-        ymarketplace) echo "ymarketplace-web/nginx.ec2.conf" ;;
+        ymarketplace) echo "ymarketplace/frontend/nginx.ec2.conf" ;;
         code-executor) echo "yuvro-code-executer/nginx.ec2.conf" ;;
-        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace-web/nginx.ec2.conf yuvro-code-executer/nginx.ec2.conf" ;;
+        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/frontend/nginx.ec2.conf yuvro-code-executer/nginx.ec2.conf" ;;
     esac
 }
 
