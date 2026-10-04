@@ -15,7 +15,6 @@ setup_nginx() {
 
     # Copy YMarketplace nginx config
     scp_ec2 "$PROJECT_ROOT/ymarketplace/frontend/nginx.ec2.conf" "ubuntu@$ip:/tmp/ymarketplace.conf"
-    ssh_ec2 "ubuntu@$ip" "sudo cp /tmp/ymarketplace.conf /etc/nginx/sites-available/yuvro-ymarketplace.conf && sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace.conf /etc/nginx/sites-enabled/"
 
     # YMarketplace domains
     local domains="marketplace-dev.yuvro.ai backend-marketplace-dev.yuvro.ai marketplace.yuvro.ai"
@@ -29,7 +28,7 @@ sudo rm -f /etc/nginx/sites-enabled/default
 
 # ── STAGE 1: Deploy HTTP-only config to allow certbot challenge ──────────────
 # Create temporary HTTP-only nginx config for certificate issuance
-sudo tee /tmp/nginx-http-only.conf > /dev/null << 'NGINX_HTTP'
+sudo tee /etc/nginx/sites-available/yuvro-ymarketplace-http-only.conf > /dev/null << 'NGINX_HTTP'
 # Temporary HTTP-only config for SSL certificate validation
 server {
     listen 80;
@@ -39,8 +38,11 @@ server {
 }
 NGINX_HTTP
 
-sudo cp /tmp/nginx-http-only.conf /etc/nginx/sites-available/yuvro-ymarketplace-http-only.conf
-sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace-http-only.conf /etc/nginx/sites-enabled/yuvro-ymarketplace-temp.conf
+# Remove any old full config symlink first
+sudo rm -f /etc/nginx/sites-enabled/yuvro-ymarketplace.conf
+
+# Enable only the temporary HTTP-only config
+sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace-http-only.conf /etc/nginx/sites-enabled/yuvro-ymarketplace-http-only.conf
 
 # Test and reload with HTTP-only config
 sudo nginx -t && sudo systemctl reload nginx || sudo systemctl restart nginx
@@ -55,8 +57,11 @@ for d in "\${DOMAINS[@]}"; do
 done
 
 # ── STAGE 2: Deploy full HTTPS config now that certs exist ─────────────────
-# Remove temporary HTTP-only config
-sudo rm -f /etc/nginx/sites-enabled/yuvro-ymarketplace-temp.conf
+# Copy the full HTTPS config
+sudo cp /tmp/ymarketplace.conf /etc/nginx/sites-available/yuvro-ymarketplace.conf
+
+# Remove temporary HTTP-only config symlink
+sudo rm -f /etc/nginx/sites-enabled/yuvro-ymarketplace-http-only.conf
 
 # Enable the full HTTPS config
 sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace.conf /etc/nginx/sites-enabled/yuvro-ymarketplace.conf
