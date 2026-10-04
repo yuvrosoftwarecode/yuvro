@@ -27,19 +27,44 @@ CERT_EMAIL="rohith@yuvro.ai"
 # Remove default nginx config
 sudo rm -f /etc/nginx/sites-enabled/default
 
-# Reload nginx to verify config before certbot
-sudo nginx -t && sudo systemctl reload nginx || sudo systemctl restart nginx
+# ── STAGE 1: Deploy HTTP-only config to allow certbot challenge ──────────────
+# Create temporary HTTP-only nginx config for certificate issuance
+sudo tee /tmp/nginx-http-only.conf > /dev/null << 'NGINX_HTTP'
+# Temporary HTTP-only config for SSL certificate validation
+server {
+    listen 80;
+    server_name marketplace-dev.yuvro.ai backend-marketplace-dev.yuvro.ai marketplace.yuvro.ai;
+    location /.well-known/acme-challenge/ { root /var/www/certbot; }
+    location / { return 200 "OK"; }
+}
+NGINX_HTTP
 
-# Request SSL certs for YMarketplace domains
+sudo cp /tmp/nginx-http-only.conf /etc/nginx/sites-available/yuvro-ymarketplace-http-only.conf
+sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace-http-only.conf /etc/nginx/sites-enabled/yuvro-ymarketplace-temp.conf
+
+# Test and reload with HTTP-only config
+sudo nginx -t && sudo systemctl reload nginx || sudo systemctl restart nginx
+echo "✓ HTTP-only config loaded for certificate validation"
+
+# Request SSL certs for all YMarketplace domains
 for d in "\${DOMAINS[@]}"; do
-    [ -d "/etc/letsencrypt/live/\$d" ] && echo "✓ exists: \$d" && continue
+    [ -d "/etc/letsencrypt/live/\$d" ] && echo "✓ cert exists: \$d" && continue
     sudo certbot certonly --webroot --webroot-path /var/www/certbot \
         --non-interactive --agree-tos --email "$CERT_EMAIL" -d "\$d" 2>&1 \
-        && echo "✓ cert: \$d" || echo "⚠ certbot failed: \$d"
+        && echo "✓ cert issued: \$d" || echo "⚠ certbot failed: \$d"
 done
 
-# Final nginx reload with HTTPS configs
-sudo nginx -t && sudo systemctl reload nginx && echo "✓ HTTPS config active" || echo "⚠ nginx error"
+# ── STAGE 2: Deploy full HTTPS config now that certs exist ─────────────────
+# Remove temporary HTTP-only config
+sudo rm -f /etc/nginx/sites-enabled/yuvro-ymarketplace-temp.conf
+
+# Enable the full HTTPS config
+sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace.conf /etc/nginx/sites-enabled/yuvro-ymarketplace.conf
+
+# Test and reload with full HTTPS config
+sudo nginx -t && sudo systemctl reload nginx && echo "✓ HTTPS config active" || echo "⚠ nginx test failed"
+
+# Setup renewal cron
 CRON="0 3 * * * certbot renew --quiet --deploy-hook 'systemctl reload nginx'"
 ( sudo crontab -l 2>/dev/null | grep -v 'certbot renew'; echo "$CRON" ) | sudo crontab -
 CERTBOT
