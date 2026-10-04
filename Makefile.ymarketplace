@@ -1,0 +1,153 @@
+# YMarketplace Platform Makefile
+
+.PHONY: setup dev dev-detached stop restart logs clean
+.PHONY: db-shell db-migrate db-makemigrations db-createsuperuser db-reset
+.PHONY: backend-shell backend-test backend-format backend-format-fix backend-lint backend-install
+.PHONY: frontend-shell frontend-test frontend-format frontend-format-fix frontend-lint frontend-install
+
+# ============================================================================
+# Setup
+# ============================================================================
+
+setup:
+	@echo "🚀 Setting up YMarketplace Platform..."
+	@command -v docker >/dev/null 2>&1 || { echo "❌ Docker is required but not installed."; exit 1; }
+	@docker compose version >/dev/null 2>&1 || { echo "❌ Docker Compose is required."; exit 1; }
+
+	@echo "Creating environment files..."
+	@if [ ! -f ymarketplace/backend/.env.local ]; then cp ymarketplace/backend/.env.local.example ymarketplace/backend/.env.local; echo "✅ Created backend .env.local"; fi
+	@if [ ! -f ymarketplace/frontend/.env.local ]; then cp ymarketplace/frontend/.env.local.example ymarketplace/frontend/.env.local; echo "✅ Created frontend .env.local"; fi
+
+	@echo "Creating marketplace network..."
+	@docker network create yuvro_marketplace 2>/dev/null || true
+
+	@echo "Stopping existing YMarketplace containers (preserving volumes)..."
+	docker compose -f docker-compose.ymarketplace.yml down
+	@sleep 2
+
+	@echo "Building and starting YMarketplace services..."
+	docker compose -f docker-compose.ymarketplace.yml up -d --build --wait
+
+	@echo "✅ YMarketplace setup complete!"
+	@echo "🌐 Frontend: http://localhost:3004"
+	@echo "🔧 Backend API: http://localhost:8004"
+
+# ============================================================================
+# Development
+# ============================================================================
+
+dev:
+	docker compose -f docker-compose.ymarketplace.yml up --remove-orphans
+
+dev-detached:
+	docker compose -f docker-compose.ymarketplace.yml up -d --remove-orphans
+
+stop:
+	docker compose -f docker-compose.ymarketplace.yml down
+
+restart:
+	docker compose -f docker-compose.ymarketplace.yml restart
+
+logs:
+	@if [ "$(SERVICE)" = "" ]; then \
+		docker compose -f docker-compose.ymarketplace.yml logs -f; \
+	else \
+		docker compose -f docker-compose.ymarketplace.yml logs -f $(SERVICE); \
+	fi
+
+clean:
+	@echo "🧹 Cleaning YMarketplace containers and volumes..."
+	docker compose -f docker-compose.ymarketplace.yml down -v --remove-orphans
+	@echo "✅ Cleanup complete!"
+
+reload-fixtures-data:
+	@echo "🔄 Reloading YMarketplace fixtures (with clear)..."
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend python manage.py setup_fixtures_data --clear
+	@echo "✅ Test data cleared and reloaded!"
+
+load-fixtures-data:
+	@echo "🔄 Loading YMarketplace fixture data (no clear)..."
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend python manage.py setup_fixtures_data
+	@echo "✅ YMarketplace fixture data loaded!"
+
+# ============================================================================
+# Database
+# ============================================================================
+
+db-shell:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-db psql -U postgres -d yuvro_marketplace_db -p 5436
+
+db-migrate:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend python manage.py migrate
+
+db-makemigrations:
+	docker compose -f docker-compose.ymarketplace.yml run --rm ymarketplace-backend python manage.py makemigrations
+
+db-createsuperuser:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend python manage.py createsuperuser
+
+db-reset:
+	@echo "🔄 Resetting YMarketplace database (removing container + volume)..."
+	docker compose -f docker-compose.ymarketplace.yml stop ymarketplace-backend ymarketplace-db 2>/dev/null || true
+	docker compose -f docker-compose.ymarketplace.yml rm -s -f ymarketplace-db 2>/dev/null || true
+	docker volume rm yuvro_ymarketplace_postgres_data 2>/dev/null || true
+	@echo "🚀 Starting fresh database..."
+	docker compose -f docker-compose.ymarketplace.yml up -d ymarketplace-db
+	@echo "⏳ Waiting for database to become healthy..."
+	@sleep 8
+	docker compose -f docker-compose.ymarketplace.yml start ymarketplace-backend 2>/dev/null || \
+		docker compose -f docker-compose.ymarketplace.yml up -d ymarketplace-backend
+	@echo "✅ YMarketplace database reset complete!"
+
+# ============================================================================
+# Backend
+# ============================================================================
+
+backend-shell:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend python manage.py shell
+
+backend-test:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend python manage.py test
+
+backend-format:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend black . --check --diff
+
+backend-format-fix:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend black .
+
+backend-lint:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend flake8 .
+
+backend-install:
+	@if [ "$(PKG)" = "" ]; then \
+		echo "Usage: make -f Makefile.ymarketplace backend-install PKG=package-name"; \
+		exit 1; \
+	fi
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend pip install $(PKG)
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend pip freeze > ymarketplace/backend/requirements.txt
+
+# ============================================================================
+# Frontend
+# ============================================================================
+
+frontend-shell:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-frontend sh
+
+frontend-test:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-frontend npm test -- --run
+
+frontend-format:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-frontend npm run format:check
+
+frontend-format-fix:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-frontend npm run format
+
+frontend-lint:
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-frontend npm run lint
+
+frontend-install:
+	@if [ "$(PKG)" = "" ]; then \
+		echo "Usage: make -f Makefile.ymarketplace frontend-install PKG=package-name"; \
+		exit 1; \
+	fi
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-frontend npm install $(PKG)

@@ -55,6 +55,13 @@ ylabs_db_instance_class = "db.t3.micro"
 ylabs_db_allocated_storage = 5
 ylabs_db_max_allocated_storage = 10
 
+# RDS Configuration - YMarketplace (Minimal for testing)
+ymarketplace_db_username = "ymarketplace_admin"
+ymarketplace_db_password = "ChangeMe123!DevPassword"
+ymarketplace_db_instance_class = "db.t3.micro"
+ymarketplace_db_allocated_storage = 5
+ymarketplace_db_max_allocated_storage = 10
+
 # RDS Common Configuration
 postgres_version = "15"
 backup_retention_days = 0
