@@ -1,0 +1,48 @@
+{
+  "lab_questions": [
+    {
+      "title": "Driver Assignment (Distance Math)",
+      "type": "BACKEND",
+      "description": "Evaluate a candidate's ability to offload complex mathematical computations to the database to preserve memory. The lab covers database-level annotations and math functions (or raw SQL) for calculating Haversine distances on geospatial data.",
+      "difficulty": "HARD",
+      "domain": "RIDE_BOOKING",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 10,
+      "scenario": "FEATURE_IMPLEMENTATION",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/driver-assignment-distance",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Database-Level Haversine Distance Sorting",
+          "description": "The `GET /api/rides/nearby-drivers/` endpoint fetches 10,000 drivers and uses a Python `for` loop to find the closest one, which completely crashes the server due to memory overflow.\n\n**Goal:** Rewrite the query using Django's database math functions (or raw SQL annotations via `.extra()` or `RawSQL`) to calculate the Haversine distance mathematically inside the database. You must return exactly the top 5 closest drivers sorted by distance directly from the database query.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 45,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
