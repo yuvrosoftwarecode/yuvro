@@ -1,0 +1,48 @@
+{
+  "lab_questions": [
+    {
+      "title": "Webhook Idempotency & Duplicate Charging",
+      "type": "BACKEND",
+      "description": "Evaluate a candidate's ability to handle asynchronous webhooks safely. The lab covers implementing idempotency checks, handling duplicate webhook retries, and enforcing database locks to prevent concurrent race conditions.",
+      "difficulty": "HARD",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/payment-webhook-idempotency",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Enforce Webhook Idempotency",
+          "description": "The `POST /api/payments/webhook/` endpoint blindly credits the user's wallet. If the payment gateway retries the webhook due to network lag, the user is double-credited.\n\n**Testing in Swagger UI:**\n1. Open Swagger UI at `/swagger/`.\n2. Send a POST request to `/api/payments/webhook/` with a payload.\n3. Send the exact same payload again. It currently throws a 500 Server Error.\n\n**Goal:** Implement an idempotency check using the `transaction_id`. If the webhook was already processed, the API must safely return `200 OK` (so the gateway stops retrying) but MUST NOT credit the wallet again. You must also implement database locking (`select_for_update`) to prevent concurrent race conditions from over-crediting the wallet.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 45,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
