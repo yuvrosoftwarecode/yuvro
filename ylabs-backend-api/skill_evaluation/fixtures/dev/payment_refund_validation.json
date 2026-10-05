@@ -1,0 +1,48 @@
+{
+  "lab_questions": [
+    {
+      "title": "Refund Validation & Aggregation",
+      "type": "BACKEND",
+      "description": "Evaluate a candidate's ability to safely aggregate relational data before executing state changes. The lab covers using Django's Sum aggregation to prevent partial refund exploits and over-refunding.",
+      "difficulty": "MEDIUM",
+      "domain": "PAYMENTS",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 30,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/payment-refund-validation",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Prevent Cumulative Over-Refunding",
+          "description": "The `POST /api/payments/{id}/refund/` endpoint checks if the requested `refund_amount` is less than the `total_amount`. However, it fails to sum up *previous* partial refunds. Agents can refund $50 on a $100 payment three times.\n\n**Goal:** Update the logic to use Django's `Sum` aggregation on existing refunds. Reject the request with a `400 Bad Request` or `422 Unprocessable Entity` if `requested_amount + previous_refunds > total_amount`.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 30,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
