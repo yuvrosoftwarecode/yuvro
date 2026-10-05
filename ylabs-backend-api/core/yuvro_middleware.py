@@ -51,6 +51,7 @@ def reconcile_user_id_orm(existing_user, new_user_id, validated_token):
             is_staff=existing_user.is_staff,
             is_superuser=existing_user.is_superuser,
             password=existing_user.password,
+            is_guest_user=validated_token.get("is_guest_user", getattr(existing_user, 'is_guest_user', False)),
         )
 
         # 3. Migrate all referencing models via Django ORM
@@ -166,6 +167,11 @@ class ProductJWTAuthentication(JWTAuthentication):
             if token_last and user.last_name != token_last:
                 user.last_name = token_last
                 needs_save = True
+            
+            token_guest = validated_token.get("is_guest_user")
+            if token_guest is not None and getattr(user, 'is_guest_user', None) != token_guest:
+                user.is_guest_user = token_guest
+                needs_save = True
                 
             if needs_save:
                 user.save()
@@ -204,6 +210,7 @@ class ProductJWTAuthentication(JWTAuthentication):
                 is_active=True,
                 is_staff=(local_role == "admin"),
                 is_superuser=(local_role == "admin"),
+                is_guest_user=validated_token.get("is_guest_user", False),
             )
             user.set_unusable_password()
             

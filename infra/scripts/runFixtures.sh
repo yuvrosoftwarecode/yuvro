@@ -32,7 +32,7 @@ echo "   EC2 IP: $EC2_IP"
 # Map app names to container names
 case "$APP" in
     all)
-        CONTAINERS="yuvro-ycode-backend-1 yuvro-ycampus-backend-1 yuvro-ylabs-backend-1 yuvro-yhub-backend-1"
+        CONTAINERS="yuvro-ycode-backend-1 yuvro-ycampus-backend-1 yuvro-ylabs-backend-1 yuvro-yhub-backend-1 yuvro-ymarketplace-backend-1"
         ;;
     ycode)
         CONTAINERS="yuvro-ycode-backend-1"
@@ -46,9 +46,12 @@ case "$APP" in
     yhub)
         CONTAINERS="yuvro-yhub-backend-1"
         ;;
+    ymarketplace)
+        CONTAINERS="yuvro-ymarketplace-backend-1"
+        ;;
     *)
         echo "❌ Unknown app: $APP"
-        echo "Usage: $0 [ycode|ycampus|yhub|ylabs|all] [--clear]"
+        echo "Usage: $0 [ycode|ycampus|yhub|ylabs|ymarketplace|all] [--clear]"
         exit 1
         ;;
 esac

@@ -7,14 +7,14 @@
 #   DEPLOY_TYPE=k8s make install        - Use Kubernetes
 
 .PHONY: help install run stop clean logs status port-forward
-.PHONY: deploy-all deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub deploy-code-executor
-.PHONY: deployImages deployImages-ycode deployImages-ycampus deployImages-ylabs deployImages-yhub deployImages-code-executor
-.PHONY: install-ycode install-ycampus install-ylabs install-yhub install-code-executor run-ycode run-ycampus run-ylabs run-yhub
-.PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub stop-code-executor clean-ycode clean-ycampus clean-ylabs clean-yhub clean-code-executor
-.PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub logs-code-executor load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub setup-fixtures-data-ylabs reload-fixtures-data reload-fixtures-data-ycode reload-fixtures-data-ycampus reload-fixtures-data-yhub reload-fixtures-data-ylabs clear-fixtures-data clear-fixtures-data-ycode clear-fixtures-data-ycampus clear-fixtures-data-yhub clear-fixtures-data-ylabs load-courses-ycode load-courses-ycampus
+.PHONY: deploy-all deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub deploy-ymarketplace deploy-code-executor
+.PHONY: deployImages deployImages-ycode deployImages-ycampus deployImages-ylabs deployImages-yhub deployImages-ymarketplace deployImages-code-executor
+.PHONY: install-ycode install-ycampus install-ylabs install-yhub install-ymarketplace install-code-executor run-ycode run-ycampus run-ylabs run-yhub run-ymarketplace
+.PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub stop-ymarketplace stop-code-executor clean-ycode clean-ycampus clean-ylabs clean-yhub clean-ymarketplace clean-code-executor
+.PHONY: logs-ycode logs-ycampus logs-ylabs logs-yhub logs-ymarketplace logs-code-executor load-fixtures-ycode load-fixtures-ycampus setup-fixtures-data setup-fixtures-data-ycode setup-fixtures-data-ycampus setup-fixtures-data-yhub setup-fixtures-data-ylabs setup-fixtures-data-ymarketplace reload-fixtures-data reload-fixtures-data-ycode reload-fixtures-data-ycampus reload-fixtures-data-yhub reload-fixtures-data-ylabs reload-fixtures-data-ymarketplace clear-fixtures-data clear-fixtures-data-ycode clear-fixtures-data-ycampus clear-fixtures-data-yhub clear-fixtures-data-ylabs clear-fixtures-data-ymarketplace load-courses-ycode load-courses-ycampus
 .PHONY: test-all format-all lint-all check-all
-.PHONY: makemigrations makemigrations-ycode makemigrations-ycampus makemigrations-yhub makemigrations-ylabs
-.PHONY: db-reset db-reset-ycode db-reset-ycampus db-reset-ylabs db-reset-yhub
+.PHONY: makemigrations makemigrations-ycode makemigrations-ycampus makemigrations-yhub makemigrations-ylabs makemigrations-ymarketplace
+.PHONY: db-reset db-reset-ycode db-reset-ycampus db-reset-ylabs db-reset-yhub db-reset-ymarketplace
 .PHONY: observability-dev observability-stop observability-clean observability-dashboards
 .PHONY: observability-setup observability-validate
 .PHONY: secrets-load secrets-validate secrets-rotate secrets-audit
@@ -43,7 +43,7 @@ VALID_DEPLOY_ENVS  := local dev staging prod
 VALID_DEPLOY_TYPES := docker k8s
 
 # Services list
-SERVICES := ycode-backend ycampus-backend ylabs-backend yhub-backend ycode-frontend ycampus-frontend ylabs-frontend code-executor
+SERVICES := ycode-backend ycampus-backend ylabs-backend yhub-backend ymarketplace-backend ycode-frontend ycampus-frontend ylabs-frontend ymarketplace-frontend code-executor
 
 _validate-deploy:
 	@if ! echo "$(VALID_DEPLOY_ENVS)" | grep -qw "$(DEPLOY_ENV)"; then \
@@ -211,6 +211,7 @@ help:
 	@echo "  make install-ycampus    Build and start YCampus services only"
 	@echo "  make install-ylabs      Build and start YLabs services only"
 	@echo "  make install-yhub       Build and start YHub services only"
+	@echo "  make install-ymarketplace Build and start YMarketplace services only"
 	@echo "  make install-code-executor Build and start Code Executor only"
 	@echo "  make run-ycode          Start YCode services (no build)"
 	@echo "  make run-ycampus        Start YCampus services (no build)"
@@ -225,11 +226,13 @@ help:
 	@echo "  make setup-fixtures-data-ycampus Load YCampus fixture data"
 	@echo "  make setup-fixtures-data-yhub   Load YHub fixture data"
 	@echo "  make setup-fixtures-data-ylabs  Load YLabs fixture data"
+	@echo "  make setup-fixtures-data-ymarketplace Load YMarketplace fixture data"
 	@echo "  make reload-fixtures-data       Clear and reload fixture data for all apps"
 	@echo "  make reload-fixtures-data-ycode Clear and reload YCode fixture data"
 	@echo "  make reload-fixtures-data-ycampus Clear and reload YCampus fixture data"
 	@echo "  make reload-fixtures-data-yhub  Clear and reload YHub fixture data"
 	@echo "  make reload-fixtures-data-ylabs Clear and reload YLabs fixture data"
+	@echo "  make reload-fixtures-data-ymarketplace Clear and reload YMarketplace fixture data"
 	@echo ""
 	@echo "  make load-courses-ycode        Load courses only into YCode"
 	@echo "  make load-courses-ycampus      Load courses only into YCampus"
@@ -240,6 +243,7 @@ help:
 	@echo "  make db-reset-ycampus               Reset YCampus database only"
 	@echo "  make db-reset-ylabs                 Reset YLabs database only"
 	@echo "  make db-reset-yhub                  Reset YHub database only"
+	@echo "  make db-reset-ymarketplace          Reset YMarketplace database only"
 	@echo ""
 	@echo "Per-App Dev Deploy (DEPLOY_BRANCH=<branch> make deploy-<app>):"
 	@echo "  make deploy-all                     Deploy all services to dev"
@@ -247,6 +251,7 @@ help:
 	@echo "  make deploy-ycampus                 Deploy YCampus only"
 	@echo "  make deploy-ylabs                   Deploy YLabs only"
 	@echo "  make deploy-yhub                    Deploy YHub only"
+	@echo "  make deploy-ymarketplace            Deploy YMarketplace only"
 	@echo "  make deploy-code-executor           Deploy Code Executor only"
 	@echo ""
 	@echo "Image Build Commands (cache-friendly, BuildKit):"
@@ -255,6 +260,7 @@ help:
 	@echo "  make deployImages-ycampus           Build YCampus images only"
 	@echo "  make deployImages-ylabs             Build YLabs images only"
 	@echo "  make deployImages-yhub              Build YHub images only"
+	@echo "  make deployImages-ymarketplace      Build YMarketplace images only"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make install                        # Start all (local + Docker Compose)"
@@ -273,7 +279,7 @@ help:
 ifeq ($(DEPLOY_TYPE),docker)
   # Docker Compose uses environment-specific compose files
   ENV_OVERRIDE := $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml)
-  COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml $(ENV_OVERRIDE)
+  COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.ymarketplace.yml $(ENV_OVERRIDE)
 endif
 
 install: _validate-deploy
@@ -340,6 +346,8 @@ run: _validate-deploy
 		echo "   YLabs Frontend:    http://localhost:3002"; \
 		echo "   YLabs Backend:     http://localhost:8002"; \
 		echo "   YHub Backend:      http://localhost:8003"; \
+		echo "   YMarketplace Frontend: http://localhost:3004"; \
+		echo "   YMarketplace Backend:  http://localhost:8004"; \
 		echo "   Code Executor:     http://localhost:8009"; \
 		echo ""; \
 		echo "📺 Showing live logs. Press Ctrl+C to stop."; \
@@ -730,6 +738,18 @@ install-ylabs: _validate-deploy
 		echo "❌ Kubernetes deployment for YLabs is not configured"; \
 	fi
 
+install-ymarketplace: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🔨 Building YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker network create yuvro_marketplace 2>/dev/null || true; \
+		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) \
+			build --build-arg BUILDKIT_INLINE_CACHE=1; \
+		echo "🚀 Starting YMarketplace services..."; \
+		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) up; \
+	else \
+		echo "❌ Kubernetes deployment for YMarketplace is not configured"; \
+	fi
+
 install-code-executor: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building Code Executor [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
@@ -824,6 +844,47 @@ logs-ylabs: _validate-deploy
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs -f; \
 	fi
 
+# YMarketplace
+run-ymarketplace: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🚀 Starting YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker network create yuvro_marketplace 2>/dev/null || true; \
+		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) up -d --wait || { \
+			echo "❌ One or more YMarketplace services failed to become healthy. Showing logs:"; \
+			docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) ps; \
+			docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) logs --tail=50; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "✅ YMarketplace services are up and healthy!"; \
+		echo ""; \
+		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) ps; \
+		echo ""; \
+		echo "🌐 Service URLs:"; \
+		echo "   YMarketplace Frontend:  http://localhost:3004"; \
+		echo "   YMarketplace Backend:   http://localhost:8004"; \
+	else \
+		echo "❌ Kubernetes run for YMarketplace is not configured"; \
+	fi
+
+stop-ymarketplace: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🛑 Stopping YMarketplace services..."; \
+		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) down; \
+	fi
+
+clean-ymarketplace: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "🧹 Cleaning YMarketplace containers and volumes..."; \
+		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) down -v --remove-orphans; \
+	fi
+
+logs-ymarketplace: _validate-deploy
+	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+		echo "📝 Viewing YMarketplace logs (Ctrl+C to exit)..."; \
+		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) logs -f; \
+	fi
+
 # Code Executor
 run-code-executor: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
@@ -913,6 +974,14 @@ setup-fixtures-data-ylabs:
 		$(MAKE) -f Makefile.ylabs load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
 
+setup-fixtures-data-ymarketplace:
+	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		echo "Loading fixtures for YMarketplace on EC2..."; \
+		bash infra/scripts/runFixtures.sh ymarketplace; \
+	else \
+		$(MAKE) -f Makefile.ymarketplace load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+	fi
+
 reload-fixtures-data:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Reloading fixtures with clear on EC2 for all apps..."; \
@@ -922,6 +991,7 @@ reload-fixtures-data:
 		$(MAKE) -f Makefile.ycode reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 		$(MAKE) -f Makefile.ylabs reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 		$(MAKE) -f Makefile.ycampus reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+		$(MAKE) -f Makefile.ymarketplace reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
 
 clear-fixtures-data: reload-fixtures-data
@@ -966,6 +1036,17 @@ reload-fixtures-data-ylabs:
 
 clear-fixtures-data-ylabs: reload-fixtures-data-ylabs
 
+reload-fixtures-data-ymarketplace:
+	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		echo "Reloading fixtures with clear for YMarketplace on EC2..."; \
+		bash infra/scripts/runFixtures.sh ymarketplace --clear; \
+	else \
+		$(MAKE) -f Makefile.ymarketplace reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
+	fi
+
+clear-fixtures-data-ymarketplace: reload-fixtures-data-ymarketplace
+
+
 load-courses-ycode:
 	@$(MAKE) -f Makefile.ycode load-courses
 
@@ -990,6 +1071,9 @@ makemigrations-yhub:
 
 makemigrations-ylabs:
 	@$(MAKE) -f Makefile.ylabs db-makemigrations
+
+makemigrations-ymarketplace:
+	@$(MAKE) -f Makefile.ymarketplace db-makemigrations
 
 clear-migrations:
 	@echo "🔎 Showing migration files (dry-run). Use '-y' to delete."
@@ -1023,6 +1107,9 @@ db-reset-ylabs:
 db-reset-yhub:
 	@$(MAKE) -f Makefile.yhub db-reset
 
+db-reset-ymarketplace:
+	@$(MAKE) -f Makefile.ymarketplace db-reset
+
 # ============================================================================
 # Per-App Dev Deploy Commands (DEPLOY_ENV=dev only)
 # ============================================================================
@@ -1046,6 +1133,10 @@ deploy-ylabs:
 deploy-yhub:
 	@echo "🚀 Deploying YHub to dev [branch=$(DEPLOY_BRANCH)]..."
 	@bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH)
+
+deploy-ymarketplace:
+	@echo "🚀 Deploying YMarketplace to dev [branch=$(DEPLOY_BRANCH)]..."
+	@bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH)
 
 deploy-code-executor:
 	@echo "🚀 Deploying Code Executor to dev [branch=$(DEPLOY_BRANCH)]..."
@@ -1233,7 +1324,7 @@ prod-down:
 deployImages: _validate-deploy
 	@echo "🐳 Building all images [DEPLOY_ENV=$(DEPLOY_ENV)] (layer cache preserved)..."
 	@export CACHEBUST=$$(date +%s); \
-	docker compose $(COMPOSE_FILES) build \
+	docker compose $(COMPOSE_FILES) -f docker-compose.ymarketplace.yml build \
 		--build-arg BUILDKIT_INLINE_CACHE=1 \
 		--build-arg CACHEBUST=$$CACHEBUST
 	@echo "✅ All images built!"
@@ -1269,6 +1360,14 @@ deployImages-yhub: _validate-deploy
 		build --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg CACHEBUST=$$CACHEBUST \
 		yhub-backend
 	@echo "✅ YHub images built!"
+
+deployImages-ymarketplace: _validate-deploy
+	@echo "🐳 Building YMarketplace images (layer cache preserved)..."
+	@export CACHEBUST=$$(date +%s); \
+	docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) \
+		build --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg CACHEBUST=$$CACHEBUST \
+		ymarketplace-backend ymarketplace-frontend
+	@echo "✅ YMarketplace images built!"
 
 deployImages-code-executor: _validate-deploy
 	@echo "🐳 Building Code Executor image (layer cache preserved)..."

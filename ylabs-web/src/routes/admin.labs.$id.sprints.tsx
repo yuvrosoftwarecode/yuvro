@@ -105,7 +105,7 @@ function SprintsPage() {
       <div className="grid grid-cols-3 gap-3 mb-6">
         <Stat label="Sprints" value={totals.sprints} />
         <Stat label="Tickets" value={totals.tickets} />
-        <Stat label="Total XP" value={totals.xp.toLocaleString()} />
+        <Stat label="Total YP" value={totals.xp.toLocaleString()} />
       </div>
 
       <div className="flex items-center justify-between mb-3">
@@ -144,7 +144,7 @@ function SprintsPage() {
               )}
             </div>
             <Badge tone="primary">{sp.tasks.length} tickets</Badge>
-            <Badge tone="success">{sp.tasks.reduce((a, t) => a + t.xp, 0)} XP</Badge>
+            <Badge tone="success">{sp.tasks.reduce((a, t) => a + t.xp, 0)} YP</Badge>
             <Link
               to="/admin/labs/$id/sprints/$sprintId"
               params={{ id: lab.id, sprintId: sp.id }}

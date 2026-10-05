@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { EvalShell, PrimaryButton, Spinner } from "@/components/evaluation/EvalShell";
 import { clearGlobalProctoringData } from "@/utils/proctoringStore";
 import { evaluationService } from "../services/evaluationService";
+import authService from "../services/authService";
+import { restApiAuthUtil, yhubApiAuthUtil, ycodeApiAuthUtil } from "../utils/RestApiAuthUtil";
 
 export const Route = createFileRoute("/evaluation/complete")({
   head: () => ({
@@ -15,6 +17,7 @@ function CompletePage() {
   const nav = useNavigate();
   const [phase, setPhase] = useState<"submitting" | "done">("submitting");
   const [maxScore, setMaxScore] = useState<number | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
 
   const searchParams = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : ""
@@ -23,6 +26,18 @@ function CompletePage() {
 
   useEffect(() => {
     clearGlobalProctoringData();
+    authService.getCurrentUser().then(user => {
+      if (user.is_guest_user) {
+        setIsGuest(true);
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+        localStorage.removeItem("yuvro-eval-candidate");
+        restApiAuthUtil.clearAuthToken();
+        yhubApiAuthUtil.clearAuthToken();
+        ycodeApiAuthUtil.clearAuthToken();
+      }
+    }).catch(() => {});
+    
     if (evaluationId) {
       evaluationService.getWorkspaceData(evaluationId).then((res) => {
         let tot = 0;
@@ -109,6 +124,7 @@ function CompletePage() {
           </div>
         )}
 
+{!isGuest && (<>
         <div className="mt-12 text-left">
           <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
             Keep sharpening
@@ -143,6 +159,8 @@ function CompletePage() {
             Go to dashboard
           </PrimaryButton>
         </div>
+
+</>)}
       </div>
     </EvalShell>
   );

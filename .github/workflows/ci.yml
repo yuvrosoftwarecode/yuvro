@@ -7,10 +7,7 @@ on:
         description: 'Git branch to deploy to EC2 dev'
         required: true
         default: 'main'
-        type: choice
-        options:
-          - main
-          - develop
+        type: string
       deploy_app:
         description: 'App to deploy'
         required: true
@@ -22,6 +19,7 @@ on:
           - ycampus
           - ylabs
           - yhub
+          - ymarketplace
           - code-executor
 
 jobs:
@@ -30,6 +28,10 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.deploy_branch }}
+        fetch-depth: 0
+        submodules: recursive
     
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -60,11 +62,11 @@ jobs:
         echo "🚀 Deploying $DEPLOY_APP to dev [branch=$DEPLOY_BRANCH]..."
         
         if [ "$DEPLOY_APP" = "all" ]; then
-          make deploy-all
+          bash infra/scripts/deploy-all.sh "$DEPLOY_BRANCH"
         elif [ "$DEPLOY_APP" = "code-executor" ]; then
-          make deploy-code-executor
+          bash infra/scripts/deploy-code-executor.sh "$DEPLOY_BRANCH"
         else
-          make deploy-$DEPLOY_APP
+          bash infra/scripts/deploy-$DEPLOY_APP.sh "$DEPLOY_BRANCH"
         fi
         
-        echo "✅ Deployment complete!"
+        echo "✅ Deployment of $DEPLOY_APP from branch '$DEPLOY_BRANCH' complete!"

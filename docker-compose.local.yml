@@ -117,6 +117,33 @@ services:
       yuvro-minio-init:
         condition: service_completed_successfully
 
+  # ── YMarketplace ───────────────────────────────────────────────────────────
+  ymarketplace-db:
+    env_file:
+      - ./ymarketplace/backend/.env.local
+      - path: ./ymarketplace/backend/.env.local-secrets
+        required: false
+
+  ymarketplace-backend:
+    env_file:
+      - ./ymarketplace/backend/.env.local
+      - path: ./ymarketplace/backend/.env.local-secrets
+        required: false
+    volumes:
+      - ./ymarketplace/backend:/app
+      - /app/venv
+
+  ymarketplace-frontend:
+    env_file:
+      - ./ymarketplace/frontend/.env.local
+      - path: ./ymarketplace/frontend/.env.local-secrets
+        required: false
+    ports:
+      - "3004:3004"
+    volumes:
+      - ./ymarketplace/frontend:/app
+      - /app/node_modules
+
   # ── Code Executor ──────────────────────────────────────────────────────────
   yuvro-code-executor:
     env_file:

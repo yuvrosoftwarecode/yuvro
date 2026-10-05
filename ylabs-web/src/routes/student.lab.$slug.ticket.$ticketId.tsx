@@ -1030,8 +1030,21 @@ export function TicketIDE({
     from: "/student/lab/$slug/ticket/$ticketId/review",
     shouldThrow: false,
   });
+  const isDsaLabMatch = (str?: string) => {
+    if (!str) return false;
+    const s = str.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
+    return (
+      s.includes("dsa") ||
+      s.includes("data structure") ||
+      s.includes("datastructure") ||
+      s.includes("ds lab") ||
+      s.includes("ds scenario")
+    );
+  };
+
   const isAlgo = !ticket.tag?.toLowerCase().includes("sql") && !ticket.tag?.toLowerCase().includes("mysql") && !ticket.tag?.toLowerCase().includes("postgres") && !ticket.tag?.toLowerCase().includes("mongo") && (
     slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || 
+    isDsaLabMatch(slug) || isDsaLabMatch(ticket?.title) ||
     ticket.ticket_type === "algo" || ticket.type === "algo" || ticket.lab_type === "algo" || 
     ticket.ticket_type === "ALGO" || ticket.type === "ALGO" || ticket.lab_type === "ALGO" ||
     (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined && t.input !== "" && t.input !== null))
@@ -1054,6 +1067,37 @@ export function TicketIDE({
   const isGit = kit.name === "git";
 
   const isReal = slug !== "knowledge" && !tickets.some((t) => t.id === ticket.id);
+
+  const isDsa =
+    isReal ||
+    isDsaLabMatch(slug) ||
+    isDsaLabMatch(ticket?.title) ||
+    isDsaLabMatch(ticket?.tag) ||
+    isDsaLabMatch(ticket?.lab_type) ||
+    isDsaLabMatch(ticket?.lab_name);
+
+  if (!isEvaluationMode && !isRecruiterPreview && !isDsa) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="max-w-md rounded-xl border bg-card p-6 text-center shadow-lg space-y-4">
+          <span className="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-600 dark:text-purple-400">
+            Upcoming Lab
+          </span>
+          <h2 className="text-xl font-semibold">Lab Workspace Not Available</h2>
+          <p className="text-sm text-muted-foreground">
+            This lab is currently upcoming. Sprints and tickets are for preview only.
+          </p>
+          <Link
+            to="/student/lab/$slug"
+            params={{ slug }}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+          >
+            Back to Lab Overview
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const { user, isLoading } = useAuth();
   const userId = useMemo(() => {
@@ -1094,6 +1138,15 @@ export function TicketIDE({
   const submissionsEndpoint = isEvaluationMode ? "/skill_evaluation/lab-submissions/" : "/lab/submissions/";
   const submissionsIdField = isEvaluationMode ? "lab_question" : "lab_sprint_ticket";
   const submissionsStatusField = isEvaluationMode ? "status" : "ticket_status";
+
+  useEffect(() => {
+    if (!(window as any).__labSessionStartTime) {
+      (window as any).__labSessionStartTime = Date.now();
+    }
+    return () => {
+      delete (window as any).__labSessionStartTime;
+    };
+  }, [ticket?.id]);
   const [labTitle, setLabTitle] = useState("");
   const isMultiLang = isAlgo;
   type ProgLang = "python" | "c" | "cpp" | "js" | "java";
@@ -2079,7 +2132,7 @@ export function TicketIDE({
              const structScore = res.structural_score ?? 0;
              const isPass = uiScore >= 75 && structScore >= 75;
              api.patch(`${submissionsEndpoint}${ submissionId }/`, {
-               [submissionsStatusField]: isPass ? "in_review" : "in_progress",
+               [submissionsStatusField]: isPass ? "done" : "in_progress",
                solution: JSON.stringify(getFilesToSave()),
              }).catch(console.error);
           }
@@ -2150,7 +2203,7 @@ export function TicketIDE({
       if (isReal && submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           api.patch(`${submissionsEndpoint}${ submissionId }/`, {
-            [submissionsStatusField]: passedCount === tasks.length ? "in_review" : "in_progress",
+            [submissionsStatusField]: passedCount === tasks.length ? "done" : "in_progress",
             solution: JSON.stringify(getFilesToSave()),
           }).catch(console.error);
         });
@@ -2159,7 +2212,7 @@ export function TicketIDE({
           api.post(submissionsEndpoint, {
             [submissionsIdField]: ticket.id,
             ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-            [submissionsStatusField]: passedCount === tasks.length ? "in_review" : "in_progress",
+            [submissionsStatusField]: passedCount === tasks.length ? "done" : "in_progress",
             solution: JSON.stringify(getFilesToSave()),
           }).catch(console.error);
         });
@@ -2342,13 +2395,16 @@ export function TicketIDE({
             ...(sqlSolutionOutput ? { solution_output: sqlSolutionOutput } : {}),
           };
           if (submissionId) {
-            api.patch(`${submissionsEndpoint}${submissionId}/`, payload)
-              .catch(console.error).finally(() => setSubmitting(false));
+            api.patch(`${submissionsEndpoint}${submissionId}/`, {
+              ...payload,
+              [submissionsStatusField]: "done"
+            }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
               ...payload,
+              [submissionsStatusField]: "done"
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedSqlScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -2366,7 +2422,7 @@ export function TicketIDE({
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: computedUiScore
             }).catch(console.error).finally(() => setSubmitting(false));
@@ -2374,7 +2430,7 @@ export function TicketIDE({
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: computedUiScore
             }).catch(console.error).finally(() => setSubmitting(false));
@@ -2428,7 +2484,7 @@ export function TicketIDE({
       if (slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           const payload: any = {
-            [submissionsStatusField]: "in_review",
+            [submissionsStatusField]: "done",
             solution: JSON.stringify(getFilesToSave()),
             score: computedScore,
             ...(solutionOutput ? { solution_output: solutionOutput } : {}),
@@ -2485,7 +2541,7 @@ export function TicketIDE({
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: next.filter(t => t.pass).length * 20
             }).catch(console.error);
@@ -2493,7 +2549,7 @@ export function TicketIDE({
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: next.filter(t => t.pass).length * 20
             }).catch(console.error);
@@ -2716,7 +2772,7 @@ export function TicketIDE({
         <DiffBadge value={ticket.difficulty} />
         {!isEvaluationMode && (
           <span className="text-muted-foreground inline-flex items-center gap-1">
-            <Zap className="h-3 w-3 text-primary" />+{ticket.xp} XP
+            <Zap className="h-3 w-3 text-primary" />+{ticket.xp} YP
           </span>
         )}
         <span className="text-muted-foreground inline-flex items-center gap-1">

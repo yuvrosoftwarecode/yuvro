@@ -157,35 +157,38 @@ compose_files_for() {
     local app="${1:-all}"
     local base="-f docker-compose.yuvro.yml"
     case "$app" in
-        ycode)   echo "$base -f docker-compose.ycode.yml -f docker-compose.dev.yml" ;;
-        ycampus) echo "$base -f docker-compose.ycampus.yml -f docker-compose.dev.yml" ;;
-        ylabs)   echo "$base -f docker-compose.ylabs.yml -f docker-compose.dev.yml" ;;
-        yhub)    echo "$base -f docker-compose.yhub.yml -f docker-compose.dev.yml" ;;
+        ycode)        echo "$base -f docker-compose.ycode.yml -f docker-compose.dev.yml" ;;
+        ycampus)      echo "$base -f docker-compose.ycampus.yml -f docker-compose.dev.yml" ;;
+        ylabs)        echo "$base -f docker-compose.ylabs.yml -f docker-compose.dev.yml" ;;
+        yhub)         echo "$base -f docker-compose.yhub.yml -f docker-compose.dev.yml" ;;
+        ymarketplace) echo "-f docker-compose.dev-ymarketplace.yml" ;;
         code-executor) echo "-f docker-compose.code-executor.yml" ;;
-        all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.code-executor.yml -f docker-compose.dev.yml" ;;
+        all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.dev-ymarketplace.yml -f docker-compose.code-executor.yml -f docker-compose.dev.yml" ;;
     esac
 }
 
 # Filter services to exclude db containers for dev deployments (EC2 uses RDS)
 services_for() {
     case "${1:-all}" in
-        ycode)   echo "ycode-backend ycode-frontend" ;;
-        ycampus) echo "ycampus-backend ycampus-frontend" ;;
-        ylabs)   echo "ylabs-backend ylabs-frontend" ;;
-        yhub)    echo "yhub-backend" ;;
+        ycode)        echo "ycode-backend ycode-frontend" ;;
+        ycampus)      echo "ycampus-backend ycampus-frontend" ;;
+        ylabs)        echo "ylabs-backend ylabs-frontend" ;;
+        yhub)         echo "yhub-backend" ;;
+        ymarketplace) echo "ymarketplace-backend ymarketplace-frontend" ;;
         code-executor) echo "yuvro-code-executor" ;;
-        all|*)   echo "ycode-backend ycode-frontend ycampus-backend ycampus-frontend ylabs-backend ylabs-frontend yhub-backend yuvro-code-executor" ;;
+        all|*)   echo "ycode-backend ycode-frontend ycampus-backend ycampus-frontend ylabs-backend ylabs-frontend yhub-backend ymarketplace-backend ymarketplace-frontend yuvro-code-executor" ;;
     esac
 }
 
 fixture_containers_for() {
     case "${1:-all}" in
-        ycode)   echo "yuvro-ycode-backend-1" ;;
-        ycampus) echo "yuvro-ycampus-backend-1" ;;
-        ylabs)   echo "yuvro-ylabs-backend-1" ;;
-        yhub)    echo "yuvro-yhub-backend-1" ;;
+        ycode)        echo "yuvro-ycode-backend-1" ;;
+        ycampus)      echo "yuvro-ycampus-backend-1" ;;
+        ylabs)        echo "yuvro-ylabs-backend-1" ;;
+        yhub)         echo "yuvro-yhub-backend-1" ;;
+        ymarketplace) echo "yuvro-ymarketplace-backend-1" ;;
         code-executor) echo "" ;;
-        all|*)   echo "yuvro-ycode-backend-1 yuvro-ycampus-backend-1 yuvro-ylabs-backend-1 yuvro-yhub-backend-1" ;;
+        all|*)   echo "yuvro-ycode-backend-1 yuvro-ycampus-backend-1 yuvro-ylabs-backend-1 yuvro-yhub-backend-1 yuvro-ymarketplace-backend-1" ;;
     esac
 }
 
@@ -216,13 +219,19 @@ wire_secrets() {
     YLABS_DB_NAME="$(tofu output -raw ylabs_db_name     2>/dev/null || true)"
     YLABS_DB_USER="$(tofu output -raw ylabs_db_username 2>/dev/null || true)"
 
-    YHUB_DB_PASS="$(grep  '^yhub_db_password'  "$tfvars" | cut -d= -f2- | tr -d ' "'"'")"
-    YLABS_DB_PASS="$(grep '^ylabs_db_password' "$tfvars" | cut -d= -f2- | tr -d ' "'"'")"
+    YMARKETPLACE_DB_HOST="$(tofu output -raw ymarketplace_db_endpoint 2>/dev/null | cut -d: -f1 || true)"
+    YMARKETPLACE_DB_NAME="$(tofu output -raw ymarketplace_db_name     2>/dev/null || true)"
+    YMARKETPLACE_DB_USER="$(tofu output -raw ymarketplace_db_username 2>/dev/null || true)"
+
+    YHUB_DB_PASS="$(grep  '^yhub_db_password'         "$tfvars" | cut -d= -f2- | tr -d ' "'"'")"
+    YLABS_DB_PASS="$(grep '^ylabs_db_password'        "$tfvars" | cut -d= -f2- | tr -d ' "'"'")"
+    YMARKETPLACE_DB_PASS="$(grep '^ymarketplace_db_password' "$tfvars" | cut -d= -f2- | tr -d ' "'"'")"
     cd "$PROJECT_ROOT" >/dev/null
 
     # S3 into all backends
     for f in ycode-backend-api/.env.dev-secrets ycampus-backend-api/.env.dev-secrets \
-              yhub-backend-api/.env.dev-secrets  ylabs-backend-api/.env.dev-secrets; do
+              yhub-backend-api/.env.dev-secrets  ylabs-backend-api/.env.dev-secrets \
+              ymarketplace/backend/.env.dev-secrets; do
         _set_kv "$SECRETS_DIR/$f" "AWS_STORAGE_BUCKET_NAME" "$S3_BUCKET"
         _set_kv "$SECRETS_DIR/$f" "AWS_ACCESS_KEY_ID"        "$S3_KEY_ID"
         _set_kv "$SECRETS_DIR/$f" "AWS_SECRET_ACCESS_KEY"    "$S3_SECRET"
@@ -254,6 +263,38 @@ wire_secrets() {
     else
         print_warning "YLabs RDS endpoint not available — keeping existing DATABASE_URL"
     fi
+
+    # YMarketplace RDS
+    if [ -n "$YMARKETPLACE_DB_HOST" ]; then
+        local f="$SECRETS_DIR/ymarketplace/backend/.env.dev-secrets"
+        _set_kv "$f" "DATABASE_URL" "postgres://${YMARKETPLACE_DB_USER}:${YMARKETPLACE_DB_PASS}@${YMARKETPLACE_DB_HOST}:5432/${YMARKETPLACE_DB_NAME}"
+        _set_kv "$f" "DB_HOST" "$YMARKETPLACE_DB_HOST"; _set_kv "$f" "DB_PORT" "5432"
+        _set_kv "$f" "DB_NAME" "$YMARKETPLACE_DB_NAME"; _set_kv "$f" "DB_USER" "$YMARKETPLACE_DB_USER"
+        _set_kv "$f" "DB_PASSWORD" "$YMARKETPLACE_DB_PASS"
+        print_success "YMarketplace RDS: $YMARKETPLACE_DB_HOST/$YMARKETPLACE_DB_NAME"
+    else
+        # No dedicated RDS yet — reuse the YLabs RDS instance with a separate database
+        if [ -n "$YLABS_DB_HOST" ]; then
+            local mp_db_name="yuvro_marketplace_db"
+            local mp_db_user="${YLABS_DB_USER}"
+            local mp_db_pass="${YLABS_DB_PASS}"
+            local f="$SECRETS_DIR/ymarketplace/backend/.env.dev-secrets"
+            # Create the database on the shared RDS if it doesn't exist
+            print_step "Setting up marketplace DB on shared RDS (${YLABS_DB_HOST})..."
+            PGPASSWORD="$mp_db_pass" psql \
+                -h "$YLABS_DB_HOST" -p 5432 -U "$mp_db_user" -d postgres \
+                -c "CREATE DATABASE \"${mp_db_name}\";" 2>/dev/null \
+                && print_success "Created database: ${mp_db_name}" \
+                || print_success "Database exists: ${mp_db_name}"
+            _set_kv "$f" "DATABASE_URL" "postgres://${mp_db_user}:${mp_db_pass}@${YLABS_DB_HOST}:5432/${mp_db_name}"
+            _set_kv "$f" "DB_HOST" "$YLABS_DB_HOST"; _set_kv "$f" "DB_PORT" "5432"
+            _set_kv "$f" "DB_NAME" "$mp_db_name"; _set_kv "$f" "DB_USER" "$mp_db_user"
+            _set_kv "$f" "DB_PASSWORD" "$mp_db_pass"
+            print_success "YMarketplace DB wired on shared YLabs RDS: ${YLABS_DB_HOST}/${mp_db_name}"
+        else
+            print_warning "YMarketplace RDS endpoint not available — keeping existing DATABASE_URL"
+        fi
+    fi
 }
 
 # ── copy secrets to EC2 ────────────────────────────────────────────────────────
@@ -262,35 +303,38 @@ wire_secrets() {
 app_secrets_for() {
     local app="${1:-all}"
     case "$app" in
-        ycode)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets" ;;
-        ycampus) echo "ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets" ;;
-        ylabs)   echo "ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets" ;;
-        yhub)    echo "yhub-backend-api/.env.dev-secrets" ;;
+        ycode)        echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets" ;;
+        ycampus)      echo "ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets" ;;
+        ylabs)        echo "ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets" ;;
+        yhub)         echo "yhub-backend-api/.env.dev-secrets" ;;
+        ymarketplace) echo "ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets" ;;
         code-executor) echo "yuvro-code-executer/.env.dev-secrets" ;;
-        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets yuvro-code-executer/.env.dev-secrets" ;;
+        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets yuvro-code-executer/.env.dev-secrets" ;;
     esac
 }
 
 app_domains_for() {
     local app="${1:-all}"
     case "$app" in
-        ycode)   echo "code-dev.yuvro.ai backend-code-dev.yuvro.ai" ;;
-        ycampus) echo "campus-dev.yuvro.ai backend-campus-dev.yuvro.ai" ;;
-        ylabs)   echo "dev.yuvrolabs.com backend-dev.yuvrolabs.com" ;;
-        yhub)    echo "backend-hub-dev.yuvro.ai" ;;
-        all|*)   echo "code-dev.yuvro.ai campus-dev.yuvro.ai dev.yuvrolabs.com backend-code-dev.yuvro.ai backend-campus-dev.yuvro.ai backend-dev.yuvrolabs.com backend-hub-dev.yuvro.ai code-executer-dev.yuvro.ai" ;;
+        ycode)        echo "code-dev.yuvro.ai backend-code-dev.yuvro.ai" ;;
+        ycampus)      echo "campus-dev.yuvro.ai backend-campus-dev.yuvro.ai" ;;
+        ylabs)        echo "dev.yuvrolabs.com backend-dev.yuvrolabs.com" ;;
+        yhub)         echo "backend-hub-dev.yuvro.ai" ;;
+        ymarketplace) echo "marketplace-dev.yuvro.ai backend-marketplace-dev.yuvro.ai marketplace.yuvro.ai" ;;
+        all|*)   echo "code-dev.yuvro.ai campus-dev.yuvro.ai dev.yuvrolabs.com marketplace-dev.yuvro.ai marketplace.yuvro.ai backend-code-dev.yuvro.ai backend-campus-dev.yuvro.ai backend-dev.yuvrolabs.com backend-hub-dev.yuvro.ai backend-marketplace-dev.yuvro.ai code-executer-dev.yuvro.ai" ;;
     esac
 }
 
 app_nginx_config_for() {
     local app="${1:-all}"
     case "$app" in
-        ycode)   echo "ycode-web/nginx.ec2.conf" ;;
-        ycampus) echo "ycampus-web/nginx.ec2.conf" ;;
-        ylabs)   echo "ylabs-web/nginx.ec2.conf" ;;
-        yhub)    echo "yhub-backend-api/nginx.ec2.conf" ;;
+        ycode)        echo "ycode-web/nginx.ec2.conf" ;;
+        ycampus)      echo "ycampus-web/nginx.ec2.conf" ;;
+        ylabs)        echo "ylabs-web/nginx.ec2.conf" ;;
+        yhub)         echo "yhub-backend-api/nginx.ec2.conf" ;;
+        ymarketplace) echo "ymarketplace/frontend/nginx.ec2.conf" ;;
         code-executor) echo "yuvro-code-executer/nginx.ec2.conf" ;;
-        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf yuvro-code-executer/nginx.ec2.conf" ;;
+        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/frontend/nginx.ec2.conf yuvro-code-executer/nginx.ec2.conf" ;;
     esac
 }
 
@@ -337,12 +381,14 @@ run_deploy() {
     copy_secrets_to_ec2 "$ip" "$app"
 
     # Read Vite Google IDs
-    local vite_google="" ycampus_google="" ylabs_google=""
-    [ -f "$PROJECT_ROOT/ycode-web/.env.dev-secrets" ]   && vite_google=$(grep   '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ycode-web/.env.dev-secrets"   | cut -d= -f2- | tr -d '"'"'")
-    [ -f "$PROJECT_ROOT/ycampus-web/.env.dev-secrets" ] && ycampus_google=$(grep '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ycampus-web/.env.dev-secrets" | cut -d= -f2- | tr -d '"'"'")
-    [ -f "$PROJECT_ROOT/ylabs-web/.env.dev-secrets" ]   && ylabs_google=$(grep   '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ylabs-web/.env.dev-secrets"   | cut -d= -f2- | tr -d '"'"'")
+    local vite_google="" ycampus_google="" ylabs_google="" ymarketplace_google=""
+    [ -f "$PROJECT_ROOT/ycode-web/.env.dev-secrets" ]           && vite_google=$(grep         '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ycode-web/.env.dev-secrets"           | cut -d= -f2- | tr -d '"'"'")
+    [ -f "$PROJECT_ROOT/ycampus-web/.env.dev-secrets" ]         && ycampus_google=$(grep       '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ycampus-web/.env.dev-secrets"         | cut -d= -f2- | tr -d '"'"'")
+    [ -f "$PROJECT_ROOT/ylabs-web/.env.dev-secrets" ]           && ylabs_google=$(grep         '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ylabs-web/.env.dev-secrets"           | cut -d= -f2- | tr -d '"'"'")
+    [ -f "$PROJECT_ROOT/ymarketplace/frontend/.env.dev-secrets" ] && ymarketplace_google=$(grep '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ymarketplace/frontend/.env.dev-secrets" | cut -d= -f2- | tr -d '"'"'")
     ycampus_google="${ycampus_google:-$vite_google}"
     ylabs_google="${ylabs_google:-$vite_google}"
+    ymarketplace_google="${ymarketplace_google:-$vite_google}"
 
     ssh_ec2 "ubuntu@$ip" bash << DEPLOY_EOF
 set -e
@@ -372,12 +418,68 @@ if [ -d yuvro ]; then
 else
     git clone -b "$branch" "$repo_url" yuvro && cd yuvro
 fi
+# Initialize submodules — clear stale directories first if they exist but aren't registered
+git submodule sync
+git submodule foreach --recursive 'git fetch origin 2>/dev/null || true'
+# Remove any stale unregistered submodule directories so init can succeed
+git ls-files --others --directory --no-empty-directory | grep -E '/$' | while read d; do
+    if [ -d ".git/modules/\${d%/}" ]; then
+        rm -rf ".git/modules/\${d%/}"
+    fi
+done
+# If ymarketplace dir exists but isn't a proper submodule, reset it
+if [ -d "ymarketplace" ] && [ ! -f "ymarketplace/.git" ]; then
+    echo "   ⚠ stale ymarketplace dir — clearing for submodule init..."
+    rm -rf ymarketplace
+    git config --file .gitmodules --get submodule.ymarketplace.url >/dev/null 2>&1 && \
+        git config --remove-section submodule.ymarketplace 2>/dev/null || true
+    rm -rf .git/modules/ymarketplace
+fi
+git submodule update --init --recursive
 echo "   ✓ git  [elapsed \$(( \$(date +%s)-T1 ))s]"
+
+# ── ymarketplace env.dev (non-secret, generated inline) ──────────────────────
+# The submodule gitignores .env.dev so we write it directly on EC2
+echo "── ymarketplace env files ───────────────────────────"
+mkdir -p ymarketplace/backend ymarketplace/frontend
+cat > ymarketplace/backend/.env.dev << 'MPBACKENDENV'
+DEPLOY_ENV=dev
+DEPLOY_TYPE=docker
+DEBUG=False
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,marketplace-backend-dev.yuvro.ai,marketplace-dev.yuvro.ai,marketplace.yuvro.ai
+CORS_ALLOWED_ORIGINS=https://marketplace-dev.yuvro.ai,http://marketplace-dev.yuvro.ai
+CSRF_TRUSTED_ORIGINS=https://marketplace-backend-dev.yuvro.ai,https://marketplace-dev.yuvro.ai,https://marketplace.yuvro.ai
+APP_NAME=yuvro-marketplace
+FRONTEND_URL=https://marketplace-dev.yuvro.ai
+STORAGE_BACKEND=s3
+AWS_S3_REGION_NAME=ap-south-1
+AWS_S3_ADDRESSING_STYLE=virtual
+AWS_QUERYSTRING_AUTH=True
+OTEL_ENABLED=false
+OTEL_SERVICE_NAME=yuvro-marketplace-backend-dev
+OTEL_SERVICE_VERSION=1.0.0
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.hostinger.com
+EMAIL_PORT=465
+EMAIL_USE_SSL=True
+EMAIL_USE_TLS=False
+DEFAULT_FROM_EMAIL=contact@yuvro.ai
+MPBACKENDENV
+cat > ymarketplace/frontend/.env.dev << 'MPFRONTENDENV'
+DEPLOY_ENV=dev
+DEPLOY_TYPE=docker
+VITE_BACKEND_API_BASE_URL=https://marketplace-backend-dev.yuvro.ai/api
+VITE_YHUB_BACKEND_API_BASE_URL=https://backend-hub-dev.yuvro.ai/api
+VITE_APP_NAME=yuvro-marketplace
+VITE_DEPLOY_ENV=dev
+MPFRONTENDENV
+echo "   ✓ ymarketplace env files written"
 
 # secrets status
 echo "── secrets ─────────────────────────────────────────"
 for sf in yhub-backend-api/.env.dev-secrets ylabs-backend-api/.env.dev-secrets \
-          ycode-backend-api/.env.dev-secrets ycampus-backend-api/.env.dev-secrets; do
+          ycode-backend-api/.env.dev-secrets ycampus-backend-api/.env.dev-secrets \
+          ymarketplace/backend/.env.dev-secrets; do
     [ -f "\$sf" ] && echo "   ✓ \$sf" || echo "   ⚠ missing: \$sf"
 done
 
@@ -390,9 +492,12 @@ export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
 export YLABS_VITE_BACKEND_API_BASE_URL="https://backend-dev.yuvrolabs.com/api"
 export YLABS_VITE_YHUB_BACKEND_API_BASE_URL="https://backend-hub-dev.yuvro.ai/api"
 export YLABS_VITE_YCODE_BACKEND_API_BASE_URL="https://backend-code-dev.yuvro.ai/api"
+export YMARKETPLACE_VITE_BACKEND_API_BASE_URL="https://marketplace-backend-dev.yuvro.ai/api"
+export YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL="https://backend-hub-dev.yuvro.ai/api"
 export VITE_GOOGLE_CLIENT_ID="$vite_google"
 export YCAMPUS_VITE_GOOGLE_CLIENT_ID="$ycampus_google"
 export YLABS_VITE_GOOGLE_CLIENT_ID="$ylabs_google"
+export YMARKETPLACE_VITE_GOOGLE_CLIENT_ID="$ymarketplace_google"
 export VITE_DEPLOY_COMMIT_SHA=\$(git rev-parse HEAD 2>/dev/null || echo unknown)
 export VITE_DEPLOY_BRANCH=\$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)
 export VITE_DEPLOY_APP_VERSION=\$(python3 -c "import json;print(json.load(open('ycode-web/package.json'))['version'])" 2>/dev/null || echo 1.0.0)
@@ -450,6 +555,7 @@ echo "── docker up [$app] ────────────────�
 T1=\$(date +%s)
 docker network create executor    2>/dev/null || true
 docker network create yuvro_ylabs 2>/dev/null || true
+docker network create yuvro_marketplace 2>/dev/null || true
 docker compose $compose_args up -d --remove-orphans --force-recreate $services
 echo "   ✓ up  [\$(( \$(date +%s)-T1 ))s]"
 
@@ -498,11 +604,12 @@ show_summary() {
     print_info "EC2: $ip   SSH: ssh -i $SSH_KEY_PATH ubuntu@$ip"
     echo ""
     print_info "URLs:"
-    [ "$app" = "all" ] || [ "$app" = "ycode" ]   && echo "  YCode     https://code-dev.yuvro.ai  |  https://backend-code-dev.yuvro.ai"
-    [ "$app" = "all" ] || [ "$app" = "ycampus" ] && echo "  YCampus   https://campus-dev.yuvro.ai  |  https://backend-campus-dev.yuvro.ai"
-    [ "$app" = "all" ] || [ "$app" = "ylabs" ]   && echo "  YLabs     https://dev.yuvrolabs.com  |  https://backend-dev.yuvrolabs.com"
-    [ "$app" = "all" ] || [ "$app" = "yhub" ]    && echo "  YHub      https://backend-hub-dev.yuvro.ai"
-    [ "$app" = "all" ]                            && echo "  Executor  https://code-executer-dev.yuvro.ai"
+    [ "$app" = "all" ] || [ "$app" = "ycode" ]        && echo "  YCode         https://code-dev.yuvro.ai  |  https://backend-code-dev.yuvro.ai"
+    [ "$app" = "all" ] || [ "$app" = "ycampus" ]      && echo "  YCampus       https://campus-dev.yuvro.ai  |  https://backend-campus-dev.yuvro.ai"
+    [ "$app" = "all" ] || [ "$app" = "ylabs" ]        && echo "  YLabs         https://dev.yuvrolabs.com  |  https://backend-dev.yuvrolabs.com"
+    [ "$app" = "all" ] || [ "$app" = "yhub" ]         && echo "  YHub          https://backend-hub-dev.yuvro.ai"
+    [ "$app" = "all" ] || [ "$app" = "ymarketplace" ] && echo "  YMarketplace  https://marketplace-dev.yuvro.ai  |  https://marketplace-backend-dev.yuvro.ai"
+    [ "$app" = "all" ]                                 && echo "  Executor      https://code-executer-dev.yuvro.ai"
     echo ""
 }
 
