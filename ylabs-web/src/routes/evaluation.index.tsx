@@ -33,6 +33,7 @@ function EvaluationInvite() {
   const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const searchParams = useSearch({ strict: false }) as Record<string, string>;
@@ -56,7 +57,7 @@ function EvaluationInvite() {
           } else if (sec.type === "VITARKA_AI_INTERVIEW") {
             let meta: any = {};
             try { meta = typeof sec.description === "string" ? JSON.parse(sec.description) : {}; } catch {}
-            total += Number(meta.duration || sec.duration_minutes || 15);
+            total += Number(meta.duration || meta.duration_minutes || sec.duration_minutes || sec.duration || 15);
           }
         });
         if (total > 0) setEstMinutes(total);
@@ -72,16 +73,31 @@ function EvaluationInvite() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName || !lastName || !email || !phone || !evaluationId) {
-      setErr("First name, last name, email, phone number, and valid evaluation link are required.");
+    const missing: string[] = [];
+    if (!firstName.trim()) missing.push("firstName");
+    if (!lastName.trim()) missing.push("lastName");
+    if (!email.trim()) missing.push("email");
+    if (!phone.trim()) missing.push("phone");
+
+    if (missing.length > 0 || !evaluationId) {
+      setMissingFields(missing);
+      if (!evaluationId) {
+        setErr("A valid evaluation link is required.");
+      } else {
+        setErr(null);
+      }
       return;
     }
-      if (phone.length < 5) {
-        setErr("Please enter a valid mobile number.");
-        return;
-      }
-      setLoading(true);
-      setErr(null);
+    
+    if (phone.length < 5) {
+      setErr("Please enter a valid mobile number.");
+      setMissingFields(["phone"]);
+      return;
+    }
+    
+    setLoading(true);
+    setErr(null);
+    setMissingFields([]);
     try {
       const checkRes = await evaluationService.checkRegistration(evaluationId, email);
       if (checkRes.is_expired) {
@@ -151,6 +167,7 @@ function EvaluationInvite() {
 
         <section className="lg:pl-6">
           <form
+            noValidate
             onSubmit={submit}
             className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-[0_1px_0_rgba(0,0,0,0.02),0_20px_60px_-30px_rgba(0,0,0,0.15)] sm:p-10"
           >
@@ -169,38 +186,47 @@ function EvaluationInvite() {
 
             <div className="mt-8 space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <Field label="First name" hint="Required">
+                <Field label="First name" hint={missingFields.includes("firstName") ? <span className="text-red-500">Required</span> : "Required"}>
                   <input
                     type="text"
                     required
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                      setMissingFields((prev) => prev.filter((f) => f !== "firstName"));
+                    }}
                     placeholder="First name"
-                    className="eval-input"
+                    className={`eval-input ${missingFields.includes("firstName") ? "!border-red-500" : ""}`}
                   />
                 </Field>
-                <Field label="Last name" hint="Required">
+                <Field label="Last name" hint={missingFields.includes("lastName") ? <span className="text-red-500">Required</span> : "Required"}>
                   <input
                     type="text"
                     required
                     value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    onChange={(e) => {
+                      setLastName(e.target.value);
+                      setMissingFields((prev) => prev.filter((f) => f !== "lastName"));
+                    }}
                     placeholder="Last name"
-                    className="eval-input"
+                    className={`eval-input ${missingFields.includes("lastName") ? "!border-red-500" : ""}`}
                   />
                 </Field>
               </div>
-              <Field label="Email address" hint="We'll send a one-time verification code.">
+              <Field label="Email address" hint={missingFields.includes("email") ? <span className="text-red-500">Required</span> : "We'll send a one-time verification code."}>
                 <input
                   type="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setMissingFields((prev) => prev.filter((f) => f !== "email"));
+                  }}
                   placeholder="Email address"
-                  className="eval-input"
+                  className={`eval-input ${missingFields.includes("email") ? "!border-red-500" : ""}`}
                 />
               </Field>
-              <Field label="Phone number" hint="Required for account recovery.">
+              <Field label="Phone number" hint={missingFields.includes("phone") ? <span className="text-red-500">Required for account recovery.</span> : "Required for account recovery."}>
                 <div className="flex gap-2">
                   <select
                     value={countryCode}
@@ -216,9 +242,12 @@ function EvaluationInvite() {
                     title="Please enter a valid mobile number"
                     maxLength={COUNTRIES.find(c => c.code === countryCode)?.digits || 15}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, COUNTRIES.find(c => c.code === countryCode)?.digits || 15))}
+                    onChange={(e) => {
+                      setPhone(e.target.value.replace(/\D/g, "").slice(0, COUNTRIES.find(c => c.code === countryCode)?.digits || 15));
+                      setMissingFields((prev) => prev.filter((f) => f !== "phone"));
+                    }}
                     placeholder="Phone number"
-                    className="eval-input flex-1"
+                    className={`eval-input flex-1 ${missingFields.includes("phone") ? "!border-red-500" : ""}`}
                   />
                 </div>
               </Field>

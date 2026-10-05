@@ -199,6 +199,19 @@ function SharedReportWorkspace() {
   const totalLabMarksEarned = rawLabSubs.length > 0
     ? rawLabSubs.reduce((acc: number, cur: any) => {
         let score = Number(cur.score || cur.marks_earned || 0);
+        if (cur.solution_output) {
+          try {
+            const parsed = typeof cur.solution_output === "string" ? JSON.parse(cur.solution_output) : cur.solution_output;
+            if (parsed?.tasks && Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
+              const passedTasks = parsed.tasks.filter((t: any) => t.passed === true || t.result === "passed").length;
+              score = (passedTasks / parsed.tasks.length) * 100;
+            } else if (parsed?.percentage != null) {
+              score = Number(parsed.percentage);
+            } else if (parsed?.total_score != null) {
+              score = Number(parsed.total_score);
+            }
+          } catch {}
+        }
         if (score === 0 && cur.test_results && Array.isArray(cur.test_results)) {
           const passed = cur.test_results.filter((t: any) => t.passed || t.status === "passed" || t.status === "PASS").length;
           const total = cur.test_results.length;
@@ -224,19 +237,28 @@ function SharedReportWorkspace() {
         } else {
           earned = score;
         }
+        if (Math.abs(Math.round(earned) - earned) < 0.15) {
+          earned = Math.round(earned);
+        } else {
+          earned = Math.round(earned * 10) / 10;
+        }
         return acc + earned;
       }, 0)
     : (candidate?.labsScore != null ? candidate.labsScore : 0);
 
+  const roundedLabMarksEarned = Math.abs(Math.round(totalLabMarksEarned) - totalLabMarksEarned) < 0.15
+    ? Math.round(totalLabMarksEarned)
+    : Math.round(totalLabMarksEarned * 10) / 10;
+
   const liveLabsHasNoAttempts = (
-    totalLabMarksEarned === 0 && (
+    roundedLabMarksEarned === 0 && (
       (liveLabsReport?.tests_total && liveLabsReport.tests_total > 0 && (!liveLabsReport.tests_passed || liveLabsReport.tests_passed === 0)) ||
       (liveLabsReport?.risks?.some((r: string) => r.includes("No lab tests were executed")) && liveLabsReport?.risks?.some((r: string) => r.includes("No verified implementation code")))
     )
   );
 
-  const liveLabsScore = totalLabMarksEarned > 0
-    ? Math.min(totalLabMarksEarned, labsMaxScore)
+  const liveLabsScore = roundedLabMarksEarned > 0
+    ? Math.min(roundedLabMarksEarned, labsMaxScore)
     : (liveLabsHasNoAttempts
         ? 0
         : (candidate?.labsScore != null && candidate.labsScore > 0
@@ -289,7 +311,10 @@ function SharedReportWorkspace() {
                   : Math.round(((candidate?.vitarkaScore || 0) / 100) * discussionMaxScore))))
   );
 
-  const totalEarned = (hasLabs ? liveLabsScore : 0) + (hasAssessment ? liveAssessmentScore : 0) + (hasVitarka ? liveVitarkaScore : 0);
+  const rawTotalEarned = (hasLabs ? liveLabsScore : 0) + (hasAssessment ? liveAssessmentScore : 0) + (hasVitarka ? liveVitarkaScore : 0);
+  const totalEarned = Math.abs(Math.round(rawTotalEarned) - rawTotalEarned) < 0.15
+    ? Math.round(rawTotalEarned)
+    : Math.round(rawTotalEarned * 10) / 10;
   const totalPossible = (hasLabs ? labsMaxScore : 0) + (hasAssessment ? assessmentMaxScore : 0) + (hasVitarka ? discussionMaxScore : 0);
 
   const scorePct = totalPossible > 0 ? (totalEarned / totalPossible) * 100 : (candidate?.eci ?? 0);

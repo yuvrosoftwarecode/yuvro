@@ -295,13 +295,16 @@ def public_verify_otp(request):
                 last_name=last_name,
             )
             user.is_otp_login = True
+            user.is_guest_user = True
             user.roles = {"ycode": "student", "ylabs": "student"}
             user.save()
         else:
             if first_name or last_name:
                 user.first_name = first_name or user.first_name
                 user.last_name = last_name or user.last_name
-                user.save()
+            if user.is_otp_login:
+                user.is_guest_user = True
+            user.save()
             
         token_serializer = CustomTokenObtainPairSerializer()
         refresh = token_serializer.get_token(user)

@@ -151,7 +151,7 @@ function SprintEditorPage() {
           <Field label="Total">
             <div className="flex items-center gap-2 h-[38px]">
               <Badge tone="primary">{sprint.tasks.length} tickets</Badge>
-              <Badge tone="success">{sprint.tasks.reduce((a, t) => a + t.xp, 0)} XP</Badge>
+              <Badge tone="success">{sprint.tasks.reduce((a, t) => a + t.xp, 0)} YP</Badge>
               <Badge tone="warning">{sprint.tasks.reduce((a, t) => a + t.estMin, 0)} min</Badge>
             </div>
           </Field>
@@ -227,7 +227,7 @@ function SprintEditorPage() {
                     </span>
                   </div>
                   <div className="mt-1 text-[10px] text-muted-foreground">
-                    {t.xp} XP · {t.estMin} min
+                    {t.xp} YP · {t.estMin} min
                   </div>
                 </button>
               );
@@ -326,7 +326,7 @@ function TicketEditor({
             ))}
           </select>
         </Field>
-        <Field label="XP">
+        <Field label="YP">
           <input
             type="number"
             value={ticket.xp}

@@ -42,11 +42,19 @@ def evaluate_and_score_submission(submission):
             
         total_points = int(ticket.yuvro_points * final_score_pct)
     else:
-        # For non-database labs, we trust the status set by the frontend/other evaluators
-        if submission.ticket_status in [TicketProgressStatus.DONE, TicketProgressStatus.IN_REVIEW]:
-            total_points = ticket.yuvro_points
-        else:
-            total_points = 0
+        # For non-database labs, we trust the status and test results set by the frontend/other evaluators
+        try:
+            import json
+            parsed = json.loads(submission.solution_output)
+            test_pct = parsed.get("percentage", parsed.get("total_score", 0.0))
+            final_score_pct = float(test_pct) / 100.0
+        except Exception:
+            if submission.ticket_status in [TicketProgressStatus.DONE, TicketProgressStatus.IN_REVIEW]:
+                final_score_pct = 1.0
+            else:
+                final_score_pct = 0.0
+                
+        total_points = int(ticket.yuvro_points * final_score_pct)
     
     if submission.solution_revealed:
         total_points = 0

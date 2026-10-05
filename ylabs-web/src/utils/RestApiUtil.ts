@@ -44,6 +44,26 @@ class RestApiUtil {
     const defaultHeaders: Record<string, string> = {};
     if (!isFormData) {
       defaultHeaders["Content-Type"] = "application/json";
+
+      // Inject minutes_solved dynamically for lab submissions (only on final submit, as integer)
+      if (
+        typeof fetchOptions.body === "string" &&
+        (endpoint.includes("/lab/submissions/") || endpoint.includes("/skill_evaluation/lab-submissions/"))
+      ) {
+        try {
+          const bodyObj = JSON.parse(fetchOptions.body);
+          const statusVal = bodyObj.ticket_status ?? bodyObj.status ?? "";
+          const isFinalSubmit = statusVal === "done" || statusVal === "in_review";
+          if (isFinalSubmit && (window as any).__labSessionStartTime && bodyObj.minutes_solved === undefined) {
+            const sessionSeconds = Math.round((Date.now() - (window as any).__labSessionStartTime) / 1000);
+            // Backend expects an integer (whole minutes), minimum 1
+            bodyObj.minutes_solved = Math.max(1, Math.round(sessionSeconds / 60));
+            fetchOptions.body = JSON.stringify(bodyObj);
+          }
+        } catch (e) {
+          // Ignore parse error
+        }
+      }
     }
 
     const config: RequestInit = {
@@ -84,10 +104,12 @@ class RestApiUtil {
           errorMessage = errorData;
         } else {
           const firstFieldError = Object.values(errorData).find(
-            (value) => Array.isArray(value) && value.length > 0,
+            (value) => (Array.isArray(value) && value.length > 0) || typeof value === "string"
           );
-          if (firstFieldError && Array.isArray(firstFieldError)) {
-            errorMessage = firstFieldError[0];
+          if (firstFieldError) {
+            errorMessage = Array.isArray(firstFieldError) ? firstFieldError[0] : firstFieldError;
+          } else if (Object.keys(errorData).length > 0) {
+            errorMessage = JSON.stringify(errorData);
           }
         }
 

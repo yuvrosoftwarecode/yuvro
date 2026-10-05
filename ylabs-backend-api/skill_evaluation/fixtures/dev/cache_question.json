@@ -3,7 +3,7 @@
     {
       "title": "Django Cache Invalidation Bug",
       "type": "BACKEND",
-      "description": "Debug and fix a critical caching bug in a Django REST Framework API. The API caches product details, but fails to invalidate the cache when the product is updated, leading to stale data being returned to users.",
+      "description": "Debug and fix 3 caching bugs in a Django REST Framework API. The lab covers invalidating cached product details on update, clearing cache via a custom management command, and incorporating query parameters into cache keys.",
       "difficulty": "MEDIUM",
       "domain": "BACKEND",
       "experience": "MID_LEVEL",
@@ -12,7 +12,7 @@
       "scenario": "BUG_FIXING",
       "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
       "git_repo_starter_branch": "Cache",
-      "startup_command": "python manage.py migrate && python manage.py runserver",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
       "test_command": "python yuvro_scoring_rules/main_test.py",
       "programming_languages": [
         "PYTHON"
@@ -28,11 +28,43 @@
       "tasks": [
         {
           "title": "Fix Cache Invalidation on Update",
-          "description": "When a product is fetched via `GET /api/store/products/<id>/`, its details are cached. However, when the product is updated via `PUT` or `PATCH`, the database is correctly updated but the cache is not cleared. Subsequent `GET` requests return the stale old price until the cache expires (15 minutes later).\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Create a product if none exists via `POST /api/store/products/`.\n3. Expand `GET /api/store/products/{id}/` and click **'Try it out'** to fetch and cache the product.\n4. Expand `PUT /api/store/products/{id}/` and update the price.\n5. Call the `GET` endpoint again and observe that the returned price is the old cached price, not the newly updated price.\n\n**Goal:** Ensure that whenever a product is updated (either fully or partially), the stale cache entry `product_<id>` is immediately deleted.",
+          "description": "When a product is fetched via `GET /api/store/products/<id>/`, its details are cached. However, when the product is updated via `PUT` or `PATCH`, the database is correctly updated but the cache is not cleared. Subsequent `GET` requests return the stale old price until the cache expires (15 minutes later).\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Create a product if none exists via `POST /api/store/products/`.\n3. Expand `GET /api/store/products/{id}/` and click **'Try it out'** to fetch and cache the product.\n4. Expand `PUT /api/store/products/{id}/` and update the price.\n5. Call the `GET` endpoint again and observe that the returned price is the old cached price, not the newly updated price.\n\n**Goal:** Ensure that whenever a product is updated (either fully or partially), the stale cache entry `product_<id>` is immediately deleted in `store/views.py`.",
           "difficulty": "MEDIUM",
-          "marks": 10,
-          "duration_minutes": 50,
+          "marks": 3,
+          "duration_minutes": 15,
           "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Clear Cache via Management Command",
+          "description": "The `inventory` application manages warehouse items. The `GET /api/inventory/items/` endpoint utilizes Django's `@cache_page` decorator, caching the entire list response for 15 minutes. When an item's quantity is updated via `PUT /api/inventory/items/<id>/update/`, the cache becomes stale.\n\n**Goal:** Provide a way for server administrators to manually clear the cache via a terminal command `python manage.py clear_inventory_cache`. Implement the correct Django cache clearing logic inside the `handle` method in `inventory/management/commands/clear_inventory_cache.py`.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Incorporate Query Parameters in Cache Key",
+          "description": "The product catalog API allows clients to list products and filter them by category using a query parameter, such as `GET /api/catalog/products/?category=electronics`. The product list is cached, but under a single static key (`product_list`), completely ignoring the `category` filter present in `request.query_params`.\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Execute `GET /api/catalog/products/?category=electronics` to fetch and cache all electronics products.\n3. Next, execute `GET /api/catalog/products/?category=clothing`.\n4. Observe that the API returns the cached list of electronics instead of clothing products.\n\n**Goal:** Inspect `catalog/views.py` and update the cache key logic to incorporate the `category` query parameter so that different filtered lists are cached independently.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 20,
+          "order_index": 2,
           "scoring_rules": {
             "logic_score": 10,
             "clean_code": 0,

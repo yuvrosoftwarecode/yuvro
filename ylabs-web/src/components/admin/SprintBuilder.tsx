@@ -365,7 +365,7 @@ function TaskConfig({
               <option>Advanced</option>
             </select>
           </Field>
-          <Field label="XP">
+          <Field label="YP">
             <input
               type="number"
               value={task.xp}

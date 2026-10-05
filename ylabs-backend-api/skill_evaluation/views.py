@@ -554,13 +554,35 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                             db_engine = rules.get("database_engine")
                         
                         task_ext = "js" if db_engine in ["mongodb", "mongo", "mongosh"] else "sql"
-                        expected_query = expected_sol.get("query.js") or expected_sol.get("query.sql") or ""
+                        
+                        expected_query = ""
+                        if isinstance(expected_sol, dict):
+                            expected_query = (
+                                expected_sol.get(f"task{i}.{task_ext}")
+                                or expected_sol.get(f"task_{i}.{task_ext}")
+                                or expected_sol.get(f"task{i}")
+                                or expected_sol.get(f"query.{task_ext}")
+                                or expected_sol.get("query.sql")
+                                or expected_sol.get("query.js")
+                                or (list(expected_sol.values())[0] if expected_sol else "")
+                            )
+                        elif isinstance(expected_sol, str):
+                            expected_query = expected_sol
+
+                        if not expected_query and rules.get("system_query"):
+                            expected_query = rules.get("system_query")
+
+                        exp_out = getattr(task, 'expected_output', None) or rules.get("expected_output", "")
+                        if isinstance(exp_out, (dict, list)):
+                            exp_out_str = json.dumps(exp_out)
+                        else:
+                            exp_out_str = str(exp_out) if exp_out is not None else ""
                         
                         payload_tasks.append({
                             "task_id": str(task.id),
                             "task_file": f"task{i}.{task_ext}",
                             "expected_query": expected_query,
-                            "expected_output": expected_sol.get("expected_output", ""),
+                            "expected_output": exp_out_str,
                             "scoring_rules": rules,
                             "system_query": rules.get("system_query", ""),
                             "expected_result": rules.get("expected_result", "")
@@ -574,13 +596,17 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                             "database_engine": db_engine,
                             "evaluation_id": str(evaluation.id),
                             "tasks": payload_tasks
-                        }, timeout=10)
+                        }, timeout=30)
                         if response.status_code == 200:
                             result_data = response.json()
                             submission.solution_output = json.dumps(result_data)
-                            calc_score = int(result_data.get("percentage", 0))
-                            if calc_score > 0 or submission.score == 0:
-                                submission.score = calc_score
+                            tasks_list = result_data.get("tasks", [])
+                            if tasks_list and len(tasks_list) > 0:
+                                passed_count = sum(1 for t in tasks_list if t.get("passed"))
+                                calc_score = round((passed_count / len(tasks_list)) * 100)
+                            else:
+                                calc_score = round(float(result_data.get("percentage", 0)))
+                            submission.score = calc_score
                             submission.save(update_fields=['solution_output', 'score'])
                     except Exception as e:
                         logger = logging.getLogger(__name__)
@@ -737,7 +763,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             "expires_at": submission.share_token_expires_at
         })
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def start_lab(self, request, pk=None):
         evaluation = self.get_object()
         lab_id = request.data.get('lab_id')
@@ -754,29 +780,48 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         if lab.git_repo_starter_url:
             starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
             starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
+            if not os.path.exists(starter_repo_path):
+                try:
+                    from lab.workspace_manager import provision_evaluation_lab_starter_repo
+                    provision_evaluation_lab_starter_repo(evaluation.id, lab.id, lab.git_repo_starter_url, branch=lab.git_repo_starter_branch)
+                except Exception as e:
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Error provisioning starter repo for lab {lab.id}: {e}")
         
+        user = request.user if (request.user and request.user.is_authenticated) else None
+        user_id = user.id if user else (request.data.get('user_id') or "anon")
+
         try:
-            provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
+            provision_evaluation_user_repo(evaluation.id, lab.id, user_id, starter_repo_path)
             return Response({"status": "success", "message": "Lab workspace provisioned successfully"})
         except Exception as e:
             return Response({"error": f"Failed to provision workspace: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def provision_labs(self, request, pk=None):
         evaluation = self.get_object()
         
+        user = request.user if (request.user and request.user.is_authenticated) else None
+        user_id = user.id if user else (request.data.get('user_id') or "anon")
+
         labs_provisioned = 0
         for section in evaluation.sections.all():
             if section.type != 'LAB' or not section.questions:
                 continue
                 
             for question in section.questions:
+                lab_id = None
                 if isinstance(question, dict):
-                    lab_id = question.get('id') or question.get('lab_id')
+                    lab_id = question.get('id')
                 elif isinstance(question, str):
-                    lab_id = question
+                    match = re.search(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', question)
+                    if match:
+                        lab_id = match.group(0)
+                    else:
+                        lab_id = question
                 else:
                     lab_id = str(question)
+
                 if not lab_id:
                     continue
                     
@@ -786,9 +831,16 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     if lab.git_repo_starter_url:
                         starter_repo_name = get_repo_name_from_url(lab.git_repo_starter_url)
                         starter_repo_path = os.path.join(settings.WORKSPACES_ROOT, "evaluation", str(evaluation.id), "labs", str(lab.id), starter_repo_name)
+                        if not os.path.exists(starter_repo_path):
+                            try:
+                                from lab.workspace_manager import provision_evaluation_lab_starter_repo
+                                provision_evaluation_lab_starter_repo(evaluation.id, lab.id, lab.git_repo_starter_url, branch=lab.git_repo_starter_branch)
+                            except Exception as e:
+                                logger = logging.getLogger(__name__)
+                                logger.error(f"Error provisioning starter repo for lab {lab.id}: {e}")
                     
                     try:
-                        provision_evaluation_user_repo(evaluation.id, lab.id, request.user.id, starter_repo_path)
+                        provision_evaluation_user_repo(evaluation.id, lab.id, user_id, starter_repo_path)
                         labs_provisioned += 1
                     except Exception as e:
                         logger = logging.getLogger(__name__)

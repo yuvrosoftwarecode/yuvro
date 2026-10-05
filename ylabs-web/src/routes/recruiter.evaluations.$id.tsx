@@ -2252,6 +2252,7 @@ function Drawer({
 function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
   const previewData = useMemo(() => {
     return {
+      id: ev.id,
       sections: ev.sections
         .map((s) => {
           if (s.kind === "labs") {
@@ -2301,7 +2302,7 @@ function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
         </button>
       </div>
       <div className="relative flex-1 overflow-hidden">
-        <Workspace previewData={previewData} />
+        <Workspace previewData={previewData} evaluationId={ev.id} />
       </div>
     </div>
   );

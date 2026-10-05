@@ -132,7 +132,7 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
             "resume",
             "old_chat_session_id",
             "interview_type",
-            "state_data",
+            "state_data", "session_state",
             "started_at",
             "submitted_at",
             "completed_at",

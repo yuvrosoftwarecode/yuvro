@@ -122,6 +122,29 @@ output "ylabs_db_username" {
   sensitive   = true
 }
 
+# RDS YMarketplace Outputs
+output "ymarketplace_db_endpoint" {
+  description = "YMarketplace RDS database endpoint"
+  value       = module.rds_ymarketplace.db_endpoint
+  sensitive   = true
+}
+
+output "ymarketplace_db_port" {
+  description = "YMarketplace RDS database port"
+  value       = module.rds_ymarketplace.db_port
+}
+
+output "ymarketplace_db_name" {
+  description = "YMarketplace database name"
+  value       = module.rds_ymarketplace.db_name
+}
+
+output "ymarketplace_db_username" {
+  description = "YMarketplace database master username"
+  value       = module.rds_ymarketplace.db_username
+  sensitive   = true
+}
+
 # S3 Outputs
 output "app_data_bucket_name" {
   description = "S3 base bucket (per-env; app data lives under <env>/<app>-uploads/, logs under <env>/logs/)"

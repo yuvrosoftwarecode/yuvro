@@ -141,6 +141,25 @@ module "rds_ylabs" {
   skip_final_snapshot      = var.skip_final_snapshot
 }
 
+# RDS PostgreSQL for YMarketplace
+module "rds_ymarketplace" {
+  source = "./modules/rds"
+
+  environment              = var.environment
+  db_name                  = "ymarketplace"
+  db_username              = var.ymarketplace_db_username
+  db_password              = var.ymarketplace_db_password
+  instance_class           = var.ymarketplace_db_instance_class
+  allocated_storage         = var.ymarketplace_db_allocated_storage
+  max_allocated_storage     = var.ymarketplace_db_max_allocated_storage
+  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
+  security_group_id        = module.security_groups.rds_sg_id
+  backup_retention_days    = var.backup_retention_days
+  multi_az                 = var.multi_az
+  engine_version           = var.postgres_version
+  skip_final_snapshot      = var.skip_final_snapshot
+}
+
 # S3 Buckets Module
 module "s3" {
   source = "./modules/s3"

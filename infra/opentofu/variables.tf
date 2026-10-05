@@ -233,3 +233,34 @@ variable "ylabs_db_max_allocated_storage" {
   type        = number
   default     = 10
 }
+
+# RDS Configuration - YMarketplace
+variable "ymarketplace_db_username" {
+  description = "YMarketplace database master username"
+  type        = string
+  default     = "ymarketplace_admin"
+}
+
+variable "ymarketplace_db_password" {
+  description = "YMarketplace database master password"
+  type        = string
+  sensitive   = true
+}
+
+variable "ymarketplace_db_instance_class" {
+  description = "YMarketplace RDS instance class"
+  type        = string
+  default     = "db.t3.micro"
+}
+
+variable "ymarketplace_db_allocated_storage" {
+  description = "YMarketplace database allocated storage in GB"
+  type        = number
+  default     = 5
+}
+
+variable "ymarketplace_db_max_allocated_storage" {
+  description = "YMarketplace database max allocated storage for autoscaling in GB"
+  type        = number
+  default     = 10
+}

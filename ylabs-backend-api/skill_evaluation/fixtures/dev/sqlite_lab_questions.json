@@ -2,14 +2,16 @@
   "lab_questions": [
     {
       "title": "Practical SQLite Scenarios",
+      "type": "DATABASE",
       "description": "Evaluate candidates on their practical SQLite skills, including query optimization, date manipulation, and advanced SQLite features like JSON, FTS5, and Window Functions.",
       "difficulty": "MEDIUM",
-      "domain": "BACKEND",
+      "domain": "OTHER",
       "experience": "MID_LEVEL",
       "duration_minutes": 225,
       "marks": 205,
       "scenario": "FEATURE_DEVELOPMENT",
-      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_sqlite_lab",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_practical_sql_lab",
+      "git_repo_starter_branch": "main",
       "startup_command": "sqlite3 lab.db < seed.sql",
       "programming_languages": [
         "SQL"

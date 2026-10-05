@@ -16,6 +16,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["last_name"] = user.last_name
         token["roles"] = user.roles
         token["resume_file"] = user.resume_file
+        token["is_guest_user"] = getattr(user, 'is_guest_user', False)
 
         return token
 
@@ -36,6 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
             "cover_image",
             "resume_file",
             "roles",
+            "is_guest_user",
             "is_active",
             "date_joined",
             "last_login",
@@ -80,6 +82,8 @@ class UserLoginSerializer(serializers.Serializer):
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
+    email = serializers.EmailField()
+    username = serializers.CharField()
 
     class Meta:
         model = User
@@ -93,6 +97,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             "roles",
         ]
 
+    def validate_email(self, value):
+        user = User.objects.filter(email=value).first()
+        if user and not getattr(user, 'is_guest_user', False):
+            raise serializers.ValidationError("User with this email already exists.")
+        return value
+
+    def validate_username(self, value):
+        user = User.objects.filter(username=value).first()
+        if user and not getattr(user, 'is_guest_user', False):
+            raise serializers.ValidationError("A user with that username already exists.")
+        return value
+
     def validate(self, attrs):
         if attrs["password"] != attrs["password_confirm"]:
             raise serializers.ValidationError("Passwords don't match.")
@@ -101,6 +117,17 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop("password_confirm")
         password = validated_data.pop("password")
+        email = validated_data.get("email")
+        
+        user = User.objects.filter(email=email).first()
+        if user and getattr(user, 'is_guest_user', False):
+            for attr, val in validated_data.items():
+                setattr(user, attr, val)
+            user.set_password(password)
+            user.is_guest_user = False
+            user.save()
+            return user
+            
         user = User.objects.create_user(password=password, **validated_data)
         return user
 

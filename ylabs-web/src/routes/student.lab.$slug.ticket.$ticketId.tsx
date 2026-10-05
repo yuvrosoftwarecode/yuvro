@@ -1030,8 +1030,21 @@ export function TicketIDE({
     from: "/student/lab/$slug/ticket/$ticketId/review",
     shouldThrow: false,
   });
+  const isDsaLabMatch = (str?: string) => {
+    if (!str) return false;
+    const s = str.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
+    return (
+      s.includes("dsa") ||
+      s.includes("data structure") ||
+      s.includes("datastructure") ||
+      s.includes("ds lab") ||
+      s.includes("ds scenario")
+    );
+  };
+
   const isAlgo = !ticket.tag?.toLowerCase().includes("sql") && !ticket.tag?.toLowerCase().includes("mysql") && !ticket.tag?.toLowerCase().includes("postgres") && !ticket.tag?.toLowerCase().includes("mongo") && (
     slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || 
+    isDsaLabMatch(slug) || isDsaLabMatch(ticket?.title) ||
     ticket.ticket_type === "algo" || ticket.type === "algo" || ticket.lab_type === "algo" || 
     ticket.ticket_type === "ALGO" || ticket.type === "ALGO" || ticket.lab_type === "ALGO" ||
     (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined && t.input !== "" && t.input !== null))
@@ -1055,20 +1068,64 @@ export function TicketIDE({
 
   const isReal = slug !== "knowledge" && !tickets.some((t) => t.id === ticket.id);
 
+  const isDsa =
+    isReal ||
+    isDsaLabMatch(slug) ||
+    isDsaLabMatch(ticket?.title) ||
+    isDsaLabMatch(ticket?.tag) ||
+    isDsaLabMatch(ticket?.lab_type) ||
+    isDsaLabMatch(ticket?.lab_name);
+
+  if (!isEvaluationMode && !isRecruiterPreview && !isDsa) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="max-w-md rounded-xl border bg-card p-6 text-center shadow-lg space-y-4">
+          <span className="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-600 dark:text-purple-400">
+            Upcoming Lab
+          </span>
+          <h2 className="text-xl font-semibold">Lab Workspace Not Available</h2>
+          <p className="text-sm text-muted-foreground">
+            This lab is currently upcoming. Sprints and tickets are for preview only.
+          </p>
+          <Link
+            to="/student/lab/$slug"
+            params={{ slug }}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+          >
+            Back to Lab Overview
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const { user, isLoading } = useAuth();
   const userId = useMemo(() => {
     return user?.id?.toString() ?? "";
   }, [user]);
+  const effectiveUserId = useMemo(() => {
+    if (userId) return userId;
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem(`eval_user_${evaluationId}`);
+      if (stored) return stored;
+      try {
+        const cand = JSON.parse(localStorage.getItem("yuvro-eval-candidate") || "{}");
+        if (cand?.id) return String(cand.id);
+        if (cand?.userId) return String(cand.userId);
+      } catch {}
+    }
+    return "anon";
+  }, [userId, evaluationId]);
   const labId = slug;
   const sprintId = ticket.id?.toString() ?? "0";
 
   const candidateKey = useMemo(() => {
     if (isRecruiterPreview) return "preview_recruiter";
-    const userIdentifier = userId || (typeof window !== "undefined" ? (sessionStorage.getItem(`eval_user_${evaluationId}`) || "anon") : "anon");
+    const userIdentifier = effectiveUserId;
     const evalIdentifier = evaluationId || "direct";
     const labIdentifier = slug || ticket?.id || "lab";
     return `${userIdentifier}_${evalIdentifier}_${labIdentifier}`;
-  }, [userId, evaluationId, slug, ticket?.id, isRecruiterPreview]);
+  }, [effectiveUserId, evaluationId, slug, ticket?.id, isRecruiterPreview]);
 
   const candidatePort = useMemo(() => getCandidatePort(candidateKey), [candidateKey]);
 
@@ -1081,6 +1138,15 @@ export function TicketIDE({
   const submissionsEndpoint = isEvaluationMode ? "/skill_evaluation/lab-submissions/" : "/lab/submissions/";
   const submissionsIdField = isEvaluationMode ? "lab_question" : "lab_sprint_ticket";
   const submissionsStatusField = isEvaluationMode ? "status" : "ticket_status";
+
+  useEffect(() => {
+    if (!(window as any).__labSessionStartTime) {
+      (window as any).__labSessionStartTime = Date.now();
+    }
+    return () => {
+      delete (window as any).__labSessionStartTime;
+    };
+  }, [ticket?.id]);
   const [labTitle, setLabTitle] = useState("");
   const isMultiLang = isAlgo;
   type ProgLang = "python" | "c" | "cpp" | "js" | "java";
@@ -1124,7 +1190,7 @@ export function TicketIDE({
       const keys = Object.keys(initialFiles).filter(k => k !== "README.md");
       if (keys.length > 0) return keys[0];
     }
-    return initialFileList[0];
+    return isReal && slug !== "knowledge" ? "" : initialFileList[0];
   });
   
   const [openTabs, setOpenTabs] = useState<string[]>(() => {
@@ -1152,7 +1218,7 @@ export function TicketIDE({
   // Load workspace file tree and first file content from executor on mount (real tickets only)
   const loadWorkspaceFiles = useCallback(async (forceUpdate: boolean = false) => {
     if (isLoading) return;
-    if (!isReal || !userId || slug === "knowledge") {
+    if (!isReal || (!effectiveUserId && !isEvaluationMode) || slug === "knowledge") {
       setWsLoaded(true);
       return;
     }
@@ -1168,7 +1234,7 @@ export function TicketIDE({
             : `/lab/labs/${labId}/`;
           const { default: api } = await import("@/utils/RestApiAuthUtil");
           const realLab = await api.get<any>(labEndpoint);
-          currentTitle = realLab.data?.title || realLab.data?.name || "";
+          currentTitle = (realLab as any)?.title || (realLab as any)?.name || (realLab as any)?.data?.title || "";
         } catch (e) {
           currentTitle = labs.find(l => l.slug === slug)?.name || "";
         }
@@ -1185,71 +1251,71 @@ export function TicketIDE({
         };
 
         let paths: Record<string, string> = {};
-        // Poll max 3 times to allow copying files and Docker sync
-        for (let attempt = 0; attempt < 3; attempt++) {
-          const res = await fetchFileTree(userId, labId, sprintId, starters, isSqliteLab ? "sqlite" : "other", isEvaluationMode ? evaluationId : undefined);
+        // Poll up to 6 times to allow copying files and Docker sync
+        for (let attempt = 0; attempt < 6; attempt++) {
+          const res = await fetchFileTree(effectiveUserId, labId, sprintId, starters, isSqliteLab ? "sqlite" : "other", isEvaluationMode ? evaluationId : undefined);
           paths = flatten(res.tree, {});
-          if (Object.keys(paths).length > 0 || slug === "knowledge" || attempt >= 1) {
+          if (Object.keys(paths).length > 0 || slug === "knowledge") {
             break;
           }
-          await new Promise(r => setTimeout(r, 500));
+          if (attempt < 5) {
+            await new Promise(r => setTimeout(r, 600));
+          }
         }
 
+        const fileKeys = Object.keys(paths);
+        setFiles(paths);
+
         const { fetchFile } = await import("@/services/workspaceService");
-        await Promise.all(Object.keys(paths).map(async (p) => {
-          if (isBinaryOrDatabaseFile(p)) return;
+        // Pick preferred active file: README.md, manage.py, main.py, or first non-binary file
+        const preferredFile = fileKeys.find(k => k === "README.md")
+          || fileKeys.find(k => k === "manage.py")
+          || fileKeys.find(k => k === "main.py")
+          || fileKeys.find(k => !isBinaryOrDatabaseFile(k))
+          || fileKeys[0];
+
+        if (preferredFile) {
+          setOpenTabs(prev => prev.includes(preferredFile) ? prev : [...prev, preferredFile]);
+          setActiveFile(preferredFile);
           try {
-            const fRes = await fetchFile(userId, labId, sprintId, p, isEvaluationMode ? evaluationId : undefined);
-            paths[p] = fRes;
-            loadedFiles.current.add(p);
+            const content = await fetchFile(effectiveUserId, labId, sprintId, preferredFile, isEvaluationMode ? evaluationId : undefined);
+            setFiles(f => ({ ...f, [preferredFile]: content }));
+            loadedFiles.current.add(preferredFile);
           } catch (err) {
-            console.error(`Failed to load ${p}`, err);
+            console.error("Failed to load preferred file content:", err);
           }
-        }));
-
-        setFiles(prev => {
-          const next = { ...paths };
-          for (const p of Object.keys(next)) {
-            if (prev[p] && prev[p] !== starters[p]) next[p] = prev[p];
-          }
-          return next;
-        });
-
-        const firstPath = Object.keys(paths)[0];
-        if (!forceUpdate && firstPath) {
-          setOpenTabs(prev => prev.includes(firstPath) ? prev : [...prev, firstPath]);
-          setActiveFile(firstPath);
-          try {
-            const content = await fetchFile(userId, labId, sprintId, firstPath, evaluationId);
-            setFiles(f => ({ ...f, [firstPath]: content }));
-          } catch { /* ignore */ }
-        } else if (!forceUpdate && !firstPath) {
+        } else if (!forceUpdate) {
           setOpenTabs([]);
           setActiveFile("");
         }
         setWsLoaded(true);
-      } catch {
+      } catch (err) {
+        console.error("Failed to fetch file tree:", err);
         setWsLoaded(true); // fall back on error
       }
-      setWsLoaded(true);
     } catch {
       setWsLoaded(true); // fall back to local starters on error
     }
-  }, [isReal, userId, labId, sprintId, starters, isLoading, isEvaluationMode, evaluationId]);
+  }, [isReal, effectiveUserId, labId, sprintId, starters, isLoading, isEvaluationMode, evaluationId]);
 
   useEffect(() => {
     if (isLoading) return;
+    if (isEvaluationMode && evaluationId && labId) {
+      evaluationService.startLab(evaluationId, labId).catch((err) => {
+        console.error("Failed to start lab workspace:", err);
+      });
+    }
     loadWorkspaceFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticket.id, isReal, userId, isLoading, evaluationId]);
+  }, [ticket.id, isReal, effectiveUserId, isLoading, evaluationId, labId]);
 
   // Lazy-load file content when the active file changes (real tickets only)
   const loadedFiles = useRef<Set<string>>(new Set());
   useEffect(() => {
-    if (!isReal || !wsLoaded) return;
+    if (!isReal || !wsLoaded || !activeFile) return;
     if (loadedFiles.current.has(activeFile)) return;
-    if (files[activeFile] !== "") { loadedFiles.current.add(activeFile); return; }
-    fetchFile(userId, labId, sprintId, activeFile, evaluationId)
+    if (files[activeFile] && files[activeFile] !== "") { loadedFiles.current.add(activeFile); return; }
+    fetchFile(effectiveUserId, labId, sprintId, activeFile, evaluationId)
       .then(content => {
         setFiles(f => ({ ...f, [activeFile]: content }));
         loadedFiles.current.add(activeFile);
@@ -1258,7 +1324,7 @@ export function TicketIDE({
         loadedFiles.current.add(activeFile);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeFile, isReal, wsLoaded]);
+  }, [activeFile, isReal, wsLoaded, effectiveUserId]);
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss" | "solution">("problem");
   const [leftCollapsed, setLeftCollapsed] = useState(false);
@@ -1309,9 +1375,9 @@ export function TicketIDE({
   useEffect(() => {
     if (!isReal) {
       setFiles(starters);
+      setActiveFile(initialFileList[0]);
     }
     setDirty({});
-    setActiveFile(initialFileList[0]);
     setTestsRan(false);
     setOutput("");
     if (isMultiLang) {
@@ -1919,10 +1985,12 @@ export function TicketIDE({
 
       const tTasks = ticket.tasks || [];
       let task = null;
+      let activeTaskIndex = 0;
       if (activeFile.startsWith("task")) {
          const numMatch = activeFile.match(/task(\d+)\.(sql|js)/);
          if (numMatch) {
             const idx = parseInt(numMatch[1], 10) - 1;
+            activeTaskIndex = Math.max(0, idx);
             if (tTasks[idx]) task = tTasks[idx];
          }
       }
@@ -2008,18 +2076,22 @@ export function TicketIDE({
             setTestsRan(true);
             setTests([{ name: "Ticket Check", pass: passed, time: "0ms" }]);
             
-            const taskSlug = task && typeof task === "object" && task.task_slug ? task.task_slug : "task-0";
+            const targetTaskSlug = task && typeof task === "object" && task.task_slug ? task.task_slug : `task-${activeTaskIndex}`;
+            const targetFallbackSlug = `task-${activeTaskIndex}`;
             setEvalResult(prev => ({ 
               ...prev, 
-              [taskSlug]: { passed, reason: passed ? "" : (sysQ ? "Check failed." : "Failed") } 
+              [targetTaskSlug]: { passed, reason: passed ? "" : (sysQ ? "Check failed." : "Failed") },
+              [targetFallbackSlug]: { passed, reason: passed ? "" : (sysQ ? "Check failed." : "Failed") } 
             }));
           }
           
           setOutput(outText);
+          setExecutionOutput(outText);
           setBottomTab("preview");
         })
         .catch((err) => {
           setOutput(`Error running script: ${err.message}`);
+          setExecutionOutput(`Error running script: ${err.message}`);
           setBottomTab("preview");
         })
         .finally(() => setRunning(false));
@@ -2060,7 +2132,7 @@ export function TicketIDE({
              const structScore = res.structural_score ?? 0;
              const isPass = uiScore >= 75 && structScore >= 75;
              api.patch(`${submissionsEndpoint}${ submissionId }/`, {
-               [submissionsStatusField]: isPass ? "in_review" : "in_progress",
+               [submissionsStatusField]: isPass ? "done" : "in_progress",
                solution: JSON.stringify(getFilesToSave()),
              }).catch(console.error);
           }
@@ -2131,7 +2203,7 @@ export function TicketIDE({
       if (isReal && submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           api.patch(`${submissionsEndpoint}${ submissionId }/`, {
-            [submissionsStatusField]: passedCount === tasks.length ? "in_review" : "in_progress",
+            [submissionsStatusField]: passedCount === tasks.length ? "done" : "in_progress",
             solution: JSON.stringify(getFilesToSave()),
           }).catch(console.error);
         });
@@ -2140,7 +2212,7 @@ export function TicketIDE({
           api.post(submissionsEndpoint, {
             [submissionsIdField]: ticket.id,
             ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-            [submissionsStatusField]: passedCount === tasks.length ? "in_review" : "in_progress",
+            [submissionsStatusField]: passedCount === tasks.length ? "done" : "in_progress",
             solution: JSON.stringify(getFilesToSave()),
           }).catch(console.error);
         });
@@ -2278,22 +2350,61 @@ export function TicketIDE({
 
     if (isAnySql) {
       setSubmitting(true);
-      const computedSqlScore = ticketScore ? ticketScore.passed : 0;
+      const tTasks: any[] = ticket.tasks || [];
+      let passedTaskCount = 0;
+      const tasksMap: Record<string, any> = {};
+
+      if (tTasks.length > 0) {
+        tTasks.forEach((tMeta: any, idx: number) => {
+          const slug1 = tMeta?.task_slug || `task-${idx}`;
+          const slug2 = `task-${idx}`;
+          const isPassed = Boolean(evalResult[slug1]?.passed || evalResult[slug2]?.passed);
+          if (isPassed) passedTaskCount++;
+          const taskMarks = typeof tMeta?.marks === "number" ? tMeta.marks : 10;
+          tasksMap[`task_${idx + 1}`] = {
+            task_file: `task${idx + 1}.sql`,
+            name: tMeta?.title || `Task ${idx + 1}`,
+            passed: isPassed,
+            result: isPassed ? "passed" : "failed",
+            score: isPassed ? taskMarks : 0,
+            max_score: taskMarks,
+            message: isPassed ? "Test passed successfully" : (evalResult[slug1]?.reason || "Check failed"),
+          };
+        });
+      }
+
+      let computedSqlScore = 0;
+      if (tTasks.length > 0) {
+        computedSqlScore = Math.round((passedTaskCount / tTasks.length) * 100);
+      } else if (ticketScore) {
+        computedSqlScore = ticketScore.total > 0 ? Math.round((ticketScore.passed / ticketScore.total) * 100) : ticketScore.passed;
+      }
+
+      const sqlSolutionOutput = tTasks.length > 0 ? JSON.stringify({
+        tasks: Object.values(tasksMap),
+        percentage: computedSqlScore,
+        total_score: computedSqlScore,
+      }) : "";
+
       if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          const payload: any = {
+            [submissionsStatusField]: "in_review",
+            solution: JSON.stringify(getFilesToSave()),
+            score: computedSqlScore,
+            ...(sqlSolutionOutput ? { solution_output: sqlSolutionOutput } : {}),
+          };
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(getFilesToSave()),
-              score: computedSqlScore
+              ...payload,
+              [submissionsStatusField]: "done"
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: "in_review",
-              solution: JSON.stringify(getFilesToSave()),
-              score: computedSqlScore
+              ...payload,
+              [submissionsStatusField]: "done"
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedSqlScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -2311,7 +2422,7 @@ export function TicketIDE({
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: computedUiScore
             }).catch(console.error).finally(() => setSubmitting(false));
@@ -2319,7 +2430,7 @@ export function TicketIDE({
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: computedUiScore
             }).catch(console.error).finally(() => setSubmitting(false));
@@ -2373,7 +2484,7 @@ export function TicketIDE({
       if (slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           const payload: any = {
-            [submissionsStatusField]: "in_review",
+            [submissionsStatusField]: "done",
             solution: JSON.stringify(getFilesToSave()),
             score: computedScore,
             ...(solutionOutput ? { solution_output: solutionOutput } : {}),
@@ -2430,7 +2541,7 @@ export function TicketIDE({
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: next.filter(t => t.pass).length * 20
             }).catch(console.error);
@@ -2438,7 +2549,7 @@ export function TicketIDE({
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: "in_review",
+              [submissionsStatusField]: "done",
               solution: JSON.stringify(getFilesToSave()),
               score: next.filter(t => t.pass).length * 20
             }).catch(console.error);
@@ -2661,7 +2772,7 @@ export function TicketIDE({
         <DiffBadge value={ticket.difficulty} />
         {!isEvaluationMode && (
           <span className="text-muted-foreground inline-flex items-center gap-1">
-            <Zap className="h-3 w-3 text-primary" />+{ticket.xp} XP
+            <Zap className="h-3 w-3 text-primary" />+{ticket.xp} YP
           </span>
         )}
         <span className="text-muted-foreground inline-flex items-center gap-1">
@@ -3318,7 +3429,7 @@ export function TicketIDE({
                       <TerminalView
                         theme={theme}
                         isVisible={bottomTab === "terminal"}
-                        wsUrl={isReal && !isLoading && userId ? getTerminalWsUrl(userId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other", evaluationId) : null}
+                        wsUrl={isReal && !isLoading && effectiveUserId ? getTerminalWsUrl(effectiveUserId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other", evaluationId) : null}
                         onCommandRun={() => loadWorkspaceFiles(true)}
                         startupCommand={computedStartupCommand}
                         onStartupCommandRun={() => {
@@ -3955,7 +4066,7 @@ function FormattedResultsView({
 
   // 2. Database / SQL results (only for pure DB editor without task report)
   if (isSql) {
-    return <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
+    return <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} executionOutput={executionOutput || output} />;
   }
   if (isMongo) {
     return <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
@@ -5882,7 +5993,7 @@ function ExternalSqlResultsView({
   );
 }
 
-function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runId?: number, onQueryExecuted?: () => void }) {
+function SqlResultsView({ query, runId, onQueryExecuted, executionOutput }: { query: string, runId?: number, onQueryExecuted?: () => void, executionOutput?: string }) {
   const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
   const [res, setRes] = useState<{
     columns: string[];
@@ -5892,6 +6003,36 @@ function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runI
   } | null>(null);
 
   useEffect(() => {
+    if (executionOutput && (executionOutput.includes("-- Executed Query") || executionOutput.includes("Process finished"))) {
+      const cleanOut = executionOutput.replace(/^-- Executed Query\s*/, "").split(/✓ Process finished/)[0].trim();
+      if (cleanOut.startsWith("Error:")) {
+        setRes({ columns: [], rows: [], note: cleanOut, ms: 0 });
+      } else {
+        const lines = cleanOut.split("\n").map(l => l.trim()).filter(Boolean);
+        if (lines.length === 0) {
+          setRes({ columns: [], rows: [], note: "Query executed successfully. 0 row(s) returned.", ms: 0 });
+        } else {
+          const hasPipes = lines.some(l => l.includes("|"));
+          if (hasPipes) {
+            const rows = lines.map(l => {
+              const parts = l.split("|");
+              const rowObj: SqlRow = {};
+              parts.forEach((p, idx) => {
+                rowObj[`col_${idx + 1}`] = p.trim();
+              });
+              return rowObj;
+            });
+            const cols = Object.keys(rows[0] || {});
+            setRes({ columns: cols, rows, note: `${rows.length} row(s) returned`, ms: 0 });
+          } else {
+            setRes({ columns: [], rows: [], note: cleanOut, ms: 0 });
+          }
+        }
+      }
+      if (onQueryExecuted) onQueryExecuted();
+      return;
+    }
+
     if (!query) return;
     try {
       const result = runSqlQuery(query);
@@ -5901,7 +6042,7 @@ function SqlResultsView({ query, runId, onQueryExecuted }: { query: string, runI
     }
     // Refresh schema after query has executed and mutated db state
     if (onQueryExecuted) onQueryExecuted();
-  }, [query, runId, onQueryExecuted]);
+  }, [query, runId, onQueryExecuted, executionOutput]);
 
   if (!res) return null;
 
