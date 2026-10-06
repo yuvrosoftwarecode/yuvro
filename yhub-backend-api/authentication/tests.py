@@ -250,3 +250,72 @@ class MarketplacePermissionsTests(TestCase):
 
         request.user = self.student_user
         self.assertFalse(permission.has_permission(request, None))
+
+
+class UserAdminTests(TestCase):
+    def setUp(self):
+        from django.contrib.admin.sites import AdminSite
+        from authentication.admin import UserAdmin, RoleFilter
+        self.site = AdminSite()
+        self.admin = UserAdmin(User, self.site)
+        self.filter = RoleFilter
+
+    def test_display_roles(self):
+        user1 = User(roles={"ycode": "student", "ylabs": "admin"})
+        self.assertEqual(self.admin.display_roles(user1), "ycode: student, ylabs: admin")
+
+        user2 = User(roles={})
+        self.assertEqual(self.admin.display_roles(user2), "-")
+
+        user3 = User(roles=None)
+        self.assertEqual(self.admin.display_roles(user3), "-")
+
+    def test_roles_in_list_display_and_fieldsets(self):
+        self.assertIn("display_roles", self.admin.list_display)
+        
+        # Check that 'roles' is present in fieldsets
+        fieldset_fields = []
+        for name, opts in self.admin.fieldsets:
+            fieldset_fields.extend(opts.get("fields", ()))
+        self.assertIn("roles", fieldset_fields)
+
+    def test_role_filter_queryset(self):
+        user_admin = User.objects.create_user(
+            username="admin_user",
+            email="admin_u@test.com",
+            roles={"ycode": "admin"}
+        )
+        user_student = User.objects.create_user(
+            username="student_u",
+            email="student_u@test.com",
+            roles={"ycode": "student"}
+        )
+        user_recruiter = User.objects.create_user(
+            username="recruiter_u",
+            email="recruiter_u@test.com",
+            roles={"marketplace": "recruiter_company"}
+        )
+
+        from authentication.admin import RoleFilter
+        from django.test import RequestFactory
+        factory = RequestFactory()
+        request = factory.get("/")
+
+        # Test filter for admin
+        rf_admin = RoleFilter(request, {"role": "admin"}, User, self.admin)
+        admin_qs = rf_admin.queryset(request, User.objects.all())
+        self.assertIn(user_admin, admin_qs)
+        self.assertNotIn(user_student, admin_qs)
+
+        # Test filter for student
+        rf_student = RoleFilter(request, {"role": "student"}, User, self.admin)
+        student_qs = rf_student.queryset(request, User.objects.all())
+        self.assertIn(user_student, student_qs)
+        self.assertNotIn(user_admin, student_qs)
+
+        # Test filter for recruiter
+        rf_recruiter = RoleFilter(request, {"role": "recruiter"}, User, self.admin)
+        recruiter_qs = rf_recruiter.queryset(request, User.objects.all())
+        self.assertIn(user_recruiter, recruiter_qs)
+        self.assertNotIn(user_admin, recruiter_qs)
+

@@ -207,21 +207,29 @@ export function TopNav({
             </div>
           )}
 
-          <ProfileMenu
-            onLogout={() => {
-              logout();
-              nav({ to: "/" });
-            }}
-            userName={
-              user
-                ? user.first_name || user.last_name
+          {user ? (
+            <ProfileMenu
+              onLogout={() => {
+                logout();
+                nav({ to: "/" });
+              }}
+              userName={
+                user.first_name || user.last_name
                   ? `${user.first_name || ""} ${user.last_name || ""}`.trim()
                   : user.username
-                : me.name
-            }
-            userEmail={user?.email}
-            profileImage={user?.profile_image}
-          />
+              }
+              userEmail={user.email}
+              profileImage={user.profile_image}
+            />
+          ) : (
+            <Link
+              to="/auth"
+              search={{ tab: "signin" }}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-colors"
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
     </header>

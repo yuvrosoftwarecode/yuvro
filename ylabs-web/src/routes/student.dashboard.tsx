@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { ProgressRing } from "@/components/ProgressRing";
@@ -13,12 +13,6 @@ import { labs as dummyLabs } from "@/lib/dummy";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 
 export const Route = createFileRoute("/student/dashboard")({
-  beforeLoad: () => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("access");
-      if (!token) throw redirect({ to: "/auth", search: { tab: "signin" } });
-    }
-  },
   component: Hub,
 });
 
@@ -155,7 +149,10 @@ function Hub() {
       if (res) setGhState({ connected: res.is_connected, username: res.github_username });
     }).catch(() => setGhState({ connected: false }));
 
-    loadLabs().then(async data => {
+    loadLabs().catch((err) => {
+      console.error(err);
+      return [];
+    }).then(async (data: any) => {
       let enrSet = new Set<string>();
       let statsMap: Record<string, any> = {};
       try {
@@ -348,8 +345,7 @@ function Hub() {
       });
 
       setAllCatalogLabs(sortedCatalog);
-      setLabsLoading(false);
-    }).catch(console.error);
+    }).catch(console.error).finally(() => setLabsLoading(false));
   }, []);
 
   const enrolledLabs = useMemo(
@@ -506,8 +502,17 @@ function Hub() {
     return localStorage.getItem(`is_first_login_${user.id}`) === "true";
   }, [user?.id]);
 
+  const navigate = useNavigate();
+  const handleGlobalClick = (e: React.MouseEvent) => {
+    if (!user) {
+      e.preventDefault();
+      e.stopPropagation();
+      navigate({ to: "/auth", search: { tab: "signin" } });
+    }
+  };
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" onClickCapture={handleGlobalClick}>
       <TopNav />
       <main className="mx-auto max-w-[1200px] px-4 py-8">
         {/* Header row: title left, quick stats right — right-aligned from sm+ */}
@@ -571,37 +576,39 @@ function Hub() {
 
         <div className="mt-8 space-y-10">
           {/* My labs — horizontal scroll */}
-          <section>
-            <div className="mb-4 flex items-end justify-between">
-              <div className="min-w-0">
-                <h2 className="text-xl font-semibold">My labs</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {enrolledLabs.length} enrolled ·{" "}
-                  {enrolledLabs.reduce((a, l) => a + l.completed, 0)} tickets solved
-                </p>
+          {user && (
+            <section>
+              <div className="mb-4 flex items-end justify-between">
+                <div className="min-w-0">
+                  <h2 className="text-xl font-semibold">My labs</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {enrolledLabs.length} enrolled ·{" "}
+                    {enrolledLabs.reduce((a, l) => a + l.completed, 0)} tickets solved
+                  </p>
+                </div>
               </div>
-            </div>
-            {labsLoading ? (
-              <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> Loading your labs...
-              </div>
-            ) : enrolledLabs.length === 0 ? (
-              <div className="rounded-xl border border-dashed bg-card/40 p-10 text-center">
-                <p className="text-sm text-muted-foreground">
-                  You haven't enrolled in any lab yet. Pick one from the catalog below to get
-                  started.
-                </p>
-              </div>
-            ) : (
-              <HScroll>
-                {enrolledLabs.map((lab) => (
-                  <div key={lab.id} className="w-[300px] shrink-0">
-                    <EnrolledCard lab={lab} />
-                  </div>
-                ))}
-              </HScroll>
-            )}
-          </section>
+              {labsLoading ? (
+                <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Loading your labs...
+                </div>
+              ) : enrolledLabs.length === 0 ? (
+                <div className="rounded-xl border border-dashed bg-card/40 p-10 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    You haven't enrolled in any lab yet. Pick one from the catalog below to get
+                    started.
+                  </p>
+                </div>
+              ) : (
+                <HScroll>
+                  {enrolledLabs.map((lab) => (
+                    <div key={lab.id} className="w-[300px] shrink-0">
+                      <EnrolledCard lab={lab} />
+                    </div>
+                  ))}
+                </HScroll>
+              )}
+            </section>
+          )}
 
           {/* Featured labs — horizontal scroll */}
           {featuredLabs.length > 0 && (
