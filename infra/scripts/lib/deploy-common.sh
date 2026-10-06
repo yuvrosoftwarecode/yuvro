@@ -453,7 +453,7 @@ MPBACKENDENV
 cat > ymarketplace/frontend/.env.dev << 'MPFRONTENDENV'
 DEPLOY_ENV=dev
 DEPLOY_TYPE=docker
-VITE_BACKEND_API_BASE_URL=https://marketplace-backend-dev.yuvro.ai/api
+VITE_BACKEND_API_BASE_URL=https://backend-marketplace-dev.yuvro.ai/api
 VITE_YHUB_BACKEND_API_BASE_URL=https://backend-hub-dev.yuvro.ai/api
 VITE_APP_NAME=yuvro-marketplace
 VITE_DEPLOY_ENV=dev
@@ -477,7 +477,7 @@ export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
 export YLABS_VITE_BACKEND_API_BASE_URL="https://backend-dev.yuvrolabs.com/api"
 export YLABS_VITE_YHUB_BACKEND_API_BASE_URL="https://backend-hub-dev.yuvro.ai/api"
 export YLABS_VITE_YCODE_BACKEND_API_BASE_URL="https://backend-code-dev.yuvro.ai/api"
-export YMARKETPLACE_VITE_BACKEND_API_BASE_URL="https://marketplace-backend-dev.yuvro.ai/api"
+export YMARKETPLACE_VITE_BACKEND_API_BASE_URL="https://backend-marketplace-dev.yuvro.ai/api"
 export YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL="https://backend-hub-dev.yuvro.ai/api"
 export VITE_GOOGLE_CLIENT_ID="$vite_google"
 export YCAMPUS_VITE_GOOGLE_CLIENT_ID="$ycampus_google"
