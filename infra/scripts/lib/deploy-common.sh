@@ -206,26 +206,17 @@ wire_secrets() {
     fi
 
     cd "$OPENTOFU_DIR"
-    print_step "Reading OpenTofu outputs..."
+    print_step "Reading OpenTofu outputs (consolidated database)..."
     S3_BUCKET="$(tofu output -raw app_data_bucket_name          2>/dev/null || true)"
     S3_KEY_ID="$(tofu output -raw app_service_access_key_id     2>/dev/null || true)"
     S3_SECRET="$(tofu output -raw app_service_secret_access_key 2>/dev/null || true)"
 
-    YHUB_DB_HOST="$(tofu output -raw yhub_db_endpoint  2>/dev/null | cut -d: -f1 || true)"
-    YHUB_DB_NAME="$(tofu output -raw yhub_db_name      2>/dev/null || true)"
-    YHUB_DB_USER="$(tofu output -raw yhub_db_username  2>/dev/null || true)"
-
-    YLABS_DB_HOST="$(tofu output -raw ylabs_db_endpoint 2>/dev/null | cut -d: -f1 || true)"
-    YLABS_DB_NAME="$(tofu output -raw ylabs_db_name     2>/dev/null || true)"
-    YLABS_DB_USER="$(tofu output -raw ylabs_db_username 2>/dev/null || true)"
-
-    YMARKETPLACE_DB_HOST="$(tofu output -raw ymarketplace_db_endpoint 2>/dev/null | cut -d: -f1 || true)"
-    YMARKETPLACE_DB_NAME="$(tofu output -raw ymarketplace_db_name     2>/dev/null || true)"
-    YMARKETPLACE_DB_USER="$(tofu output -raw ymarketplace_db_username 2>/dev/null || true)"
-
-    YHUB_DB_PASS="$(grep  '^yhub_db_password'         "$tfvars" | cut -d= -f2- | tr -d ' "'"'")"
-    YLABS_DB_PASS="$(grep '^ylabs_db_password'        "$tfvars" | cut -d= -f2- | tr -d ' "'"'")"
-    YMARKETPLACE_DB_PASS="$(grep '^ymarketplace_db_password' "$tfvars" | cut -d= -f2- | tr -d ' "'"'")"
+    # Consolidated RDS instance - all apps share the same host
+    DB_HOST="$(tofu output -raw db_host     2>/dev/null || true)"
+    DB_PORT="$(tofu output -raw db_port     2>/dev/null || true)"
+    DB_USER="$(grep '^db_master_username' "$tfvars" | cut -d= -f2- | tr -d ' "'"'")"
+    DB_PASS="$(grep '^db_master_password' "$tfvars" | cut -d= -f2- | tr -d ' "'"'")"
+    
     cd "$PROJECT_ROOT" >/dev/null
 
     # S3 into all backends
@@ -238,62 +229,56 @@ wire_secrets() {
     done
     [ -n "$S3_BUCKET" ] && print_success "S3 bucket wired: $S3_BUCKET"
 
-    # YHub RDS
-    if [ -n "$YHUB_DB_HOST" ]; then
-        local f="$SECRETS_DIR/yhub-backend-api/.env.dev-secrets"
-        _set_kv "$f" "DATABASE_URL" "postgresql://${YHUB_DB_USER}:${YHUB_DB_PASS}@${YHUB_DB_HOST}:5432/${YHUB_DB_NAME}"
-        _set_kv "$f" "DB_HOST" "$YHUB_DB_HOST"; _set_kv "$f" "DB_PORT" "5432"
-        _set_kv "$f" "DB_NAME" "$YHUB_DB_NAME"; _set_kv "$f" "DB_USER" "$YHUB_DB_USER"
-        _set_kv "$f" "DB_PASSWORD" "$YHUB_DB_PASS"
+    # Consolidated RDS - All apps use same instance, different databases
+    if [ -n "$DB_HOST" ]; then
+        # YCode
+        local f="$SECRETS_DIR/ycode-backend-api/.env.dev-secrets"
+        _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ycode"
+        _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
+        _set_kv "$f" "DB_NAME" "ycode"; _set_kv "$f" "DB_USER" "$DB_USER"
+        _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
         sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
-        print_success "YHub RDS: $YHUB_DB_HOST/$YHUB_DB_NAME"
-    else
-        print_warning "YHub RDS endpoint not available — keeping existing DATABASE_URL"
-    fi
+        print_success "YCode database: ycode (on consolidated RDS)"
 
-    # YLabs RDS
-    if [ -n "$YLABS_DB_HOST" ]; then
-        local f="$SECRETS_DIR/ylabs-backend-api/.env.dev-secrets"
-        _set_kv "$f" "DATABASE_URL" "postgresql://${YLABS_DB_USER}:${YLABS_DB_PASS}@${YLABS_DB_HOST}:5432/${YLABS_DB_NAME}"
-        _set_kv "$f" "DB_HOST" "$YLABS_DB_HOST"; _set_kv "$f" "DB_PORT" "5432"
-        _set_kv "$f" "DB_NAME" "$YLABS_DB_NAME"; _set_kv "$f" "DB_USER" "$YLABS_DB_USER"
-        _set_kv "$f" "DB_PASSWORD" "$YLABS_DB_PASS"
+        # YCampus
+        f="$SECRETS_DIR/ycampus-backend-api/.env.dev-secrets"
+        _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ycampus"
+        _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
+        _set_kv "$f" "DB_NAME" "ycampus"; _set_kv "$f" "DB_USER" "$DB_USER"
+        _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
         sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
-        print_success "YLabs RDS: $YLABS_DB_HOST/$YLABS_DB_NAME"
-    else
-        print_warning "YLabs RDS endpoint not available — keeping existing DATABASE_URL"
-    fi
+        print_success "YCampus database: ycampus (on consolidated RDS)"
 
-    # YMarketplace RDS
-    if [ -n "$YMARKETPLACE_DB_HOST" ]; then
-        local f="$SECRETS_DIR/ymarketplace/backend/.env.dev-secrets"
-        _set_kv "$f" "DATABASE_URL" "postgres://${YMARKETPLACE_DB_USER}:${YMARKETPLACE_DB_PASS}@${YMARKETPLACE_DB_HOST}:5432/${YMARKETPLACE_DB_NAME}"
-        _set_kv "$f" "DB_HOST" "$YMARKETPLACE_DB_HOST"; _set_kv "$f" "DB_PORT" "5432"
-        _set_kv "$f" "DB_NAME" "$YMARKETPLACE_DB_NAME"; _set_kv "$f" "DB_USER" "$YMARKETPLACE_DB_USER"
-        _set_kv "$f" "DB_PASSWORD" "$YMARKETPLACE_DB_PASS"
-        print_success "YMarketplace RDS: $YMARKETPLACE_DB_HOST/$YMARKETPLACE_DB_NAME"
+        # YHub
+        f="$SECRETS_DIR/yhub-backend-api/.env.dev-secrets"
+        _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/yhub"
+        _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
+        _set_kv "$f" "DB_NAME" "yhub"; _set_kv "$f" "DB_USER" "$DB_USER"
+        _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
+        sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
+        print_success "YHub database: yhub (on consolidated RDS)"
+
+        # YLabs
+        f="$SECRETS_DIR/ylabs-backend-api/.env.dev-secrets"
+        _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ylabs"
+        _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
+        _set_kv "$f" "DB_NAME" "ylabs"; _set_kv "$f" "DB_USER" "$DB_USER"
+        _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
+        sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
+        print_success "YLabs database: ylabs (on consolidated RDS)"
+
+        # YMarketplace
+        f="$SECRETS_DIR/ymarketplace/backend/.env.dev-secrets"
+        _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ymarketplace"
+        _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
+        _set_kv "$f" "DB_NAME" "ymarketplace"; _set_kv "$f" "DB_USER" "$DB_USER"
+        _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
+        sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
+        print_success "YMarketplace database: ymarketplace (on consolidated RDS)"
+        
+        print_success "All databases wired to consolidated RDS: $DB_HOST"
     else
-        # No dedicated RDS yet — reuse the YLabs RDS instance with a separate database
-        if [ -n "$YLABS_DB_HOST" ]; then
-            local mp_db_name="yuvro_marketplace_db"
-            local mp_db_user="${YLABS_DB_USER}"
-            local mp_db_pass="${YLABS_DB_PASS}"
-            local f="$SECRETS_DIR/ymarketplace/backend/.env.dev-secrets"
-            # Create the database on the shared RDS if it doesn't exist
-            print_step "Setting up marketplace DB on shared RDS (${YLABS_DB_HOST})..."
-            PGPASSWORD="$mp_db_pass" psql \
-                -h "$YLABS_DB_HOST" -p 5432 -U "$mp_db_user" -d postgres \
-                -c "CREATE DATABASE \"${mp_db_name}\";" 2>/dev/null \
-                && print_success "Created database: ${mp_db_name}" \
-                || print_success "Database exists: ${mp_db_name}"
-            _set_kv "$f" "DATABASE_URL" "postgres://${mp_db_user}:${mp_db_pass}@${YLABS_DB_HOST}:5432/${mp_db_name}"
-            _set_kv "$f" "DB_HOST" "$YLABS_DB_HOST"; _set_kv "$f" "DB_PORT" "5432"
-            _set_kv "$f" "DB_NAME" "$mp_db_name"; _set_kv "$f" "DB_USER" "$mp_db_user"
-            _set_kv "$f" "DB_PASSWORD" "$mp_db_pass"
-            print_success "YMarketplace DB wired on shared YLabs RDS: ${YLABS_DB_HOST}/${mp_db_name}"
-        else
-            print_warning "YMarketplace RDS endpoint not available — keeping existing DATABASE_URL"
-        fi
+        print_warning "Consolidated RDS endpoint not available — keeping existing DATABASE_URLs"
     fi
 }
 

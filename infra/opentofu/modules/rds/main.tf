@@ -1,14 +1,14 @@
 resource "aws_db_subnet_group" "main" {
-  name       = "${var.environment}-${var.db_name}-subnet-group"
+  name       = "${var.environment}-yuvro-db-subnet-group"
   subnet_ids = length(var.subnet_ids) >= 2 ? var.subnet_ids : concat(var.subnet_ids, var.subnet_ids)
 
   tags = {
-    Name = "${var.environment}-${var.db_name}-subnet-group"
+    Name = "${var.environment}-yuvro-db-subnet-group"
   }
 }
 
 resource "aws_db_instance" "main" {
-  identifier     = "${var.environment}-${var.db_name}-db"
+  identifier     = "${var.environment}-yuvro-db"
   engine         = "postgres"
   engine_version = var.engine_version
   instance_class = var.instance_class
@@ -28,7 +28,7 @@ resource "aws_db_instance" "main" {
   multi_az               = var.multi_az
   publicly_accessible    = false
   skip_final_snapshot    = var.skip_final_snapshot
-  final_snapshot_identifier = var.skip_final_snapshot ? null : "${var.environment}-${var.db_name}-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
+  final_snapshot_identifier = var.skip_final_snapshot ? null : "${var.environment}-yuvro-db-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
 
   backup_retention_period = var.backup_retention_days
   backup_window           = "03:00-04:00"
@@ -42,14 +42,14 @@ resource "aws_db_instance" "main" {
   parameter_group_name = aws_db_parameter_group.main.name
 
   tags = {
-    Name = "${var.environment}-${var.db_name}-db"
+    Name = "${var.environment}-yuvro-db"
   }
 
   depends_on = [aws_db_parameter_group.main]
 }
 
 resource "aws_db_parameter_group" "main" {
-  name   = "${var.environment}-${var.db_name}-params"
+  name   = "${var.environment}-yuvro-db-params"
   family = "postgres${split(".", var.engine_version)[0]}"
 
   parameter {
@@ -63,7 +63,7 @@ resource "aws_db_parameter_group" "main" {
   }
 
   tags = {
-    Name = "${var.environment}-${var.db_name}-params"
+    Name = "${var.environment}-yuvro-db-params"
   }
 
   lifecycle {

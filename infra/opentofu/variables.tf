@@ -42,7 +42,7 @@ variable "private_subnet_cidrs" {
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
-  default     = "t3.micro"
+  default     = "t3.medium"
 }
 
 variable "instance_count" {
@@ -63,7 +63,7 @@ variable "key_pair_name" {
 variable "root_volume_size" {
   description = "Root volume size in GB"
   type        = number
-  default     = 20
+  default     = 100
 }
 
 variable "root_volume_type" {
@@ -72,64 +72,33 @@ variable "root_volume_type" {
   default     = "gp3"
 }
 
-# RDS Configuration - YCode
-variable "ycode_db_username" {
-  description = "YCode database master username"
+# RDS Configuration - Consolidated Single Instance for All Apps
+variable "db_master_username" {
+  description = "Master database username for consolidated RDS instance"
+  type        = string
+  default     = "yuvro_admin"
+}
+
+variable "db_master_password" {
+  description = "Master database password for consolidated RDS instance"
   type        = string
   sensitive   = true
 }
 
-variable "ycode_db_password" {
-  description = "YCode database master password"
+variable "db_instance_class" {
+  description = "Consolidated RDS instance class (supports all apps)"
   type        = string
-  sensitive   = true
+  default     = "db.t3.small"
 }
 
-variable "ycode_db_instance_class" {
-  description = "YCode RDS instance class"
-  type        = string
-  default     = "db.t3.micro"
-}
-
-variable "ycode_db_allocated_storage" {
-  description = "YCode database allocated storage in GB"
+variable "db_allocated_storage" {
+  description = "Consolidated database allocated storage in GB"
   type        = number
   default     = 20
 }
 
-variable "ycode_db_max_allocated_storage" {
-  description = "YCode database max allocated storage for autoscaling in GB"
-  type        = number
-  default     = 100
-}
-
-# RDS Configuration - YCampus
-variable "ycampus_db_username" {
-  description = "YCampus database master username"
-  type        = string
-  sensitive   = true
-}
-
-variable "ycampus_db_password" {
-  description = "YCampus database master password"
-  type        = string
-  sensitive   = true
-}
-
-variable "ycampus_db_instance_class" {
-  description = "YCampus RDS instance class"
-  type        = string
-  default     = "db.t3.micro"
-}
-
-variable "ycampus_db_allocated_storage" {
-  description = "YCampus database allocated storage in GB"
-  type        = number
-  default     = 20
-}
-
-variable "ycampus_db_max_allocated_storage" {
-  description = "YCampus database max allocated storage for autoscaling in GB"
+variable "db_max_allocated_storage" {
+  description = "Consolidated database max allocated storage for autoscaling in GB"
   type        = number
   default     = 100
 }
@@ -138,7 +107,7 @@ variable "ycampus_db_max_allocated_storage" {
 variable "postgres_version" {
   description = "PostgreSQL engine version"
   type        = string
-  default     = "15.4"
+  default     = "15"
 }
 
 variable "backup_retention_days" {
@@ -154,13 +123,13 @@ variable "backup_retention_days" {
 variable "multi_az" {
   description = "Enable Multi-AZ deployment for RDS"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "skip_final_snapshot" {
   description = "Skip final snapshot on RDS deletion"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "s3_cors_allowed_origins" {
@@ -170,97 +139,4 @@ variable "s3_cors_allowed_origins" {
     "https://*.yuvro.ai",
     "https://yuvro.ai",
   ]
-}
-
-# RDS Configuration - YHub
-variable "yhub_db_username" {
-  description = "YHub database master username"
-  type        = string
-  default     = "yhub_admin"
-}
-
-variable "yhub_db_password" {
-  description = "YHub database master password"
-  type        = string
-  sensitive   = true
-}
-
-variable "yhub_db_instance_class" {
-  description = "YHub RDS instance class"
-  type        = string
-  default     = "db.t3.micro"
-}
-
-variable "yhub_db_allocated_storage" {
-  description = "YHub database allocated storage in GB"
-  type        = number
-  default     = 5
-}
-
-variable "yhub_db_max_allocated_storage" {
-  description = "YHub database max allocated storage for autoscaling in GB"
-  type        = number
-  default     = 10
-}
-
-# RDS Configuration - YLabs
-variable "ylabs_db_username" {
-  description = "YLabs database master username"
-  type        = string
-  default     = "ylabs_admin"
-}
-
-variable "ylabs_db_password" {
-  description = "YLabs database master password"
-  type        = string
-  sensitive   = true
-}
-
-variable "ylabs_db_instance_class" {
-  description = "YLabs RDS instance class"
-  type        = string
-  default     = "db.t3.micro"
-}
-
-variable "ylabs_db_allocated_storage" {
-  description = "YLabs database allocated storage in GB"
-  type        = number
-  default     = 5
-}
-
-variable "ylabs_db_max_allocated_storage" {
-  description = "YLabs database max allocated storage for autoscaling in GB"
-  type        = number
-  default     = 10
-}
-
-# RDS Configuration - YMarketplace
-variable "ymarketplace_db_username" {
-  description = "YMarketplace database master username"
-  type        = string
-  default     = "ymarketplace_admin"
-}
-
-variable "ymarketplace_db_password" {
-  description = "YMarketplace database master password"
-  type        = string
-  sensitive   = true
-}
-
-variable "ymarketplace_db_instance_class" {
-  description = "YMarketplace RDS instance class"
-  type        = string
-  default     = "db.t3.micro"
-}
-
-variable "ymarketplace_db_allocated_storage" {
-  description = "YMarketplace database allocated storage in GB"
-  type        = number
-  default     = 5
-}
-
-variable "ymarketplace_db_max_allocated_storage" {
-  description = "YMarketplace database max allocated storage for autoscaling in GB"
-  type        = number
-  default     = 10
 }

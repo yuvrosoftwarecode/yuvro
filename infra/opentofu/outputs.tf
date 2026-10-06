@@ -30,118 +30,64 @@ output "app_node_public_ips" {
   value       = var.instance_count > 0 ? module.ec2_nodes[0].public_ips : []
 }
 
-# RDS YCode Outputs
-output "ycode_db_endpoint" {
-  description = "YCode RDS database endpoint"
-  value       = module.rds_ycode.db_endpoint
+# RDS Consolidated Database Outputs
+output "db_endpoint" {
+  description = "Consolidated RDS database endpoint (all apps share this instance)"
+  value       = module.rds_main.db_endpoint
   sensitive   = true
 }
 
-output "ycode_db_port" {
-  description = "YCode RDS database port"
-  value       = module.rds_ycode.db_port
-}
-
-output "ycode_db_name" {
-  description = "YCode database name"
-  value       = module.rds_ycode.db_name
-}
-
-output "ycode_db_username" {
-  description = "YCode database master username"
-  value       = module.rds_ycode.db_username
+output "db_host" {
+  description = "Consolidated RDS database hostname"
+  value       = module.rds_main.db_host
   sensitive   = true
 }
 
-# RDS YCampus Outputs
-output "ycampus_db_endpoint" {
-  description = "YCampus RDS database endpoint"
-  value       = module.rds_ycampus.db_endpoint
+output "db_port" {
+  description = "Consolidated RDS database port"
+  value       = module.rds_main.db_port
+}
+
+output "db_master_username" {
+  description = "Master username for consolidated database"
+  value       = var.db_master_username
   sensitive   = true
 }
 
-output "ycampus_db_port" {
-  description = "YCampus RDS database port"
-  value       = module.rds_ycampus.db_port
+output "db_instance_id" {
+  description = "Consolidated RDS instance ID"
+  value       = module.rds_main.db_instance_id
 }
 
-output "ycampus_db_name" {
-  description = "YCampus database name"
-  value       = module.rds_ycampus.db_name
-}
-
-output "ycampus_db_username" {
-  description = "YCampus database master username"
-  value       = module.rds_ycampus.db_username
+# Application Database Connection Strings
+# Each app uses the same RDS instance but different database schema
+output "ycode_database_url" {
+  description = "Connection string for YCode database (on consolidated instance)"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ycode"
   sensitive   = true
 }
 
-# RDS YHub Outputs
-output "yhub_db_endpoint" {
-  description = "YHub RDS database endpoint"
-  value       = module.rds_yhub.db_endpoint
+output "ycampus_database_url" {
+  description = "Connection string for YCampus database (on consolidated instance)"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ycampus"
   sensitive   = true
 }
 
-output "yhub_db_port" {
-  description = "YHub RDS database port"
-  value       = module.rds_yhub.db_port
-}
-
-output "yhub_db_name" {
-  description = "YHub database name"
-  value       = module.rds_yhub.db_name
-}
-
-output "yhub_db_username" {
-  description = "YHub database master username"
-  value       = module.rds_yhub.db_username
+output "yhub_database_url" {
+  description = "Connection string for YHub database (on consolidated instance)"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/yhub"
   sensitive   = true
 }
 
-# RDS YLabs Outputs
-output "ylabs_db_endpoint" {
-  description = "YLabs RDS database endpoint"
-  value       = module.rds_ylabs.db_endpoint
+output "ylabs_database_url" {
+  description = "Connection string for YLabs database (on consolidated instance)"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ylabs"
   sensitive   = true
 }
 
-output "ylabs_db_port" {
-  description = "YLabs RDS database port"
-  value       = module.rds_ylabs.db_port
-}
-
-output "ylabs_db_name" {
-  description = "YLabs database name"
-  value       = module.rds_ylabs.db_name
-}
-
-output "ylabs_db_username" {
-  description = "YLabs database master username"
-  value       = module.rds_ylabs.db_username
-  sensitive   = true
-}
-
-# RDS YMarketplace Outputs
-output "ymarketplace_db_endpoint" {
-  description = "YMarketplace RDS database endpoint"
-  value       = module.rds_ymarketplace.db_endpoint
-  sensitive   = true
-}
-
-output "ymarketplace_db_port" {
-  description = "YMarketplace RDS database port"
-  value       = module.rds_ymarketplace.db_port
-}
-
-output "ymarketplace_db_name" {
-  description = "YMarketplace database name"
-  value       = module.rds_ymarketplace.db_name
-}
-
-output "ymarketplace_db_username" {
-  description = "YMarketplace database master username"
-  value       = module.rds_ymarketplace.db_username
+output "ymarketplace_database_url" {
+  description = "Connection string for YMarketplace database (on consolidated instance)"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ymarketplace"
   sensitive   = true
 }
 

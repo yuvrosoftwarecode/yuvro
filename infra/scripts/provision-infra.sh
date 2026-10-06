@@ -60,15 +60,21 @@ ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
 print_success "AWS Account: $ACCOUNT"
 
 # ── opentofu initialization ─────────────────────────────────────────────────
-print_step "Initializing OpenTofu..."
 cd "$OPENTOFU_DIR"
 
-if [ ! -d ".terraform" ]; then
-    tofu init
-    print_success "OpenTofu initialized"
-else
-    print_info "OpenTofu already initialized"
+print_step "Initializing OpenTofu (with module upgrade)..."
+tofu init -upgrade
+print_success "OpenTofu initialized"
+
+# ── workspace selection ─────────────────────────────────────────────────────
+WORKSPACE="$ENVIRONMENT"
+CURRENT_WORKSPACE=$(tofu workspace show 2>/dev/null || echo "default")
+
+if [ "$CURRENT_WORKSPACE" != "$WORKSPACE" ]; then
+    print_step "Switching to workspace: $WORKSPACE"
+    tofu workspace select "$WORKSPACE" 2>/dev/null || tofu workspace new "$WORKSPACE"
 fi
+print_success "Workspace: $WORKSPACE"
 
 # ── select tfvars ───────────────────────────────────────────────────────────
 TFVARS="${ENVIRONMENT}.tfvars"
@@ -78,23 +84,10 @@ if [ ! -f "$TFVARS" ]; then
 fi
 print_success "Using: $TFVARS"
 
-# ── workspace selection ─────────────────────────────────────────────────────
-WORKSPACE="$ENVIRONMENT"
-CURRENT_WORKSPACE=$(tofu workspace show)
-
-if [ "$CURRENT_WORKSPACE" != "$WORKSPACE" ]; then
-    print_step "Switching to workspace: $WORKSPACE"
-    tofu workspace select "$WORKSPACE" 2>/dev/null || tofu workspace new "$WORKSPACE"
-fi
-print_success "Workspace: $WORKSPACE"
-
 # ── validate configuration ──────────────────────────────────────────────────
 print_step "Validating configuration..."
 tofu validate
 print_success "Configuration valid"
-
-# ── terraform fmt (optional) ────────────────────────────────────────────────
-# tofu fmt -check . || { print_warning "Run: tofu fmt to format code"; }
 
 # ── plan ────────────────────────────────────────────────────────────────────
 print_step "Planning infrastructure changes..."
@@ -133,7 +126,7 @@ case "$ACTION" in
         
         # Show outputs
         print_step "Infrastructure Outputs:"
-        tofu output -json | jq '.' || tofu output
+        tofu output -json | jq '.' 2>/dev/null || tofu output
         ;;
     destroy)
         print_warning "Destroy will delete ALL infrastructure in $ENVIRONMENT"

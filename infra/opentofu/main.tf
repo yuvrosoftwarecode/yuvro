@@ -29,6 +29,7 @@ provider "aws" {
   }
 }
 
+
 # VPC Module
 module "vpc" {
   source = "./modules/vpc"
@@ -63,18 +64,18 @@ module "ec2_nodes" {
   root_volume_type  = var.root_volume_type
 }
 
-# RDS PostgreSQL for YCode
-# Uses private subnets if available, otherwise uses public subnets (for minimal dev setup)
-module "rds_ycode" {
+# RDS PostgreSQL - Consolidated Single Instance for All Apps
+# All apps use separate databases within the same RDS instance for cost savings and easier management
+module "rds_main" {
   source = "./modules/rds"
 
   environment              = var.environment
-  db_name                  = "ycode"
-  db_username              = var.ycode_db_username
-  db_password              = var.ycode_db_password
-  instance_class           = var.ycode_db_instance_class
-  allocated_storage         = var.ycode_db_allocated_storage
-  max_allocated_storage     = var.ycode_db_max_allocated_storage
+  db_name                  = "postgres"  # Use default postgres db; app databases created by migrations
+  db_username              = var.db_master_username
+  db_password              = var.db_master_password
+  instance_class           = var.db_instance_class
+  allocated_storage         = var.db_allocated_storage
+  max_allocated_storage     = var.db_max_allocated_storage
   subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
   security_group_id        = module.security_groups.rds_sg_id
   backup_retention_days    = var.backup_retention_days
@@ -83,82 +84,9 @@ module "rds_ycode" {
   skip_final_snapshot      = var.skip_final_snapshot
 }
 
-# RDS PostgreSQL for YCampus
-# Uses private subnets if available, otherwise uses public subnets (for minimal dev setup)
-module "rds_ycampus" {
-  source = "./modules/rds"
+# Note: Application databases are created by deployment scripts when they run migrations
+# This is the standard Django pattern: python manage.py migrate creates the database if it doesn't exist
 
-  environment              = var.environment
-  db_name                  = "ycampus"
-  db_username              = var.ycampus_db_username
-  db_password              = var.ycampus_db_password
-  instance_class           = var.ycampus_db_instance_class
-  allocated_storage         = var.ycampus_db_allocated_storage
-  max_allocated_storage     = var.ycampus_db_max_allocated_storage
-  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
-  security_group_id        = module.security_groups.rds_sg_id
-  backup_retention_days    = var.backup_retention_days
-  multi_az                 = var.multi_az
-  engine_version           = var.postgres_version
-  skip_final_snapshot      = var.skip_final_snapshot
-}
-
-# RDS PostgreSQL for YHub
-module "rds_yhub" {
-  source = "./modules/rds"
-
-  environment              = var.environment
-  db_name                  = "yhub"
-  db_username              = var.yhub_db_username
-  db_password              = var.yhub_db_password
-  instance_class           = var.yhub_db_instance_class
-  allocated_storage         = var.yhub_db_allocated_storage
-  max_allocated_storage     = var.yhub_db_max_allocated_storage
-  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
-  security_group_id        = module.security_groups.rds_sg_id
-  backup_retention_days    = var.backup_retention_days
-  multi_az                 = var.multi_az
-  engine_version           = var.postgres_version
-  skip_final_snapshot      = var.skip_final_snapshot
-}
-
-# RDS PostgreSQL for YLabs
-module "rds_ylabs" {
-  source = "./modules/rds"
-
-  environment              = var.environment
-  db_name                  = "ylabs"
-  db_username              = var.ylabs_db_username
-  db_password              = var.ylabs_db_password
-  instance_class           = var.ylabs_db_instance_class
-  allocated_storage         = var.ylabs_db_allocated_storage
-  max_allocated_storage     = var.ylabs_db_max_allocated_storage
-  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
-  security_group_id        = module.security_groups.rds_sg_id
-  backup_retention_days    = var.backup_retention_days
-  multi_az                 = var.multi_az
-  engine_version           = var.postgres_version
-  skip_final_snapshot      = var.skip_final_snapshot
-}
-
-# RDS PostgreSQL for YMarketplace
-module "rds_ymarketplace" {
-  source = "./modules/rds"
-
-  environment              = var.environment
-  db_name                  = "ymarketplace"
-  db_username              = var.ymarketplace_db_username
-  db_password              = var.ymarketplace_db_password
-  instance_class           = var.ymarketplace_db_instance_class
-  allocated_storage         = var.ymarketplace_db_allocated_storage
-  max_allocated_storage     = var.ymarketplace_db_max_allocated_storage
-  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
-  security_group_id        = module.security_groups.rds_sg_id
-  backup_retention_days    = var.backup_retention_days
-  multi_az                 = var.multi_az
-  engine_version           = var.postgres_version
-  skip_final_snapshot      = var.skip_final_snapshot
-}
 
 # S3 Buckets Module
 module "s3" {
