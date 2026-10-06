@@ -119,14 +119,21 @@ services:
 
   # ── YMarketplace ───────────────────────────────────────────────────────────
   ymarketplace-db:
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-yuvro_marketplace_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGPORT: "5436"
     env_file:
-      - ./ymarketplace/backend/.env.local
+      - path: ./ymarketplace/backend/.env.local
+        required: false
       - path: ./ymarketplace/backend/.env.local-secrets
         required: false
 
   ymarketplace-backend:
     env_file:
-      - ./ymarketplace/backend/.env.local
+      - path: ./ymarketplace/backend/.env.local
+        required: false
       - path: ./ymarketplace/backend/.env.local-secrets
         required: false
     volumes:
@@ -135,7 +142,8 @@ services:
 
   ymarketplace-frontend:
     env_file:
-      - ./ymarketplace/frontend/.env.local
+      - path: ./ymarketplace/frontend/.env.local
+        required: false
       - path: ./ymarketplace/frontend/.env.local-secrets
         required: false
     ports:

@@ -2,6 +2,11 @@ services:
   ymarketplace-db:
     image: postgres:16-alpine
     command: postgres -p 5436
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-yuvro_marketplace_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGPORT: "5436"
     env_file:
       - path: ./ymarketplace/backend/.env.local
         required: false
@@ -19,7 +24,10 @@ services:
       start_period: 20s
     restart: on-failure
     networks:
-      - ymarketplace
+      ymarketplace:
+        aliases:
+          - db
+          - ymarketplace-db
 
   ymarketplace-backend:
     build:
@@ -52,7 +60,10 @@ services:
       ymarketplace-db:
         condition: service_healthy
     networks:
-      - ymarketplace
+      ymarketplace:
+        aliases:
+          - backend
+          - ymarketplace-backend
 
   ymarketplace-frontend:
     build:
@@ -85,7 +96,10 @@ services:
       start_period: 60s
     restart: on-failure
     networks:
-      - ymarketplace
+      ymarketplace:
+        aliases:
+          - frontend
+          - ymarketplace-frontend
 
 volumes:
   ymarketplace_postgres_data:

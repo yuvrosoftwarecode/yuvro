@@ -19,7 +19,7 @@
 .PHONY: observability-setup observability-validate
 .PHONY: secrets-load secrets-validate secrets-rotate secrets-audit
 .PHONY: prod-build prod-up prod-down
-.PHONY: _validate-deploy load-env-files validate-env-files
+.PHONY: _validate-deploy load-env-files validate-env-files setup-ymarketplace-env submodule-update
 
 # ============================================================================
 # Environment Configuration
@@ -64,7 +64,30 @@ _validate-deploy:
 # Environment-Specific Configuration Loading
 # ============================================================================
 
-.PHONY: load-env-files validate-env-files
+.PHONY: load-env-files validate-env-files setup-ymarketplace-env submodule-update
+
+submodule-update:
+	@if [ -d ".git" ] && [ -f ".gitmodules" ]; then \
+		if [ -d "ymarketplace" ] && [ ! -f "ymarketplace/.git" ]; then \
+			echo "   ⚠ stale ymarketplace dir — clearing for submodule init..."; \
+			rm -rf ymarketplace; \
+			git config --file .gitmodules --get submodule.ymarketplace.url >/dev/null 2>&1 && \
+				git config --remove-section submodule.ymarketplace 2>/dev/null || true; \
+			rm -rf .git/modules/ymarketplace; \
+		fi; \
+		echo "📦 Updating git submodules..."; \
+		git submodule update --init --recursive; \
+	fi
+
+setup-ymarketplace-env:
+	@if [ ! -f "ymarketplace/backend/.env.local" ] && [ -f "ymarketplace/backend/.env.local.example" ]; then \
+		cp ymarketplace/backend/.env.local.example ymarketplace/backend/.env.local; \
+		echo "  📋 Created ymarketplace/backend/.env.local"; \
+	fi
+	@if [ ! -f "ymarketplace/frontend/.env.local" ] && [ -f "ymarketplace/frontend/.env.local.example" ]; then \
+		cp ymarketplace/frontend/.env.local.example ymarketplace/frontend/.env.local; \
+		echo "  📋 Created ymarketplace/frontend/.env.local"; \
+	fi
 
 load-env-files: _validate-deploy
 	@echo "📦 Loading environment-specific .env files for DEPLOY_ENV=$(DEPLOY_ENV)..."
@@ -84,11 +107,25 @@ load-env-files: _validate-deploy
 					echo "  ⚠ ycampus-backend-api/.env.$(DEPLOY_ENV) not found"; \
 				fi \
 				;; \
+			ylabs-backend) \
+				if [ -f "ylabs-backend-api/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ✓ ylabs-backend-api/.env.$(DEPLOY_ENV)"; \
+				else \
+					echo "  ⚠ ylabs-backend-api/.env.$(DEPLOY_ENV) not found"; \
+				fi \
+				;; \
 			yhub-backend) \
 				if [ -f "yhub-backend-api/.env.$(DEPLOY_ENV)" ]; then \
 					echo "  ✓ yhub-backend-api/.env.$(DEPLOY_ENV)"; \
 				else \
 					echo "  ⚠ yhub-backend-api/.env.$(DEPLOY_ENV) not found"; \
+				fi \
+				;; \
+			ymarketplace-backend) \
+				if [ -f "ymarketplace/backend/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ✓ ymarketplace/backend/.env.$(DEPLOY_ENV)"; \
+				else \
+					echo "  ⚠ ymarketplace/backend/.env.$(DEPLOY_ENV) not found"; \
 				fi \
 				;; \
 			ycode-frontend) \
@@ -103,6 +140,20 @@ load-env-files: _validate-deploy
 					echo "  ✓ ycampus-web/.env.$(DEPLOY_ENV)"; \
 				else \
 					echo "  ⚠ ycampus-web/.env.$(DEPLOY_ENV) not found"; \
+				fi \
+				;; \
+			ylabs-frontend) \
+				if [ -f "ylabs-web/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ✓ ylabs-web/.env.$(DEPLOY_ENV)"; \
+				else \
+					echo "  ⚠ ylabs-web/.env.$(DEPLOY_ENV) not found"; \
+				fi \
+				;; \
+			ymarketplace-frontend) \
+				if [ -f "ymarketplace/frontend/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ✓ ymarketplace/frontend/.env.$(DEPLOY_ENV)"; \
+				else \
+					echo "  ⚠ ymarketplace/frontend/.env.$(DEPLOY_ENV) not found"; \
 				fi \
 				;; \
 			code-executor) \
@@ -133,9 +184,21 @@ validate-env-files: _validate-deploy
 					MISSING_FILES=1; \
 				fi \
 				;; \
+			ylabs-backend) \
+				if [ ! -f "ylabs-backend-api/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ❌ Missing: ylabs-backend-api/.env.$(DEPLOY_ENV)"; \
+					MISSING_FILES=1; \
+				fi \
+				;; \
 			yhub-backend) \
 				if [ ! -f "yhub-backend-api/.env.$(DEPLOY_ENV)" ]; then \
 					echo "  ❌ Missing: yhub-backend-api/.env.$(DEPLOY_ENV)"; \
+					MISSING_FILES=1; \
+				fi \
+				;; \
+			ymarketplace-backend) \
+				if [ ! -f "ymarketplace/backend/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ❌ Missing: ymarketplace/backend/.env.$(DEPLOY_ENV)"; \
 					MISSING_FILES=1; \
 				fi \
 				;; \
@@ -148,6 +211,18 @@ validate-env-files: _validate-deploy
 			ycampus-frontend) \
 				if [ ! -f "ycampus-web/.env.$(DEPLOY_ENV)" ]; then \
 					echo "  ❌ Missing: ycampus-web/.env.$(DEPLOY_ENV)"; \
+					MISSING_FILES=1; \
+				fi \
+				;; \
+			ylabs-frontend) \
+				if [ ! -f "ylabs-web/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ❌ Missing: ylabs-web/.env.$(DEPLOY_ENV)"; \
+					MISSING_FILES=1; \
+				fi \
+				;; \
+			ymarketplace-frontend) \
+				if [ ! -f "ymarketplace/frontend/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ❌ Missing: ymarketplace/frontend/.env.$(DEPLOY_ENV)"; \
 					MISSING_FILES=1; \
 				fi \
 				;; \
@@ -282,15 +357,25 @@ ifeq ($(DEPLOY_TYPE),docker)
   COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.ymarketplace.yml $(ENV_OVERRIDE)
 endif
 
-install: _validate-deploy
+install: _validate-deploy submodule-update setup-ymarketplace-env
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		echo ""; \
 		bash infra/scripts/deploy-dev-auto.sh $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building and starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		git submodule update --init --recursive 2>/dev/null || true; \
+		if [ ! -f "ymarketplace/backend/.env.local" ] && [ -f "ymarketplace/backend/.env.local.example" ]; then \
+			cp ymarketplace/backend/.env.local.example ymarketplace/backend/.env.local; \
+			echo "  📋 Created ymarketplace/backend/.env.local"; \
+		fi; \
+		if [ ! -f "ymarketplace/frontend/.env.local" ] && [ -f "ymarketplace/frontend/.env.local.example" ]; then \
+			cp ymarketplace/frontend/.env.local.example ymarketplace/frontend/.env.local; \
+			echo "  📋 Created ymarketplace/frontend/.env.local"; \
+		fi; \
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
+		docker network create yuvro_marketplace 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) down --remove-orphans 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) build --build-arg BUILDKIT_INLINE_CACHE=1; \
 		docker compose $(COMPOSE_FILES) up; \
@@ -318,15 +403,25 @@ install: _validate-deploy
 		echo "✅ Deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
 	fi
 
-run: _validate-deploy
+run: _validate-deploy submodule-update setup-ymarketplace-env
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		echo ""; \
 		bash infra/scripts/deploy-dev-auto.sh $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		git submodule update --init --recursive 2>/dev/null || true; \
+		if [ ! -f "ymarketplace/backend/.env.local" ] && [ -f "ymarketplace/backend/.env.local.example" ]; then \
+			cp ymarketplace/backend/.env.local.example ymarketplace/backend/.env.local; \
+			echo "  📋 Created ymarketplace/backend/.env.local"; \
+		fi; \
+		if [ ! -f "ymarketplace/frontend/.env.local" ] && [ -f "ymarketplace/frontend/.env.local.example" ]; then \
+			cp ymarketplace/frontend/.env.local.example ymarketplace/frontend/.env.local; \
+			echo "  📋 Created ymarketplace/frontend/.env.local"; \
+		fi; \
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
+		docker network create yuvro_marketplace 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) up -d --wait || { \
 			echo "❌ One or more services failed to become healthy. Showing logs:"; \
 			docker compose $(COMPOSE_FILES) ps; \
@@ -738,9 +833,18 @@ install-ylabs: _validate-deploy
 		echo "❌ Kubernetes deployment for YLabs is not configured"; \
 	fi
 
-install-ymarketplace: _validate-deploy
+install-ymarketplace: _validate-deploy submodule-update setup-ymarketplace-env
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		git submodule update --init --recursive 2>/dev/null || true; \
+		if [ ! -f "ymarketplace/backend/.env.local" ] && [ -f "ymarketplace/backend/.env.local.example" ]; then \
+			cp ymarketplace/backend/.env.local.example ymarketplace/backend/.env.local; \
+			echo "  📋 Created ymarketplace/backend/.env.local"; \
+		fi; \
+		if [ ! -f "ymarketplace/frontend/.env.local" ] && [ -f "ymarketplace/frontend/.env.local.example" ]; then \
+			cp ymarketplace/frontend/.env.local.example ymarketplace/frontend/.env.local; \
+			echo "  📋 Created ymarketplace/frontend/.env.local"; \
+		fi; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
 		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) \
 			build --build-arg BUILDKIT_INLINE_CACHE=1; \
@@ -845,9 +949,18 @@ logs-ylabs: _validate-deploy
 	fi
 
 # YMarketplace
-run-ymarketplace: _validate-deploy
+run-ymarketplace: _validate-deploy submodule-update setup-ymarketplace-env
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		git submodule update --init --recursive 2>/dev/null || true; \
+		if [ ! -f "ymarketplace/backend/.env.local" ] && [ -f "ymarketplace/backend/.env.local.example" ]; then \
+			cp ymarketplace/backend/.env.local.example ymarketplace/backend/.env.local; \
+			echo "  📋 Created ymarketplace/backend/.env.local"; \
+		fi; \
+		if [ ! -f "ymarketplace/frontend/.env.local" ] && [ -f "ymarketplace/frontend/.env.local.example" ]; then \
+			cp ymarketplace/frontend/.env.local.example ymarketplace/frontend/.env.local; \
+			echo "  📋 Created ymarketplace/frontend/.env.local"; \
+		fi; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
 		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) up -d --wait || { \
 			echo "❌ One or more YMarketplace services failed to become healthy. Showing logs:"; \
@@ -1084,15 +1197,16 @@ db-reset: _validate-deploy
 	@echo "🧹 Resetting all databases (removing containers + named volumes)..."
 	@docker network create executor 2>/dev/null || true
 	@docker network create yuvro_ylabs 2>/dev/null || true
-	@docker compose $(COMPOSE_FILES) stop ycode-backend ycampus-backend yhub-backend ylabs-backend 2>/dev/null || true
-	@docker compose $(COMPOSE_FILES) rm -s -f ycode-db ycampus-db yhub-db ylabs-db 2>/dev/null || true
-	@docker volume rm yuvro_ycode_postgres_data yuvro_ycampus_postgres_data yuvro_yhub_postgres_data yuvro_ylabs_postgres_data 2>/dev/null || true
+	@docker network create yuvro_marketplace 2>/dev/null || true
+	@docker compose $(COMPOSE_FILES) stop ycode-backend ycampus-backend yhub-backend ylabs-backend ymarketplace-backend 2>/dev/null || true
+	@docker compose $(COMPOSE_FILES) rm -s -f ycode-db ycampus-db yhub-db ylabs-db ymarketplace-db 2>/dev/null || true
+	@docker volume rm yuvro_ycode_postgres_data yuvro_ycampus_postgres_data yuvro_yhub_postgres_data yuvro_ylabs_postgres_data yuvro_ymarketplace_postgres_data 2>/dev/null || true
 	@echo "🚀 Starting fresh databases..."
-	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db yhub-db ylabs-db
+	@docker compose $(COMPOSE_FILES) up -d ycode-db ycampus-db yhub-db ylabs-db ymarketplace-db
 	@echo "⏳ Waiting for databases to become healthy..."
 	@sleep 10
-	@docker compose $(COMPOSE_FILES) start ycode-backend ycampus-backend yhub-backend ylabs-backend 2>/dev/null || \
-		docker compose $(COMPOSE_FILES) up -d ycode-backend ycampus-backend yhub-backend ylabs-backend
+	@docker compose $(COMPOSE_FILES) start ycode-backend ycampus-backend yhub-backend ylabs-backend ymarketplace-backend 2>/dev/null || \
+		docker compose $(COMPOSE_FILES) up -d ycode-backend ycampus-backend yhub-backend ylabs-backend ymarketplace-backend
 	@echo "✅ All databases reset complete (migrations applied on backend restart)."
 
 db-reset-ycode:
