@@ -41,26 +41,27 @@ def print_step(msg):
     print(f"{BOLD}› {msg}{NC}")
 
 # RDS endpoints and credentials
+# Both old and new instances use the same username (yuvro_admin) and password
 OLD_INSTANCES = {
     'ycode': {
         'endpoint': 'dev-ycode-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ycode',
-        'user': 'postgres'
+        'user': 'yuvro_admin'  # Same as new instance
     },
     'ycampus': {
         'endpoint': 'dev-ycampus-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ycampus',
-        'user': 'postgres'
+        'user': 'yuvro_admin'  # Same as new instance
     },
     'yhub': {
         'endpoint': 'dev-yhub-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'yhub',
-        'user': 'postgres'
+        'user': 'yuvro_admin'  # Same as new instance
     },
     'ylabs': {
         'endpoint': 'dev-ylabs-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ylabs',
-        'user': 'postgres'
+        'user': 'yuvro_admin'  # Same as new instance
     },
 }
 
@@ -147,9 +148,8 @@ def migrate_database(old_instance, new_password):
     
     print_step(f"Migrating {app_name} database...")
     
-    # Get old password (assumes 'postgres' password is same across old instances)
-    # In real scenario, you'd read from env vars or secure store
-    old_password = read_password_from_tfvars('db_master_password')
+    # Get password - same for old and new instances
+    old_password = new_password
     
     # Environment variables for both connections
     env = os.environ.copy()
