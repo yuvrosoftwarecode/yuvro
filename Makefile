@@ -1118,6 +1118,26 @@ deploy-all:
 	@echo "🚀 Deploying ALL services to dev [branch=$(DEPLOY_BRANCH)]..."
 	@bash infra/scripts/deploy-all.sh $(DEPLOY_BRANCH)
 
+# ============================================================================
+# Infrastructure Provisioning
+# ============================================================================
+
+provision-infra:
+	@echo "📦 Provisioning infrastructure [env=$(DEPLOY_ENV)]..."
+	@bash infra/scripts/provision-infra.sh $(DEPLOY_ENV) plan
+
+provision-infra-apply:
+	@echo "📦 Provisioning & applying infrastructure [env=$(DEPLOY_ENV)]..."
+	@bash infra/scripts/provision-infra.sh $(DEPLOY_ENV) apply
+
+provision-infra-destroy:
+	@echo "⚠️  Destroying infrastructure [env=$(DEPLOY_ENV)]..."
+	@bash infra/scripts/provision-infra.sh $(DEPLOY_ENV) destroy
+
+deploy-all:
+	@echo "🚀 Deploying ALL services to dev [branch=$(DEPLOY_BRANCH)]..."
+	@bash infra/scripts/deploy-all.sh $(DEPLOY_BRANCH)
+
 deploy-ycode:
 	@echo "🚀 Deploying YCode to dev [branch=$(DEPLOY_BRANCH)]..."
 	@bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH)
