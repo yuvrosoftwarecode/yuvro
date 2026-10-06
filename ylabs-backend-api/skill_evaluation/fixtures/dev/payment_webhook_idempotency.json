@@ -1,15 +1,15 @@
 {
   "lab_questions": [
     {
-      "title": "Webhook Idempotency & Duplicate Charging",
+      "title": "Payment Webhook Idempotency",
       "type": "BACKEND",
-      "description": "Evaluate a candidate's ability to handle asynchronous webhooks safely. The lab covers implementing idempotency checks, handling duplicate webhook retries, and enforcing database locks to prevent concurrent race conditions.",
+      "description": "Evaluate a candidate's ability to build robust webhook handlers that withstand concurrent duplicates, enforce origin authenticity, and validate external payloads using defensive programming techniques.",
       "difficulty": "HARD",
-      "domain": "BACKEND",
+      "domain": "PAYMENTS",
       "experience": "MID_LEVEL",
-      "duration_minutes": 45,
-      "marks": 10,
-      "scenario": "BUG_FIXING",
+      "duration_minutes": 60,
+      "marks": 30,
+      "scenario": "SECURITY",
       "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
       "git_repo_starter_branch": "feature/payment-webhook-idempotency",
       "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
@@ -27,12 +27,44 @@
       "frontend_frameworks": [],
       "tasks": [
         {
-          "title": "Enforce Webhook Idempotency",
-          "description": "The `POST /api/payments/webhook/` endpoint blindly credits the user's wallet. If the payment gateway retries the webhook due to network lag, the user is double-credited.\n\n**Testing in Swagger UI:**\n1. Open Swagger UI at `/swagger/`.\n2. Send a POST request to `/api/payments/webhook/` with a payload.\n3. Send the exact same payload again. It currently throws a 500 Server Error.\n\n**Goal:** Implement an idempotency check using the `transaction_id`. If the webhook was already processed, the API must safely return `200 OK` (so the gateway stops retrying) but MUST NOT credit the wallet again. You must also implement database locking (`select_for_update`) to prevent concurrent race conditions from over-crediting the wallet.",
+          "title": "Idempotent Concurrency Handling",
+          "description": "The `POST /api/payments/webhook/` endpoint blindly credits wallets. Payment gateways often send duplicate webhooks concurrently. \n\n**Goal:** Ensure the endpoint processes a `transaction_id` exactly once, even if 5 duplicate webhooks hit the server at the exact same millisecond. Use `select_for_update()` to prevent race conditions and a `ProcessedWebhook` record to track seen transactions. If a transaction is already processed, return `200 OK` so the provider doesn't keep retrying.",
           "difficulty": "HARD",
           "marks": 10,
-          "duration_minutes": 45,
+          "duration_minutes": 30,
           "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Verify Webhook Authenticity",
+          "description": "The current endpoint is completely open to the public, allowing anyone to send fake webhook payloads and credit their own wallets.\n\n**Goal:** Verify that the request headers contain `X-Webhook-Secret`. Ensure its value exactly matches `yuvro_secret_123`. If it doesn't match or is missing, return a `403 Forbidden` response.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Reject Invalid Payloads",
+          "description": "The endpoint does not validate if the payload data makes mathematical sense, which can lead to users injecting negative amounts to drain accounts.\n\n**Goal:** Add defensive validation to ensure the `amount` in the JSON payload exists and is strictly greater than `0`. If invalid, return a `400 Bad Request`.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
           "scoring_rules": {
             "logic_score": 10,
             "clean_code": 0,
