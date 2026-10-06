@@ -3,12 +3,12 @@
     {
       "title": "Refund Validation & Aggregation",
       "type": "BACKEND",
-      "description": "Evaluate a candidate's ability to safely aggregate relational data before executing state changes. The lab covers using Django's Sum aggregation to prevent partial refund exploits and over-refunding.",
+      "description": "Evaluate a candidate's ability to safely aggregate relational data before executing state changes. The lab covers using Django's Sum aggregation to prevent partial refund exploits, along with time-based constraints and conditional validation logic.",
       "difficulty": "MEDIUM",
       "domain": "PAYMENTS",
       "experience": "MID_LEVEL",
-      "duration_minutes": 30,
-      "marks": 10,
+      "duration_minutes": 60,
+      "marks": 30,
       "scenario": "BUG_FIXING",
       "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
       "git_repo_starter_branch": "feature/payment-refund-validation",
@@ -33,6 +33,38 @@
           "marks": 10,
           "duration_minutes": 30,
           "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Refunding Older Payments",
+          "description": "According to business rules, a payment cannot be refunded if it is older than 30 days. The current API lacks this time constraint.\n\n**Goal:** Add a check to verify if the payment's `created_at` timestamp is older than 30 days. If it is, return a `400 Bad Request`.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Require Reason for Large Refunds",
+          "description": "Any refund request where the `refund_amount` is strictly greater than `$50.00` must include a `reason` in the JSON payload to prevent fraud.\n\n**Goal:** Check the requested amount. If it exceeds $50.00, assert that `reason` is present and not empty in the payload. If missing, return a `400 Bad Request`.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
           "scoring_rules": {
             "logic_score": 10,
             "clean_code": 0,
