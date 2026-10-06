@@ -16,8 +16,8 @@ setup_nginx() {
     scp_ec2 "$PROJECT_ROOT/ylabs-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ylabs.conf"
     ssh_ec2 "ubuntu@$ip" "sudo cp /tmp/ylabs.conf /etc/nginx/sites-available/yuvro-ylabs.conf && sudo ln -sf /etc/nginx/sites-available/yuvro-ylabs.conf /etc/nginx/sites-enabled/"
 
-    # YLabs domains
-    local domains="dev.yuvrolabs.com backend-dev.yuvrolabs.com"
+    # YLabs domains (dev and production)
+    local domains="dev.yuvrolabs.com backend-dev.yuvrolabs.com yuvrolabs.com backend-yuvrolabs.com"
 
     ssh_ec2 "ubuntu@$ip" bash << CERTBOT
 DOMAINS=( $domains )
