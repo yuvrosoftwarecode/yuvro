@@ -3,12 +3,12 @@
     {
       "title": "Client-Side Fare Tampering",
       "type": "BACKEND",
-      "description": "Evaluate a candidate's ability to secure API endpoints against malicious client payloads by enforcing read-only fields and server-side calculations.",
+      "description": "Evaluate a candidate's ability to secure API endpoints against malicious client payloads by enforcing read-only fields, server-side calculations, and input validation.",
       "difficulty": "EASY",
       "domain": "RIDE_BOOKING",
       "experience": "ENTRY_LEVEL",
-      "duration_minutes": 20,
-      "marks": 10,
+      "duration_minutes": 40,
+      "marks": 30,
       "scenario": "SECURITY",
       "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
       "git_repo_starter_branch": "feature/client-side-fare-tampering",
@@ -33,6 +33,38 @@
           "marks": 10,
           "duration_minutes": 20,
           "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Negative Distance Exploit",
+          "description": "Malicious users might send a negative distance (e.g., `-5`) to trick the server into calculating a negative fare, resulting in an account credit.\n\n**Goal:** Add a validator in the serializer to reject any distance that is less than or equal to 0. Return a `400 Bad Request`.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Enforce Maximum Distance Cap",
+          "description": "Users might submit absurdly large distances (e.g., `5000`) causing extreme fare calculations that breach the system's business logic.\n\n**Goal:** Add a validator in the serializer to ensure the distance does not exceed a maximum cap of `1000.00`. If it does, reject the request and return a `400 Bad Request`.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2,
           "scoring_rules": {
             "logic_score": 10,
             "clean_code": 0,
