@@ -44,6 +44,7 @@ interface RealLab {
   terminal: string[];
   startup_command?: string;
   test_command?: string;
+  connection_url?: string;
 }
 
 
@@ -130,6 +131,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,
                 test_command: q.test_command || undefined,
+                connection_url: q.connection_url || undefined,
                 marks: q.marks || q.points || q.max_score || 10,
                 points: q.marks || q.points || q.max_score || 10,
                 max_score: q.marks || q.points || q.max_score || 10,
@@ -1098,6 +1100,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                   common_mistakes: [],
                   startup_command: lab.startup_command,
                   test_command: (lab as any).test_command,
+                  connection_url: lab.connection_url,
                   marks: (lab as any).marks || 10,
                   points: (lab as any).points || (lab as any).marks || 10,
                   max_score: (lab as any).max_score || (lab as any).marks || 10,

@@ -1,0 +1,183 @@
+{
+  "lab_questions": [
+    {
+      "title": "E-Commerce SQL Investigation",
+      "type": "DATABASE",
+      "description": "An e-commerce company wants to analyze its customers, orders, and products. The database has already been configured and populated with data. Write SQL queries to generate business reports answering three key business questions.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 30,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_practical_sql_lab",
+      "git_repo_starter_branch": "mysql-lab",
+      "startup_command": "",
+      "connection_url": "mysql://avnadmin:AVNS_ecrlsdtni5rhmM_sNpw@mysql-2eb78069-mysql-evaluation.a.aivencloud.com:13934/defaultdb?ssl-mode=REQUIRED",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "MYSQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1: Customer Order Report",
+          "description": "The business team needs a report of customers who have at least one completed order.\n\nWrite a SQL query that returns the following columns:\n- `customer_id`\n- `full_name`\n- `city`\n- `total_completed_orders`\n- `total_spent`\n\nCalculate the number of completed orders for each customer and the total amount spent on those orders. Calculate order value using `order_items.quantity * order_items.unit_price`.\n\nRequirements:\n1. Only completed orders should contribute to the report.\n2. Customers without completed orders must not appear.\n3. Group the results by customer.\n4. Return only customers whose total spending is greater than 5000.\n5. Sort by `total_spent` in descending order, followed by `customer_id` in ascending order.\n6. Use the historical item price, not the current product price.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "database_engine": "mysql",
+            "system_query": "SELECT c.customer_id, c.full_name, c.city, COUNT(DISTINCT o.order_id) AS total_completed_orders, SUM(oi.quantity * oi.unit_price) AS total_spent FROM customers c JOIN orders o ON c.customer_id = o.customer_id JOIN order_items oi ON o.order_id = oi.order_id WHERE o.status = 'completed' GROUP BY c.customer_id, c.full_name, c.city HAVING SUM(oi.quantity * oi.unit_price) > 5000 ORDER BY total_spent DESC, c.customer_id ASC;",
+            "expected_result": "Alice Johnson"
+          },
+          "expected_output": [
+            {
+              "customer_id": 1,
+              "full_name": "Alice Johnson",
+              "city": "New York",
+              "total_completed_orders": 3,
+              "total_spent": 6280.0
+            },
+            {
+              "customer_id": 2,
+              "full_name": "Bob Smith",
+              "city": "Los Angeles",
+              "total_completed_orders": 2,
+              "total_spent": 5580.0
+            },
+            {
+              "customer_id": 4,
+              "full_name": "Diana Evans",
+              "city": "Houston",
+              "total_completed_orders": 1,
+              "total_spent": 5300.0
+            }
+          ],
+          "solution": {
+            "task1.sql": "SELECT c.customer_id, c.full_name, c.city, COUNT(DISTINCT o.order_id) AS total_completed_orders, SUM(oi.quantity * oi.unit_price) AS total_spent FROM customers c JOIN orders o ON c.customer_id = o.customer_id JOIN order_items oi ON o.order_id = oi.order_id WHERE o.status = 'completed' GROUP BY c.customer_id, c.full_name, c.city HAVING SUM(oi.quantity * oi.unit_price) > 5000 ORDER BY total_spent DESC, c.customer_id ASC;"
+          }
+        },
+        {
+          "title": "Task 2: Best-Selling Products",
+          "description": "The inventory team wants to identify products that have sold a significant number of units through completed orders.\n\nWrite a SQL query that returns:\n- `product_id`\n- `product_name`\n- `category`\n- `total_units_sold`\n- `total_revenue`\n\nRequirements:\n1. Count quantities only from completed orders.\n2. Calculate `total_units_sold` as the sum of item quantities.\n3. Calculate `total_revenue` using quantity multiplied by historical unit price.\n4. Include only products with at least 5 units sold.\n5. Include products in the Electronics and Accessories categories only.\n6. Sort by `total_units_sold` descending, then `product_id` ascending.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "database_engine": "mysql",
+            "system_query": "SELECT p.product_id, p.product_name, p.category, SUM(oi.quantity) AS total_units_sold, SUM(oi.quantity * oi.unit_price) AS total_revenue FROM products p JOIN order_items oi ON p.product_id = oi.product_id JOIN orders o ON oi.order_id = o.order_id WHERE o.status = 'completed' AND p.category IN ('Electronics', 'Accessories') GROUP BY p.product_id, p.product_name, p.category HAVING SUM(oi.quantity) >= 5 ORDER BY total_units_sold DESC, p.product_id ASC;",
+            "expected_result": "Pro Laptop 15-inch"
+          },
+          "expected_output": [
+            {
+              "product_id": 1,
+              "product_name": "Pro Laptop 15-inch",
+              "category": "Electronics",
+              "total_units_sold": 10,
+              "total_revenue": 11900.0
+            },
+            {
+              "product_id": 3,
+              "product_name": "Wireless Ergonomic Mouse",
+              "category": "Accessories",
+              "total_units_sold": 8,
+              "total_revenue": 400.0
+            },
+            {
+              "product_id": 2,
+              "product_name": "Noise-Cancelling Headphones",
+              "category": "Electronics",
+              "total_units_sold": 6,
+              "total_revenue": 1480.0
+            },
+            {
+              "product_id": 4,
+              "product_name": "Mechanical USB Keyboard",
+              "category": "Accessories",
+              "total_units_sold": 5,
+              "total_revenue": 500.0
+            }
+          ],
+          "solution": {
+            "task2.sql": "SELECT p.product_id, p.product_name, p.category, SUM(oi.quantity) AS total_units_sold, SUM(oi.quantity * oi.unit_price) AS total_revenue FROM products p JOIN order_items oi ON p.product_id = oi.product_id JOIN orders o ON oi.order_id = o.order_id WHERE o.status = 'completed' AND p.category IN ('Electronics', 'Accessories') GROUP BY p.product_id, p.product_name, p.category HAVING SUM(oi.quantity) >= 5 ORDER BY total_units_sold DESC, p.product_id ASC;"
+          }
+        },
+        {
+          "title": "Task 3: Customers Who Have Never Placed a Completed Order",
+          "description": "The marketing team wants to identify registered customers who have never placed a completed order.\n\nWrite a SQL query that returns:\n- `customer_id`\n- `full_name`\n- `email`\n- `city`\n- `signup_date`\n\nRequirements:\n1. Return customers who have no orders with status `completed`.\n2. Customers with only pending or cancelled orders must be included.\n3. Customers with at least one completed order must be excluded.\n4. Sort by `signup_date` ascending, followed by `customer_id` ascending.\n5. Return each customer only once.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "database_engine": "mysql",
+            "system_query": "SELECT c.customer_id, c.full_name, c.email, c.city, c.signup_date FROM customers c WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.customer_id AND o.status = 'completed') ORDER BY c.signup_date ASC, c.customer_id ASC;",
+            "expected_result": "Fiona Green"
+          },
+          "expected_output": [
+            {
+              "customer_id": 6,
+              "full_name": "Fiona Green",
+              "email": "fiona.green@example.com",
+              "city": "Philadelphia",
+              "signup_date": "2023-06-18"
+            },
+            {
+              "customer_id": 7,
+              "full_name": "George Harris",
+              "email": "george.harris@example.com",
+              "city": "San Antonio",
+              "signup_date": "2023-07-22"
+            },
+            {
+              "customer_id": 9,
+              "full_name": "Ian Clark",
+              "email": "ian.clark@example.com",
+              "city": "Dallas",
+              "signup_date": "2023-09-01"
+            },
+            {
+              "customer_id": 10,
+              "full_name": "Julia Lewis",
+              "email": "julia.lewis@example.com",
+              "city": "San Jose",
+              "signup_date": "2023-10-10"
+            },
+            {
+              "customer_id": 11,
+              "full_name": "Kevin Hall",
+              "email": "kevin.hall@example.com",
+              "city": "Austin",
+              "signup_date": "2023-11-05"
+            },
+            {
+              "customer_id": 12,
+              "full_name": "Laura Allen",
+              "email": "laura.allen@example.com",
+              "city": "Jacksonville",
+              "signup_date": "2023-12-01"
+            }
+          ],
+          "solution": {
+            "task3.sql": "SELECT c.customer_id, c.full_name, c.email, c.city, c.signup_date FROM customers c WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.customer_id AND o.status = 'completed') ORDER BY c.signup_date ASC, c.customer_id ASC;"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -136,3 +136,54 @@ class DatabaseLabDetectionTest(TestCase):
         )
         self.assertEqual(lab.test_command, "python yuvro_scoring_rules/main_test.py")
 
+    def test_ecommerce_mysql_lab_provisioning_creates_all_three_task_sql_files(self):
+        temp_workspaces = tempfile.mkdtemp()
+        try:
+            with override_settings(WORKSPACES_ROOT=temp_workspaces):
+                mysql_lab = LabQuestionBank.objects.create(
+                    title="E-Commerce SQL Investigation",
+                    type=LabType.DATABASE,
+                    programming_languages=["SQL"],
+                    databases=["MYSQL"],
+                    connection_url="mysql://root:@localhost:3306/ecommerce_evaluation",
+                    created_by=self.admin,
+                )
+                for i in range(1, 4):
+                    LabQuestionBankTask.objects.create(
+                        lab_question_bank=mysql_lab,
+                        title=f"Task {i}",
+                        solution={f"task{i}.sql": f"SELECT {i};"},
+                        scoring_rules={"database_engine": "mysql"},
+                        created_by=self.admin,
+                        order_index=i - 1,
+                    )
+
+                user_dir = provision_evaluation_user_repo(
+                    evaluation_uuid="eval-mysql",
+                    lab_uuid=mysql_lab.id,
+                    user_uuid=self.admin.id,
+                    starter_repo_path=None,
+                )
+                self.assertTrue(os.path.exists(os.path.join(user_dir, "task1.sql")))
+                self.assertTrue(os.path.exists(os.path.join(user_dir, "task2.sql")))
+                self.assertTrue(os.path.exists(os.path.join(user_dir, "task3.sql")))
+                self.assertFalse(os.path.exists(os.path.join(user_dir, "task4.sql")))
+        finally:
+            shutil.rmtree(temp_workspaces, ignore_errors=True)
+
+    def test_ecommerce_mysql_lab_fixture_data_integrity(self):
+        from django.core.management import call_command
+        call_command("load_skill_evaluations")
+        lab = LabQuestionBank.objects.filter(title="E-Commerce SQL Investigation").first()
+        self.assertIsNotNone(lab)
+        self.assertIn("MYSQL", lab.databases)
+        self.assertEqual(lab.connection_url, "mysql://avnadmin:AVNS_ecrlsdtni5rhmM_sNpw@mysql-2eb78069-mysql-evaluation.a.aivencloud.com:13934/defaultdb?ssl-mode=REQUIRED")
+        tasks = list(lab.tasks.all().order_by("order_index"))
+        self.assertEqual(len(tasks), 3)
+        self.assertEqual(tasks[0].title, "Task 1: Customer Order Report")
+        self.assertEqual(tasks[1].title, "Task 2: Best-Selling Products")
+        self.assertEqual(tasks[2].title, "Task 3: Customers Who Have Never Placed a Completed Order")
+        self.assertEqual(len(tasks[0].expected_output), 3)
+        self.assertEqual(len(tasks[1].expected_output), 4)
+        self.assertEqual(len(tasks[2].expected_output), 6)
+

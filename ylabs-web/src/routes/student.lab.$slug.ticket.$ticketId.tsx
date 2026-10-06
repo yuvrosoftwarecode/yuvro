@@ -901,6 +901,7 @@ export function StudentTicketView({
         .then((t) => {
           if (!active) return;
           setResolvedTicket({
+            ...t,
             id: t.id,
             ticket_slug: t.ticket_slug,
             title: t.title,
@@ -913,10 +914,18 @@ export function StudentTicketView({
                   : "Beginner",
             xp: t.yuvro_points ?? 100,
             estMin: t.minutes_max ?? 30,
-            tag: t.accepted_programming_languages?.[0] ?? "bash",
+            tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "bash",
             status: "Not Started",
             startup_command: t.startup_command,
             test_command: t.test_command,
+            connection_url: t.connection_url || t.uri || "",
+            uri: t.connection_url || t.uri || "",
+            databases: t.databases || [],
+            ticket_type: t.ticket_type || t.type,
+            type: t.type || t.ticket_type,
+            domain: t.domain,
+            backend_frameworks: t.backend_frameworks || [],
+            programming_languages: t.programming_languages || t.accepted_programming_languages || [],
             sprint_id: t.sprint ?? null,
             sprintOrder: t.sprint_order !== undefined ? t.sprint_order + 1 : 1,
             ticketOrder: t.order_index !== undefined ? t.order_index + 1 : 1,
@@ -1074,10 +1083,10 @@ export function TicketIDE({
   const kit = useMemo(() => getKit(slug, ticket.tag, isAlgo), [slug, ticket.tag, isAlgo]);
   const isDjango = kit.name === "django" || ticket.backend_frameworks?.includes("DJANGO") || ticket.tag?.toLowerCase().includes("django");
   const isJava = kit.name === "java";
-  const isDbTicket = ticket.ticket_type === "database" || ticket.type === "DATABASE" || ticket.domain === "DATABASE" || ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor";
-  const isSql = isDbTicket && (kit.name === "sql" || ticket.tag?.toLowerCase() === "sql" || ticket.tag?.toLowerCase() === "sqlite");
-  const isMysql = isDbTicket && (kit.name === "mysql" || ticket.tag?.toLowerCase() === "mysql");
-  const isPostgres = isDbTicket && (kit.name === "postgresql" || ticket.tag?.toLowerCase()?.includes("postgres"));
+  const isDbTicket = ticket.ticket_type === "database" || ticket.type === "DATABASE" || ticket.domain === "DATABASE" || ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor" || (ticket.databases && ticket.databases.length > 0) || Boolean(ticket.connection_url) || kit.name === "mysql" || kit.name === "sql" || kit.name === "postgresql" || kit.name === "mongo";
+  const isMysql = isDbTicket && (kit.name === "mysql" || ticket.tag?.toLowerCase() === "mysql" || ticket.databases?.some((d: any) => String(d).toLowerCase().includes("mysql")) || ticket.connection_url?.startsWith("mysql://") || Boolean(slug?.toLowerCase().includes("mysql")));
+  const isPostgres = isDbTicket && (kit.name === "postgresql" || ticket.tag?.toLowerCase()?.includes("postgres") || ticket.databases?.some((d: any) => String(d).toLowerCase().includes("postgres")) || ticket.connection_url?.startsWith("postgres://") || ticket.connection_url?.startsWith("postgresql://") || Boolean(slug?.toLowerCase().includes("postgres")));
+  const isSql = isDbTicket && !isMysql && !isPostgres && (kit.name === "sql" || ticket.tag?.toLowerCase() === "sql" || ticket.tag?.toLowerCase() === "sqlite" || Boolean(slug?.toLowerCase().includes("sql")));
   const isAnySql = isSql || isMysql || isPostgres;
   const isExternalDb = isMysql || isPostgres;
   const dbType = isMysql ? "mysql" : "postgresql";
@@ -1152,7 +1161,12 @@ export function TicketIDE({
   const candidatePort = useMemo(() => getCandidatePort(candidateKey), [candidateKey]);
 
   const computedStartupCommand = useMemo(() => {
-    return adaptStartupCommandPort(ticket?.startup_command, candidatePort);
+    if (!ticket?.startup_command) return undefined;
+    const cmd = ticket.startup_command.trim();
+    if (cmd.startsWith("mysql ") || cmd.includes("mysql defaultdb")) {
+      return undefined;
+    }
+    return adaptStartupCommandPort(cmd, candidatePort);
   }, [ticket?.startup_command, candidatePort]);
 
   const previewPort = candidatePort;
@@ -1898,7 +1912,7 @@ export function TicketIDE({
     if (typeof window === "undefined") return;
 
     if (isMysql) {
-      const mysqlUri = localStorage.getItem("mysqlUri") || "";
+      const mysqlUri = ticket.connection_url || ticket.uri || localStorage.getItem("mysqlUri") || "";
       if (!mysqlUri.trim()) {
         setHasDbConnection(false);
         setDbSchemas([]);
@@ -1907,15 +1921,37 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemasLoading(true);
       try {
-        const schemas: any = await fetchExternalDbSchema("mysql", mysqlUri);
-        setDbSchemas(schemas || []);
+        const tables: any = await fetchExternalDbSchema("mysql", mysqlUri, {
+          userId: effectiveUserId,
+          labId,
+          sprintId,
+          evaluationId: isEvaluationMode ? evaluationId : undefined,
+        });
+        const formattedTables = (tables || []).map((t: any) => ({
+          name: t.table || t.name,
+          columns: (t.columns || []).map((c: any) => ({
+            name: c.name,
+            type: c.type || "VARCHAR",
+            nullable: "YES",
+            default: "-",
+            key: "-",
+          })),
+          ddl: `-- Table: ${t.table || t.name}`,
+        }));
+        setDbSchemas([
+          {
+            name: "defaultdb",
+            type: "MySQL",
+            tables: formattedTables,
+          },
+        ]);
       } catch (err) {
         setDbSchemas([]);
       } finally {
         setDbSchemasLoading(false);
       }
     } else if (isPostgres) {
-      const postgresUri = localStorage.getItem("postgresqlUri") || localStorage.getItem("postgresUri") || "";
+      const postgresUri = ticket.connection_url || ticket.uri || localStorage.getItem("postgresqlUri") || localStorage.getItem("postgresUri") || "";
       if (!postgresUri.trim()) {
         setHasDbConnection(false);
         setDbSchemas([]);
@@ -1924,15 +1960,32 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemasLoading(true);
       try {
-        const schemas: any = await fetchExternalDbSchema("postgresql", postgresUri);
-        setDbSchemas(schemas || []);
+        const tables: any = await fetchExternalDbSchema("postgresql", postgresUri);
+        const formattedTables = (tables || []).map((t: any) => ({
+          name: t.table || t.name,
+          columns: (t.columns || []).map((c: any) => ({
+            name: c.name,
+            type: c.type || "VARCHAR",
+            nullable: "YES",
+            default: "-",
+            key: "-",
+          })),
+          ddl: `-- Table: ${t.table || t.name}`,
+        }));
+        setDbSchemas([
+          {
+            name: "public",
+            type: "PostgreSQL",
+            tables: formattedTables,
+          },
+        ]);
       } catch (err) {
         setDbSchemas([]);
       } finally {
         setDbSchemasLoading(false);
       }
     } else if (isMongo) {
-      const mongoUri = localStorage.getItem("mongoUri") || "";
+      const mongoUri = ticket.connection_url || ticket.uri || localStorage.getItem("mongoUri") || "";
       if (!mongoUri.trim()) {
         setHasDbConnection(false);
         setDbSchemas([]);
@@ -1941,8 +1994,19 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemasLoading(true);
       try {
-        const schemas: any = await fetchExternalDbSchema("mongodb", mongoUri);
-        setDbSchemas(schemas || []);
+        const tables: any = await fetchExternalDbSchema("mongodb", mongoUri);
+        const formattedTables = (tables || []).map((t: any) => ({
+          name: t.table || t.name,
+          columns: [],
+          ddl: `-- Collection: ${t.table || t.name}`,
+        }));
+        setDbSchemas([
+          {
+            name: "default",
+            type: "MongoDB",
+            tables: formattedTables,
+          },
+        ]);
       } catch (err) {
         setDbSchemas([]);
       } finally {
@@ -1952,7 +2016,7 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemas(getAlasqlSchema());
     }
-  }, [isMysql, isPostgres, isMongo, isSql]);
+  }, [isMysql, isPostgres, isMongo, isSql, ticket.connection_url, ticket.uri]);
 
   useEffect(() => {
     refreshSchema();
@@ -2170,8 +2234,8 @@ export function TicketIDE({
       const targetDbFile = dbFile || "__none__";
 
       const dbEngine = isMysql ? "mysql" : isPostgres ? "postgresql" : isMongo ? "mongodb" : "sqlite";
-      let connectionUrl = "";
-      if (typeof window !== "undefined") {
+      let connectionUrl = ticket.connection_url || ticket.uri || "";
+      if (!connectionUrl && typeof window !== "undefined") {
         if (isPostgres) {
           connectionUrl = localStorage.getItem("postgresqlUri") || localStorage.getItem("postgresUri") || "";
         } else if (isMysql) {
@@ -2180,8 +2244,6 @@ export function TicketIDE({
           connectionUrl = localStorage.getItem("mongoUri") || localStorage.getItem("mongodbUri") || "";
         }
       }
-      if (!connectionUrl && ticket.connection_url) connectionUrl = ticket.connection_url;
-      if (!connectionUrl && ticket.uri) connectionUrl = ticket.uri;
 
       const tTasks = ticket.tasks || [];
       let task = null;
@@ -3328,12 +3390,12 @@ export function TicketIDE({
                           </svg>
                           {schema.name}
                         </div>
-                        {schema.tables.length > 0 ? (
+                        {(schema.tables || []).length > 0 ? (
                           <>
                             <div className="px-5 py-1 text-[11px] text-muted-foreground uppercase mt-1">
                               Tables
                             </div>
-                            {schema.tables.map((t) => (
+                            {(schema.tables || []).map((t) => (
                               <button
                                 key={t.name}
                                 onClick={() => {
@@ -3358,7 +3420,7 @@ export function TicketIDE({
                                 </svg>
                                 {t.name}
                                 <span className="ml-auto text-[10px] opacity-50">
-                                  {t.columns.length} cols
+                                  {(t.columns || []).length} cols
                                 </span>
                               </button>
                             ))}
@@ -3370,7 +3432,7 @@ export function TicketIDE({
                         )}
                       </React.Fragment>
                     ))}
-                    {(isMysql || isPostgres) && (
+                    {(isMysql || isPostgres) && !isEvaluationMode && !ticket.connection_url && (
                       <div className="px-4 py-3 mt-4 border-t border-border">
                         <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2">
                           Need a free database?
@@ -3605,7 +3667,7 @@ export function TicketIDE({
                     </div>
                   )}
                 </div>
-                <div className="h-60 max-h-[45vh] min-h-[14rem] overflow-auto scrollbar-thin p-3 text-xs">
+                <div className={`h-60 max-h-[45vh] min-h-[14rem] ${bottomTab === "terminal" ? "p-0 overflow-hidden flex flex-col" : "overflow-auto scrollbar-thin p-3 text-xs"}`}>
                   {bottomTab === "output" && (
                     <ExecutionOutputView
                       output={output}
@@ -3643,6 +3705,11 @@ export function TicketIDE({
                       previewPort={previewPort}
                       computedStartupCommand={computedStartupCommand}
                       isPython={isPython}
+                      isEvaluationMode={isEvaluationMode}
+                      effectiveUserId={effectiveUserId}
+                      labId={labId}
+                      sprintId={sprintId}
+                      evaluationId={isEvaluationMode ? evaluationId : undefined}
                     />
                   )}
                   <div style={{ display: bottomTab === "terminal" ? "flex" : "none" }} className="min-h-0 flex-1 flex-col h-full w-full">
@@ -3651,7 +3718,7 @@ export function TicketIDE({
                         isVisible={bottomTab === "terminal"}
                         wsUrl={isReal && !isLoading && effectiveUserId ? getTerminalWsUrl(effectiveUserId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other", evaluationId) : null}
                         onCommandRun={() => loadWorkspaceFiles(true)}
-                        startupCommand={computedStartupCommand}
+                        startupCommand={(isExternalDb || ticket.connection_url) ? undefined : computedStartupCommand}
                         onStartupCommandRun={() => {
                           setTimeout(() => setBottomTab("preview"), 2000);
                         }}
@@ -4112,6 +4179,11 @@ function FormattedResultsView({
   previewPort,
   computedStartupCommand,
   isPython,
+  isEvaluationMode,
+  effectiveUserId,
+  labId,
+  sprintId,
+  evaluationId,
 }: {
   ticket: any;
   taskExecutionData: any;
@@ -4138,6 +4210,11 @@ function FormattedResultsView({
   previewPort: number;
   computedStartupCommand?: string;
   isPython: boolean;
+  isEvaluationMode?: boolean;
+  effectiveUserId?: string;
+  labId?: string;
+  sprintId?: string;
+  evaluationId?: string;
 }) {
   // 1. Task-based evaluation (Django, REST API, Backend labs, or any lab with test_command or tasks or taskExecutionData)
   const report = extractTasksReport(ticket, taskExecutionData, executionOutput || output, evalResult, ticketScore);
@@ -4319,7 +4396,18 @@ function FormattedResultsView({
     return <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
   }
   if (isExternalDb) {
-    return <ExternalSqlResultsView query={executedQuery} dbType={(dbType as "mysql" | "postgresql") || "postgresql"} />;
+    return (
+      <ExternalSqlResultsView
+        query={executedQuery}
+        dbType={(dbType as "mysql" | "postgresql") || "postgresql"}
+        configuredUri={ticket.connection_url || ticket.uri}
+        isEvaluationMode={isEvaluationMode}
+        userId={effectiveUserId}
+        labId={labId}
+        sprintId={sprintId}
+        evaluationId={isEvaluationMode ? evaluationId : undefined}
+      />
+    );
   }
 
   // 3. UI preview
@@ -4657,8 +4745,8 @@ function SidePreview({ device, kit, files, activeFile, startupCommand, previewPo
     kit.name === "django" ? <DjangoTodoApp /> :
       kit.name === "ui" ? <UiPreview files={files} fullHeight /> :
         kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
-          kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" /> :
-            kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" /> :
+          kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+            kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
               kit.name === "mongo" ? <MongoResultsView query={files[activeFile] ?? ""} /> :
                 kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                   (
@@ -4807,6 +4895,34 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
     onCommandRunRef.current = onCommandRun;
   }, [onCommandRun]);
 
+  const isDark = theme === "dark" || (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+  const getThemeConfig = useCallback(() => {
+    return {
+      background: isDark ? "#0d1117" : "#fafaf7",
+      foreground: isDark ? "#e6edf3" : "#24292f",
+      cursor: isDark ? "#58a6ff" : "#0969da",
+      cursorAccent: isDark ? "#0d1117" : "#fafaf7",
+      selectionBackground: isDark ? "rgba(56, 139, 253, 0.4)" : "rgba(9, 105, 218, 0.2)",
+      black: isDark ? "#0d1117" : "#fafaf7",
+      brightBlack: "#484f58",
+      red: "#ff7b72",
+      brightRed: "#ffa198",
+      green: "#3fb950",
+      brightGreen: "#56d364",
+      yellow: "#d29922",
+      brightYellow: "#e3b341",
+      blue: "#58a6ff",
+      brightBlue: "#79c0ff",
+      magenta: "#bc8cff",
+      brightMagenta: "#d2a8ff",
+      cyan: "#39c5cf",
+      brightCyan: "#56d4dd",
+      white: "#b1bac4",
+      brightWhite: "#f0f6fc",
+    };
+  }, [isDark]);
+
   // Mount xterm when libs are ready and container is available
   useEffect(() => {
     if (!libs || !containerRef.current) return;
@@ -4814,48 +4930,49 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
 
     const term = new libs.Terminal({
       cursorBlink: true,
-      fontSize: 13,
-      fontFamily: '"JetBrains Mono", "Fira Code", monospace',
-      theme: {
-        background: theme === "dark" ? "#0b0b0c" : "#fafaf7",
-        foreground: theme === "dark" ? "#e6edf3" : "#24292f",
-        cursor: theme === "dark" ? "#58a6ff" : "#0969da",
-        black: theme === "dark" ? "#0d1117" : "#fafaf7",
-        brightBlack: "#484f58",
-        red: "#ff7b72",
-        brightRed: "#ffa198",
-        green: "#3fb950",
-        brightGreen: "#56d364",
-        yellow: "#d29922",
-        brightYellow: "#e3b341",
-        blue: "#58a6ff",
-        brightBlue: "#79c0ff",
-        magenta: "#bc8cff",
-        brightMagenta: "#d2a8ff",
-        cyan: "#39c5cf",
-        brightCyan: "#56d4dd",
-        white: "#b1bac4",
-        brightWhite: "#e6edf3",
-      },
+      cursorStyle: "bar",
+      fontSize: 12,
+      lineHeight: 1.25,
+      letterSpacing: 0,
+      fontFamily: '"JetBrains Mono", Menlo, Monaco, Consolas, "Courier New", monospace',
+      theme: getThemeConfig(),
       scrollback: 5000,
+      convertEol: true,
       allowProposedApi: true,
     });
 
     const fitAddon = new libs.FitAddon();
     term.loadAddon(fitAddon);
     term.open(containerRef.current);
-    fitAddon.fit();
 
     termRef.current = term;
     fitRef.current = fitAddon;
 
-    // Resize observer
-    const ro = new ResizeObserver(() => {
+    const doFit = () => {
+      const container = containerRef.current;
+      if (!container || container.clientWidth === 0 || container.clientHeight === 0) return;
+      try {
+        const core = (term as any)._core;
+        if (core?._charSizeService?.measure) {
+          core._charSizeService.measure();
+        }
+        if (core?._renderService?.dimensions) {
+          core._renderService.dimensions.reset?.();
+        }
+      } catch {}
       try {
         fitAddon.fit();
-      } catch {
-        /* ignore */
-      }
+      } catch {}
+    };
+
+    // Initial fit
+    requestAnimationFrame(() => {
+      doFit();
+    });
+
+    // Resize observer
+    const ro = new ResizeObserver(() => {
+      doFit();
     });
     ro.observe(containerRef.current);
 
@@ -4875,43 +4992,44 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
       termRef.current = null;
       fitRef.current = null;
     };
-  }, [libs, theme]);
+  }, [libs, getThemeConfig]);
 
   useEffect(() => {
     if (termRef.current) {
-      termRef.current.options.theme = {
-        background: theme === "dark" ? "#0b0b0c" : "#fafaf7",
-        foreground: theme === "dark" ? "#e6edf3" : "#24292f",
-        cursor: theme === "dark" ? "#58a6ff" : "#0969da",
-        black: theme === "dark" ? "#0d1117" : "#fafaf7",
-        brightBlack: "#484f58",
-        red: "#ff7b72",
-        brightRed: "#ffa198",
-        green: "#3fb950",
-        brightGreen: "#56d364",
-        yellow: "#d29922",
-        brightYellow: "#e3b341",
-        blue: "#58a6ff",
-        brightBlue: "#79c0ff",
-        magenta: "#bc8cff",
-        brightMagenta: "#d2a8ff",
-        cyan: "#39c5cf",
-        brightCyan: "#56d4dd",
-        white: "#b1bac4",
-        brightWhite: "#e6edf3",
-      };
+      termRef.current.options.theme = getThemeConfig();
     }
-  }, [theme]);
+  }, [getThemeConfig]);
 
   // Fit terminal when it becomes visible
   useEffect(() => {
-    if (isVisible && fitRef.current) {
-      // Small timeout to ensure DOM layout is updated before fitting
-      setTimeout(() => {
+    if (isVisible && fitRef.current && containerRef.current) {
+      const runFit = () => {
+        const container = containerRef.current;
+        if (!container || container.clientWidth === 0 || container.clientHeight === 0) return;
         try {
-          fitRef.current.fit();
-        } catch { /* ignore */ }
-      }, 50);
+          const core = (termRef.current as any)?._core;
+          if (core?._charSizeService?.measure) {
+            core._charSizeService.measure();
+          }
+          if (core?._renderService?.dimensions) {
+            core._renderService.dimensions.reset?.();
+          }
+        } catch {}
+        try {
+          fitRef.current?.fit();
+        } catch {}
+      };
+
+      runFit();
+      const rAf = requestAnimationFrame(runFit);
+      const timer50 = setTimeout(runFit, 50);
+      const timer200 = setTimeout(runFit, 200);
+
+      return () => {
+        cancelAnimationFrame(rAf);
+        clearTimeout(timer50);
+        clearTimeout(timer200);
+      };
     }
   }, [isVisible]);
 
@@ -4935,12 +5053,10 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
       setConnected(true);
       setError(null);
       termRef.current?.writeln("\x1b[32m✓ Connected\x1b[0m\r\n");
-      // Resize hint
       try { fitRef.current?.fit(); } catch { /* ignore */ }
       
       if (startupCommand && !startupCommandRunRef.current) {
         startupCommandRunRef.current = true;
-        // Small delay to ensure the shell is fully initialized on the backend
         setTimeout(() => {
           if (wsRef.current?.readyState === WebSocket.OPEN) {
             wsRef.current.send(startupCommand + "\r");
@@ -4955,7 +5071,6 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
       if (typeof ev.data === "string") {
         termRef.current.write(ev.data);
       } else {
-        // Fallback for blobs if any
         if (ev.data instanceof Blob) {
           ev.data.text().then((t) => termRef.current?.write(t));
         }
@@ -4963,7 +5078,7 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
     };
 
     ws.onerror = () => {
-      setError("Terminal connection error — check that the code executor is running");
+      setError("Terminal connection error — check code executor");
       setConnected(false);
     };
 
@@ -4973,7 +5088,6 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
       termRef.current?.writeln("\r\n\x1b[31m[disconnected]\x1b[0m");
     };
   }, [wsUrl, startupCommand, onStartupCommandRun]);
-
 
   useEffect(() => {
     if (!termRef.current || !wsUrl) return;
@@ -4988,7 +5102,7 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
   // If no wsUrl (dummy ticket), show static mock
   if (!wsUrl) {
     return (
-      <div className="font-mono text-muted-foreground space-y-0.5">
+      <div className="font-mono text-muted-foreground space-y-0.5 p-3">
         <div>
           <span className="text-success">student@labs</span>:
           <span className="text-info">~/workspace</span>$ ls
@@ -5003,27 +5117,56 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
   }
 
   return (
-    <div className={`flex flex-col h-full w-full p-1 rounded ${theme === "dark" ? "bg-black text-white" : "bg-[#fafaf7] text-neutral-800 border border-neutral-200"}`}>
-      {/* Status bar */}
-      <div className="flex items-center gap-2 mb-2 px-1">
-        <span
-          className={`h-2 w-2 rounded-full flex-shrink-0 ${connected ? "bg-success" : "bg-destructive"}`}
-        />
-        <span className="text-muted-foreground text-[10px] font-mono">
-          {connected ? "Connected to workspace terminal" : (error ?? "Disconnected")}
-        </span>
-        {!connected && (
+    <div
+      className={`flex flex-col h-full w-full overflow-hidden ${
+        isDark ? "bg-[#0d1117] text-white" : "bg-[#fafaf7] text-neutral-800"
+      }`}
+    >
+      {/* Sleek Terminal Header */}
+      <div
+        className={`flex items-center justify-between h-7 px-3 border-b text-[11px] font-mono select-none flex-shrink-0 ${
+          isDark
+            ? "bg-[#161b22] border-white/10 text-neutral-400"
+            : "bg-neutral-100 border-neutral-200 text-neutral-600"
+        }`}
+      >
+        <div className="flex items-center gap-2">
+          <span
+            className={`h-2 w-2 rounded-full flex-shrink-0 transition-colors ${
+              connected ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]" : "bg-rose-500"
+            }`}
+          />
+          <span className="font-semibold tracking-wider text-[10px] uppercase text-foreground">
+            Terminal
+          </span>
+          <span className="text-[10px] text-muted-foreground hidden sm:inline">
+            {connected ? "• Connected" : `• ${error ?? "Disconnected"}`}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
           <button
-            onClick={connect}
-            className="ml-auto rounded border px-2 py-0.5 text-[10px] hover:bg-accent text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              termRef.current?.clear();
+            }}
+            title="Clear terminal"
+            className="hover:text-foreground text-muted-foreground transition-colors px-1.5 py-0.5 rounded text-[10px]"
           >
-            Reconnect
+            Clear
           </button>
-        )}
+          {!connected && (
+            <button
+              onClick={connect}
+              className="rounded border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary hover:bg-primary/20 transition-colors"
+            >
+              Reconnect
+            </button>
+          )}
+        </div>
       </div>
-      {/* xterm container */}
-      <div className="flex-1 w-full relative">
-        <div ref={containerRef} className="absolute inset-0" />
+
+      {/* Terminal Canvas Container */}
+      <div className="flex-1 w-full h-full min-h-0 relative p-2">
+        <div ref={containerRef} className="absolute inset-2 overflow-hidden" />
       </div>
     </div>
   );
@@ -6181,9 +6324,21 @@ function runSqlQuery(q: string): { columns: string[]; rows: SqlRow[]; note: stri
 function ExternalSqlResultsView({
   query,
   dbType,
+  configuredUri,
+  isEvaluationMode,
+  userId,
+  labId,
+  sprintId,
+  evaluationId,
 }: {
   query: string;
   dbType: "mysql" | "postgresql";
+  configuredUri?: string;
+  isEvaluationMode?: boolean;
+  userId?: string;
+  labId?: string;
+  sprintId?: string;
+  evaluationId?: string;
 }) {
   const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
   const [res, setRes] = useState<{
@@ -6194,7 +6349,9 @@ function ExternalSqlResultsView({
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const isPreconfigured = Boolean(configuredUri?.trim()) || Boolean(isEvaluationMode);
   const [uri, setUri] = useState<string>(() => {
+    if (configuredUri?.trim()) return configuredUri.trim();
     if (typeof window !== "undefined") {
       return (
         localStorage.getItem(`${dbType}Uri`) ||
@@ -6206,6 +6363,13 @@ function ExternalSqlResultsView({
   });
   const [editingUri, setEditingUri] = useState(false);
   const [tempUri, setTempUri] = useState(uri);
+
+  useEffect(() => {
+    if (configuredUri?.trim()) {
+      setUri(configuredUri.trim());
+      setTempUri(configuredUri.trim());
+    }
+  }, [configuredUri]);
 
   const saveUri = () => {
     const trimmed = tempUri.trim();
@@ -6223,21 +6387,29 @@ function ExternalSqlResultsView({
   useEffect(() => {
     let active = true;
     const run = async () => {
-      if (!uri) return;
+      const activeUri = configuredUri?.trim() || uri;
+      if (!activeUri) return;
       setLoading(true);
       setError(null);
-      setRes(null);
       try {
         const engine = dbType === "mysql" ? "mysql" : "postgresql";
-        const result: any = await executeExternalDbQuery(engine, uri, query);
+        const result: any = await executeExternalDbQuery(engine, activeUri, query, {
+          userId,
+          labId,
+          sprintId,
+          evaluationId,
+        });
         if (active) {
           if (result && result.error) {
             setError(result.error);
-            setRes(null);
           } else {
             setRes(result);
             setError(null);
-            window.dispatchEvent(new Event("db-schema-refresh"));
+            // Only trigger schema sidebar reload if the query modifies tables/schema (DDL)
+            const isDdl = /\b(create|drop|alter|truncate|rename)\b/i.test(query || "");
+            if (isDdl) {
+              window.dispatchEvent(new Event("db-schema-refresh"));
+            }
           }
         }
       } catch (e: any) {
@@ -6250,7 +6422,7 @@ function ExternalSqlResultsView({
     return () => {
       active = false;
     };
-  }, [query, uri, dbType]);
+  }, [query, uri, configuredUri, dbType]);
 
   const handleDownloadCsv = () => {
     if (!res || res.rows.length === 0) return;
@@ -6278,17 +6450,24 @@ function ExternalSqlResultsView({
             <Globe className="h-4 w-4 text-primary" />
             <span className="font-semibold text-foreground">Database Connection</span>
           </div>
-          <button
-            onClick={() => {
-              setEditingUri(true);
-              setTempUri(uri);
-            }}
-            className="text-muted-foreground hover:text-foreground underline decoration-dashed"
-          >
-            {uri ? `Connected (${dbType})` : "Click to configure URI"}
-          </button>
+          {isPreconfigured ? (
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span className="font-medium">Connected to Assessment Database ({dbType.toUpperCase()})</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                setEditingUri(true);
+                setTempUri(uri);
+              }}
+              className="text-muted-foreground hover:text-foreground underline decoration-dashed"
+            >
+              {uri ? `Connected (${dbType})` : "Click to configure URI"}
+            </button>
+          )}
         </div>
-        {editingUri && (
+        {editingUri && !isPreconfigured && (
           <div className="flex items-center gap-2 mt-1">
             <input
               type="text"
@@ -6318,7 +6497,7 @@ function ExternalSqlResultsView({
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {loading && (
+        {loading && !res && (
           <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>
         )}
         {error && (
@@ -6331,7 +6510,9 @@ function ExternalSqlResultsView({
           <>
             <div className="mb-2 flex items-center justify-between text-muted-foreground">
               <div className="flex items-center gap-3">
-                <span>{res.note}</span>
+                <span className={loading ? "animate-pulse text-primary font-medium" : ""}>
+                  {loading ? "Executing query…" : res.note}
+                </span>
                 <div className="flex items-center border rounded overflow-hidden text-[10px] font-medium">
                   <button
                     onClick={() => setViewMode("TABLE")}

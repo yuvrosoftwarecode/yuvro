@@ -45,6 +45,7 @@ const DEFAULT_FORM = {
   git_repo_starter_branch: "main",
   startup_command: "",
   test_command: "",
+  connection_url: "",
   programming_languages: [],
   databases: [],
   backend_frameworks: [],
@@ -436,6 +437,23 @@ function QuestionsPage() {
                     <option value="ELASTICSEARCH">Elasticsearch</option>
                   </select>
                 </div>
+                {formData.databases?.some((d: string) => ["MYSQL", "POSTGRESQL", "MONGODB"].includes(d)) && (
+                  <div className="grid gap-2 border p-3 rounded-md bg-muted/20">
+                    <Label htmlFor="connection_url" className="font-semibold flex items-center gap-1.5">
+                      <Database className="h-4 w-4 text-primary" />
+                      Evaluation Database Connection URL (e.g. Aiven MySQL)
+                    </Label>
+                    <Input
+                      id="connection_url"
+                      placeholder="mysql://avnadmin:password@mysql-xyz.aivencloud.com:24128/defaultdb"
+                      value={formData.connection_url || ""}
+                      onChange={(e) => setFormData({ ...formData, connection_url: e.target.value })}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Candidates will automatically execute queries against this database without needing credentials.
+                    </p>
+                  </div>
+                )}
                 <div className="grid gap-2">
                   <Label htmlFor="backend_fws">Backend Frameworks</Label>
                   <select 
