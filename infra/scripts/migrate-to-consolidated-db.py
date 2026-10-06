@@ -41,27 +41,27 @@ def print_step(msg):
     print(f"{BOLD}› {msg}{NC}")
 
 # RDS endpoints and credentials
-# Old instances use 'postgres' user, new uses 'yuvro_admin'
+# All instances use 'yuvro_admin' user with same password
 OLD_INSTANCES = {
     'ycode': {
         'endpoint': 'dev-ycode-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ycode',
-        'user': 'postgres'  # Old instances have postgres user
+        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh
     },
     'ycampus': {
         'endpoint': 'dev-ycampus-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ycampus',
-        'user': 'postgres'  # Old instances have postgres user
+        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh
     },
     'yhub': {
         'endpoint': 'dev-yhub-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'yhub',
-        'user': 'postgres'  # Old instances have postgres user
+        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh
     },
     'ylabs': {
         'endpoint': 'dev-ylabs-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ylabs',
-        'user': 'postgres'  # Old instances have postgres user
+        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh
     },
 }
 
