@@ -1,5 +1,6 @@
 import { restApiUtil, yhubApiUtil } from "../utils/RestApiUtil";
 import { restApiAuthUtil } from "../utils/RestApiAuthUtil";
+import { getLabCalculatedStats } from "../lib/recruiter";
 
 export let tempResumeFile: File | null = null;
 export function setTempResumeFile(file: File | null) { tempResumeFile = file; }
@@ -65,9 +66,42 @@ export const evaluationService = {
       (evalData as any).sections.forEach((sec: any) => {
         if (sec.type === "LAB" && sec.questions) {
           sec.questions.forEach((q: any) => {
-            const fullLab = (allLabs as any[]).find(l => l.id === q.id);
+            const selectedTaskId = typeof q === 'object' ? q.selected_task_id : undefined;
+            const selectedTaskIds = typeof q === 'object' ? q.selected_task_ids : undefined;
+            const selectedTask = typeof q === 'object' ? q.selected_task : undefined;
+            const qId = typeof q === 'object' ? (q.id || q.lab_id) : q;
+            const fullLab = (allLabs as any[]).find(l => l.id === qId);
             if (fullLab) {
-              Object.assign(q, fullLab);
+              if (typeof q === 'object') {
+                Object.assign(q, fullLab);
+                if (selectedTaskIds) {
+                  q.selected_task_ids = selectedTaskIds;
+                } else if (selectedTaskId) {
+                  q.selected_task_ids = [selectedTaskId];
+                }
+                if (selectedTaskId) {
+                  q.selected_task_id = selectedTaskId;
+                  const matchingTask = Array.isArray(fullLab.tasks)
+                    ? fullLab.tasks.find((t: any) => String(t.id || t.task_slug || t.title) === String(selectedTaskId))
+                    : null;
+                  if (matchingTask) {
+                    q.selected_task = { ...matchingTask, ...(selectedTask || {}) };
+                  } else if (selectedTask) {
+                    q.selected_task = selectedTask;
+                  }
+                } else if (selectedTask) {
+                  q.selected_task = selectedTask;
+                }
+
+                // Recalculate duration_minutes and marks based on selected tasks
+                const stats = getLabCalculatedStats(q);
+                q.duration_minutes = stats.minutes;
+                q.marks = stats.marks;
+              }
+            } else if (typeof q === 'object') {
+              const stats = getLabCalculatedStats(q);
+              q.duration_minutes = stats.minutes;
+              q.marks = stats.marks;
             }
           });
         }

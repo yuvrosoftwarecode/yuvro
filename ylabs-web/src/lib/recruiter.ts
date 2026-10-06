@@ -77,8 +77,10 @@ export type Database = (typeof DATABASES)[number];
 
 export const SCENARIOS = [
   "Debugging",
+  "Bug Fixing",
   "Feature Development",
   "API Optimization",
+  "Performance Optimization",
   "Security",
   "Architecture",
   "Performance",
@@ -121,6 +123,104 @@ export interface LabItem {
   marks: number;
   duration_minutes: number;
   tasks?: any[]; // legacy optional for frontend UI compat, now using array from backend
+  allow_task_selection?: boolean;
+  selected_task_ids?: string[];
+  selected_task_id?: string;
+  selected_task?: any;
+}
+
+export function countDistinctSelectedTasks(selectedTaskIds: any[]): number {
+  if (!Array.isArray(selectedTaskIds) || selectedTaskIds.length === 0) return 0;
+  
+  // 1. Check for index-based IDs (task-0, task-1, etc.)
+  const indexMatches = new Set<string>();
+  selectedTaskIds.forEach((id) => {
+    const m = String(id).match(/^task-(\d+)$/);
+    if (m) indexMatches.add(m[1]);
+  });
+  if (indexMatches.size > 0) {
+    return indexMatches.size;
+  }
+
+  // 2. Check for UUIDs
+  const uuidMatches = new Set<string>();
+  selectedTaskIds.forEach((id) => {
+    const str = String(id);
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)) {
+      uuidMatches.add(str.toLowerCase());
+    }
+  });
+  if (uuidMatches.size > 0) {
+    return uuidMatches.size;
+  }
+
+  // 3. Fallback: unique non-empty string count
+  return new Set(selectedTaskIds.map(String).filter(Boolean)).size;
+}
+
+export function getLabCalculatedStats(l: LabItem): { minutes: number; marks: number; selectedTasks: any[] } {
+  const allTasks = Array.isArray(l.tasks) ? l.tasks : [];
+  if (allTasks.length === 0) {
+    const rawIds = l.selected_task_ids && Array.isArray(l.selected_task_ids) ? l.selected_task_ids : [];
+    const count = countDistinctSelectedTasks(rawIds) || (l.selected_task_id ? 1 : 0);
+    const marks = Number(l.marks) || (count > 0 ? count * 2 : 10);
+    const minutes = Number(l.duration_minutes) || (count > 0 ? count * 10 : 30);
+    return {
+      minutes,
+      marks,
+      selectedTasks: [],
+    };
+  }
+
+  // If specific task IDs are selected
+  if (l.selected_task_ids && Array.isArray(l.selected_task_ids) && l.selected_task_ids.length > 0) {
+    const selectedSet = new Set(l.selected_task_ids.map(String));
+    const selected = allTasks.filter((t: any, idx: number) => {
+      const isMatch = (
+        (t.id != null && selectedSet.has(String(t.id))) ||
+        (t.task_slug != null && selectedSet.has(String(t.task_slug))) ||
+        selectedSet.has(`task-${idx}`) ||
+        selectedSet.has(`task-${t.order_index ?? idx}`) ||
+        selectedSet.has(String(idx)) ||
+        (t.title != null && selectedSet.has(String(t.title)))
+      );
+      return isMatch;
+    });
+    const tasksToSum = selected.length > 0 ? selected : allTasks;
+    const calcMinutes = tasksToSum.reduce((sum: number, t: any) => sum + (Number(t.duration_minutes ?? t.duration) || 0), 0);
+    const minutes = calcMinutes > 0 ? calcMinutes : (Number(l.duration_minutes) || 0);
+    const calcMarks = tasksToSum.reduce((sum: number, t: any) => sum + (Number(t.marks ?? t.score) || 0), 0);
+    const marks = (calcMarks > 0 || tasksToSum.length === 0) ? calcMarks : (Number(l.marks) || 0);
+    return { minutes, marks, selectedTasks: tasksToSum };
+  }
+
+  // Legacy fallback: single selected_task_id or selected_task
+  if (l.selected_task_id || l.selected_task) {
+    const matching = l.selected_task || allTasks.find((t: any, idx: number) => {
+      return (
+        String(t.id) === String(l.selected_task_id) ||
+        String(t.task_slug) === String(l.selected_task_id) ||
+        `task-${idx}` === String(l.selected_task_id) ||
+        String(t.title) === String(l.selected_task_id)
+      );
+    });
+    if (matching) {
+      const minutes = Number(matching.duration_minutes ?? matching.duration) || Number(l.duration_minutes) || 0;
+      const marks = Number(matching.marks ?? matching.score) || Number(l.marks) || 0;
+      return {
+        minutes,
+        marks,
+        selectedTasks: [matching],
+      };
+    }
+  }
+
+  // All tasks selected
+  const calcMinutes = allTasks.reduce((sum: number, t: any) => sum + (Number(t.duration_minutes ?? t.duration) || 0), 0);
+  const minutes = calcMinutes > 0 ? calcMinutes : (Number(l.duration_minutes) || 0);
+  const calcMarks = allTasks.reduce((sum: number, t: any) => sum + (Number(t.marks ?? t.score) || 0), 0);
+  const marks = (calcMarks > 0 || allTasks.length === 0) ? calcMarks : (Number(l.marks) || 0);
+  return { minutes, marks, selectedTasks: allTasks };
 }
 
 export interface QuestionItem {
@@ -421,7 +521,14 @@ function mapFrontendToBackend(fe: Evaluation): any {
       let desc = "";
       if (s.kind === "labs") {
         type = "LAB";
-        qs = s.labs || [];
+        qs = (s.labs || []).map((l: any) => {
+          const stats = getLabCalculatedStats(l);
+          return {
+            ...l,
+            duration_minutes: stats.minutes,
+            marks: stats.marks,
+          };
+        });
       } else if (s.kind === "assessment") {
         type = "KNOWLEDGE_ASSESSMENT";
         qs = s.questions || [];
@@ -456,7 +563,33 @@ function mapFrontendToBackend(fe: Evaluation): any {
 export async function listEvaluations(): Promise<Evaluation[]> {
   try {
     const data = await restApiAuthUtil.get<any[]>("/skill_evaluation/evaluations/");
-    return data.map(mapBackendToFrontend);
+    let allLabs: any[] = [];
+    try {
+      allLabs = await restApiAuthUtil.get<any[]>("/skill_evaluation/lab-questions/");
+    } catch {}
+
+    return data.map((item) => {
+      const fe = mapBackendToFrontend(item);
+      for (const section of fe.sections) {
+        if (section.kind === "labs" && section.labs) {
+          section.labs = section.labs.map((l: any) => {
+            const labId = String(l.id || l.lab_id || "");
+            const fullLab = (allLabs as any[]).find((f: any) => String(f.id) === labId);
+            const base = fullLab ? { ...fullLab, ...l, tasks: fullLab.tasks || l.tasks } : { ...l };
+            const stats = getLabCalculatedStats(base);
+            if (stats.selectedTasks.length > 0 && stats.selectedTasks.length < (fullLab?.tasks?.length || 5)) {
+              base.selected_task_ids = stats.selectedTasks.map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`));
+            }
+            return {
+              ...base,
+              duration_minutes: stats.minutes,
+              marks: stats.marks,
+            };
+          });
+        }
+      }
+      return fe;
+    });
   } catch {
     return [];
   }
@@ -518,10 +651,53 @@ export async function hydrateLabQuestions(ev: Evaluation): Promise<Evaluation> {
     const allLabs = await restApiAuthUtil.get<any[]>("/skill_evaluation/lab-questions/");
     for (const section of ev.sections) {
       if (section.kind === "labs" && section.labs) {
-        section.labs = section.labs.map((l: any) => {
-          const fullLab = (allLabs as any[]).find((item: any) => item.id === l.id || item.id === l.lab_id);
-          return fullLab ? { ...fullLab, ...l, tasks: fullLab.tasks || l.tasks } : l;
+        const deduplicatedLabs: any[] = [];
+        const seenLabIds = new Map<string, any>();
+
+        section.labs.forEach((l: any) => {
+          const labId = String(typeof l === "object" ? (l.id || l.lab_id || l.question_id || "") : (l || ""));
+          if (!labId) return;
+          const fullLab = (allLabs as any[]).find((item: any) =>
+            String(item.id) === labId ||
+            (item.title && typeof l === "object" && l.title && String(item.title).toLowerCase() === String(l.title).toLowerCase())
+          );
+          const lObj = typeof l === "object" ? l : { id: labId };
+          const base = fullLab ? { ...fullLab, ...lObj, tasks: (fullLab.tasks && fullLab.tasks.length > 0 ? fullLab.tasks : lObj.tasks) } : { ...lObj };
+
+          if (base.selected_task_id && (!base.selected_task_ids || base.selected_task_ids.length === 0)) {
+            base.selected_task_ids = [String(base.selected_task_id)];
+          }
+
+          const stats = getLabCalculatedStats(base);
+          base.duration_minutes = stats.minutes;
+          base.marks = stats.marks;
+          if (stats.selectedTasks.length > 0 && stats.selectedTasks.length < (fullLab?.tasks?.length || 5)) {
+            base.selected_task_ids = stats.selectedTasks.map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`));
+          }
+
+          if (!seenLabIds.has(labId)) {
+            seenLabIds.set(labId, base);
+            deduplicatedLabs.push(base);
+          } else {
+            // Already present: merge selected tasks into the single lab
+            const existing = seenLabIds.get(labId);
+            const currentSelected = new Set((existing.selected_task_ids || []).map(String));
+            if (base.selected_task_ids) {
+              base.selected_task_ids.forEach((id: string) => currentSelected.add(String(id)));
+            }
+            if (base.selected_task_id) {
+              currentSelected.add(String(base.selected_task_id));
+            }
+            existing.selected_task_ids = Array.from(currentSelected);
+            const mergedStats = getLabCalculatedStats(existing);
+            existing.duration_minutes = mergedStats.minutes;
+            existing.marks = mergedStats.marks;
+            if (mergedStats.selectedTasks.length > 0 && mergedStats.selectedTasks.length < (fullLab?.tasks?.length || 5)) {
+              existing.selected_task_ids = mergedStats.selectedTasks.map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`));
+            }
+          }
         });
+        section.labs = deduplicatedLabs;
       }
     }
   } catch (err) {
@@ -851,8 +1027,8 @@ export function evaluationTotals(e: Evaluation) {
   for (const s of e.sections) {
     if (s.kind === "labs") {
       labs += s.labs.length;
-      minutes += s.labs.reduce((a, l) => a + (l.duration_minutes || 0), 0);
-      marks += s.labs.reduce((a, l) => a + (l.marks || 0), 0);
+      minutes += s.labs.reduce((a, l) => a + getLabCalculatedStats(l).minutes, 0);
+      marks += s.labs.reduce((a, l) => a + getLabCalculatedStats(l).marks, 0);
     } else if (s.kind === "assessment") {
       questions += s.questions.length;
       marks += s.questions.reduce((a, q) => a + (q.marks || 0), 0);

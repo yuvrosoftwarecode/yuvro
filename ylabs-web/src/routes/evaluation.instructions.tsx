@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { EvalShell, EvalStepHeader, PrimaryButton } from "@/components/evaluation/EvalShell";
 import { evaluationService } from "../services/evaluationService";
+import { getLabCalculatedStats, countDistinctSelectedTasks } from "@/lib/recruiter";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/evaluation/instructions")({
@@ -76,18 +77,12 @@ function InstructionsPage() {
         const labCount = qList.length;
 
         qList.forEach((q: any) => {
-          const qMarks = Number(q.marks || 0);
-          if (qMarks > 0) {
-            marks += qMarks;
-          } else if (Array.isArray(q.tasks) && q.tasks.length > 0) {
-            marks += q.tasks.length * 10;
-          } else {
-            marks += 10;
-          }
-          durationMinutes += Number(q.duration_minutes || 30);
+          const stats = getLabCalculatedStats(q);
+          marks += stats.marks;
+          durationMinutes += stats.minutes;
         });
 
-        if (marks === 0) marks = sec.marks || (labCount * 10) || 10;
+        if (marks === 0) marks = sec.marks || (labCount * 6) || 6;
         if (durationMinutes === 0) durationMinutes = sec.duration_minutes || (labCount * 30) || 30;
 
         const techTags = Array.from(new Set(qList.flatMap((q: any) => [
@@ -152,7 +147,7 @@ function InstructionsPage() {
     };
   }, [rawSections]);
 
-  const totalDurationMinutes = evalData?.duration_minutes || evalData?.duration || evalData?.settings?.duration || (totalCalculatedDuration > 0 ? totalCalculatedDuration : 60);
+  const totalDurationMinutes = totalCalculatedDuration > 0 ? totalCalculatedDuration : (evalData?.duration_minutes || evalData?.duration || evalData?.settings?.duration || 60);
 
   const sectionTitles = parsedSections.map((s) => s.title);
 

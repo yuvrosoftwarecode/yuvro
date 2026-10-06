@@ -55,7 +55,9 @@ import { LabSubmissionViewer } from "@/components/evaluation/LabSubmissionViewer
 import { 
   getEvaluation, 
   getEvaluationSubmissions,
-  generateSharedReportLink 
+  generateSharedReportLink,
+  getLabCalculatedStats,
+  countDistinctSelectedTasks,
 } from "@/lib/recruiter";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import {
@@ -404,9 +406,9 @@ function CandidateWorkspace() {
   const labsSec = ev?.sections?.find((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS");
   const labsMaxScore = hasLabs
     ? ((labsSec?.labs && labsSec.labs.length > 0)
-        ? labsSec.labs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+        ? labsSec.labs.reduce((sum: number, l: any) => sum + (getLabCalculatedStats(l).marks || Number(l.marks) || 0), 0)
         : (labsSec?.questions && labsSec.questions.length > 0)
-          ? labsSec.questions.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+          ? labsSec.questions.reduce((sum: number, l: any) => sum + (getLabCalculatedStats(l).marks || Number(l.marks) || 0), 0)
           : (labsSec?.marks ?? 100))
     : 0;
 
@@ -455,8 +457,26 @@ function CandidateWorkspace() {
           try {
             const parsed = typeof cur.solution_output === "string" ? JSON.parse(cur.solution_output) : cur.solution_output;
             if (parsed?.tasks && Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
-              const passedTasks = parsed.tasks.filter((t: any) => t.passed === true || t.result === "passed").length;
-              score = (passedTasks / parsed.tasks.length) * 100;
+              let activeTasks = parsed.tasks;
+              const matchingLab = allLabsForScore.find((l: any) => {
+                const targetId = String(l.id ?? l.lab_id ?? l.question_id ?? "");
+                const sLabId = String(cur.lab_question?.id ?? cur.lab_question ?? cur.lab_id ?? "");
+                return sLabId === targetId || (sLabId && targetId && (sLabId.includes(targetId) || targetId.includes(sLabId)));
+              });
+              const matchingCalc = matchingLab ? getLabCalculatedStats(matchingLab) : null;
+              const matchingCount = matchingCalc && matchingCalc.selectedTasks.length > 0 ? matchingCalc.selectedTasks.length : 0;
+              if (matchingLab?.selected_task_ids && Array.isArray(matchingLab.selected_task_ids) && matchingLab.selected_task_ids.length > 0) {
+                const selectedSet = new Set(matchingLab.selected_task_ids.map(String));
+                const filtered = parsed.tasks.filter((t: any, idx: number) => {
+                  const tid = String(t.id ?? t.key ?? t.task_slug ?? `task-${idx}`);
+                  return selectedSet.has(tid) || selectedSet.has(String(t.name)) || selectedSet.has(String(t.title));
+                });
+                activeTasks = filtered.length > 0 ? filtered : (matchingCount > 0 ? parsed.tasks.slice(0, matchingCount) : parsed.tasks);
+              } else if (matchingCount > 0 && parsed.tasks.length > matchingCount) {
+                activeTasks = parsed.tasks.slice(0, matchingCount);
+              }
+              const passedTasks = activeTasks.filter((t: any) => t.passed === true || t.result === "passed" || t.status === "passed").length;
+              score = (passedTasks / activeTasks.length) * 100;
             } else if (parsed?.percentage != null) {
               score = Number(parsed.percentage);
             } else if (parsed?.total_score != null) {
@@ -474,7 +494,7 @@ function CandidateWorkspace() {
           const sLabId = String(cur.lab_question?.id ?? cur.lab_question ?? cur.lab_id ?? "");
           return sLabId === targetId || (sLabId && targetId && (sLabId.includes(targetId) || targetId.includes(sLabId)));
         });
-        const labMaxMarks = Number(matchingLab?.marks) || (labsMaxScore / totalLabCountForScore);
+        const labMaxMarks = (matchingLab ? getLabCalculatedStats(matchingLab).marks : 0) || Number(matchingLab?.marks) || (labsMaxScore / totalLabCountForScore);
 
         let earned = 0;
         if (score > 10 && score <= 100) {
@@ -1173,7 +1193,16 @@ function parseExecutionOutput(rawOutput: string | null | undefined, labTasks?: a
 
   if (tasksDict) {
     if (Array.isArray(tasksDict)) {
-      tasksDict.forEach((t: any, idx: number) => {
+      let activeDict = tasksDict;
+      if (labTasks && Array.isArray(labTasks) && labTasks.length > 0 && tasksDict.length > labTasks.length) {
+        const labTaskIds = new Set(labTasks.map((lt: any, idx: number) => String(lt.id ?? lt.task_slug ?? lt.title ?? `task-${idx}`)));
+        const filtered = tasksDict.filter((t: any, idx: number) => {
+          const tid = String(t.id ?? t.task_slug ?? t.key ?? `task-${idx}`);
+          return labTaskIds.has(tid) || labTaskIds.has(String(t.name)) || labTaskIds.has(String(t.title));
+        });
+        activeDict = filtered.length === labTasks.length ? filtered : tasksDict.slice(0, labTasks.length);
+      }
+      activeDict.forEach((t: any, idx: number) => {
         const matchingLabTask = labTasks && labTasks[idx];
         const resStr = String(t.result || t.status || "").toLowerCase();
         const taskMax = matchingLabTask?.marks || t.max_score || 10;
@@ -1193,7 +1222,19 @@ function parseExecutionOutput(rawOutput: string | null | undefined, labTasks?: a
         });
       });
     } else if (typeof tasksDict === "object") {
-      const keys = Object.keys(tasksDict);
+      let keys = Object.keys(tasksDict);
+      if (labTasks && Array.isArray(labTasks) && labTasks.length > 0 && keys.length > labTasks.length) {
+        const labTaskIds = new Set(labTasks.map((lt: any, i: number) => String(lt.id ?? lt.task_slug ?? lt.title ?? `task_${i + 1}`).toLowerCase()));
+        const filteredKeys = keys.filter((k) => {
+          const kLower = k.toLowerCase();
+          return labTaskIds.has(kLower) || labTasks.some((lt: any) => String(lt.title).toLowerCase().includes(kLower) || kLower.includes(String(lt.title).toLowerCase()));
+        });
+        if (filteredKeys.length === labTasks.length) {
+          keys = filteredKeys;
+        } else {
+          keys = keys.slice(0, labTasks.length);
+        }
+      }
       keys.forEach((k, idx) => {
         const item = tasksDict[k];
         const matchingLabTask = labTasks && (labTasks.find((lt: any) => lt.id === k || lt.title?.toLowerCase().includes(k.toLowerCase())) || labTasks[idx]);
@@ -1259,6 +1300,17 @@ function parseExecutionOutput(rawOutput: string | null | undefined, labTasks?: a
 }
 
 export function computeLabTestStats(lab: any, labSub: any) {
+  const calcStats = getLabCalculatedStats(lab);
+  const effectiveTasks = calcStats.selectedTasks.length > 0
+    ? calcStats.selectedTasks
+    : (Array.isArray(lab?.tasks) ? lab.tasks : []);
+  const selectedCount = calcStats.selectedTasks.length > 0
+    ? calcStats.selectedTasks.length
+    : (lab?.selected_task_ids && Array.isArray(lab.selected_task_ids) && lab.selected_task_ids.length > 0
+        ? countDistinctSelectedTasks(lab.selected_task_ids)
+        : (effectiveTasks.length > 0 ? effectiveTasks.length : (lab?.selected_task_id ? 1 : null)));
+
+  const maxMarks = calcStats.marks || Number(lab?.marks) || 6;
   let marksEarned = Number(labSub?.score ?? 0);
   let tasksCompletedCount: number | null = null;
   let parsedTasksTotal: number | null = null;
@@ -1267,24 +1319,43 @@ export function computeLabTestStats(lab: any, labSub: any) {
     try {
       const parsed = typeof labSub.solution_output === "string" ? JSON.parse(labSub.solution_output) : labSub.solution_output;
       if (parsed?.tasks && Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
-        parsedTasksTotal = parsed.tasks.length;
-        tasksCompletedCount = parsed.tasks.filter((t: any) => t.passed === true || t.result === "passed" || t.status === "passed").length;
-        marksEarned = Math.round((tasksCompletedCount / parsed.tasks.length) * (Number(lab?.marks) || 10));
+        let activeTasks = parsed.tasks;
+        if (selectedCount != null && parsed.tasks.length > selectedCount) {
+          if (lab?.selected_task_ids && Array.isArray(lab.selected_task_ids) && lab.selected_task_ids.length > 0) {
+            const selectedSet = new Set(lab.selected_task_ids.map(String));
+            const filtered = parsed.tasks.filter((t: any, idx: number) => {
+              const tid = String(t.id ?? t.key ?? t.task_slug ?? `task-${idx}`);
+              return (
+                selectedSet.has(tid) ||
+                selectedSet.has(String(t.name)) ||
+                selectedSet.has(String(t.title)) ||
+                selectedSet.has(`task-${idx}`)
+              );
+            });
+            activeTasks = (filtered.length > 0 ? filtered : parsed.tasks).slice(0, selectedCount);
+          } else {
+            activeTasks = parsed.tasks.slice(0, selectedCount);
+          }
+        } else if (selectedCount != null && activeTasks.length > selectedCount) {
+          activeTasks = activeTasks.slice(0, selectedCount);
+        }
+        parsedTasksTotal = selectedCount != null ? Math.min(selectedCount, activeTasks.length) : activeTasks.length;
+        tasksCompletedCount = activeTasks.filter((t: any) => t.passed === true || t.result === "passed" || t.status === "passed").length;
+        marksEarned = Math.round((tasksCompletedCount / activeTasks.length) * maxMarks);
       } else if (parsed?.total_score != null) {
         marksEarned = Number(parsed.total_score);
       } else if (parsed?.percentage != null) {
-        marksEarned = Math.round((Number(parsed.percentage) / 100) * (Number(lab?.marks) || 10));
+        marksEarned = Math.round((Number(parsed.percentage) / 100) * maxMarks);
       }
     } catch {}
   }
 
   if (marksEarned === 0 && labSub?.solution && typeof labSub.solution === "string") {
     if (labSub.solution.includes("HTTP_201_CREATED") || labSub.solution.includes("201_CREATED")) {
-      marksEarned = 2;
+      marksEarned = Math.min(2, maxMarks);
     }
   }
 
-  const maxMarks = Number(lab?.marks) || 10;
   let scorePct = 0;
   if (marksEarned > maxMarks && marksEarned <= 100) {
     scorePct = marksEarned;
@@ -1294,23 +1365,27 @@ export function computeLabTestStats(lab: any, labSub: any) {
   }
 
   if (parsedTasksTotal == null && labSub?.solution_output) {
-    const parsedExec = parseExecutionOutput(labSub.solution_output, lab?.tasks);
+    const parsedExec = parseExecutionOutput(labSub.solution_output, effectiveTasks);
     if (parsedExec && parsedExec.tasks && parsedExec.tasks.length > 0) {
-      parsedTasksTotal = parsedExec.tasks.length;
-      tasksCompletedCount = parsedExec.tasks.filter((t: any) => t.result === "passed" || t.passed === true).length;
+      const execTasks = selectedCount != null ? parsedExec.tasks.slice(0, selectedCount) : parsedExec.tasks;
+      parsedTasksTotal = execTasks.length;
+      tasksCompletedCount = execTasks.filter((t: any) => t.result === "passed" || t.passed === true).length;
     }
   }
 
   if (parsedTasksTotal == null && labSub?.tests_total) {
-    parsedTasksTotal = Number(labSub.tests_total);
-    tasksCompletedCount = Number(labSub.tests_passed || 0);
+    parsedTasksTotal = selectedCount != null ? Math.min(selectedCount, Number(labSub.tests_total)) : Number(labSub.tests_total);
+    tasksCompletedCount = selectedCount != null ? Math.min(selectedCount, Number(labSub.tests_passed || 0)) : Number(labSub.tests_passed || 0);
   }
 
-  const tasksTotal = parsedTasksTotal ?? ((Array.isArray(lab?.tasks) && lab.tasks.length > 0) ? lab.tasks.length : (typeof lab?.tasks === "number" && lab.tasks > 0 ? lab.tasks : 5));
+  const tasksTotal = selectedCount != null
+    ? selectedCount
+    : (parsedTasksTotal ?? (effectiveTasks.length > 0 ? effectiveTasks.length : 3));
+
   let tasksCompleted = tasksCompletedCount != null
-    ? tasksCompletedCount
+    ? Math.min(tasksTotal, tasksCompletedCount)
     : (labSub?.tasks_completed != null
-        ? Number(labSub.tasks_completed)
+        ? Math.min(tasksTotal, Number(labSub.tasks_completed))
         : (scorePct > 0 ? Math.max(1, Math.min(tasksTotal, Math.round((scorePct / 100) * tasksTotal))) : 0));
 
   if (scorePct >= 100 && tasksTotal > 0) {
@@ -1512,19 +1587,25 @@ function EvaluationSummary({
   });
 
   const totalLabTasks = allLabs.reduce((sum: number, l: any) => {
+    const calc = getLabCalculatedStats(l);
+    if (calc.selectedTasks.length > 0) return sum + calc.selectedTasks.length;
+    const sCount = (l.selected_task_ids && Array.isArray(l.selected_task_ids) && l.selected_task_ids.length > 0)
+      ? countDistinctSelectedTasks(l.selected_task_ids)
+      : (l.selected_task_id ? 1 : null);
+    if (sCount != null) return sum + sCount;
     if (Array.isArray(l.tasks) && l.tasks.length > 0) return sum + l.tasks.length;
     if (typeof l.tasks === "number" && l.tasks > 0) return sum + l.tasks;
     return sum;
   }, 0);
 
   if (totalTestsCount === 0) {
-    totalTestsCount = totalLabTasks > 0 ? totalLabTasks : (allLabs.length > 0 ? allLabs.length * 5 : 5);
+    totalTestsCount = totalLabTasks > 0 ? totalLabTasks : (allLabs.length > 0 ? allLabs.length * 3 : 3);
     if (candidate.labsScore > 0) {
-      totalTestsPassed = Math.max(1, Math.min(totalTestsCount, Math.round((candidate.labsScore / (labsMaxScore || 10)) * totalTestsCount)));
+      totalTestsPassed = Math.max(1, Math.min(totalTestsCount, Math.round((candidate.labsScore / (labsMaxScore || 6)) * totalTestsCount)));
     } else {
       totalTestsPassed = 0;
     }
-  } else if (totalLabTasks > 0 && totalTestsCount < totalLabTasks) {
+  } else if (totalLabTasks > 0 && totalTestsCount !== totalLabTasks) {
     totalTestsCount = totalLabTasks;
   }
 
@@ -1620,6 +1701,8 @@ function EvaluationSummary({
     (overallReport?.executive_summary && overallReport.executive_summary.includes("1/5") && totalTestsPassed > 1) ||
     (overallReport?.executive_summary && overallReport.executive_summary.includes("5/10") && totalTestsPassed > 5) ||
     (overallReport?.executive_summary && totalTestsPassed === totalTestsCount && totalTestsCount > 0 && overallReport.executive_summary.includes("passed") && !overallReport.executive_summary.includes(`${totalTestsCount}/${totalTestsCount}`)) ||
+    (overallReport?.executive_summary && totalTestsCount > 0 && totalTestsCount !== 5 && overallReport.executive_summary.includes("5/5")) ||
+    (overallReport?.executive_summary && totalTestsCount > 0 && totalTestsCount !== 6 && overallReport.executive_summary.includes("6/6")) ||
     (!hasAssessment && overallReport?.executive_summary && (overallReport.executive_summary.includes("knowledge assessment") || overallReport.executive_summary.includes("questions correct"))) ||
     (!hasVitarka && overallReport?.executive_summary && (overallReport.executive_summary.includes("Vitarka") || overallReport.executive_summary.includes("interview") || overallReport.executive_summary.includes("discussion"))) ||
     (!hasLabs && overallReport?.executive_summary && (overallReport.executive_summary.includes("engineering lab") || overallReport.executive_summary.includes("practical performance")))
@@ -1686,11 +1769,16 @@ function EvaluationSummary({
   if (hasVitarka) zeroDetails.push("no interview responses");
   const zeroDetailsText = zeroDetails.length > 0 ? zeroDetails.join(", ") : "no completed activity";
 
-  const rawOverallText = isAllZero
+  let rawOverallText = isAllZero
     ? `Overall evaluation for ${candidateName} recorded ${zeroDetailsText}. Aggregate score: 0/10. Recommendation: Reject.`
     : (!isOverallReportStale && overallReport?.executive_summary
         ? overallReport.executive_summary
         : defaultOverallText);
+  if (rawOverallText && totalTestsCount > 0) {
+    if (totalTestsCount !== 5) rawOverallText = rawOverallText.replace(/\b5\/5\b/g, `${totalTestsPassed}/${totalTestsCount}`);
+    if (totalTestsCount !== 6) rawOverallText = rawOverallText.replace(/\b6\/6\b/g, `${totalTestsPassed}/${totalTestsCount}`);
+    rawOverallText = rawOverallText.replace(/\b\d+\/\d+\s+tests\s+passed\b/g, `${totalTestsPassed}/${totalTestsCount} tests passed`);
+  }
   const overallText = stripUuids(rawOverallText, candidateName);
   const hasAiReport = Boolean(
     (overallReport?.strengths && overallReport.strengths.length > 0) ||
@@ -1911,11 +1999,17 @@ export function LabsPane({
   const labsMax = allLabs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0) || 80;
 
   const totalLabTasks = allLabs.reduce((sum: number, l: any) => {
+    const calc = getLabCalculatedStats(l);
+    if (calc.selectedTasks.length > 0) return sum + calc.selectedTasks.length;
+    const sCount = (l.selected_task_ids && Array.isArray(l.selected_task_ids) && l.selected_task_ids.length > 0)
+      ? countDistinctSelectedTasks(l.selected_task_ids)
+      : (l.selected_task_id ? 1 : null);
+    if (sCount != null) return sum + sCount;
     if (Array.isArray(l.tasks) && l.tasks.length > 0) return sum + l.tasks.length;
     if (typeof l.tasks === "number" && l.tasks > 0) return sum + l.tasks;
     return sum;
   }, 0);
-  const totalLabTasksCount = totalLabTasks > 0 ? totalLabTasks : (allLabs.length > 0 ? allLabs.length * 5 : 5);
+  const totalLabTasksCount = totalLabTasks > 0 ? totalLabTasks : (allLabs.length > 0 ? allLabs.length * 3 : 3);
 
   const rawLabSubs: any[] = candidate.rawSubmission?.lab_submissions || [];
 
@@ -1935,7 +2029,7 @@ export function LabsPane({
 
   if (actualTotalTestsCount === 0) {
     actualTotalTestsCount = totalLabTasksCount;
-  } else if (totalLabTasks > 0 && actualTotalTestsCount < totalLabTasks) {
+  } else if (totalLabTasks > 0 && actualTotalTestsCount !== totalLabTasks) {
     actualTotalTestsCount = totalLabTasks;
   }
 
@@ -3827,9 +3921,13 @@ export function LabDrawer({
         )}
 
         {/* Execution & test output (only if real output exists) */}
-        {lab.output && (
-          <FormattedExecutionOutput rawOutput={lab.output} labTasks={section?.tasks} />
-        )}
+        {lab.output && (() => {
+          const drawerStats = getLabCalculatedStats(section);
+          const drawerTasks = drawerStats.selectedTasks.length > 0
+            ? drawerStats.selectedTasks
+            : section?.tasks;
+          return <FormattedExecutionOutput rawOutput={lab.output} labTasks={drawerTasks} />;
+        })()}
 
         {/* AI review (only if real strengths/weaknesses/suggestions/feedback exist) */}
         {hasAIReview && (

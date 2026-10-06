@@ -30,10 +30,13 @@ import {
   Pencil,
   GripVertical,
   Shuffle,
+  Sliders,
+  AlertTriangle,
 } from "lucide-react";
 import {
   getEvaluation,
   saveEvaluation,
+  getLabCalculatedStats,
   evaluationTotals,
   DOMAINS,
   TIMEZONES,
@@ -81,6 +84,141 @@ export const Route = createFileRoute("/recruiter/evaluations/$id")({
   component: EvaluationWorkspace,
 });
 
+function getParentTask(task: any, allTasks: any[] = []): any | null {
+  if (!task || !Array.isArray(allTasks)) return null;
+  const pRef =
+    task.parent_task_id ||
+    task.scoring_rules?.parent_task_id ||
+    task.scoring_rules?.parent_task ||
+    (typeof task.parent_task === "string" ? task.parent_task : task.parent_task?.id) ||
+    task.depends_on ||
+    task.dependency_task_id;
+  if (!pRef) return null;
+  const pRefStr = String(pRef).trim();
+  return (
+    allTasks.find((t: any, idx: number) => {
+      const tId = String(t.id ?? `task-${idx}`);
+      return (
+        tId === pRefStr ||
+        String(t.id) === pRefStr ||
+        (typeof pRef === "number" && idx === pRef) ||
+        (pRefStr.startsWith("task_idx_") && idx === parseInt(pRefStr.replace("task_idx_", ""), 10)) ||
+        (pRefStr.startsWith("task_") && idx === parseInt(pRefStr.replace("task_", ""), 10)) ||
+        (pRefStr.startsWith("task-") && idx === parseInt(pRefStr.replace("task-", ""), 10)) ||
+        (!isNaN(Number(pRefStr)) && idx === Number(pRefStr)) ||
+        (t.title && t.title.trim().toLowerCase() === pRefStr.toLowerCase())
+      );
+    }) || null
+  );
+}
+
+function getTaskDependencies(task: any, allTasks: any[] = []): any[] {
+  const visited = new Set<string>();
+  const dependencies: any[] = [];
+
+  function resolve(currentTask: any) {
+    if (!currentTask) return;
+    const parent = getParentTask(currentTask, allTasks);
+    if (parent) {
+      const parentKey = String(parent.id || parent.title || Math.random());
+      if (!visited.has(parentKey)) {
+        visited.add(parentKey);
+        resolve(parent);
+        dependencies.push(parent);
+      }
+    }
+  }
+
+  resolve(task);
+  return dependencies;
+}
+
+function TaskDependencyConfirmModal({
+  isOpen,
+  taskTitle,
+  dependentTasks,
+  onClose,
+  onConfirm,
+  actionText = "Remove All",
+}: {
+  isOpen: boolean;
+  taskTitle: string;
+  dependentTasks: any[];
+  onClose: () => void;
+  onConfirm: () => void;
+  actionText?: string;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <Overlay onClose={onClose} zIndex="z-[70]">
+      <div className="w-[500px] max-w-[94vw] rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#121215] p-6 shadow-2xl">
+        <div className="flex items-start gap-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
+            <AlertTriangle className="h-5 w-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[17px] font-semibold text-neutral-900 dark:text-white">
+                Dependent Tasks Detected
+              </h3>
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-lg p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/5 transition cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="mt-2 text-[13px] text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              The following task{dependentTasks.length > 1 ? "s" : ""} depend{dependentTasks.length === 1 ? "s" : ""} on{" "}
+              <span className="font-semibold text-neutral-900 dark:text-white">
+                "{taskTitle}"
+              </span>:
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 max-h-48 overflow-y-auto rounded-xl border border-neutral-200/80 dark:border-white/10 bg-neutral-50 dark:bg-white/[0.03] p-2.5 space-y-2">
+          {dependentTasks.map((dep, idx) => (
+            <div
+              key={dep.id ?? idx}
+              className="flex items-center gap-2.5 text-[13px] font-medium text-neutral-800 dark:text-neutral-200 bg-white dark:bg-[#18181b] px-3 py-2 rounded-lg border border-neutral-200/60 dark:border-white/5 shadow-xs"
+            >
+              <div className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+              <span className="truncate">{dep.title || dep.id}</span>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-3 text-[12px] text-neutral-500 dark:text-neutral-400">
+          Deselecting or removing this task will also remove {dependentTasks.length > 1 ? "all its dependent tasks" : "its dependent task"}. Do you want to proceed?
+        </p>
+
+        <div className="mt-6 flex items-center justify-end gap-2.5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-transparent px-4 py-2 text-[13px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              onConfirm();
+            }}
+            className="rounded-xl bg-red-600 hover:bg-red-700 text-white px-4 py-2 text-[13px] font-medium shadow-sm transition cursor-pointer"
+          >
+            {actionText}
+          </button>
+        </div>
+      </div>
+    </Overlay>
+  );
+}
+
 function EvaluationWorkspace() {
   const { id } = Route.useParams();
   const { view } = Route.useSearch();
@@ -88,8 +226,14 @@ function EvaluationWorkspace() {
   const loc = useLocation();
   const [ev, setEv] = useState<Evaluation | null>(null);
   const [addSectionOpen, setAddSectionOpen] = useState(false);
-  const [labDrawerFor, setLabDrawerFor] = useState<string | null>(null);
+  const [labDrawerFor, setLabDrawerFor] = useState<{ sectionId: string; labId?: string } | null>(null);
   const [qDrawerFor, setQDrawerFor] = useState<{ sectionId: string } | null>(null);
+  const [depConfirm, setDepConfirm] = useState<{
+    taskTitle: string;
+    dependentTasks: any[];
+    onConfirm: () => void;
+    actionText?: string;
+  } | null>(null);
 
   // Child route matched (e.g. /workspace, /candidates/...) — defer to it.
   const isChild = loc.pathname.replace(/\/$/, "") !== `/recruiter/evaluations/${id}`;
@@ -302,7 +446,8 @@ function EvaluationWorkspace() {
                     x.sections.splice(to, 0, it);
                   })
                 }
-                onAddLab={() => setLabDrawerFor(s.id)}
+                onAddLab={() => setLabDrawerFor({ sectionId: s.id })}
+                onConfigureLab={(lab) => setLabDrawerFor({ sectionId: s.id, labId: lab.id })}
                 onAddQuestions={() => setQDrawerFor({ sectionId: s.id })}
               />
             ))}
@@ -367,15 +512,185 @@ function EvaluationWorkspace() {
       )}
       {labDrawerFor && (
         <LabDrawer
-          existing={(
-            (ev.sections.find((s) => s.id === labDrawerFor) as LabsSection | undefined)?.labs ?? []
-          ).map((l) => l.id)}
+          sectionLabs={
+            (ev.sections.find((s) => s.id === labDrawerFor.sectionId) as LabsSection | undefined)?.labs ?? []
+          }
+          initialExpandedLabId={labDrawerFor.labId}
           onClose={() => setLabDrawerFor(null)}
-          onAdd={(lab) => {
+          onAddFullLab={(lab) => {
             update((x) => {
-              const sec = x.sections.find((s) => s.id === labDrawerFor) as LabsSection | undefined;
-              if (sec && !sec.labs.find((l) => l.id === lab.id)) sec.labs.push(lab);
+              const sec = x.sections.find((s) => s.id === labDrawerFor.sectionId) as LabsSection | undefined;
+              if (sec) {
+                const allTaskIds = (lab.tasks || []).map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`));
+                const existingIndex = sec.labs.findIndex((l) => String(l.id) === String(lab.id));
+                const baseLab = {
+                  ...(existingIndex >= 0 ? sec.labs[existingIndex] : {}),
+                  ...lab,
+                  selected_task_ids: allTaskIds,
+                  selected_task_id: undefined,
+                  selected_task: undefined,
+                };
+                const stats = getLabCalculatedStats(baseLab);
+                const labWithStats = {
+                  ...baseLab,
+                  duration_minutes: stats.minutes,
+                  marks: stats.marks,
+                };
+                if (existingIndex >= 0) {
+                  sec.labs[existingIndex] = labWithStats;
+                } else {
+                  sec.labs.push(labWithStats);
+                }
+              }
             });
+          }}
+          onToggleTask={(lab, task, select) => {
+            const sec = ev.sections.find((s) => s.id === labDrawerFor.sectionId) as LabsSection | undefined;
+            if (!sec) return;
+
+            const allTasks = lab.tasks || [];
+            const targetTaskId = String(task.id ?? task.task_slug ?? task.title);
+            const existingIndex = sec.labs.findIndex((l) => String(l.id) === String(lab.id));
+
+            if (select) {
+              const dependencies = getTaskDependencies(task, allTasks);
+              const tasksToAdd = [...dependencies, task];
+              const idsToAdd: string[] = [];
+              tasksToAdd.forEach((t: any) => {
+                const realIdx = allTasks.findIndex(
+                  (at: any) => at === t || (at.id && at.id === t.id) || (at.title && at.title === t.title)
+                );
+                const tId = String(t.id ?? t.task_slug ?? `task-${realIdx >= 0 ? realIdx : 0}`);
+                idsToAdd.push(tId);
+                if (t.id) idsToAdd.push(String(t.id));
+                if (t.title) idsToAdd.push(String(t.title));
+              });
+
+              update((x) => {
+                const s = x.sections.find((secItem) => secItem.id === labDrawerFor.sectionId) as LabsSection | undefined;
+                if (!s) return;
+                const exIdx = s.labs.findIndex((l) => String(l.id) === String(lab.id));
+                if (exIdx >= 0) {
+                  const existingLab = s.labs[exIdx];
+                  const currentIds = new Set(
+                    existingLab.selected_task_ids && existingLab.selected_task_ids.length > 0
+                      ? existingLab.selected_task_ids.map(String)
+                      : []
+                  );
+                  idsToAdd.forEach((id) => currentIds.add(id));
+                  const updatedLab = {
+                    ...existingLab,
+                    ...lab,
+                    selected_task_ids: Array.from(currentIds),
+                    selected_task_id: undefined,
+                    selected_task: undefined,
+                  };
+                  const stats = getLabCalculatedStats(updatedLab);
+                  const canonicalIds = stats.selectedTasks.length > 0 && stats.selectedTasks.length < allTasks.length
+                    ? stats.selectedTasks.map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`))
+                    : Array.from(currentIds);
+                  s.labs[exIdx] = {
+                    ...updatedLab,
+                    selected_task_ids: canonicalIds,
+                    duration_minutes: stats.minutes,
+                    marks: stats.marks,
+                  };
+                } else {
+                  const newLab = {
+                    ...lab,
+                    selected_task_ids: Array.from(new Set(idsToAdd)),
+                    selected_task_id: undefined,
+                    selected_task: undefined,
+                  };
+                  const stats = getLabCalculatedStats(newLab);
+                  const canonicalIds = stats.selectedTasks.length > 0 && stats.selectedTasks.length < allTasks.length
+                    ? stats.selectedTasks.map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`))
+                    : Array.from(new Set(idsToAdd));
+                  s.labs.push({
+                    ...newLab,
+                    selected_task_ids: canonicalIds,
+                    duration_minutes: stats.minutes,
+                    marks: stats.marks,
+                  });
+                }
+              });
+            } else {
+              if (existingIndex < 0) return;
+              const existingLab = sec.labs[existingIndex];
+              const currentIds = new Set(
+                (existingLab.selected_task_ids && existingLab.selected_task_ids.length > 0)
+                  ? existingLab.selected_task_ids.map(String)
+                  : (allTasks.map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`)))
+              );
+
+              const dependentTasks = allTasks.filter((other: any) => {
+                const otherId = String(other.id ?? other.task_slug ?? other.title);
+                if (otherId === targetTaskId || !currentIds.has(otherId)) return false;
+                const deps = getTaskDependencies(other, allTasks);
+                return deps.some(
+                  (d: any) =>
+                    String(d.id || d.title) === targetTaskId ||
+                    String(d.id || d.title) === String(task.title)
+                );
+              });
+
+              const executeDeselect = (removeDeps: boolean) => {
+                update((x) => {
+                  const s = x.sections.find((secItem) => secItem.id === labDrawerFor.sectionId) as LabsSection | undefined;
+                  if (!s) return;
+                  const exIdx = s.labs.findIndex((l) => String(l.id) === String(lab.id));
+                  if (exIdx < 0) return;
+                  const curLab = s.labs[exIdx];
+                  const ids = new Set(
+                    (curLab.selected_task_ids && curLab.selected_task_ids.length > 0)
+                      ? curLab.selected_task_ids.map(String)
+                      : (allTasks.map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`)))
+                  );
+
+                  if (removeDeps) {
+                    dependentTasks.forEach((d: any) => {
+                      ids.delete(String(d.id ?? d.task_slug ?? d.title));
+                    });
+                  }
+
+                  ids.delete(targetTaskId);
+                  if (task.title) ids.delete(String(task.title));
+
+                  if (ids.size === 0) {
+                    s.labs.splice(exIdx, 1);
+                  } else {
+                    const updatedLab = {
+                      ...curLab,
+                      selected_task_ids: Array.from(ids),
+                      selected_task_id: undefined,
+                      selected_task: undefined,
+                    };
+                    const stats = getLabCalculatedStats(updatedLab);
+                    const canonicalIds = stats.selectedTasks.length > 0 && stats.selectedTasks.length < allTasks.length
+                      ? stats.selectedTasks.map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`))
+                      : Array.from(ids);
+                    s.labs[exIdx] = {
+                      ...updatedLab,
+                      selected_task_ids: canonicalIds,
+                      duration_minutes: stats.minutes,
+                      marks: stats.marks,
+                    };
+                  }
+                });
+              };
+
+              if (dependentTasks.length > 0) {
+                setDepConfirm({
+                  taskTitle: task.title || task.id,
+                  dependentTasks,
+                  actionText: "Deselect All",
+                  onConfirm: () => executeDeselect(true),
+                });
+                return;
+              }
+
+              executeDeselect(false);
+            }
           }}
         />
       )}
@@ -407,6 +722,17 @@ function EvaluationWorkspace() {
           }}
         />
       )}
+
+      {depConfirm && (
+        <TaskDependencyConfirmModal
+          isOpen={!!depConfirm}
+          taskTitle={depConfirm.taskTitle}
+          dependentTasks={depConfirm.dependentTasks}
+          actionText={depConfirm.actionText || "Remove All"}
+          onClose={() => setDepConfirm(null)}
+          onConfirm={depConfirm.onConfirm}
+        />
+      )}
     </div>
   );
 }
@@ -422,6 +748,7 @@ function SectionBlock({
   onDuplicate,
   onMove,
   onAddLab,
+  onConfigureLab,
   onAddQuestions,
   allSections,
 }: {
@@ -433,6 +760,7 @@ function SectionBlock({
   onDuplicate: () => void;
   onMove: (dir: "up" | "down") => void;
   onAddLab: () => void;
+  onConfigureLab?: (lab: LabItem) => void;
   onAddQuestions: () => void;
   allSections?: Section[];
 }) {
@@ -504,7 +832,12 @@ function SectionBlock({
       {!collapsed && (
         <div className="p-4">
           {section.kind === "labs" && (
-            <LabsSectionBody section={section} onChange={onChange} onAddLab={onAddLab} />
+            <LabsSectionBody
+              section={section}
+              onChange={onChange}
+              onAddLab={onAddLab}
+              onConfigureLab={onConfigureLab}
+            />
           )}
           {section.kind === "assessment" && (
             <AssessmentSectionBody
@@ -549,20 +882,100 @@ function LabsSectionBody({
   section,
   onChange,
   onAddLab,
+  onConfigureLab,
 }: {
   section: LabsSection;
   onChange: (s: Section) => void;
   onAddLab: () => void;
+  onConfigureLab?: (l: LabItem) => void;
 }) {
-  const minutes = section.labs.reduce((a, l) => a + (l.duration_minutes || 0), 0);
-  const marks = section.labs.reduce((a, l) => a + l.marks, 0);
-  const remove = (id: string) =>
-    onChange({ ...section, labs: section.labs.filter((l) => l.id !== id) });
-  const dup = (id: string) => {
-    const l = section.labs.find((x) => x.id === id);
-    if (!l) return;
-    onChange({ ...section, labs: [...section.labs, { ...l, id: newUid() }] });
+  const [taskDepConfirm, setTaskDepConfirm] = useState<{
+    taskTitle: string;
+    dependentTasks: any[];
+    onConfirm: () => void;
+  } | null>(null);
+
+  const minutes = section.labs.reduce((a, l) => a + getLabCalculatedStats(l).minutes, 0);
+  const marks = section.labs.reduce((a, l) => a + getLabCalculatedStats(l).marks, 0);
+
+  const removeLabAtIndex = (index: number) => {
+    onChange({ ...section, labs: section.labs.filter((_, idx) => idx !== index) });
   };
+
+  const removeTaskFromLab = (labIndex: number, taskToRemove: any) => {
+    const targetLab = section.labs[labIndex];
+    if (!targetLab) return;
+
+    const allTasks = targetLab.tasks || [];
+    const stats = getLabCalculatedStats(targetLab);
+    const selectedTaskIds = new Set(
+      stats.selectedTasks.map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`))
+    );
+    const targetTaskId = String(taskToRemove.id ?? taskToRemove.task_slug ?? taskToRemove.title);
+
+    // Check if any other selected task in this lab depends on the task being removed
+    const dependentTasks = stats.selectedTasks.filter((other: any) => {
+      const otherId = String(other.id ?? other.task_slug ?? other.title);
+      if (otherId === targetTaskId) return false;
+      const deps = getTaskDependencies(other, allTasks);
+      return deps.some(
+        (d: any) =>
+          String(d.id || d.title) === targetTaskId ||
+          String(d.id || d.title) === String(taskToRemove.title)
+      );
+    });
+
+    const executeRemoval = (removeDeps: boolean) => {
+      const removeIds = new Set([
+        targetTaskId,
+        ...(removeDeps ? dependentTasks.map((d: any) => String(d.id ?? d.task_slug ?? d.title)) : []),
+      ]);
+
+      const remainingIds = Array.from(selectedTaskIds).filter((id) => !removeIds.has(id));
+      if (remainingIds.length === 0) {
+        onChange({
+          ...section,
+          labs: section.labs.filter((_, idx) => idx !== labIndex),
+        });
+      } else {
+        const updatedLab = {
+          ...targetLab,
+          selected_task_ids: remainingIds,
+          selected_task_id: undefined,
+          selected_task: undefined,
+        };
+        const stats = getLabCalculatedStats(updatedLab);
+        const updatedLabs = [...section.labs];
+        updatedLabs[labIndex] = {
+          ...updatedLab,
+          duration_minutes: stats.minutes,
+          marks: stats.marks,
+        };
+        onChange({ ...section, labs: updatedLabs });
+      }
+    };
+
+    if (dependentTasks.length > 0) {
+      setTaskDepConfirm({
+        taskTitle: taskToRemove.title || taskToRemove.id,
+        dependentTasks,
+        onConfirm: () => executeRemoval(true),
+      });
+      return;
+    }
+
+    executeRemoval(false);
+  };
+
+  const dupAtIndex = (index: number) => {
+    const l = section.labs[index];
+    if (!l) return;
+    onChange({
+      ...section,
+      labs: [...section.labs, { ...JSON.parse(JSON.stringify(l)), id: newUid() }],
+    });
+  };
+
   return (
     <div>
       <div className="grid grid-cols-3 gap-3 rounded-lg border border-white/5 bg-black/20 p-3 text-[11px]">
@@ -571,38 +984,124 @@ function LabsSectionBody({
         <Stat label="Marks" value={marks} />
       </div>
       {section.labs.length > 0 && (
-        <ul className="mt-3 space-y-2">
-          {section.labs.map((l, i) => (
-            <li
-              key={l.id}
-              className="flex items-center gap-3 rounded-lg border border-white/5 bg-black/20 px-3 py-2.5"
-            >
-              <span className="font-mono text-[10px] text-neutral-500">L{i + 1}</span>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] text-white">{l.title}</div>
-                <div className="text-[11px] text-neutral-500">
-                  {l.domain} · {l.programming_languages?.[0] || "Any"} · {l.scenario} ·{" "}
-                  {l.difficulty} · {l.duration_minutes} min · {l.marks} marks
+        <ul className="mt-3 space-y-2.5">
+          {section.labs.map((l, i) => {
+            const stats = getLabCalculatedStats(l);
+            const allTasks = l.tasks || [];
+            const allTasksCount = allTasks.length;
+            const hasTaskBreakdown = allTasksCount > 0;
+            const selectedCount = stats.selectedTasks.length;
+            const isPartial = hasTaskBreakdown && selectedCount < allTasksCount;
+
+            return (
+              <li
+                key={l.id + `-${i}`}
+                className="rounded-lg border border-white/5 bg-black/20 p-3"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="font-mono text-[10px] text-neutral-500 pt-0.5">L{i + 1}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[13px] text-white flex items-center gap-2 flex-wrap">
+                      <span className="font-medium">{l.title}</span>
+                      {hasTaskBreakdown && (
+                        <span
+                          className={`rounded px-1.5 py-0.5 text-[10px] font-medium border ${
+                            isPartial
+                              ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                              : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                          }`}
+                        >
+                          {isPartial
+                            ? `${selectedCount} of ${allTasksCount} tasks selected`
+                            : `All ${allTasksCount} tasks selected`}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 text-[11px] text-neutral-500">
+                      {l.domain} · {l.programming_languages?.[0] || "Any"} · {l.scenario} ·{" "}
+                      {l.difficulty} · {stats.minutes} min · {stats.marks} marks
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {onConfigureLab && hasTaskBreakdown && (
+                      <ToolBtn title="Configure Tasks" onClick={() => onConfigureLab(l)}>
+                        <Sliders className="h-3.5 w-3.5" />
+                      </ToolBtn>
+                    )}
+                    <ToolBtn title="Duplicate" onClick={() => dupAtIndex(i)}>
+                      <Copy className="h-3.5 w-3.5" />
+                    </ToolBtn>
+                    <ToolBtn title="Remove Lab" onClick={() => removeLabAtIndex(i)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </ToolBtn>
+                  </div>
                 </div>
-              </div>
-              <ToolBtn title="Duplicate" onClick={() => dup(l.id)}>
-                <Copy className="h-3.5 w-3.5" />
-              </ToolBtn>
-              <ToolBtn title="Remove" onClick={() => remove(l.id)}>
-                <Trash2 className="h-3.5 w-3.5" />
-              </ToolBtn>
-            </li>
-          ))}
+
+                {hasTaskBreakdown && (
+                  <div className="mt-2.5 pt-2 border-t border-white/5 flex flex-wrap gap-1.5 items-center">
+                    <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-medium mr-1">
+                      Selected Tasks:
+                    </span>
+                    {stats.selectedTasks.map((task: any, tIdx: number) => {
+                      const parentTask = getParentTask(task, allTasks);
+                      return (
+                        <span
+                          key={task.id || tIdx}
+                          className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[11px] text-neutral-300"
+                        >
+                          <span>{task.title || `Task ${tIdx + 1}`}</span>
+                          {task.marks != null && (
+                            <span className="text-[9.5px] text-neutral-500 font-mono">({task.marks}m)</span>
+                          )}
+                          {parentTask && (
+                            <span
+                              title={`Depends on: ${parentTask.title || parentTask.id}`}
+                              className="inline-flex items-center text-amber-400/80"
+                            >
+                              <LinkIcon className="h-2.5 w-2.5" />
+                            </span>
+                          )}
+                          <button
+                            onClick={() => removeTaskFromLab(i, task)}
+                            title="Remove this task"
+                            className="text-neutral-500 hover:text-rose-400 transition-colors ml-0.5"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
-      <button onClick={onAddLab} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-dashed border-white/10 px-3 py-2 text-[12px] text-neutral-400 hover:border-emerald-400/40 hover:text-white"><Plus className="h-3.5 w-3.5" /> Add Lab</button>
-      
+      <button
+        onClick={onAddLab}
+        className="mt-3 inline-flex items-center gap-2 rounded-lg border border-dashed border-white/10 px-3 py-2 text-[12px] text-neutral-400 hover:border-emerald-400/40 hover:text-white"
+      >
+        <Plus className="h-3.5 w-3.5" /> Add Lab
+      </button>
+
       <div className="mt-6 border-t border-white/5 pt-4">
-        <ProctoringSettingsCard 
-          proctoring={section.proctoring || {}} 
-          onChange={(p) => onChange({ ...section, proctoring: p })} 
+        <ProctoringSettingsCard
+          proctoring={section.proctoring || {}}
+          onChange={(p) => onChange({ ...section, proctoring: p })}
         />
       </div>
+
+      {taskDepConfirm && (
+        <TaskDependencyConfirmModal
+          isOpen={!!taskDepConfirm}
+          taskTitle={taskDepConfirm.taskTitle}
+          dependentTasks={taskDepConfirm.dependentTasks}
+          actionText="Remove All"
+          onClose={() => setTaskDepConfirm(null)}
+          onConfirm={taskDepConfirm.onConfirm}
+        />
+      )}
     </div>
   );
 }
@@ -1317,13 +1816,17 @@ function SubsectionModal({
 // ---------------- Lab Drawer ----------------
 
 function LabDrawer({
-  existing,
+  sectionLabs,
   onClose,
-  onAdd,
+  onAddFullLab,
+  onToggleTask,
+  initialExpandedLabId,
 }: {
-  existing: string[];
+  sectionLabs: LabItem[];
   onClose: () => void;
-  onAdd: (l: LabItem) => void;
+  onAddFullLab: (l: LabItem) => void;
+  onToggleTask: (l: LabItem, task: any, select: boolean) => void;
+  initialExpandedLabId?: string | null;
 }) {
   const [q, setQ] = useState("");
   const [domain, setDomain] = useState<string>("All");
@@ -1334,6 +1837,7 @@ function LabDrawer({
 
   const [labs, setLabs] = useState<LabItem[]>([]);
   const [previewLab, setPreviewLab] = useState<any>(null);
+  const [expandedTasksLabId, setExpandedTasksLabId] = useState<string | null>(initialExpandedLabId ?? null);
 
   useEffect(() => {
     fetchLabs().then(setLabs);
@@ -1523,14 +2027,14 @@ function LabDrawer({
             </div>
             <div className="border-t border-neutral-200 dark:border-white/5 p-5 flex justify-end">
               <button
-                disabled={existing.includes(previewLab.id)}
+                disabled={sectionLabs.some((sl) => String(sl.id) === String(previewLab.id))}
                 onClick={() => {
-                  onAdd(previewLab);
+                  onAddFullLab(previewLab);
                   setPreviewLab(null);
                 }}
                 className="rounded-md bg-neutral-900 px-5 py-2.5 text-[13px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50"
               >
-                {existing.includes(previewLab.id) ? "Added" : "Add Lab"}
+                {sectionLabs.some((sl) => String(sl.id) === String(previewLab.id)) ? "Added" : "Add Lab"}
               </button>
             </div>
           </div>
@@ -1590,12 +2094,36 @@ function LabDrawer({
       </div>
       <div className="mt-3 space-y-2">
         {filtered.map((l) => {
-          const added = existing.includes(l.id);
+          const existingLab = sectionLabs.find((sl) => String(sl.id) === String(l.id));
+          const isAdded = !!existingLab;
+          const allTasks = l.tasks || [];
+          const allTasksCount = allTasks.length;
+          const supportsTaskSelection = l.allow_task_selection !== false && allTasksCount > 0;
+          const isExpanded = expandedTasksLabId === l.id;
+
+          const stats = existingLab ? getLabCalculatedStats(existingLab) : null;
+          const selectedTaskIds = new Set(
+            stats ? stats.selectedTasks.map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`)) : []
+          );
+          const isAllSelected = isAdded && (allTasksCount === 0 || selectedTaskIds.size >= allTasksCount);
+
           return (
             <div key={l.id} className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] p-3 shadow-sm dark:shadow-none hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-[13px] font-medium text-neutral-900 dark:text-white">{l.title}</div>
+                  <div className="text-[13px] font-medium text-neutral-900 dark:text-white flex items-center gap-2 flex-wrap">
+                    <span>{l.title}</span>
+                    {supportsTaskSelection && (
+                      <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9.5px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                        Supports Task Selection ({allTasksCount})
+                      </span>
+                    )}
+                    {isAdded && !isAllSelected && (
+                      <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[9.5px] font-medium text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                        {selectedTaskIds.size} of {allTasksCount} tasks selected
+                      </span>
+                    )}
+                  </div>
                   <div className="mt-0.5 flex flex-wrap gap-1.5 text-[10px]">
                     <Chip>{l.domain}</Chip>
                     {l.programming_languages?.map((x) => (
@@ -1610,30 +2138,125 @@ function LabDrawer({
                     {l.marks} marks
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     onClick={() => setPreviewLab(l)}
                     className="inline-flex items-center gap-1 rounded-md border border-neutral-200 dark:border-white/10 px-2 py-1 text-[11px] text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors"
                   >
                     <Eye className="h-3 w-3" /> Preview
                   </button>
+                  {supportsTaskSelection && (
+                    <button
+                      onClick={() => setExpandedTasksLabId(isExpanded ? null : l.id)}
+                      className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors ${
+                        isExpanded
+                          ? "border-emerald-500 bg-emerald-500/20 text-emerald-600 dark:text-emerald-300"
+                          : "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                      }`}
+                    >
+                      <ChevronDown className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                      Select Tasks
+                    </button>
+                  )}
                   <button
-                    disabled={added}
-                    onClick={() => onAdd(l)}
+                    disabled={isAllSelected}
+                    onClick={() => onAddFullLab(l)}
                     className="inline-flex items-center gap-1 rounded-md bg-neutral-900 px-2 py-1 text-[11px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors disabled:bg-neutral-100 disabled:text-neutral-400 dark:disabled:bg-white/10 dark:disabled:text-neutral-500"
                   >
-                    {added ? (
+                    {isAllSelected ? (
                       <>
                         <Check className="h-3 w-3" /> Added
                       </>
+                    ) : isAdded ? (
+                      <>
+                        <Plus className="h-3 w-3" /> Select All ({allTasksCount})
+                      </>
                     ) : (
                       <>
-                        <Plus className="h-3 w-3" /> Add
+                        <Plus className="h-3 w-3" /> Add Lab
                       </>
                     )}
                   </button>
                 </div>
               </div>
+              {supportsTaskSelection && isExpanded && (
+                <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.04] p-3 space-y-2">
+                  <div className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center justify-between">
+                    <span>Available Tasks ({allTasksCount})</span>
+                    <span className="text-[10px] normal-case text-neutral-500 dark:text-neutral-400">
+                      Pick specific tasks to include
+                    </span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {allTasks.map((task: any, idx: number) => {
+                      const taskId = String(task.id ?? task.task_slug ?? `task-${idx}`);
+                      const isTaskSelected = isAdded && (selectedTaskIds.has(taskId) || selectedTaskIds.has(String(task.title)));
+                      const parentTask = getParentTask(task, allTasks);
+                      const parentIdx = parentTask
+                        ? allTasks.findIndex((t: any) => (t.id || t.title) === (parentTask.id || parentTask.title))
+                        : -1;
+                      const dependencies = getTaskDependencies(task, allTasks);
+                      return (
+                        <div
+                          key={taskId}
+                          className={`flex items-center justify-between gap-3 rounded-md border p-2.5 text-[12px] transition-colors ${
+                            isTaskSelected
+                              ? "border-emerald-500/30 bg-emerald-500/[0.06] dark:bg-emerald-950/20"
+                              : "border-neutral-200 dark:border-white/10 bg-white dark:bg-black/40"
+                          }`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="font-medium text-neutral-900 dark:text-white text-[12px] flex items-center gap-1.5 flex-wrap">
+                              <span>{task.title || `Task ${idx + 1}`}</span>
+                              {task.marks != null && (
+                                <span className="text-[10px] text-neutral-500">({task.marks} marks)</span>
+                              )}
+                              {parentTask && (
+                                <span className="inline-flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                  <LinkIcon className="h-2.5 w-2.5" />
+                                  Depends on: {parentTask.title || `Task ${parentIdx >= 0 ? parentIdx + 1 : ""}`}
+                                </span>
+                              )}
+                            </div>
+                            {task.description && (
+                              <div className="text-[11px] text-neutral-500 dark:text-neutral-400 line-clamp-1 mt-0.5">
+                                {task.description}
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => onToggleTask(l, task, !isTaskSelected)}
+                            title={
+                              !isTaskSelected && dependencies.length > 0
+                                ? `Will automatically include required dependency: ${dependencies
+                                    .map((d) => d.title || "parent task")
+                                    .join(", ")}`
+                                : isTaskSelected
+                                ? "Click to remove this task"
+                                : undefined
+                            }
+                            className={`inline-flex items-center gap-1 shrink-0 rounded px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                              isTaskSelected
+                                ? "bg-emerald-600 text-white hover:bg-rose-600 hover:shadow-sm"
+                                : "bg-emerald-600 text-white hover:bg-emerald-500"
+                            }`}
+                          >
+                            {isTaskSelected ? (
+                              <>
+                                <Check className="h-3 w-3" /> Selected
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="h-3 w-3" /> Select Task
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
@@ -2086,10 +2709,18 @@ function Chip({ children }: { children: React.ReactNode }) {
 
 // ---------------- Overlay / Drawer primitives ----------------
 
-function Overlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+function Overlay({
+  children,
+  onClose,
+  zIndex = "z-50",
+}: {
+  children: React.ReactNode;
+  onClose: () => void;
+  zIndex?: string;
+}) {
   const content = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/50 p-4"
+      className={`fixed inset-0 ${zIndex} flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-xs p-4`}
       onClick={onClose}
     >
       <div onClick={(e) => e.stopPropagation()}>{children}</div>
