@@ -30,23 +30,42 @@ provider "aws" {
 }
 
 
-# VPC Module
-module "vpc" {
-  source = "./modules/vpc"
-
-  environment         = var.environment
-  vpc_cidr            = var.vpc_cidr
-  availability_zones  = var.availability_zones
-  public_subnet_cidrs = var.public_subnet_cidrs
-  private_subnet_cidrs = var.private_subnet_cidrs
+# Use existing VPC instead of creating new one (to avoid VPC limit issues)
+# The existing VPC with EC2 and RDS is vpc-0893533f938d45e9d
+data "aws_vpc" "main" {
+  id = "vpc-0893533f938d45e9d"
 }
 
-# Security Groups Module
+data "aws_subnets" "public" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
+  }
+  
+  filter {
+    name   = "tag:Name"
+    values = ["${var.environment}-public-subnet-*"]
+  }
+}
+
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
+  }
+  
+  filter {
+    name   = "tag:Name"
+    values = ["${var.environment}-private-subnet-*"]
+  }
+}
+
+# Security Groups Module - reference existing VPC
 module "security_groups" {
   source = "./modules/security_groups"
 
   environment = var.environment
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = data.aws_vpc.main.id
 }
 
 # EC2 App Nodes Module (Docker Compose on dev, can be used for other envs too)
@@ -57,7 +76,7 @@ module "ec2_nodes" {
   environment       = var.environment
   instance_type     = var.instance_type
   instance_count    = var.instance_count
-  subnet_ids        = module.vpc.public_subnet_ids
+  subnet_ids        = data.aws_subnets.public.ids
   security_group_id = module.security_groups.app_sg_id
   key_pair_name     = var.key_pair_name
   root_volume_size  = var.root_volume_size
@@ -76,7 +95,7 @@ module "rds_main" {
   instance_class           = var.db_instance_class
   allocated_storage         = var.db_allocated_storage
   max_allocated_storage     = var.db_max_allocated_storage
-  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
+  subnet_ids               = length(data.aws_subnets.private.ids) > 0 ? data.aws_subnets.private.ids : data.aws_subnets.public.ids
   security_group_id        = module.security_groups.rds_sg_id
   backup_retention_days    = var.backup_retention_days
   multi_az                 = var.multi_az

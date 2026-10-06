@@ -1,17 +1,17 @@
-# VPC Outputs
+# VPC Outputs (using existing VPC via data sources)
 output "vpc_id" {
   description = "VPC ID"
-  value       = module.vpc.vpc_id
+  value       = data.aws_vpc.main.id
 }
 
 output "public_subnet_ids" {
   description = "Public subnet IDs"
-  value       = module.vpc.public_subnet_ids
+  value       = data.aws_subnets.public.ids
 }
 
 output "private_subnet_ids" {
   description = "Private subnet IDs"
-  value       = module.vpc.private_subnet_ids
+  value       = data.aws_subnets.private.ids
 }
 
 # EC2 Outputs
