@@ -541,7 +541,13 @@ T1=\$(date +%s)
 docker network create executor    2>/dev/null || true
 docker network create yuvro_ylabs 2>/dev/null || true
 docker network create yuvro_marketplace 2>/dev/null || true
-docker compose $compose_args up -d --remove-orphans --force-recreate $services
+# Only use --remove-orphans when deploying all apps to avoid stopping other services
+# When deploying a single app, only manage its own containers
+if [ "$app" = "all" ]; then
+    docker compose $compose_args up -d --remove-orphans --force-recreate $services
+else
+    docker compose $compose_args up -d --force-recreate $services
+fi
 echo "   ✓ up  [\$(( \$(date +%s)-T1 ))s]"
 
 docker compose $compose_args ps
@@ -589,11 +595,11 @@ show_summary() {
     print_info "EC2: $ip   SSH: ssh -i $SSH_KEY_PATH ubuntu@$ip"
     echo ""
     print_info "URLs:"
-    [ "$app" = "all" ] || [ "$app" = "ycode" ]        && echo "  YCode         https://code-dev.yuvro.ai  |  https://backend-code-dev.yuvro.ai"
-    [ "$app" = "all" ] || [ "$app" = "ycampus" ]      && echo "  YCampus       https://campus-dev.yuvro.ai  |  https://backend-campus-dev.yuvro.ai"
-    [ "$app" = "all" ] || [ "$app" = "ylabs" ]        && echo "  YLabs         https://dev.yuvrolabs.com  |  https://backend-dev.yuvrolabs.com"
-    [ "$app" = "all" ] || [ "$app" = "yhub" ]         && echo "  YHub          https://backend-hub-dev.yuvro.ai"
-    [ "$app" = "all" ] || [ "$app" = "ymarketplace" ] && echo "  YMarketplace  https://marketplace-dev.yuvro.ai  |  https://marketplace-backend-dev.yuvro.ai"
+    [ "$app" = "all" ] || [ "$app" = "ycode" ]        && echo "  YCode         https://code-dev.yuvro.ai  |  https://backend-code-dev.yuvro.ai/api"
+    [ "$app" = "all" ] || [ "$app" = "ycampus" ]      && echo "  YCampus       https://campus-dev.yuvro.ai  |  https://backend-campus-dev.yuvro.ai/api"
+    [ "$app" = "all" ] || [ "$app" = "ylabs" ]        && echo "  YLabs         https://dev.yuvrolabs.com  |  https://backend-dev.yuvrolabs.com/api"
+    [ "$app" = "all" ] || [ "$app" = "yhub" ]         && echo "  YHub          https://backend-hub-dev.yuvro.ai/api"
+    [ "$app" = "all" ] || [ "$app" = "ymarketplace" ] && echo "  YMarketplace  https://marketplace-dev.yuvro.ai  |  https://backend-marketplace-dev.yuvro.ai/api"
     [ "$app" = "all" ]                                 && echo "  Executor      https://code-executer-dev.yuvro.ai"
     echo ""
 }
