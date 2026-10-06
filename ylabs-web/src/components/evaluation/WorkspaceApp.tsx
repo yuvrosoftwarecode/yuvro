@@ -107,7 +107,34 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
           try { pc = typeof sec.proctoring_config === 'string' ? JSON.parse(sec.proctoring_config) : (sec.proctoring_config || {}); } catch {}
 
           if (sec.type === "LAB") {
-            (sec.questions || []).forEach((q: any) => {
+            const rawQuestions = sec.questions || [];
+            const unifiedQuestions: any[] = [];
+            const seenQIds = new Map<string, any>();
+
+            rawQuestions.forEach((q: any) => {
+              const qId = String(typeof q === 'object' ? (q.id || q.lab_id || "") : q);
+              if (!qId) return;
+              if (!seenQIds.has(qId)) {
+                const copy = typeof q === 'object' ? { ...q } : { id: qId };
+                if (copy.selected_task_id && (!copy.selected_task_ids || copy.selected_task_ids.length === 0)) {
+                  copy.selected_task_ids = [String(copy.selected_task_id)];
+                }
+                seenQIds.set(qId, copy);
+                unifiedQuestions.push(copy);
+              } else {
+                const existing = seenQIds.get(qId);
+                const currentSet = new Set((existing.selected_task_ids || []).map(String));
+                if (q.selected_task_ids) {
+                  q.selected_task_ids.forEach((tid: string) => currentSet.add(String(tid)));
+                }
+                if (q.selected_task_id) {
+                  currentSet.add(String(q.selected_task_id));
+                }
+                existing.selected_task_ids = Array.from(currentSet);
+              }
+            });
+
+            unifiedQuestions.forEach((q: any) => {
               const isDbOnly = q.type === "DATABASE" || q.ticket_type === "database";
               const detectedTag = (
                 (isDbOnly && q.databases && q.databases.length > 0 ? q.databases[0] : null) ||
@@ -117,16 +144,35 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                 "bash"
               ).toLowerCase();
 
-              let rawTasks = Array.isArray(q.tasks) 
-                ? q.tasks
+              const allTasks = Array.isArray(q.tasks) 
+                ? q.tasks.map((t: any, idx: number) => ({ ...t, original_index: idx }))
                 : typeof q.tasks === 'number'
-                ? Array.from({ length: q.tasks }).map((_, i) => ({ id: `task-${i}`, title: `Task ${i + 1}`, description: "Fulfill the specified objective." }))
-                : [{ id: "main-task", title: "Main Task", description: "Complete the scenario requirements." }];
+                ? Array.from({ length: q.tasks }).map((_, i) => ({ id: `task-${i}`, title: `Task ${i + 1}`, description: "Fulfill the specified objective.", original_index: i }))
+                : [{ id: "main-task", title: "Main Task", description: "Complete the scenario requirements.", original_index: 0 }];
 
-              if (q.selected_task_id) {
-                const filtered = rawTasks.filter((t: any, idx: number) => {
-                  const tId = t.id || t.task_slug || `task-${idx}`;
-                  return String(tId) === String(q.selected_task_id);
+              let rawTasks = allTasks;
+
+              if (q.selected_task_ids && Array.isArray(q.selected_task_ids) && q.selected_task_ids.length > 0) {
+                const selectedSet = new Set(q.selected_task_ids.map(String));
+                const filtered = allTasks.filter((t: any, idx: number) => {
+                  const tId = String(t.id ?? t.task_slug ?? `task-${idx}`);
+                  return (
+                    selectedSet.has(tId) ||
+                    (t.id != null && selectedSet.has(String(t.id))) ||
+                    (t.task_slug != null && selectedSet.has(String(t.task_slug))) ||
+                    selectedSet.has(`task-${idx}`) ||
+                    selectedSet.has(`task-${t.order_index ?? idx}`) ||
+                    selectedSet.has(String(idx)) ||
+                    selectedSet.has(String(t.title))
+                  );
+                });
+                if (filtered.length > 0) {
+                  rawTasks = filtered;
+                }
+              } else if (q.selected_task_id) {
+                const filtered = allTasks.filter((t: any, idx: number) => {
+                  const tId = String(t.id ?? t.task_slug ?? `task-${idx}`);
+                  return tId === String(q.selected_task_id) || String(t.title) === String(q.selected_task_id);
                 });
                 if (filtered.length > 0) {
                   rawTasks = filtered;
@@ -135,30 +181,37 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                 rawTasks = [q.selected_task];
               }
 
-              const selectedTaskTitle = q.selected_task?.title || (q.selected_task_id && rawTasks.length === 1 ? rawTasks[0].title : null);
+              const taskMin = rawTasks.reduce((sum: number, t: any) => sum + (Number(t.duration_minutes ?? t.duration) || 0), 0);
+              const calcDuration = taskMin > 0 ? taskMin : (Number(q.duration_minutes) || 30);
+              const taskMarks = rawTasks.reduce((sum: number, t: any) => sum + (Number(t.marks ?? t.score) || 0), 0);
+              const calcMarks = (taskMarks > 0 || rawTasks.length === 0) ? taskMarks : (Number(q.marks) || Number(q.points) || Number(q.max_score) || 10);
 
               mappedLabs.push({
                 id: q.id || Math.random().toString(),
-                title: selectedTaskTitle ? `${q.title} (${selectedTaskTitle})` : (q.title || "Untitled Lab"),
+                title: q.title || "Untitled Lab",
                 tag: detectedTag,
                 type: q.type,
                 ticket_type: q.ticket_type || q.type,
                 backend_frameworks: q.backend_frameworks || [],
                 programming_languages: q.programming_languages || [],
                 databases: q.databases || [],
-                minutes: q.selected_task?.duration_minutes || q.duration_minutes || 30,
-                problem: q.selected_task?.description || q.description || q.scenario || "Complete the lab objectives.",
+                minutes: calcDuration,
+                problem: q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,
                 test_command: q.test_command || undefined,
-                marks: q.selected_task?.marks || q.marks || q.points || q.max_score || 10,
-                points: q.selected_task?.marks || q.marks || q.points || q.max_score || 10,
-                max_score: q.selected_task?.marks || q.marks || q.points || q.max_score || 10,
+                marks: calcMarks,
+                points: calcMarks,
+                max_score: calcMarks,
+                selected_task_ids: q.selected_task_ids,
                 selected_task_id: q.selected_task_id,
-                selected_task: q.selected_task,
                 tasks: rawTasks.map((t: any) => ({
                   id: t.id || "",
                   title: t.title || "Task",
                   description: t.description || "",
+                  original_index: t.original_index,
+                  marks: t.marks,
+                  duration_minutes: t.duration_minutes,
+                  parent_task_id: t.parent_task_id || (typeof t.parent_task === "string" ? t.parent_task : t.parent_task?.id),
                   scoring_rules: t.scoring_rules,
                   solution: t.solution,
                   expected_output: t.expected_output
@@ -167,7 +220,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                 code: "// Code editor initialized.",
                 terminal: []
               });
-              durationMinutes += (q.selected_task?.duration_minutes || q.duration_minutes || 30);
+              durationMinutes += calcDuration;
             });
             mappedSections.push({ type: "LAB", id: sec.id, title: sec.title || "Engineering Labs", labs: mappedLabs, proctoring: pc });
           } else if (sec.type === "KNOWLEDGE_ASSESSMENT") {
@@ -923,9 +976,10 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
 
           if (submission && (submission.solution || submission.score !== undefined)) {
             hasSubmissions = true;
-            const scoreVal = submission.score ?? 100;
+            const labTaskCount = Array.isArray(lab.tasks) && lab.tasks.length > 0 ? lab.tasks.length : 5;
+            const passedTaskCount = scoreVal === 100 ? labTaskCount : Math.round((scoreVal / 100) * labTaskCount);
             labDetails += `Score: ${scoreVal}/100\n`;
-            labDetails += `Tests: ${scoreVal === 100 ? 5 : Math.round((scoreVal / 100) * 5)} passed out of 5\n`;
+            labDetails += `Tests: ${passedTaskCount} passed out of ${labTaskCount}\n`;
             labDetails += `Time spent: ${submission.minutes_solved || 1} minutes\n`;
 
             const isInternal = (path: string) =>
@@ -1097,6 +1151,9 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                     id: t.id, 
                     title: t.title, 
                     description: t.description,
+                    original_index: (t as any).original_index,
+                    marks: (t as any).marks,
+                    duration_minutes: (t as any).duration_minutes,
                     scoring_rules: t.scoring_rules,
                     solution: t.solution,
                     expected_output: t.expected_output

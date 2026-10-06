@@ -30,8 +30,10 @@ class EvaluationSectionType(models.TextChoices):
 
 class LabScenario(models.TextChoices):
     DEBUGGING = "DEBUGGING", "Debugging"
+    BUG_FIXING = "BUG_FIXING", "Bug Fixing"
     FEATURE_DEVELOPMENT = "FEATURE_DEVELOPMENT", "Feature Development"
     API_OPTIMIZATION = "API_OPTIMIZATION", "API Optimization"
+    PERFORMANCE_OPTIMIZATION = "PERFORMANCE_OPTIMIZATION", "Performance Optimization"
     SECURITY = "SECURITY", "Security"
     ARCHITECTURE = "ARCHITECTURE", "Architecture"
     PERFORMANCE = "PERFORMANCE", "Performance"
@@ -177,7 +179,7 @@ class LabQuestionBank(QuestionBank):
         default=LabType.BACKEND,
     )
     scenario = models.CharField(
-        max_length=25,
+        max_length=50,
         choices=LabScenario.choices,
         default=LabScenario.FEATURE_DEVELOPMENT,
     )
@@ -221,6 +223,14 @@ class LabQuestionBankTask(BaseTimestampedAdminModel):
     marks = models.PositiveIntegerField(default=5)
     duration_minutes = models.PositiveIntegerField(default=30)
     order_index = models.PositiveIntegerField(default=0)
+    parent_task = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="dependent_tasks",
+        help_text="Task that this task links to or depends on",
+    )
 
     class Meta:
         ordering = ["order_index"]
