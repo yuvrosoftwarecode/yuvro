@@ -29,6 +29,9 @@ echo -e "${BLUE}Creating yuvro_admin user on old RDS instances${NC}"
 echo -e "${BLUE}═════════════════════════════════════════════════${NC}"
 echo ""
 
+# Set SSL mode to allow (don't require encryption)
+export PGSSLMODE=allow
+
 for app_name in "${!OLD_RDS[@]}"; do
     endpoint="${OLD_RDS[$app_name]}"
     

@@ -154,6 +154,7 @@ def migrate_database(old_instance, new_password):
     # Environment variables for both connections
     env = os.environ.copy()
     env['PGPASSWORD'] = old_password
+    env['PGSSLMODE'] = 'allow'  # Allow connections without SSL encryption
     
     try:
         # Dump from old RDS
