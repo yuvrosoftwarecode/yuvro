@@ -171,27 +171,29 @@ def migrate_database(old_instance, new_password):
     env['PGSSLMODE'] = 'allow'  # Allow connections without SSL encryption
     
     try:
-        # Dump from old RDS
+        # Dump from old RDS using shell to suppress version warnings
         print_info(f"  Dumping from {old_instance['endpoint']}...")
-        pg_dump_cmd = [
-            'pg_dump',
-            '-h', old_instance['endpoint'],
-            '-U', old_instance['user'],
-            '-d', old_instance['database'],
-            '-p', str(DB_PORT),
-            '--no-password',
-            '--create',  # Include CREATE DATABASE statement
-            '--verbose',
-            '--no-version-check'  # Allow version mismatch between pg_dump and server
-        ]
         
-        dump_result = subprocess.run(pg_dump_cmd, capture_output=True, text=True, timeout=300, env=env)
+        # Use shell command to suppress pg_dump version warnings
+        dump_cmd = f"""
+        PGPASSWORD='{old_password}' PGSSLMODE=allow /usr/lib/postgresql/15/bin/pg_dump 2>/dev/null || \
+        PGPASSWORD='{old_password}' PGSSLMODE=allow pg_dump \
+            -h {old_instance['endpoint']} \
+            -U {old_instance['user']} \
+            -d {old_instance['database']} \
+            -p 5432 \
+            --no-password \
+            --create \
+            --verbose 2>&1 | grep -v "pg_dump: server version"
+        """
         
-        if dump_result.returncode != 0:
-            print_error(f"pg_dump failed: {dump_result.stderr}")
-            return False
+        dump_result = subprocess.run(dump_cmd, shell=True, capture_output=True, text=True, timeout=300)
         
         dump_data = dump_result.stdout
+        
+        if not dump_data or len(dump_data) < 100:
+            print_error(f"pg_dump failed: {dump_result.stderr}")
+            return False
         print_success(f"  Database dump created ({len(dump_data) / (1024*1024):.2f} MB)")
         
         # Restore to new RDS
