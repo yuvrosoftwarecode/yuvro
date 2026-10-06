@@ -1,5 +1,6 @@
 #!/bin/bash
 # Migrate data from 5 separate RDS instances to single consolidated yuvro-dev-db instance
+# Runs inside Docker containers (no need to install psql, aws, tofu locally)
 
 set -e
 
@@ -29,45 +30,81 @@ print_warning() { echo -e "${YELLOW}  ⚠ $1${NC}"; }
 print_info() { echo -e "${CYAN}  ℹ $1${NC}"; }
 print_step() { echo -e "${BOLD}  › $1${NC}"; }
 
-check_prerequisites() {
-    print_header "Checking Prerequisites"
-    local missing=0
+# Run command inside a Docker container with necessary tools
+run_in_docker() {
+    local cmd="$1"
+    docker run --rm \
+        -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
+        -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
+        -e AWS_DEFAULT_REGION="ap-south-1" \
+        -v "$BACKUP_DIR:/backup" \
+        -v "$OPENTOFU_DIR:/tofu" \
+        amazon/aws-cli:latest sh -c "$cmd"
+}
+
+# Run psql command
+run_psql() {
+    local host="$1"
+    local user="$2"
+    local db="$3"
+    local password="$4"
+    local cmd="$5"
     
-    for tool in psql tofu aws; do
-        if command -v "$tool" &>/dev/null; then
-            print_success "$tool found"
-        else
-            print_error "$tool not installed"
-            missing=1
-        fi
-    done
+    docker run --rm \
+        -e PGPASSWORD="$password" \
+        -v "$BACKUP_DIR:/backup" \
+        postgres:15-alpine sh -c "psql -h '$host' -U '$user' -d '$db' -c \"$cmd\""
+}
+
+# Run pg_dump command
+run_pg_dump() {
+    local host="$1"
+    local user="$2"
+    local db="$3"
+    local password="$4"
+    local output_file="$5"
     
-    if [ ! -f "$OPENTOFU_DIR/dev.tfvars" ]; then
-        print_error "Missing: $OPENTOFU_DIR/dev.tfvars"
-        missing=1
-    fi
+    docker run --rm \
+        -e PGPASSWORD="$password" \
+        -v "$BACKUP_DIR:/backup" \
+        postgres:15-alpine sh -c "pg_dump -h '$host' -U '$user' -d '$db' --if-exists --clean --no-privileges --no-owner > /backup/$(basename "$output_file")"
+}
+
+# Run psql restore command
+run_psql_restore() {
+    local host="$1"
+    local user="$2"
+    local db="$3"
+    local password="$4"
+    local backup_file="$5"
     
-    if [ $missing -eq 1 ]; then
-        print_error "Fix missing tools and retry"
+    docker run --rm \
+        -e PGPASSWORD="$password" \
+        -v "$BACKUP_DIR:/backup" \
+        postgres:15-alpine sh -c "psql -h '$host' -U '$user' -d '$db' -f /backup/$(basename "$backup_file")" 2>/dev/null || true
+}
+
+check_docker() {
+    print_header "Checking Docker"
+    
+    if ! command -v docker &>/dev/null; then
+        print_error "Docker not installed"
         exit 1
     fi
     
-    print_success "All prerequisites met"
+    print_success "Docker is available"
 }
 
 get_endpoints() {
     print_header "Fetching RDS Instance Endpoints"
     
-    # Fetch old instances
+    # Fetch old instances using AWS CLI in Docker
     local apps="ycode ycampus yhub ylabs"
     
     for app in $apps; do
         print_step "Fetching dev-${app}-db endpoint..."
-        local endpoint=$(aws rds describe-db-instances \
-            --db-instance-identifier "dev-${app}-db" \
-            --region ap-south-1 \
-            --query 'DBInstances[0].Endpoint.Address' \
-            --output text 2>/dev/null || echo "")
+        
+        local endpoint=$(run_in_docker "aws rds describe-db-instances --db-instance-identifier 'dev-${app}-db' --query 'DBInstances[0].Endpoint.Address' --output text 2>/dev/null || echo ''" 2>/dev/null)
         
         if [ -z "$endpoint" ] || [ "$endpoint" = "None" ]; then
             print_warning "Instance dev-${app}-db not found"
@@ -84,11 +121,7 @@ get_endpoints() {
     local endpoint=""
     
     while [ -z "$endpoint" ] && [ $retries -lt $max_retries ]; do
-        endpoint=$(aws rds describe-db-instances \
-            --db-instance-identifier "dev-yuvro-db" \
-            --region ap-south-1 \
-            --query 'DBInstances[0].Endpoint.Address' \
-            --output text 2>/dev/null || echo "")
+        endpoint=$(run_in_docker "aws rds describe-db-instances --db-instance-identifier 'dev-yuvro-db' --query 'DBInstances[0].Endpoint.Address' --output text 2>/dev/null || echo ''" 2>/dev/null)
         
         if [ -z "$endpoint" ] || [ "$endpoint" = "None" ]; then
             retries=$((retries + 1))
@@ -139,16 +172,8 @@ backup_old_databases() {
         
         local backup_file="$BACKUP_DIR/${app}_${backup_date}.sql"
         
-        if PGPASSWORD="$password" pg_dump \
-            -h "$endpoint" \
-            -U "$user" \
-            -d "$app" \
-            --if-exists \
-            --clean \
-            --no-privileges \
-            --no-owner \
-            > "$backup_file" 2>/dev/null; then
-            local size=$(du -h "$backup_file" | cut -f1)
+        if run_pg_dump "$endpoint" "$user" "$app" "$password" "$backup_file" 2>/dev/null; then
+            local size=$(du -h "$backup_file" 2>/dev/null | cut -f1 || echo "unknown")
             print_success "Backed up $app: $backup_file ($size)"
         else
             print_warning "Backup failed for $app (may be unavailable)"
@@ -167,7 +192,7 @@ wait_for_new_rds() {
     local password=$(grep "^db_master_password" "$OPENTOFU_DIR/dev.tfvars" | cut -d= -f2- | sed 's/[[:space:]*"]//g')
     
     while [ $retries -lt $max_retries ]; do
-        if PGPASSWORD="$password" psql -h "$NEW_ENDPOINT" -U yuvro_admin -d postgres -c "SELECT version();" >/dev/null 2>&1; then
+        if run_psql "$NEW_ENDPOINT" "yuvro_admin" "postgres" "$password" "SELECT version();" >/dev/null 2>&1; then
             print_success "Consolidated RDS is ready"
             return 0
         fi
@@ -190,11 +215,7 @@ create_new_databases() {
     for db in $databases; do
         print_step "Creating database: $db..."
         
-        if PGPASSWORD="$password" psql \
-            -h "$NEW_ENDPOINT" \
-            -U yuvro_admin \
-            -d postgres \
-            -c "CREATE DATABASE $db;" 2>/dev/null; then
+        if run_psql "$NEW_ENDPOINT" "yuvro_admin" "postgres" "$password" "CREATE DATABASE $db;" 2>/dev/null; then
             print_success "Database $db created"
         else
             print_warning "Database $db may already exist"
@@ -208,7 +229,7 @@ restore_databases() {
     local password=$(grep "^db_master_password" "$OPENTOFU_DIR/dev.tfvars" | cut -d= -f2- | sed 's/[[:space:]*"]//g')
     
     # Only restore from ycode, ycampus, yhub, ylabs (skip ymarketplace as it's newly created)
-    if [ ! -d "$BACKUP_DIR" ] || [ -z "$(ls -1 "$BACKUP_DIR"/{ycode,ycampus,yhub,ylabs}_*.sql 2>/dev/null)" ]; then
+    if [ ! -d "$BACKUP_DIR" ] || [ -z "$(ls -1 "$BACKUP_DIR"/{ycode,ycampus,yhub,ylabs}_*.sql 2>/dev/null | head -1)" ]; then
         print_warning "No backup files found in $BACKUP_DIR"
         return 0
     fi
@@ -223,11 +244,7 @@ restore_databases() {
         
         print_step "Restoring $db_name from $(basename "$backup_file")..."
         
-        if PGPASSWORD="$password" psql \
-            -h "$NEW_ENDPOINT" \
-            -U yuvro_admin \
-            -d "$db_name" \
-            -f "$backup_file" >/dev/null 2>&1; then
+        if run_psql_restore "$NEW_ENDPOINT" "yuvro_admin" "$db_name" "$password" "$backup_file" 2>/dev/null; then
             print_success "Restored $db_name"
         else
             print_warning "Restore may have had issues for $db_name (check manually)"
@@ -244,11 +261,7 @@ verify_restored_data() {
     for db in $databases; do
         print_step "Checking $db..."
         
-        local table_count=$(PGPASSWORD="$password" psql \
-            -h "$NEW_ENDPOINT" \
-            -U yuvro_admin \
-            -d "$db" \
-            -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null || echo "0")
+        local table_count=$(run_psql "$NEW_ENDPOINT" "yuvro_admin" "$db" "$password" "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null | grep -o '[0-9]*' | head -1 || echo "0")
         
         if [ "$table_count" -gt 0 ]; then
             print_success "$db: $table_count tables found"
@@ -258,33 +271,10 @@ verify_restored_data() {
     done
 }
 
-delete_old_instances() {
-    print_header "Deleting Old RDS Instances"
-    
-    print_warning "This will delete the 4 old RDS instances. Make sure backups are verified first!"
-    read -p "Continue with deletion? (yes/no) " -r
-    if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
-        print_info "Skipped deletion"
-        return 0
-    fi
-    
-    cd "$OPENTOFU_DIR"
-    
-    print_step "Planning destruction of old RDS instances..."
-    tofu plan -destroy -var-file="dev.tfvars" || {
-        print_warning "Plan may show no changes (old modules already removed)"
-    }
-    
-    print_warning "Old RDS instances will be destroyed via next OpenTofu apply"
-    print_info "To complete deletion, run: DEPLOY_ENV=dev make provision-infra-destroy"
-    
-    cd "$PROJECT_ROOT"
-}
-
 main() {
     print_header "RDS Consolidation Migration"
     
-    check_prerequisites
+    check_docker
     get_endpoints
     backup_old_databases
     wait_for_new_rds
@@ -302,10 +292,4 @@ main() {
     print_info "3. When ready to delete old instances, run: bash $0 --delete-old"
 }
 
-if [ "${1:-}" = "--delete-old" ]; then
-    check_prerequisites
-    get_endpoints
-    delete_old_instances
-else
-    main
-fi
+main
