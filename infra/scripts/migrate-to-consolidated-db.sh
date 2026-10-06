@@ -92,17 +92,22 @@ backup_old_databases() {
         local backup_file="$BACKUP_DIR/${app}_${backup_date}.sql"
         
         # Run pg_dump with docker using host network (runs on EC2 host network, not container network)
-        if docker run --rm --network host \
+        local error_output=""
+        error_output=$(docker run --rm --network host \
             -e PGPASSWORD="$password" \
             postgres:15-alpine \
             pg_dump -h "$endpoint" -U "$user" -d "$app" \
             --if-exists --clean --no-privileges --no-owner \
-            > "$backup_file" 2>/dev/null; then
-            
+            > "$backup_file" 2>&1)
+        
+        if [ $? -eq 0 ] && [ -s "$backup_file" ]; then
             local size=$(du -h "$backup_file" 2>/dev/null | cut -f1)
             print_success "Backed up $app: $backup_file ($size)"
         else
             print_warning "Backup failed for $app"
+            if [ -n "$error_output" ]; then
+                print_info "Error: $error_output"
+            fi
             rm -f "$backup_file"
         fi
     done
