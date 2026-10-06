@@ -101,8 +101,22 @@ def check_requirements():
     print_step("Checking PostgreSQL tools...")
     
     try:
-        subprocess.run(['pg_dump', '--version'], capture_output=True, check=True, text=True)
-        print_success("pg_dump found")
+        result = subprocess.run(['pg_dump', '--version'], capture_output=True, check=True, text=True)
+        version_str = result.stdout.strip()
+        print_success(f"pg_dump found: {version_str}")
+        
+        # Extract version number
+        import re
+        match = re.search(r'(\d+)', version_str)
+        if match:
+            major_version = int(match.group(1))
+            if major_version < 15:
+                print_warning(f"pg_dump is version {major_version}, but RDS is PostgreSQL 15.17")
+                print_warning("Version mismatch may cause issues. Recommend upgrading:")
+                print_info("  Ubuntu/Debian: sudo apt-get install postgresql-client-15")
+                print_info("  Or: sudo sh -c 'echo \"deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main\" > /etc/apt/sources.list.d/pgdg.list'")
+                print_info("       sudo apt-get update && sudo apt-get install -y postgresql-client-15")
+                # Note: We'll continue anyway with --no-version-check flag
     except (FileNotFoundError, subprocess.CalledProcessError):
         print_error("pg_dump not found. Install PostgreSQL client:")
         print_info("  Ubuntu/Debian: sudo apt-get install postgresql-client")
@@ -110,8 +124,8 @@ def check_requirements():
         return False
     
     try:
-        subprocess.run(['psql', '--version'], capture_output=True, check=True, text=True)
-        print_success("psql found")
+        result = subprocess.run(['psql', '--version'], capture_output=True, check=True, text=True)
+        print_success(f"psql found: {result.stdout.strip()}")
     except (FileNotFoundError, subprocess.CalledProcessError):
         print_error("psql not found. Install PostgreSQL client")
         return False
@@ -167,7 +181,8 @@ def migrate_database(old_instance, new_password):
             '-p', str(DB_PORT),
             '--no-password',
             '--create',  # Include CREATE DATABASE statement
-            '--verbose'
+            '--verbose',
+            '--no-version-check'  # Allow version mismatch between pg_dump and server
         ]
         
         dump_result = subprocess.run(pg_dump_cmd, capture_output=True, text=True, timeout=300, env=env)
