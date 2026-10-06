@@ -1,6 +1,6 @@
 #!/bin/bash
 # Migrate data from 5 separate RDS instances to single consolidated yuvro-dev-db instance
-# Runs inside Docker containers (no need to install psql locally)
+# Runs on EC2 host with direct network access to RDS instances in VPC
 
 set -e
 
@@ -37,68 +37,24 @@ OLD_YHUB_ENDPOINT="dev-yhub-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com"
 OLD_YLABS_ENDPOINT="dev-ylabs-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com"
 NEW_ENDPOINT="dev-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com"
 
-# Run command inside a Docker container with necessary tools
-run_in_docker() {
-    local cmd="$1"
-    docker run --rm \
-        -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" \
-        -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" \
-        -e AWS_DEFAULT_REGION="ap-south-1" \
-        -v "$BACKUP_DIR:/backup" \
-        amazon/aws-cli:latest sh -c "$cmd" 2>/dev/null || echo ""
-}
-
-# Run psql command
-run_psql() {
-    local host="$1"
-    local user="$2"
-    local db="$3"
-    local password="$4"
-    local cmd="$5"
+check_prerequisites() {
+    print_header "Checking Prerequisites"
     
-    docker run --rm \
-        -e PGPASSWORD="$password" \
-        -v "$BACKUP_DIR:/backup" \
-        postgres:15-alpine sh -c "psql -h '$host' -U '$user' -d '$db' -c \"$cmd\"" 2>/dev/null || true
-}
-
-# Run pg_dump command
-run_pg_dump() {
-    local host="$1"
-    local user="$2"
-    local db="$3"
-    local password="$4"
-    local output_file="$5"
-    
-    docker run --rm \
-        -e PGPASSWORD="$password" \
-        -v "$BACKUP_DIR:/backup" \
-        postgres:15-alpine sh -c "pg_dump -h '$host' -U '$user' -d '$db' --if-exists --clean --no-privileges --no-owner > /backup/$(basename "$output_file")" 2>/dev/null || true
-}
-
-# Run psql restore command
-run_psql_restore() {
-    local host="$1"
-    local user="$2"
-    local db="$3"
-    local password="$4"
-    local backup_file="$5"
-    
-    docker run --rm \
-        -e PGPASSWORD="$password" \
-        -v "$BACKUP_DIR:/backup" \
-        postgres:15-alpine sh -c "psql -h '$host' -U '$user' -d '$db' -f /backup/$(basename "$backup_file")" 2>/dev/null || true
-}
-
-check_docker() {
-    print_header "Checking Docker"
-    
+    # Check if we have psql available in Docker
     if ! command -v docker &>/dev/null; then
         print_error "Docker not installed"
         exit 1
     fi
     
     print_success "Docker is available"
+    
+    # Test if Docker can run postgres
+    if ! docker run --rm postgres:15-alpine psql --version >/dev/null 2>&1; then
+        print_error "Cannot run postgres:15-alpine Docker image"
+        exit 1
+    fi
+    
+    print_success "PostgreSQL Docker image ready"
 }
 
 get_endpoints() {
@@ -135,13 +91,18 @@ backup_old_databases() {
         
         local backup_file="$BACKUP_DIR/${app}_${backup_date}.sql"
         
-        run_pg_dump "$endpoint" "$user" "$app" "$password" "$backup_file"
-        
-        if [ -s "$backup_file" ]; then
+        # Run pg_dump with docker using host network (runs on EC2 host network, not container network)
+        if docker run --rm --network host \
+            -e PGPASSWORD="$password" \
+            postgres:15-alpine \
+            pg_dump -h "$endpoint" -U "$user" -d "$app" \
+            --if-exists --clean --no-privileges --no-owner \
+            > "$backup_file" 2>/dev/null; then
+            
             local size=$(du -h "$backup_file" 2>/dev/null | cut -f1)
             print_success "Backed up $app: $backup_file ($size)"
         else
-            print_warning "Backup failed for $app (may be unavailable or empty)"
+            print_warning "Backup failed for $app"
             rm -f "$backup_file"
         fi
     done
@@ -157,7 +118,11 @@ wait_for_new_rds() {
     local password=$(grep "^db_master_password" "$OPENTOFU_DIR/dev.tfvars" | cut -d= -f2- | sed 's/[[:space:]*"]//g')
     
     while [ $retries -lt $max_retries ]; do
-        if run_psql "$NEW_ENDPOINT" "yuvro_admin" "postgres" "$password" "SELECT version();" >/dev/null 2>&1; then
+        if docker run --rm --network host \
+            -e PGPASSWORD="$password" \
+            postgres:15-alpine \
+            psql -h "$NEW_ENDPOINT" -U yuvro_admin -d postgres -c "SELECT version();" >/dev/null 2>&1; then
+            
             print_success "Consolidated RDS is ready"
             return 0
         fi
@@ -180,7 +145,12 @@ create_new_databases() {
     for db in $databases; do
         print_step "Creating database: $db..."
         
-        run_psql "$NEW_ENDPOINT" "yuvro_admin" "postgres" "$password" "CREATE DATABASE $db;"
+        docker run --rm --network host \
+            -e PGPASSWORD="$password" \
+            postgres:15-alpine \
+            psql -h "$NEW_ENDPOINT" -U yuvro_admin -d postgres \
+            -c "CREATE DATABASE $db;" 2>/dev/null || true
+        
         print_success "Database $db ready"
     done
 }
@@ -190,8 +160,8 @@ restore_databases() {
     
     local password=$(grep "^db_master_password" "$OPENTOFU_DIR/dev.tfvars" | cut -d= -f2- | sed 's/[[:space:]*"]//g')
     
-    # Only restore from ycode, ycampus, yhub, ylabs
-    local backup_files=$(find "$BACKUP_DIR" -maxdepth 1 -name '{ycode,ycampus,yhub,ylabs}_*.sql' -type f 2>/dev/null | sort -r)
+    # Find all backup files for ycode, ycampus, yhub, ylabs
+    local backup_files=$(find "$BACKUP_DIR" -maxdepth 1 -type f -name '*.sql' | sort -r)
     
     if [ -z "$backup_files" ]; then
         print_warning "No backup files found in $BACKUP_DIR"
@@ -199,17 +169,27 @@ restore_databases() {
     fi
     
     for backup_file in $backup_files; do
-        if [ ! -f "$backup_file" ]; then
-            continue
-        fi
-        
         # Extract database name from filename
         local db_name=$(basename "$backup_file" | cut -d_ -f1)
         
-        print_step "Restoring $db_name from $(basename "$backup_file")..."
-        
-        run_psql_restore "$NEW_ENDPOINT" "yuvro_admin" "$db_name" "$password" "$backup_file"
-        print_success "Restored $db_name"
+        # Skip if not one of the apps we want to restore
+        case "$db_name" in
+            ycode|ycampus|yhub|ylabs)
+                print_step "Restoring $db_name from $(basename "$backup_file")..."
+                
+                docker run --rm --network host \
+                    -e PGPASSWORD="$password" \
+                    -v "$backup_file:/backup.sql:ro" \
+                    postgres:15-alpine \
+                    psql -h "$NEW_ENDPOINT" -U yuvro_admin -d "$db_name" \
+                    -f /backup.sql 2>/dev/null || true
+                
+                print_success "Restored $db_name"
+                ;;
+            *)
+                print_info "Skipping $db_name (not in migration list)"
+                ;;
+        esac
     done
 }
 
@@ -222,8 +202,13 @@ verify_restored_data() {
     for db in $databases; do
         print_step "Checking $db..."
         
-        local output=$(run_psql "$NEW_ENDPOINT" "yuvro_admin" "$db" "$password" "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';")
-        local table_count=$(echo "$output" | grep -o '[0-9]*' | head -1 || echo "0")
+        local output=$(docker run --rm --network host \
+            -e PGPASSWORD="$password" \
+            postgres:15-alpine \
+            psql -h "$NEW_ENDPOINT" -U yuvro_admin -d "$db" -t \
+            -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null)
+        
+        local table_count=$(echo "$output" | grep -o '^[[:space:]]*[0-9]*' | xargs)
         
         if [ "$table_count" -gt 0 ]; then
             print_success "$db: $table_count tables found"
@@ -236,7 +221,7 @@ verify_restored_data() {
 main() {
     print_header "RDS Consolidation Migration"
     
-    check_docker
+    check_prerequisites
     get_endpoints
     backup_old_databases
     wait_for_new_rds
