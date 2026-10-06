@@ -41,27 +41,27 @@ def print_step(msg):
     print(f"{BOLD}› {msg}{NC}")
 
 # RDS endpoints and credentials
-# Both old and new instances use the same username (yuvro_admin) and password
+# Old instances use 'postgres' user, new uses 'yuvro_admin'
 OLD_INSTANCES = {
     'ycode': {
         'endpoint': 'dev-ycode-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ycode',
-        'user': 'yuvro_admin'  # Same as new instance
+        'user': 'postgres'  # Old instances have postgres user
     },
     'ycampus': {
         'endpoint': 'dev-ycampus-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ycampus',
-        'user': 'yuvro_admin'  # Same as new instance
+        'user': 'postgres'  # Old instances have postgres user
     },
     'yhub': {
         'endpoint': 'dev-yhub-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'yhub',
-        'user': 'yuvro_admin'  # Same as new instance
+        'user': 'postgres'  # Old instances have postgres user
     },
     'ylabs': {
         'endpoint': 'dev-ylabs-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ylabs',
-        'user': 'yuvro_admin'  # Same as new instance
+        'user': 'postgres'  # Old instances have postgres user
     },
 }
 
