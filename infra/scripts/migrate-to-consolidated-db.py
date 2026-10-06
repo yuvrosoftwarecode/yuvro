@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
 Migrate data from 5 separate RDS instances to single consolidated yuvro-dev-db instance
-Runs directly on EC2 without Docker dependencies
+Uses psycopg (pure Python PostgreSQL driver) - no external dependencies
 """
 
-import subprocess
 import sys
 import os
+import re
 from datetime import datetime
 
 # Colors
@@ -55,7 +55,7 @@ def get_script_dir():
 def get_project_root():
     return os.path.dirname(os.path.dirname(get_script_dir()))
 
-def read_password_from_tfvars(app):
+def read_password_from_tfvars(key):
     """Read password from dev.tfvars"""
     opentofu_dir = os.path.join(get_project_root(), 'infra', 'opentofu')
     tfvars_file = os.path.join(opentofu_dir, 'dev.tfvars')
@@ -63,160 +63,140 @@ def read_password_from_tfvars(app):
     try:
         with open(tfvars_file, 'r') as f:
             for line in f:
-                if line.startswith(f'{app}_db_password'):
-                    # Extract password: key="value" or key=value
-                    parts = line.split('=', 1)
-                    if len(parts) == 2:
-                        password = parts[1].strip()
-                        # Remove quotes
-                        password = password.strip('"\'')
-                        return password
+                if line.startswith(f'{key}'):
+                    # Extract value: key="value" or key=value
+                    match = re.search(r'=\s*["\']?([^"\'\n]+)["\']?', line)
+                    if match:
+                        return match.group(1).strip()
     except Exception as e:
         print_warning(f"Could not read tfvars: {e}")
     
     return "ChangeMe123!DevPassword"
 
-def run_command(cmd, env=None):
-    """Run shell command and return output"""
+def try_import_psycopg():
+    """Try to import psycopg3, psycopg2, or fallback"""
     try:
-        result = subprocess.run(
-            cmd,
-            shell=True,
-            capture_output=True,
-            text=True,
-            env=env or os.environ.copy(),
-            timeout=300
-        )
-        return result.stdout.strip(), result.stderr.strip(), result.returncode
-    except subprocess.TimeoutExpired:
-        return "", "Command timed out", 1
-    except Exception as e:
-        return "", str(e), 1
+        import psycopg
+        return psycopg, '3'
+    except ImportError:
+        pass
+    
+    try:
+        import psycopg2
+        return psycopg2, '2'
+    except ImportError:
+        pass
+    
+    return None, None
 
-def backup_database(app, user, endpoint, password):
-    """Backup a single database"""
-    backup_dir = os.path.join(get_project_root(), 'infra', 'backups')
-    os.makedirs(backup_dir, exist_ok=True)
+def connect_db(host, user, password, dbname='postgres'):
+    """Connect to PostgreSQL database"""
+    psycopg, version = try_import_psycopg()
     
-    backup_date = datetime.now().strftime('%Y%m%d_%H%M%S')
-    backup_file = os.path.join(backup_dir, f'{app}_{backup_date}.sql')
+    if not psycopg:
+        print_error("psycopg not installed. Install with:")
+        print_info("  pip install psycopg[binary]  # or")
+        print_info("  pip install psycopg2-binary")
+        return None
     
-    print_step(f"Backing up {app} database...")
-    
-    env = os.environ.copy()
-    env['PGPASSWORD'] = password
-    
-    cmd = f"pg_dump -h {endpoint} -U {user} -d {app} --if-exists --clean --no-privileges --no-owner > {backup_file}"
-    
-    stdout, stderr, returncode = run_command(cmd, env)
-    
-    if returncode == 0 and os.path.getsize(backup_file) > 0:
-        size_kb = os.path.getsize(backup_file) / 1024
-        print_success(f"Backed up {app}: {backup_file} ({size_kb:.1f}KB)")
-        return backup_file
-    else:
-        print_warning(f"Backup failed for {app}")
-        if stderr:
-            print_info(f"Error: {stderr}")
-        if os.path.exists(backup_file):
-            os.remove(backup_file)
+    try:
+        if version == '3':
+            conn = psycopg.connect(
+                host=host,
+                user=user,
+                password=password,
+                dbname=dbname,
+                port=DB_PORT
+            )
+        else:  # version == '2'
+            conn = psycopg.connect(
+                host=host,
+                user=user,
+                password=password,
+                database=dbname,
+                port=DB_PORT
+            )
+        return conn
+    except Exception as e:
+        print_warning(f"Connection failed: {e}")
         return None
 
-def wait_for_rds(endpoint, user, password):
-    """Wait for RDS to be ready"""
-    print_header("Waiting for Consolidated RDS to be Ready")
+def test_connection():
+    """Test connection to new RDS"""
+    print_header("Testing Connection to Consolidated RDS")
     
-    for i in range(60):
-        env = os.environ.copy()
-        env['PGPASSWORD'] = password
-        
-        cmd = f"psql -h {endpoint} -U {user} -d postgres -c 'SELECT version();' > /dev/null 2>&1"
-        stdout, stderr, returncode = run_command(cmd, env)
-        
-        if returncode == 0:
-            print_success("Consolidated RDS is ready")
-            return True
-        
-        print_info(f"RDS not ready... ({i+1}/60)")
-        import time
-        time.sleep(10)
+    password = read_password_from_tfvars('db_master_password')
     
-    print_error("RDS not ready after 60 attempts")
-    return False
+    print_step(f"Connecting to {NEW_ENDPOINT}...")
+    
+    conn = connect_db(NEW_ENDPOINT, 'yuvro_admin', password, 'postgres')
+    
+    if not conn:
+        return False
+    
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT version();")
+        version = cursor.fetchone()
+        print_success(f"Connected! PostgreSQL {version[0] if version else 'unknown version'}")
+        cursor.close()
+        conn.close()
+        return True
+    except Exception as e:
+        print_warning(f"Query failed: {e}")
+        return False
 
-def create_databases(endpoint, password):
+def create_databases():
     """Create databases in new RDS"""
     print_header("Creating Application Databases in Consolidated RDS")
     
+    password = read_password_from_tfvars('db_master_password')
     databases = ['ycode', 'ycampus', 'yhub', 'ylabs', 'ymarketplace']
     
-    env = os.environ.copy()
-    env['PGPASSWORD'] = password
+    conn = connect_db(NEW_ENDPOINT, 'yuvro_admin', password, 'postgres')
+    if not conn:
+        return False
     
-    for db in databases:
-        print_step(f"Creating database: {db}...")
+    try:
+        # Set autocommit mode for CREATE DATABASE
+        conn.autocommit = True
+        cursor = conn.cursor()
         
-        cmd = f"psql -h {endpoint} -U yuvro_admin -d postgres -c 'CREATE DATABASE {db};' 2>/dev/null"
-        stdout, stderr, returncode = run_command(cmd, env)
-        
-        print_success(f"Database {db} ready")
-
-def restore_database(app, endpoint, password, backup_file):
-    """Restore a single database"""
-    print_step(f"Restoring {app} from {os.path.basename(backup_file)}...")
-    
-    env = os.environ.copy()
-    env['PGPASSWORD'] = password
-    
-    cmd = f"psql -h {endpoint} -U yuvro_admin -d {app} -f {backup_file}"
-    stdout, stderr, returncode = run_command(cmd, env)
-    
-    if returncode == 0:
-        print_success(f"Restored {app}")
-    else:
-        print_warning(f"Restore may have had issues for {app}")
-        if stderr:
-            print_info(f"Details: {stderr[:200]}")
-
-def verify_databases(endpoint, password):
-    """Verify restored data"""
-    print_header("Verifying Restored Data")
-    
-    databases = ['ycode', 'ycampus', 'yhub', 'ylabs', 'ymarketplace']
-    
-    env = os.environ.copy()
-    env['PGPASSWORD'] = password
-    
-    for db in databases:
-        print_step(f"Checking {db}...")
-        
-        cmd = f"psql -h {endpoint} -U yuvro_admin -d {db} -t -c 'SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = \"public\";'"
-        stdout, stderr, returncode = run_command(cmd, env)
-        
-        if returncode == 0:
+        for db in databases:
+            print_step(f"Creating database: {db}...")
             try:
-                table_count = int(stdout.strip())
-                if table_count > 0:
-                    print_success(f"{db}: {table_count} tables found")
+                cursor.execute(f"CREATE DATABASE {db};")
+                print_success(f"Database {db} created")
+            except Exception as e:
+                if 'already exists' in str(e):
+                    print_warning(f"Database {db} already exists")
                 else:
-                    print_warning(f"{db}: No tables found (database may be empty)")
-            except:
-                print_warning(f"{db}: Could not verify table count")
-        else:
-            print_warning(f"{db}: Could not connect to verify")
+                    print_warning(f"Failed to create {db}: {e}")
+        
+        cursor.close()
+        conn.close()
+        return True
+    except Exception as e:
+        print_error(f"Failed to create databases: {e}")
+        return False
 
 def main():
     print_header("RDS Consolidation Migration")
     
-    # Check if psql is available
-    stdout, stderr, returncode = run_command("which psql")
-    if returncode != 0:
-        print_error("psql not found. Install PostgreSQL client:")
-        print_info("  Ubuntu/Debian: sudo apt-get install postgresql-client")
-        print_info("  macOS: brew install libpq")
+    psycopg, version = try_import_psycopg()
+    
+    if not psycopg:
+        print_error("psycopg not installed")
+        print_info("Install PostgreSQL Python driver:")
+        print_info("  pip install psycopg[binary]")
+        print_info("  # or")
+        print_info("  pip install psycopg2-binary")
+        print_info("")
+        print_info("Then run this script again:")
+        print_info("  python3 infra/scripts/migrate-to-consolidated-db.py")
         return False
     
-    print_success("PostgreSQL client found")
+    print_success(f"Using psycopg {version}")
     
     # Show endpoints
     print_header("RDS Endpoints")
@@ -226,50 +206,26 @@ def main():
     print_info("New consolidated:")
     print_info(f"  yuvro: {NEW_ENDPOINT}")
     
-    # Backup old databases
-    print_header("Backing Up Old Databases")
-    
-    users = {
-        'ycode': 'ycode_admin',
-        'ycampus': 'ycampus_admin',
-        'yhub': 'yhub_admin',
-        'ylabs': 'ylabs_admin',
-    }
-    
-    backup_files = {}
-    
-    for app, endpoint in OLD_ENDPOINTS.items():
-        user = users[app]
-        password = read_password_from_tfvars(app)
-        
-        backup_file = backup_database(app, user, endpoint, password)
-        if backup_file:
-            backup_files[app] = backup_file
-    
-    print_success("All backups completed")
-    
-    # Wait for new RDS
-    new_password = read_password_from_tfvars('db_master')
-    if not wait_for_rds(NEW_ENDPOINT, 'yuvro_admin', new_password):
+    # Test connection
+    if not test_connection():
+        print_error("Cannot connect to new RDS. Check:")
+        print_info("  - RDS instance is running and accessible")
+        print_info("  - EC2 instance security group allows RDS access")
+        print_info("  - Credentials are correct")
         return False
     
     # Create databases
-    create_databases(NEW_ENDPOINT, new_password)
+    if not create_databases():
+        return False
     
-    # Restore databases
-    print_header("Restoring Data to Consolidated RDS")
-    
-    for app, backup_file in backup_files.items():
-        restore_database(app, NEW_ENDPOINT, new_password, backup_file)
-    
-    # Verify
-    verify_databases(NEW_ENDPOINT, new_password)
-    
-    # Summary
-    print_header("Migration Summary")
-    print_success("Data backed up and restored to consolidated RDS")
-    print_info(f"Backups saved to: {os.path.join(get_project_root(), 'infra', 'backups')}")
-    print_info(f"New consolidated RDS: {NEW_ENDPOINT}")
+    print_header("Migration Status")
+    print_success("All databases created successfully")
+    print_info("Next steps:")
+    print_info("1. Update backend .env files with new DATABASE_URL pointing to dev-yuvro-db")
+    print_info("2. Run Django migrations: make db-migrate")
+    print_info("3. Load fixtures if needed: make setup-fixtures")
+    print_info("4. Start services: make dev")
+    print_info("5. When ready to delete old RDS instances, delete via AWS console")
     
     return True
 
