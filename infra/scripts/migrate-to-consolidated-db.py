@@ -41,27 +41,27 @@ def print_step(msg):
     print(f"{BOLD}› {msg}{NC}")
 
 # RDS endpoints and credentials
-# All instances use 'yuvro_admin' user with same password
+# Each old instance has its own master user with app-specific name
 OLD_INSTANCES = {
     'ycode': {
         'endpoint': 'dev-ycode-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ycode',
-        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh
+        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh on ycode_admin account
     },
     'ycampus': {
         'endpoint': 'dev-ycampus-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ycampus',
-        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh
+        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh on ycampus_admin account
     },
     'yhub': {
         'endpoint': 'dev-yhub-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'yhub',
-        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh
+        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh on yhub_admin account
     },
     'ylabs': {
         'endpoint': 'dev-ylabs-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com',
         'database': 'ylabs',
-        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh
+        'user': 'yuvro_admin'  # Created by create-yuvro-admin-user.sh on ylabs_admin account
     },
 }
 

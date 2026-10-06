@@ -9,12 +9,13 @@ set -e
 REGION="ap-south-1"
 PASSWORD="ChangeMe123!DevPassword"
 
-# Old RDS endpoints
+# Old RDS endpoints and master usernames
+# Each instance has its own master user: ycode_admin, ycampus_admin, yhub_admin, ylabs_admin
 declare -A OLD_RDS=(
-    [ycode]="dev-ycode-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com"
-    [ycampus]="dev-ycampus-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com"
-    [yhub]="dev-yhub-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com"
-    [ylabs]="dev-ylabs-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com"
+    [ycode]="dev-ycode-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com:ycode_admin"
+    [ycampus]="dev-ycampus-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com:ycampus_admin"
+    [yhub]="dev-yhub-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com:yhub_admin"
+    [ylabs]="dev-ylabs-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com:ylabs_admin"
 )
 
 # Colors
@@ -33,15 +34,18 @@ echo ""
 export PGSSLMODE=allow
 
 for app_name in "${!OLD_RDS[@]}"; do
-    endpoint="${OLD_RDS[$app_name]}"
+    # Extract endpoint and master user from combined string
+    combined="${OLD_RDS[$app_name]}"
+    endpoint="${combined%:*}"
+    master_user="${combined#*:}"
     
     echo -e "${YELLOW}Creating user on $app_name ($endpoint)...${NC}"
     
-    # Create yuvro_admin user with password
+    # Create yuvro_admin user with password using the app's master user
     # Set password for yuvro_admin
     PGPASSWORD="$PASSWORD" psql \
         -h "$endpoint" \
-        -U postgres \
+        -U "$master_user" \
         -p 5432 \
         -d postgres \
         -c "CREATE USER yuvro_admin WITH PASSWORD '$PASSWORD';" 2>&1 | grep -v "already exists" || true
@@ -49,7 +53,7 @@ for app_name in "${!OLD_RDS[@]}"; do
     # Grant all privileges on the app database to yuvro_admin
     PGPASSWORD="$PASSWORD" psql \
         -h "$endpoint" \
-        -U postgres \
+        -U "$master_user" \
         -p 5432 \
         -d postgres \
         -c "GRANT ALL PRIVILEGES ON DATABASE $app_name TO yuvro_admin;" 2>&1 || true
@@ -57,7 +61,7 @@ for app_name in "${!OLD_RDS[@]}"; do
     # Connect to app database and grant privileges
     PGPASSWORD="$PASSWORD" psql \
         -h "$endpoint" \
-        -U postgres \
+        -U "$master_user" \
         -p 5432 \
         -d "$app_name" \
         -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO yuvro_admin; 
