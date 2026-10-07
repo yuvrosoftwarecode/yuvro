@@ -1141,7 +1141,7 @@ deploy-all: _validate-deploy
 		cd - > /dev/null; \
 	else \
 		echo "🚀 Deploying ALL services to $(DEPLOY_ENV) [branch=$(DEPLOY_BRANCH)]..."; \
-		bash infra/scripts/deploy-all.sh $(DEPLOY_BRANCH); \
+		bash infra/scripts/deploy-all.sh $(DEPLOY_ENV); \
 	fi
 
 # ============================================================================
