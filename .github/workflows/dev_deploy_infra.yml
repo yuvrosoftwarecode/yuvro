@@ -1,0 +1,79 @@
+name: Dev - Deploy Infrastructure (OpenTofu)
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+jobs:
+  deploy-infra:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.DEPLOY_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-south-1
+    
+    - name: Set up OpenTofu
+      uses: opentofu/setup-opentofu@v1
+      with:
+        version: 1.8.0
+    
+    - name: Deploy Infrastructure (Dev)
+      env:
+        ACTION: ${{ inputs.action }}
+        DEPLOY_ENV: dev
+        DB_MASTER_PASSWORD: ${{ secrets.DEV_DB_MASTER_PASSWORD }}
+        AWS_REGION: ap-south-1
+      run: |
+        echo "🚀 OpenTofu Infrastructure Deployment [action=$ACTION]..."
+        
+        cd infra/opentofu/dev
+        
+        # Initialize
+        tofu init
+        
+        if [ "$ACTION" = "plan" ]; then
+          echo "📋 Planning infrastructure changes..."
+          tofu plan -var-file=../dev.tfvars -var="db_master_password=$DB_MASTER_PASSWORD"
+          
+        elif [ "$ACTION" = "apply" ]; then
+          echo "📋 Planning infrastructure changes..."
+          tofu plan -var-file=../dev.tfvars -var="db_master_password=$DB_MASTER_PASSWORD" -out=tfplan
+          
+          echo "✅ Applying infrastructure changes..."
+          tofu apply tfplan
+          rm -f tfplan
+          
+          echo ""
+          echo "📊 Infrastructure Outputs:"
+          tofu output
+          
+        elif [ "$ACTION" = "destroy" ]; then
+          echo "⚠️  DESTROYING infrastructure..."
+          echo "This will delete all AWS resources in dev environment!"
+          
+          tofu plan -destroy -var-file=../dev.tfvars -var="db_master_password=$DB_MASTER_PASSWORD" -out=tfplan_destroy
+          tofu apply tfplan_destroy
+          rm -f tfplan_destroy
+          
+          echo "✅ Infrastructure destroyed"
+        fi
+        
+        cd - > /dev/null
+        echo "✅ Infrastructure operation complete!"

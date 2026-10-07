@@ -66,8 +66,15 @@ jobs:
       run: |
         echo "🚀 Deploying $DEPLOY_APP to dev [branch=$DEPLOY_BRANCH]..."
         
+        # Deploy applications (not infrastructure)
         if [ "$DEPLOY_APP" = "all" ]; then
-          bash infra/scripts/deploy-all.sh dev --auto-approve
+          echo "Deploying all services..."
+          bash infra/scripts/deploy-ycode.sh $DEPLOY_BRANCH && \
+          bash infra/scripts/deploy-ycampus.sh $DEPLOY_BRANCH && \
+          bash infra/scripts/deploy-ylabs.sh $DEPLOY_BRANCH && \
+          bash infra/scripts/deploy-yhub.sh $DEPLOY_BRANCH && \
+          bash infra/scripts/deploy-ymarketplace.sh $DEPLOY_BRANCH && \
+          bash infra/scripts/deploy-code-executor.sh $DEPLOY_BRANCH
         elif [ "$DEPLOY_APP" = "code-executor" ]; then
           bash infra/scripts/deploy-code-executor.sh $DEPLOY_BRANCH
         else
