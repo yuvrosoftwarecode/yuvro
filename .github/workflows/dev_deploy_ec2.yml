@@ -33,31 +33,24 @@ jobs:
         fetch-depth: 0
         submodules: false
     
-    - name: Setup SSH for Git submodules
-      env:
-        SSH_KEY: ${{ secrets.DEPLOY_EC2_SSH_PRIVATE_KEY }}
+    - name: Convert submodule URL to HTTPS
       run: |
-        mkdir -p ~/.ssh
-        echo "$SSH_KEY" > ~/.ssh/github_key
-        chmod 600 ~/.ssh/github_key
+        # Change ymarketplace submodule URL from SSH to HTTPS so it works in GitHub Actions
+        git config --file .gitmodules --get-regexp '^submodule\..*\.url' | while read -r entry; do
+          url=$(echo "$entry" | awk '{print $2}')
+          
+          # Convert SSH URLs to HTTPS
+          if [[ "$url" == git@github.com:* ]]; then
+            https_url=$(echo "$url" | sed 's|git@github.com:|https://github.com/|')
+            key=$(echo "$entry" | awk '{print $1}' | sed 's/\.url$//')
+            git config --file .gitmodules "${key}.url" "$https_url"
+            echo "✅ Converted: $url → $https_url"
+          fi
+        done
         
-        cat >> ~/.ssh/config << EOF
-        Host github.com
-          HostName github.com
-          User git
-          IdentityFile ~/.ssh/github_key
-          StrictHostKeyChecking no
-        EOF
-        chmod 600 ~/.ssh/config
-        
-        # Test SSH connection
-        ssh -o ConnectTimeout=5 git@github.com || true
-        echo "✅ SSH configured for git@github.com"
-    
-    - name: Initialize Git submodules
-      run: |
+        # Sync and update submodules
         echo "📦 Initializing git submodules..."
-        git submodule sync
+        git submodule sync --recursive
         git submodule update --init --recursive
         echo "✅ Submodules initialized"
     
