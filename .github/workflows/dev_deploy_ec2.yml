@@ -33,21 +33,33 @@ jobs:
         fetch-depth: 0
         submodules: false
     
-    - name: Disable ymarketplace submodule for GitHub Actions
+    - name: Setup SSH for Git submodules
+      env:
+        SSH_KEY: ${{ secrets.DEPLOY_EC2_SSH_PRIVATE_KEY }}
       run: |
-        echo "🔧 Removing ymarketplace submodule from git config (temporary)"
+        mkdir -p ~/.ssh
+        echo "$SSH_KEY" > ~/.ssh/github_key
+        chmod 600 ~/.ssh/github_key
         
-        # Remove ymarketplace submodule from local git config so it won't be fetched
-        git config --file .gitmodules --remove-section submodule.ymarketplace 2>/dev/null || true
-        git config --remove-section submodule.ymarketplace 2>/dev/null || true
+        cat >> ~/.ssh/config << EOF
+        Host github.com
+          HostName github.com
+          User git
+          IdentityFile ~/.ssh/github_key
+          StrictHostKeyChecking no
+        EOF
+        chmod 600 ~/.ssh/config
         
-        # Clean up any stale submodule directories
-        rm -rf .git/modules/ymarketplace 2>/dev/null || true
-        rm -rf ymarketplace 2>/dev/null || true
-        
-        echo "✅ ymarketplace submodule disabled"
-        echo "ℹ️  It will be cloned on EC2 by the deployment script"
-        echo "📱 App to deploy: ${{ inputs.deploy_app }}"
+        # Test SSH connection
+        ssh -o ConnectTimeout=5 git@github.com || true
+        echo "✅ SSH configured for git@github.com"
+    
+    - name: Initialize Git submodules
+      run: |
+        echo "📦 Initializing git submodules..."
+        git submodule sync
+        git submodule update --init --recursive
+        echo "✅ Submodules initialized"
     
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -61,7 +73,7 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.DEPLOY_EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/yuvro-dev.pem
         chmod 400 ~/.ssh/yuvro-dev.pem
-        echo "SSH key configured"
+        echo "✅ SSH key configured"
     
     - name: Set up OpenTofu
       uses: opentofu/setup-opentofu@v1

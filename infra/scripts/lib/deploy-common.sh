@@ -403,25 +403,14 @@ if [ -d yuvro ]; then
 else
     git clone -b "$branch" "$repo_url" yuvro && cd yuvro
 fi
-# Initialize submodules — clear stale directories first if they exist but aren't registered
+echo "   ✓ main repo cloned  [elapsed \$(( \$(date +%s)-T1 ))s]"
+
+# Initialize submodules
+echo "── initializing submodules ────────────────────────"
+T2=\$(date +%s)
 git submodule sync
-git submodule foreach --recursive 'git fetch origin 2>/dev/null || true'
-# Remove any stale unregistered submodule directories so init can succeed
-git ls-files --others --directory --no-empty-directory | grep -E '/$' | while read d; do
-    if [ -d ".git/modules/\${d%/}" ]; then
-        rm -rf ".git/modules/\${d%/}"
-    fi
-done
-# If ymarketplace dir exists but isn't a proper submodule, reset it
-if [ -d "ymarketplace" ] && [ ! -f "ymarketplace/.git" ]; then
-    echo "   ⚠ stale ymarketplace dir — clearing for submodule init..."
-    rm -rf ymarketplace
-    git config --file .gitmodules --get submodule.ymarketplace.url >/dev/null 2>&1 && \
-        git config --remove-section submodule.ymarketplace 2>/dev/null || true
-    rm -rf .git/modules/ymarketplace
-fi
 git submodule update --init --recursive
-echo "   ✓ git  [elapsed \$(( \$(date +%s)-T1 ))s]"
+echo "   ✓ submodules initialized  [elapsed \$(( \$(date +%s)-T2 ))s]"
 
 # ── ymarketplace env.dev (non-secret, generated inline) ──────────────────────
 # The submodule gitignores .env.dev so we write it directly on EC2
