@@ -34,11 +34,28 @@ jobs:
       with:
         version: 1.8.0
     
+    - name: Load Dev Secrets
+      run: |
+        if [ -f "ycode-backend-api/.env.dev-secrets" ]; then
+          echo "✅ Found .env.dev-secrets, loading database credentials..."
+          source ycode-backend-api/.env.dev-secrets
+          # Export DB_MASTER_PASSWORD if DEV_DB_MASTER_PASSWORD is not already set
+          if [ -z "$DEV_DB_MASTER_PASSWORD" ] && [ -n "$DB_MASTER_PASSWORD" ]; then
+            echo "DB_MASTER_PASSWORD=$DB_MASTER_PASSWORD" >> $GITHUB_ENV
+          fi
+        else
+          echo "⚠️  .env.dev-secrets not found, using GitHub secret"
+          if [ -z "${{ secrets.DEV_DB_MASTER_PASSWORD }}" ]; then
+            echo "❌ DEV_DB_MASTER_PASSWORD secret is required when .env.dev-secrets is not present"
+            exit 1
+          fi
+          echo "DB_MASTER_PASSWORD=${{ secrets.DEV_DB_MASTER_PASSWORD }}" >> $GITHUB_ENV
+        fi
+    
     - name: Deploy Infrastructure (Dev)
       env:
         ACTION: ${{ inputs.action }}
         DEPLOY_ENV: dev
-        DB_MASTER_PASSWORD: ${{ secrets.DEV_DB_MASTER_PASSWORD }}
         AWS_REGION: ap-south-1
       run: |
         echo "🚀 OpenTofu Infrastructure Deployment [action=$ACTION]..."
