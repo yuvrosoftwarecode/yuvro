@@ -96,12 +96,12 @@ function Review() {
     } catch (e) {}
   }
 
-  const percentage =
-    submission?.yuvro_points > 0
-      ? Math.round((submission.yuvro_points / maxXp) * 100)
-      : testPercentage;
-
-  const earnedXp = maxXp > 0 ? Math.round((percentage / 100) * maxXp) : 0;
+  const earnedXp = submission?.yuvro_points ?? 0;
+  
+  const isEvaluated = submission?.ticket_status === "done" || submission?.ticket_status === "in_review";
+  const percentage = isEvaluated
+    ? (maxXp > 0 ? Math.round((earnedXp / maxXp) * 100) : 0)
+    : testPercentage;
 
   const grade =
     percentage >= 90
