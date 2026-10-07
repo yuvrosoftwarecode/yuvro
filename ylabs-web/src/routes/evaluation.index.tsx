@@ -2,6 +2,7 @@ import { createFileRoute, Link, useRouter, useSearch } from "@tanstack/react-rou
 import { useEffect, useRef, useState } from "react";
 import { EvalShell, EvalStepHeader, PrimaryButton, Field } from "@/components/evaluation/EvalShell";
 import { evaluationService, setTempResumeFile } from "../services/evaluationService";
+import YuvroLogo from "@/assets/YuvroLogo.png";
 
 export const Route = createFileRoute("/evaluation/")({
   head: () => ({
@@ -131,7 +132,7 @@ function EvaluationInvite() {
     <EvalShell step={1} totalSteps={4} stepLabel="Verification">
       <div className="grid gap-16 lg:grid-cols-[1.05fr_1fr]">
         <section className="max-w-xl">
-          <EvalStepHeader
+          {/* <EvalStepHeader
             eyebrow="Invitation verified"
             title={
               <>
@@ -143,12 +144,19 @@ function EvaluationInvite() {
               </>
             }
             body="Yuvro Labs is a workspace — labs, a terminal, a database, and a short engineering discussion. Bring the way you actually work."
-          />
+          /> */}
+          <div className="flex items-center gap-4">
+            <img src={YuvroLogo} alt="Yuvro Logo" className="h-24 w-auto object-contain" />
+            <span className="text-5xl tracking-tight text-neutral-900">Yuvro Labs</span>
+          </div>
+          <p className="mt-6 max-w-md text-[15px] leading-relaxed text-neutral-600">
+            Yuvro Labs is a workspace — labs, a terminal, a database, and a short engineering discussion. Bring the way you actually work.
+          </p>
           <ol className="mt-12 space-y-5 text-[13px] text-neutral-600">
             {[
               ["01", "Verification", "Confirm your email with a one-time code."],
               ["02", "Proctoring", "A quick look at your camera, microphone, and screen."],
-              ["03", "Evaluation", "Engineering labs, knowledge, an optional challenge."],
+              ["03", "Evaluation", "Engineering labs, knowledge assessment."],
               ["04", "Engineering discussion", "A short conversation about the work you just did."],
             ].map(([n, t, d]) => (
               <li
@@ -172,7 +180,7 @@ function EvaluationInvite() {
             className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-[0_1px_0_rgba(0,0,0,0.02),0_20px_60px_-30px_rgba(0,0,0,0.15)] sm:p-10"
           >
             <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400">
-              Begin Evaluation
+              Begin
             </div>
 
             {err && (
