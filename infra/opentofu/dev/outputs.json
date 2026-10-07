@@ -1,0 +1,33 @@
+app_data_bucket_name = "yuvro-dev-878235034597"
+app_node_ids = tolist([
+  "i-0c21627d2e31d6242",
+])
+app_node_private_ips = tolist([
+  "10.0.2.154",
+])
+app_node_public_ips = tolist([
+  "13.204.210.175",
+])
+app_service_access_key_id = <sensitive>
+app_service_role_arn = "arn:aws:iam::878235034597:role/dev-app-service-role"
+app_service_secret_access_key = <sensitive>
+app_service_user_name = "dev-app-service-user"
+cloudwatch_log_group_arn = "arn:aws:logs:ap-south-1:878235034597:log-group:/aws/ycode/dev/application"
+cloudwatch_log_group_name = "/aws/ycode/dev/application"
+db_endpoint = <sensitive>
+db_host = <sensitive>
+db_instance_id = "db-2UXHIDSHTH4HVM2XUDUP3363FQ"
+db_master_username = <sensitive>
+db_port = 5432
+dev_deployment_guide = <sensitive>
+private_subnet_ids = tolist([])
+public_subnet_ids = tolist([
+  "subnet-0367b61d021231f46",
+  "subnet-07bc50fe4d13c206c",
+])
+vpc_id = "vpc-0893533f938d45e9d"
+ycampus_database_url = <sensitive>
+ycode_database_url = <sensitive>
+yhub_database_url = <sensitive>
+ylabs_database_url = <sensitive>
+ymarketplace_database_url = <sensitive>

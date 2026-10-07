@@ -151,4 +151,5 @@ output "dev_deployment_guide" {
        - YCode: http://${var.instance_count > 0 ? module.ec2_nodes[0].public_ips[0] : "N/A"}:3000
        - YCampus: http://${var.instance_count > 0 ? module.ec2_nodes[0].public_ips[0] : "N/A"}:3001
   EOT
+  sensitive   = true
 }

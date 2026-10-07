@@ -1,10 +1,24 @@
+data "aws_db_subnet_group" "main_existing" {
+  name = "${var.environment}-yuvro-db-subnet-group"
+}
+
 resource "aws_db_subnet_group" "main" {
+  count      = try(data.aws_db_subnet_group.main_existing.id, null) != null ? 0 : 1
   name       = "${var.environment}-yuvro-db-subnet-group"
   subnet_ids = length(var.subnet_ids) >= 2 ? var.subnet_ids : concat(var.subnet_ids, var.subnet_ids)
 
   tags = {
     Name = "${var.environment}-yuvro-db-subnet-group"
   }
+
+  lifecycle {
+    ignore_changes = [subnet_ids, tags]
+  }
+}
+
+locals {
+  db_subnet_group_id   = try(data.aws_db_subnet_group.main_existing.id, aws_db_subnet_group.main[0].id)
+  db_subnet_group_name = try(data.aws_db_subnet_group.main_existing.name, aws_db_subnet_group.main[0].name)
 }
 
 resource "aws_db_instance" "main" {
@@ -22,7 +36,7 @@ resource "aws_db_instance" "main" {
   storage_type          = "gp2"
   storage_encrypted     = var.environment != "dev" ? true : false
 
-  db_subnet_group_name   = aws_db_subnet_group.main.name
+  db_subnet_group_name   = local.db_subnet_group_name
   vpc_security_group_ids = [var.security_group_id]
 
   multi_az               = var.multi_az
@@ -39,16 +53,23 @@ resource "aws_db_instance" "main" {
 
   deletion_protection = var.environment == "prod" ? true : false
 
-  parameter_group_name = aws_db_parameter_group.main.name
+  parameter_group_name = local.db_parameter_group_name
 
   tags = {
     Name = "${var.environment}-yuvro-db"
   }
 
-  depends_on = [aws_db_parameter_group.main]
+  lifecycle {
+    ignore_changes = all
+  }
+}
+
+data "aws_db_parameter_group" "main_existing" {
+  name = "${var.environment}-yuvro-db-params"
 }
 
 resource "aws_db_parameter_group" "main" {
+  count  = try(data.aws_db_parameter_group.main_existing.id, null) != null ? 0 : 1
   name   = "${var.environment}-yuvro-db-params"
   family = "postgres${split(".", var.engine_version)[0]}"
 
@@ -69,4 +90,9 @@ resource "aws_db_parameter_group" "main" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+locals {
+  db_parameter_group_id   = try(data.aws_db_parameter_group.main_existing.id, aws_db_parameter_group.main[0].id)
+  db_parameter_group_name = try(data.aws_db_parameter_group.main_existing.name, aws_db_parameter_group.main[0].name)
 }

@@ -101,6 +101,7 @@ module "iam" {
   source = "../modules/iam"
 
   environment    = "dev"
+  aws_region     = var.aws_region
   s3_bucket_arns = [module.s3.base_bucket_arn]
 }
 

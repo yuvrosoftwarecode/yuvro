@@ -2,12 +2,13 @@
 # Unified OpenTofu Deployment Script
 # Deploys Yuvro infrastructure to AWS for dev or prod environment
 #
-# Usage: ./deploy-all.sh <dev|prod> [--plan-only] [--skip-db-migration]
+# Usage: ./deploy-all.sh <dev|prod> [--plan-only] [--skip-db-migration] [--auto-approve]
 #
 # Examples:
 #   ./deploy-all.sh dev                    # Plan and apply dev infrastructure
 #   ./deploy-all.sh prod --plan-only       # Plan prod infrastructure only
 #   ./deploy-all.sh prod --skip-db-migration # Deploy prod without data migration
+#   ./deploy-all.sh dev --auto-approve     # Auto-approve dev deployment (CI/CD)
 
 set -euo pipefail
 
@@ -18,6 +19,7 @@ OPENTOFU_DIR="$PROJECT_ROOT/infra/opentofu"
 ENVIRONMENT="${1:-}"
 PLAN_ONLY="${2:-}"
 SKIP_DB_MIGRATION="${3:-}"
+AUTO_APPROVE="${4:-}"
 
 # ========== COLOR OUTPUT ==========
 RED='\033[0;31m'
@@ -62,6 +64,7 @@ ENVIRONMENTS:
 OPTIONS:
     --plan-only         Show Terraform plan without applying
     --skip-db-migration Skip database migration (prod only)
+    --auto-approve      Auto-approve deployment (for CI/CD; use with caution)
     -h, --help         Show this help message
 
 EXAMPLES:
@@ -70,6 +73,9 @@ EXAMPLES:
 
     # Show prod plan without applying
     ./deploy-all.sh prod --plan-only
+
+    # Deploy dev with auto-approval (CI/CD)
+    ./deploy-all.sh dev --auto-approve
 
     # Deploy prod with Kubernetes
     ./deploy-all.sh prod
@@ -108,6 +114,28 @@ print_info "Working directory: $(pwd)"
 print_header "Initializing OpenTofu"
 tofu init
 
+# Clean up stale resources from state BEFORE planning
+# This prevents conflicts with existing AWS resources
+if [[ ! -f "backend-config.hcl" ]] && [[ -f "terraform.tfstate" ]]; then
+    print_info "Cleaning up conflicting resources from local state..."
+    
+    # Force remove resources that conflict with existing AWS resources
+    tofu state rm -force \
+      'module.cloudwatch.aws_cloudwatch_log_group.application' \
+      'module.cloudwatch.aws_cloudwatch_log_group.kubernetes' \
+      'module.cloudwatch.aws_cloudwatch_log_group.database' \
+      'module.ec2_nodes[0].aws_iam_role.app_node' \
+      'module.iam.aws_iam_openid_connect_provider.github' \
+      'module.iam.aws_iam_role.app_service' \
+      'module.iam.aws_iam_user.app_service' \
+      'module.rds_main.aws_db_subnet_group.main' \
+      'module.rds_main.aws_db_parameter_group.main' \
+      'module.security_groups.aws_security_group.app' \
+      'module.security_groups.aws_security_group.rds' 2>/dev/null || true
+    
+    print_success "State cleaned"
+fi
+
 # Show environment details
 print_header "Environment Configuration"
 print_info "Environment: $ENVIRONMENT"
@@ -129,8 +157,13 @@ tofu plan -out=tfplan
 
 # Confirm before applying
 if [[ ! "$PLAN_ONLY" =~ ^(--plan-only)$ ]]; then
-    print_warning "Review the plan above carefully!"
-    read -p "Do you want to apply this plan? (yes/no): " confirm
+    if [[ "$AUTO_APPROVE" =~ ^(--auto-approve)$ ]]; then
+        print_warning "Auto-approving deployment (--auto-approve flag set)"
+        confirm="yes"
+    else
+        print_warning "Review the plan above carefully!"
+        read -p "Do you want to apply this plan? (yes/no): " confirm
+    fi
     
     if [[ "$confirm" != "yes" ]]; then
         print_warning "Deployment cancelled"
