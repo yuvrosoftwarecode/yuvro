@@ -125,3 +125,11 @@ resource "aws_cloudwatch_dashboard" "main" {
 }
 
 data "aws_region" "current" {}
+
+# Locals to reference either created or existing log groups
+locals {
+  application_log_group_name = try(data.aws_cloudwatch_log_group.application_existing.name, aws_cloudwatch_log_group.application[0].name)
+  application_log_group_arn  = try(data.aws_cloudwatch_log_group.application_existing.arn, aws_cloudwatch_log_group.application[0].arn)
+  kubernetes_log_group_name  = try(data.aws_cloudwatch_log_group.kubernetes_existing.name, aws_cloudwatch_log_group.kubernetes[0].name)
+  database_log_group_name    = try(data.aws_cloudwatch_log_group.database_existing.name, aws_cloudwatch_log_group.database[0].name)
+}
