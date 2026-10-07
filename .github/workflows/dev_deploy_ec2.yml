@@ -33,13 +33,29 @@ jobs:
         fetch-depth: 0
         submodules: false
     
+    - name: Disable ymarketplace submodule for GitHub Actions
+      run: |
+        echo "🔧 Removing ymarketplace submodule from git config (temporary)"
+        
+        # Remove ymarketplace submodule from local git config so it won't be fetched
+        git config --file .gitmodules --remove-section submodule.ymarketplace 2>/dev/null || true
+        git config --remove-section submodule.ymarketplace 2>/dev/null || true
+        
+        # Clean up any stale submodule directories
+        rm -rf .git/modules/ymarketplace 2>/dev/null || true
+        rm -rf ymarketplace 2>/dev/null || true
+        
+        echo "✅ ymarketplace submodule disabled"
+        echo "ℹ️  It will be cloned on EC2 by the deployment script"
+        echo "📱 App to deploy: ${{ inputs.deploy_app }}"
+    
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.DEPLOY_AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-south-1
-        
+    
     - name: Configure SSH key
       run: |
         mkdir -p ~/.ssh
