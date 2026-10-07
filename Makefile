@@ -284,9 +284,14 @@ endif
 
 install: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🚀 Deploying to AWS EC2 using deploy-all.sh [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
-		bash infra/scripts/deploy-all.sh dev; \
+		bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building and starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
@@ -320,9 +325,14 @@ install: _validate-deploy
 
 run: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🚀 Deploying to AWS EC2 using deploy-all.sh [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
-		bash infra/scripts/deploy-all.sh dev; \
+		bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
@@ -1141,7 +1151,12 @@ deploy-all: _validate-deploy
 		cd - > /dev/null; \
 	else \
 		echo "🚀 Deploying ALL services to $(DEPLOY_ENV) [branch=$(DEPLOY_BRANCH)]..."; \
-		bash infra/scripts/deploy-all.sh $(DEPLOY_ENV); \
+		bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH); \
 	fi
 
 # ============================================================================
