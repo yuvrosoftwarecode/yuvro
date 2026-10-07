@@ -1,4 +1,0 @@
-apiVersion: v2
-name: ycode-backend
-description: YCode Backend API Helm chart
-version: 1.0.0

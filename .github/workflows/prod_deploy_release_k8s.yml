@@ -1,0 +1,244 @@
+name: Prod - Deploy Release to K8s
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release version to deploy (e.g., v1.0.0)'
+        required: true
+        type: string
+      namespace:
+        description: 'Kubernetes namespace'
+        required: true
+        default: 'yuvro-prod-ns'
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ap-south-1
+  EKS_CLUSTER_NAME: yuvro-prod-cluster
+  DEPLOY_NAMESPACE: ${{ inputs.namespace || 'yuvro-prod-ns' }}
+  ECR_REGISTRY_PREFIX: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+
+jobs:
+  pre-deploy-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate inputs
+        run: |
+          if ! [[ "${{ inputs.release_version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid release version format. Use v1.0.0"
+            exit 1
+          fi
+          echo "✅ Release version format valid: ${{ inputs.release_version }}"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify EKS cluster
+        run: |
+          echo "🔍 Checking EKS cluster: ${{ env.EKS_CLUSTER_NAME }}"
+          aws eks describe-cluster --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }} > /dev/null
+          if [ $? -eq 0 ]; then
+            echo "✅ EKS cluster is accessible"
+          else
+            echo "❌ Cannot access EKS cluster"
+            exit 1
+          fi
+
+      - name: Verify images in ECR
+        run: |
+          echo "🔍 Checking images in ECR..."
+          images=(
+            "ycode-backend"
+            "ycode-frontend"
+            "ycampus-backend"
+            "ycampus-frontend"
+            "ylabs-backend"
+            "ylabs-frontend"
+            "yhub-backend"
+            "ymarketplace-backend"
+            "ymarketplace-frontend"
+            "code-executor"
+          )
+          
+          for image in "${images[@]}"; do
+            if aws ecr describe-images --repository-name "$image" --region ${{ env.AWS_REGION }} \
+              --image-ids imageTag=${{ inputs.release_version }} > /dev/null 2>&1; then
+              echo "  ✅ $image:${{ inputs.release_version }}"
+            else
+              echo "  ⚠️  $image:${{ inputs.release_version }} not found in ECR"
+            fi
+          done
+
+  deploy-helm:
+    needs: pre-deploy-checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.31.0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.13.0
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+          echo "✅ kubectl configured for EKS cluster"
+
+      - name: Create ECR secret for image pull
+        run: |
+          echo "🔐 Creating ECR authentication secret..."
+          
+          TOKEN=$(aws ecr get-authorization-token --region ${{ env.AWS_REGION }} \
+            --query 'authorizationData[0].authorizationToken' --output text)
+          
+          ECR_SERVER="${{ env.ECR_REGISTRY_PREFIX }}"
+          CREDENTIALS=$(echo $TOKEN | base64 --decode | cut -d: -f2)
+          
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} create secret docker-registry ecr-secret \
+            --docker-server=$ECR_SERVER \
+            --docker-username=AWS \
+            --docker-password=$CREDENTIALS \
+            --docker-email=noemail@example.com \
+            --dry-run=client -o yaml | kubectl apply -f -
+          
+          echo "✅ ECR authentication secret created"
+
+      - name: Patch service account with image pull secret
+        run: |
+          echo "🔧 Patching service account..."
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} patch serviceaccount default \
+            -p '{"imagePullSecrets": [{"name": "ecr-secret"}]}' || true
+          echo "✅ Service account patched"
+
+      - name: Update Helm values
+        run: |
+          cat > /tmp/helm-values-override.yaml << EOF
+          global:
+            imageTag: ${{ inputs.release_version }}
+          
+          ycode:
+            backend:
+              image: "${{ env.ECR_REGISTRY_PREFIX }}/ycode-backend:${{ inputs.release_version }}"
+            frontend:
+              image: "${{ env.ECR_REGISTRY_PREFIX }}/ycode-frontend:${{ inputs.release_version }}"
+          
+          ycampus:
+            backend:
+              image: "${{ env.ECR_REGISTRY_PREFIX }}/ycampus-backend:${{ inputs.release_version }}"
+            frontend:
+              image: "${{ env.ECR_REGISTRY_PREFIX }}/ycampus-frontend:${{ inputs.release_version }}"
+          
+          ylabs:
+            backend:
+              image: "${{ env.ECR_REGISTRY_PREFIX }}/ylabs-backend:${{ inputs.release_version }}"
+            frontend:
+              image: "${{ env.ECR_REGISTRY_PREFIX }}/ylabs-frontend:${{ inputs.release_version }}"
+          
+          yhub:
+            backend:
+              image: "${{ env.ECR_REGISTRY_PREFIX }}/yhub-backend:${{ inputs.release_version }}"
+          
+          ymarketplace:
+            backend:
+              image: "${{ env.ECR_REGISTRY_PREFIX }}/ymarketplace-backend:${{ inputs.release_version }}"
+            frontend:
+              image: "${{ env.ECR_REGISTRY_PREFIX }}/ymarketplace-frontend:${{ inputs.release_version }}"
+          
+          codeExecutor:
+            image: "${{ env.ECR_REGISTRY_PREFIX }}/code-executor:${{ inputs.release_version }}"
+          EOF
+          
+          echo "✅ Helm values override created"
+
+      - name: Deploy with Helm
+        run: |
+          echo "🚀 Deploying Helm release..."
+          
+          helm upgrade --install yuvro \
+            ./helm/yuvro-production \
+            --namespace ${{ env.DEPLOY_NAMESPACE }} \
+            --values ./helm/yuvro-production/values-prod.yaml \
+            --values /tmp/helm-values-override.yaml \
+            --wait \
+            --timeout 10m \
+            --atomic
+          
+          echo "✅ Helm deployment complete"
+
+      - name: Verify deployment
+        run: |
+          echo "📊 Verifying deployment..."
+          
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} rollout status deployment/ycode-backend --timeout=5m || true
+          
+          echo ""
+          echo "Pod Status:"
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get pods
+          
+          echo ""
+          echo "Helm Release:"
+          helm list -n ${{ env.DEPLOY_NAMESPACE }}
+          
+          echo ""
+          echo "Deployment Status:"
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get deployments
+
+      - name: Generate deployment report
+        if: always()
+        run: |
+          echo "=========================================="
+          echo "📋 Production Deployment Report"
+          echo "=========================================="
+          echo "Release Version: ${{ inputs.release_version }}"
+          echo "Namespace: ${{ env.DEPLOY_NAMESPACE }}"
+          echo "Cluster: ${{ env.EKS_CLUSTER_NAME }}"
+          echo "Region: ${{ env.AWS_REGION }}"
+          echo ""
+          echo "Deployment Timestamp: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo ""
+          echo "Next Steps:"
+          echo "1. Monitor pods: kubectl -n ${{ env.DEPLOY_NAMESPACE }} get pods -w"
+          echo "2. Check logs: kubectl -n ${{ env.DEPLOY_NAMESPACE }} logs -f deployment/ycode-backend"
+          echo "3. Verify services: kubectl -n ${{ env.DEPLOY_NAMESPACE }} get svc"
+
+  post-deploy:
+    needs: deploy-helm
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Success notification
+        run: |
+          echo "=========================================="
+          echo "✅ Production Deployment Successful!"
+          echo "=========================================="
+          echo ""
+          echo "Release ${{ inputs.release_version }} has been deployed to production"
+          echo ""
+          echo "Key Information:"
+          echo "  - Cluster: ${{ env.EKS_CLUSTER_NAME }}"
+          echo "  - Namespace: ${{ env.DEPLOY_NAMESPACE }}"
+          echo "  - Image Tag: ${{ inputs.release_version }}"
+          echo "  - ECR Registry: ${{ env.ECR_REGISTRY_PREFIX }}"

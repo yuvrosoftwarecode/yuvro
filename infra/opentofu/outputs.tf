@@ -1,17 +1,17 @@
-# VPC Outputs
+# VPC Outputs (using existing VPC via data sources)
 output "vpc_id" {
   description = "VPC ID"
-  value       = module.vpc.vpc_id
+  value       = data.aws_vpc.main.id
 }
 
 output "public_subnet_ids" {
   description = "Public subnet IDs"
-  value       = module.vpc.public_subnet_ids
+  value       = data.aws_subnets.public.ids
 }
 
 output "private_subnet_ids" {
   description = "Private subnet IDs"
-  value       = module.vpc.private_subnet_ids
+  value       = data.aws_subnets.private.ids
 }
 
 # EC2 Outputs
@@ -30,118 +30,70 @@ output "app_node_public_ips" {
   value       = var.instance_count > 0 ? module.ec2_nodes[0].public_ips : []
 }
 
-# RDS YCode Outputs
-output "ycode_db_endpoint" {
-  description = "YCode RDS database endpoint"
-  value       = module.rds_ycode.db_endpoint
+# RDS Consolidated Database Outputs
+output "db_endpoint" {
+  description = "Consolidated RDS database endpoint (all apps share this instance)"
+  value       = module.rds_main.db_endpoint
   sensitive   = true
 }
 
-output "ycode_db_port" {
-  description = "YCode RDS database port"
-  value       = module.rds_ycode.db_port
-}
-
-output "ycode_db_name" {
-  description = "YCode database name"
-  value       = module.rds_ycode.db_name
-}
-
-output "ycode_db_username" {
-  description = "YCode database master username"
-  value       = module.rds_ycode.db_username
+output "db_host" {
+  description = "Consolidated RDS database hostname"
+  value       = module.rds_main.db_host
   sensitive   = true
 }
 
-# RDS YCampus Outputs
-output "ycampus_db_endpoint" {
-  description = "YCampus RDS database endpoint"
-  value       = module.rds_ycampus.db_endpoint
+output "db_port" {
+  description = "Consolidated RDS database port"
+  value       = module.rds_main.db_port
+}
+
+output "db_master_username" {
+  description = "Master username for consolidated database"
+  value       = var.db_master_username
   sensitive   = true
 }
 
-output "ycampus_db_port" {
-  description = "YCampus RDS database port"
-  value       = module.rds_ycampus.db_port
+output "db_instance_id" {
+  description = "Consolidated RDS instance ID"
+  value       = module.rds_main.db_instance_id
 }
 
-output "ycampus_db_name" {
-  description = "YCampus database name"
-  value       = module.rds_ycampus.db_name
-}
-
-output "ycampus_db_username" {
-  description = "YCampus database master username"
-  value       = module.rds_ycampus.db_username
+output "prod_rds_endpoint" {
+  description = "Production RDS endpoint (prod-yuvro-db)"
+  value       = var.environment == "prod" ? module.rds_main.db_host : null
   sensitive   = true
 }
 
-# RDS YHub Outputs
-output "yhub_db_endpoint" {
-  description = "YHub RDS database endpoint"
-  value       = module.rds_yhub.db_endpoint
+# Application Database Connection Strings
+# Each app uses the same RDS instance but different database schema
+output "ycode_database_url" {
+  description = "Connection string for YCode database (on consolidated instance)"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ycode"
   sensitive   = true
 }
 
-output "yhub_db_port" {
-  description = "YHub RDS database port"
-  value       = module.rds_yhub.db_port
-}
-
-output "yhub_db_name" {
-  description = "YHub database name"
-  value       = module.rds_yhub.db_name
-}
-
-output "yhub_db_username" {
-  description = "YHub database master username"
-  value       = module.rds_yhub.db_username
+output "ycampus_database_url" {
+  description = "Connection string for YCampus database (on consolidated instance)"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ycampus"
   sensitive   = true
 }
 
-# RDS YLabs Outputs
-output "ylabs_db_endpoint" {
-  description = "YLabs RDS database endpoint"
-  value       = module.rds_ylabs.db_endpoint
+output "yhub_database_url" {
+  description = "Connection string for YHub database (on consolidated instance)"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/yhub"
   sensitive   = true
 }
 
-output "ylabs_db_port" {
-  description = "YLabs RDS database port"
-  value       = module.rds_ylabs.db_port
-}
-
-output "ylabs_db_name" {
-  description = "YLabs database name"
-  value       = module.rds_ylabs.db_name
-}
-
-output "ylabs_db_username" {
-  description = "YLabs database master username"
-  value       = module.rds_ylabs.db_username
+output "ylabs_database_url" {
+  description = "Connection string for YLabs database (on consolidated instance)"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ylabs"
   sensitive   = true
 }
 
-# RDS YMarketplace Outputs
-output "ymarketplace_db_endpoint" {
-  description = "YMarketplace RDS database endpoint"
-  value       = module.rds_ymarketplace.db_endpoint
-  sensitive   = true
-}
-
-output "ymarketplace_db_port" {
-  description = "YMarketplace RDS database port"
-  value       = module.rds_ymarketplace.db_port
-}
-
-output "ymarketplace_db_name" {
-  description = "YMarketplace database name"
-  value       = module.rds_ymarketplace.db_name
-}
-
-output "ymarketplace_db_username" {
-  description = "YMarketplace database master username"
-  value       = module.rds_ymarketplace.db_username
+output "ymarketplace_database_url" {
+  description = "Connection string for YMarketplace database (on consolidated instance)"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ymarketplace"
   sensitive   = true
 }
 
@@ -183,4 +135,52 @@ output "cloudwatch_log_group_name" {
 output "cloudwatch_log_group_arn" {
   description = "CloudWatch log group ARN"
   value       = module.cloudwatch.log_group_arn
+}
+
+# Kubernetes Cluster Outputs (Production Only)
+output "eks_cluster_name" {
+  description = "EKS cluster name"
+  value       = var.enable_kubernetes ? module.eks[0].cluster_name : null
+}
+
+output "eks_cluster_endpoint" {
+  description = "EKS cluster endpoint"
+  value       = var.enable_kubernetes ? module.eks[0].cluster_endpoint : null
+  sensitive   = true
+}
+
+output "eks_cluster_certificate_authority" {
+  description = "EKS cluster certificate authority data"
+  value       = var.enable_kubernetes ? module.eks[0].cluster_certificate_authority : null
+  sensitive   = true
+}
+
+output "eks_cluster_security_group_id" {
+  description = "Security group ID of EKS cluster"
+  value       = var.enable_kubernetes ? module.eks[0].cluster_security_group_id : null
+}
+
+output "eks_node_group_id" {
+  description = "EKS node group ID"
+  value       = var.enable_kubernetes ? module.eks[0].node_group_id : null
+}
+
+output "k8s_namespace" {
+  description = "Kubernetes namespace for Yuvro applications"
+  value       = var.enable_kubernetes ? module.k8s_deployment[0].namespace : null
+}
+
+output "helm_release_name" {
+  description = "Helm release name for Yuvro applications"
+  value       = var.enable_kubernetes ? module.k8s_deployment[0].release_name : null
+}
+
+output "helm_release_status" {
+  description = "Helm release status"
+  value       = var.enable_kubernetes ? module.k8s_deployment[0].release_status : null
+}
+
+output "k8s_kubeconfig_command" {
+  description = "Command to configure kubectl for EKS cluster"
+  value       = var.enable_kubernetes ? "aws eks update-kubeconfig --name ${module.eks[0].cluster_name} --region ${var.aws_region}" : null
 }

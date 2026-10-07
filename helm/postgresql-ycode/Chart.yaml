@@ -1,4 +1,0 @@
-apiVersion: v2
-name: postgresql-ycode
-description: PostgreSQL for YCode Helm chart
-version: 1.0.0
