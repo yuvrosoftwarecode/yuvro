@@ -1086,11 +1086,11 @@ export function TicketIDE({
   const isDbTicket = ticket.ticket_type === "database" || ticket.type === "DATABASE" || ticket.domain === "DATABASE" || ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor" || (ticket.databases && ticket.databases.length > 0) || Boolean(ticket.connection_url) || kit.name === "mysql" || kit.name === "sql" || kit.name === "postgresql" || kit.name === "mongo";
   const isMysql = isDbTicket && (kit.name === "mysql" || ticket.tag?.toLowerCase() === "mysql" || ticket.databases?.some((d: any) => String(d).toLowerCase().includes("mysql")) || ticket.connection_url?.startsWith("mysql://") || Boolean(slug?.toLowerCase().includes("mysql")));
   const isPostgres = isDbTicket && (kit.name === "postgresql" || ticket.tag?.toLowerCase()?.includes("postgres") || ticket.databases?.some((d: any) => String(d).toLowerCase().includes("postgres")) || ticket.connection_url?.startsWith("postgres://") || ticket.connection_url?.startsWith("postgresql://") || Boolean(slug?.toLowerCase().includes("postgres")));
-  const isSql = isDbTicket && !isMysql && !isPostgres && (kit.name === "sql" || ticket.tag?.toLowerCase() === "sql" || ticket.tag?.toLowerCase() === "sqlite" || Boolean(slug?.toLowerCase().includes("sql")));
+  const isMongo = isDbTicket && (kit.name === "mongo" || ticket.tag?.toLowerCase()?.includes("mongo") || ticket.databases?.some((d: any) => String(d).toLowerCase().includes("mongo")) || ticket.connection_url?.startsWith("mongodb://") || ticket.connection_url?.startsWith("mongodb+srv://") || Boolean(slug?.toLowerCase().includes("mongo")));
+  const isSql = isDbTicket && !isMysql && !isPostgres && !isMongo && (kit.name === "sql" || ticket.tag?.toLowerCase() === "sql" || ticket.tag?.toLowerCase() === "sqlite" || Boolean(slug?.toLowerCase().includes("sql")));
   const isAnySql = isSql || isMysql || isPostgres;
   const isExternalDb = isMysql || isPostgres;
   const dbType = isMysql ? "mysql" : "postgresql";
-  const isMongo = isDbTicket && (kit.name === "mongo" || ticket.tag?.toLowerCase()?.includes("mongo"));
   const isUi = kit.name === "ui";
   const isPython = kit.name === "python" || isDjango;
   const isDbEditor = isDbTicket && (isAnySql || isMongo);
@@ -1999,7 +1999,12 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemasLoading(true);
       try {
-        const tables: any = await fetchExternalDbSchema("mongodb", mongoUri);
+        const tables: any = await fetchExternalDbSchema("mongodb", mongoUri, {
+          userId: effectiveUserId,
+          labId,
+          sprintId,
+          evaluationId: isEvaluationMode ? evaluationId : undefined,
+        });
         const formattedTables = (tables || []).map((t: any) => ({
           name: t.table || t.name,
           columns: [],
@@ -4398,7 +4403,19 @@ function FormattedResultsView({
     return <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} executionOutput={executionOutput || output} />;
   }
   if (isMongo) {
-    return <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
+    return (
+      <MongoResultsView
+        query={executedQuery}
+        runId={runId}
+        onQueryExecuted={refreshSchema}
+        configuredUri={ticket.connection_url || ticket.uri}
+        isEvaluationMode={isEvaluationMode}
+        userId={effectiveUserId}
+        labId={labId}
+        sprintId={sprintId}
+        evaluationId={isEvaluationMode ? evaluationId : undefined}
+      />
+    );
   }
   if (isExternalDb) {
     return (
@@ -6733,22 +6750,33 @@ function runMongoQuery(q: string): { rows: unknown[]; note: string; ms: number }
   return runDynamicMongoQuery(q);
 }
 
-function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, runId?: number, onQueryExecuted?: () => void }) {
+function MongoResultsView({
+  query,
+  runId,
+  onQueryExecuted,
+  configuredUri,
+  isEvaluationMode,
+  userId,
+  labId,
+  sprintId,
+  evaluationId,
+}: {
+  query: string;
+  runId?: number;
+  onQueryExecuted?: () => void;
+  configuredUri?: string;
+  isEvaluationMode?: boolean;
+  userId?: string;
+  labId?: string;
+  sprintId?: string;
+  evaluationId?: string;
+}) {
   const [res, setRes] = useState<{ rows: unknown[]; note: string; ms: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!query) return;
-    try {
-      const result = runMongoQuery(query);
-      setRes(result);
-    } catch (e: any) {
-      setError(e.message || "Failed to execute");
-    }
-    if (onQueryExecuted) onQueryExecuted();
-  }, [query, runId, onQueryExecuted]);
   const [mongoUri, setMongoUri] = useState<string>(() => {
+    if (configuredUri?.trim()) return configuredUri.trim();
     if (typeof window !== "undefined") {
       return (
         localStorage.getItem("mongoUri") ||
@@ -6782,7 +6810,12 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
       setRes(null);
       try {
         if (mongoUri) {
-          const remoteRes: any = await executeExternalDbQuery("mongodb", mongoUri, query);
+          const remoteRes: any = await executeExternalDbQuery("mongodb", mongoUri, query, {
+            userId,
+            labId,
+            sprintId,
+            evaluationId: isEvaluationMode ? evaluationId : undefined,
+          });
           if (active) {
             if (remoteRes && remoteRes.error) {
               setError(remoteRes.error);
@@ -6802,13 +6835,14 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
         if (active) setError(e.message || "Failed to execute query");
       } finally {
         if (active) setLoading(false);
+        if (onQueryExecuted) onQueryExecuted();
       }
     };
     run();
     return () => {
       active = false;
     };
-  }, [query, mongoUri]);
+  }, [query, mongoUri, runId, configuredUri, isEvaluationMode, userId, labId, sprintId, evaluationId]);
 
   return (
     <div className="text-[12px] flex flex-col h-full gap-2">

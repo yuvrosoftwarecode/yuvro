@@ -365,6 +365,251 @@
           }
         }
       ]
+    },
+    {
+      "title": "Hospital Patient Analytics",
+      "type": "DATABASE",
+      "description": "A hospital wants to analyze patient visits, doctors, and medical services. The MongoDB database is already populated with realistic healthcare data. Write MongoDB queries to generate reports for the hospital administration.",
+      "difficulty": "MEDIUM",
+      "domain": "HEALTHCARE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 30,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_practical_sql_lab",
+      "git_repo_starter_branch": "mongodb-lab",
+      "startup_command": "",
+      "connection_url": "mongodb+srv://yuvrosoftware_db_user:ULWBZbFgHVdXNKw1@cluster0.vxzejbz.mongodb.net/defaultdb?retryWrites=true&w=majority&appName=Cluster0",
+      "programming_languages": [
+        "JAVASCRIPT"
+      ],
+      "databases": [
+        "MONGODB"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1: Patient Appointment Search",
+          "description": "The hospital reception team wants to identify patients who are from Hyderabad and are older than 30.\n\nWrite a MongoDB query that returns patients who satisfy both conditions.\n\nReturn only:\n- \n- \n- \n- \n\nRequirements:\n1.  must be .\n2.  must be greater than 30.\n3. Do not return MongoDB's default  field.\n4. Sort by  descending.\n5. If two patients have the same age, sort by  ascending.\n6. Return at most 10 patients.\n\nThe query must use the  collection.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "database_engine": "mongodb",
+            "system_query": "db.patients.find({ \"city\": \"Hyderabad\", \"age\": { \"$gt\": 30 } }, { \"_id\": 0, \"patient_id\": 1, \"name\": 1, \"age\": 1, \"city\": 1 }).sort({ \"age\": -1, \"patient_id\": 1 }).limit(10)"
+          },
+          "expected_output": [
+            {
+              "patient_id": 1009,
+              "name": "Sanjay Rao",
+              "age": 60,
+              "city": "Hyderabad"
+            },
+            {
+              "patient_id": 1005,
+              "name": "Rohan Gupta",
+              "age": 52,
+              "city": "Hyderabad"
+            },
+            {
+              "patient_id": 1015,
+              "name": "Aditya Kulkarni",
+              "age": 48,
+              "city": "Hyderabad"
+            },
+            {
+              "patient_id": 1003,
+              "name": "Vikram Reddy",
+              "age": 45,
+              "city": "Hyderabad"
+            },
+            {
+              "patient_id": 1012,
+              "name": "Pooja Hegde",
+              "age": 45,
+              "city": "Hyderabad"
+            },
+            {
+              "patient_id": 1007,
+              "name": "Karthik Iyer",
+              "age": 38,
+              "city": "Hyderabad"
+            },
+            {
+              "patient_id": 1010,
+              "name": "Divya Menon",
+              "age": 35,
+              "city": "Hyderabad"
+            },
+            {
+              "patient_id": 1001,
+              "name": "Aarav Sharma",
+              "age": 34,
+              "city": "Hyderabad"
+            },
+            {
+              "patient_id": 1013,
+              "name": "Rahul Roy",
+              "age": 31,
+              "city": "Hyderabad"
+            }
+          ],
+          "solution": {
+            "task1.js": "db.patients.find({ \"city\": \"Hyderabad\", \"age\": { \"$gt\": 30 } }, { \"_id\": 0, \"patient_id\": 1, \"name\": 1, \"age\": 1, \"city\": 1 }).sort({ \"age\": -1, \"patient_id\": 1 }).limit(10)"
+          }
+        },
+        {
+          "title": "Task 2: Doctor Appointment Analytics",
+          "description": "The hospital management team wants to know how many completed appointments each doctor has handled and how much consultation revenue each doctor generated.\n\nUse the  collection.\n\nOnly appointments with  should be considered.\n\nReturn:\n- \n- \n- \n- \n\nRequirements:\n1. Consider only completed appointments.\n2. Group appointments by .\n3. Calculate the number of completed appointments.\n4. Calculate total consultation revenue.\n5. Calculate average consultation fee.\n6. Sort by  descending.\n7. If revenue is equal, sort by  ascending.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "database_engine": "mongodb",
+            "system_query": "db.appointments.aggregate([\n  { \"$match\": { \"status\": \"completed\" } },\n  { \"$group\": {\n      \"_id\": \"$doctor_id\",\n      \"completed_appointments\": { \"$sum\": 1 },\n      \"total_revenue\": { \"$sum\": \"$consultation_fee\" },\n      \"average_fee\": { \"$avg\": \"$consultation_fee\" }\n  } },\n  { \"$project\": {\n      \"_id\": 0,\n      \"doctor_id\": \"$_id\",\n      \"completed_appointments\": 1,\n      \"total_revenue\": 1,\n      \"average_fee\": 1\n  } },\n  { \"$sort\": { \"total_revenue\": -1, \"doctor_id\": 1 } }\n])"
+          },
+          "expected_output": [
+            {
+              "doctor_id": 501,
+              "completed_appointments": 5,
+              "total_revenue": 6000,
+              "average_fee": 1200.0
+            },
+            {
+              "doctor_id": 502,
+              "completed_appointments": 4,
+              "total_revenue": 6000,
+              "average_fee": 1500.0
+            },
+            {
+              "doctor_id": 503,
+              "completed_appointments": 4,
+              "total_revenue": 4000,
+              "average_fee": 1000.0
+            },
+            {
+              "doctor_id": 506,
+              "completed_appointments": 5,
+              "total_revenue": 3500,
+              "average_fee": 700.0
+            },
+            {
+              "doctor_id": 507,
+              "completed_appointments": 3,
+              "total_revenue": 3300,
+              "average_fee": 1100.0
+            },
+            {
+              "doctor_id": 504,
+              "completed_appointments": 4,
+              "total_revenue": 3200,
+              "average_fee": 800.0
+            },
+            {
+              "doctor_id": 505,
+              "completed_appointments": 3,
+              "total_revenue": 2700,
+              "average_fee": 900.0
+            }
+          ],
+          "solution": {
+            "task2.js": "db.appointments.aggregate([\n  { \"$match\": { \"status\": \"completed\" } },\n  { \"$group\": {\n      \"_id\": \"$doctor_id\",\n      \"completed_appointments\": { \"$sum\": 1 },\n      \"total_revenue\": { \"$sum\": \"$consultation_fee\" },\n      \"average_fee\": { \"$avg\": \"$consultation_fee\" }\n  } },\n  { \"$project\": {\n      \"_id\": 0,\n      \"doctor_id\": \"$_id\",\n      \"completed_appointments\": 1,\n      \"total_revenue\": 1,\n      \"average_fee\": 1\n  } },\n  { \"$sort\": { \"total_revenue\": -1, \"doctor_id\": 1 } }\n])"
+          }
+        },
+        {
+          "title": "Task 3: Doctor Performance Report",
+          "description": "The hospital administration wants a department-wise doctor performance report.\n\nFor each doctor, calculate the number of completed appointments and total revenue generated.\n\nThe report must also contain the doctor's:\n-  (as )\n- \n- \n\nUse the  and  collections.\n\nReturn:\n- \n- \n- \n- \n- \n- \n\nRequirements:\n1. Join  with  using .\n2. Consider only completed appointments.\n3. Doctors with no completed appointments must still be handled correctly according to the expected dataset (completed_appointments: 0, total_revenue: 0).\n4. Calculate completed appointment count.\n5. Calculate total consultation revenue.\n6. Sort by  ascending.\n7. Within each department, sort by  descending.\n8. If revenue is equal, sort by  ascending.\n\nUse MongoDB aggregation.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "database_engine": "mongodb",
+            "system_query": "db.doctors.aggregate([\n  { \"$lookup\": {\n      \"from\": \"appointments\",\n      \"localField\": \"doctor_id\",\n      \"foreignField\": \"doctor_id\",\n      \"as\": \"appts\"\n  } },\n  { \"$unwind\": {\n      \"path\": \"$appts\",\n      \"preserveNullAndEmptyArrays\": true\n  } },\n  { \"$group\": {\n      \"_id\": \"$doctor_id\",\n      \"doctor_name\": { \"$first\": \"$name\" },\n      \"specialization\": { \"$first\": \"$specialization\" },\n      \"department\": { \"$first\": \"$department\" },\n      \"completed_appointments\": {\n          \"$sum\": {\n              \"$cond\": [{ \"$eq\": [\"$appts.status\", \"completed\"] }, 1, 0]\n          }\n      },\n      \"total_revenue\": {\n          \"$sum\": {\n              \"$cond\": [{ \"$eq\": [\"$appts.status\", \"completed\"] }, \"$appts.consultation_fee\", 0]\n          }\n      }\n  } },\n  { \"$project\": {\n      \"_id\": 0,\n      \"doctor_id\": \"$_id\",\n      \"doctor_name\": 1,\n      \"specialization\": 1,\n      \"department\": 1,\n      \"completed_appointments\": 1,\n      \"total_revenue\": 1\n  } },\n  { \"$sort\": {\n      \"department\": 1,\n      \"total_revenue\": -1,\n      \"doctor_id\": 1\n  } }\n])"
+          },
+          "expected_output": [
+            {
+              "doctor_id": 501,
+              "doctor_name": "Dr. Ananya Rao",
+              "specialization": "Cardiology",
+              "department": "Cardiology",
+              "completed_appointments": 5,
+              "total_revenue": 6000
+            },
+            {
+              "doctor_id": 507,
+              "doctor_name": "Dr. Arjun Reddy",
+              "specialization": "Cardiology",
+              "department": "Cardiology",
+              "completed_appointments": 3,
+              "total_revenue": 3300
+            },
+            {
+              "doctor_id": 505,
+              "doctor_name": "Dr. Vikram Desai",
+              "specialization": "Dermatology",
+              "department": "Dermatology",
+              "completed_appointments": 3,
+              "total_revenue": 2700
+            },
+            {
+              "doctor_id": 506,
+              "doctor_name": "Dr. Neha Verma",
+              "specialization": "General Medicine",
+              "department": "General Medicine",
+              "completed_appointments": 5,
+              "total_revenue": 3500
+            },
+            {
+              "doctor_id": 508,
+              "doctor_name": "Dr. Sneha Kulkarni",
+              "specialization": "General Medicine",
+              "department": "General Medicine",
+              "completed_appointments": 0,
+              "total_revenue": 0
+            },
+            {
+              "doctor_id": 502,
+              "doctor_name": "Dr. Rajesh Kumar",
+              "specialization": "Neurology",
+              "department": "Neurology",
+              "completed_appointments": 4,
+              "total_revenue": 6000
+            },
+            {
+              "doctor_id": 503,
+              "doctor_name": "Dr. Suresh Mehta",
+              "specialization": "Orthopedics",
+              "department": "Orthopedics",
+              "completed_appointments": 4,
+              "total_revenue": 4000
+            },
+            {
+              "doctor_id": 504,
+              "doctor_name": "Dr. Priya Sharma",
+              "specialization": "Pediatrics",
+              "department": "Pediatrics",
+              "completed_appointments": 4,
+              "total_revenue": 3200
+            }
+          ],
+          "solution": {
+            "task3.js": "db.doctors.aggregate([\n  { \"$lookup\": {\n      \"from\": \"appointments\",\n      \"localField\": \"doctor_id\",\n      \"foreignField\": \"doctor_id\",\n      \"as\": \"appts\"\n  } },\n  { \"$unwind\": {\n      \"path\": \"$appts\",\n      \"preserveNullAndEmptyArrays\": true\n  } },\n  { \"$group\": {\n      \"_id\": \"$doctor_id\",\n      \"doctor_name\": { \"$first\": \"$name\" },\n      \"specialization\": { \"$first\": \"$specialization\" },\n      \"department\": { \"$first\": \"$department\" },\n      \"completed_appointments\": {\n          \"$sum\": {\n              \"$cond\": [{ \"$eq\": [\"$appts.status\", \"completed\"] }, 1, 0]\n          }\n      },\n      \"total_revenue\": {\n          \"$sum\": {\n              \"$cond\": [{ \"$eq\": [\"$appts.status\", \"completed\"] }, \"$appts.consultation_fee\", 0]\n          }\n      }\n  } },\n  { \"$project\": {\n      \"_id\": 0,\n      \"doctor_id\": \"$_id\",\n      \"doctor_name\": 1,\n      \"specialization\": 1,\n      \"department\": 1,\n      \"completed_appointments\": 1,\n      \"total_revenue\": 1\n  } },\n  { \"$sort\": {\n      \"department\": 1,\n      \"total_revenue\": -1,\n      \"doctor_id\": 1\n  } }\n])"
+          }
+        }
+      ]
     }
   ]
 }

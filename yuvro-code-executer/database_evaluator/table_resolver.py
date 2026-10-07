@@ -465,3 +465,118 @@ class EvaluationTableResolver:
                 flags=re.IGNORECASE | re.DOTALL
             )
             return rewritten
+
+
+class EvaluationCollectionResolver:
+    """
+    Central abstraction for mapping logical MongoDB collection names to physical isolated collection names
+    and rewriting MongoDB operations/pipelines.
+    """
+
+    def __init__(
+        self,
+        evaluation_uuid: str,
+        user_uuid: str,
+        lab_uuid: str,
+        collection_map: Optional[Dict[str, str]] = None,
+    ):
+        self.evaluation_uuid = str(evaluation_uuid).strip()
+        self.user_uuid = str(user_uuid).strip()
+        self.lab_uuid = str(lab_uuid).strip()
+
+        # Key: logical collection name (lowercase), Value: physical collection name
+        self.logical_to_physical: Dict[str, str] = {}
+        # Key: physical collection name (lowercase), Value: logical collection name
+        self.physical_to_logical: Dict[str, str] = {}
+
+        if collection_map:
+            for logical, physical in collection_map.items():
+                self.register_collection(logical, physical)
+
+    def register_collection(self, logical_name: str, physical_name: Optional[str] = None) -> str:
+        """Register a logical collection and return its physical name."""
+        clean_logical = sanitize_identifier(logical_name).lower()
+        if not physical_name:
+            physical_name = build_isolated_table_name(
+                self.evaluation_uuid,
+                self.user_uuid,
+                self.lab_uuid,
+                clean_logical,
+                dialect="mongodb"
+            )
+        self.logical_to_physical[clean_logical] = physical_name
+        self.physical_to_logical[physical_name.lower()] = clean_logical
+        return physical_name
+
+    def get_physical_collection_name(self, logical_name: str) -> str:
+        """Get or generate the physical collection name for a logical collection."""
+        clean_logical = sanitize_identifier(logical_name).lower()
+        if clean_logical in self.logical_to_physical:
+            return self.logical_to_physical[clean_logical]
+        return self.register_collection(clean_logical)
+
+    def get_logical_collection_name(self, physical_name: str) -> Optional[str]:
+        """Reverse map a physical collection name back to its logical collection name."""
+        clean_physical = sanitize_identifier(physical_name).lower()
+        return self.physical_to_logical.get(clean_physical)
+
+    def is_physical_collection_for_this_eval(self, col_name: str) -> bool:
+        """Check if a physical collection name belongs to this evaluation attempt."""
+        clean = sanitize_identifier(col_name).lower()
+        return clean in self.physical_to_logical
+
+    def validate_collection_access(self, target_collection: str) -> str:
+        """
+        Validate that the student query targets an authorized collection.
+        Raises SecurityException if the student attempts to access unauthorized collections,
+        system collections, or other evaluations' physical collections directly.
+        """
+        clean = sanitize_identifier(target_collection).strip()
+        clean_lower = clean.lower()
+
+        # Disallow system collections
+        if clean_lower.startswith("system.") or clean_lower.startswith("_yuvro_"):
+            raise SecurityException(f"Access to internal collection '{clean}' is prohibited.")
+
+        # Disallow direct access to other evaluation collections or raw physical names
+        if clean_lower.startswith("evaluation_") or clean_lower.startswith("eval_"):
+            if not self.is_physical_collection_for_this_eval(clean_lower):
+                raise SecurityException(f"Access to evaluation collection '{clean}' is prohibited.")
+            # Map back to logical
+            logical = self.get_logical_table_name(clean_lower)
+            if logical:
+                return self.get_physical_collection_name(logical)
+
+        if self.logical_to_physical and clean_lower not in self.logical_to_physical:
+            allowed = ", ".join(sorted(self.logical_to_physical.keys()))
+            raise SecurityException(
+                f"Unauthorized collection '{clean}'. Allowed collections for this lab: [{allowed}]"
+            )
+
+        return self.get_physical_collection_name(clean_lower)
+
+    def rewrite_pipeline(self, pipeline: list) -> list:
+        """
+        Recursively rewrite collection references in an aggregation pipeline
+        such as $lookup (from), $out, and $merge.
+        """
+        import copy
+        rewritten = copy.deepcopy(pipeline)
+        for stage in rewritten:
+            if not isinstance(stage, dict):
+                continue
+            if "$lookup" in stage and isinstance(stage["$lookup"], dict):
+                lookup = stage["$lookup"]
+                if "from" in lookup:
+                    orig_from = lookup["from"]
+                    lookup["from"] = self.validate_collection_access(orig_from)
+                if "pipeline" in lookup and isinstance(lookup["pipeline"], list):
+                    lookup["pipeline"] = self.rewrite_pipeline(lookup["pipeline"])
+            elif "$out" in stage and isinstance(stage["$out"], str):
+                stage["$out"] = self.validate_collection_access(stage["$out"])
+            elif "$merge" in stage:
+                if isinstance(stage["$merge"], str):
+                    stage["$merge"] = self.validate_collection_access(stage["$merge"])
+                elif isinstance(stage["$merge"], dict) and "into" in stage["$merge"]:
+                    stage["$merge"]["into"] = self.validate_collection_access(stage["$merge"]["into"])
+        return rewritten
