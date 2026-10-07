@@ -8,7 +8,21 @@ on:
         required: true
         type: string
       release_notes:
-        description: 'Release notes'
+        description: 'Custom release notes (auto-generated from commits if empty)'
+        required: false
+        type: string
+      auto_generate_notes:
+        description: 'Auto-generate release notes from git commits'
+        required: false
+        type: boolean
+        default: true
+      build_all:
+        description: 'Build all services (true) or select specific ones (false)'
+        required: false
+        type: boolean
+        default: true
+      services:
+        description: 'Comma-separated services to build (e.g., ycode-backend,ycode-frontend). Only used if build_all is false'
         required: false
         type: string
 
@@ -21,11 +35,12 @@ env:
   ECR_REGISTRY_PREFIX: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
 
 jobs:
-  create-release:
+  prepare-release:
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
       release_version: ${{ inputs.version }}
+      release_notes: ${{ steps.generate_notes.outputs.notes }}
+      services_matrix: ${{ steps.determine_services.outputs.services_json }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,52 +63,161 @@ jobs:
           fi
           echo "✅ Release tag is new"
 
+      - name: Generate release notes from PR titles
+        id: generate_notes
+        run: |
+          if [ "${{ inputs.auto_generate_notes }}" == "true" ] && [ -z "${{ inputs.release_notes }}" ]; then
+            # Get commits since last tag or all commits if no previous tag
+            PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            
+            if [ -z "$PREV_TAG" ]; then
+              echo "📝 No previous release found. Including PRs from all commits..."
+              COMMIT_RANGE="HEAD"
+            else
+              echo "📝 Generating notes since $PREV_TAG..."
+              COMMIT_RANGE="$PREV_TAG..HEAD"
+            fi
+            
+            # Extract PR titles from commit messages
+            # GitHub automatically creates merge commit messages like: "Merge pull request #123 from branch/name"
+            # and squash merge messages include: (#123)
+            PR_NOTES=$(git log $COMMIT_RANGE --grep="Merge pull request\|#[0-9]" --pretty=format:"%b" --no-decorate | \
+              grep -oE "(Merge pull request #[0-9]+|#[0-9]+)" | \
+              sort -u | \
+              while read pr_ref; do
+                # Extract just the number
+                PR_NUM=$(echo "$pr_ref" | grep -oE "[0-9]+")
+                # Try to get full commit message which may contain PR title
+                TITLE=$(git log $COMMIT_RANGE --format=%B | grep -A 1 "Merge pull request #$PR_NUM" | tail -1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                if [ -n "$TITLE" ] && [ "$TITLE" != "Merge pull request" ]; then
+                  echo "- $TITLE (PR #$PR_NUM)"
+                else
+                  echo "- PR #$PR_NUM"
+                fi
+              done)
+            
+            # If no PRs found, fall back to commit subjects
+            if [ -z "$PR_NOTES" ]; then
+              echo "⚠️  No PR merges found. Falling back to commit subjects..."
+              PR_NOTES=$(git log $COMMIT_RANGE --pretty=format:"- %s" --no-decorate | head -20)
+            fi
+            
+            NOTES=$(cat <<EOF
+            ## Changes in ${{ inputs.version }}
+            
+            ### Pull Requests
+            $PR_NOTES
+            
+            ## Docker Images
+            All built images are available in ECR at:
+            - ${{ env.ECR_REGISTRY_PREFIX }}
+            EOF
+            )
+          else
+            NOTES="${{ inputs.release_notes || 'No release notes provided' }}"
+          fi
+          
+          # Store multiline output
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "✅ Release notes generated"
+
+      - name: Determine services to build
+        id: determine_services
+        run: |
+          if [ "${{ inputs.build_all }}" == "true" ]; then
+            SERVICES_JSON='[
+              {"name":"ycode-backend","path":"ycode-backend-api","dockerfile":"ycode-backend-api/Dockerfile","app":"ycode"},
+              {"name":"ycode-frontend","path":"ycode-web","dockerfile":"ycode-web/Dockerfile","app":"ycode"},
+              {"name":"ycampus-backend","path":"ycampus-backend-api","dockerfile":"ycampus-backend-api/Dockerfile","app":"ycampus"},
+              {"name":"ycampus-frontend","path":"ycampus-web","dockerfile":"ycampus-web/Dockerfile","app":"ycampus"},
+              {"name":"ylabs-backend","path":"ylabs-backend-api","dockerfile":"ylabs-backend-api/Dockerfile","app":"ylabs"},
+              {"name":"ylabs-frontend","path":"ylabs-web","dockerfile":"ylabs-web/Dockerfile","app":"ylabs"},
+              {"name":"yhub-backend","path":"yhub-backend-api","dockerfile":"yhub-backend-api/Dockerfile","app":"yhub"},
+              {"name":"ymarketplace-backend","path":"ymarketplace/backend","dockerfile":"ymarketplace/backend/Dockerfile","app":"ymarketplace"},
+              {"name":"ymarketplace-frontend","path":"ymarketplace/frontend","dockerfile":"ymarketplace/frontend/Dockerfile","app":"ymarketplace"},
+              {"name":"code-executor","path":"yuvro-code-executer","dockerfile":"yuvro-code-executer/Dockerfile","app":"executor"}
+            ]'
+            echo "🔨 Building all 10 services"
+          else
+            # Parse comma-separated service list
+            ALL_SERVICES='{
+              "ycode-backend": {"name":"ycode-backend","path":"ycode-backend-api","dockerfile":"ycode-backend-api/Dockerfile","app":"ycode"},
+              "ycode-frontend": {"name":"ycode-frontend","path":"ycode-web","dockerfile":"ycode-web/Dockerfile","app":"ycode"},
+              "ycampus-backend": {"name":"ycampus-backend","path":"ycampus-backend-api","dockerfile":"ycampus-backend-api/Dockerfile","app":"ycampus"},
+              "ycampus-frontend": {"name":"ycampus-frontend","path":"ycampus-web","dockerfile":"ycampus-web/Dockerfile","app":"ycampus"},
+              "ylabs-backend": {"name":"ylabs-backend","path":"ylabs-backend-api","dockerfile":"ylabs-backend-api/Dockerfile","app":"ylabs"},
+              "ylabs-frontend": {"name":"ylabs-frontend","path":"ylabs-web","dockerfile":"ylabs-web/Dockerfile","app":"ylabs"},
+              "yhub-backend": {"name":"yhub-backend","path":"yhub-backend-api","dockerfile":"yhub-backend-api/Dockerfile","app":"yhub"},
+              "ymarketplace-backend": {"name":"ymarketplace-backend","path":"ymarketplace/backend","dockerfile":"ymarketplace/backend/Dockerfile","app":"ymarketplace"},
+              "ymarketplace-frontend": {"name":"ymarketplace-frontend","path":"ymarketplace/frontend","dockerfile":"ymarketplace/frontend/Dockerfile","app":"ymarketplace"},
+              "code-executor": {"name":"code-executor","path":"yuvro-code-executer","dockerfile":"yuvro-code-executer/Dockerfile","app":"executor"}
+            }'
+            
+            SERVICES_JSON="["
+            FIRST=true
+            
+            IFS=',' read -ra SERVICES_ARRAY <<< "${{ inputs.services }}"
+            for svc in "${SERVICES_ARRAY[@]}"; do
+              TRIMMED=$(echo "$svc" | xargs)
+              
+              # Use jq to safely extract service config
+              SERVICE_OBJ=$(echo "$ALL_SERVICES" | jq ".\"$TRIMMED\"" 2>/dev/null)
+              if [ "$SERVICE_OBJ" == "null" ] || [ -z "$SERVICE_OBJ" ]; then
+                echo "⚠️  Unknown service: $TRIMMED. Skipping."
+                continue
+              fi
+              
+              if [ "$FIRST" == false ]; then
+                SERVICES_JSON="$SERVICES_JSON,"
+              fi
+              SERVICES_JSON="$SERVICES_JSON$SERVICE_OBJ"
+              FIRST=false
+            done
+            
+            SERVICES_JSON="$SERVICES_JSON]"
+            echo "🔨 Building selected services: ${{ inputs.services }}"
+          fi
+          
+          echo "services_json=$SERVICES_JSON" >> $GITHUB_OUTPUT
+
+  create-release:
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_version: ${{ needs.prepare-release.outputs.release_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ inputs.version }}
-          release_name: Release ${{ inputs.version }}
+          tag_name: ${{ needs.prepare-release.outputs.release_version }}
+          release_name: Release ${{ needs.prepare-release.outputs.release_version }}
           body: |
-            ## Release ${{ inputs.version }}
+            ${{ needs.prepare-release.outputs.release_notes }}
             
-            ${{ inputs.release_notes || 'No release notes provided' }}
-            
-            ### Docker Images
-            All images have been built and pushed to AWS ECR:
-            - `${{ env.ECR_REGISTRY_PREFIX }}/ycode-backend:${{ inputs.version }}`
-            - `${{ env.ECR_REGISTRY_PREFIX }}/ycode-frontend:${{ inputs.version }}`
-            - `${{ env.ECR_REGISTRY_PREFIX }}/ycampus-backend:${{ inputs.version }}`
-            - `${{ env.ECR_REGISTRY_PREFIX }}/ycampus-frontend:${{ inputs.version }}`
-            - `${{ env.ECR_REGISTRY_PREFIX }}/ylabs-backend:${{ inputs.version }}`
-            - `${{ env.ECR_REGISTRY_PREFIX }}/ylabs-frontend:${{ inputs.version }}`
-            - `${{ env.ECR_REGISTRY_PREFIX }}/yhub-backend:${{ inputs.version }}`
-            - `${{ env.ECR_REGISTRY_PREFIX }}/ymarketplace-backend:${{ inputs.version }}`
-            - `${{ env.ECR_REGISTRY_PREFIX }}/ymarketplace-frontend:${{ inputs.version }}`
-            - `${{ env.ECR_REGISTRY_PREFIX }}/code-executor:${{ inputs.version }}`
+            ### ECR Registry
+            `${{ env.ECR_REGISTRY_PREFIX }}`
           draft: false
           prerelease: false
 
   build-and-push-images:
-    needs: create-release
+    needs: [prepare-release, create-release]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service:
-          - { name: 'ycode-backend', path: 'ycode-backend-api', dockerfile: 'ycode-backend-api/Dockerfile' }
-          - { name: 'ycode-frontend', path: 'ycode-web', dockerfile: 'ycode-web/Dockerfile' }
-          - { name: 'ycampus-backend', path: 'ycampus-backend-api', dockerfile: 'ycampus-backend-api/Dockerfile' }
-          - { name: 'ycampus-frontend', path: 'ycampus-web', dockerfile: 'ycampus-web/Dockerfile' }
-          - { name: 'ylabs-backend', path: 'ylabs-backend-api', dockerfile: 'ylabs-backend-api/Dockerfile' }
-          - { name: 'ylabs-frontend', path: 'ylabs-web', dockerfile: 'ylabs-web/Dockerfile' }
-          - { name: 'yhub-backend', path: 'yhub-backend-api', dockerfile: 'yhub-backend-api/Dockerfile' }
-          - { name: 'ymarketplace-backend', path: 'ymarketplace/backend', dockerfile: 'ymarketplace/backend/Dockerfile' }
-          - { name: 'ymarketplace-frontend', path: 'ymarketplace/frontend', dockerfile: 'ymarketplace/frontend/Dockerfile' }
-          - { name: 'code-executor', path: 'yuvro-code-executer', dockerfile: 'yuvro-code-executer/Dockerfile' }
+        service: ${{ fromJson(needs.prepare-release.outputs.services_matrix) }}
       max-parallel: 3
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -122,7 +246,7 @@ jobs:
           file: ./${{ matrix.service.dockerfile }}
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY_PREFIX }}/${{ matrix.service.name }}:${{ needs.create-release.outputs.release_version }}
+            ${{ env.ECR_REGISTRY_PREFIX }}/${{ matrix.service.name }}:${{ needs.prepare-release.outputs.release_version }}
             ${{ env.ECR_REGISTRY_PREFIX }}/${{ matrix.service.name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -130,22 +254,22 @@ jobs:
       - name: Image pushed
         run: |
           echo "✅ Pushed: ${{ matrix.service.name }}"
-          echo "   Version: ${{ needs.create-release.outputs.release_version }}"
-          echo "   URI: ${{ env.ECR_REGISTRY_PREFIX }}/${{ matrix.service.name }}:${{ needs.create-release.outputs.release_version }}"
+          echo "   Version: ${{ needs.prepare-release.outputs.release_version }}"
+          echo "   URI: ${{ env.ECR_REGISTRY_PREFIX }}/${{ matrix.service.name }}:${{ needs.prepare-release.outputs.release_version }}"
 
   build-summary:
-    needs: [create-release, build-and-push-images]
+    needs: [prepare-release, create-release, build-and-push-images]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Build and release summary
         run: |
           echo "=========================================="
-          echo "🎉 Release ${{ needs.create-release.outputs.release_version }} Complete!"
+          echo "🎉 Release ${{ needs.prepare-release.outputs.release_version }} Complete!"
           echo "=========================================="
           echo ""
           echo "✅ GitHub Release created"
-          echo "✅ All 10 Docker images built and pushed to ECR"
+          echo "✅ Docker images built and pushed to ECR"
           echo ""
           echo "ECR Registry: ${{ env.ECR_REGISTRY_PREFIX }}"
           echo ""
