@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Loader2,
   AlertTriangle,
+  Link,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { questionBankService } from "@/services/questionBankService";
@@ -37,8 +38,10 @@ const DOMAINS = ["BACKEND", "FRONTEND", "FULLSTACK", "DEVOPS", "DATA", "SECURITY
 const LAB_TYPES = ["DATABASE", "BACKEND", "FRONTEND", "FULL_STACK", "QUALITY_ASSURANCE", "DEVOPS"];
 const SCENARIOS = [
   "DEBUGGING",
+  "BUG_FIXING",
   "FEATURE_DEVELOPMENT",
   "API_OPTIMIZATION",
+  "PERFORMANCE_OPTIMIZATION",
   "SECURITY",
   "ARCHITECTURE",
   "PERFORMANCE",
@@ -59,6 +62,7 @@ const DEFAULT_LAB_FORM = {
   git_repo_starter_branch: "main",
   startup_command: "",
   test_command: "",
+  allow_task_selection: true,
   programming_languages: [],
   databases: [],
   backend_frameworks: [],
@@ -68,7 +72,7 @@ const DEFAULT_LAB_FORM = {
 
 const PROGRAMMING_LANGUAGES = ["C", "C++", "Python", "Java", "SQL", "Bash", "JavaScript", "TypeScript"];
 const DATABASES = ["SQLite", "PostgreSQL", "MySQL", "MongoDB", "Redis", "Elasticsearch"];
-const BACKEND_FRAMEWORKS = ["Django", "FastAPI", "Flask", "Spring Boot", "NodeJS", "Express", "NestJS"];
+const BACKEND_FRAMEWORKS = ["Django", "Django REST Framework", "FastAPI", "Flask", "Spring Boot", "NodeJS", "Express", "NestJS"];
 const FRONTEND_FRAMEWORKS = ["React", "NextJS", "Vue", "Angular", "Svelte"];
 
 function MultiSelectPills({ label, options, value, onChange }: { label: string, options: string[], value: string[], onChange: (v: string[]) => void }) {
@@ -639,9 +643,13 @@ function RecruiterQuestionBankPage() {
       test_command: q.test_command || "",
       programming_languages: q.programming_languages || [],
       databases: q.databases || [],
-      backend_frameworks: q.backend_frameworks || [],
+      backend_frameworks: (q.backend_frameworks || []).map((f: string) => f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f),
       frontend_frameworks: q.frontend_frameworks || [],
-      tasks: q.tasks || [],
+      tasks: (q.tasks || []).map((t: any, i: number) => ({
+        ...t,
+        id: t.id || `task_${i}`,
+        parent_task_id: t.parent_task_id || t.scoring_rules?.parent_task_id || (typeof t.parent_task === "string" ? t.parent_task : t.parent_task?.id) || null,
+      })),
     });
     setIsLabModalOpen(true);
   };
@@ -694,15 +702,27 @@ function RecruiterQuestionBankPage() {
           solutionObj = {};
         }
       }
+      const pId = t.parent_task_id || (typeof t.parent_task === "string" ? t.parent_task : t.parent_task?.id) || null;
       return {
         ...t,
         order_index: index,
         solution: solutionObj,
+        parent_task_id: pId,
+        parent_task: pId,
+        scoring_rules: {
+          ...(typeof t.scoring_rules === "object" ? t.scoring_rules : {}),
+          parent_task_id: pId,
+        },
       };
     });
 
+    const sanitizedBackendFrameworks = (labFormData.backend_frameworks || []).map((f: string) =>
+      f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f
+    );
+
     const payload = {
       ...labFormData,
+      backend_frameworks: sanitizedBackendFrameworks,
       tasks: preparedTasks,
       domain: "OTHER",
     };
@@ -731,6 +751,7 @@ function RecruiterQuestionBankPage() {
       tasks: [
         ...labFormData.tasks,
         {
+          id: `task_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
           title: "",
           description: "",
           solution: "",
@@ -738,6 +759,7 @@ function RecruiterQuestionBankPage() {
           marks: 10,
           duration_minutes: 15,
           order_index: labFormData.tasks.length,
+          parent_task_id: null,
         },
       ],
     });
@@ -1355,6 +1377,19 @@ function RecruiterQuestionBankPage() {
               </div>
             </div>
 
+            <div className="flex items-center gap-2.5 rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/20 p-3">
+              <input
+                type="checkbox"
+                id="allow_task_selection"
+                checked={labFormData.allow_task_selection !== false}
+                onChange={(e) => setLabFormData({ ...labFormData, allow_task_selection: e.target.checked })}
+                className="h-4 w-4 rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+              />
+              <label htmlFor="allow_task_selection" className="text-[12px] text-neutral-700 dark:text-neutral-300 cursor-pointer select-none">
+                <span className="font-medium text-neutral-900 dark:text-white">Allow Task Selection:</span> Enable recruiters to select specific tasks from this question when building evaluations.
+              </label>
+            </div>
+
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-2">
                 <label className="text-[11px] uppercase tracking-widest text-neutral-500">
@@ -1524,6 +1559,30 @@ function RecruiterQuestionBankPage() {
                             className="mt-1 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/40 px-2 py-1 text-[12px] text-neutral-900 dark:text-neutral-200 outline-none"
                           />
                         </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-neutral-500 flex items-center gap-1">
+                          <Link className="h-3 w-3" /> Linked Task / Dependency
+                        </label>
+                        <select
+                          value={task.parent_task_id || task.parent_task || ""}
+                          onChange={(e) => updateLabTask(index, "parent_task_id", e.target.value || null)}
+                          className="mt-1 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/40 px-2 py-1.5 text-[12px] text-neutral-900 dark:text-neutral-200 outline-none focus:border-emerald-500/60"
+                        >
+                          <option value="" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">None (Independent Task)</option>
+                          {labFormData.tasks.map((otherTask: any, otherIdx: number) => {
+                            if (otherIdx === index) return null;
+                            const otherId = otherTask.id || `task_idx_${otherIdx}`;
+                            return (
+                              <option key={otherId} value={otherId} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
+                                Task {otherIdx + 1}: {otherTask.title || `Task ${otherIdx + 1}`}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <p className="mt-0.5 text-[10px] text-neutral-500">
+                          Selecting this task when creating an evaluation will automatically select the linked task.
+                        </p>
                       </div>
                     </div>
                   </div>

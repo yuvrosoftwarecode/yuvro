@@ -97,6 +97,7 @@ class Database(models.TextChoices):
 
 class BackendFramework(models.TextChoices):
     DJANGO = "DJANGO", "Django"
+    DJANGO_REST_FRAMEWORK = "DJANGO_REST_FRAMEWORK", "Django REST Framework"
     FASTAPI = "FASTAPI", "FastAPI"
     FLASK = "FLASK", "Flask"
     SPRING_BOOT = "SPRING_BOOT", "Spring Boot"
@@ -145,7 +146,7 @@ class DeveloperSkill(models.Model):
         default=list,
     )
     backend_frameworks = ArrayField(
-        models.CharField(max_length=20, choices=BackendFramework.choices),
+        models.CharField(max_length=50, choices=BackendFramework.choices),
         blank=True,
         default=list,
     )
