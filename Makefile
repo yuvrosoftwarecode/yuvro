@@ -1114,9 +1114,35 @@ db-reset-ymarketplace:
 # Per-App Dev Deploy Commands (DEPLOY_ENV=dev only)
 # ============================================================================
 
-deploy-all:
-	@echo "🚀 Deploying ALL services to dev [branch=$(DEPLOY_BRANCH)]..."
-	@bash infra/scripts/deploy-all.sh $(DEPLOY_BRANCH)
+deploy-all: _validate-deploy
+	@if [ "$(DEPLOY_ENV)" = "prod" ]; then \
+		echo "🚀 Deploying ALL services to PRODUCTION via OpenTofu [branch=$(DEPLOY_BRANCH)]..."; \
+		cd infra/opentofu/prod && \
+		tofu init && \
+		tofu plan -out=tfplan && \
+		echo ""; \
+		echo "Review the Terraform plan above carefully!"; \
+		read -p "Do you want to apply this plan? (yes/no): " confirm; \
+		if [ "$$confirm" = "yes" ]; then \
+			tofu apply tfplan && \
+			rm -f tfplan; \
+			echo ""; \
+			echo "✅ Production deployment complete!"; \
+			echo ""; \
+			echo "Next steps:"; \
+			echo "  1. Configure kubectl: aws eks update-kubeconfig --name yuvro-prod-cluster --region ap-south-1"; \
+			echo "  2. Verify cluster: kubectl cluster-info"; \
+			echo "  3. Check deployments: kubectl -n yuvro-production get pods"; \
+		else \
+			echo "Deployment cancelled"; \
+			rm -f tfplan; \
+			exit 1; \
+		fi; \
+		cd - > /dev/null; \
+	else \
+		echo "🚀 Deploying ALL services to $(DEPLOY_ENV) [branch=$(DEPLOY_BRANCH)]..."; \
+		bash infra/scripts/deploy-all.sh $(DEPLOY_BRANCH); \
+	fi
 
 # ============================================================================
 # Infrastructure Provisioning

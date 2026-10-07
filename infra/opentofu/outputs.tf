@@ -136,3 +136,51 @@ output "cloudwatch_log_group_arn" {
   description = "CloudWatch log group ARN"
   value       = module.cloudwatch.log_group_arn
 }
+
+# Kubernetes Cluster Outputs (Production Only)
+output "eks_cluster_name" {
+  description = "EKS cluster name"
+  value       = var.enable_kubernetes ? module.eks[0].cluster_name : null
+}
+
+output "eks_cluster_endpoint" {
+  description = "EKS cluster endpoint"
+  value       = var.enable_kubernetes ? module.eks[0].cluster_endpoint : null
+  sensitive   = true
+}
+
+output "eks_cluster_certificate_authority" {
+  description = "EKS cluster certificate authority data"
+  value       = var.enable_kubernetes ? module.eks[0].cluster_certificate_authority : null
+  sensitive   = true
+}
+
+output "eks_cluster_security_group_id" {
+  description = "Security group ID of EKS cluster"
+  value       = var.enable_kubernetes ? module.eks[0].cluster_security_group_id : null
+}
+
+output "eks_node_group_id" {
+  description = "EKS node group ID"
+  value       = var.enable_kubernetes ? module.eks[0].node_group_id : null
+}
+
+output "k8s_namespace" {
+  description = "Kubernetes namespace for Yuvro applications"
+  value       = var.enable_kubernetes ? module.k8s_deployment[0].namespace : null
+}
+
+output "helm_release_name" {
+  description = "Helm release name for Yuvro applications"
+  value       = var.enable_kubernetes ? module.k8s_deployment[0].release_name : null
+}
+
+output "helm_release_status" {
+  description = "Helm release status"
+  value       = var.enable_kubernetes ? module.k8s_deployment[0].release_status : null
+}
+
+output "k8s_kubeconfig_command" {
+  description = "Command to configure kubectl for EKS cluster"
+  value       = var.enable_kubernetes ? "aws eks update-kubeconfig --name ${module.eks[0].cluster_name} --region ${var.aws_region}" : null
+}

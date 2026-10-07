@@ -5,6 +5,14 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.23"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.11"
+    }
   }
 
   # Uncomment for remote state management
@@ -23,10 +31,32 @@ provider "aws" {
   default_tags {
     tags = {
       Environment = var.environment
-      Project     = "YCode"
+      Project     = "Yuvro"
       ManagedBy   = "Terraform"
     }
   }
+}
+
+# Kubernetes Provider - Configured after EKS cluster is created
+provider "kubernetes" {
+  host                   = var.environment == "prod" && var.enable_kubernetes ? module.eks[0].cluster_endpoint : ""
+  cluster_ca_certificate = var.environment == "prod" && var.enable_kubernetes ? base64decode(module.eks[0].cluster_certificate_authority) : ""
+  token                  = var.environment == "prod" && var.enable_kubernetes ? data.aws_eks_auth.cluster[0].token : ""
+}
+
+# Helm Provider - Configured after Kubernetes provider
+provider "helm" {
+  kubernetes {
+    host                   = var.environment == "prod" && var.enable_kubernetes ? module.eks[0].cluster_endpoint : ""
+    cluster_ca_certificate = var.environment == "prod" && var.enable_kubernetes ? base64decode(module.eks[0].cluster_certificate_authority) : ""
+    token                  = var.environment == "prod" && var.enable_kubernetes ? data.aws_eks_auth.cluster[0].token : ""
+  }
+}
+
+# Get EKS cluster auth token (only for prod with K8s enabled)
+data "aws_eks_auth" "cluster" {
+  count = var.environment == "prod" && var.enable_kubernetes ? 1 : 0
+  name  = module.eks[0].cluster_name
 }
 
 
@@ -130,4 +160,41 @@ module "cloudwatch" {
   source = "./modules/cloudwatch"
 
   environment = var.environment
+}
+
+# EKS Cluster Module (Production Only)
+module "eks" {
+  count  = var.environment == "prod" && var.enable_kubernetes ? 1 : 0
+  source = "./modules/eks"
+
+  environment           = var.environment
+  cluster_name          = var.eks_cluster_name
+  kubernetes_version    = var.kubernetes_version
+  subnet_ids            = length(data.aws_subnets.private.ids) > 0 ? data.aws_subnets.private.ids : data.aws_subnets.public.ids
+  security_group_id     = module.security_groups.app_sg_id
+  node_group_name       = var.eks_node_group_name
+  desired_size          = var.eks_desired_size
+  min_size              = var.eks_min_size
+  max_size              = var.eks_max_size
+  instance_types        = var.eks_instance_types
+  disk_size             = var.eks_disk_size
+}
+
+# Kubernetes Deployment Module (Production Only)
+module "k8s_deployment" {
+  count = var.environment == "prod" && var.enable_kubernetes ? 1 : 0
+  depends_on = [
+    module.eks,
+  ]
+  source = "./modules/k8s_deployment"
+
+  environment               = var.environment
+  namespace                 = var.k8s_namespace
+  database_host             = module.rds_main.endpoint
+  database_port             = module.rds_main.port
+  database_user             = var.db_master_username
+  database_password         = var.db_master_password
+  helm_chart_path           = var.helm_chart_path
+  helm_values_file          = var.helm_values_file
+  apps_enabled              = var.apps_enabled
 }

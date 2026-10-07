@@ -140,3 +140,88 @@ variable "s3_cors_allowed_origins" {
     "https://yuvro.ai",
   ]
 }
+
+# Kubernetes Configuration (Production Only)
+variable "enable_kubernetes" {
+  description = "Enable Kubernetes deployment (prod only)"
+  type        = bool
+  default     = false
+}
+
+variable "eks_cluster_name" {
+  description = "Name of the EKS cluster"
+  type        = string
+  default     = "yuvro-prod-cluster"
+}
+
+variable "kubernetes_version" {
+  description = "Kubernetes version for EKS"
+  type        = string
+  default     = "1.28"
+}
+
+variable "eks_node_group_name" {
+  description = "Name of the EKS node group"
+  type        = string
+  default     = "yuvro-prod-nodes"
+}
+
+variable "eks_desired_size" {
+  description = "Desired number of worker nodes"
+  type        = number
+  default     = 3
+}
+
+variable "eks_min_size" {
+  description = "Minimum number of worker nodes"
+  type        = number
+  default     = 2
+}
+
+variable "eks_max_size" {
+  description = "Maximum number of worker nodes"
+  type        = number
+  default     = 5
+}
+
+variable "eks_instance_types" {
+  description = "Instance types for EKS worker nodes"
+  type        = list(string)
+  default     = ["t3.large"]
+}
+
+variable "eks_disk_size" {
+  description = "Disk size in GB for EKS worker nodes"
+  type        = number
+  default     = 100
+}
+
+variable "k8s_namespace" {
+  description = "Kubernetes namespace for Yuvro applications"
+  type        = string
+  default     = "yuvro-production"
+}
+
+variable "helm_chart_path" {
+  description = "Path to Helm chart for Yuvro applications"
+  type        = string
+  default     = "../helm/yuvro-production"
+}
+
+variable "helm_values_file" {
+  description = "Helm values file to use (relative to chart path)"
+  type        = string
+  default     = "values.yaml"
+}
+
+variable "apps_enabled" {
+  description = "Map of app names to enabled status"
+  type        = map(bool)
+  default = {
+    "ycode"       = true
+    "ycampus"     = true
+    "ylabs"       = true
+    "yhub"        = true
+    "ymarketplace" = true
+  }
+}
