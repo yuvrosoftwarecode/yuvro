@@ -1,39 +1,44 @@
+# Try to get existing log group
+data "aws_cloudwatch_log_group" "application_existing" {
+  name = "/aws/ycode/${var.environment}/application"
+}
+
+# Use data source if exists, create otherwise
 resource "aws_cloudwatch_log_group" "application" {
+  count             = try(data.aws_cloudwatch_log_group.application_existing.id, null) != null ? 0 : 1
   name              = "/aws/ycode/${var.environment}/application"
   retention_in_days = var.environment == "prod" ? 30 : 7
 
   tags = {
     Name = "${var.environment}-application-logs"
   }
+}
 
-  lifecycle {
-    ignore_changes = [retention_in_days]
-  }
+data "aws_cloudwatch_log_group" "kubernetes_existing" {
+  name = "/aws/ycode/${var.environment}/kubernetes"
 }
 
 resource "aws_cloudwatch_log_group" "kubernetes" {
+  count             = try(data.aws_cloudwatch_log_group.kubernetes_existing.id, null) != null ? 0 : 1
   name              = "/aws/ycode/${var.environment}/kubernetes"
   retention_in_days = var.environment == "prod" ? 30 : 7
 
   tags = {
     Name = "${var.environment}-kubernetes-logs"
   }
+}
 
-  lifecycle {
-    ignore_changes = [retention_in_days]
-  }
+data "aws_cloudwatch_log_group" "database_existing" {
+  name = "/aws/ycode/${var.environment}/database"
 }
 
 resource "aws_cloudwatch_log_group" "database" {
+  count             = try(data.aws_cloudwatch_log_group.database_existing.id, null) != null ? 0 : 1
   name              = "/aws/ycode/${var.environment}/database"
   retention_in_days = var.environment == "prod" ? 30 : 7
 
   tags = {
     Name = "${var.environment}-database-logs"
-  }
-
-  lifecycle {
-    ignore_changes = [retention_in_days]
   }
 }
 
