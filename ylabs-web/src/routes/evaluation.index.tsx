@@ -172,11 +172,8 @@ function EvaluationInvite() {
             className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-[0_1px_0_rgba(0,0,0,0.02),0_20px_60px_-30px_rgba(0,0,0,0.15)] sm:p-10"
           >
             <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400">
-              Begin evaluation
+              Begin Evaluation
             </div>
-            <h2 className="mt-2 font-serif text-[26px] leading-tight tracking-tight text-neutral-900">
-              Tell us who's evaluating.
-            </h2>
 
             {err && (
               <div className="mt-4 border-l-2 border-red-500 pl-3 text-[12px] text-red-600">
@@ -226,7 +223,7 @@ function EvaluationInvite() {
                   className={`eval-input ${missingFields.includes("email") ? "!border-red-500" : ""}`}
                 />
               </Field>
-              <Field label="Phone number" hint={missingFields.includes("phone") ? <span className="text-red-500">Required for account recovery.</span> : "Required for account recovery."}>
+              <Field label="Phone number" hint={missingFields.includes("phone") ? <span className="text-red-500">Required</span> : "Required"}>
                 <div className="flex gap-2">
                   <select
                     value={countryCode}
@@ -251,7 +248,7 @@ function EvaluationInvite() {
                   />
                 </div>
               </Field>
-              <Field label="Resume" hint="Optional for demo">
+              <Field label="Resume" hint="Optional">
                 <label
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -317,7 +314,7 @@ function EvaluationInvite() {
           </form>
 
           <div className="mt-6 text-center text-[11px] text-neutral-500">
-            <span>Est. {estMinutes ? `${estMinutes} minutes` : "30–60 minutes"} · works best on Chrome, Safari or Edge</span>
+            {/* <span>Est. {estMinutes ? `${estMinutes} minutes` : "30–60 minutes"} · works best on Chrome, Safari or Edge</span> */}
           </div>
         </section>
       </div>
