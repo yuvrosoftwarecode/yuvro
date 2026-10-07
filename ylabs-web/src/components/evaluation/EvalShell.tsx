@@ -19,12 +19,12 @@ export function EvalShell({
     <div className="eval-theme min-h-screen bg-[#fafaf7] text-neutral-900 antialiased selection:bg-neutral-900 selection:text-white">
       <header className="border-b border-neutral-200/80">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-          <Link to="/" className="flex items-center gap-2.5">
+          {/* <Link to="/" className="flex items-center gap-2.5">
             <YMark />
             <span className="text-[13px] font-medium tracking-tight">Yuvro Labs</span>
-          </Link>
-          <div className="flex items-center gap-6 text-[12px] text-neutral-500">
-            {step && totalSteps && stepLabel && (
+          </Link> */}
+          <div className="ml-auto flex items-center gap-6 text-[12px] text-neutral-500">
+            {/* {step && totalSteps && stepLabel && (
               <div className="hidden items-center gap-3 sm:flex">
                 <span className="font-mono text-[11px] tracking-widest text-neutral-400">
                   {String(step).padStart(2, "0")} / {String(totalSteps).padStart(2, "0")}
@@ -32,10 +32,10 @@ export function EvalShell({
                 <span className="text-neutral-300">·</span>
                 <span>{stepLabel}</span>
               </div>
-            )}
-            <a href="mailto:support@yuvrolabs.com" className="hover:text-neutral-900 transition">
+            )} */}
+            {/* <a href="mailto:support@yuvrolabs.com" className="hover:text-neutral-900 transition">
               Need help?
-            </a>
+            </a> */}
             <button
               type="button"
               onClick={toggle}
@@ -47,7 +47,7 @@ export function EvalShell({
             </button>
           </div>
         </div>
-        {step && totalSteps && (
+        {/* {step && totalSteps && (
           <div className="mx-auto h-px max-w-6xl px-6">
             <div className="h-px bg-neutral-200/80">
               <div
@@ -56,10 +56,10 @@ export function EvalShell({
               />
             </div>
           </div>
-        )}
+        )} */}
       </header>
       <main className="mx-auto max-w-6xl px-6 py-16 lg:py-24">{children}</main>
-      <footer className="border-t border-neutral-200/80">
+      {/* <footer className="border-t border-neutral-200/80">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6 text-[11px] text-neutral-500">
           <span>© 2026 Yuvro Labs</span>
           <div className="flex items-center gap-6">
@@ -74,7 +74,7 @@ export function EvalShell({
             </a>
           </div>
         </div>
-      </footer>
+      </footer> */}
       <style>{`
         .eval-input { width: 100%; border: 0; border-bottom: 1px solid rgb(212 212 212); background: transparent; padding: 8px 0; font-size: 15px; color: rgb(23 23 23); }
         .eval-input::placeholder { color: rgb(163 163 163); }

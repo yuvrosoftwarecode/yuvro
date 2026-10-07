@@ -4109,7 +4109,7 @@ function FormattedResultsView({
                     <span className="text-muted-foreground text-xs font-normal"> / {report.maxScore}</span>
                   </div>
                 </div>
-                {!report.hasRan && (
+                {/* {!report.hasRan && (
                   <button
                     onClick={onRun}
                     disabled={running}
@@ -4118,7 +4118,7 @@ function FormattedResultsView({
                     <Play className="h-3.5 w-3.5" />
                     {running ? "Running..." : "Run"}
                   </button>
-                )}
+                )} */}
               </div>
             </div>
 
@@ -5088,7 +5088,7 @@ function ProblemPanel({
                   return (
                     <div
                       key={idx}
-                      className="rounded-md border border-border bg-card/40 p-3.5 hover:bg-card/60 transition-colors"
+                      className="rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors p-3.5"
                     >
                       <div className="flex items-start gap-3">
                         <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary/10 border border-primary/20 text-[11px] text-primary font-bold">
@@ -5098,7 +5098,7 @@ function ProblemPanel({
                             <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
                             {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">{taskDesc}</p>}
                           {(task.input !== undefined || (task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)))) && (
-                            <div className="mt-2 text-xs bg-editor-bg rounded p-2.5 border border-border">
+                            <div className="mt-2.5 text-xs bg-muted/40 rounded-md p-2.5">
                               {task.input !== undefined && (
                                 <>
                                   <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Input:</div>
@@ -5136,13 +5136,13 @@ function ProblemPanel({
                   );
                 })}
               </div>
-              <div className="mt-6 flex flex-col items-end border-t border-border pt-4">
-                {ticketScore && (
-                  <div className="mb-3 text-sm font-medium">
+              {ticketScore && (
+                <div className="mt-4 flex flex-col items-end border-t border-border pt-3">
+                  <div className="text-xs font-medium">
                     Score: <span className={ticketScore.passed === ticketScore.total ? "text-success" : "text-warning"}>{ticketScore.passed}/{ticketScore.total}</span> {ticketScore.total === 10 && ticket.tasks?.length !== 10 ? "points" : "tasks completed"}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </Section>
           )}
 
@@ -5472,15 +5472,15 @@ function HintsPanel({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(true);
   return (
-    <div className="rounded-md border bg-editor-bg/60">
+    <div className="rounded-lg border border-border/50 bg-card/20">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between px-3 py-2 text-xs font-medium"
+        className="flex w-full items-center justify-between px-3.5 py-2.5 text-xs font-medium"
       >
         <span>{title}</span>
-        {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+        {open ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
       </button>
-      {open && <div className="px-3 pb-3 text-xs">{children}</div>}
+      {open && <div className="px-3.5 pb-3.5 text-xs">{children}</div>}
     </div>
   );
 }
