@@ -31,7 +31,7 @@ jobs:
       with:
         ref: ${{ inputs.deploy_branch }}
         fetch-depth: 0
-        submodules: recursive
+        submodules: false
     
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -39,18 +39,18 @@ jobs:
         aws-access-key-id: ${{ secrets.DEPLOY_AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-south-1
-    
-    - name: Set up OpenTofu
-      uses: opentofu/setup-opentofu@v1
-      with:
-        version: 1.8.0
-    
+        
     - name: Configure SSH key
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.DEPLOY_EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/yuvro-dev.pem
         chmod 400 ~/.ssh/yuvro-dev.pem
         echo "SSH key configured"
+    
+    - name: Set up OpenTofu
+      uses: opentofu/setup-opentofu@v1
+      with:
+        version: 1.8.0
     
     - name: Deploy to EC2
       env:
