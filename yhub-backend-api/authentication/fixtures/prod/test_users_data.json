@@ -17,7 +17,8 @@
       },
       "roles": {
         "ycode": "admin",
-        "ylabs": "admin"
+        "ylabs": "admin",
+        "marketplace": "recruiter_account_manager"
       }
     },
     {
@@ -150,7 +151,8 @@
         "gender": "prefer_not_to_say"
       },
       "roles": {
-        "ycode": "recruiter"
+        "ycode": "recruiter",
+        "ylabs": "recruiter"
       }
     },
     {
@@ -169,7 +171,8 @@
         "gender": "female"
       },
       "roles": {
-        "ycode": "recruiter"
+        "ycode": "recruiter",
+        "ylabs": "recruiter"
       }
     },
     {
@@ -926,15 +929,15 @@
       }
     },
     {
-      "email": "vinod@gmail.com",
-      "username": "vinod",
-      "first_name": "Vinod",
-      "last_name": "Kumar",
+      "email": "raghu@gmail.com",
+      "username": "raghu",
+      "first_name": "Raghu",
+      "last_name": "Veer",
       "password": "student123",
       "is_staff": false,
       "is_superuser": false,
       "profile": {
-        "full_name": "Vinod Kumar",
+        "full_name": "Raghuveer Karanam",
         "title": "Cybersecurity Specialist",
         "location": "Delhi, India",
         "about": "Cybersecurity specialist with focus on ethical hacking, penetration testing, and security architecture. Passionate about protecting digital assets and building secure systems.",
@@ -1045,6 +1048,163 @@
           "linkedin": "https://linkedin.com/in/vinodkumar-security",
           "website": "https://vinodkumar-security.com",
           "email": "vinod@gmail.com"
+        }
+      },
+      "roles": {
+        "ycode": "student",
+        "ylabs": "student"
+      }
+    },
+    {
+      "email": "mrinal@gmail.com",
+      "username": "mrinal",
+      "first_name": "Mrinal",
+      "last_name": "Gupta",
+      "password": "student123",
+      "is_staff": false,
+      "is_superuser": false,
+      "profile": {
+        "full_name": "Mrinal Gupta",
+        "title": "Full Stack Developer",
+        "location": "Hyderabad, India",
+        "about": "Full Stack Developer passionate about building scalable web applications using React, Node.js, TypeScript, and modern web technologies. Experienced in developing responsive user interfaces, REST APIs, authentication systems, and educational platforms.",
+        "gender": "male",
+        "skills": [
+          {
+            "name": "React.js",
+            "level": "Advanced",
+            "percentage": 92
+          },
+          {
+            "name": "TypeScript",
+            "level": "Advanced",
+            "percentage": 88
+          },
+          {
+            "name": "JavaScript",
+            "level": "Advanced",
+            "percentage": 90
+          },
+          {
+            "name": "Node.js",
+            "level": "Intermediate",
+            "percentage": 82
+          },
+          {
+            "name": "MongoDB",
+            "level": "Intermediate",
+            "percentage": 80
+          },
+          {
+            "name": "HTML & CSS",
+            "level": "Advanced",
+            "percentage": 95
+          },
+          {
+            "name": "Tailwind CSS",
+            "level": "Advanced",
+            "percentage": 88
+          }
+        ],
+        "experiences": [
+          {
+            "company": "People Tech Group",
+            "role": "Software Development Intern",
+            "duration": "Feb 2025 - Present",
+            "description_list": [
+              "Developing full-stack features for the YCampus platform.",
+              "Implemented authentication, file upload, and study material management modules.",
+              "Worked with React, Django REST APIs, PostgreSQL, and Redis.",
+              "Collaborated with the team using Git and GitHub through code reviews and pull requests."
+            ],
+            "technologies": [
+              "React",
+              "TypeScript",
+              "Django",
+              "PostgreSQL",
+              "Redis",
+              "Docker",
+              "Git"
+            ]
+          }
+        ],
+        "projects": [
+          {
+            "title": "Netflix Clone",
+            "description": "A responsive Netflix-inspired web application with movie browsing UI and modern React architecture.",
+            "role": "Frontend Developer",
+            "tech_stack": [
+              "React.js",
+              "JavaScript",
+              "CSS",
+              "Netlify"
+            ],
+            "github_link": "https://github.com/mrinalgupta/netflix-clone"
+          },
+          {
+            "title": "Speech to Text Generator",
+            "description": "Speech recognition web application that converts spoken words into text using browser APIs.",
+            "role": "Full Stack Developer",
+            "tech_stack": [
+              "React.js",
+              "JavaScript",
+              "HTML",
+              "CSS",
+              "Web Speech API"
+            ],
+            "github_link": "https://github.com/mrinalgupta/speech-to-text"
+          },
+          {
+            "title": "Role-Based Access Control Dashboard",
+            "description": "Admin dashboard for managing users, roles, and permissions with CRUD operations and dynamic access control.",
+            "role": "Frontend Developer",
+            "tech_stack": [
+              "React",
+              "TypeScript",
+              "Tailwind CSS",
+              "REST API"
+            ],
+            "github_link": "https://github.com/mrinalgupta/rbac-dashboard"
+          }
+        ],
+        "education": [
+          {
+            "institution": "Atal Bihari Vajpayee Vishwavidyalaya",
+            "degree": "Bachelor of Commerce",
+            "field": "Commerce",
+            "duration": "2020 - 2023",
+            "cgpa": "8.5",
+            "start_year": 2020,
+            "end_year": 2023
+          }
+        ],
+        "certifications": [
+          {
+            "name": "Java Programming",
+            "issuer": "Online Certification",
+            "completion_date": "2024"
+          },
+          {
+            "name": "React.js Development",
+            "issuer": "Online Certification",
+            "completion_date": "2024"
+          },
+          {
+            "name": "Node.js Development",
+            "issuer": "Online Certification",
+            "completion_date": "2024"
+          },
+          {
+            "name": "MongoDB",
+            "issuer": "Online Certification",
+            "completion_date": "2024"
+          }
+        ],
+        "social_links": {
+          "github": "https://github.com/mrinalgupta",
+          "linkedin": "https://linkedin.com/in/mrinalgupta",
+          "website": "https://mrinalgupta.dev",
+          "email": "mrinalgupta@gmail.com"
         }
       },
       "roles": {
