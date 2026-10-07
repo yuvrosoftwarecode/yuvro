@@ -8,8 +8,13 @@ data "tls_certificate" "github" {
   url = "https://token.actions.githubusercontent.com"
 }
 
-# Create OIDC Provider for GitHub
+data "aws_iam_openid_connect_provider" "github_existing" {
+  arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com"
+}
+
+# Only create if doesn't exist
 resource "aws_iam_openid_connect_provider" "github" {
+  count           = try(data.aws_iam_openid_connect_provider.github_existing.arn, null) != null ? 0 : 1
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.github.certificates[0].sha1_fingerprint]
   url             = "https://token.actions.githubusercontent.com"
@@ -23,6 +28,10 @@ resource "aws_iam_openid_connect_provider" "github" {
   }
 }
 
+locals {
+  github_oidc_provider_arn = try(data.aws_iam_openid_connect_provider.github_existing.arn, aws_iam_openid_connect_provider.github[0].arn)
+}
+
 # IAM Role for GitHub Actions
 resource "aws_iam_role" "github_actions" {
   name               = "github-actions-role"
@@ -32,7 +41,7 @@ resource "aws_iam_role" "github_actions" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = aws_iam_openid_connect_provider.github.arn
+          Federated = local.github_oidc_provider_arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
@@ -92,5 +101,5 @@ output "github_actions_role_arn" {
 
 output "github_oidc_provider_arn" {
   description = "ARN of GitHub OIDC provider"
-  value       = aws_iam_openid_connect_provider.github.arn
+  value       = local.github_oidc_provider_arn
 }
