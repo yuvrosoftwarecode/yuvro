@@ -290,3 +290,41 @@ class RecruiterSelfRegistrationSerializer(serializers.Serializer):
         except Exception as e:
             delete_user_in_yhub(email)
             raise e
+
+from .models import RecruiterTeam, RecruiterTeamMember, RecruiterTeamSubscription, RecruiterTeamQuota
+
+class RecruiterTeamQuotaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecruiterTeamQuota
+        fields = (
+            "total_candidate_attempts", "used_candidate_attempts",
+            "total_simulation_runs", "used_simulation_runs",
+            "total_ai_minutes", "used_ai_minutes",
+            "total_recruiter_logins", "used_recruiter_logins"
+        )
+
+class RecruiterTeamSubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecruiterTeamSubscription
+        fields = ("plan_tier", "billing_cycle", "valid_from", "valid_until", "is_active")
+
+class RecruiterTeamMemberSerializer(serializers.ModelSerializer):
+    user = UserBasicSerializer(read_only=True)
+    
+    class Meta:
+        model = RecruiterTeamMember
+        fields = ("id", "user", "role", "joined_at")
+
+class RecruiterTeamSerializer(serializers.ModelSerializer):
+    owner = UserBasicSerializer(read_only=True)
+    quota = RecruiterTeamQuotaSerializer(read_only=True)
+    subscription = RecruiterTeamSubscriptionSerializer(read_only=True)
+    members = RecruiterTeamMemberSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = RecruiterTeam
+        fields = ("id", "name", "owner", "quota", "subscription", "members", "created_at")
+
+class RecruiterTeamMemberAddSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    role = serializers.ChoiceField(choices=["admin", "member"], default="member")

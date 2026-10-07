@@ -193,10 +193,28 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
 
 class LabQuestionBankTaskSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(required=False, allow_null=True)
+    parent_task_id = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    parent_task = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
     class Meta:
         model = LabQuestionBankTask
         fields = '__all__'
         read_only_fields = ['lab_question_bank', 'created_by', 'updated_by']
+
+    def to_representation(self, obj):
+        ret = super().to_representation(obj)
+        parent_id = None
+        if hasattr(obj, 'parent_task_id') and obj.parent_task_id:
+            parent_id = str(obj.parent_task_id)
+        elif hasattr(obj, 'parent_task') and obj.parent_task:
+            parent_id = str(obj.parent_task.id)
+        elif isinstance(obj.scoring_rules, dict):
+            parent_id = obj.scoring_rules.get('parent_task_id') or obj.scoring_rules.get('parent_task')
+
+        ret['parent_task_id'] = str(parent_id) if parent_id else None
+        ret['parent_task'] = str(parent_id) if parent_id else None
+        return ret
 
 class LabQuestionBankSerializer(serializers.ModelSerializer):
     tasks = LabQuestionBankTaskSerializer(many=True, required=False)
@@ -206,15 +224,29 @@ class LabQuestionBankSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['created_by', 'updated_by']
 
+    def to_internal_value(self, data):
+        if isinstance(data, dict):
+            data = data.copy()
+            if "backend_frameworks" in data and isinstance(data["backend_frameworks"], list):
+                data["backend_frameworks"] = [
+                    "DJANGO_REST_FRAMEWORK" if f == "DJANGO_REST_FRAMEWOR" else f
+                    for f in data["backend_frameworks"]
+                ]
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if isinstance(ret.get("backend_frameworks"), list):
+            ret["backend_frameworks"] = [
+                "DJANGO_REST_FRAMEWORK" if f == "DJANGO_REST_FRAMEWOR" else f
+                for f in ret["backend_frameworks"]
+            ]
+        return ret
+
     def create(self, validated_data):
         tasks_data = validated_data.pop('tasks', [])
         question_bank = LabQuestionBank.objects.create(**validated_data)
-        for task_data in tasks_data:
-            LabQuestionBankTask.objects.create(
-                lab_question_bank=question_bank, 
-                created_by=question_bank.created_by,
-                **task_data
-            )
+        self._save_tasks_with_dependencies(question_bank, tasks_data)
         return question_bank
 
     def update(self, instance, validated_data):
@@ -229,14 +261,84 @@ class LabQuestionBankSerializer(serializers.ModelSerializer):
             # Simple approach: delete existing and recreate
             # In production, you might want to match by ID to preserve existing objects
             instance.tasks.all().delete()
-            for task_data in tasks_data:
-                LabQuestionBankTask.objects.create(
-                    lab_question_bank=instance, 
-                    created_by=instance.created_by,
-                    **task_data
-                )
+            self._save_tasks_with_dependencies(instance, tasks_data)
                 
         return instance
+
+    def _save_tasks_with_dependencies(self, question_bank, tasks_data):
+        import uuid as uuid_lib
+        created_tasks = []
+        id_map = {}
+        index_map = {}
+        for idx, raw_task_data in enumerate(tasks_data):
+            task_data = dict(raw_task_data)
+            raw_id = task_data.pop('id', None)
+            parent_ref = task_data.pop('parent_task', None)
+            if parent_ref is None:
+                parent_ref = task_data.pop('parent_task_id', None)
+
+            # Ensure parent_task fields are not passed to model create directly
+            task_data.pop('parent_task', None)
+            task_data.pop('parent_task_id', None)
+
+            scoring_rules = task_data.get('scoring_rules') or {}
+            if not isinstance(scoring_rules, dict):
+                scoring_rules = {}
+            if parent_ref:
+                scoring_rules['parent_task_id'] = str(parent_ref)
+            task_data['scoring_rules'] = scoring_rules
+
+            create_kwargs = dict(task_data)
+            if raw_id:
+                try:
+                    uuid_lib.UUID(str(raw_id))
+                    create_kwargs['id'] = raw_id
+                except Exception:
+                    pass
+
+            task_obj = LabQuestionBankTask.objects.create(
+                lab_question_bank=question_bank,
+                created_by=question_bank.created_by,
+                **create_kwargs
+            )
+            created_tasks.append((task_obj, parent_ref))
+            if raw_id:
+                id_map[str(raw_id)] = task_obj
+            id_map[str(task_obj.id)] = task_obj
+            index_map[idx] = task_obj
+            index_map[str(idx)] = task_obj
+            index_map[task_obj.order_index] = task_obj
+            index_map[str(task_obj.order_index)] = task_obj
+            if task_obj.title:
+                index_map[task_obj.title.strip().lower()] = task_obj
+
+        for task_obj, parent_ref in created_tasks:
+            if not parent_ref:
+                continue
+            parent_instance = None
+            str_ref = str(parent_ref).strip()
+            if str_ref in id_map:
+                parent_instance = id_map[str_ref]
+            elif str_ref.startswith("task_idx_") and str_ref.replace("task_idx_", "") in index_map:
+                parent_instance = index_map[str_ref.replace("task_idx_", "")]
+            elif str_ref.startswith("task_") and str_ref.replace("task_", "") in index_map:
+                parent_instance = index_map[str_ref.replace("task_", "")]
+            elif str_ref in index_map:
+                parent_instance = index_map[str_ref]
+            elif str_ref.lower() in index_map:
+                parent_instance = index_map[str_ref.lower()]
+            else:
+                try:
+                    parent_instance = LabQuestionBankTask.objects.filter(id=parent_ref, lab_question_bank=question_bank).first()
+                except Exception:
+                    parent_instance = None
+
+            if parent_instance and parent_instance.id != task_obj.id:
+                task_obj.parent_task = parent_instance
+                rules = dict(task_obj.scoring_rules or {})
+                rules['parent_task_id'] = str(parent_instance.id)
+                task_obj.scoring_rules = rules
+                task_obj.save(update_fields=['parent_task', 'scoring_rules'])
 
 from .models import UserLabQuestionBankSubmission, UserKnowledgeAssessmentSubmission
 
@@ -363,4 +465,23 @@ class KnowledgeQuestionBankSerializer(serializers.ModelSerializer):
 
     def get_company_name(self, obj):
         return obj.company.name if obj.company else None
+
+    def to_internal_value(self, data):
+        if isinstance(data, dict):
+            data = data.copy()
+            if "backend_frameworks" in data and isinstance(data["backend_frameworks"], list):
+                data["backend_frameworks"] = [
+                    "DJANGO_REST_FRAMEWORK" if f == "DJANGO_REST_FRAMEWOR" else f
+                    for f in data["backend_frameworks"]
+                ]
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if isinstance(ret.get("backend_frameworks"), list):
+            ret["backend_frameworks"] = [
+                "DJANGO_REST_FRAMEWORK" if f == "DJANGO_REST_FRAMEWOR" else f
+                for f in ret["backend_frameworks"]
+            ]
+        return ret
 

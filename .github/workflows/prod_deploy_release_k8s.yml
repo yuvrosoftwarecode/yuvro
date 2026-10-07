@@ -1,0 +1,333 @@
+name: Prod - Deploy Release to K8s
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release version to deploy (e.g., v1.0.0)'
+        required: true
+        type: string
+      namespace:
+        description: 'Kubernetes namespace'
+        required: true
+        default: 'yuvro-prod-ns'
+        type: string
+      deploy_all:
+        description: 'Deploy all apps (true) or select specific ones (false)'
+        required: false
+        type: boolean
+        default: true
+      apps:
+        description: 'Comma-separated apps to deploy (e.g., ycode,ycampus,ylabs,yhub,ymarketplace,executor). Only used if deploy_all is false'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ap-south-1
+  EKS_CLUSTER_NAME: yuvro-prod-cluster
+  DEPLOY_NAMESPACE: ${{ inputs.namespace || 'yuvro-prod-ns' }}
+  ECR_REGISTRY_PREFIX: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+
+jobs:
+  determine-deployment:
+    runs-on: ubuntu-latest
+    outputs:
+      app_overrides: ${{ steps.generate_overrides.outputs.overrides }}
+    steps:
+      - name: Generate Helm value overrides
+        id: generate_overrides
+        run: |
+          if [ "${{ inputs.deploy_all }}" == "true" ]; then
+            APPS_TO_DEPLOY="ycode,ycampus,ylabs,yhub,ymarketplace,executor"
+          else
+            APPS_TO_DEPLOY="${{ inputs.apps }}"
+          fi
+          
+          # Build Helm values override with only selected apps enabled
+          OVERRIDES="global:\n  imageTag: ${{ inputs.release_version }}\n\n"
+          
+          # Helper function to add app values
+          add_app_values() {
+            local app=$1
+            case $app in
+              ycode)
+                OVERRIDES+="ycode:\n  enabled: true\n  backend:\n    image: \"${{ env.ECR_REGISTRY_PREFIX }}/ycode-backend:${{ inputs.release_version }}\"\n  frontend:\n    image: \"${{ env.ECR_REGISTRY_PREFIX }}/ycode-frontend:${{ inputs.release_version }}\"\n\n"
+                ;;
+              ycampus)
+                OVERRIDES+="ycampus:\n  enabled: true\n  backend:\n    image: \"${{ env.ECR_REGISTRY_PREFIX }}/ycampus-backend:${{ inputs.release_version }}\"\n  frontend:\n    image: \"${{ env.ECR_REGISTRY_PREFIX }}/ycampus-frontend:${{ inputs.release_version }}\"\n\n"
+                ;;
+              ylabs)
+                OVERRIDES+="ylabs:\n  enabled: true\n  backend:\n    image: \"${{ env.ECR_REGISTRY_PREFIX }}/ylabs-backend:${{ inputs.release_version }}\"\n  frontend:\n    image: \"${{ env.ECR_REGISTRY_PREFIX }}/ylabs-frontend:${{ inputs.release_version }}\"\n\n"
+                ;;
+              yhub)
+                OVERRIDES+="yhub:\n  enabled: true\n  backend:\n    image: \"${{ env.ECR_REGISTRY_PREFIX }}/yhub-backend:${{ inputs.release_version }}\"\n\n"
+                ;;
+              ymarketplace)
+                OVERRIDES+="ymarketplace:\n  enabled: true\n  backend:\n    image: \"${{ env.ECR_REGISTRY_PREFIX }}/ymarketplace-backend:${{ inputs.release_version }}\"\n  frontend:\n    image: \"${{ env.ECR_REGISTRY_PREFIX }}/ymarketplace-frontend:${{ inputs.release_version }}\"\n\n"
+                ;;
+              executor)
+                OVERRIDES+="codeExecutor:\n  enabled: true\n  image: \"${{ env.ECR_REGISTRY_PREFIX }}/code-executor:${{ inputs.release_version }}\"\n\n"
+                ;;
+            esac
+          }
+          
+          # Parse apps
+          IFS=',' read -ra APPS_ARRAY <<< "$APPS_TO_DEPLOY"
+          for app in "${APPS_ARRAY[@]}"; do
+            TRIMMED=$(echo "$app" | xargs)
+            add_app_values "$TRIMMED"
+          done
+          
+          # Store multiline output
+          echo "overrides<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$OVERRIDES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "✅ Helm value overrides generated"
+          echo "📋 Deploying apps: $APPS_TO_DEPLOY"
+
+  pre-deploy-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate inputs
+        run: |
+          if ! [[ "${{ inputs.release_version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid release version format. Use v1.0.0"
+            exit 1
+          fi
+          echo "✅ Release version format valid: ${{ inputs.release_version }}"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify EKS cluster
+        run: |
+          echo "🔍 Checking EKS cluster: ${{ env.EKS_CLUSTER_NAME }}"
+          aws eks describe-cluster --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }} > /dev/null
+          if [ $? -eq 0 ]; then
+            echo "✅ EKS cluster is accessible"
+          else
+            echo "❌ Cannot access EKS cluster"
+            exit 1
+          fi
+
+      - name: Verify images in ECR
+        run: |
+          echo "🔍 Verifying Docker images in ECR..."
+          
+          # Determine which images to check based on deployment mode
+          if [ "${{ inputs.deploy_all }}" == "true" ]; then
+            IMAGES=("ycode-backend" "ycode-frontend" "ycampus-backend" "ycampus-frontend" "ylabs-backend" "ylabs-frontend" "yhub-backend" "ymarketplace-backend" "ymarketplace-frontend" "code-executor")
+          else
+            IFS=',' read -ra APPS_ARRAY <<< "${{ inputs.apps }}"
+            IMAGES=()
+            for app in "${APPS_ARRAY[@]}"; do
+              TRIMMED=$(echo "$app" | xargs)
+              case $TRIMMED in
+                ycode) IMAGES+=("ycode-backend" "ycode-frontend") ;;
+                ycampus) IMAGES+=("ycampus-backend" "ycampus-frontend") ;;
+                ylabs) IMAGES+=("ylabs-backend" "ylabs-frontend") ;;
+                yhub) IMAGES+=("yhub-backend") ;;
+                ymarketplace) IMAGES+=("ymarketplace-backend" "ymarketplace-frontend") ;;
+                executor) IMAGES+=("code-executor") ;;
+              esac
+            done
+          fi
+          
+          MISSING_IMAGES=()
+          for image in "${IMAGES[@]}"; do
+            if aws ecr describe-images --repository-name "$image" --region ${{ env.AWS_REGION }} \
+              --image-ids imageTag=${{ inputs.release_version }} > /dev/null 2>&1; then
+              echo "  ✅ $image:${{ inputs.release_version }}"
+            else
+              echo "  ❌ $image:${{ inputs.release_version }} not found in ECR"
+              MISSING_IMAGES+=("$image")
+            fi
+          done
+          
+          if [ ${#MISSING_IMAGES[@]} -gt 0 ]; then
+            echo ""
+            echo "❌ Missing images: ${MISSING_IMAGES[@]}"
+            echo "Please run 'Prod - Create Release' workflow first to build images"
+            exit 1
+          fi
+
+  deploy-helm:
+    needs: [determine-deployment, pre-deploy-checks]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.31.0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.13.0
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+          echo "✅ kubectl configured for EKS cluster"
+
+      - name: Create namespace if needed
+        run: |
+          kubectl create namespace ${{ env.DEPLOY_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+          echo "✅ Namespace ensured: ${{ env.DEPLOY_NAMESPACE }}"
+
+      - name: Create ECR secret for image pull
+        run: |
+          echo "🔐 Creating ECR authentication secret..."
+          
+          TOKEN=$(aws ecr get-authorization-token --region ${{ env.AWS_REGION }} \
+            --query 'authorizationData[0].authorizationToken' --output text)
+          
+          ECR_SERVER="${{ env.ECR_REGISTRY_PREFIX }}"
+          CREDENTIALS=$(echo $TOKEN | base64 --decode | cut -d: -f2)
+          
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} create secret docker-registry ecr-secret \
+            --docker-server=$ECR_SERVER \
+            --docker-username=AWS \
+            --docker-password=$CREDENTIALS \
+            --docker-email=noemail@example.com \
+            --dry-run=client -o yaml | kubectl apply -f -
+          
+          echo "✅ ECR authentication secret created/updated"
+
+      - name: Patch service account with image pull secret
+        run: |
+          echo "🔧 Patching service account..."
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} patch serviceaccount default \
+            -p '{"imagePullSecrets": [{"name": "ecr-secret"}]}' || true
+          echo "✅ Service account patched"
+
+      - name: Save Helm value overrides
+        run: |
+          cat > /tmp/helm-values-override.yaml << 'EOF'
+          ${{ needs.determine-deployment.outputs.app_overrides }}
+          EOF
+          
+          echo "📝 Helm values override:"
+          cat /tmp/helm-values-override.yaml
+
+      - name: Deploy with Helm
+        run: |
+          echo "🚀 Deploying Helm release..."
+          
+          helm upgrade --install yuvro \
+            ./helm/yuvro-production \
+            --namespace ${{ env.DEPLOY_NAMESPACE }} \
+            --values ./helm/yuvro-production/values-prod.yaml \
+            --values /tmp/helm-values-override.yaml \
+            --wait=false \
+            --timeout 5m \
+            --atomic=false
+          
+          echo "✅ Helm release deployment initiated"
+
+      - name: Wait for deployments to stabilize
+        run: |
+          echo "⏳ Waiting for deployments to stabilize..."
+          
+          # Give pods time to start pulling images
+          sleep 10
+          
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} rollout status deployment/ycode-backend --timeout=10m || true
+          
+          echo ""
+          echo "📊 Deployment Status:"
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get deployments
+          
+          echo ""
+          echo "Pod Status:"
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get pods -o wide
+
+  verify-deployment:
+    needs: deploy-helm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.31.0
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Get deployment details
+        run: |
+          echo "=========================================="
+          echo "📋 Final Deployment Report"
+          echo "=========================================="
+          echo ""
+          echo "Deployment Details:"
+          echo "  Release Version: ${{ inputs.release_version }}"
+          echo "  Namespace: ${{ env.DEPLOY_NAMESPACE }}"
+          echo "  Cluster: ${{ env.EKS_CLUSTER_NAME }}"
+          echo "  Region: ${{ env.AWS_REGION }}"
+          echo ""
+          
+          echo "Helm Release Status:"
+          helm status yuvro -n ${{ env.DEPLOY_NAMESPACE }} || echo "Release not found"
+          
+          echo ""
+          echo "Kubernetes Deployments:"
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get deployments -o wide
+          
+          echo ""
+          echo "Pod Status:"
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get pods -o wide
+          
+          echo ""
+          echo "Services:"
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get svc
+          
+          echo ""
+          echo "Recent Events:"
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get events --sort-by='.lastTimestamp' | tail -10
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=========================================="
+          echo "✅ Deployment Complete"
+          echo "=========================================="
+          echo ""
+          echo "Deployment Summary:"
+          echo "  Version: ${{ inputs.release_version }}"
+          echo "  Mode: ${{ inputs.deploy_all && 'All Apps' || 'Selective' }}"
+          echo "  Apps: ${{ inputs.deploy_all && 'ycode,ycampus,ylabs,yhub,ymarketplace,executor' || inputs.apps }}"
+          echo "  Namespace: ${{ env.DEPLOY_NAMESPACE }}"
+          echo ""
+          echo "Monitoring Commands:"
+          echo "  kubectl -n ${{ env.DEPLOY_NAMESPACE }} get pods -w"
+          echo "  kubectl -n ${{ env.DEPLOY_NAMESPACE }} logs -f deployment/ycode-backend"
+          echo "  helm status yuvro -n ${{ env.DEPLOY_NAMESPACE }}"

@@ -24,6 +24,7 @@ import { useAuth } from "@/lib/auth";
 import { useEffect, useRef, useState } from "react";
 import { DeployInfo } from "@/components/common/DeployInfo";
 import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
+import YuvroLogo from "@/assets/YuvroLogo.png";
 
 const primaryLinks = [
   { to: "/student/dashboard", label: "Simulation Lab", icon: LayoutDashboard },
@@ -93,9 +94,7 @@ export function TopNav({
           to="/student/dashboard"
           className="flex items-center gap-2 font-semibold tracking-tight"
         >
-          <div className="grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-primary to-ui text-primary-foreground font-mono text-xs">
-            Y
-          </div>
+          <img src={YuvroLogo} alt="Yuvro Logo" className="h-7 w-auto object-contain" />
           <span>Yuvro Labs</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1 text-sm">

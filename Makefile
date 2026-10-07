@@ -284,9 +284,14 @@ endif
 
 install: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
-		bash infra/scripts/deploy-dev-auto.sh $(DEPLOY_BRANCH); \
+		bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building and starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
@@ -320,9 +325,14 @@ install: _validate-deploy
 
 run: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
-		bash infra/scripts/deploy-dev-auto.sh $(DEPLOY_BRANCH); \
+		bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
@@ -1114,10 +1124,56 @@ db-reset-ymarketplace:
 # Per-App Dev Deploy Commands (DEPLOY_ENV=dev only)
 # ============================================================================
 
-deploy-all:
-	@echo "🚀 Deploying ALL services to dev [branch=$(DEPLOY_BRANCH)]..."
-	@bash infra/scripts/deploy-all.sh $(DEPLOY_BRANCH)
+deploy-all: _validate-deploy
+	@if [ "$(DEPLOY_ENV)" = "prod" ]; then \
+		echo "🚀 Deploying ALL services to PRODUCTION via OpenTofu [branch=$(DEPLOY_BRANCH)]..."; \
+		cd infra/opentofu/prod && \
+		tofu init && \
+		tofu plan -out=tfplan && \
+		echo ""; \
+		echo "Review the Terraform plan above carefully!"; \
+		read -p "Do you want to apply this plan? (yes/no): " confirm; \
+		if [ "$$confirm" = "yes" ]; then \
+			tofu apply tfplan && \
+			rm -f tfplan; \
+			echo ""; \
+			echo "✅ Production deployment complete!"; \
+			echo ""; \
+			echo "Next steps:"; \
+			echo "  1. Configure kubectl: aws eks update-kubeconfig --name yuvro-prod-cluster --region ap-south-1"; \
+			echo "  2. Verify cluster: kubectl cluster-info"; \
+			echo "  3. Check deployments: kubectl -n yuvro-prod-ns get pods"; \
+		else \
+			echo "Deployment cancelled"; \
+			rm -f tfplan; \
+			exit 1; \
+		fi; \
+		cd - > /dev/null; \
+	else \
+		echo "🚀 Deploying ALL services to $(DEPLOY_ENV) [branch=$(DEPLOY_BRANCH)]..."; \
+		bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH); \
+	fi
 
+# ============================================================================
+# Infrastructure Provisioning
+# ============================================================================
+
+provision-infra:
+	@echo "📦 Provisioning infrastructure [env=$(DEPLOY_ENV)]..."
+	@bash infra/scripts/provision-infra.sh $(DEPLOY_ENV) plan
+
+provision-infra-apply:
+	@echo "📦 Provisioning & applying infrastructure [env=$(DEPLOY_ENV)]..."
+	@bash infra/scripts/provision-infra.sh $(DEPLOY_ENV) apply
+
+provision-infra-destroy:
+	@echo "⚠️  Destroying infrastructure [env=$(DEPLOY_ENV)]..."
+	@bash infra/scripts/provision-infra.sh $(DEPLOY_ENV) destroy
 deploy-ycode:
 	@echo "🚀 Deploying YCode to dev [branch=$(DEPLOY_BRANCH)]..."
 	@bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH)

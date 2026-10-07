@@ -1,5 +1,4 @@
-// Deterministic demo candidate generator for the recruiter Evaluation Workspace.
-// 1000 realistic Indian candidates per evaluation, filterable/sortable.
+import { getLabCalculatedStats, countDistinctSelectedTasks } from "./recruiter";
 
 export type CandStatus = "Submitted" | "Completed" | "In Progress" | "Not Started" | "Expired";
 export type HiringStatus =
@@ -215,9 +214,9 @@ export function getCandidates(
   );
   const labsMaxScore = labsSec
     ? (labsSec.labs && labsSec.labs.length > 0
-        ? labsSec.labs.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+        ? labsSec.labs.reduce((sum: number, l: any) => sum + (getLabCalculatedStats(l).marks || Number(l.marks) || 0), 0)
         : (labsSec.questions && labsSec.questions.length > 0
-            ? labsSec.questions.reduce((sum: number, l: any) => sum + (Number(l.marks) || 0), 0)
+            ? labsSec.questions.reduce((sum: number, l: any) => sum + (getLabCalculatedStats(l).marks || Number(l.marks) || 0), 0)
             : (labsSec.marks ?? 100)))
     : (hasSections ? 0 : 80);
 
@@ -304,15 +303,30 @@ export function getCandidates(
               const sLabId = String(cur.lab_question?.id ?? cur.lab_question ?? cur.lab_id ?? "");
               return sLabId === targetId || (sLabId && targetId && (sLabId.includes(targetId) || targetId.includes(sLabId)));
             });
-            const labMaxMarks = Number(matchingLab?.marks) || defaultPerLab;
+            const labMaxMarks = (matchingLab ? getLabCalculatedStats(matchingLab).marks : 0) || Number(matchingLab?.marks) || defaultPerLab;
 
             let score = Number(cur.score || 0);
             if (cur.solution_output) {
               try {
                 const parsed = typeof cur.solution_output === "string" ? JSON.parse(cur.solution_output) : cur.solution_output;
                 if (parsed?.tasks && Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
-                  const passedTasks = parsed.tasks.filter((t: any) => t.passed === true || t.result === "passed").length;
-                  score = (passedTasks / parsed.tasks.length) * 100;
+                  let activeTasks = parsed.tasks;
+                  if (matchingLab?.selected_task_ids && Array.isArray(matchingLab.selected_task_ids) && matchingLab.selected_task_ids.length > 0) {
+                    const selCount = countDistinctSelectedTasks(matchingLab.selected_task_ids);
+                    const selectedSet = new Set(matchingLab.selected_task_ids.map(String));
+                    const filtered = parsed.tasks.filter((t: any, idx: number) => {
+                      const tid = String(t.id ?? t.key ?? t.task_slug ?? `task-${idx}`);
+                      return (
+                        selectedSet.has(tid) ||
+                        selectedSet.has(String(t.name)) ||
+                        selectedSet.has(String(t.title)) ||
+                        selectedSet.has(`task-${idx}`)
+                      );
+                    });
+                    activeTasks = (filtered.length > 0 ? filtered : parsed.tasks).slice(0, selCount);
+                  }
+                  const passedTasks = activeTasks.filter((t: any) => t.passed === true || t.result === "passed" || t.status === "passed").length;
+                  score = (passedTasks / activeTasks.length) * 100;
                 } else if (parsed?.percentage != null) {
                   score = Number(parsed.percentage);
                 } else if (parsed?.total_score != null) {

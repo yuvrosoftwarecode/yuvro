@@ -23,6 +23,7 @@ class PurchasableType(models.TextChoices):
     MOCK_INTERVIEW = "mock_interview", "Mock Interview"
     AI_CREDIT = "ai_credit", "AI Credit"
     LAB = "lab", "Lab"
+    RECRUITER_PLAN = "recruiter_plan", "Recruiter Plan"
 
 
 class BaseTimeStamp(models.Model):

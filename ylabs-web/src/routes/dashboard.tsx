@@ -406,8 +406,11 @@ function Hub() {
     setLabsLoading(true);
     loadLabs()
       .then((fetched) => {
-        setRealLabs(fetched);
-        const counts = fetched.map((lab: any) => [lab.id, lab.total_tickets ?? 0] as const);
+        const valid = (fetched || []).filter(
+          (lab: any) => (lab.title || lab.name || "").trim().toLowerCase() !== "mongo lab"
+        );
+        setRealLabs(valid);
+        const counts = valid.map((lab: any) => [lab.id, lab.total_tickets ?? 0] as const);
         setLabTicketCounts(Object.fromEntries(counts));
       })
       .catch(console.error)
@@ -419,12 +422,36 @@ function Hub() {
 
   useEffect(() => {
     restApiAuthUtil
-      .get<any[]>("/lab/enrollments/")
+      .get<any>("/lab/enrollments/")
       .then((data) => {
-        setEnrolledIds(new Set(data.map((e: any) => e.lab)));
+        const list = Array.isArray(data) ? data : (data as any)?.results || [];
+        const set = new Set<string>();
+        list.forEach((e: any) => {
+          if (e) {
+            if (e.lab !== undefined && e.lab !== null) set.add(String(typeof e.lab === "object" ? e.lab.id : e.lab));
+            if (e.lab_id !== undefined && e.lab_id !== null) set.add(String(e.lab_id));
+            if (e.lab_details?.id) set.add(String(e.lab_details.id));
+          }
+        });
+        try {
+          const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
+          const saved = localStorage.getItem(userMockKey);
+          if (saved) JSON.parse(saved).forEach((id: string) => set.add(String(id)));
+        } catch {}
+        setEnrolledIds(set);
       })
-      .catch(console.error);
-  }, []);
+      .catch(() => {
+        try {
+          const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
+          const saved = localStorage.getItem(userMockKey);
+          if (saved) {
+            const set = new Set<string>();
+            JSON.parse(saved).forEach((id: string) => set.add(String(id)));
+            setEnrolledIds(set);
+          }
+        } catch {}
+      });
+  }, [user?.id]);
 
   const [enrollModalLabId, setEnrollModalLabId] = useState<string | null>(null);
   const [enrollModalRepoName, setEnrollModalRepoName] = useState("");
@@ -612,9 +639,15 @@ function Hub() {
     setQ("");
   };
   const hasFilters = !!(cats.length || diffs.length || langs.length || q);
-  const toggleIn = <T,>(arr: T[], v: T) =>
-    arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
-  const recentLab = getRecentLab();
+  const recentLab = useMemo(() => {
+    if (myLabs.length === 0) return null;
+    const r = getRecentLab();
+    if (r) {
+      const match = myLabs.find((l) => l.id === r.id);
+      if (match) return match;
+    }
+    return myLabs[0];
+  }, [myLabs]);
 
   const [studentStats, setStudentStats] = useState<StudentStats | null>(null);
   useEffect(() => {
@@ -660,22 +693,13 @@ function Hub() {
                   >
                     Continue {recentLab.name} <ArrowRight className="h-4 w-4" />
                   </Link>
-                ) : myLabs.length > 0 ? (
-                  <Link
-                    to="/student/lab/$slug"
-                    params={{ slug: myLabs[0].id }}
-                    className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 sm:text-sm"
-                  >
-                    Start {myLabs[0].name} <ArrowRight className="h-4 w-4" />
-                  </Link>
                 ) : (
-                  <Link
-                    to="/student/lab/$slug"
-                    params={{ slug: "java" }}
+                  <a
+                    href="#catalog"
                     className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 sm:text-sm"
                   >
-                    Explore Java Lab <ArrowRight className="h-4 w-4" />
-                  </Link>
+                    Explore Catalog <ArrowRight className="h-4 w-4" />
+                  </a>
                 )}
               </div>
             </div>
@@ -768,7 +792,7 @@ function Hub() {
             </section>
           )}
 
-          <section>
+          <section id="catalog">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div className="min-w-0">
                 <h2 className="text-xl font-semibold">All labs</h2>

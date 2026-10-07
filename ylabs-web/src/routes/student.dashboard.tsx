@@ -163,25 +163,32 @@ function Hub() {
       try {
         const enrollRes: any = await restApiAuthUtil.get("/lab/enrollments/");
         const enrollmentsList = Array.isArray(enrollRes) ? enrollRes : (enrollRes.results || []);
-        enrollmentsList.forEach((e: any) => enrSet.add(String(e.lab)));
+        enrollmentsList.forEach((e: any) => {
+          if (e) {
+            if (e.lab !== undefined && e.lab !== null) enrSet.add(String(typeof e.lab === "object" ? e.lab.id : e.lab));
+            if (e.lab_id !== undefined && e.lab_id !== null) enrSet.add(String(e.lab_id));
+            if (e.lab_details?.id) enrSet.add(String(e.lab_details.id));
+          }
+        });
       } catch (e) {
         console.warn("Failed to fetch enrollments from API, falling back to mock");
       }
-        // Always merge mock enrollments per user so UI interactions persist across refresh
-        try {
-          const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
-          const isFirst = user?.id ? localStorage.getItem(`is_first_login_${user.id}`) === "true" : false;
-          if (!isFirst) {
-            const saved = localStorage.getItem(userMockKey);
-            if (saved) {
-              JSON.parse(saved).forEach((id: string) => enrSet.add(id));
-            }
-          }
-        } catch {}
-        setEnrolledIds(enrSet);
+      // Always merge mock enrollments per user so UI interactions persist across refresh and login
+      try {
+        const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
+        const saved = localStorage.getItem(userMockKey);
+        if (saved) {
+          JSON.parse(saved).forEach((id: string) => enrSet.add(String(id)));
+        }
+      } catch {}
+      setEnrolledIds(enrSet);
+
+        const validData = (data || []).filter(
+          (dbLab: any) => (dbLab.title || dbLab.name || "").trim().toLowerCase() !== "mongo lab"
+        );
 
         const mapped = await Promise.all(
-          data.map(async (dbLab: any) => {
+          validData.map(async (dbLab: any) => {
             const sid = String(dbLab.id);
             let total_tickets = dbLab.total_tickets ?? 0;
             let resolved_tickets = dbLab.resolved_tickets ?? 0;
@@ -451,11 +458,14 @@ function Hub() {
       setEnrollLoading((prev) => ({ ...prev, [id]: false }));
     } else {
       restApiAuthUtil
-        .post("/lab/enrollments/", { lab_id: parseInt(id) })
+        .post("/lab/enrollments/", { lab_id: parseInt(id) || id, lab: id })
         .then(() => {
           setEnrolledIds((prev) => {
             const next = new Set(prev);
             next.add(id);
+            try {
+              localStorage.setItem(userMockKey, JSON.stringify([...next]));
+            } catch {}
             return next;
           });
         })
@@ -486,16 +496,17 @@ function Hub() {
     arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
 
   const recentLab = useMemo(() => {
+    if (enrolledLabs.length === 0) return null;
     try {
       const stored = localStorage.getItem("ylabs-recent-lab");
       if (stored) {
         const parsed = JSON.parse(stored);
-        const match = allCatalogLabs.find((l) => l.id === parsed.id);
+        const match = enrolledLabs.find((l) => l.id === parsed.id);
         if (match) return match;
       }
     } catch {}
-    return enrolledLabs.length > 0 ? enrolledLabs[0] : null;
-  }, [allCatalogLabs, enrolledLabs]);
+    return enrolledLabs[0];
+  }, [enrolledLabs]);
 
   const isFirstLogin = useMemo(() => {
     if (typeof window === "undefined" || !user?.id) return false;
@@ -540,15 +551,14 @@ function Hub() {
                   >
                     Continue {recentLab.name} <ArrowRight className="h-4 w-4" />
                   </Link>
-                ) : allCatalogLabs.length > 0 ? (
-                  <Link
-                    to="/student/lab/$slug"
-                    params={{ slug: allCatalogLabs[0].id }}
+                ) : (
+                  <a
+                    href="#catalog"
                     className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs sm:text-sm font-medium text-primary-foreground hover:opacity-90"
                   >
-                    Start {allCatalogLabs[0].name} <ArrowRight className="h-4 w-4" />
-                  </Link>
-                ) : null}
+                    Explore Labs <ArrowRight className="h-4 w-4" />
+                  </a>
+                )}
               </div>
             </div>
             <div className="shrink-0 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:min-w-[380px] md:min-w-[420px]">
@@ -639,7 +649,7 @@ function Hub() {
           )}
 
           {/* All labs catalog with sidebar filters */}
-          <section>
+          <section id="catalog">
             <div className="mb-4 flex items-end justify-between gap-3 flex-wrap">
               <div className="min-w-0">
                 <h2 className="text-xl font-semibold">All labs</h2>

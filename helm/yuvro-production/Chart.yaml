@@ -1,0 +1,18 @@
+apiVersion: v2
+name: yuvro-production
+description: Yuvro Production Deployment Chart - Kubernetes deployment for all 5 applications
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+  - yuvro
+  - production
+  - kubernetes
+  - consolidated-database
+
+maintainers:
+  - name: Yuvro DevOps
+    email: devops@yuvro.ai
+
+dependencies: []

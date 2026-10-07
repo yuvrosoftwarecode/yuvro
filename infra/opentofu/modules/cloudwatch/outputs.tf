@@ -1,21 +1,21 @@
 output "log_group_name" {
   description = "CloudWatch log group name"
-  value       = aws_cloudwatch_log_group.application.name
+  value       = local.application_log_group_name
 }
 
 output "log_group_arn" {
   description = "CloudWatch log group ARN"
-  value       = aws_cloudwatch_log_group.application.arn
+  value       = local.application_log_group_arn
 }
 
 output "kubernetes_log_group_name" {
   description = "Kubernetes log group name"
-  value       = aws_cloudwatch_log_group.kubernetes.name
+  value       = local.kubernetes_log_group_name
 }
 
 output "database_log_group_name" {
   description = "Database log group name"
-  value       = aws_cloudwatch_log_group.database.name
+  value       = local.database_log_group_name
 }
 
 output "dashboard_url" {

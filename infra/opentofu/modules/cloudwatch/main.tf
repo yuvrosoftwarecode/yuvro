@@ -1,4 +1,11 @@
+# Try to get existing log group
+data "aws_cloudwatch_log_group" "application_existing" {
+  name = "/aws/ycode/${var.environment}/application"
+}
+
+# Use data source if exists, create otherwise
 resource "aws_cloudwatch_log_group" "application" {
+  count             = try(data.aws_cloudwatch_log_group.application_existing.id, null) != null ? 0 : 1
   name              = "/aws/ycode/${var.environment}/application"
   retention_in_days = var.environment == "prod" ? 30 : 7
 
@@ -7,7 +14,12 @@ resource "aws_cloudwatch_log_group" "application" {
   }
 }
 
+data "aws_cloudwatch_log_group" "kubernetes_existing" {
+  name = "/aws/ycode/${var.environment}/kubernetes"
+}
+
 resource "aws_cloudwatch_log_group" "kubernetes" {
+  count             = try(data.aws_cloudwatch_log_group.kubernetes_existing.id, null) != null ? 0 : 1
   name              = "/aws/ycode/${var.environment}/kubernetes"
   retention_in_days = var.environment == "prod" ? 30 : 7
 
@@ -16,7 +28,12 @@ resource "aws_cloudwatch_log_group" "kubernetes" {
   }
 }
 
+data "aws_cloudwatch_log_group" "database_existing" {
+  name = "/aws/ycode/${var.environment}/database"
+}
+
 resource "aws_cloudwatch_log_group" "database" {
+  count             = try(data.aws_cloudwatch_log_group.database_existing.id, null) != null ? 0 : 1
   name              = "/aws/ycode/${var.environment}/database"
   retention_in_days = var.environment == "prod" ? 30 : 7
 
@@ -108,3 +125,11 @@ resource "aws_cloudwatch_dashboard" "main" {
 }
 
 data "aws_region" "current" {}
+
+# Locals to reference either created or existing log groups
+locals {
+  application_log_group_name = try(data.aws_cloudwatch_log_group.application_existing.name, aws_cloudwatch_log_group.application[0].name)
+  application_log_group_arn  = try(data.aws_cloudwatch_log_group.application_existing.arn, aws_cloudwatch_log_group.application[0].arn)
+  kubernetes_log_group_name  = try(data.aws_cloudwatch_log_group.kubernetes_existing.name, aws_cloudwatch_log_group.kubernetes[0].name)
+  database_log_group_name    = try(data.aws_cloudwatch_log_group.database_existing.name, aws_cloudwatch_log_group.database[0].name)
+}
