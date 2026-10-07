@@ -114,6 +114,24 @@ print_info "Working directory: $(pwd)"
 print_header "Initializing OpenTofu"
 tofu init
 
+# Clean up stale resources from state if not using remote state
+if [[ ! -f "backend-config.hcl" ]] && [[ -f "terraform.tfstate" ]]; then
+    print_info "Cleaning up conflicting resources from local state..."
+    tofu state rm -force \
+      module.cloudwatch.aws_cloudwatch_log_group.application \
+      module.cloudwatch.aws_cloudwatch_log_group.kubernetes \
+      module.cloudwatch.aws_cloudwatch_log_group.database \
+      module.ec2_nodes[0].aws_iam_role.app_node \
+      module.iam.aws_iam_openid_connect_provider.github \
+      module.iam.aws_iam_role.app_service \
+      module.iam.aws_iam_user.app_service \
+      module.rds_main.aws_db_subnet_group.main \
+      module.rds_main.aws_db_parameter_group.main \
+      module.security_groups.aws_security_group.app \
+      module.security_groups.aws_security_group.rds 2>/dev/null || true
+    print_success "State cleaned"
+fi
+
 # Show environment details
 print_header "Environment Configuration"
 print_info "Environment: $ENVIRONMENT"
