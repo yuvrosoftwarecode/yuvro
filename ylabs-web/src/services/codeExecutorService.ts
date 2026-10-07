@@ -232,6 +232,13 @@ const ADHOC_USER_ID = "adhoc";
 const ADHOC_LAB_ID = "adhoc";
 const ADHOC_SPRINT_ID = "adhoc";
 
+export interface DbIsolationContext {
+  userId?: string;
+  labId?: string;
+  sprintId?: string;
+  evaluationId?: string;
+}
+
 /**
  * Execute a SQL/Mongo query against an external connection via the code executor.
  * Replaces executeRemoteMysqlQuery / executeRemotePostgresQuery / executeRemoteMongoQuery.
@@ -240,6 +247,7 @@ export async function executeExternalDbQuery(
   engine: "mysql" | "postgresql" | "mongodb",
   connectionUrl: string,
   query: string,
+  context?: DbIsolationContext,
 ): Promise<DbQueryResult> {
   if (!query?.trim()) {
     return { columns: [], rows: [], note: "No query provided.", ms: 0 };
@@ -251,9 +259,10 @@ export async function executeExternalDbQuery(
   const start = Date.now();
   try {
     const raw: any = await restApiUtilCodeExecuter.post("/workspace/database_run", {
-      user_id: ADHOC_USER_ID,
-      lab_id: ADHOC_LAB_ID,
-      sprint_id: ADHOC_SPRINT_ID,
+      user_id: context?.userId || ADHOC_USER_ID,
+      lab_id: context?.labId || ADHOC_LAB_ID,
+      sprint_id: context?.sprintId || ADHOC_SPRINT_ID,
+      evaluation_id: context?.evaluationId || undefined,
       database_engine: engine,
       connection_url: connectionUrl.trim(),
       query: query.trim(),
@@ -293,6 +302,7 @@ export async function executeExternalDbQuery(
 export async function fetchExternalDbSchema(
   engine: "mysql" | "postgresql" | "mongodb",
   connectionUrl: string,
+  context?: DbIsolationContext,
 ): Promise<DbSchemaTable[]> {
   if (!connectionUrl?.trim()) return [];
 
@@ -304,7 +314,7 @@ export async function fetchExternalDbSchema(
         : "show collections"; // MongoDB
 
   try {
-    const result = await executeExternalDbQuery(engine, connectionUrl, schemaQuery);
+    const result = await executeExternalDbQuery(engine, connectionUrl, schemaQuery, context);
     if (result.error || !result.rows.length) return [];
 
     if (engine === "mongodb") {

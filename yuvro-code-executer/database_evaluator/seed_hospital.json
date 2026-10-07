@@ -1,0 +1,846 @@
+{
+  "collections": {
+    "patients": [
+      {
+        "patient_id": 1001,
+        "name": "Aarav Sharma",
+        "age": 34,
+        "gender": "M",
+        "city": "Hyderabad",
+        "registered_on": "2024-01-15"
+      },
+      {
+        "patient_id": 1002,
+        "name": "Sneha Patel",
+        "age": 28,
+        "gender": "F",
+        "city": "Hyderabad",
+        "registered_on": "2024-02-10"
+      },
+      {
+        "patient_id": 1003,
+        "name": "Vikram Reddy",
+        "age": 45,
+        "gender": "M",
+        "city": "Hyderabad",
+        "registered_on": "2024-03-05"
+      },
+      {
+        "patient_id": 1004,
+        "name": "Priya Nair",
+        "age": 32,
+        "gender": "F",
+        "city": "Bangalore",
+        "registered_on": "2024-03-12"
+      },
+      {
+        "patient_id": 1005,
+        "name": "Rohan Gupta",
+        "age": 52,
+        "gender": "M",
+        "city": "Hyderabad",
+        "registered_on": "2024-04-01"
+      },
+      {
+        "patient_id": 1006,
+        "name": "Ananya Verma",
+        "age": 24,
+        "gender": "F",
+        "city": "Mumbai",
+        "registered_on": "2024-04-18"
+      },
+      {
+        "patient_id": 1007,
+        "name": "Karthik Iyer",
+        "age": 38,
+        "gender": "M",
+        "city": "Hyderabad",
+        "registered_on": "2024-05-02"
+      },
+      {
+        "patient_id": 1008,
+        "name": "Meera Joshi",
+        "age": 41,
+        "gender": "F",
+        "city": "Pune",
+        "registered_on": "2024-05-15"
+      },
+      {
+        "patient_id": 1009,
+        "name": "Sanjay Rao",
+        "age": 60,
+        "gender": "M",
+        "city": "Hyderabad",
+        "registered_on": "2024-06-10"
+      },
+      {
+        "patient_id": 1010,
+        "name": "Divya Menon",
+        "age": 35,
+        "gender": "F",
+        "city": "Hyderabad",
+        "registered_on": "2024-06-22"
+      },
+      {
+        "patient_id": 1011,
+        "name": "Arjun Das",
+        "age": 29,
+        "gender": "M",
+        "city": "Chennai",
+        "registered_on": "2024-07-01"
+      },
+      {
+        "patient_id": 1012,
+        "name": "Pooja Hegde",
+        "age": 45,
+        "gender": "F",
+        "city": "Hyderabad",
+        "registered_on": "2024-07-15"
+      },
+      {
+        "patient_id": 1013,
+        "name": "Rahul Roy",
+        "age": 31,
+        "gender": "M",
+        "city": "Hyderabad",
+        "registered_on": "2024-08-05"
+      },
+      {
+        "patient_id": 1014,
+        "name": "Neha Deshmukh",
+        "age": 30,
+        "gender": "F",
+        "city": "Hyderabad",
+        "registered_on": "2024-08-19"
+      },
+      {
+        "patient_id": 1015,
+        "name": "Aditya Kulkarni",
+        "age": 48,
+        "gender": "M",
+        "city": "Hyderabad",
+        "registered_on": "2024-09-02"
+      },
+      {
+        "patient_id": 1016,
+        "name": "Tanvi Sethi",
+        "age": 38,
+        "gender": "F",
+        "city": "Delhi",
+        "registered_on": "2024-09-15"
+      }
+    ],
+    "doctors": [
+      {
+        "doctor_id": 501,
+        "name": "Dr. Ananya Rao",
+        "specialization": "Cardiology",
+        "department": "Cardiology",
+        "experience_years": 12
+      },
+      {
+        "doctor_id": 502,
+        "name": "Dr. Rajesh Kumar",
+        "specialization": "Neurology",
+        "department": "Neurology",
+        "experience_years": 15
+      },
+      {
+        "doctor_id": 503,
+        "name": "Dr. Suresh Mehta",
+        "specialization": "Orthopedics",
+        "department": "Orthopedics",
+        "experience_years": 10
+      },
+      {
+        "doctor_id": 504,
+        "name": "Dr. Priya Sharma",
+        "specialization": "Pediatrics",
+        "department": "Pediatrics",
+        "experience_years": 8
+      },
+      {
+        "doctor_id": 505,
+        "name": "Dr. Vikram Desai",
+        "specialization": "Dermatology",
+        "department": "Dermatology",
+        "experience_years": 14
+      },
+      {
+        "doctor_id": 506,
+        "name": "Dr. Neha Verma",
+        "specialization": "General Medicine",
+        "department": "General Medicine",
+        "experience_years": 9
+      },
+      {
+        "doctor_id": 507,
+        "name": "Dr. Arjun Reddy",
+        "specialization": "Cardiology",
+        "department": "Cardiology",
+        "experience_years": 11
+      },
+      {
+        "doctor_id": 508,
+        "name": "Dr. Sneha Kulkarni",
+        "specialization": "General Medicine",
+        "department": "General Medicine",
+        "experience_years": 6
+      }
+    ],
+    "appointments": [
+      {
+        "appointment_id": 9001,
+        "patient_id": 1001,
+        "doctor_id": 501,
+        "appointment_date": "2026-01-10",
+        "status": "completed",
+        "consultation_fee": 1200
+      },
+      {
+        "appointment_id": 9002,
+        "patient_id": 1002,
+        "doctor_id": 501,
+        "appointment_date": "2026-01-12",
+        "status": "completed",
+        "consultation_fee": 1200
+      },
+      {
+        "appointment_id": 9003,
+        "patient_id": 1003,
+        "doctor_id": 501,
+        "appointment_date": "2026-01-15",
+        "status": "completed",
+        "consultation_fee": 1200
+      },
+      {
+        "appointment_id": 9004,
+        "patient_id": 1005,
+        "doctor_id": 501,
+        "appointment_date": "2026-01-18",
+        "status": "completed",
+        "consultation_fee": 1200
+      },
+      {
+        "appointment_id": 9005,
+        "patient_id": 1007,
+        "doctor_id": 501,
+        "appointment_date": "2026-01-20",
+        "status": "completed",
+        "consultation_fee": 1200
+      },
+      {
+        "appointment_id": 9006,
+        "patient_id": 1009,
+        "doctor_id": 501,
+        "appointment_date": "2026-01-22",
+        "status": "cancelled",
+        "consultation_fee": 1200
+      },
+      {
+        "appointment_id": 9007,
+        "patient_id": 1010,
+        "doctor_id": 501,
+        "appointment_date": "2026-01-25",
+        "status": "scheduled",
+        "consultation_fee": 1200
+      },
+      {
+        "appointment_id": 9008,
+        "patient_id": 1001,
+        "doctor_id": 502,
+        "appointment_date": "2026-01-11",
+        "status": "completed",
+        "consultation_fee": 1500
+      },
+      {
+        "appointment_id": 9009,
+        "patient_id": 1004,
+        "doctor_id": 502,
+        "appointment_date": "2026-01-14",
+        "status": "completed",
+        "consultation_fee": 1500
+      },
+      {
+        "appointment_id": 9010,
+        "patient_id": 1006,
+        "doctor_id": 502,
+        "appointment_date": "2026-01-16",
+        "status": "completed",
+        "consultation_fee": 1500
+      },
+      {
+        "appointment_id": 9011,
+        "patient_id": 1008,
+        "doctor_id": 502,
+        "appointment_date": "2026-01-19",
+        "status": "completed",
+        "consultation_fee": 1500
+      },
+      {
+        "appointment_id": 9012,
+        "patient_id": 1011,
+        "doctor_id": 502,
+        "appointment_date": "2026-01-21",
+        "status": "cancelled",
+        "consultation_fee": 1500
+      },
+      {
+        "appointment_id": 9013,
+        "patient_id": 1002,
+        "doctor_id": 503,
+        "appointment_date": "2026-01-13",
+        "status": "completed",
+        "consultation_fee": 1000
+      },
+      {
+        "appointment_id": 9014,
+        "patient_id": 1003,
+        "doctor_id": 503,
+        "appointment_date": "2026-01-17",
+        "status": "completed",
+        "consultation_fee": 1000
+      },
+      {
+        "appointment_id": 9015,
+        "patient_id": 1012,
+        "doctor_id": 503,
+        "appointment_date": "2026-01-23",
+        "status": "completed",
+        "consultation_fee": 1000
+      },
+      {
+        "appointment_id": 9016,
+        "patient_id": 1013,
+        "doctor_id": 503,
+        "appointment_date": "2026-01-26",
+        "status": "completed",
+        "consultation_fee": 1000
+      },
+      {
+        "appointment_id": 9017,
+        "patient_id": 1014,
+        "doctor_id": 503,
+        "appointment_date": "2026-01-28",
+        "status": "scheduled",
+        "consultation_fee": 1000
+      },
+      {
+        "appointment_id": 9018,
+        "patient_id": 1006,
+        "doctor_id": 504,
+        "appointment_date": "2026-01-10",
+        "status": "completed",
+        "consultation_fee": 800
+      },
+      {
+        "appointment_id": 9019,
+        "patient_id": 1008,
+        "doctor_id": 504,
+        "appointment_date": "2026-01-14",
+        "status": "completed",
+        "consultation_fee": 800
+      },
+      {
+        "appointment_id": 9020,
+        "patient_id": 1010,
+        "doctor_id": 504,
+        "appointment_date": "2026-01-18",
+        "status": "completed",
+        "consultation_fee": 800
+      },
+      {
+        "appointment_id": 9021,
+        "patient_id": 1015,
+        "doctor_id": 504,
+        "appointment_date": "2026-01-22",
+        "status": "completed",
+        "consultation_fee": 800
+      },
+      {
+        "appointment_id": 9022,
+        "patient_id": 1016,
+        "doctor_id": 504,
+        "appointment_date": "2026-01-25",
+        "status": "cancelled",
+        "consultation_fee": 800
+      },
+      {
+        "appointment_id": 9023,
+        "patient_id": 1004,
+        "doctor_id": 505,
+        "appointment_date": "2026-01-12",
+        "status": "completed",
+        "consultation_fee": 900
+      },
+      {
+        "appointment_id": 9024,
+        "patient_id": 1007,
+        "doctor_id": 505,
+        "appointment_date": "2026-01-16",
+        "status": "completed",
+        "consultation_fee": 900
+      },
+      {
+        "appointment_id": 9025,
+        "patient_id": 1011,
+        "doctor_id": 505,
+        "appointment_date": "2026-01-20",
+        "status": "completed",
+        "consultation_fee": 900
+      },
+      {
+        "appointment_id": 9026,
+        "patient_id": 1014,
+        "doctor_id": 505,
+        "appointment_date": "2026-01-24",
+        "status": "scheduled",
+        "consultation_fee": 900
+      },
+      {
+        "appointment_id": 9027,
+        "patient_id": 1001,
+        "doctor_id": 506,
+        "appointment_date": "2026-01-08",
+        "status": "completed",
+        "consultation_fee": 700
+      },
+      {
+        "appointment_id": 9028,
+        "patient_id": 1005,
+        "doctor_id": 506,
+        "appointment_date": "2026-01-11",
+        "status": "completed",
+        "consultation_fee": 700
+      },
+      {
+        "appointment_id": 9029,
+        "patient_id": 1009,
+        "doctor_id": 506,
+        "appointment_date": "2026-01-15",
+        "status": "completed",
+        "consultation_fee": 700
+      },
+      {
+        "appointment_id": 9030,
+        "patient_id": 1012,
+        "doctor_id": 506,
+        "appointment_date": "2026-01-19",
+        "status": "completed",
+        "consultation_fee": 700
+      },
+      {
+        "appointment_id": 9031,
+        "patient_id": 1015,
+        "doctor_id": 506,
+        "appointment_date": "2026-01-23",
+        "status": "completed",
+        "consultation_fee": 700
+      },
+      {
+        "appointment_id": 9032,
+        "patient_id": 1016,
+        "doctor_id": 506,
+        "appointment_date": "2026-01-27",
+        "status": "cancelled",
+        "consultation_fee": 700
+      },
+      {
+        "appointment_id": 9033,
+        "patient_id": 1003,
+        "doctor_id": 507,
+        "appointment_date": "2026-01-13",
+        "status": "completed",
+        "consultation_fee": 1100
+      },
+      {
+        "appointment_id": 9034,
+        "patient_id": 1007,
+        "doctor_id": 507,
+        "appointment_date": "2026-01-17",
+        "status": "completed",
+        "consultation_fee": 1100
+      },
+      {
+        "appointment_id": 9035,
+        "patient_id": 1013,
+        "doctor_id": 507,
+        "appointment_date": "2026-01-21",
+        "status": "completed",
+        "consultation_fee": 1100
+      },
+      {
+        "appointment_id": 9036,
+        "patient_id": 1014,
+        "doctor_id": 507,
+        "appointment_date": "2026-01-25",
+        "status": "scheduled",
+        "consultation_fee": 1100
+      },
+      {
+        "appointment_id": 9037,
+        "patient_id": 1002,
+        "doctor_id": 507,
+        "appointment_date": "2026-01-29",
+        "status": "cancelled",
+        "consultation_fee": 1100
+      },
+      {
+        "appointment_id": 9038,
+        "patient_id": 1008,
+        "doctor_id": 508,
+        "appointment_date": "2026-01-14",
+        "status": "scheduled",
+        "consultation_fee": 600
+      },
+      {
+        "appointment_id": 9039,
+        "patient_id": 1010,
+        "doctor_id": 508,
+        "appointment_date": "2026-01-18",
+        "status": "cancelled",
+        "consultation_fee": 600
+      },
+      {
+        "appointment_id": 9040,
+        "patient_id": 1011,
+        "doctor_id": 508,
+        "appointment_date": "2026-01-22",
+        "status": "cancelled",
+        "consultation_fee": 600
+      },
+      {
+        "appointment_id": 9041,
+        "patient_id": 1004,
+        "doctor_id": 508,
+        "appointment_date": "2026-01-26",
+        "status": "scheduled",
+        "consultation_fee": 600
+      },
+      {
+        "appointment_id": 9042,
+        "patient_id": 1005,
+        "doctor_id": 508,
+        "appointment_date": "2026-01-30",
+        "status": "scheduled",
+        "consultation_fee": 600
+      }
+    ],
+    "prescriptions": [
+      {
+        "prescription_id": 7001,
+        "appointment_id": 9001,
+        "patient_id": 1001,
+        "medicines": [
+          {
+            "name": "Atorvastatin",
+            "dosage": "20mg",
+            "days": 30
+          },
+          {
+            "name": "Aspirin",
+            "dosage": "75mg",
+            "days": 30
+          }
+        ]
+      },
+      {
+        "prescription_id": 7002,
+        "appointment_id": 9002,
+        "patient_id": 1002,
+        "medicines": [
+          {
+            "name": "Metoprolol",
+            "dosage": "50mg",
+            "days": 15
+          }
+        ]
+      },
+      {
+        "prescription_id": 7003,
+        "appointment_id": 9003,
+        "patient_id": 1003,
+        "medicines": [
+          {
+            "name": "Ramipril",
+            "dosage": "5mg",
+            "days": 30
+          },
+          {
+            "name": "Amlodipine",
+            "dosage": "5mg",
+            "days": 30
+          }
+        ]
+      },
+      {
+        "prescription_id": 7004,
+        "appointment_id": 9004,
+        "patient_id": 1005,
+        "medicines": [
+          {
+            "name": "Clopidogrel",
+            "dosage": "75mg",
+            "days": 20
+          }
+        ]
+      },
+      {
+        "prescription_id": 7005,
+        "appointment_id": 9005,
+        "patient_id": 1007,
+        "medicines": [
+          {
+            "name": "Rosuvastatin",
+            "dosage": "10mg",
+            "days": 30
+          },
+          {
+            "name": "Telmisartan",
+            "dosage": "40mg",
+            "days": 30
+          }
+        ]
+      },
+      {
+        "prescription_id": 7006,
+        "appointment_id": 9008,
+        "patient_id": 1001,
+        "medicines": [
+          {
+            "name": "Levetiracetam",
+            "dosage": "500mg",
+            "days": 14
+          }
+        ]
+      },
+      {
+        "prescription_id": 7007,
+        "appointment_id": 9009,
+        "patient_id": 1004,
+        "medicines": [
+          {
+            "name": "Gabapentin",
+            "dosage": "300mg",
+            "days": 21
+          },
+          {
+            "name": "Methylcobalamin",
+            "dosage": "1500mcg",
+            "days": 30
+          }
+        ]
+      },
+      {
+        "prescription_id": 7008,
+        "appointment_id": 9010,
+        "patient_id": 1006,
+        "medicines": [
+          {
+            "name": "Topiramate",
+            "dosage": "50mg",
+            "days": 14
+          }
+        ]
+      },
+      {
+        "prescription_id": 7009,
+        "appointment_id": 9011,
+        "patient_id": 1008,
+        "medicines": [
+          {
+            "name": "Donepezil",
+            "dosage": "5mg",
+            "days": 30
+          }
+        ]
+      },
+      {
+        "prescription_id": 7010,
+        "appointment_id": 9013,
+        "patient_id": 1002,
+        "medicines": [
+          {
+            "name": "Aceclofenac",
+            "dosage": "100mg",
+            "days": 7
+          },
+          {
+            "name": "Paracetamol",
+            "dosage": "325mg",
+            "days": 7
+          },
+          {
+            "name": "Rabeprazole",
+            "dosage": "20mg",
+            "days": 7
+          }
+        ]
+      },
+      {
+        "prescription_id": 7011,
+        "appointment_id": 9014,
+        "patient_id": 1003,
+        "medicines": [
+          {
+            "name": "Calcium Carbonate",
+            "dosage": "500mg",
+            "days": 30
+          },
+          {
+            "name": "Vitamin D3",
+            "dosage": "60000IU",
+            "days": 4
+          }
+        ]
+      },
+      {
+        "prescription_id": 7012,
+        "appointment_id": 9015,
+        "patient_id": 1012,
+        "medicines": [
+          {
+            "name": "Tramadol",
+            "dosage": "50mg",
+            "days": 5
+          }
+        ]
+      },
+      {
+        "prescription_id": 7013,
+        "appointment_id": 9016,
+        "patient_id": 1013,
+        "medicines": [
+          {
+            "name": "Diclofenac Gel",
+            "dosage": "1%",
+            "days": 10
+          }
+        ]
+      },
+      {
+        "prescription_id": 7014,
+        "appointment_id": 9018,
+        "patient_id": 1006,
+        "medicines": [
+          {
+            "name": "Amoxicillin Oral Susp",
+            "dosage": "125mg/5ml",
+            "days": 5
+          },
+          {
+            "name": "Paracetamol Syrup",
+            "dosage": "250mg/5ml",
+            "days": 3
+          }
+        ]
+      },
+      {
+        "prescription_id": 7015,
+        "appointment_id": 9019,
+        "patient_id": 1008,
+        "medicines": [
+          {
+            "name": "Cetirizine Syrup",
+            "dosage": "5mg/5ml",
+            "days": 5
+          }
+        ]
+      },
+      {
+        "prescription_id": 7016,
+        "appointment_id": 9020,
+        "patient_id": 1010,
+        "medicines": [
+          {
+            "name": "Multivitamin Drops",
+            "dosage": "1ml",
+            "days": 30
+          }
+        ]
+      },
+      {
+        "prescription_id": 7017,
+        "appointment_id": 9021,
+        "patient_id": 1015,
+        "medicines": [
+          {
+            "name": "Ibuprofen Suspension",
+            "dosage": "100mg/5ml",
+            "days": 3
+          }
+        ]
+      },
+      {
+        "prescription_id": 7018,
+        "appointment_id": 9023,
+        "patient_id": 1004,
+        "medicines": [
+          {
+            "name": "Isotretinoin",
+            "dosage": "20mg",
+            "days": 30
+          },
+          {
+            "name": "Clindamycin Gel",
+            "dosage": "1%",
+            "days": 15
+          }
+        ]
+      },
+      {
+        "prescription_id": 7019,
+        "appointment_id": 9024,
+        "patient_id": 1007,
+        "medicines": [
+          {
+            "name": "Hydrocortisone Cream",
+            "dosage": "1%",
+            "days": 7
+          }
+        ]
+      },
+      {
+        "prescription_id": 7020,
+        "appointment_id": 9025,
+        "patient_id": 1011,
+        "medicines": [
+          {
+            "name": "Ketoconazole Lotion",
+            "dosage": "2%",
+            "days": 14
+          }
+        ]
+      },
+      {
+        "prescription_id": 7021,
+        "appointment_id": 9027,
+        "patient_id": 1001,
+        "medicines": [
+          {
+            "name": "Metformin",
+            "dosage": "500mg",
+            "days": 30
+          },
+          {
+            "name": "Glimepiride",
+            "dosage": "1mg",
+            "days": 30
+          }
+        ]
+      },
+      {
+        "prescription_id": 7022,
+        "appointment_id": 9028,
+        "patient_id": 1005,
+        "medicines": [
+          {
+            "name": "Pantoprazole",
+            "dosage": "40mg",
+            "days": 14
+          }
+        ]
+      }
+    ]
+  }
+}
