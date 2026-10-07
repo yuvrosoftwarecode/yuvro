@@ -24,6 +24,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useMemo, useState, useEffect, useCallback } from "react";
+import { useAuth } from "@/lib/auth";
 import type { Ticket, Status } from "@/lib/dummy";
 import { getLab, type AdminLab } from "@/lib/adminLabs";
 import { loadSprints, type LabSprint } from "@/lib/labSprints";
@@ -402,6 +403,7 @@ const normalizeDiff = (diff?: string) => {
 };
 
 function LabDashboard() {
+  const { user } = useAuth();
   const { slug } = useParams({ from: "/student/lab/$slug" });
   const ticketMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId", shouldThrow: false });
   const reportMatch = useMatch({ from: "/student/lab/$slug/report", shouldThrow: false });
