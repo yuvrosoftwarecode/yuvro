@@ -1960,7 +1960,12 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemasLoading(true);
       try {
-        const tables: any = await fetchExternalDbSchema("postgresql", postgresUri);
+        const tables: any = await fetchExternalDbSchema("postgresql", postgresUri, {
+          userId: effectiveUserId,
+          labId,
+          sprintId,
+          evaluationId: isEvaluationMode ? evaluationId : undefined,
+        });
         const formattedTables = (tables || []).map((t: any) => ({
           name: t.table || t.name,
           columns: (t.columns || []).map((c: any) => ({
@@ -4744,9 +4749,9 @@ function SidePreview({ device, kit, files, activeFile, startupCommand, previewPo
   const body = startupCommand ? <WebPreview port={previewPort} /> :
     kit.name === "django" ? <DjangoTodoApp /> :
       kit.name === "ui" ? <UiPreview files={files} fullHeight /> :
-        kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
-          kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
-            kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+        isMysql || kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+          isPostgres || kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+            isSql || kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
               kit.name === "mongo" ? <MongoResultsView query={files[activeFile] ?? ""} /> :
                 kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                   (

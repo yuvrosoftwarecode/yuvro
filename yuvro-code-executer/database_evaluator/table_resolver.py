@@ -55,10 +55,12 @@ class SecurityException(Exception):
 
 
 def sanitize_identifier(name: str) -> str:
-    """Strip whitespace and backticks from a SQL identifier."""
+    """Strip whitespace, backticks, and double quotes from a SQL identifier."""
     s = str(name).strip()
     if s.startswith("`") and s.endswith("`"):
         s = s[1:-1].replace("``", "`")
+    elif s.startswith('"') and s.endswith('"'):
+        s = s[1:-1].replace('""', '"')
     return s.strip()
 
 
@@ -74,7 +76,8 @@ def build_isolated_table_name(
     evaluation_uuid: str,
     user_uuid: str,
     lab_uuid: str,
-    logical_table_name: str
+    logical_table_name: str,
+    dialect: str = "mysql"
 ) -> str:
     """
     Build a deterministic isolated physical table name.
@@ -85,8 +88,8 @@ def build_isolated_table_name(
     Example:
       evaluation_abc123_user_user456_lab_lab789_users
       
-    If the full name exceeds MySQL's 64-character limit (e.g. when 36-char UUIDs are provided),
-    it generates a deterministic compressed identifier guaranteed to fit in <= 64 characters:
+    If the full name exceeds the identifier limit (63 for PostgreSQL, 64 for MySQL),
+    it generates a deterministic compressed identifier guaranteed to fit in <= max_len characters:
       eval_{eval_short}_{user_short}_{lab_short}_{hash8}_{table}
     """
     clean_eval = re.sub(r"[^a-zA-Z0-9_]", "", str(evaluation_uuid))
@@ -97,9 +100,11 @@ def build_isolated_table_name(
     if not clean_table:
         raise ValueError("Logical table name cannot be empty.")
 
+    max_len = 63 if str(dialect).lower() in ("postgresql", "postgres") else MYSQL_MAX_IDENTIFIER_LENGTH
+
     # Try exact template
     full_name = f"evaluation_{clean_eval}_user_{clean_user}_lab_{clean_lab}_{clean_table}"
-    if len(full_name) <= MYSQL_MAX_IDENTIFIER_LENGTH:
+    if len(full_name) <= max_len:
         return full_name
 
     # Long UUIDs: deterministically shorten while keeping readable components and hash
@@ -109,12 +114,12 @@ def build_isolated_table_name(
     lab_short = clean_lab[:8]
 
     candidate = f"eval_{eval_short}_{user_short}_{lab_short}_{h}_{clean_table}"
-    if len(candidate) <= MYSQL_MAX_IDENTIFIER_LENGTH:
+    if len(candidate) <= max_len:
         return candidate
 
     # If clean_table itself is exceptionally long:
     prefix = f"eval_{eval_short}_{user_short}_{lab_short}_{h}_"
-    avail = MYSQL_MAX_IDENTIFIER_LENGTH - len(prefix)
+    avail = max_len - len(prefix)
     return f"{prefix}{clean_table[:avail]}"
 
 
@@ -129,11 +134,13 @@ class EvaluationTableResolver:
         evaluation_uuid: str,
         user_uuid: str,
         lab_uuid: str,
-        table_map: Optional[Dict[str, str]] = None
+        table_map: Optional[Dict[str, str]] = None,
+        dialect: str = "mysql"
     ):
         self.evaluation_uuid = str(evaluation_uuid).strip()
         self.user_uuid = str(user_uuid).strip()
         self.lab_uuid = str(lab_uuid).strip()
+        self.dialect = str(dialect).lower().strip()
 
         # Key: logical table name (lowercase), Value: physical table name
         self.logical_to_physical: Dict[str, str] = {}
@@ -152,7 +159,8 @@ class EvaluationTableResolver:
                 self.evaluation_uuid,
                 self.user_uuid,
                 self.lab_uuid,
-                clean_logical
+                clean_logical,
+                dialect=self.dialect
             )
         self.logical_to_physical[clean_logical] = physical_name
         self.physical_to_logical[physical_name.lower()] = clean_logical
@@ -205,9 +213,9 @@ class EvaluationTableResolver:
                     if prev_idx >= 0 and raw_tokens[prev_idx][1].upper() in ("CREATE", "DROP", "ALTER"):
                         raise SecurityException("Database-level DDL operations are prohibited.")
 
-                # Check access to system catalogs: information_schema, mysql, performance_schema, sys
+                # Check access to system catalogs: information_schema, mysql, performance_schema, sys, pg_catalog
                 # (unless this query is specifically internal schema exploration)
-                if val.lower() in ("information_schema", "performance_schema", "mysql", "sys"):
+                if val.lower() in ("information_schema", "performance_schema", "mysql", "sys", "pg_catalog"):
                     # Check if next token is a dot
                     next_idx = i + 1
                     while next_idx < n and raw_tokens[next_idx][0] in ("SPACE", "LINE_COMMENT", "BLOCK_COMMENT"):
@@ -264,10 +272,11 @@ class EvaluationTableResolver:
                                 j += 1
                     # Extract table name(s)
                     while j < n:
-                        if raw_tokens[j][0] in ("WORD", "BACKTICK_ID"):
+                        if raw_tokens[j][0] in ("WORD", "BACKTICK_ID", "STRING_DOUBLE"):
                             tbl = sanitize_identifier(raw_tokens[j][1]).lower()
-                            if tbl not in SQL_KEYWORDS:
-                                created_tables.add(tbl)
+                            if tbl.upper() in SQL_KEYWORDS:
+                                break
+                            created_tables.add(tbl)
                             j += 1
                         elif raw_tokens[j][0] in ("SPACE", "LINE_COMMENT", "BLOCK_COMMENT"):
                             j += 1
@@ -319,10 +328,13 @@ class EvaluationTableResolver:
                 k -= 1
             return None, None, None
 
+        is_postgres = self.dialect in ("postgresql", "postgres")
+        quote_char = '"' if is_postgres else '`'
+
         while i < n:
             kind, val = raw_tokens[i]
 
-            if kind in ("WORD", "BACKTICK_ID"):
+            if kind in ("WORD", "BACKTICK_ID") or (is_postgres and kind == "STRING_DOUBLE"):
                 clean_name = sanitize_identifier(val).lower()
 
                 if clean_name in self.logical_to_physical:
@@ -400,15 +412,15 @@ class EvaluationTableResolver:
                             scan -= 1
 
                         if is_from_or_join and not has_alias and not is_delete:
-                            out.append(f"`{physical}` AS `{clean_name}`")
+                            out.append(f"{quote_char}{physical}{quote_char} AS {quote_char}{clean_name}{quote_char}")
                         else:
-                            out.append(f"`{physical}`")
+                            out.append(f"{quote_char}{physical}{quote_char}")
 
                     elif is_table_dot:
                         # Qualified column: e.g. users.id
                         # If table in FROM was aliased AS users, then users.id already resolves to alias users!
                         # Keep it clean
-                        out.append(f"`{clean_name}`")
+                        out.append(f"{quote_char}{clean_name}{quote_char}")
                     else:
                         out.append(val)
                 else:
@@ -433,13 +445,14 @@ class EvaluationTableResolver:
             return query
 
         in_clause = ", ".join(physical_names)
+        table_col = "table_name" if "table_name" in query else "TABLE_NAME"
 
-        # If query already has WHERE clause, inject AND TABLE_NAME IN (...)
-        # Otherwise append WHERE TABLE_NAME IN (...)
+        # If query already has WHERE clause, inject AND table_name IN (...)
+        # Otherwise append WHERE table_name IN (...)
         if re.search(r"\bWHERE\b", query, re.IGNORECASE):
             rewritten = re.sub(
                 r"(\bWHERE\b\s+)(.*?)(\bORDER\b|\bGROUP\b|;|$)",
-                rf"\1(\2) AND TABLE_NAME IN ({in_clause}) \3",
+                rf"\1(\2) AND {table_col} IN ({in_clause}) \3",
                 query,
                 flags=re.IGNORECASE | re.DOTALL
             )
@@ -447,7 +460,7 @@ class EvaluationTableResolver:
         else:
             rewritten = re.sub(
                 r"(\bFROM\s+[^\s;]+)(.*?)(\bORDER\b|\bGROUP\b|;|$)",
-                rf"\1 WHERE TABLE_NAME IN ({in_clause})\2\3",
+                rf"\1 WHERE {table_col} IN ({in_clause})\2\3",
                 query,
                 flags=re.IGNORECASE | re.DOTALL
             )

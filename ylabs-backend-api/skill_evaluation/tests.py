@@ -187,3 +187,20 @@ class DatabaseLabDetectionTest(TestCase):
         self.assertEqual(len(tasks[1].expected_output), 4)
         self.assertEqual(len(tasks[2].expected_output), 6)
 
+    def test_college_postgresql_lab_fixture_data_integrity(self):
+        from django.core.management import call_command
+        call_command("load_skill_evaluations")
+        lab = LabQuestionBank.objects.filter(title="College Academic Analytics").first()
+        self.assertIsNotNone(lab)
+        self.assertIn("POSTGRESQL", lab.databases)
+        self.assertEqual(lab.git_repo_starter_branch, "postgresql-lab")
+        tasks = list(lab.tasks.all().order_by("order_index"))
+        self.assertEqual(len(tasks), 3)
+        self.assertEqual(tasks[0].title, "Task 1: Student Performance Report")
+        self.assertEqual(tasks[1].title, "Task 2: Top Student in Each Department")
+        self.assertEqual(tasks[2].title, "Task 3: Course Enrollment Analysis")
+        self.assertEqual(len(tasks[0].expected_output), 6)
+        self.assertEqual(len(tasks[1].expected_output), 6)
+        self.assertEqual(len(tasks[2].expected_output), 5)
+
+

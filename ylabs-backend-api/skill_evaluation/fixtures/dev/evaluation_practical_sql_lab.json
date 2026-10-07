@@ -158,6 +158,213 @@
           }
         }
       ]
+    },
+    {
+      "title": "College Academic Analytics",
+      "type": "DATABASE",
+      "description": "A university wants to analyze student academic performance, course enrollment, and departmental performance. The PostgreSQL database has already been configured and populated with realistic data. Write SQL queries to generate three reports for the university administration.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 30,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_practical_sql_lab",
+      "git_repo_starter_branch": "postgresql-lab",
+      "startup_command": "",
+      "connection_url": "postgresql://postgres.oowxfnicvylatfyywlxh:%2F.%2FT%23%24Ex%40%2Av%242aT@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres",
+      "programming_languages": [
+        "SQL"
+      ],
+      "databases": [
+        "POSTGRESQL"
+      ],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Task 1: Student Performance Report",
+          "description": "The university wants to identify high-performing students.\n\nWrite a SQL query that returns students whose average marks across their completed courses are greater than 75.\n\nReturn exactly:\n- `student_id`\n- `student_name`\n- `department_name`\n- `courses_completed`\n- `average_marks`\n\nRequirements:\n1. Consider only enrollments with status `completed`.\n2. Calculate the average using `marks`.\n3. Students must have completed at least 3 courses.\n4. Include only students whose average marks are greater than 75.\n5. Join the department information.\n6. Sort by `average_marks` descending.\n7. If averages are equal, sort by `student_id` ascending.\n8. Return each student only once.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "database_engine": "postgresql",
+            "system_query": "SELECT s.student_id, s.student_name, d.department_name, COUNT(e.enrollment_id) AS courses_completed, ROUND(AVG(e.marks), 2) AS average_marks FROM students s JOIN departments d ON s.department_id = d.department_id JOIN enrollments e ON s.student_id = e.student_id WHERE e.status = 'completed' GROUP BY s.student_id, s.student_name, d.department_name HAVING COUNT(e.enrollment_id) >= 3 AND AVG(e.marks) > 75 ORDER BY average_marks DESC, s.student_id ASC;",
+            "expected_result": "Alice Johnson"
+          },
+          "expected_output": [
+            {
+              "student_id": 1,
+              "student_name": "Alice Johnson",
+              "department_name": "Computer Science",
+              "courses_completed": 3,
+              "average_marks": 90.0
+            },
+            {
+              "student_id": 14,
+              "student_name": "Nina Simone",
+              "department_name": "Information Technology",
+              "courses_completed": 3,
+              "average_marks": 90.0
+            },
+            {
+              "student_id": 5,
+              "student_name": "Ethan Hunt",
+              "department_name": "Electronics",
+              "courses_completed": 3,
+              "average_marks": 88.0
+            },
+            {
+              "student_id": 6,
+              "student_name": "Fiona Gallagher",
+              "department_name": "Electronics",
+              "courses_completed": 3,
+              "average_marks": 88.0
+            },
+            {
+              "student_id": 2,
+              "student_name": "Bob Smith",
+              "department_name": "Computer Science",
+              "courses_completed": 4,
+              "average_marks": 82.0
+            },
+            {
+              "student_id": 8,
+              "student_name": "Hannah Abbott",
+              "department_name": "Mechanical",
+              "courses_completed": 3,
+              "average_marks": 78.0
+            }
+          ],
+          "solution": {
+            "task1.sql": "SELECT s.student_id, s.student_name, d.department_name, COUNT(e.enrollment_id) AS courses_completed, ROUND(AVG(e.marks), 2) AS average_marks FROM students s JOIN departments d ON s.department_id = d.department_id JOIN enrollments e ON s.student_id = e.student_id WHERE e.status = 'completed' GROUP BY s.student_id, s.student_name, d.department_name HAVING COUNT(e.enrollment_id) >= 3 AND AVG(e.marks) > 75 ORDER BY average_marks DESC, s.student_id ASC;"
+          }
+        },
+        {
+          "title": "Task 2: Top Student in Each Department",
+          "description": "The university administration wants to identify the highest-performing students in every department.\n\nCalculate each student's average marks using only completed enrollments and return the top-ranked student(s) in each department.\nIf multiple students have exactly the same highest average in a department, include all tied students.\n\nReturn exactly:\n- `department_name`\n- `student_id`\n- `student_name`\n- `average_marks`\n- `rank`\n\nRequirements:\n1. Consider only `completed` enrollments.\n2. Calculate each student's average marks.\n3. Rank students separately within each department using a PostgreSQL window function like `RANK() OVER (PARTITION BY ... ORDER BY ...)`.\n4. Include all students with rank `1`.\n5. Sort by `department_name` ascending and `student_id` ascending.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "database_engine": "postgresql",
+            "system_query": "WITH student_dept_avg AS (SELECT d.department_name, s.student_id, s.student_name, ROUND(AVG(e.marks), 2) AS average_marks, RANK() OVER (PARTITION BY d.department_name ORDER BY AVG(e.marks) DESC) AS rank FROM students s JOIN departments d ON s.department_id = d.department_id JOIN enrollments e ON s.student_id = e.student_id WHERE e.status = 'completed' GROUP BY d.department_name, s.student_id, s.student_name) SELECT department_name, student_id, student_name, average_marks, rank FROM student_dept_avg WHERE rank = 1 ORDER BY department_name ASC, student_id ASC;",
+            "expected_result": "Charlie Brown"
+          },
+          "expected_output": [
+            {
+              "department_name": "Civil",
+              "student_id": 11,
+              "student_name": "Kevin Bacon",
+              "average_marks": 85.0,
+              "rank": 1
+            },
+            {
+              "department_name": "Computer Science",
+              "student_id": 3,
+              "student_name": "Charlie Brown",
+              "average_marks": 95.0,
+              "rank": 1
+            },
+            {
+              "department_name": "Electronics",
+              "student_id": 5,
+              "student_name": "Ethan Hunt",
+              "average_marks": 88.0,
+              "rank": 1
+            },
+            {
+              "department_name": "Electronics",
+              "student_id": 6,
+              "student_name": "Fiona Gallagher",
+              "average_marks": 88.0,
+              "rank": 1
+            },
+            {
+              "department_name": "Information Technology",
+              "student_id": 14,
+              "student_name": "Nina Simone",
+              "average_marks": 90.0,
+              "rank": 1
+            },
+            {
+              "department_name": "Mechanical",
+              "student_id": 10,
+              "student_name": "Julia Roberts",
+              "average_marks": 80.0,
+              "rank": 1
+            }
+          ],
+          "solution": {
+            "task2.sql": "WITH student_dept_avg AS (SELECT d.department_name, s.student_id, s.student_name, ROUND(AVG(e.marks), 2) AS average_marks, RANK() OVER (PARTITION BY d.department_name ORDER BY AVG(e.marks) DESC) AS rank FROM students s JOIN departments d ON s.department_id = d.department_id JOIN enrollments e ON s.student_id = e.student_id WHERE e.status = 'completed' GROUP BY d.department_name, s.student_id, s.student_name) SELECT department_name, student_id, student_name, average_marks, rank FROM student_dept_avg WHERE rank = 1 ORDER BY department_name ASC, student_id ASC;"
+          }
+        },
+        {
+          "title": "Task 3: Course Enrollment Analysis",
+          "description": "The university wants to identify courses that have higher-than-average student enrollment.\n\nWrite a SQL query that returns courses whose enrollment count is greater than the overall average enrollment across all courses.\nOnly `active` and `completed` enrollments should be counted.\n\nReturn exactly:\n- `course_id`\n- `course_name`\n- `department_name`\n- `enrollment_count`\n- `average_course_enrollment`\n\nRequirements:\n1. Count only enrollments with status `active` or `completed`.\n2. Calculate enrollment count separately for each course.\n3. Calculate the overall average enrollment across all courses.\n4. Return only courses whose enrollment count is greater than the overall average.\n5. Include department name.\n6. `average_course_enrollment` should represent the overall average used for comparison.\n7. Sort by `enrollment_count` descending.\n8. If enrollment counts are equal, sort by `course_id` ascending.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 100,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "database_engine": "postgresql",
+            "system_query": "WITH course_counts AS (SELECT c.course_id, c.course_name, d.department_name, COUNT(e.enrollment_id) AS enrollment_count FROM courses c JOIN departments d ON c.department_id = d.department_id JOIN enrollments e ON c.course_id = e.course_id WHERE e.status IN ('active', 'completed') GROUP BY c.course_id, c.course_name, d.department_name), overall_avg AS (SELECT ROUND(AVG(enrollment_count), 2) AS avg_enrollment FROM course_counts) SELECT cc.course_id, cc.course_name, cc.department_name, cc.enrollment_count, oa.avg_enrollment AS average_course_enrollment FROM course_counts cc CROSS JOIN overall_avg oa WHERE cc.enrollment_count > oa.avg_enrollment ORDER BY cc.enrollment_count DESC, cc.course_id ASC;",
+            "expected_result": "Data Structures and Algorithms"
+          },
+          "expected_output": [
+            {
+              "course_id": 1,
+              "course_name": "Data Structures and Algorithms",
+              "department_name": "Computer Science",
+              "enrollment_count": 6,
+              "average_course_enrollment": 4.0
+            },
+            {
+              "course_id": 2,
+              "course_name": "Operating Systems",
+              "department_name": "Computer Science",
+              "enrollment_count": 6,
+              "average_course_enrollment": 4.0
+            },
+            {
+              "course_id": 3,
+              "course_name": "Database Management Systems",
+              "department_name": "Computer Science",
+              "enrollment_count": 5,
+              "average_course_enrollment": 4.0
+            },
+            {
+              "course_id": 4,
+              "course_name": "Digital Electronics",
+              "department_name": "Electronics",
+              "enrollment_count": 5,
+              "average_course_enrollment": 4.0
+            },
+            {
+              "course_id": 11,
+              "course_name": "Web Technologies",
+              "department_name": "Information Technology",
+              "enrollment_count": 5,
+              "average_course_enrollment": 4.0
+            }
+          ],
+          "solution": {
+            "task3.sql": "WITH course_counts AS (SELECT c.course_id, c.course_name, d.department_name, COUNT(e.enrollment_id) AS enrollment_count FROM courses c JOIN departments d ON c.department_id = d.department_id JOIN enrollments e ON c.course_id = e.course_id WHERE e.status IN ('active', 'completed') GROUP BY c.course_id, c.course_name, d.department_name), overall_avg AS (SELECT ROUND(AVG(enrollment_count), 2) AS avg_enrollment FROM course_counts) SELECT cc.course_id, cc.course_name, cc.department_name, cc.enrollment_count, oa.avg_enrollment AS average_course_enrollment FROM course_counts cc CROSS JOIN overall_avg oa WHERE cc.enrollment_count > oa.avg_enrollment ORDER BY cc.enrollment_count DESC, cc.course_id ASC;"
+          }
+        }
+      ]
     }
   ]
 }
