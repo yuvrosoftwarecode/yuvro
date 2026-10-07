@@ -59,7 +59,9 @@ resource "aws_db_instance" "main" {
     Name = "${var.environment}-yuvro-db"
   }
 
-  depends_on = try([aws_db_parameter_group.main[0]], [data.aws_db_parameter_group.main_existing])
+  lifecycle {
+    ignore_changes = [backup_retention_period]
+  }
 }
 
 data "aws_db_parameter_group" "main_existing" {

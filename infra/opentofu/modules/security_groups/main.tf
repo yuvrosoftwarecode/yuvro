@@ -54,20 +54,8 @@ locals {
   rds_sg_id = try(data.aws_security_group.rds_existing[0].id, aws_security_group.rds[0].id)
 }
 
-# Get existing ingress rules
-data "aws_vpc_security_group_ingress_rules" "app_ssh_existing" {
-  filter {
-    name   = "security_group_id"
-    values = [local.app_sg_id]
-  }
-  filter {
-    name   = "from_port"
-    values = ["22"]
-  }
-}
-
+# App SSH rule
 resource "aws_vpc_security_group_ingress_rule" "app_ssh" {
-  count             = length(data.aws_vpc_security_group_ingress_rules.app_ssh_existing.ids) > 0 ? 0 : 1
   security_group_id = local.app_sg_id
   description       = "SSH access"
   from_port         = 22
@@ -77,24 +65,12 @@ resource "aws_vpc_security_group_ingress_rule" "app_ssh" {
   tags = { Name = "ssh" }
 
   lifecycle {
-    ignore_changes = [tags]
+    ignore_changes = all
   }
 }
 
-# Get existing HTTP rule
-data "aws_vpc_security_group_ingress_rules" "app_http_existing" {
-  filter {
-    name   = "security_group_id"
-    values = [local.app_sg_id]
-  }
-  filter {
-    name   = "from_port"
-    values = ["80"]
-  }
-}
-
+# HTTP rule
 resource "aws_vpc_security_group_ingress_rule" "app_http" {
-  count             = length(data.aws_vpc_security_group_ingress_rules.app_http_existing.ids) > 0 ? 0 : 1
   security_group_id = local.app_sg_id
   description       = "HTTP"
   from_port         = 80
@@ -104,24 +80,12 @@ resource "aws_vpc_security_group_ingress_rule" "app_http" {
   tags = { Name = "http" }
 
   lifecycle {
-    ignore_changes = [tags]
+    ignore_changes = all
   }
 }
 
-# Get existing HTTPS rule
-data "aws_vpc_security_group_ingress_rules" "app_https_existing" {
-  filter {
-    name   = "security_group_id"
-    values = [local.app_sg_id]
-  }
-  filter {
-    name   = "from_port"
-    values = ["443"]
-  }
-}
-
+# HTTPS rule
 resource "aws_vpc_security_group_ingress_rule" "app_https" {
-  count             = length(data.aws_vpc_security_group_ingress_rules.app_https_existing.ids) > 0 ? 0 : 1
   security_group_id = local.app_sg_id
   description       = "HTTPS"
   from_port         = 443
@@ -131,25 +95,12 @@ resource "aws_vpc_security_group_ingress_rule" "app_https" {
   tags = { Name = "https" }
 
   lifecycle {
-    ignore_changes = [tags]
+    ignore_changes = all
   }
 }
 
-# Get existing app ports rule
-data "aws_vpc_security_group_ingress_rules" "app_ports_existing" {
-  filter {
-    name   = "security_group_id"
-    values = [local.app_sg_id]
-  }
-  filter {
-    name   = "from_port"
-    values = ["3000"]
-  }
-}
-
-# App ports: ycode-frontend(3000), ycode-backend(8001), executor(8009), ycampus-backend(8003), ycampus-frontend(3002)
+# App ports rule
 resource "aws_vpc_security_group_ingress_rule" "app_ports" {
-  count             = length(data.aws_vpc_security_group_ingress_rules.app_ports_existing.ids) > 0 ? 0 : 1
   security_group_id = local.app_sg_id
   description       = "Application ports"
   from_port         = 3000
@@ -159,28 +110,12 @@ resource "aws_vpc_security_group_ingress_rule" "app_ports" {
   tags = { Name = "app-ports" }
 
   lifecycle {
-    ignore_changes = [tags]
+    ignore_changes = all
   }
 }
 
-# Get existing app egress rule
-data "aws_vpc_security_group_egress_rules" "app_all_existing" {
-  filter {
-    name   = "security_group_id"
-    values = [local.app_sg_id]
-  }
-  filter {
-    name   = "cidr_ipv4"
-    values = ["0.0.0.0/0"]
-  }
-  filter {
-    name   = "ip_protocol"
-    values = ["-1"]
-  }
-}
-
+# App egress rule
 resource "aws_vpc_security_group_egress_rule" "app_all" {
-  count             = length(data.aws_vpc_security_group_egress_rules.app_all_existing.ids) > 0 ? 0 : 1
   security_group_id = local.app_sg_id
   description       = "Allow all outbound traffic"
   ip_protocol       = "-1"
@@ -188,24 +123,12 @@ resource "aws_vpc_security_group_egress_rule" "app_all" {
   tags = { Name = "all-outbound" }
 
   lifecycle {
-    ignore_changes = [tags]
+    ignore_changes = all
   }
 }
 
-# Get existing RDS postgres rule
-data "aws_vpc_security_group_ingress_rules" "rds_postgres_existing" {
-  filter {
-    name   = "security_group_id"
-    values = [local.rds_sg_id]
-  }
-  filter {
-    name   = "from_port"
-    values = ["5432"]
-  }
-}
-
+# RDS postgres rule
 resource "aws_vpc_security_group_ingress_rule" "rds_postgres" {
-  count                        = length(data.aws_vpc_security_group_ingress_rules.rds_postgres_existing.ids) > 0 ? 0 : 1
   security_group_id            = local.rds_sg_id
   description                  = "PostgreSQL from app nodes"
   from_port                    = 5432
@@ -215,28 +138,12 @@ resource "aws_vpc_security_group_ingress_rule" "rds_postgres" {
   tags = { Name = "postgres" }
 
   lifecycle {
-    ignore_changes = [tags]
+    ignore_changes = all
   }
 }
 
-# Get existing RDS egress rule
-data "aws_vpc_security_group_egress_rules" "rds_all_existing" {
-  filter {
-    name   = "security_group_id"
-    values = [local.rds_sg_id]
-  }
-  filter {
-    name   = "cidr_ipv4"
-    values = ["0.0.0.0/0"]
-  }
-  filter {
-    name   = "ip_protocol"
-    values = ["-1"]
-  }
-}
-
+# RDS egress rule
 resource "aws_vpc_security_group_egress_rule" "rds_all" {
-  count             = length(data.aws_vpc_security_group_egress_rules.rds_all_existing.ids) > 0 ? 0 : 1
   security_group_id = local.rds_sg_id
   description       = "Allow all outbound traffic"
   ip_protocol       = "-1"
@@ -244,6 +151,6 @@ resource "aws_vpc_security_group_egress_rule" "rds_all" {
   tags = { Name = "all-outbound" }
 
   lifecycle {
-    ignore_changes = [tags]
+    ignore_changes = all
   }
 }
