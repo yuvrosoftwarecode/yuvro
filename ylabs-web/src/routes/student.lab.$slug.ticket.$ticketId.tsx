@@ -1206,7 +1206,7 @@ export function TicketIDE({
     }
     return "anon";
   }, [userId, evaluationId]);
-  const labId = slug;
+  const labId = isAlgo ? `${slug}_${ticket.id}` : slug;
   const sprintId = ticket.id?.toString() ?? "0";
 
   const candidateKey = useMemo(() => {
@@ -2273,9 +2273,11 @@ export function TicketIDE({
              const uiScore = res.ui_score ?? 0;
              const structScore = res.structural_score ?? 0;
              const isPass = uiScore >= 75 && structScore >= 75;
+             const uiPct = isPass ? 100 : 0;
              api.patch(`${submissionsEndpoint}${ submissionId }/`, {
                [submissionsStatusField]: isPass ? "done" : "in_progress",
                solution: JSON.stringify(getFilesToSave()),
+               solution_output: JSON.stringify({ percentage: uiPct, total_score: uiPct }),
              }).catch(console.error);
           }
         }).catch((err: any) => {
@@ -2342,11 +2344,14 @@ export function TicketIDE({
         ),
       );
 
+      const gitPct = Math.round((passedCount / tasks.length) * 100);
+      const gitOutput = JSON.stringify({ percentage: gitPct, total_score: gitPct });
       if (isReal && submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           api.patch(`${submissionsEndpoint}${ submissionId }/`, {
             [submissionsStatusField]: passedCount === tasks.length ? "done" : "in_progress",
             solution: JSON.stringify(getFilesToSave()),
+            solution_output: gitOutput,
           }).catch(console.error);
         });
       } else if (isReal && !submissionId) {
@@ -2356,6 +2361,7 @@ export function TicketIDE({
             ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
             [submissionsStatusField]: passedCount === tasks.length ? "done" : "in_progress",
             solution: JSON.stringify(getFilesToSave()),
+            solution_output: gitOutput,
           }).catch(console.error);
         });
       }
@@ -2526,7 +2532,7 @@ export function TicketIDE({
         tasks: Object.values(tasksMap),
         percentage: computedSqlScore,
         total_score: computedSqlScore,
-      }) : "";
+      }) : JSON.stringify({ percentage: computedSqlScore, total_score: computedSqlScore });
 
       if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
@@ -2562,19 +2568,22 @@ export function TicketIDE({
       const computedUiScore = ticketScore ? ticketScore.passed : 0;
       if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          const uiSolutionOutput = JSON.stringify({ percentage: computedUiScore, total_score: computedUiScore });
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: "done",
+              [submissionsStatusField]: computedUiScore > 0 ? "done" : "in_progress",
               solution: JSON.stringify(getFilesToSave()),
-              score: computedUiScore
+              score: computedUiScore,
+              solution_output: uiSolutionOutput
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: "done",
+              [submissionsStatusField]: computedUiScore > 0 ? "done" : "in_progress",
               solution: JSON.stringify(getFilesToSave()),
-              score: computedUiScore
+              score: computedUiScore,
+              solution_output: uiSolutionOutput
             }).catch(console.error).finally(() => setSubmitting(false));
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedUiScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
@@ -2596,7 +2605,7 @@ export function TicketIDE({
 
       // Build solution_output JSON from the last execution result so the
       // recruiter report can show per-task pass/fail breakdown accurately.
-      let solutionOutput = "";
+      let solutionOutput = JSON.stringify({ tasks: {}, total_score: computedScore, max_possible_score: 100, percentage: computedScore });
       if (lastExecutionResult) {
         const tasksMap: Record<string, any> = {};
         (ticket.tasks || []).forEach((tMeta: any, idx: number) => {
@@ -2626,7 +2635,7 @@ export function TicketIDE({
       if (slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
           const payload: any = {
-            [submissionsStatusField]: "done",
+            [submissionsStatusField]: computedScore > 0 ? "done" : "in_progress",
             solution: JSON.stringify(getFilesToSave()),
             score: computedScore,
             ...(solutionOutput ? { solution_output: solutionOutput } : {}),
@@ -2681,19 +2690,24 @@ export function TicketIDE({
       setTestsRan(true);
       if (isReal && slug !== "knowledge") {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
+          const legacyScore = next.filter(t => t.pass).length * 20;
+          const legacyOutput = JSON.stringify({ percentage: legacyScore, total_score: legacyScore });
+          const legacyStatus = legacyScore > 0 ? "done" : "in_progress";
           if (submissionId) {
             api.patch(`${submissionsEndpoint}${submissionId}/`, {
-              [submissionsStatusField]: "done",
+              [submissionsStatusField]: legacyStatus,
               solution: JSON.stringify(getFilesToSave()),
-              score: next.filter(t => t.pass).length * 20
+              score: legacyScore,
+              solution_output: legacyOutput
             }).catch(console.error);
           } else {
             api.post(submissionsEndpoint, {
               [submissionsIdField]: ticket.id,
               ...(isEvaluationMode && evaluationId ? { evaluation: evaluationId } : {}),
-              [submissionsStatusField]: "done",
+              [submissionsStatusField]: legacyStatus,
               solution: JSON.stringify(getFilesToSave()),
-              score: next.filter(t => t.pass).length * 20
+              score: legacyScore,
+              solution_output: legacyOutput
             }).catch(console.error);
           }
           if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
