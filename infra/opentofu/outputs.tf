@@ -59,6 +59,12 @@ output "db_instance_id" {
   value       = module.rds_main.db_instance_id
 }
 
+output "prod_rds_endpoint" {
+  description = "Production RDS endpoint (prod-yuvro-db)"
+  value       = var.environment == "prod" ? module.rds_main.db_host : null
+  sensitive   = true
+}
+
 # Application Database Connection Strings
 # Each app uses the same RDS instance but different database schema
 output "ycode_database_url" {

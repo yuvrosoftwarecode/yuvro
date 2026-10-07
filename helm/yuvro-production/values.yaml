@@ -1,0 +1,311 @@
+# Yuvro Production Kubernetes Values
+# Single consolidated RDS instance: prod-yuvro-db
+
+global:
+  environment: production
+  namespace: yuvro-production
+  apiEndpoint: "https"  # Protocol: https or http
+  
+  # Consolidated RDS Database
+  database:
+    host: prod-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com
+    port: 5432
+    masterUser: yuvro_admin
+    # Password should be provided via secrets
+    sslMode: require
+    
+  # AWS Configuration
+  aws:
+    region: ap-south-1
+    account: "123456789012"  # Replace with actual account ID
+    
+  # Image registry
+  imageRegistry: docker.io
+  imagePullPolicy: IfNotPresent
+
+# YCode Application (Learning Platform)
+ycode:
+  enabled: true
+  replicaCount: 2
+  
+  backend:
+    image: yuvro/ycode-backend:latest
+    port: 8000
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    
+    env:
+      DEBUG: "false"
+      DEPLOY_ENV: production
+      APP_NAME: yuvro-ycode
+      DATABASE_NAME: ycode
+      
+  frontend:
+    image: yuvro/ycode-frontend:latest
+    port: 3000
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "250m"
+    
+    env:
+      DEBUG: "false"
+      DEPLOY_ENV: production
+      APP_NAME: yuvro-ycode
+
+# YCampus Application (Campus Management)
+ycampus:
+  enabled: true
+  replicaCount: 2
+  
+  backend:
+    image: yuvro/ycampus-backend:latest
+    port: 8001
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    
+    env:
+      DEBUG: "false"
+      DEPLOY_ENV: production
+      APP_NAME: yuvro-ycampus
+      DATABASE_NAME: ycampus
+      
+  frontend:
+    image: yuvro/ycampus-frontend:latest
+    port: 3001
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "250m"
+
+# YLabs Application (Learning Labs)
+ylabs:
+  enabled: true
+  replicaCount: 2
+  
+  backend:
+    image: yuvro/ylabs-backend:latest
+    port: 8002
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    
+    env:
+      DEBUG: "false"
+      DEPLOY_ENV: production
+      APP_NAME: yuvro-ylabs
+      DATABASE_NAME: ylabs
+      
+  frontend:
+    image: yuvro/ylabs-frontend:latest
+    port: 3002
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "250m"
+
+# YHub Application (Hub Service)
+yhub:
+  enabled: true
+  replicaCount: 2
+  
+  backend:
+    image: yuvro/yhub-backend:latest
+    port: 8003
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    
+    env:
+      DEBUG: "false"
+      DEPLOY_ENV: production
+      APP_NAME: yuvro-yhub
+      DATABASE_NAME: yhub
+
+# YMarketplace Application
+ymarketplace:
+  enabled: true
+  replicaCount: 2
+  
+  backend:
+    image: yuvro/ymarketplace-backend:latest
+    port: 8004
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    
+    env:
+      DEBUG: "false"
+      DEPLOY_ENV: production
+      APP_NAME: yuvro-ymarketplace
+      DATABASE_NAME: ymarketplace
+      
+  frontend:
+    image: yuvro/ymarketplace-frontend:latest
+    port: 3004
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "250m"
+
+# Code Executor Service
+codeExecutor:
+  enabled: true
+  replicaCount: 1
+  
+  image: yuvro/code-executor:latest
+  port: 8009
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  
+  env:
+    DEBUG: "false"
+    DEPLOY_ENV: production
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  
+  tls:
+    enabled: true
+    issuer: letsencrypt-prod
+  
+  hosts:
+    - host: code.yuvro.ai
+      paths:
+        - path: /
+          pathType: Prefix
+          backend: ycode-frontend
+    
+    - host: backend-code.yuvro.ai
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend: ycode-backend
+    
+    - host: campus.yuvro.ai
+      paths:
+        - path: /
+          pathType: Prefix
+          backend: ycampus-frontend
+    
+    - host: backend-campus.yuvro.ai
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend: ycampus-backend
+    
+    - host: labs.yuvro.ai
+      paths:
+        - path: /
+          pathType: Prefix
+          backend: ylabs-frontend
+    
+    - host: backend-labs.yuvro.ai
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend: ylabs-backend
+    
+    - host: backend-hub.yuvro.ai
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend: yhub-backend
+    
+    - host: marketplace.yuvro.ai
+      paths:
+        - path: /
+          pathType: Prefix
+          backend: ymarketplace-frontend
+    
+    - host: backend-marketplace.yuvro.ai
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend: ymarketplace-backend
+    
+    - host: code-executor.yuvro.ai
+      paths:
+        - path: /
+          pathType: Prefix
+          backend: code-executor
+
+# Service Configuration
+service:
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Auto Scaling
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Node Affinity
+nodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+      - matchExpressions:
+          - key: kubernetes.io/os
+            operator: In
+            values:
+              - linux
+          - key: node.kubernetes.io/instance-type
+            operator: In
+            values:
+              - t3.medium
+              - t3.large
+              - t3.xlarge

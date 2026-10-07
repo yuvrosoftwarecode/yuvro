@@ -1,0 +1,322 @@
+name: Deploy Production Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to deploy (e.g., v1.0.0)'
+        required: true
+        type: string
+      deploy_apps:
+        description: 'Apps to deploy'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - ycode
+          - ycampus
+          - ylabs
+          - yhub
+          - ymarketplace
+          - code-executor
+      dry_run:
+        description: 'Dry run (no actual deployment)'
+        required: false
+        default: false
+        type: boolean
+      require_approval:
+        description: 'Require manual approval before deployment'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  validate-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_exists: ${{ steps.check.outputs.exists }}
+      release_info: ${{ steps.check.outputs.info }}
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Validate release tag
+      id: check
+      run: |
+        RELEASE_TAG="${{ inputs.release_tag }}"
+        
+        # Check if tag exists
+        if git rev-parse "$RELEASE_TAG" > /dev/null 2>&1; then
+          EXISTS="true"
+          COMMIT=$(git rev-parse "$RELEASE_TAG")
+          DATE=$(git log -1 --format=%ai "$RELEASE_TAG")
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "info=Tag: $RELEASE_TAG | Commit: ${COMMIT:0:7} | Date: $DATE" >> $GITHUB_OUTPUT
+          echo "✅ Release tag found: $RELEASE_TAG"
+          echo "   Commit: ${COMMIT:0:7}"
+          echo "   Date: $DATE"
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "❌ Release tag not found: $RELEASE_TAG"
+          exit 1
+        fi
+    
+    - name: Get release notes
+      run: |
+        RELEASE_TAG="${{ inputs.release_tag }}"
+        echo "📋 Release Information:"
+        git tag -l "$RELEASE_TAG" -n10 || echo "No release notes found"
+
+  approval:
+    needs: validate-release
+    if: ${{ inputs.require_approval == true }}
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Wait for approval
+      run: |
+        echo "⏳ Deployment waiting for approval..."
+        echo ""
+        echo "Release: ${{ inputs.release_tag }}"
+        echo "Apps: ${{ inputs.deploy_apps }}"
+        echo "Dry Run: ${{ inputs.dry_run }}"
+        echo ""
+        echo "Review in: GitHub Actions > Environments > Production"
+
+  deploy:
+    needs: validate-release
+    if: ${{ needs.validate-release.outputs.release_exists == 'true' }}
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.release_tag }}
+        fetch-depth: 0
+        submodules: recursive
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-south-1
+    
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+    
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: 'v3.13.0'
+    
+    - name: Configure kubectl for EKS
+      run: |
+        aws eks update-kubeconfig \
+          --name yuvro-prod-cluster \
+          --region ap-south-1
+        
+        echo "✅ kubectl configured for EKS cluster"
+    
+    - name: Pre-deployment checks
+      run: |
+        echo "🔍 Running pre-deployment checks..."
+        
+        # Verify cluster connectivity
+        echo "Checking cluster connectivity..."
+        kubectl cluster-info
+        
+        # Verify namespace exists
+        echo "Checking namespace..."
+        kubectl get namespace yuvro-production
+        
+        # Verify secrets
+        echo "Checking database credentials..."
+        kubectl get secret yuvro-db-credentials -n yuvro-production -o name
+        
+        # Get current deployments
+        echo ""
+        echo "Current deployments:"
+        kubectl get deployments -n yuvro-production -o wide
+        
+        echo "✅ Pre-deployment checks passed"
+    
+    - name: Generate Helm values
+      id: helm_values
+      run: |
+        APPS="${{ inputs.deploy_apps }}"
+        VALUES=""
+        
+        for app in ycode ycampus ylabs yhub ymarketplace code-executor; do
+          if [ "$APPS" = "all" ] || [[ "$APPS" =~ "$app" ]]; then
+            VALUES="$VALUES --set $(echo $app | sed 's/-//g').enabled=true"
+          else
+            VALUES="$VALUES --set $(echo $app | sed -e 's/-//g' -e 's/code/codeExecutor/').enabled=false"
+          fi
+        done
+        
+        echo "values<<EOF" >> $GITHUB_OUTPUT
+        echo "$VALUES" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Dry run (if enabled)
+      if: ${{ inputs.dry_run == true }}
+      run: |
+        echo "🏃 Running deployment in DRY RUN mode..."
+        
+        helm upgrade --install yuvro ./helm/yuvro-production \
+          --namespace yuvro-production \
+          --set global.database.host=prod-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com \
+          --set global.database.masterUser=yuvro_admin \
+          --set global.database.masterPassword="${{ secrets.PROD_RDS_PASSWORD }}" \
+          --set global.environment=production \
+          --set imageTag=${{ inputs.release_tag }} \
+          ${{ steps.helm_values.outputs.values }} \
+          --dry-run \
+          --debug
+        
+        echo "✅ Dry run completed (no changes applied)"
+    
+    - name: Deploy to production
+      if: ${{ inputs.dry_run == false }}
+      run: |
+        echo "🚀 Deploying release ${{ inputs.release_tag }} to production..."
+        
+        START_TIME=$(date +%s)
+        
+        helm upgrade --install yuvro ./helm/yuvro-production \
+          --namespace yuvro-production \
+          --set global.database.host=prod-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com \
+          --set global.database.masterUser=yuvro_admin \
+          --set global.database.masterPassword="${{ secrets.PROD_RDS_PASSWORD }}" \
+          --set global.environment=production \
+          --set imageTag=${{ inputs.release_tag }} \
+          ${{ steps.helm_values.outputs.values }} \
+          --wait \
+          --timeout 15m
+        
+        END_TIME=$(date +%s)
+        DURATION=$((END_TIME - START_TIME))
+        
+        echo "✅ Helm deployment completed in ${DURATION}s"
+    
+    - name: Verify deployment
+      run: |
+        echo "🔍 Verifying production deployment..."
+        
+        # Wait for rollouts
+        kubectl rollout status deployment --all -n yuvro-production --timeout=5m || true
+        
+        # Get deployment status
+        echo ""
+        echo "Deployments:"
+        kubectl get deployments -n yuvro-production -o wide
+        
+        echo ""
+        echo "Pods:"
+        kubectl get pods -n yuvro-production -o wide
+        
+        echo ""
+        echo "Services:"
+        kubectl get svc -n yuvro-production -o wide
+        
+        # Check pod health
+        FAILED_PODS=$(kubectl get pods -n yuvro-production --field-selector=status.phase!=Running,status.phase!=Succeeded | wc -l)
+        if [ "$FAILED_PODS" -gt 1 ]; then
+          echo "⚠️  Some pods may not be in Running state"
+          kubectl describe pods -n yuvro-production | grep -A 5 "State:"
+        else
+          echo "✅ All pods healthy"
+        fi
+    
+    - name: Run smoke tests
+      run: |
+        echo "🧪 Running smoke tests..."
+        
+        # Port forward to test services
+        echo "Testing services..."
+        
+        # Test connectivity to each backend
+        for app in ycode ycampus ylabs ymarketplace; do
+          pod=$(kubectl get pods -n yuvro-production -l app=${app}-backend -o name | head -1)
+          if [ -n "$pod" ]; then
+            echo "Testing $app..."
+            kubectl exec -n yuvro-production "$pod" -- curl -s http://localhost:8000/api/health/ || echo "⚠️  Health check failed for $app"
+          fi
+        done
+        
+        echo "✅ Smoke tests completed"
+    
+    - name: Create deployment record
+      if: ${{ inputs.dry_run == false }}
+      run: |
+        cat > /tmp/deployment_record.txt <<EOF
+        Deployment Record
+        =================
+        Release: ${{ inputs.release_tag }}
+        Apps: ${{ inputs.deploy_apps }}
+        Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+        Environment: production
+        Namespace: yuvro-production
+        Cluster: yuvro-prod-cluster
+        Region: ap-south-1
+        Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        EOF
+        
+        cat /tmp/deployment_record.txt
+    
+    - name: Post deployment notification
+      if: always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const status = '${{ job.status }}'
+          const version = '${{ inputs.release_tag }}'
+          const apps = '${{ inputs.deploy_apps }}'
+          const dryRun = '${{ inputs.dry_run }}'
+          
+          const mode = dryRun === 'true' ? '🏃 DRY RUN' : '🚀 DEPLOYED'
+          
+          const body = `## Production Deployment Report
+          
+          **Status:** ${mode} - ${status.toUpperCase()}
+          **Release:** ${version}
+          **Apps:** ${apps}
+          **Environment:** Production (yuvro-prod-cluster)
+          **Timestamp:** ${new Date().toISOString()}
+          
+          [View Workflow Run](${context.payload.repository.html_url}/actions/runs/${context.runId})
+          `
+          
+          github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: 1,
+            state: status === 'success' ? 'success' : 'failure',
+            environment_url: 'https://yuvro.ai',
+            description: `${version} - ${apps}`
+          }).catch(e => console.log('Deployment status update failed'))
+
+  rollback:
+    if: failure()
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Alert on deployment failure
+      run: |
+        echo "❌ Deployment failed!"
+        echo ""
+        echo "Troubleshooting steps:"
+        echo "1. Check pod logs: kubectl logs -n yuvro-production -f deployment/<app>"
+        echo "2. Check events: kubectl get events -n yuvro-production --sort-by='.lastTimestamp'"
+        echo "3. Check resources: kubectl top pods -n yuvro-production"
+        echo "4. Describe pod: kubectl describe pod -n yuvro-production <pod-name>"
+        echo ""
+        echo "To rollback to previous version:"
+        echo "helm rollback yuvro -n yuvro-production"

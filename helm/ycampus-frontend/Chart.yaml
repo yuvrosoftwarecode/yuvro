@@ -1,4 +1,0 @@
-apiVersion: v2
-name: ycampus-frontend
-description: YCampus Frontend Helm chart
-version: 1.0.0
