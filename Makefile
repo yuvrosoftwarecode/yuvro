@@ -284,9 +284,9 @@ endif
 
 install: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		echo "🚀 Deploying to AWS EC2 using deploy-all.sh [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		echo ""; \
-		bash infra/scripts/deploy-dev-auto.sh $(DEPLOY_BRANCH); \
+		bash infra/scripts/deploy-all.sh dev; \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building and starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
@@ -320,9 +320,9 @@ install: _validate-deploy
 
 run: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🚀 Deploying to AWS EC2 using OpenTofu [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		echo "🚀 Deploying to AWS EC2 using deploy-all.sh [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		echo ""; \
-		bash infra/scripts/deploy-dev-auto.sh $(DEPLOY_BRANCH); \
+		bash infra/scripts/deploy-all.sh dev; \
 	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
