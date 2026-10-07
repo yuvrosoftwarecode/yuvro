@@ -119,6 +119,10 @@ resource "aws_iam_role_policy" "app_service_secrets" {
 resource "aws_iam_instance_profile" "app_service" {
   name = "${var.environment}-app-service-profile"
   role = local.app_service_role_name
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 data "aws_iam_user" "app_service_existing" {
@@ -185,4 +189,8 @@ resource "aws_iam_access_key" "app_service" {
   user = local.app_service_user_name
 
   depends_on = [aws_iam_user_policy.app_service_s3]
+
+  lifecycle {
+    ignore_changes = all
+  }
 }

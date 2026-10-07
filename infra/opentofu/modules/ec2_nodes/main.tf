@@ -48,6 +48,10 @@ resource "aws_iam_role_policy_attachment" "app_node_ssm" {
 resource "aws_iam_instance_profile" "app_node" {
   name = "${var.environment}-app-node-profile"
   role = local.app_node_role_name
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 resource "aws_instance" "app_node" {

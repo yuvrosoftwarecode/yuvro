@@ -60,7 +60,7 @@ resource "aws_db_instance" "main" {
   }
 
   lifecycle {
-    ignore_changes = [backup_retention_period]
+    ignore_changes = all
   }
 }
 

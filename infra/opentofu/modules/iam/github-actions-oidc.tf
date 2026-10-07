@@ -59,6 +59,10 @@ resource "aws_iam_role" "github_actions" {
   tags = {
     Name = "github-actions-role"
   }
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 # Policy for ECR access
