@@ -534,9 +534,10 @@ function LabDashboard() {
                   testPct = p?.percentage ?? p?.total_score ?? 0;
                 } catch (e) {}
               }
+              const isEvaluated = s.ticket_status === "done" || s.ticket_status === "in_review";
               overrides[s.lab_sprint_ticket] = {
                 status: s.ticket_status as Status,
-                earnedXp: s.yuvro_points > 0 ? s.yuvro_points : (testPct / 100),
+                earnedXp: isEvaluated ? (s.yuvro_points ?? 0) : (testPct / 100),
                 fromApi: true,
               };
             }
