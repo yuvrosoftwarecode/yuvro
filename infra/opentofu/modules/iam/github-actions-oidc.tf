@@ -17,6 +17,10 @@ resource "aws_iam_openid_connect_provider" "github" {
   tags = {
     Name = "github-actions-oidc"
   }
+
+  lifecycle {
+    ignore_changes = [client_id_list, thumbprint_list, url, tags]
+  }
 }
 
 # IAM Role for GitHub Actions

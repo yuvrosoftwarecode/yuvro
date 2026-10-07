@@ -24,6 +24,10 @@ resource "aws_iam_role" "app_node" {
       Principal = { Service = "ec2.amazonaws.com" }
     }]
   })
+
+  lifecycle {
+    ignore_changes = [assume_role_policy]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "app_node_ssm" {

@@ -5,6 +5,10 @@ resource "aws_db_subnet_group" "main" {
   tags = {
     Name = "${var.environment}-yuvro-db-subnet-group"
   }
+
+  lifecycle {
+    ignore_changes = [subnet_ids, tags]
+  }
 }
 
 resource "aws_db_instance" "main" {

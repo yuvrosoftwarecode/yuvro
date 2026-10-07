@@ -20,6 +20,10 @@ resource "aws_iam_role" "app_service" {
   tags = {
     Name = "${var.environment}-app-service-role"
   }
+
+  lifecycle {
+    ignore_changes = [assume_role_policy, tags]
+  }
 }
 
 resource "aws_iam_role_policy" "app_service_s3" {
@@ -108,6 +112,10 @@ resource "aws_iam_user" "app_service" {
 
   tags = {
     Name = "${var.environment}-app-service-user"
+  }
+
+  lifecycle {
+    ignore_changes = [tags]
   }
 }
 

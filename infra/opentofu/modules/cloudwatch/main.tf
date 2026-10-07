@@ -5,6 +5,10 @@ resource "aws_cloudwatch_log_group" "application" {
   tags = {
     Name = "${var.environment}-application-logs"
   }
+
+  lifecycle {
+    ignore_changes = [retention_in_days]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "kubernetes" {
@@ -14,6 +18,10 @@ resource "aws_cloudwatch_log_group" "kubernetes" {
   tags = {
     Name = "${var.environment}-kubernetes-logs"
   }
+
+  lifecycle {
+    ignore_changes = [retention_in_days]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "database" {
@@ -22,6 +30,10 @@ resource "aws_cloudwatch_log_group" "database" {
 
   tags = {
     Name = "${var.environment}-database-logs"
+  }
+
+  lifecycle {
+    ignore_changes = [retention_in_days]
   }
 }
 

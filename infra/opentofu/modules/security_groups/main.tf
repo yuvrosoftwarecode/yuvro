@@ -6,6 +6,10 @@ resource "aws_security_group" "app" {
   tags = {
     Name = "${var.environment}-app-sg"
   }
+
+  lifecycle {
+    ignore_changes = [name, description, vpc_id, tags]
+  }
 }
 
 resource "aws_vpc_security_group_ingress_rule" "app_ssh" {
@@ -16,6 +20,10 @@ resource "aws_vpc_security_group_ingress_rule" "app_ssh" {
   ip_protocol       = "tcp"
   cidr_ipv4         = "0.0.0.0/0"
   tags = { Name = "ssh" }
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 resource "aws_vpc_security_group_ingress_rule" "app_http" {
@@ -26,6 +34,10 @@ resource "aws_vpc_security_group_ingress_rule" "app_http" {
   ip_protocol       = "tcp"
   cidr_ipv4         = "0.0.0.0/0"
   tags = { Name = "http" }
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 resource "aws_vpc_security_group_ingress_rule" "app_https" {
@@ -36,6 +48,10 @@ resource "aws_vpc_security_group_ingress_rule" "app_https" {
   ip_protocol       = "tcp"
   cidr_ipv4         = "0.0.0.0/0"
   tags = { Name = "https" }
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 # App ports: ycode-frontend(3000), ycode-backend(8001), executor(8009), ycampus-backend(8003), ycampus-frontend(3002)
@@ -47,6 +63,10 @@ resource "aws_vpc_security_group_ingress_rule" "app_ports" {
   ip_protocol       = "tcp"
   cidr_ipv4         = "0.0.0.0/0"
   tags = { Name = "app-ports" }
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 resource "aws_vpc_security_group_egress_rule" "app_all" {
@@ -55,6 +75,10 @@ resource "aws_vpc_security_group_egress_rule" "app_all" {
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
   tags = { Name = "all-outbound" }
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 # RDS Security Group
@@ -66,6 +90,10 @@ resource "aws_security_group" "rds" {
   tags = {
     Name = "${var.environment}-rds-sg"
   }
+
+  lifecycle {
+    ignore_changes = [name, description, vpc_id, tags]
+  }
 }
 
 resource "aws_vpc_security_group_ingress_rule" "rds_postgres" {
@@ -76,6 +104,10 @@ resource "aws_vpc_security_group_ingress_rule" "rds_postgres" {
   ip_protocol                  = "tcp"
   referenced_security_group_id = aws_security_group.app.id
   tags = { Name = "postgres" }
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 resource "aws_vpc_security_group_egress_rule" "rds_all" {
@@ -84,4 +116,8 @@ resource "aws_vpc_security_group_egress_rule" "rds_all" {
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
   tags = { Name = "all-outbound" }
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
