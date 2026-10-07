@@ -1,0 +1,74 @@
+name: Prod - Deploy Release to ECS (Future)
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release version to deploy (e.g., v1.0.0)'
+        required: true
+        type: string
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY_PREFIX: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate inputs
+        run: |
+          if ! [[ "${{ inputs.release_version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid release version format. Use v1.0.0"
+            exit 1
+          fi
+          echo "✅ Release version format valid: ${{ inputs.release_version }}"
+
+      - name: Validate environment
+        run: |
+          if [ "${{ inputs.environment }}" = "production" ]; then
+            echo "⚠️  Deploying to PRODUCTION"
+          else
+            echo "ℹ️  Deploying to ${{ inputs.environment }}"
+          fi
+          echo "✅ Environment validated"
+
+      - name: Note - ECS deployment not yet implemented
+        run: |
+          echo "=========================================="
+          echo "ℹ️  ECS Deployment Workflow"
+          echo "=========================================="
+          echo ""
+          echo "This workflow is a placeholder for future ECS deployments."
+          echo ""
+          echo "To implement ECS deployment:"
+          echo "1. Create ECS cluster with task definitions"
+          echo "2. Configure AWS credentials with ECS permissions"
+          echo "3. Update task definitions with new image tags"
+          echo "4. Deploy services"
+          echo "5. Wait for rollout"
+          echo ""
+          echo "Release: ${{ inputs.release_version }}"
+          echo "Target Environment: ${{ inputs.environment }}"
+          echo "ECR Registry: ${{ env.ECR_REGISTRY_PREFIX }}"
+
+  placeholder:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder - ECS deployment pending implementation
+        run: |
+          echo "✅ Placeholder step for ECS deployment"
+          echo "This workflow will be implemented when ECS is needed"

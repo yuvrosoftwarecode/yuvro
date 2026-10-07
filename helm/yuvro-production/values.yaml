@@ -20,7 +20,7 @@ global:
     account: "123456789012"  # Replace with actual account ID
     
   # Image registry
-  imageRegistry: docker.io
+  imageRegistry: 878235034597.dkr.ecr.ap-south-1.amazonaws.com
   imagePullPolicy: IfNotPresent
 
 # YCode Application (Learning Platform)

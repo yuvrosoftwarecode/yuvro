@@ -13,6 +13,10 @@ terraform {
       source  = "hashicorp/helm"
       version = "~> 2.11"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
   }
 
   # Uncomment for remote state management
@@ -133,6 +137,7 @@ module "iam" {
   source = "../modules/iam"
 
   environment    = "prod"
+  aws_region     = var.aws_region
   s3_bucket_arns = [module.s3.base_bucket_arn]
 }
 

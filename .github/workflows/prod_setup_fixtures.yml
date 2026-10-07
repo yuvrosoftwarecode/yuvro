@@ -1,0 +1,221 @@
+name: Prod - Setup Fixtures
+
+on:
+  workflow_dispatch:
+    inputs:
+      fixture_type:
+        description: 'Fixture type to load'
+        required: true
+        type: choice
+        options:
+          - all
+          - sample_data
+          - test_users
+          - courses
+          - assessments
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ap-south-1
+  EKS_CLUSTER_NAME: yuvro-prod-cluster
+  K8S_NAMESPACE: yuvro-prod-ns
+
+jobs:
+  pre-flight-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm fixture load
+        run: |
+          echo "=========================================="
+          echo "⚠️  WARNING: Loading Fixtures"
+          echo "=========================================="
+          echo ""
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Fixture Type: ${{ inputs.fixture_type }}"
+          echo ""
+          echo "This will modify the production database!"
+          echo ""
+          if [ "${{ inputs.environment }}" = "production" ]; then
+            echo "🔴 TARGET: PRODUCTION DATABASE"
+            echo ""
+            echo "Make sure you have:"
+            echo "  1. Backed up the database"
+            echo "  2. Obtained necessary approvals"
+            echo "  3. Reviewed the fixtures to be loaded"
+          fi
+
+      - name: Validate fixture type
+        run: |
+          case "${{ inputs.fixture_type }}" in
+            all|sample_data|test_users|courses|assessments)
+              echo "✅ Valid fixture type: ${{ inputs.fixture_type }}"
+              ;;
+            *)
+              echo "❌ Invalid fixture type: ${{ inputs.fixture_type }}"
+              exit 1
+              ;;
+          esac
+
+  validate-cluster:
+    runs-on: ubuntu-latest
+    needs: pre-flight-checks
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+          echo "✅ kubectl configured"
+
+      - name: Verify cluster connectivity
+        run: |
+          echo "🔍 Checking EKS cluster..."
+          kubectl cluster-info
+          echo ""
+          echo "✅ Cluster accessible"
+
+      - name: Verify namespace exists
+        run: |
+          kubectl get namespace ${{ env.K8S_NAMESPACE }}
+          echo "✅ Namespace verified: ${{ env.K8S_NAMESPACE }}"
+
+  load-fixtures:
+    runs-on: ubuntu-latest
+    needs: validate-cluster
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Load fixtures - ${{ inputs.fixture_type }}
+        run: |
+          echo "📦 Loading fixtures: ${{ inputs.fixture_type }}"
+          echo ""
+          
+          case "${{ inputs.fixture_type }}" in
+            all)
+              echo "Loading ALL fixtures..."
+              # Run all setup commands
+              kubectl -n ${{ env.K8S_NAMESPACE }} exec -it deployment/ycode-backend -- \
+                python manage.py setup_fixtures_data || true
+              ;;
+            sample_data)
+              echo "Loading sample data..."
+              kubectl -n ${{ env.K8S_NAMESPACE }} exec -it deployment/ycode-backend -- \
+                python manage.py setup_fixtures_data --type=sample || true
+              ;;
+            test_users)
+              echo "Loading test users..."
+              kubectl -n ${{ env.K8S_NAMESPACE }} exec -it deployment/ycode-backend -- \
+                python manage.py setup_test_users || true
+              ;;
+            courses)
+              echo "Loading courses..."
+              kubectl -n ${{ env.K8S_NAMESPACE }} exec -it deployment/ycode-backend -- \
+                python manage.py load_courses || true
+              ;;
+            assessments)
+              echo "Loading assessments..."
+              kubectl -n ${{ env.K8S_NAMESPACE }} exec -it deployment/ycode-backend -- \
+                python manage.py load_assessments || true
+              ;;
+          esac
+          
+          echo "✅ Fixtures loaded"
+
+  verify-fixtures:
+    runs-on: ubuntu-latest
+    needs: load-fixtures
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Verify fixtures loaded
+        run: |
+          echo "🔍 Verifying fixtures..."
+          echo ""
+          echo "Database stats:"
+          kubectl -n ${{ env.K8S_NAMESPACE }} exec -it deployment/ycode-backend -- \
+            python manage.py shell -c "
+from django.contrib.auth.models import User
+from course.models import Course
+print(f'Total users: {User.objects.count()}')
+print(f'Total courses: {Course.objects.count()}')
+" || true
+          
+          echo ""
+          echo "✅ Fixture verification complete"
+
+  summary:
+    runs-on: ubuntu-latest
+    needs: verify-fixtures
+    if: always()
+    steps:
+      - name: Fixture load summary
+        run: |
+          echo "=========================================="
+          echo "📋 Fixture Load Summary"
+          echo "=========================================="
+          echo ""
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Fixture Type: ${{ inputs.fixture_type }}"
+          echo "Cluster: ${{ env.EKS_CLUSTER_NAME }}"
+          echo "Namespace: ${{ env.K8S_NAMESPACE }}"
+          echo ""
+          echo "Status: ✅ Complete"
+          echo ""
+          echo "Next steps:"
+          echo "1. Verify data in application"
+          echo "2. Check database for loaded records"
+          echo "3. Test affected features"

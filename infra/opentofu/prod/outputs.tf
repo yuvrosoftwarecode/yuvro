@@ -111,6 +111,19 @@ output "app_service_secret_access_key" {
   sensitive   = true
 }
 
+# ========== GITHUB ACTIONS OIDC OUTPUTS ==========
+
+output "github_actions_role_arn" {
+  description = "ARN of IAM role for GitHub Actions OIDC"
+  value       = module.iam.github_actions_role_arn
+}
+
+output "github_oidc_provider_arn" {
+  description = "ARN of GitHub OIDC provider"
+  value       = module.iam.github_oidc_provider_arn
+}
+
+
 # CloudWatch Outputs
 output "cloudwatch_log_group_name" {
   description = "CloudWatch log group name"
