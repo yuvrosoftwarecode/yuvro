@@ -60,18 +60,18 @@ jobs:
     - name: Deploy to EC2
       env:
         DEPLOY_ENV: dev
-        DEPLOY_BRANCH: main
+        DEPLOY_BRANCH: ${{ inputs.deploy_branch }}
         DEPLOY_APP: ${{ inputs.deploy_app }}
         SSH_KEY_PATH: /home/runner/.ssh/yuvro-dev.pem
       run: |
-        echo "🚀 Deploying $DEPLOY_APP to dev [branch=main]..."
+        echo "🚀 Deploying $DEPLOY_APP to dev [branch=$DEPLOY_BRANCH]..."
         
         if [ "$DEPLOY_APP" = "all" ]; then
           bash infra/scripts/deploy-all.sh dev
         elif [ "$DEPLOY_APP" = "code-executor" ]; then
-          bash infra/scripts/deploy-code-executor.sh main
+          bash infra/scripts/deploy-code-executor.sh $DEPLOY_BRANCH
         else
-          bash infra/scripts/deploy-$DEPLOY_APP.sh main
+          bash infra/scripts/deploy-$DEPLOY_APP.sh $DEPLOY_BRANCH
         fi
         
-        echo "✅ Deployment of $DEPLOY_APP from branch 'main' complete!"
+        echo "✅ Deployment of $DEPLOY_APP from branch '$DEPLOY_BRANCH' complete!"
