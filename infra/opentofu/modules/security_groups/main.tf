@@ -123,21 +123,6 @@ resource "aws_vpc_security_group_egress_rule" "app_all" {
   }
 }
 
-# RDS Security Group
-resource "aws_security_group" "rds" {
-  name        = "${var.environment}-rds-sg"
-  description = "Security group for RDS databases"
-  vpc_id      = var.vpc_id
-
-  tags = {
-    Name = "${var.environment}-rds-sg"
-  }
-
-  lifecycle {
-    ignore_changes = [name, description, vpc_id, tags]
-  }
-}
-
 resource "aws_vpc_security_group_ingress_rule" "rds_postgres" {
   security_group_id            = local.rds_sg_id
   description                  = "PostgreSQL from app nodes"
