@@ -4,6 +4,8 @@ import { EvalShell, EvalStepHeader, PrimaryButton } from "@/components/evaluatio
 import { evaluationService, tempResumeFile, setTempResumeFile } from "../services/evaluationService";
 import { restApiAuthUtil } from "../utils/RestApiAuthUtil";
 import { authService } from "../services/authService";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/evaluation/otp")({
   head: () => ({
@@ -16,6 +18,7 @@ function OtpPage() {
   const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const [cooldown, setCooldown] = useState(30);
   const refs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
@@ -125,13 +128,17 @@ function OtpPage() {
   };
 
   const resendOtp = async () => {
-    if (cooldown > 0) return;
+    if (cooldown > 0 || resending) return;
+    setResending(true);
     setErr(null);
     try {
       await evaluationService.sendRegistrationOtp(evaluationId, email, title);
       setCooldown(30);
+      toast.success("A new verification code has been sent.");
     } catch (error: any) {
       setErr(error?.message || "Failed to resend OTP.");
+    } finally {
+      setResending(false);
     }
   };
 
@@ -163,11 +170,20 @@ function OtpPage() {
           <div className="mt-4 flex items-center justify-end text-[12px] text-neutral-500">
             <button
               type="button"
-              disabled={cooldown > 0}
+              disabled={cooldown > 0 || resending}
               onClick={resendOtp}
-              className="text-neutral-500 disabled:text-neutral-300 enabled:hover:text-neutral-900"
+              className="inline-flex items-center gap-1.5 text-neutral-500 disabled:text-neutral-300 enabled:hover:text-neutral-900 transition-colors"
             >
-              {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
+              {resending ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span>Resending...</span>
+                </>
+              ) : cooldown > 0 ? (
+                `Resend in ${cooldown}s`
+              ) : (
+                "Resend code"
+              )}
             </button>
           </div>
           {err && (

@@ -62,6 +62,7 @@ const DEFAULT_LAB_FORM = {
   git_repo_starter_branch: "main",
   startup_command: "",
   test_command: "",
+  connection_url: "",
   allow_task_selection: true,
   programming_languages: [],
   databases: [],
@@ -1447,6 +1448,25 @@ function RecruiterQuestionBankPage() {
               value={labFormData.databases || []}
               onChange={(v) => setLabFormData({ ...labFormData, databases: v })}
             />
+
+            {labFormData.databases?.some((d: string) => ["MySQL", "PostgreSQL", "MongoDB", "MYSQL", "POSTGRESQL", "MONGODB"].includes(d)) && (
+              <div className="grid gap-2 border p-3 rounded-md bg-muted/20">
+                <label className="text-sm font-semibold flex items-center gap-1.5 text-foreground">
+                  <Database className="h-4 w-4 text-primary" />
+                  Evaluation Database Connection URL (e.g. Aiven MySQL)
+                </label>
+                <input
+                  type="text"
+                  placeholder="mysql://avnadmin:password@mysql-xyz.aivencloud.com:24128/defaultdb"
+                  value={labFormData.connection_url || ""}
+                  onChange={(e) => setLabFormData({ ...labFormData, connection_url: e.target.value })}
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Candidates will automatically execute queries against this database without needing credentials.
+                </p>
+              </div>
+            )}
 
             <MultiSelectPills
               label="Backend Frameworks"

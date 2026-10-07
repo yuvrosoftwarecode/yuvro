@@ -2344,6 +2344,31 @@ async def database_evaluate_endpoint(body: DatabaseEvaluateRequest):
     except Exception as e:
         return {"error": str(e)}
 
+class DatabaseCleanupRequest(BaseModel):
+    database_engine: str = "mysql"
+    connection_url: str
+    evaluation_id: str
+    user_id: str
+    lab_id: str
+
+@workspace_router.post("/database_cleanup")
+async def database_cleanup_endpoint(body: DatabaseCleanupRequest):
+    try:
+        evaluator = DatabaseEvaluatorFactory.get_evaluator(body.database_engine)
+        if hasattr(evaluator, "cleanup_evaluation_tables"):
+            res = await asyncio.to_thread(
+                evaluator.cleanup_evaluation_tables,
+                body.connection_url,
+                body.evaluation_id,
+                body.user_id,
+                body.lab_id
+            )
+            return res
+        return {"status": "skipped", "message": f"{body.database_engine} does not require cleanup"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
 
 class UiValidateRequest(BaseModel):
     ticket_slug: str           # e.g. "ticket-01"

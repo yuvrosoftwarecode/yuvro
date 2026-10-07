@@ -113,6 +113,7 @@ class Command(BaseCommand):
                     "git_repo_starter_branch": q_data.get("git_repo_starter_branch", "main"),
                     "startup_command": q_data.get("startup_command", ""),
                     "test_command": q_data.get("test_command", ""),
+                    "connection_url": q_data.get("connection_url", ""),
                     "programming_languages": q_data.get("programming_languages", []),
                     "databases": q_data.get("databases", []),
                     "backend_frameworks": q_data.get("backend_frameworks", []),
@@ -126,7 +127,8 @@ class Command(BaseCommand):
                 # The fixture may store expected_output as either:
                 #   a) A plain string  → e.g. "1500"
                 #   b) A dict          → e.g. {} (default) or {"value": "1500"}
-                #   c) Missing         → fall back to {}
+                #   c) A list of dicts → e.g. [{"customer_id": 1, ...}] for database queries
+                #   d) Missing         → fall back to {}
                 # The model field is a JSONField. We store strings inside a wrapper dict
                 # {"value": "<string>"} so the frontend serialiser can reliably read them
                 # as `tc.expected_output` strings without hitting a 422 on the code executor.
@@ -135,6 +137,8 @@ class Command(BaseCommand):
                     expected_output_obj = {"value": raw_expected}
                 elif isinstance(raw_expected, dict) and "value" in raw_expected:
                     expected_output_obj = raw_expected  # already normalised
+                elif isinstance(raw_expected, (list, dict)):
+                    expected_output_obj = raw_expected
                 else:
                     expected_output_obj = {}  # unknown shape — keep as-is
 
@@ -146,8 +150,8 @@ class Command(BaseCommand):
                 fixture_input = task_data.get("input", "")
                 if fixture_input and isinstance(fixture_input, str):
                     scoring_rules["input"] = fixture_input
-                # Also store the raw expected_output string for easy frontend access
-                if isinstance(raw_expected, str):
+                # Also store raw expected_output for easy frontend and database evaluator access
+                if raw_expected is not None:
                     scoring_rules["expected_output"] = raw_expected
 
                 LabQuestionBankTask.objects.update_or_create(

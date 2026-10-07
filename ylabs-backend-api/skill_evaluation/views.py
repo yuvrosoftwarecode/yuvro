@@ -604,12 +604,14 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                         })
                         
                     try:
+                        db_conn_url = getattr(lab, 'connection_url', None) or ""
                         response = requests.post(f"{executer_host}/workspace/database_submit", json={
                             "user_id": str(request.user.id),
                             "lab_id": str(lab.id),
                             "sprint_id": str(lab.id),
                             "database_engine": db_engine,
                             "evaluation_id": str(evaluation.id),
+                            "connection_url": db_conn_url,
                             "tasks": payload_tasks
                         }, timeout=30)
                         if response.status_code == 200:

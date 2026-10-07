@@ -68,6 +68,16 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId")({
   component: TicketEditorRoute,
@@ -411,7 +421,19 @@ Open http://127.0.0.1:8000/ to use the app.
 /* ---------- Per-lab starter kits ---------- */
 
 type KitName =
-  "java" | "django" | "python" | "sql" | "mongo" | "ui" | "bash" | "mysql" | "postgresql";
+  | "java"
+  | "django"
+  | "python"
+  | "sql"
+  | "mongo"
+  | "ui"
+  | "bash"
+  | "mysql"
+  | "postgresql"
+  | "js"
+  | "c"
+  | "cpp"
+  | "git";
 interface Kit {
   name: KitName;
   files: Record<string, string>;
@@ -842,7 +864,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
 }
 
 type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string };
-type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff";
+type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff" | "testcases";
 
 export function StudentTicketView({
   slug,
@@ -879,6 +901,7 @@ export function StudentTicketView({
         .then((t) => {
           if (!active) return;
           setResolvedTicket({
+            ...t,
             id: t.id,
             ticket_slug: t.ticket_slug,
             title: t.title,
@@ -891,10 +914,18 @@ export function StudentTicketView({
                   : "Beginner",
             xp: t.yuvro_points ?? 100,
             estMin: t.minutes_max ?? 30,
-            tag: t.accepted_programming_languages?.[0] ?? "bash",
+            tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "bash",
             status: "Not Started",
             startup_command: t.startup_command,
             test_command: t.test_command,
+            connection_url: t.connection_url || t.uri || "",
+            uri: t.connection_url || t.uri || "",
+            databases: t.databases || [],
+            ticket_type: t.ticket_type || t.type,
+            type: t.type || t.ticket_type,
+            domain: t.domain,
+            backend_frameworks: t.backend_frameworks || [],
+            programming_languages: t.programming_languages || t.accepted_programming_languages || [],
             sprint_id: t.sprint ?? null,
             sprintOrder: t.sprint_order !== undefined ? t.sprint_order + 1 : 1,
             ticketOrder: t.order_index !== undefined ? t.order_index + 1 : 1,
@@ -1142,14 +1173,14 @@ export function TicketIDE({
   const kit = useMemo(() => getKit(slug, ticket.tag, isAlgo), [slug, ticket.tag, isAlgo]);
   const isDjango = kit.name === "django" || ticket.backend_frameworks?.includes("DJANGO") || ticket.tag?.toLowerCase().includes("django");
   const isJava = kit.name === "java";
-  const isDbTicket = ticket.ticket_type === "database" || ticket.type === "DATABASE" || ticket.domain === "DATABASE" || ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor";
-  const isSql = isDbTicket && (kit.name === "sql" || ticket.tag?.toLowerCase() === "sql" || ticket.tag?.toLowerCase() === "sqlite");
-  const isMysql = isDbTicket && (kit.name === "mysql" || ticket.tag?.toLowerCase() === "mysql");
-  const isPostgres = isDbTicket && (kit.name === "postgresql" || ticket.tag?.toLowerCase()?.includes("postgres"));
+  const isDbTicket = ticket.ticket_type === "database" || ticket.type === "DATABASE" || ticket.domain === "DATABASE" || ticket.editor_type === "sql_editor" || ticket.editor_type === "db_editor" || (ticket.databases && ticket.databases.length > 0) || Boolean(ticket.connection_url) || kit.name === "mysql" || kit.name === "sql" || kit.name === "postgresql" || kit.name === "mongo";
+  const isMysql = isDbTicket && (kit.name === "mysql" || ticket.tag?.toLowerCase() === "mysql" || ticket.databases?.some((d: any) => String(d).toLowerCase().includes("mysql")) || ticket.connection_url?.startsWith("mysql://") || Boolean(slug?.toLowerCase().includes("mysql")));
+  const isPostgres = isDbTicket && (kit.name === "postgresql" || ticket.tag?.toLowerCase()?.includes("postgres") || ticket.databases?.some((d: any) => String(d).toLowerCase().includes("postgres")) || ticket.connection_url?.startsWith("postgres://") || ticket.connection_url?.startsWith("postgresql://") || Boolean(slug?.toLowerCase().includes("postgres")));
+  const isMongo = isDbTicket && (kit.name === "mongo" || ticket.tag?.toLowerCase()?.includes("mongo") || ticket.databases?.some((d: any) => String(d).toLowerCase().includes("mongo")) || ticket.connection_url?.startsWith("mongodb://") || ticket.connection_url?.startsWith("mongodb+srv://") || Boolean(slug?.toLowerCase().includes("mongo")));
+  const isSql = isDbTicket && !isMysql && !isPostgres && !isMongo && (kit.name === "sql" || ticket.tag?.toLowerCase() === "sql" || ticket.tag?.toLowerCase() === "sqlite" || Boolean(slug?.toLowerCase().includes("sql")));
   const isAnySql = isSql || isMysql || isPostgres;
   const isExternalDb = isMysql || isPostgres;
   const dbType = isMysql ? "mysql" : "postgresql";
-  const isMongo = isDbTicket && (kit.name === "mongo" || ticket.tag?.toLowerCase()?.includes("mongo"));
   const isUi = kit.name === "ui";
   const isPython = kit.name === "python" || isDjango;
   const isDbEditor = isDbTicket && (isAnySql || isMongo);
@@ -1220,7 +1251,12 @@ export function TicketIDE({
   const candidatePort = useMemo(() => getCandidatePort(candidateKey), [candidateKey]);
 
   const computedStartupCommand = useMemo(() => {
-    return adaptStartupCommandPort(ticket?.startup_command, candidatePort);
+    if (!ticket?.startup_command) return undefined;
+    const cmd = ticket.startup_command.trim();
+    if (cmd.startsWith("mysql ") || cmd.includes("mysql defaultdb")) {
+      return undefined;
+    }
+    return adaptStartupCommandPort(cmd, candidatePort);
   }, [ticket?.startup_command, candidatePort]);
 
   const previewPort = candidatePort;
@@ -1242,8 +1278,41 @@ export function TicketIDE({
   type ProgLang = "python" | "c" | "cpp" | "js" | "java";
   const PROG_EXT: Record<ProgLang, string> = { python: "py", c: "c", cpp: "cpp", js: "js", java: "java" };
   const PROG_LABEL: Record<ProgLang, string> = { python: "Python 3", c: "C (gcc)", cpp: "C++ (g++)", js: "Node.js", java: "Java" };
+
+  const defaultLang: ProgLang = useMemo(() => {
+    // 1. If ticket specifies a file or starterPath, infer from extension
+    const filePath = ticket.starterPath || (ticket as any).starter_path || ticket.file || "";
+    if (filePath) {
+      const ext = filePath.split(".").pop()?.toLowerCase();
+      if (ext === "py") return "python";
+      if (ext === "java") return "java";
+      if (ext === "c") return "c";
+      if (ext === "cpp" || ext === "cc" || ext === "cxx") return "cpp";
+      if (ext === "js" || ext === "ts") return "js";
+    }
+
+    // 2. Check ticket.tag
+    const rawTag = (ticket.tag || "").toLowerCase();
+    if (rawTag === "python" || rawTag.includes("python") || rawTag === "py") return "python";
+    if (rawTag === "java" || rawTag.includes("java")) return "java";
+    if (rawTag === "cpp" || rawTag === "c++" || rawTag.includes("cpp") || rawTag.includes("c++")) return "cpp";
+    if (rawTag === "c") return "c";
+    if (rawTag === "javascript" || rawTag === "js" || rawTag === "node") return "js";
+
+    // 3. Check programming_languages in the specified order
+    const plangs = (ticket.programming_languages || []).map((l: string) => (l || "").toLowerCase());
+    for (const l of plangs) {
+      if (l === "python" || l === "py") return "python";
+      if (l === "java") return "java";
+      if (l === "cpp" || l === "c++") return "cpp";
+      if (l === "c") return "c";
+      if (l === "javascript" || l === "js" || l === "node") return "js";
+    }
+
+    return "python";
+  }, [ticket.tag, ticket.programming_languages, ticket.file, ticket.starterPath, (ticket as any).starter_path]);
+
   const [progLang, setProgLang] = useState<ProgLang>(() => {
-    // If initialFiles exists, try to guess the language from the file extension
     if (initialFiles) {
       const keys = Object.keys(initialFiles).filter(k => k.startsWith('main.'));
       if (keys.length > 0) {
@@ -1252,13 +1321,64 @@ export function TicketIDE({
         if (extToLang[ext]) return extToLang[ext];
       }
     }
-    return "python";
+    return defaultLang;
   });
+
+  const defaultPrimaryFile = useMemo(() => {
+    if (ticket.starterPath) return ticket.starterPath;
+    if ((ticket as any).starter_path) return (ticket as any).starter_path;
+    if (ticket.file) return ticket.file;
+    if (kit.primary) return kit.primary;
+    const ext = PROG_EXT[defaultLang] || "py";
+    return defaultLang === "java" ? "Main.java" : `main.${ext}`;
+  }, [ticket.starterPath, (ticket as any).starter_path, ticket.file, kit.primary, defaultLang]);
+
+  const defaultStarterCode = useMemo(() => {
+    const fileExt = (defaultPrimaryFile || "").split(".").pop()?.toLowerCase();
+    const effectiveLang: ProgLang = fileExt === "py" ? "python" 
+      : fileExt === "java" ? "java" 
+      : fileExt === "c" ? "c" 
+      : (fileExt === "cpp" || fileExt === "cc") ? "cpp" 
+      : (fileExt === "js" || fileExt === "ts") ? "js" 
+      : defaultLang;
+
+    const startersByLang: Record<string, string> = {
+      python: "# Write your solution here\n",
+      js: "// Write your solution here\n",
+      java: "public class Main {\n    public static void main(String[] args) {\n        // Write your solution here\n    }\n}\n",
+      c: "#include <stdio.h>\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n",
+      cpp: "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your solution here\n    return 0;\n}\n",
+    };
+
+    const customCode = previewOverride?.starterCode || ticket.starterCode || (ticket as any).starter_code || ((ticket as any).code && (ticket as any).code !== "// Code editor initialized." ? (ticket as any).code : undefined);
+
+    if (customCode) {
+      const isJavaCode = customCode.includes("public class") || customCode.includes("System.out.println");
+      if (effectiveLang === "python" && isJavaCode) {
+        return startersByLang["python"];
+      }
+      return customCode;
+    }
+
+    if (isSql || isMysql || isPostgres || fileExt === "sql") return "-- Write your query here\n";
+    if (isBash || fileExt === "sh") return "#!/usr/bin/env bash\n\n# Write your solution here\n";
+    if (isReal && slug !== "knowledge") {
+      return startersByLang[effectiveLang] || "# Write your solution here\n";
+    }
+    return kit.files[kit.primary] || startersByLang[effectiveLang] || "# Write your solution here\n";
+  }, [previewOverride, ticket.starterCode, (ticket as any).starter_code, (ticket as any).code, isReal, slug, isSql, isMysql, isPostgres, isBash, defaultLang, defaultPrimaryFile, kit]);
+
   const [isExamplesPanelOpen, setIsExamplesPanelOpen] = useState(false);
   const initialFileList: readonly string[] = kit.fileList;
   const starters: Record<string, string> = useMemo(() => {
     if (initialFiles) return initialFiles;
-    if (isReal && slug !== "knowledge") return {};
+    if (isReal && slug !== "knowledge") {
+      const s: Record<string, string> = {};
+      if (defaultPrimaryFile) {
+        s[defaultPrimaryFile] = defaultStarterCode;
+      }
+      return s;
+    }
     const s = { ...kit.files };
     if (isReal && s["README.md"]) {
       s["README.md"] = `# ${ticket.title}\n\n${ticket.description}`;
@@ -1267,29 +1387,46 @@ export function TicketIDE({
       s[kit.primary] = previewOverride.starterCode;
     }
     return s;
-  }, [kit, isReal, previewOverride, ticket.title, ticket.description, initialFiles]);
-  const primaryFile = kit.primary;
+  }, [initialFiles, isReal, slug, defaultPrimaryFile, defaultStarterCode, kit, ticket.title, ticket.description, previewOverride]);
+  const primaryFile = defaultPrimaryFile || kit.primary;
   
   const [files, setFiles] = useState<Record<string, string>>(starters);
   const [dirty, setDirty] = useState<Record<string, boolean>>({});
 
-  const fileList = useMemo(() => Object.keys(files), [files]);
+  const fileList = useMemo(() => Object.keys(files).filter(k => Boolean(k && k.trim())), [files]);
   
   const [activeFile, setActiveFile] = useState<FileName>(() => {
     if (initialFiles) {
       const keys = Object.keys(initialFiles).filter(k => k !== "README.md");
       if (keys.length > 0) return keys[0];
     }
-    return isReal && slug !== "knowledge" ? "" : initialFileList[0];
+    return defaultPrimaryFile || (isReal && slug !== "knowledge" ? "" : initialFileList[0]);
   });
   
   const [openTabs, setOpenTabs] = useState<string[]>(() => {
+    if (initialFiles) return Object.keys(initialFiles).filter(k => Boolean(k && k.trim()));
+    if (defaultPrimaryFile) return [defaultPrimaryFile];
     if (isReal && slug !== "knowledge") return [];
-    if (initialFiles) return Object.keys(initialFiles);
     return [...initialFileList];
   });
 
+  const [inlineAction, setInlineAction] = useState<InlineTreeAction | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    confirmLabel?: string;
+    destructive?: boolean;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+  });
+
   function openFile(path: string) {
+    if (!path || !path.trim()) return;
     setOpenTabs((prev) => (prev.includes(path) ? prev : [...prev, path]));
     setActiveFile(path);
   }
@@ -1334,9 +1471,11 @@ export function TicketIDE({
 
       try {
         const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
-          if (node.name === ".bash_history") return acc;
-          if (node.type === "file") { acc[node.path] = ""; }
-          else node.children?.forEach(c => flatten(c, acc));
+          if (!node) return acc;
+          if (node.name === ".bash_history" || !node.name) return acc;
+          if (node.type === "file") {
+            if (node.path && node.path.trim()) acc[node.path] = "";
+          } else node.children?.forEach(c => flatten(c, acc));
           return acc;
         };
 
@@ -1353,40 +1492,81 @@ export function TicketIDE({
           }
         }
 
-        const fileKeys = Object.keys(paths);
-        setFiles(paths);
+        // If paths is still empty (lab with no starter repo), seed default primary file
+        if (Object.keys(paths).length === 0 && defaultPrimaryFile) {
+          paths = { [defaultPrimaryFile]: defaultStarterCode };
+          if (isReal) {
+            wsWriteFile(effectiveUserId, labId, sprintId, defaultPrimaryFile, defaultStarterCode, evaluationId)
+              .then(() => loadedFiles.current.add(defaultPrimaryFile))
+              .catch(console.error);
+          }
+        }
+
+        const fileKeys = Object.keys(paths).filter(k => Boolean(k && k.trim()));
+        setFiles(prev => {
+          const next = { ...paths };
+          for (const k of fileKeys) {
+            if (prev[k] && prev[k] !== "") next[k] = prev[k];
+          }
+          return next;
+        });
 
         const { fetchFile } = await import("@/services/workspaceService");
-        // Pick preferred active file: README.md, manage.py, main.py, or first non-binary file
-        const preferredFile = fileKeys.find(k => k === "README.md")
+        // Pick preferred active file: defaultPrimaryFile, README.md, manage.py, main.py, or first non-binary file
+        const preferredFile = (defaultPrimaryFile && fileKeys.includes(defaultPrimaryFile) ? defaultPrimaryFile : null)
+          || fileKeys.find(k => k === "README.md")
           || fileKeys.find(k => k === "manage.py")
           || fileKeys.find(k => k === "main.py")
           || fileKeys.find(k => !isBinaryOrDatabaseFile(k))
-          || fileKeys[0];
+          || fileKeys[0]
+          || defaultPrimaryFile;
 
         if (preferredFile) {
-          setOpenTabs(prev => prev.includes(preferredFile) ? prev : [...prev, preferredFile]);
+          setOpenTabs(prev => {
+            const clean = prev.filter(t => Boolean(t && t.trim()));
+            return clean.includes(preferredFile) ? clean : [...clean, preferredFile];
+          });
           setActiveFile(preferredFile);
-          try {
-            const content = await fetchFile(effectiveUserId, labId, sprintId, preferredFile, isEvaluationMode ? evaluationId : undefined);
-            setFiles(f => ({ ...f, [preferredFile]: content }));
+          if (paths[preferredFile] && paths[preferredFile] !== "") {
             loadedFiles.current.add(preferredFile);
-          } catch (err) {
-            console.error("Failed to load preferred file content:", err);
+          } else {
+            try {
+              let content = await fetchFile(effectiveUserId, labId, sprintId, preferredFile, isEvaluationMode ? evaluationId : undefined);
+              if (preferredFile.endsWith(".py") && (content.includes("public class") || content.includes("System.out.println"))) {
+                content = "# Write your solution here\n";
+                if (isReal) {
+                  wsWriteFile(effectiveUserId, labId, sprintId, preferredFile, content, evaluationId).catch(console.error);
+                }
+              }
+              setFiles(f => ({ ...f, [preferredFile]: content }));
+              loadedFiles.current.add(preferredFile);
+            } catch (err) {
+              console.error("Failed to load preferred file content:", err);
+            }
           }
         } else if (!forceUpdate) {
-          setOpenTabs([]);
-          setActiveFile("");
+          setOpenTabs(defaultPrimaryFile ? [defaultPrimaryFile] : []);
+          setActiveFile(defaultPrimaryFile || "");
         }
         setWsLoaded(true);
       } catch (err) {
         console.error("Failed to fetch file tree:", err);
+        if (defaultPrimaryFile) {
+          setFiles(f => ({ ...starters, ...f, [defaultPrimaryFile]: f[defaultPrimaryFile] ?? defaultStarterCode }));
+          setOpenTabs(prev => prev.includes(defaultPrimaryFile) ? prev : [...prev, defaultPrimaryFile]);
+          setActiveFile(defaultPrimaryFile);
+        }
         setWsLoaded(true); // fall back on error
       }
     } catch {
+      if (defaultPrimaryFile) {
+        setFiles(f => ({ ...starters, ...f, [defaultPrimaryFile]: f[defaultPrimaryFile] ?? defaultStarterCode }));
+        setOpenTabs(prev => prev.includes(defaultPrimaryFile) ? prev : [...prev, defaultPrimaryFile]);
+        setActiveFile(defaultPrimaryFile);
+      }
       setWsLoaded(true); // fall back to local starters on error
     }
-  }, [isReal, effectiveUserId, labId, sprintId, starters, isLoading, isEvaluationMode, evaluationId]);
+  }, [isLoading, isReal, effectiveUserId, isEvaluationMode, slug, labId, sprintId, starters, defaultPrimaryFile, defaultStarterCode, evaluationId]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -1407,7 +1587,14 @@ export function TicketIDE({
     if (files[activeFile] && files[activeFile] !== "") { loadedFiles.current.add(activeFile); return; }
     fetchFile(effectiveUserId, labId, sprintId, activeFile, evaluationId)
       .then(content => {
-        setFiles(f => ({ ...f, [activeFile]: content }));
+        let cleanContent = content;
+        if (activeFile.endsWith(".py") && (cleanContent.includes("public class") || cleanContent.includes("System.out.println"))) {
+          cleanContent = "# Write your solution here\n";
+          if (isReal) {
+            wsWriteFile(effectiveUserId, labId, sprintId, activeFile, cleanContent, evaluationId).catch(console.error);
+          }
+        }
+        setFiles(f => ({ ...f, [activeFile]: cleanContent }));
         loadedFiles.current.add(activeFile);
       })
       .catch(() => {
@@ -1584,12 +1771,13 @@ export function TicketIDE({
   function switchProgLang(next: ProgLang) {
     if (next === progLang) return;
     const ext = PROG_EXT[next];
-    const fname = `main.${ext}`;
+    const fname = next === "java" ? "Main.java" : `main.${ext}`;
     setProgLang(next);
     setFiles((f) => {
       if (f[fname] !== undefined) return f;
       return { ...f, [fname]: progStarter(next, ticket.title) };
     });
+    setOpenTabs((prev) => prev.includes(fname) ? prev : [...prev, fname]);
     setActiveFile(fname);
   }
 
@@ -1606,11 +1794,12 @@ export function TicketIDE({
     setOpenTabs((prev) => (prev.includes(trimmed) ? prev : [...prev, trimmed]));
     setActiveFile(trimmed);
     if (isReal) {
-      wsWriteFile(userId, labId, sprintId, trimmed, contents, evaluationId)
+      wsWriteFile(effectiveUserId, labId, sprintId, trimmed, contents, evaluationId)
         .then(() => loadedFiles.current.add(trimmed))
         .catch(() => showToast(`⚠ Could not persist ${trimmed}`));
     }
   }
+
   function renameFile(oldPath: string, newPath: string) {
     const trimmed = newPath.trim().replace(/^\/+/, "");
     if (!trimmed || trimmed === oldPath) return;
@@ -1627,58 +1816,83 @@ export function TicketIDE({
       const { [oldPath]: was, ...rest } = d;
       return { ...rest, [trimmed]: true };
     });
+    setOpenTabs((tabs) => tabs.map((t) => (t === oldPath ? trimmed : t)));
     if (activeFile === oldPath) setActiveFile(trimmed);
     if (isReal) {
-      wsWriteFile(userId, labId, sprintId, trimmed, content, evaluationId)
-        .then(() => deleteWorkspaceFile(userId, labId, sprintId, oldPath, evaluationId))
+      wsWriteFile(effectiveUserId, labId, sprintId, trimmed, content, evaluationId)
+        .then(() => deleteWorkspaceFile(effectiveUserId, labId, sprintId, oldPath, evaluationId))
         .catch(() => showToast(`⚠ Could not rename ${oldPath}`));
     }
   }
+
   function deleteFile(path: string) {
-    if (!confirm(`Delete ${path}?`)) return;
-    setFiles((f) => {
-      const { [path]: _drop, ...rest } = f;
-      return rest;
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete File",
+      description: `Are you sure you want to delete ${path}? This action cannot be undone.`,
+      confirmLabel: "Delete",
+      destructive: true,
+      onConfirm: () => {
+        setFiles((f) => {
+          const { [path]: _drop, ...rest } = f;
+          return rest;
+        });
+        setDirty((d) => {
+          const { [path]: _drop, ...rest } = d;
+          return rest;
+        });
+        setOpenTabs((tabs) => {
+          const next = tabs.filter((t) => t !== path);
+          if (activeFile === path) {
+            setActiveFile(next.length > 0 ? next[next.length - 1] : "");
+          }
+          return next;
+        });
+        if (isReal) {
+          deleteWorkspaceFile(effectiveUserId, labId, sprintId, path, evaluationId)
+            .catch(() => showToast(`⚠ Could not delete ${path}`));
+        }
+      },
     });
-    setDirty((d) => {
-      const { [path]: _drop, ...rest } = d;
-      return rest;
-    });
-    if (activeFile === path) {
-      const next = Object.keys(files).filter((p) => p !== path)[0];
-      if (next) setActiveFile(next);
-    }
-    if (isReal) {
-      deleteWorkspaceFile(userId, labId, sprintId, path, evaluationId)
-        .catch(() => showToast(`⚠ Could not delete ${path}`));
-    }
   }
+
   function deleteFolder(prefix: string) {
     const targets = Object.keys(files).filter((p) => p === prefix || p.startsWith(prefix + "/"));
     if (targets.length === 0) return;
-    if (!confirm(`Delete folder ${prefix}/ and ${targets.length} file(s)?`)) return;
-    setFiles((f) => {
-      const next = { ...f };
-      targets.forEach((p) => {
-        delete next[p];
-      });
-      return next;
+    setConfirmDialog({
+      isOpen: true,
+      title: "Delete Folder",
+      description: `Are you sure you want to delete folder ${prefix}/ and ${targets.length} file(s)?`,
+      confirmLabel: "Delete",
+      destructive: true,
+      onConfirm: () => {
+        setFiles((f) => {
+          const next = { ...f };
+          targets.forEach((p) => {
+            delete next[p];
+          });
+          return next;
+        });
+        setDirty((d) => {
+          const next = { ...d };
+          targets.forEach((p) => {
+            delete next[p];
+          });
+          return next;
+        });
+        setOpenTabs((tabs) => {
+          const next = tabs.filter((t) => !targets.includes(t));
+          if (targets.includes(activeFile)) {
+            setActiveFile(next.length > 0 ? next[next.length - 1] : "");
+          }
+          return next;
+        });
+        if (isReal) {
+          deleteWorkspaceFile(effectiveUserId, labId, sprintId, prefix, evaluationId)
+            .catch(() => showToast(`⚠ Could not delete folder ${prefix}`));
+        }
+      },
     });
-    setDirty((d) => {
-      const next = { ...d };
-      targets.forEach((p) => {
-        delete next[p];
-      });
-      return next;
-    });
-    if (targets.includes(activeFile)) {
-      const remaining = Object.keys(files).filter((p) => !targets.includes(p));
-      if (remaining[0]) setActiveFile(remaining[0]);
-    }
-    if (isReal) {
-      deleteWorkspaceFile(userId, labId, sprintId, prefix, evaluationId)
-        .catch(() => showToast(`⚠ Could not delete folder ${prefix}`));
-    }
   }
   const [output, setOutput] = useState<string>("");
   const [running, setRunning] = useState(false);
@@ -1788,7 +2002,7 @@ export function TicketIDE({
     if (typeof window === "undefined") return;
 
     if (isMysql) {
-      const mysqlUri = localStorage.getItem("mysqlUri") || "";
+      const mysqlUri = ticket.connection_url || ticket.uri || localStorage.getItem("mysqlUri") || "";
       if (!mysqlUri.trim()) {
         setHasDbConnection(false);
         setDbSchemas([]);
@@ -1797,15 +2011,37 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemasLoading(true);
       try {
-        const schemas: any = await fetchExternalDbSchema("mysql", mysqlUri);
-        setDbSchemas(schemas || []);
+        const tables: any = await fetchExternalDbSchema("mysql", mysqlUri, {
+          userId: effectiveUserId,
+          labId,
+          sprintId,
+          evaluationId: isEvaluationMode ? evaluationId : undefined,
+        });
+        const formattedTables = (tables || []).map((t: any) => ({
+          name: t.table || t.name,
+          columns: (t.columns || []).map((c: any) => ({
+            name: c.name,
+            type: c.type || "VARCHAR",
+            nullable: "YES",
+            default: "-",
+            key: "-",
+          })),
+          ddl: `-- Table: ${t.table || t.name}`,
+        }));
+        setDbSchemas([
+          {
+            name: "defaultdb",
+            type: "MySQL",
+            tables: formattedTables,
+          },
+        ]);
       } catch (err) {
         setDbSchemas([]);
       } finally {
         setDbSchemasLoading(false);
       }
     } else if (isPostgres) {
-      const postgresUri = localStorage.getItem("postgresqlUri") || localStorage.getItem("postgresUri") || "";
+      const postgresUri = ticket.connection_url || ticket.uri || localStorage.getItem("postgresqlUri") || localStorage.getItem("postgresUri") || "";
       if (!postgresUri.trim()) {
         setHasDbConnection(false);
         setDbSchemas([]);
@@ -1814,15 +2050,37 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemasLoading(true);
       try {
-        const schemas: any = await fetchExternalDbSchema("postgresql", postgresUri);
-        setDbSchemas(schemas || []);
+        const tables: any = await fetchExternalDbSchema("postgresql", postgresUri, {
+          userId: effectiveUserId,
+          labId,
+          sprintId,
+          evaluationId: isEvaluationMode ? evaluationId : undefined,
+        });
+        const formattedTables = (tables || []).map((t: any) => ({
+          name: t.table || t.name,
+          columns: (t.columns || []).map((c: any) => ({
+            name: c.name,
+            type: c.type || "VARCHAR",
+            nullable: "YES",
+            default: "-",
+            key: "-",
+          })),
+          ddl: `-- Table: ${t.table || t.name}`,
+        }));
+        setDbSchemas([
+          {
+            name: "public",
+            type: "PostgreSQL",
+            tables: formattedTables,
+          },
+        ]);
       } catch (err) {
         setDbSchemas([]);
       } finally {
         setDbSchemasLoading(false);
       }
     } else if (isMongo) {
-      const mongoUri = localStorage.getItem("mongoUri") || "";
+      const mongoUri = ticket.connection_url || ticket.uri || localStorage.getItem("mongoUri") || "";
       if (!mongoUri.trim()) {
         setHasDbConnection(false);
         setDbSchemas([]);
@@ -1831,8 +2089,24 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemasLoading(true);
       try {
-        const schemas: any = await fetchExternalDbSchema("mongodb", mongoUri);
-        setDbSchemas(schemas || []);
+        const tables: any = await fetchExternalDbSchema("mongodb", mongoUri, {
+          userId: effectiveUserId,
+          labId,
+          sprintId,
+          evaluationId: isEvaluationMode ? evaluationId : undefined,
+        });
+        const formattedTables = (tables || []).map((t: any) => ({
+          name: t.table || t.name,
+          columns: [],
+          ddl: `-- Collection: ${t.table || t.name}`,
+        }));
+        setDbSchemas([
+          {
+            name: "default",
+            type: "MongoDB",
+            tables: formattedTables,
+          },
+        ]);
       } catch (err) {
         setDbSchemas([]);
       } finally {
@@ -1842,7 +2116,7 @@ export function TicketIDE({
       setHasDbConnection(true);
       setDbSchemas(getAlasqlSchema());
     }
-  }, [isMysql, isPostgres, isMongo, isSql]);
+  }, [isMysql, isPostgres, isMongo, isSql, ticket.connection_url, ticket.uri]);
 
   useEffect(() => {
     refreshSchema();
@@ -1875,7 +2149,7 @@ export function TicketIDE({
       setEvaluating(prev => ({ ...prev, [taskSlug]: true }));
       try {
         const { evaluateTask } = await import("@/services/workspaceService");
-        const result = await evaluateTask(userId, labId, sprintId, reqCmd, taskSlug, scoringRules, evaluationId);
+        const result = await evaluateTask(effectiveUserId, labId, sprintId, reqCmd, taskSlug, scoringRules, evaluationId);
         setEvalResult(prev => ({ ...prev, [taskSlug]: result }));
         if (result.passed) passedCount++;
       } catch (err: any) {
@@ -1892,7 +2166,7 @@ export function TicketIDE({
     if (isReal) {
       const filesToSave = getFilesToSave();
       Promise.all(
-        Object.keys(filesToSave).map(p => wsWriteFile(userId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
+        Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
       ).catch(console.error);
     }
     setRunning(true);
@@ -1902,7 +2176,7 @@ export function TicketIDE({
     if (ticket.test_command && ticket.test_command.trim()) {
       try {
         const { runTestCommand } = await import("@/services/workspaceService");
-        const res = await runTestCommand(userId, labId, sprintId, ticket.test_command.trim(), evaluationId);
+        const res = await runTestCommand(effectiveUserId, labId, sprintId, ticket.test_command.trim(), evaluationId);
 
         let outText = res.stdout || "";
         if (res.stderr && res.stderr.trim()) {
@@ -2112,8 +2386,8 @@ export function TicketIDE({
       const targetDbFile = dbFile || "__none__";
 
       const dbEngine = isMysql ? "mysql" : isPostgres ? "postgresql" : isMongo ? "mongodb" : "sqlite";
-      let connectionUrl = "";
-      if (typeof window !== "undefined") {
+      let connectionUrl = ticket.connection_url || ticket.uri || "";
+      if (!connectionUrl && typeof window !== "undefined") {
         if (isPostgres) {
           connectionUrl = localStorage.getItem("postgresqlUri") || localStorage.getItem("postgresUri") || "";
         } else if (isMysql) {
@@ -2122,8 +2396,6 @@ export function TicketIDE({
           connectionUrl = localStorage.getItem("mongoUri") || localStorage.getItem("mongodbUri") || "";
         }
       }
-      if (!connectionUrl && ticket.connection_url) connectionUrl = ticket.connection_url;
-      if (!connectionUrl && ticket.uri) connectionUrl = ticket.uri;
 
       const tTasks = ticket.tasks || [];
       let task = null;
@@ -2489,7 +2761,7 @@ export function TicketIDE({
       const filesToSave = getFilesToSave();
       try {
         await Promise.all(
-          Object.keys(filesToSave).map(p => wsWriteFile(userId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
+          Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
         );
       } catch (err) {
         console.error(err);
@@ -2803,7 +3075,7 @@ export function TicketIDE({
       const filesToSave = getFilesToSave();
       // Persist loaded files to the workspace so disk is always in sync
       Promise.all(
-        Object.keys(filesToSave).map(p => wsWriteFile(userId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
+        Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
       ).catch(() => showToast("⚠ Some files could not be saved to workspace"));
 
       // Also save to database so the IDE loads it perfectly on refresh
@@ -2832,13 +3104,25 @@ export function TicketIDE({
   }
 
   function handleReset() {
-    if (!confirm("Reset code to starter template?")) return;
-    setFiles({ ...starters });
-    setDirty({});
-    setActiveFile(initialFileList[0]);
-    setTestsRan(false);
-    setOutput("");
-    showToast("Code reset");
+    setConfirmDialog({
+      isOpen: true,
+      title: "Reset Code",
+      description: "Reset code to starter template? All unsaved edits will be lost.",
+      confirmLabel: "Reset",
+      destructive: true,
+      onConfirm: () => {
+        setFiles({ ...starters });
+        setDirty({});
+        const target = defaultPrimaryFile || initialFileList[0] || "";
+        if (target) {
+          setActiveFile(target);
+          setOpenTabs([target]);
+        }
+        setTestsRan(false);
+        setOutput("");
+        showToast("Code reset");
+      },
+    });
   }
 
   async function handleCopy() {
@@ -2864,26 +3148,35 @@ export function TicketIDE({
   }
 
   function updateCode(v: string) {
-    setFiles((f) => ({ ...f, [activeFile]: v }));
-    setDirty((d) => ({ ...d, [activeFile]: true }));
+    let target = activeFile;
+    if (!target) {
+      target = defaultPrimaryFile || "main.py";
+      setActiveFile(target);
+      setOpenTabs((prev) => (prev.includes(target) ? prev : [...prev, target]));
+    }
+    setFiles((f) => ({ ...f, [target]: v }));
+    setDirty((d) => ({ ...d, [target]: true }));
   }
 
   const handleResetProgress = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to reset your progress? This will delete all your files and restart the ticket.",
-      )
-    )
-      return;
-    try {
-      const { deleteWorkspaceFile } = await import("@/services/workspaceService");
-      await deleteWorkspaceFile(userId, labId, sprintId, "", evaluationId);
-      setTicketScore(null);
-      setEvalResult({});
-      window.location.reload();
-    } catch (e: any) {
-      showToast("Failed to reset progress: " + e.message);
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: "Reset Progress",
+      description: "Are you sure you want to reset your progress? This will delete all your files and restart the ticket.",
+      confirmLabel: "Reset Progress",
+      destructive: true,
+      onConfirm: async () => {
+        try {
+          const { deleteWorkspaceFile } = await import("@/services/workspaceService");
+          await deleteWorkspaceFile(effectiveUserId, labId, sprintId, "", evaluationId);
+          setTicketScore(null);
+          setEvalResult({});
+          window.location.reload();
+        } catch (e: any) {
+          showToast("Failed to reset progress: " + e.message);
+        }
+      },
+    });
   };
 
   if (reviewMatch) return <Outlet />;
@@ -3160,8 +3453,8 @@ export function TicketIDE({
                     <button
                       title="New File"
                       onClick={() => {
-                        const name = prompt("New file path (e.g. todos/utils.py)");
-                        if (name) createFile(name);
+                        setInlineAction({ type: "new-file", folderPath: "" });
+                        setOpenFolders(o => ({ ...o, [""]: true, ["__root__"]: true }));
                       }}
                       className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
                     >
@@ -3170,11 +3463,8 @@ export function TicketIDE({
                     <button
                       title="New Folder"
                       onClick={() => {
-                        const name = prompt("New folder path (e.g. todos/api)");
-                        if (name) {
-                          const folder = name.replace(/\/+$/, "");
-                          createFile(`${folder}/.gitkeep`, "");
-                        }
+                        setInlineAction({ type: "new-folder", folderPath: "" });
+                        setOpenFolders(o => ({ ...o, [""]: true, ["__root__"]: true }));
                       }}
                       className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
                     >
@@ -3207,6 +3497,8 @@ export function TicketIDE({
                     paths={fileList}
                     activeFile={activeFile}
                     dirty={dirty}
+                    inlineAction={inlineAction}
+                    setInlineAction={setInlineAction}
                     onOpenFile={openFile}
                     onCreateFile={createFile}
                     onRenameFile={renameFile}
@@ -3264,12 +3556,12 @@ export function TicketIDE({
                           </svg>
                           {schema.name}
                         </div>
-                        {schema.tables.length > 0 ? (
+                        {(schema.tables || []).length > 0 ? (
                           <>
                             <div className="px-5 py-1 text-[11px] text-muted-foreground uppercase mt-1">
                               Tables
                             </div>
-                            {schema.tables.map((t) => (
+                            {(schema.tables || []).map((t) => (
                               <button
                                 key={t.name}
                                 onClick={() => {
@@ -3294,7 +3586,7 @@ export function TicketIDE({
                                 </svg>
                                 {t.name}
                                 <span className="ml-auto text-[10px] opacity-50">
-                                  {t.columns.length} cols
+                                  {(t.columns || []).length} cols
                                 </span>
                               </button>
                             ))}
@@ -3306,7 +3598,7 @@ export function TicketIDE({
                         )}
                       </React.Fragment>
                     ))}
-                    {(isMysql || isPostgres) && (
+                    {(isMysql || isPostgres) && !isEvaluationMode && !ticket.connection_url && (
                       <div className="px-4 py-3 mt-4 border-t border-border">
                         <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2">
                           Need a free database?
@@ -3541,7 +3833,7 @@ export function TicketIDE({
                     </div>
                   )}
                 </div>
-                <div className="h-60 max-h-[45vh] min-h-[14rem] overflow-auto scrollbar-thin p-3 text-xs">
+                <div className={`h-60 max-h-[45vh] min-h-[14rem] ${bottomTab === "terminal" ? "p-0 overflow-hidden flex flex-col" : "overflow-auto scrollbar-thin p-3 text-xs"}`}>
                   {bottomTab === "output" && (
                     <ExecutionOutputView
                       output={output}
@@ -3579,6 +3871,11 @@ export function TicketIDE({
                       previewPort={previewPort}
                       computedStartupCommand={computedStartupCommand}
                       isPython={isPython}
+                      isEvaluationMode={isEvaluationMode}
+                      effectiveUserId={effectiveUserId}
+                      labId={labId}
+                      sprintId={sprintId}
+                      evaluationId={isEvaluationMode ? evaluationId : undefined}
                     />
                   )}
                   <div style={{ display: bottomTab === "terminal" ? "flex" : "none" }} className="min-h-0 flex-1 flex-col h-full w-full">
@@ -3587,7 +3884,7 @@ export function TicketIDE({
                         isVisible={bottomTab === "terminal"}
                         wsUrl={isReal && !isLoading && effectiveUserId ? getTerminalWsUrl(effectiveUserId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other", evaluationId) : null}
                         onCommandRun={() => loadWorkspaceFiles(true)}
-                        startupCommand={computedStartupCommand}
+                        startupCommand={(isExternalDb || ticket.connection_url) ? undefined : computedStartupCommand}
                         onStartupCommandRun={() => {
                           setTimeout(() => setBottomTab("preview"), 2000);
                         }}
@@ -3755,6 +4052,33 @@ export function TicketIDE({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* In-app Confirmation Dialog (Never exits full-screen) */}
+      <AlertDialog
+        open={confirmDialog.isOpen}
+        onOpenChange={(open) => !open && setConfirmDialog((d) => ({ ...d, isOpen: false }))}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription>{confirmDialog.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setConfirmDialog((d) => ({ ...d, isOpen: false }))}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className={confirmDialog.destructive ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+              onClick={() => {
+                confirmDialog.onConfirm();
+                setConfirmDialog((d) => ({ ...d, isOpen: false }));
+              }}
+            >
+              {confirmDialog.confirmLabel || "Continue"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {/* Modals */}
       {isExamplesPanelOpen && (
         <ExamplesPanel
@@ -4026,6 +4350,11 @@ function FormattedResultsView({
   previewPort,
   computedStartupCommand,
   isPython,
+  isEvaluationMode,
+  effectiveUserId,
+  labId,
+  sprintId,
+  evaluationId,
 }: {
   ticket: any;
   taskExecutionData: any;
@@ -4052,6 +4381,11 @@ function FormattedResultsView({
   previewPort: number;
   computedStartupCommand?: string;
   isPython: boolean;
+  isEvaluationMode?: boolean;
+  effectiveUserId?: string;
+  labId?: string;
+  sprintId?: string;
+  evaluationId?: string;
 }) {
   // 1. Task-based evaluation (Django, REST API, Backend labs, or any lab with test_command or tasks or taskExecutionData)
   const report = extractTasksReport(ticket, taskExecutionData, executionOutput || output, evalResult, ticketScore);
@@ -4230,10 +4564,33 @@ function FormattedResultsView({
     return <SqlResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} executionOutput={executionOutput || output} />;
   }
   if (isMongo) {
-    return <MongoResultsView query={executedQuery} runId={runId} onQueryExecuted={refreshSchema} />;
+    return (
+      <MongoResultsView
+        query={executedQuery}
+        runId={runId}
+        onQueryExecuted={refreshSchema}
+        configuredUri={ticket.connection_url || ticket.uri}
+        isEvaluationMode={isEvaluationMode}
+        userId={effectiveUserId}
+        labId={labId}
+        sprintId={sprintId}
+        evaluationId={isEvaluationMode ? evaluationId : undefined}
+      />
+    );
   }
   if (isExternalDb) {
-    return <ExternalSqlResultsView query={executedQuery} dbType={dbType!} />;
+    return (
+      <ExternalSqlResultsView
+        query={executedQuery}
+        dbType={(dbType as "mysql" | "postgresql") || "postgresql"}
+        configuredUri={ticket.connection_url || ticket.uri}
+        isEvaluationMode={isEvaluationMode}
+        userId={effectiveUserId}
+        labId={labId}
+        sprintId={sprintId}
+        evaluationId={isEvaluationMode ? evaluationId : undefined}
+      />
+    );
   }
 
   // 3. UI preview
@@ -4570,9 +4927,9 @@ function SidePreview({ device, kit, files, activeFile, startupCommand, previewPo
   const body = startupCommand ? <WebPreview port={previewPort} /> :
     kit.name === "django" ? <DjangoTodoApp /> :
       kit.name === "ui" ? <UiPreview files={files} fullHeight /> :
-        kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
-          kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" /> :
-            kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" /> :
+        isMysql || kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+          isPostgres || kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+            isSql || kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
               kit.name === "mongo" ? <MongoResultsView query={files[activeFile] ?? ""} /> :
                 kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                   (
@@ -4721,6 +5078,34 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
     onCommandRunRef.current = onCommandRun;
   }, [onCommandRun]);
 
+  const isDark = theme === "dark" || (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+  const getThemeConfig = useCallback(() => {
+    return {
+      background: isDark ? "#0d1117" : "#fafaf7",
+      foreground: isDark ? "#e6edf3" : "#24292f",
+      cursor: isDark ? "#58a6ff" : "#0969da",
+      cursorAccent: isDark ? "#0d1117" : "#fafaf7",
+      selectionBackground: isDark ? "rgba(56, 139, 253, 0.4)" : "rgba(9, 105, 218, 0.2)",
+      black: isDark ? "#0d1117" : "#fafaf7",
+      brightBlack: "#484f58",
+      red: "#ff7b72",
+      brightRed: "#ffa198",
+      green: "#3fb950",
+      brightGreen: "#56d364",
+      yellow: "#d29922",
+      brightYellow: "#e3b341",
+      blue: "#58a6ff",
+      brightBlue: "#79c0ff",
+      magenta: "#bc8cff",
+      brightMagenta: "#d2a8ff",
+      cyan: "#39c5cf",
+      brightCyan: "#56d4dd",
+      white: "#b1bac4",
+      brightWhite: "#f0f6fc",
+    };
+  }, [isDark]);
+
   // Mount xterm when libs are ready and container is available
   useEffect(() => {
     if (!libs || !containerRef.current) return;
@@ -4728,48 +5113,49 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
 
     const term = new libs.Terminal({
       cursorBlink: true,
-      fontSize: 13,
-      fontFamily: '"JetBrains Mono", "Fira Code", monospace',
-      theme: {
-        background: theme === "dark" ? "#0b0b0c" : "#fafaf7",
-        foreground: theme === "dark" ? "#e6edf3" : "#24292f",
-        cursor: theme === "dark" ? "#58a6ff" : "#0969da",
-        black: theme === "dark" ? "#0d1117" : "#fafaf7",
-        brightBlack: "#484f58",
-        red: "#ff7b72",
-        brightRed: "#ffa198",
-        green: "#3fb950",
-        brightGreen: "#56d364",
-        yellow: "#d29922",
-        brightYellow: "#e3b341",
-        blue: "#58a6ff",
-        brightBlue: "#79c0ff",
-        magenta: "#bc8cff",
-        brightMagenta: "#d2a8ff",
-        cyan: "#39c5cf",
-        brightCyan: "#56d4dd",
-        white: "#b1bac4",
-        brightWhite: "#e6edf3",
-      },
+      cursorStyle: "bar",
+      fontSize: 12,
+      lineHeight: 1.25,
+      letterSpacing: 0,
+      fontFamily: '"JetBrains Mono", Menlo, Monaco, Consolas, "Courier New", monospace',
+      theme: getThemeConfig(),
       scrollback: 5000,
+      convertEol: true,
       allowProposedApi: true,
     });
 
     const fitAddon = new libs.FitAddon();
     term.loadAddon(fitAddon);
     term.open(containerRef.current);
-    fitAddon.fit();
 
     termRef.current = term;
     fitRef.current = fitAddon;
 
-    // Resize observer
-    const ro = new ResizeObserver(() => {
+    const doFit = () => {
+      const container = containerRef.current;
+      if (!container || container.clientWidth === 0 || container.clientHeight === 0) return;
+      try {
+        const core = (term as any)._core;
+        if (core?._charSizeService?.measure) {
+          core._charSizeService.measure();
+        }
+        if (core?._renderService?.dimensions) {
+          core._renderService.dimensions.reset?.();
+        }
+      } catch {}
       try {
         fitAddon.fit();
-      } catch {
-        /* ignore */
-      }
+      } catch {}
+    };
+
+    // Initial fit
+    requestAnimationFrame(() => {
+      doFit();
+    });
+
+    // Resize observer
+    const ro = new ResizeObserver(() => {
+      doFit();
     });
     ro.observe(containerRef.current);
 
@@ -4789,43 +5175,44 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
       termRef.current = null;
       fitRef.current = null;
     };
-  }, [libs, theme]);
+  }, [libs, getThemeConfig]);
 
   useEffect(() => {
     if (termRef.current) {
-      termRef.current.options.theme = {
-        background: theme === "dark" ? "#0b0b0c" : "#fafaf7",
-        foreground: theme === "dark" ? "#e6edf3" : "#24292f",
-        cursor: theme === "dark" ? "#58a6ff" : "#0969da",
-        black: theme === "dark" ? "#0d1117" : "#fafaf7",
-        brightBlack: "#484f58",
-        red: "#ff7b72",
-        brightRed: "#ffa198",
-        green: "#3fb950",
-        brightGreen: "#56d364",
-        yellow: "#d29922",
-        brightYellow: "#e3b341",
-        blue: "#58a6ff",
-        brightBlue: "#79c0ff",
-        magenta: "#bc8cff",
-        brightMagenta: "#d2a8ff",
-        cyan: "#39c5cf",
-        brightCyan: "#56d4dd",
-        white: "#b1bac4",
-        brightWhite: "#e6edf3",
-      };
+      termRef.current.options.theme = getThemeConfig();
     }
-  }, [theme]);
+  }, [getThemeConfig]);
 
   // Fit terminal when it becomes visible
   useEffect(() => {
-    if (isVisible && fitRef.current) {
-      // Small timeout to ensure DOM layout is updated before fitting
-      setTimeout(() => {
+    if (isVisible && fitRef.current && containerRef.current) {
+      const runFit = () => {
+        const container = containerRef.current;
+        if (!container || container.clientWidth === 0 || container.clientHeight === 0) return;
         try {
-          fitRef.current.fit();
-        } catch { /* ignore */ }
-      }, 50);
+          const core = (termRef.current as any)?._core;
+          if (core?._charSizeService?.measure) {
+            core._charSizeService.measure();
+          }
+          if (core?._renderService?.dimensions) {
+            core._renderService.dimensions.reset?.();
+          }
+        } catch {}
+        try {
+          fitRef.current?.fit();
+        } catch {}
+      };
+
+      runFit();
+      const rAf = requestAnimationFrame(runFit);
+      const timer50 = setTimeout(runFit, 50);
+      const timer200 = setTimeout(runFit, 200);
+
+      return () => {
+        cancelAnimationFrame(rAf);
+        clearTimeout(timer50);
+        clearTimeout(timer200);
+      };
     }
   }, [isVisible]);
 
@@ -4849,12 +5236,10 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
       setConnected(true);
       setError(null);
       termRef.current?.writeln("\x1b[32m✓ Connected\x1b[0m\r\n");
-      // Resize hint
       try { fitRef.current?.fit(); } catch { /* ignore */ }
       
       if (startupCommand && !startupCommandRunRef.current) {
         startupCommandRunRef.current = true;
-        // Small delay to ensure the shell is fully initialized on the backend
         setTimeout(() => {
           if (wsRef.current?.readyState === WebSocket.OPEN) {
             wsRef.current.send(startupCommand + "\r");
@@ -4869,7 +5254,6 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
       if (typeof ev.data === "string") {
         termRef.current.write(ev.data);
       } else {
-        // Fallback for blobs if any
         if (ev.data instanceof Blob) {
           ev.data.text().then((t) => termRef.current?.write(t));
         }
@@ -4877,7 +5261,7 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
     };
 
     ws.onerror = () => {
-      setError("Terminal connection error — check that the code executor is running");
+      setError("Terminal connection error — check code executor");
       setConnected(false);
     };
 
@@ -4887,7 +5271,6 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
       termRef.current?.writeln("\r\n\x1b[31m[disconnected]\x1b[0m");
     };
   }, [wsUrl, startupCommand, onStartupCommandRun]);
-
 
   useEffect(() => {
     if (!termRef.current || !wsUrl) return;
@@ -4902,7 +5285,7 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
   // If no wsUrl (dummy ticket), show static mock
   if (!wsUrl) {
     return (
-      <div className="font-mono text-muted-foreground space-y-0.5">
+      <div className="font-mono text-muted-foreground space-y-0.5 p-3">
         <div>
           <span className="text-success">student@labs</span>:
           <span className="text-info">~/workspace</span>$ ls
@@ -4917,27 +5300,56 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
   }
 
   return (
-    <div className={`flex flex-col h-full w-full p-1 rounded ${theme === "dark" ? "bg-black text-white" : "bg-[#fafaf7] text-neutral-800 border border-neutral-200"}`}>
-      {/* Status bar */}
-      <div className="flex items-center gap-2 mb-2 px-1">
-        <span
-          className={`h-2 w-2 rounded-full flex-shrink-0 ${connected ? "bg-success" : "bg-destructive"}`}
-        />
-        <span className="text-muted-foreground text-[10px] font-mono">
-          {connected ? "Connected to workspace terminal" : (error ?? "Disconnected")}
-        </span>
-        {!connected && (
+    <div
+      className={`flex flex-col h-full w-full overflow-hidden ${
+        isDark ? "bg-[#0d1117] text-white" : "bg-[#fafaf7] text-neutral-800"
+      }`}
+    >
+      {/* Sleek Terminal Header */}
+      <div
+        className={`flex items-center justify-between h-7 px-3 border-b text-[11px] font-mono select-none flex-shrink-0 ${
+          isDark
+            ? "bg-[#161b22] border-white/10 text-neutral-400"
+            : "bg-neutral-100 border-neutral-200 text-neutral-600"
+        }`}
+      >
+        <div className="flex items-center gap-2">
+          <span
+            className={`h-2 w-2 rounded-full flex-shrink-0 transition-colors ${
+              connected ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]" : "bg-rose-500"
+            }`}
+          />
+          <span className="font-semibold tracking-wider text-[10px] uppercase text-foreground">
+            Terminal
+          </span>
+          <span className="text-[10px] text-muted-foreground hidden sm:inline">
+            {connected ? "• Connected" : `• ${error ?? "Disconnected"}`}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
           <button
-            onClick={connect}
-            className="ml-auto rounded border px-2 py-0.5 text-[10px] hover:bg-accent text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              termRef.current?.clear();
+            }}
+            title="Clear terminal"
+            className="hover:text-foreground text-muted-foreground transition-colors px-1.5 py-0.5 rounded text-[10px]"
           >
-            Reconnect
+            Clear
           </button>
-        )}
+          {!connected && (
+            <button
+              onClick={connect}
+              className="rounded border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary hover:bg-primary/20 transition-colors"
+            >
+              Reconnect
+            </button>
+          )}
+        </div>
       </div>
-      {/* xterm container */}
-      <div className="flex-1 w-full relative">
-        <div ref={containerRef} className="absolute inset-0" />
+
+      {/* Terminal Canvas Container */}
+      <div className="flex-1 w-full h-full min-h-0 relative p-2">
+        <div ref={containerRef} className="absolute inset-2 overflow-hidden" />
       </div>
     </div>
   );
@@ -5584,10 +5996,12 @@ type TreeNode = {
 function buildTree(paths: readonly string[]): TreeNode {
   const root: TreeNode = { name: "", path: "", isFile: false, children: [] };
   for (const full of paths) {
+    if (!full || !full.trim()) continue;
     const parts = full.split("/");
     let cursor = root;
     for (let i = 0; i < parts.length; i++) {
       const seg = parts[i];
+      if (!seg) continue;
       const isLast = i === parts.length - 1;
       const segPath = parts.slice(0, i + 1).join("/");
       let next = cursor.children.find((c) => c.name === seg && c.isFile === isLast);
@@ -5609,11 +6023,85 @@ function buildTree(paths: readonly string[]): TreeNode {
   return root;
 }
 
+export type InlineTreeAction =
+  | { type: "new-file"; folderPath: string }
+  | { type: "new-folder"; folderPath: string }
+  | { type: "rename-file"; path: string; currentName: string }
+  | { type: "rename-folder"; path: string; currentName: string };
+
+function InlineInput({
+  initialValue = "",
+  placeholder = "",
+  icon,
+  onCommit,
+  onCancel,
+  paddingLeft,
+}: {
+  initialValue?: string;
+  placeholder?: string;
+  icon: React.ReactNode;
+  onCommit: (val: string) => void;
+  onCancel: () => void;
+  paddingLeft: number;
+}) {
+  const [val, setVal] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      if (initialValue) {
+        const dot = initialValue.lastIndexOf(".");
+        if (dot > 0) {
+          inputRef.current.setSelectionRange(0, dot);
+        } else {
+          inputRef.current.select();
+        }
+      }
+    }
+  }, [initialValue]);
+
+  return (
+    <div
+      style={{ paddingLeft }}
+      className="flex items-center gap-1.5 py-0.5 pr-2 bg-accent/40 rounded my-0.5"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <span className="w-3" />
+      {icon}
+      <input
+        ref={inputRef}
+        type="text"
+        value={val}
+        placeholder={placeholder}
+        onChange={(e) => setVal(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.stopPropagation();
+            onCommit(val);
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation();
+            onCancel();
+          }
+        }}
+        onBlur={() => {
+          onCommit(val);
+        }}
+        className="flex-1 bg-background border border-primary text-foreground text-xs px-1.5 py-0.5 rounded outline-none h-6 min-w-0"
+      />
+    </div>
+  );
+}
+
 type FileTreeProps = {
   rootLabel: string;
   paths: readonly string[];
   activeFile: string;
   dirty: Record<string, boolean>;
+  inlineAction: InlineTreeAction | null;
+  setInlineAction: (action: InlineTreeAction | null) => void;
   onOpenFile: (path: string) => void;
   onCreateFile: (path: string, contents?: string) => void;
   onRenameFile: (oldPath: string, newPath: string) => void;
@@ -5643,6 +6131,8 @@ function TreeFolderNode({
   isRoot,
   activeFile,
   dirty,
+  inlineAction,
+  setInlineAction,
   onOpenFile,
   onCreateFile,
   onRenameFile,
@@ -5658,80 +6148,130 @@ function TreeFolderNode({
   const open = isFolderOpen(key);
   const pad = { paddingLeft: depth * 10 + 4 };
 
+  const isRenamingThis = inlineAction?.type === "rename-folder" && inlineAction.path === node.path;
+  const isCreatingInside = inlineAction && (inlineAction.type === "new-file" || inlineAction.type === "new-folder") && inlineAction.folderPath === node.path;
+
   const handleNewFile = () => {
-    const seed = node.path ? `${node.path}/new-file.py` : "new-file.py";
-    const v = prompt("New file path", seed);
-    if (v) onCreateFile(v);
+    if (!open) toggleFolder(key);
+    setInlineAction({ type: "new-file", folderPath: node.path });
   };
   const handleNewFolder = () => {
-    const seed = node.path ? `${node.path}/new-folder` : "new-folder";
-    const v = prompt("New folder path", seed);
-    if (v) onCreateFile(`${v.replace(/\/+$/, "")}/.gitkeep`, "");
+    if (!open) toggleFolder(key);
+    setInlineAction({ type: "new-folder", folderPath: node.path });
   };
 
   return (
     <div>
-      <ContextMenu>
-        <ContextMenuTrigger asChild>
-          <button
-            onClick={() => toggleFolder(key)}
-            style={pad}
-            className="group flex w-full items-center gap-1 rounded py-0.5 pr-1 text-left hover:bg-accent/60"
-          >
-            {open ? (
-              <ChevronDown className="h-3 w-3 shrink-0" />
-            ) : (
-              <ChevronRight className="h-3 w-3 shrink-0" />
+      {isRenamingThis ? (
+        <InlineInput
+          initialValue={node.name}
+          icon={<FolderOpen className="h-3 w-3 shrink-0 text-info" />}
+          paddingLeft={depth * 10 + 4}
+          onCommit={(nextName) => {
+            const trimmed = nextName.trim().replace(/\/+$/, "");
+            if (trimmed && trimmed !== node.name) {
+              const parts = node.path.split("/");
+              parts[parts.length - 1] = trimmed;
+              const newPath = parts.join("/");
+              const prefix = node.path + "/";
+              const newPrefix = newPath + "/";
+              const affected = props_get_paths_under(node, prefix);
+              affected.forEach((p) => onRenameFile(p, p.replace(prefix, newPrefix)));
+            }
+            setInlineAction(null);
+          }}
+          onCancel={() => setInlineAction(null)}
+        />
+      ) : (
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <button
+              onClick={() => toggleFolder(key)}
+              style={pad}
+              className="group flex w-full items-center gap-1 rounded py-0.5 pr-1 text-left hover:bg-accent/60"
+            >
+              {open ? (
+                <ChevronDown className="h-3 w-3 shrink-0" />
+              ) : (
+                <ChevronRight className="h-3 w-3 shrink-0" />
+              )}
+              {open ? (
+                <FolderOpen className="h-3 w-3 shrink-0 text-info" />
+              ) : (
+                <Folder className="h-3 w-3 shrink-0 text-info" />
+              )}
+              <span className="truncate">{node.name}</span>
+            </button>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-44">
+            <ContextMenuItem onSelect={handleNewFile}>
+              <FilePlus className="mr-2 h-3.5 w-3.5" />
+              New File
+            </ContextMenuItem>
+            <ContextMenuItem onSelect={handleNewFolder}>
+              <FolderPlus className="mr-2 h-3.5 w-3.5" />
+              New Folder
+            </ContextMenuItem>
+            {!isRoot && (
+              <>
+                <ContextMenuSeparator />
+                <ContextMenuItem
+                  onSelect={() => {
+                    setInlineAction({ type: "rename-folder", path: node.path, currentName: node.name });
+                  }}
+                >
+                  <Pencil className="mr-2 h-3.5 w-3.5" />
+                  Rename Folder
+                </ContextMenuItem>
+                <ContextMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onSelect={() => onDeleteFolder(node.path)}
+                >
+                  <Trash2 className="mr-2 h-3.5 w-3.5" />
+                  Delete Folder
+                </ContextMenuItem>
+              </>
             )}
-            {open ? (
-              <FolderOpen className="h-3 w-3 shrink-0 text-info" />
-            ) : (
-              <Folder className="h-3 w-3 shrink-0 text-info" />
-            )}
-            <span className="truncate">{node.name}</span>
-          </button>
-        </ContextMenuTrigger>
-        <ContextMenuContent className="w-44">
-          <ContextMenuItem onSelect={handleNewFile}>
-            <FilePlus className="mr-2 h-3.5 w-3.5" />
-            New File
-          </ContextMenuItem>
-          <ContextMenuItem onSelect={handleNewFolder}>
-            <FolderPlus className="mr-2 h-3.5 w-3.5" />
-            New Folder
-          </ContextMenuItem>
-          {!isRoot && (
-            <>
-              <ContextMenuSeparator />
-              <ContextMenuItem
-                onSelect={() => {
-                  const next = prompt("Rename folder", node.path);
-                  if (next && next !== node.path) {
-                    // rename every file under prefix
-                    const prefix = node.path + "/";
-                    const newPrefix = next.replace(/\/+$/, "") + "/";
-                    // gather then rename one-by-one
-                    const affected = props_get_paths_under(node, prefix);
-                    affected.forEach((p) => onRenameFile(p, p.replace(prefix, newPrefix)));
-                  }
-                }}
-              >
-                <Pencil className="mr-2 h-3.5 w-3.5" />
-                Rename Folder
-              </ContextMenuItem>
-              <ContextMenuItem
-                className="text-destructive focus:text-destructive"
-                onSelect={() => onDeleteFolder(node.path)}
-              >
-                <Trash2 className="mr-2 h-3.5 w-3.5" />
-                Delete Folder
-              </ContextMenuItem>
-            </>
-          )}
-        </ContextMenuContent>
-      </ContextMenu>
+          </ContextMenuContent>
+        </ContextMenu>
+      )}
+
       {open && (
         <div>
+          {isCreatingInside && (
+            inlineAction?.type === "new-file" ? (
+              <InlineInput
+                placeholder="filename.py"
+                icon={<FileCode2 className="h-3 w-3 shrink-0 text-muted-foreground" />}
+                paddingLeft={(depth + 1) * 10 + 4}
+                onCommit={(name) => {
+                  const trimmed = name.trim();
+                  if (trimmed) {
+                    const fullPath = node.path ? `${node.path}/${trimmed}` : trimmed;
+                    onCreateFile(fullPath);
+                  }
+                  setInlineAction(null);
+                }}
+                onCancel={() => setInlineAction(null)}
+              />
+            ) : (
+              <InlineInput
+                placeholder="folder-name"
+                icon={<Folder className="h-3 w-3 shrink-0 text-info" />}
+                paddingLeft={(depth + 1) * 10 + 4}
+                onCommit={(name) => {
+                  const trimmed = name.trim().replace(/\/+$/, "");
+                  if (trimmed) {
+                    const fullPath = node.path ? `${node.path}/${trimmed}` : trimmed;
+                    onCreateFile(`${fullPath}/.gitkeep`, "");
+                  }
+                  setInlineAction(null);
+                }}
+                onCancel={() => setInlineAction(null)}
+              />
+            )
+          )}
+
           {node.children.map((child) =>
             child.isFile ? (
               <TreeFileNode
@@ -5740,6 +6280,8 @@ function TreeFolderNode({
                 depth={depth + 1}
                 active={activeFile === child.path}
                 modified={dirty[child.path]}
+                inlineAction={inlineAction}
+                setInlineAction={setInlineAction}
                 onOpenFile={onOpenFile}
                 onRenameFile={onRenameFile}
                 onDeleteFile={onDeleteFile}
@@ -5751,6 +6293,8 @@ function TreeFolderNode({
                 depth={depth + 1}
                 activeFile={activeFile}
                 dirty={dirty}
+                inlineAction={inlineAction}
+                setInlineAction={setInlineAction}
                 onOpenFile={onOpenFile}
                 onCreateFile={onCreateFile}
                 onRenameFile={onRenameFile}
@@ -5783,6 +6327,8 @@ function TreeFileNode({
   depth,
   active,
   modified,
+  inlineAction,
+  setInlineAction,
   onOpenFile,
   onRenameFile,
   onDeleteFile,
@@ -5791,11 +6337,35 @@ function TreeFileNode({
   depth: number;
   active: boolean;
   modified?: boolean;
+  inlineAction: InlineTreeAction | null;
+  setInlineAction: (action: InlineTreeAction | null) => void;
   onOpenFile: (path: string) => void;
   onRenameFile: (oldPath: string, newPath: string) => void;
   onDeleteFile: (path: string) => void;
 }) {
   const pad = { paddingLeft: depth * 10 + 4 };
+  const isRenaming = inlineAction?.type === "rename-file" && inlineAction.path === node.path;
+
+  if (isRenaming) {
+    return (
+      <InlineInput
+        initialValue={node.name}
+        icon={<FileCode2 className="h-3 w-3 shrink-0 text-info" />}
+        paddingLeft={depth * 10 + 4}
+        onCommit={(nextName) => {
+          const trimmed = nextName.trim();
+          if (trimmed && trimmed !== node.name) {
+            const parts = node.path.split("/");
+            parts[parts.length - 1] = trimmed;
+            onRenameFile(node.path, parts.join("/"));
+          }
+          setInlineAction(null);
+        }}
+        onCancel={() => setInlineAction(null)}
+      />
+    );
+  }
+
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
@@ -5817,8 +6387,7 @@ function TreeFileNode({
         <ContextMenuSeparator />
         <ContextMenuItem
           onSelect={() => {
-            const next = prompt("Rename file", node.path);
-            if (next && next !== node.path) onRenameFile(node.path, next);
+            setInlineAction({ type: "rename-file", path: node.path, currentName: node.name });
           }}
         >
           <Pencil className="mr-2 h-3.5 w-3.5" />
@@ -5939,9 +6508,21 @@ function runSqlQuery(q: string): { columns: string[]; rows: SqlRow[]; note: stri
 function ExternalSqlResultsView({
   query,
   dbType,
+  configuredUri,
+  isEvaluationMode,
+  userId,
+  labId,
+  sprintId,
+  evaluationId,
 }: {
   query: string;
   dbType: "mysql" | "postgresql";
+  configuredUri?: string;
+  isEvaluationMode?: boolean;
+  userId?: string;
+  labId?: string;
+  sprintId?: string;
+  evaluationId?: string;
 }) {
   const [viewMode, setViewMode] = useState<"TABLE" | "JSON">("TABLE");
   const [res, setRes] = useState<{
@@ -5952,7 +6533,9 @@ function ExternalSqlResultsView({
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const isPreconfigured = Boolean(configuredUri?.trim()) || Boolean(isEvaluationMode);
   const [uri, setUri] = useState<string>(() => {
+    if (configuredUri?.trim()) return configuredUri.trim();
     if (typeof window !== "undefined") {
       return (
         localStorage.getItem(`${dbType}Uri`) ||
@@ -5964,6 +6547,13 @@ function ExternalSqlResultsView({
   });
   const [editingUri, setEditingUri] = useState(false);
   const [tempUri, setTempUri] = useState(uri);
+
+  useEffect(() => {
+    if (configuredUri?.trim()) {
+      setUri(configuredUri.trim());
+      setTempUri(configuredUri.trim());
+    }
+  }, [configuredUri]);
 
   const saveUri = () => {
     const trimmed = tempUri.trim();
@@ -5981,21 +6571,29 @@ function ExternalSqlResultsView({
   useEffect(() => {
     let active = true;
     const run = async () => {
-      if (!uri) return;
+      const activeUri = configuredUri?.trim() || uri;
+      if (!activeUri) return;
       setLoading(true);
       setError(null);
-      setRes(null);
       try {
         const engine = dbType === "mysql" ? "mysql" : "postgresql";
-        const result: any = await executeExternalDbQuery(engine, uri, query);
+        const result: any = await executeExternalDbQuery(engine, activeUri, query, {
+          userId,
+          labId,
+          sprintId,
+          evaluationId,
+        });
         if (active) {
           if (result && result.error) {
             setError(result.error);
-            setRes(null);
           } else {
             setRes(result);
             setError(null);
-            window.dispatchEvent(new Event("db-schema-refresh"));
+            // Only trigger schema sidebar reload if the query modifies tables/schema (DDL)
+            const isDdl = /\b(create|drop|alter|truncate|rename)\b/i.test(query || "");
+            if (isDdl) {
+              window.dispatchEvent(new Event("db-schema-refresh"));
+            }
           }
         }
       } catch (e: any) {
@@ -6008,7 +6606,7 @@ function ExternalSqlResultsView({
     return () => {
       active = false;
     };
-  }, [query, uri, dbType]);
+  }, [query, uri, configuredUri, dbType]);
 
   const handleDownloadCsv = () => {
     if (!res || res.rows.length === 0) return;
@@ -6036,17 +6634,24 @@ function ExternalSqlResultsView({
             <Globe className="h-4 w-4 text-primary" />
             <span className="font-semibold text-foreground">Database Connection</span>
           </div>
-          <button
-            onClick={() => {
-              setEditingUri(true);
-              setTempUri(uri);
-            }}
-            className="text-muted-foreground hover:text-foreground underline decoration-dashed"
-          >
-            {uri ? `Connected (${dbType})` : "Click to configure URI"}
-          </button>
+          {isPreconfigured ? (
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span className="font-medium">Connected to Assessment Database ({dbType.toUpperCase()})</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                setEditingUri(true);
+                setTempUri(uri);
+              }}
+              className="text-muted-foreground hover:text-foreground underline decoration-dashed"
+            >
+              {uri ? `Connected (${dbType})` : "Click to configure URI"}
+            </button>
+          )}
         </div>
-        {editingUri && (
+        {editingUri && !isPreconfigured && (
           <div className="flex items-center gap-2 mt-1">
             <input
               type="text"
@@ -6076,7 +6681,7 @@ function ExternalSqlResultsView({
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {loading && (
+        {loading && !res && (
           <div className="text-muted-foreground p-2 animate-pulse">Executing query...</div>
         )}
         {error && (
@@ -6089,7 +6694,9 @@ function ExternalSqlResultsView({
           <>
             <div className="mb-2 flex items-center justify-between text-muted-foreground">
               <div className="flex items-center gap-3">
-                <span>{res.note}</span>
+                <span className={loading ? "animate-pulse text-primary font-medium" : ""}>
+                  {loading ? "Executing query…" : res.note}
+                </span>
                 <div className="flex items-center border rounded overflow-hidden text-[10px] font-medium">
                   <button
                     onClick={() => setViewMode("TABLE")}
@@ -6305,22 +6912,33 @@ function runMongoQuery(q: string): { rows: unknown[]; note: string; ms: number }
   return runDynamicMongoQuery(q);
 }
 
-function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, runId?: number, onQueryExecuted?: () => void }) {
+function MongoResultsView({
+  query,
+  runId,
+  onQueryExecuted,
+  configuredUri,
+  isEvaluationMode,
+  userId,
+  labId,
+  sprintId,
+  evaluationId,
+}: {
+  query: string;
+  runId?: number;
+  onQueryExecuted?: () => void;
+  configuredUri?: string;
+  isEvaluationMode?: boolean;
+  userId?: string;
+  labId?: string;
+  sprintId?: string;
+  evaluationId?: string;
+}) {
   const [res, setRes] = useState<{ rows: unknown[]; note: string; ms: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!query) return;
-    try {
-      const result = runMongoQuery(query);
-      setRes(result);
-    } catch (e: any) {
-      setError(e.message || "Failed to execute");
-    }
-    if (onQueryExecuted) onQueryExecuted();
-  }, [query, runId, onQueryExecuted]);
   const [mongoUri, setMongoUri] = useState<string>(() => {
+    if (configuredUri?.trim()) return configuredUri.trim();
     if (typeof window !== "undefined") {
       return (
         localStorage.getItem("mongoUri") ||
@@ -6354,7 +6972,12 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
       setRes(null);
       try {
         if (mongoUri) {
-          const remoteRes: any = await executeExternalDbQuery("mongodb", mongoUri, query);
+          const remoteRes: any = await executeExternalDbQuery("mongodb", mongoUri, query, {
+            userId,
+            labId,
+            sprintId,
+            evaluationId: isEvaluationMode ? evaluationId : undefined,
+          });
           if (active) {
             if (remoteRes && remoteRes.error) {
               setError(remoteRes.error);
@@ -6374,13 +6997,14 @@ function MongoResultsView({ query, runId, onQueryExecuted }: { query: string, ru
         if (active) setError(e.message || "Failed to execute query");
       } finally {
         if (active) setLoading(false);
+        if (onQueryExecuted) onQueryExecuted();
       }
     };
     run();
     return () => {
       active = false;
     };
-  }, [query, mongoUri]);
+  }, [query, mongoUri, runId, configuredUri, isEvaluationMode, userId, labId, sprintId, evaluationId]);
 
   return (
     <div className="text-[12px] flex flex-col h-full gap-2">

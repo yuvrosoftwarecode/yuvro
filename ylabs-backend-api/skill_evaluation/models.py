@@ -199,6 +199,12 @@ class LabQuestionBank(QuestionBank):
         default="",
         help_text="Command to run scoring tests (e.g., 'python yuvro_scoring_rules/main_test.py')"
     )
+    connection_url = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Pre-configured connection URL for external databases (e.g. Aiven MySQL/Postgres)"
+    )
     allow_task_selection = models.BooleanField(
         default=True,
         help_text="Whether recruiters can select individual tasks from this lab question"
