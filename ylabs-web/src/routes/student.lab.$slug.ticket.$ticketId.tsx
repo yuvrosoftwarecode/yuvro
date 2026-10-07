@@ -1004,6 +1004,96 @@ export function adaptStartupCommandPort(cmd: string | undefined | null, port: nu
   return res;
 }
 
+export function findTaskExecutionResult(
+  taskMeta: any,
+  indexInSelected: number,
+  tasksData: Record<string, any>,
+  taskKeys: string[]
+) {
+  if (!tasksData || typeof tasksData !== "object") return undefined;
+
+  // 1. Direct match by ID
+  if (taskMeta?.id && tasksData[taskMeta.id] !== undefined) {
+    return tasksData[taskMeta.id];
+  }
+  // 2. Direct match by task_slug
+  if (taskMeta?.task_slug && tasksData[taskMeta.task_slug] !== undefined) {
+    return tasksData[taskMeta.task_slug];
+  }
+  // 3. Match by task number from title (e.g. "Task 2: Configure Redis" -> 2)
+  const title = taskMeta?.title || "";
+  const numMatch = title.match(/Task\s*(\d+)/i);
+  if (numMatch) {
+    const num = numMatch[1];
+    if (tasksData[`task${num}`] !== undefined) return tasksData[`task${num}`];
+    if (tasksData[`task_${num}`] !== undefined) return tasksData[`task_${num}`];
+    if (tasksData[`Task ${num}`] !== undefined) return tasksData[`Task ${num}`];
+    if (tasksData[`Task${num}`] !== undefined) return tasksData[`Task${num}`];
+    if (tasksData[`task-${parseInt(num, 10) - 1}`] !== undefined) {
+      return tasksData[`task-${parseInt(num, 10) - 1}`];
+    }
+  }
+  // 4. Match by original_index if present
+  if (taskMeta?.original_index != null) {
+    const origNum = Number(taskMeta.original_index) + 1;
+    if (tasksData[`task${origNum}`] !== undefined) return tasksData[`task${origNum}`];
+    if (tasksData[`task_${origNum}`] !== undefined) return tasksData[`task_${origNum}`];
+    if (tasksData[`task-${taskMeta.original_index}`] !== undefined) return tasksData[`task-${taskMeta.original_index}`];
+  }
+  // 5. Match by title
+  if (title && tasksData[title] !== undefined) {
+    return tasksData[title];
+  }
+  // 6. Match by index in selected tasks
+  if (tasksData[`task${indexInSelected + 1}`] !== undefined) {
+    return tasksData[`task${indexInSelected + 1}`];
+  }
+  if (tasksData[`task-${indexInSelected}`] !== undefined) {
+    return tasksData[`task-${indexInSelected}`];
+  }
+  // 7. Fallback to taskKeys[indexInSelected]
+  if (taskKeys[indexInSelected] && tasksData[taskKeys[indexInSelected]] !== undefined) {
+    return tasksData[taskKeys[indexInSelected]];
+  }
+  return undefined;
+}
+
+export function formatTaskMessage(
+  msg: string | undefined,
+  taskIndex: number,
+  originalIndex?: number | null
+): string | undefined {
+  if (!msg || typeof msg !== "string") return msg;
+  if (originalIndex != null && originalIndex !== taskIndex) {
+    const origNum = originalIndex + 1;
+    return msg.replace(
+      new RegExp(`Task\\s*${origNum}\\s*(failed|passed)?\\s*:?`, "gi"),
+      (match) => {
+        return match.toLowerCase().includes("failed")
+          ? `Task ${taskIndex + 1} failed:`
+          : `Task ${taskIndex + 1}:`;
+      }
+    );
+  }
+  return msg;
+}
+
+export function formatTaskTitle(
+  title: string | undefined,
+  taskIndex: number,
+  originalIndex?: number | null
+): string {
+  if (!title) return `Task ${taskIndex + 1}`;
+  if (originalIndex != null && originalIndex !== taskIndex) {
+    const origNum = originalIndex + 1;
+    return title.replace(
+      new RegExp(`^Task\\s*${origNum}\\b`, "i"),
+      `Task ${taskIndex + 1}`
+    );
+  }
+  return title;
+}
+
 export function TicketIDE({
   slug,
   ticket,
@@ -1841,35 +1931,87 @@ export function TicketIDE({
           
           const newEvalResult: Record<string, { passed: boolean; reason: string }> = {};
           const nextTests: TestResult[] = [];
+          const ticketTasks: any[] = Array.isArray(ticket?.tasks) && ticket.tasks.length > 0 ? ticket.tasks : [];
 
-          taskKeys.forEach((key, idx) => {
-            const tObj = tasksData[key];
-            const isPassed = tObj?.result === "passed" || (tObj?.score ?? 0) > 0;
-            newEvalResult[key] = {
-              passed: isPassed,
-              reason: tObj?.message || (isPassed ? "Passed" : "Failed"),
-            };
-            const taskLabel = ticket.tasks?.[idx]?.title || key;
-            const scoreLabel = tObj?.score !== undefined ? ` (${tObj.score} pts)` : "";
-            nextTests.push({
-              name: `${taskLabel}${scoreLabel}`,
-              pass: isPassed,
-              time: "—",
-              expected: "Task completed successfully",
-              got: tObj?.message || (isPassed ? "Passed" : "Failed"),
+          if (ticketTasks.length > 0) {
+            let totalPassedScore = 0;
+            let totalPossibleScore = 0;
+            let passedCount = 0;
+
+            ticketTasks.forEach((tMeta, idx) => {
+              const tObj = findTaskExecutionResult(tMeta, idx, tasksData, taskKeys);
+              const isPassed = tObj?.result === "passed" || tObj?.status === "passed" || (tObj?.score ?? 0) > 0;
+              const taskKey = tMeta.id || tMeta.task_slug || `task-${idx}`;
+
+              const rawReason = tObj?.message || tObj?.reason || (isPassed ? "Passed" : "Failed");
+              const formattedReason = formatTaskMessage(rawReason, idx, tMeta?.original_index) || rawReason;
+
+              newEvalResult[taskKey] = {
+                passed: isPassed,
+                reason: formattedReason,
+              };
+
+              const taskLabel = formatTaskTitle(tMeta.title || tObj?.title, idx, tMeta?.original_index);
+              const taskMax = Number(tMeta.marks ?? tObj?.max_score ?? 10);
+              totalPossibleScore += taskMax;
+
+              let taskScore = 0;
+              if (isPassed) {
+                passedCount++;
+                taskScore = typeof tObj?.score === "number" ? Math.min(tObj.score, taskMax) : taskMax;
+                if (taskScore <= 0) taskScore = taskMax;
+              }
+              totalPassedScore += taskScore;
+
+              const scoreLabel = tObj?.score !== undefined ? ` (${tObj.score} pts)` : (tMeta.marks ? ` (${tMeta.marks} pts)` : "");
+              nextTests.push({
+                name: `${taskLabel}${scoreLabel}`,
+                pass: isPassed,
+                time: "—",
+                expected: "Task completed successfully",
+                got: tObj?.message || tObj?.reason || (isPassed ? "Passed" : "Failed"),
+              });
             });
-          });
 
-          setEvalResult(prev => ({ ...prev, ...newEvalResult }));
-          if (nextTests.length > 0) {
-            setTests(nextTests);
-            setTestsRan(true);
+            setEvalResult(prev => ({ ...prev, ...newEvalResult }));
+            if (nextTests.length > 0) {
+              setTests(nextTests);
+              setTestsRan(true);
+            }
+
+            const maxScore = totalPossibleScore > 0 ? totalPossibleScore : Number(ticket?.marks ?? ticket?.points ?? 10);
+            setTicketScore({ passed: totalPassedScore, total: maxScore });
+            showToast(`Score: ${totalPassedScore} / ${maxScore} (${passedCount}/${ticketTasks.length} passed)`);
+          } else {
+            taskKeys.forEach((key, idx) => {
+              const tObj = tasksData[key];
+              const isPassed = tObj?.result === "passed" || (tObj?.score ?? 0) > 0;
+              newEvalResult[key] = {
+                passed: isPassed,
+                reason: tObj?.message || (isPassed ? "Passed" : "Failed"),
+              };
+              const taskLabel = key;
+              const scoreLabel = tObj?.score !== undefined ? ` (${tObj.score} pts)` : "";
+              nextTests.push({
+                name: `${taskLabel}${scoreLabel}`,
+                pass: isPassed,
+                time: "—",
+                expected: "Task completed successfully",
+                got: tObj?.message || (isPassed ? "Passed" : "Failed"),
+              });
+            });
+
+            setEvalResult(prev => ({ ...prev, ...newEvalResult }));
+            if (nextTests.length > 0) {
+              setTests(nextTests);
+              setTestsRan(true);
+            }
+
+            const passedScore = parsedData.total_score ?? res.total_score ?? 0;
+            const maxScore = parsedData.max_possible_score ?? res.max_possible_score ?? ticket?.marks ?? ticket?.points ?? ticket?.max_score ?? 10;
+            setTicketScore({ passed: passedScore, total: maxScore });
+            showToast(`Score: ${passedScore} / ${maxScore}`);
           }
-
-          const passedScore = parsedData.total_score ?? res.total_score ?? 0;
-          const maxScore = parsedData.max_possible_score ?? res.max_possible_score ?? ticket?.marks ?? ticket?.points ?? ticket?.max_score ?? 10;
-          setTicketScore({ passed: passedScore, total: maxScore });
-          showToast(`Score: ${passedScore} / ${maxScore}`);
         } else {
           showToast(res.exit_code === 0 ? "Tests ran successfully" : "Execution completed with errors");
         }
@@ -3778,24 +3920,29 @@ function extractTasksReport(
     message?: string;
   }> = [];
 
-  const count = Math.max(taskKeys.length, ticketTasks.length);
+  // When ticketTasks is present, ONLY evaluate the required tasks!
+  const count = ticketTasks.length > 0 ? ticketTasks.length : taskKeys.length;
 
   for (let i = 0; i < count; i++) {
     const tMeta = ticketTasks[i];
-    const key = taskKeys[i] || `task${i + 1}`;
-    const tObj = tasksJson[key] || tasksJson[`task${i + 1}`] || (tMeta?.id ? tasksJson[tMeta.id] : undefined) || (tMeta?.task_slug ? tasksJson[tMeta.task_slug] : undefined);
+    const tObj = findTaskExecutionResult(tMeta, i, tasksJson, taskKeys);
+    const key = tMeta?.id || tMeta?.task_slug || (tObj ? (taskKeys.find(k => tasksJson[k] === tObj) || `task${i + 1}`) : `task${i + 1}`);
 
-    const title = tMeta?.title || tObj?.title || `Task ${i + 1}`;
+    const rawTitle = tMeta?.title || tObj?.title || `Task ${i + 1}`;
+    const title = formatTaskTitle(rawTitle, i, tMeta?.original_index);
     const description = tMeta?.description;
 
     let passed: boolean | null = null;
     let score: number | null = null;
     let message: string | undefined = undefined;
 
+    const taskMaxMarks = Number(tMeta?.marks ?? tObj?.max_score ?? 10);
+
     if (tObj) {
       passed = tObj.result === "passed" || tObj.status === "passed" || (typeof tObj.score === "number" && tObj.score > 0);
-      score = typeof tObj.score === "number" ? tObj.score : (passed ? 20 : 0);
-      message = tObj.message || tObj.reason || (passed ? "Task requirements satisfied" : "Task failed verification");
+      score = typeof tObj.score === "number" ? Math.min(tObj.score, taskMaxMarks) : (passed ? taskMaxMarks : 0);
+      const rawMsg = tObj.message || tObj.reason || (passed ? "Task requirements satisfied" : "Task failed verification");
+      message = formatTaskMessage(rawMsg, i, tMeta?.original_index) || rawMsg;
     } else {
       const slug = tMeta?.task_slug || `task-${i}`;
       const altSlug = `task-${i}`;
@@ -3806,8 +3953,8 @@ function extractTasksReport(
 
       if (evalItem) {
         passed = evalItem.passed;
-        message = evalItem.reason;
-        score = passed ? 20 : 0;
+        message = formatTaskMessage(evalItem.reason, i, tMeta?.original_index) || evalItem.reason;
+        score = passed ? taskMaxMarks : 0;
       }
     }
 
@@ -3825,9 +3972,9 @@ function extractTasksReport(
   const evaluatedItems = items.filter((it) => it.passed !== null);
   const hasRan = evaluatedItems.length > 0;
   const passedCount = items.filter((it) => it.passed === true).length;
-  const defaultMax = ticket?.marks ?? ticket?.points ?? ticket?.max_score ?? ticket?.total_marks ?? 10;
-  const maxScore = ticketScore ? ticketScore.total : (parsedJson?.max_possible_score ?? defaultMax);
-  const totalScore = ticketScore ? ticketScore.passed : (parsedJson?.total_score ?? (hasRan ? items.reduce((acc, it) => acc + (it.score || 0), 0) : 0));
+  const calculatedMax = items.reduce((acc, _, idx) => acc + Number(ticketTasks[idx]?.marks || 10), 0) || Number(ticket?.marks ?? ticket?.points ?? ticket?.max_score ?? ticket?.total_marks ?? 10);
+  const maxScore = ticketScore ? ticketScore.total : calculatedMax;
+  const totalScore = ticketScore ? ticketScore.passed : (hasRan ? items.reduce((acc, it) => acc + (it.score || 0), 0) : 0);
 
   return {
     hasRan,
@@ -3962,7 +4109,7 @@ function FormattedResultsView({
                     <span className="text-muted-foreground text-xs font-normal"> / {report.maxScore}</span>
                   </div>
                 </div>
-                {!report.hasRan && (
+                {/* {!report.hasRan && (
                   <button
                     onClick={onRun}
                     disabled={running}
@@ -3971,7 +4118,7 @@ function FormattedResultsView({
                     <Play className="h-3.5 w-3.5" />
                     {running ? "Running..." : "Run"}
                   </button>
-                )}
+                )} */}
               </div>
             </div>
 
@@ -4930,8 +5077,9 @@ function ProblemPanel({
                   const title = typeof task === "string" ? task : (task.title ?? "");
                   return !(typeof task === "object" && (title.toLowerCase().includes("hidden") || title.toLowerCase().includes("advanced") || task.is_hidden === true));
                 }).map(({ task, originalIdx }: { task: any, originalIdx: number }, idx: number) => {
-                  const taskTitle =
+                  const rawTitle =
                     typeof task === "string" ? task : (task.title ?? `Task ${idx + 1}`);
+                  const taskTitle = formatTaskTitle(rawTitle, idx, task?.original_index ?? originalIdx);
                   const taskDesc = typeof task === "object" ? task.description : null;
                   const taskMethod = typeof task === "object" ? task.method : null;
                   const isDS = isAlgo;
@@ -4940,7 +5088,7 @@ function ProblemPanel({
                   return (
                     <div
                       key={idx}
-                      className="rounded-md border border-border bg-card/40 p-3.5 hover:bg-card/60 transition-colors"
+                      className="rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors p-3.5"
                     >
                       <div className="flex items-start gap-3">
                         <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary/10 border border-primary/20 text-[11px] text-primary font-bold">
@@ -4950,7 +5098,7 @@ function ProblemPanel({
                             <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
                             {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">{taskDesc}</p>}
                           {(task.input !== undefined || (task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)))) && (
-                            <div className="mt-2 text-xs bg-editor-bg rounded p-2.5 border border-border">
+                            <div className="mt-2.5 text-xs bg-muted/40 rounded-md p-2.5">
                               {task.input !== undefined && (
                                 <>
                                   <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Input:</div>
@@ -4988,13 +5136,13 @@ function ProblemPanel({
                   );
                 })}
               </div>
-              <div className="mt-6 flex flex-col items-end border-t border-border pt-4">
-                {ticketScore && (
-                  <div className="mb-3 text-sm font-medium">
+              {ticketScore && (
+                <div className="mt-4 flex flex-col items-end border-t border-border pt-3">
+                  <div className="text-xs font-medium">
                     Score: <span className={ticketScore.passed === ticketScore.total ? "text-success" : "text-warning"}>{ticketScore.passed}/{ticketScore.total}</span> {ticketScore.total === 10 && ticket.tasks?.length !== 10 ? "points" : "tasks completed"}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </Section>
           )}
 
@@ -5324,15 +5472,15 @@ function HintsPanel({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(true);
   return (
-    <div className="rounded-md border bg-editor-bg/60">
+    <div className="rounded-lg border border-border/50 bg-card/20">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between px-3 py-2 text-xs font-medium"
+        className="flex w-full items-center justify-between px-3.5 py-2.5 text-xs font-medium"
       >
         <span>{title}</span>
-        {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+        {open ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
       </button>
-      {open && <div className="px-3 pb-3 text-xs">{children}</div>}
+      {open && <div className="px-3.5 pb-3.5 text-xs">{children}</div>}
     </div>
   );
 }

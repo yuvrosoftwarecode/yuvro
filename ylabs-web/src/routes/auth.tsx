@@ -274,8 +274,6 @@ function SignUpForm() {
       });
       if (res.user?.id) {
         localStorage.setItem(`is_first_login_${res.user.id}`, "true");
-        localStorage.removeItem("mock_enrollments");
-        localStorage.removeItem(`mock_enrollments_${res.user.id}`);
       }
       login(res.user, res.access);
       const userRole = res.user.roles?.ylabs || res.user.roles?.ycode || res.user.role;

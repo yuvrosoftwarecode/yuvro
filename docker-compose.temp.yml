@@ -1,0 +1,4 @@
+services:
+  ylabs-frontend:
+    ports:
+      - "3002:3000"

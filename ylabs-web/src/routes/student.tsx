@@ -5,7 +5,10 @@ import { useAuth } from "@/lib/auth";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/student")({
-  beforeLoad: ({ location }) => requireStudentAuth(location.href),
+  beforeLoad: ({ location }) => {
+    if (location.pathname === "/student/dashboard") return;
+    requireStudentAuth(location.href);
+  },
   component: StudentLayout,
 });
 
@@ -15,6 +18,7 @@ function StudentLayout() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      if (window.location.pathname === "/student/dashboard") return;
       const token = localStorage.getItem("access");
       if (!token) {
         nav({ to: "/auth", search: { tab: "signin", redirect: window.location.pathname } });

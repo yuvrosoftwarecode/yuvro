@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminShell, Badge, KpiCard } from "@/components/admin/AdminShell";
-import { Database, Plus, Search, Trash2 } from "lucide-react";
+import { Database, Link, Plus, Search, Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { questionBankService } from "@/services/questionBankService";
 import { useState } from "react";
@@ -23,8 +23,10 @@ const TYPES = [
 const LAB_TYPES = ["DATABASE", "BACKEND", "FRONTEND", "FULL_STACK", "QUALITY_ASSURANCE", "DEVOPS"];
 const SCENARIOS = [
   "DEBUGGING",
+  "BUG_FIXING",
   "FEATURE_DEVELOPMENT",
   "API_OPTIMIZATION",
+  "PERFORMANCE_OPTIMIZATION",
   "SECURITY",
   "ARCHITECTURE",
   "PERFORMANCE",
@@ -45,6 +47,7 @@ const DEFAULT_FORM = {
   git_repo_starter_branch: "main",
   startup_command: "",
   test_command: "",
+  allow_task_selection: true,
   programming_languages: [],
   databases: [],
   backend_frameworks: [],
@@ -110,11 +113,16 @@ function QuestionsPage() {
       git_repo_starter_branch: q.git_repo_starter_branch || "main",
       startup_command: q.startup_command || "",
       test_command: q.test_command || "",
+      allow_task_selection: q.allow_task_selection !== false,
       programming_languages: q.programming_languages || [],
       databases: q.databases || [],
-      backend_frameworks: q.backend_frameworks || [],
+      backend_frameworks: (q.backend_frameworks || []).map((f: string) => f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f),
       frontend_frameworks: q.frontend_frameworks || [],
-      tasks: q.tasks || [],
+      tasks: (q.tasks || []).map((t: any, i: number) => ({
+        ...t,
+        id: t.id || `task_${i}`,
+        parent_task_id: t.parent_task_id || t.scoring_rules?.parent_task_id || (typeof t.parent_task === "string" ? t.parent_task : t.parent_task?.id) || null,
+      })),
     });
     setIsModalOpen(true);
   };
@@ -161,15 +169,27 @@ function QuestionsPage() {
           solutionObj = {};
         }
       }
+      const pId = t.parent_task_id || (typeof t.parent_task === "string" ? t.parent_task : t.parent_task?.id) || null;
       return {
         ...t,
         order_index: index,
         solution: solutionObj,
+        parent_task_id: pId,
+        parent_task: pId,
+        scoring_rules: {
+          ...(typeof t.scoring_rules === "object" ? t.scoring_rules : {}),
+          parent_task_id: pId,
+        },
       };
     });
 
+    const sanitizedBackendFrameworks = (formData.backend_frameworks || []).map((f: string) =>
+      f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f
+    );
+
     const payload = {
       ...formData,
+      backend_frameworks: sanitizedBackendFrameworks,
       tasks: preparedTasks,
       domain: "OTHER",
     };
@@ -198,6 +218,7 @@ function QuestionsPage() {
       tasks: [
         ...formData.tasks,
         {
+          id: `task_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
           title: "",
           description: "",
           solution: "",
@@ -205,6 +226,7 @@ function QuestionsPage() {
           marks: 10,
           duration_minutes: 15,
           order_index: formData.tasks.length,
+          parent_task_id: null,
         },
       ],
     });
@@ -446,6 +468,7 @@ function QuestionsPage() {
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                   >
                     <option value="DJANGO">Django</option>
+                    <option value="DJANGO_REST_FRAMEWORK">Django REST Framework</option>
                     <option value="FASTAPI">FastAPI</option>
                     <option value="FLASK">Flask</option>
                     <option value="SPRING_BOOT">Spring Boot</option>
@@ -528,6 +551,31 @@ function QuestionsPage() {
                             <Label>Duration (min)</Label>
                             <Input type="number" value={task.duration_minutes} onChange={(e) => updateTask(index, "duration_minutes", parseInt(e.target.value) || 0)} />
                           </div>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label className="flex items-center gap-1.5">
+                            <Link className="h-3.5 w-3.5 text-muted-foreground" />
+                            Linked Task / Dependency
+                          </Label>
+                          <select
+                            value={task.parent_task_id || task.parent_task || ""}
+                            onChange={(e) => updateTask(index, "parent_task_id", e.target.value || null)}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+                          >
+                            <option value="">None (Independent Task)</option>
+                            {formData.tasks.map((otherTask: any, otherIdx: number) => {
+                              if (otherIdx === index) return null;
+                              const otherId = otherTask.id || `task_idx_${otherIdx}`;
+                              return (
+                                <option key={otherId} value={otherId}>
+                                  Task {otherIdx + 1}: {otherTask.title || `Task ${otherIdx + 1}`}
+                                </option>
+                              );
+                            })}
+                          </select>
+                          <p className="text-[11px] text-muted-foreground">
+                            Selecting this task when creating an evaluation will automatically select the linked task.
+                          </p>
                         </div>
                       </div>
                     </div>

@@ -533,6 +533,21 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                     logger.warning(f"Failed to generate git diff for lab {lab.id}: {e}")
                 
                 tasks = lab.tasks.all().order_by('order_index')
+                selected_task_ids = None
+                for sec in evaluation.sections.filter(type=EvaluationSectionType.LAB):
+                    for q in sec.questions or []:
+                        if isinstance(q, dict) and str(q.get('id') or q.get('lab_id')) == str(lab.id):
+                            if q.get('selected_task_ids'):
+                                selected_task_ids = [str(tid) for tid in q.get('selected_task_ids')]
+                            elif q.get('selected_task_id'):
+                                selected_task_ids = [str(q.get('selected_task_id'))]
+                            break
+                    if selected_task_ids:
+                        break
+
+                if selected_task_ids:
+                    tasks = [t for t in tasks if str(t.id) in selected_task_ids or getattr(t, 'task_slug', None) in selected_task_ids or str(t.title) in selected_task_ids]
+
                 executer_host = os.environ.get("CODE_EXECUTOR_URL", os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executor:8009"))
 
                 if is_database_lab(lab, tasks):
@@ -625,10 +640,36 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                         if response.status_code == 200:
                             result_data = response.json()
                             submission.solution_output = json.dumps(result_data)
-                            calc_score = result_data.get("total_score")
-                            if calc_score is None:
-                                calc_score = result_data.get("percentage", 0)
-                            calc_score = int(calc_score)
+                            
+                            res_tasks = result_data.get("tasks")
+                            if isinstance(res_tasks, dict) and selected_task_ids:
+                                total_sel_score = 0
+                                max_sel_score = 0
+                                task_list = list(tasks)
+                                for t in task_list:
+                                    t_max = getattr(t, 'marks', 10) or 10
+                                    max_sel_score += t_max
+                                    matched_res = None
+                                    for k, v in res_tasks.items():
+                                        if str(k) in [str(t.id), getattr(t, 'task_slug', None), str(t.title)] or f"task{task_list.index(t)+1}" == str(k).lower():
+                                            matched_res = v
+                                            break
+                                    if matched_res:
+                                        is_pass = matched_res.get("result") == "passed" or matched_res.get("status") == "passed" or (matched_res.get("score") or 0) > 0
+                                        if is_pass:
+                                            t_score = matched_res.get("score", t_max)
+                                            total_sel_score += min(t_score, t_max) if isinstance(t_score, (int, float)) and t_score > 0 else t_max
+                                
+                                if max_sel_score > 0:
+                                    calc_score = round((total_sel_score / max_sel_score) * 100)
+                                else:
+                                    calc_score = result_data.get("total_score", 0)
+                            else:
+                                calc_score = result_data.get("total_score")
+                                if calc_score is None:
+                                    calc_score = result_data.get("percentage", 0)
+                                calc_score = int(calc_score)
+                            
                             if calc_score > 0 or submission.score == 0:
                                 submission.score = calc_score
                             submission.save(update_fields=['solution_output', 'score'])
