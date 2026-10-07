@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "base" {
-  bucket = "yuvro-${var.environment}"
+  bucket = "yuvro-${var.environment}-${data.aws_caller_identity.current.account_id}"
 
   tags = {
     Name        = "yuvro-${var.environment}"

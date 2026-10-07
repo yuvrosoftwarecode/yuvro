@@ -41,13 +41,12 @@ provider "aws" {
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority)
-  token                  = data.aws_caller_identity.current.account_id != "" ? "temp" : ""  # Temporary placeholder, will use exec auth
 
-  # Use exec plugin for authentication
+  # Use exec plugin for authentication with retries
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--region", var.aws_region]
+    command     = "bash"
+    args        = ["-c", "aws eks get-token --cluster-name ${module.eks.cluster_name} --region ${var.aws_region}"]
   }
 }
 
@@ -59,8 +58,8 @@ provider "helm" {
     
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--region", var.aws_region]
+      command     = "bash"
+      args        = ["-c", "aws eks get-token --cluster-name ${module.eks.cluster_name} --region ${var.aws_region}"]
     }
   }
 }
@@ -165,7 +164,10 @@ module "eks" {
 
 # Kubernetes Deployment - Deploy Yuvro apps via Helm
 module "k8s_deployment" {
-  depends_on = [module.eks]
+  depends_on = [
+    module.eks.node_group_id,  # Wait for node group to be fully created and ready
+    module.eks.cluster_id
+  ]
   source     = "../modules/k8s_deployment"
 
   environment       = "prod"

@@ -69,7 +69,7 @@ resource "aws_iam_role_policy_attachment" "node_registry_policy" {
 
 # EKS Cluster
 resource "aws_eks_cluster" "main" {
-  name            = "${var.environment}-${var.cluster_name}"
+  name            = var.cluster_name
   role_arn        = aws_iam_role.cluster.arn
   version         = var.kubernetes_version
   enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
@@ -85,17 +85,19 @@ resource "aws_eks_cluster" "main" {
   ]
 
   tags = {
-    Name = "${var.environment}-${var.cluster_name}"
+    Name = var.cluster_name
   }
 }
 
 # EKS Node Group
 resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
-  node_group_name = "${var.environment}-${var.node_group_name}"
+  node_group_name = var.node_group_name
   node_role_arn   = aws_iam_role.node.arn
   subnet_ids      = var.subnet_ids
-  version         = var.kubernetes_version
+  # Note: We don't specify version here to let AWS use the latest compatible AMI
+  # This avoids AMI availability issues in some regions
+  ami_type        = "AL2_x86_64"  # Use standard Amazon Linux 2 AMI type
 
   scaling_config {
     desired_size = var.desired_size
@@ -108,7 +110,7 @@ resource "aws_eks_node_group" "main" {
 
   # Use IAM instance profile for node group
   tags = {
-    Name = "${var.environment}-${var.node_group_name}"
+    Name = var.node_group_name
   }
 
   depends_on = [

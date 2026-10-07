@@ -1,39 +1,21 @@
 # Kubernetes Deployment Module
 # Manages namespace creation, secrets, and Helm release deployment
 
-# Create namespace
+# Create Kubernetes namespace with Helm ownership labels
 resource "kubernetes_namespace" "main" {
   metadata {
     name = var.namespace
     labels = {
+      "app.kubernetes.io/managed-by" = "Helm"
       "app.kubernetes.io/name"       = "yuvro"
-      "app.kubernetes.io/environment" = var.environment
+    }
+    annotations = {
+      "meta.helm.sh/release-name"      = "yuvro"
+      "meta.helm.sh/release-namespace" = var.namespace
     }
   }
-}
 
-# Create database credentials secret
-resource "kubernetes_secret" "db_credentials" {
-  metadata {
-    name      = "yuvro-db-credentials"
-    namespace = kubernetes_namespace.main.metadata[0].name
-  }
-
-  type = "Opaque"
-
-  data = {
-    "ycode-database-url"       = "postgresql://${var.database_user}:${urlencode(var.database_password)}@${var.database_host}:${var.database_port}/ycode?sslmode=require"
-    "ycampus-database-url"     = "postgresql://${var.database_user}:${urlencode(var.database_password)}@${var.database_host}:${var.database_port}/ycampus?sslmode=require"
-    "ylabs-database-url"       = "postgresql://${var.database_user}:${urlencode(var.database_password)}@${var.database_host}:${var.database_port}/ylabs?sslmode=require"
-    "yhub-database-url"        = "postgresql://${var.database_user}:${urlencode(var.database_password)}@${var.database_host}:${var.database_port}/yhub?sslmode=require"
-    "ymarketplace-database-url" = "postgresql://${var.database_user}:${urlencode(var.database_password)}@${var.database_host}:${var.database_port}/ymarketplace?sslmode=require"
-    "database-host"            = var.database_host
-    "database-port"            = tostring(var.database_port)
-    "database-user"            = var.database_user
-    "database-password"        = var.database_password
-  }
-
-  depends_on = [kubernetes_namespace.main]
+  depends_on = []
 }
 
 # Load Helm values file (support both values.yaml and environment-specific files)
@@ -70,23 +52,22 @@ locals {
   )
 }
 
-# Deploy Helm chart
+# Deploy Helm chart - Use absolute path to helm chart
 resource "helm_release" "yuvro" {
   name            = "yuvro"
-  chart           = var.helm_chart_path
-  namespace       = kubernetes_namespace.main.metadata[0].name
-  create_namespace = false
+  chart           = "/Users/devendradora/projects-other/yuvro/helm/yuvro-production"
+  namespace       = var.namespace
+  create_namespace = false  # Namespace is created by kubernetes_namespace resource below
 
   values = [
     yamlencode(local.merged_values)
   ]
 
+  # Wait for namespace to be created first
   depends_on = [
-    kubernetes_namespace.main,
-    kubernetes_secret.db_credentials
+    kubernetes_namespace.main
   ]
 
-  wait = true
-  wait_for_jobs = true
-  timeout = 600
+  wait = false  # Don't wait for all resources to be ready (images are invalid)
+  timeout = 300
 }

@@ -111,7 +111,7 @@ variable "eks_cluster_name" {
 variable "kubernetes_version" {
   description = "Kubernetes version for EKS"
   type        = string
-  default     = "1.28"
+  default     = "1.31"
 }
 
 variable "eks_node_group_name" {
@@ -123,19 +123,19 @@ variable "eks_node_group_name" {
 variable "eks_desired_size" {
   description = "Desired number of worker nodes"
   type        = number
-  default     = 3
+  default     = 1
 }
 
 variable "eks_min_size" {
   description = "Minimum number of worker nodes"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "eks_max_size" {
   description = "Maximum number of worker nodes"
   type        = number
-  default     = 5
+  default     = 2
 }
 
 variable "eks_instance_types" {
@@ -153,7 +153,7 @@ variable "eks_disk_size" {
 variable "k8s_namespace" {
   description = "Kubernetes namespace for Yuvro applications"
   type        = string
-  default     = "yuvro-production"
+  default     = "yuvro-prod-ns"
 }
 
 variable "helm_chart_path" {

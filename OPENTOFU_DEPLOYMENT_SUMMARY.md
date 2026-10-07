@@ -71,8 +71,8 @@ helm_values_prod_path = "${var.helm_chart_path}/values-${var.environment}.yaml"
 ### 4. **Environment-Specific Helm Values**
 
 **Files**:
-- `helm/yuvro-production/values-dev.yaml`
-- `helm/yuvro-production/values-prod.yaml`
+- `helm/yuvro-prod-ns/values-dev.yaml`
+- `helm/yuvro-prod-ns/values-prod.yaml`
 
 **Dev Values** (`values-dev.yaml`):
 - Single replica per deployment
@@ -282,7 +282,7 @@ infra/opentofu/
         ├── variables.tf
         └── outputs.tf
 
-helm/yuvro-production/
+helm/yuvro-prod-ns/
 ├── Chart.yaml
 ├── values.yaml                          # Base values
 ├── values-dev.yaml                      # Dev overrides
@@ -495,8 +495,8 @@ aws eks update-kubeconfig --name yuvro-prod-cluster --region ap-south-1
 # Check cluster
 kubectl cluster-info
 kubectl get nodes
-kubectl -n yuvro-production get pods
-kubectl -n yuvro-production logs -f deployment/ycode-backend
+kubectl -n yuvro-prod-ns get pods
+kubectl -n yuvro-prod-ns logs -f deployment/ycode-backend
 ```
 
 ---
@@ -557,9 +557,9 @@ kubectl -n yuvro-production logs -f deployment/ycode-backend
 - Verify IAM permissions
 
 **Pods won't start**
-- Check database secret: `kubectl get secret -n yuvro-production`
-- Check pod events: `kubectl describe pod <pod> -n yuvro-production`
-- Check logs: `kubectl logs <pod> -n yuvro-production`
+- Check database secret: `kubectl get secret -n yuvro-prod-ns`
+- Check pod events: `kubectl describe pod <pod> -n yuvro-prod-ns`
+- Check logs: `kubectl logs <pod> -n yuvro-prod-ns`
 
 ### Debugging Commands
 
@@ -575,8 +575,8 @@ tofu output                  # Show all outputs
 cd infra/opentofu/prod
 tofu show
 tofu output
-kubectl get all -n yuvro-production
-helm status yuvro -n yuvro-production
+kubectl get all -n yuvro-prod-ns
+helm status yuvro -n yuvro-prod-ns
 ```
 
 ---

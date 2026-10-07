@@ -6,8 +6,8 @@ output "namespace" {
 }
 
 output "db_secret_name" {
-  description = "Name of Kubernetes secret containing database credentials"
-  value       = kubernetes_secret.db_credentials.metadata[0].name
+  description = "Name of Kubernetes secret containing database credentials (managed by Helm chart)"
+  value       = "yuvro-db-credentials"
 }
 
 output "release_name" {
@@ -31,7 +31,7 @@ output "deployment_guide" {
     Kubernetes Deployment Summary:
     
     Namespace: ${kubernetes_namespace.main.metadata[0].name}
-    Secret: ${kubernetes_secret.db_credentials.metadata[0].name}
+    Secret: yuvro-db-credentials (managed by Helm chart)
     Helm Release: ${helm_release.yuvro.name}
     Status: ${helm_release.yuvro.status}
     

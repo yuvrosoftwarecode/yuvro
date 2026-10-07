@@ -1132,7 +1132,7 @@ deploy-all: _validate-deploy
 			echo "Next steps:"; \
 			echo "  1. Configure kubectl: aws eks update-kubeconfig --name yuvro-prod-cluster --region ap-south-1"; \
 			echo "  2. Verify cluster: kubectl cluster-info"; \
-			echo "  3. Check deployments: kubectl -n yuvro-production get pods"; \
+			echo "  3. Check deployments: kubectl -n yuvro-prod-ns get pods"; \
 		else \
 			echo "Deployment cancelled"; \
 			rm -f tfplan; \

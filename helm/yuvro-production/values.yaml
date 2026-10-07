@@ -93,6 +93,11 @@ ycampus:
       limits:
         memory: "512Mi"
         cpu: "250m"
+    
+    env:
+      DEBUG: "false"
+      DEPLOY_ENV: production
+      APP_NAME: yuvro-ycampus
 
 # YLabs Application (Learning Labs)
 ylabs:
@@ -126,6 +131,11 @@ ylabs:
       limits:
         memory: "512Mi"
         cpu: "250m"
+    
+    env:
+      DEBUG: "false"
+      DEPLOY_ENV: production
+      APP_NAME: yuvro-ylabs
 
 # YHub Application (Hub Service)
 yhub:
@@ -181,6 +191,11 @@ ymarketplace:
       limits:
         memory: "512Mi"
         cpu: "250m"
+    
+    env:
+      DEBUG: "false"
+      DEPLOY_ENV: production
+      APP_NAME: yuvro-ymarketplace
 
 # Code Executor Service
 codeExecutor:
