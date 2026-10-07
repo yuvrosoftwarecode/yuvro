@@ -41,7 +41,7 @@ provider "aws" {
 provider "kubernetes" {
   host                   = var.environment == "prod" && var.enable_kubernetes ? module.eks[0].cluster_endpoint : ""
   cluster_ca_certificate = var.environment == "prod" && var.enable_kubernetes ? base64decode(module.eks[0].cluster_certificate_authority) : ""
-  token                  = var.environment == "prod" && var.enable_kubernetes ? data.aws_eks_auth.cluster[0].token : ""
+  token                  = var.environment == "prod" && var.enable_kubernetes ? data.aws_eks_cluster_auth.cluster[0].token : ""
 }
 
 # Helm Provider - Configured after Kubernetes provider
@@ -49,12 +49,12 @@ provider "helm" {
   kubernetes {
     host                   = var.environment == "prod" && var.enable_kubernetes ? module.eks[0].cluster_endpoint : ""
     cluster_ca_certificate = var.environment == "prod" && var.enable_kubernetes ? base64decode(module.eks[0].cluster_certificate_authority) : ""
-    token                  = var.environment == "prod" && var.enable_kubernetes ? data.aws_eks_auth.cluster[0].token : ""
+    token                  = var.environment == "prod" && var.enable_kubernetes ? data.aws_eks_cluster_auth.cluster[0].token : ""
   }
 }
 
 # Get EKS cluster auth token (only for prod with K8s enabled)
-data "aws_eks_auth" "cluster" {
+data "aws_eks_cluster_auth" "cluster" {
   count = var.environment == "prod" && var.enable_kubernetes ? 1 : 0
   name  = module.eks[0].cluster_name
 }
@@ -150,6 +150,7 @@ module "iam" {
   source = "./modules/iam"
 
   environment = var.environment
+  aws_region = var.aws_region
   s3_bucket_arns = [
     module.s3.base_bucket_arn
   ]
