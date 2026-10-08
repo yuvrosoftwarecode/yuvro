@@ -983,6 +983,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
 
           if (submission && (submission.solution || submission.score !== undefined)) {
             hasSubmissions = true;
+            const scoreVal = Number(submission.score ?? 100);
             const labTaskCount = Array.isArray(lab.tasks) && lab.tasks.length > 0 ? lab.tasks.length : 5;
             const passedTaskCount = scoreVal === 100 ? labTaskCount : Math.round((scoreVal / 100) * labTaskCount);
             labDetails += `Score: ${scoreVal}/100\n`;
