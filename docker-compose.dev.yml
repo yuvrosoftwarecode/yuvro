@@ -2,8 +2,8 @@ services:
 
   yuvro-code-executor:
     env_file:
-      - ./yuvro-code-executer/.env.dev
-      - path: ./yuvro-code-executer/.env.dev-secrets
+      - ./ycode-executor-api/.env.dev
+      - path: ./ycode-executor-api/.env.dev-secrets
         required: false
 
   ycode-backend:

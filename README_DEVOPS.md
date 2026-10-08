@@ -366,7 +366,7 @@ ssh -i ~/.ssh/yuvro-dev.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 ubu
   sudo cp /home/ubuntu/yuvro/ycode-web/nginx.ec2.conf /etc/nginx/sites-available/yuvro-ycode.conf
   sudo cp /home/ubuntu/yuvro/ycampus-web/nginx.ec2.conf /etc/nginx/sites-available/yuvro-ycampus.conf
   sudo cp /home/ubuntu/yuvro/yhub-backend-api/nginx.ec2.conf /etc/nginx/sites-available/yuvro-yhub.conf
-  sudo cp /home/ubuntu/yuvro/yuvro-code-executer/nginx.ec2.conf /etc/nginx/sites-available/yuvro-code-executor.conf
+  sudo cp /home/ubuntu/yuvro/ycode-executor-api/nginx.ec2.conf /etc/nginx/sites-available/yuvro-code-executor.conf
   sudo nginx -t && sudo systemctl reload nginx
 "
 ```
@@ -414,7 +414,7 @@ ylabs-backend-api/.env.dev-secrets
 ycode-web/.env.dev-secrets          # VITE_GOOGLE_CLIENT_ID
 ycampus-web/.env.dev-secrets        # VITE_GOOGLE_CLIENT_ID
 ylabs-web/.env.dev-secrets          # VITE_GOOGLE_CLIENT_ID (optional)
-yuvro-code-executer/.env.dev-secrets
+ycode-executor-api/.env.dev-secrets
 ```
 
 The deploy script automatically:

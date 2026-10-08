@@ -20,7 +20,6 @@ build/
 # Environment files
 .env
 .env.*
-!.env.example
 
 # Logs
 *.log

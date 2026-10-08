@@ -17,7 +17,6 @@ build/
 # Environment files (injected at runtime or as build-args)
 .env
 .env.*
-!.env.example
 
 # Logs
 *.log

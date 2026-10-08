@@ -15,9 +15,7 @@ setup:
 	@docker compose version >/dev/null 2>&1 || { echo "❌ Docker Compose is required."; exit 1; }
 
 	@echo "Creating environment files..."
-	@if [ ! -f ylabs-backend-api/.env ]; then cp ylabs-backend-api/.env.example ylabs-backend-api/.env; echo "✅ Created backend .env"; fi
-	@if [ ! -f ylabs-web/.env ]; then cp ylabs-web/.env.example ylabs-web/.env; echo "✅ Created frontend .env"; fi
-
+	@echo "⚠️  Ensure .env files exist in ylabs-backend-api/ and ylabs-web/ directories"
 	@echo "Creating executor network..."
 	@docker network create executor 2>/dev/null || true
 

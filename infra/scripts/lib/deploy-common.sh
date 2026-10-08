@@ -284,7 +284,7 @@ wire_secrets() {
 
 # ── copy secrets to EC2 ────────────────────────────────────────────────────────
 
-# Secrets, nginx config, and domains for each app
+# Secrets files for each app (only .env.dev-secrets, .env.dev is in git)
 app_secrets_for() {
     local app="${1:-all}"
     case "$app" in
@@ -293,8 +293,8 @@ app_secrets_for() {
         ylabs)        echo "ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets" ;;
         yhub)         echo "yhub-backend-api/.env.dev-secrets" ;;
         ymarketplace) echo "ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets" ;;
-        code-executor) echo "yuvro-code-executer/.env.dev-secrets" ;;
-        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets yuvro-code-executer/.env.dev-secrets" ;;
+        code-executor) echo "ycode-executor-api/.env.dev-secrets" ;;
+        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets ycode-executor-api/.env.dev-secrets" ;;
     esac
 }
 
@@ -318,8 +318,8 @@ app_nginx_config_for() {
         ylabs)        echo "ylabs-web/nginx.ec2.conf" ;;
         yhub)         echo "yhub-backend-api/nginx.ec2.conf" ;;
         ymarketplace) echo "ymarketplace/frontend/nginx.ec2.conf" ;;
-        code-executor) echo "yuvro-code-executer/nginx.ec2.conf" ;;
-        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/frontend/nginx.ec2.conf yuvro-code-executer/nginx.ec2.conf" ;;
+        code-executor) echo "ycode-executor-api/nginx.ec2.conf" ;;
+        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/frontend/nginx.ec2.conf ycode-executor-api/nginx.ec2.conf" ;;
     esac
 }
 
@@ -360,6 +360,11 @@ run_deploy() {
     else
         print_info "GitHub deploy key not found, skipping"
     fi
+    
+    # Copy ymarketplace deploy key if available (for private submodule access)
+    if [ -f "$HOME/.ssh/ymarketplace-deploy-key" ]; then
+        scp_ec2 "$HOME/.ssh/ymarketplace-deploy-key" "ubuntu@$ip:/home/ubuntu/.ssh/ymarketplace_deploy_key"
+    fi
 
     # Wire + copy secrets
     wire_secrets "$app"
@@ -388,6 +393,12 @@ Host github.com
   User git
   IdentityFile /home/ubuntu/.ssh/github_deploy_key
   StrictHostKeyChecking no
+
+Host github-ymarketplace
+  HostName github.com
+  User git
+  IdentityFile /home/ubuntu/.ssh/ymarketplace_deploy_key
+  StrictHostKeyChecking no
 SSHCFG
 chmod 600 /home/ubuntu/.ssh/config
 
@@ -408,7 +419,18 @@ echo "   ✓ main repo cloned  [elapsed \$(( \$(date +%s)-T1 ))s]"
 # Initialize submodules
 echo "── initializing submodules ────────────────────────"
 T2=\$(date +%s)
+
+# Clear ymarketplace submodule if it exists (may have cached old config)
+rm -rf ymarketplace/.git
+
 git submodule sync --recursive
+
+# For ymarketplace, use the same deploy key as main repo if ymarketplace key not available
+if [ ! -f /home/ubuntu/.ssh/ymarketplace_deploy_key ] && [ -f /home/ubuntu/.ssh/github_deploy_key ]; then
+    cp /home/ubuntu/.ssh/github_deploy_key /home/ubuntu/.ssh/ymarketplace_deploy_key
+    chmod 600 /home/ubuntu/.ssh/ymarketplace_deploy_key
+fi
+
 git submodule update --init --recursive --force
 echo "   ✓ submodules initialized  [elapsed \$(( \$(date +%s)-T2 ))s]"
 
@@ -530,6 +552,14 @@ T1=\$(date +%s)
 docker network create executor    2>/dev/null || true
 docker network create yuvro_ylabs 2>/dev/null || true
 docker network create yuvro_marketplace 2>/dev/null || true
+
+# Clean up old containers to avoid naming conflicts
+if [ "$app" != "all" ]; then
+    for svc in $services; do
+        docker rm -f "yuvro-\${svc}-1" 2>/dev/null || true
+    done
+fi
+
 # Only use --remove-orphans when deploying all apps to avoid stopping other services
 # When deploying a single app, only manage its own containers
 if [ "$app" = "all" ]; then
