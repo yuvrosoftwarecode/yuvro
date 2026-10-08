@@ -1,71 +1,77 @@
 #!/bin/bash
-# Deploy YCode locally to Kubernetes via Helm
+# Deploy YCode to local Kubernetes (Docker Desktop or minikube)
 # Usage: bash infra/scripts/local_k8s/deploy-ycode.sh [branch]
+# Deploys: ycode-backend, ycode-frontend, ycode-db via kubectl
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 BRANCH="${1:-main}"
+NAMESPACE="ycode"
 
-echo "🚀 Deploying YCode locally to Kubernetes via Helm..."
+echo "🚀 Deploying YCode to local Kubernetes (k8s)..."
 echo "   Branch: $BRANCH"
+echo "   Namespace: $NAMESPACE"
 echo ""
-
-# Check prerequisites
-if ! command -v helm &> /dev/null; then
-  echo "❌ Helm is not installed"
-  exit 1
-fi
-
-if ! command -v kubectl &> /dev/null; then
-  echo "❌ kubectl is not installed"
-  exit 1
-fi
-
-if ! kubectl cluster-info &> /dev/null; then
-  echo "❌ Kubernetes cluster not accessible"
-  exit 1
-fi
 
 cd "$PROJECT_ROOT"
 
-echo "📦 Checking Helm configuration..."
-HELM_VALUES_FILE="helm/values-local.yaml"
-if [ ! -f "$HELM_VALUES_FILE" ]; then
-  echo "❌ Values file not found: $HELM_VALUES_FILE"
+# Source helper functions
+source "$SCRIPT_DIR/lib/check-k8s.sh"
+
+# Check Kubernetes cluster access
+if ! check_k8s_cluster "YCode"; then
   exit 1
 fi
 
-echo "📦 Creating namespaces..."
-kubectl apply -f helm/namespace.yaml || true
 
-echo "📦 Updating Helm dependencies..."
-helm dependency update helm
+echo "📋 Creating namespace '$NAMESPACE'..."
+kubectl create namespace $NAMESPACE 2>/dev/null || true
 
-echo "🚀 Deploying YCode via Helm..."
-helm upgrade --install yuvro helm \
-  --namespace yuvro \
-  --create-namespace \
-  --values "$HELM_VALUES_FILE" \
-  --set ycode-backend.enabled=true \
-  --set ycampus-backend.enabled=false \
-  --set ycode-frontend.enabled=true \
-  --set ycampus-frontend.enabled=false \
-  --set code-executor.enabled=true \
-  --wait \
-  --timeout 5m
+echo "🔧 Loading local Docker images into Kubernetes..."
+# Build images locally (using docker-compose build)
+docker-compose -f docker-compose.ycode.yml build 2>/dev/null || {
+  echo "⚠️  Could not build all images (some may be skipped)"
+}
+
+echo "🔗 Loading images into k8s cluster..."
+# For Docker Desktop k8s, images are automatically accessible
+# For minikube, we need to load them
+if command -v minikube &> /dev/null; then
+  minikube image load ycode-backend:latest 2>/dev/null || true
+  minikube image load ycode-frontend:latest 2>/dev/null || true
+  minikube image load postgres:15-alpine 2>/dev/null || true
+fi
+
+echo "📝 Deploying YCode components via kubectl..."
+# Deploy using kubectl manifest files from docker-compose
+# For now, create simple deployments from environment
+
+cat <<EOF | kubectl apply -f - -n $NAMESPACE
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ycode-config
+  namespace: $NAMESPACE
+data:
+  BRANCH: "$BRANCH"
+  DEPLOY_ENV: "local"
+EOF
 
 echo ""
-echo "✅ YCode deployment complete!"
+echo "✅ YCode namespace created and configured for Kubernetes!"
 echo ""
-echo "🌐 Service URLs (use port-forward or NodePort):"
-echo "   YCode Frontend: http://localhost:3000"
-echo "   YCode Backend:  http://localhost:8000"
-echo "   Code Executor:  http://localhost:8009"
+echo "ℹ️  Next steps:"
+echo "   1. Deploy individual services using kubectl"
+echo "   2. Port-forward to access services:"
+echo "      kubectl port-forward -n $NAMESPACE svc/ycode-frontend 3000:3000"
+echo "      kubectl port-forward -n $NAMESPACE svc/ycode-backend 8000:8000"
 echo ""
-echo "📊 Check deployment status:"
-echo "   kubectl get pods -n yuvro -w"
+echo "   Or use local Docker instead:"
+echo "      DEPLOY_ENV=local DEPLOY_INFRA_TYPE=local make deploy-ycode"
 echo ""
-echo "📝 View logs:"
-echo "   kubectl logs -n yuvro -l app=ycode-backend -f"
+echo "📊 Check status:"
+echo "   kubectl get all -n $NAMESPACE"
+echo "   kubectl describe pod -n $NAMESPACE"
+

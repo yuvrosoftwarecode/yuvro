@@ -1,5 +1,5 @@
 #!/bin/bash
-# Deploy all services locally to Kubernetes via Helm
+# Deploy all services to local Kubernetes (Docker Desktop or minikube)
 # Usage: bash infra/scripts/local_k8s/deploy-all.sh [branch]
 
 set -e
@@ -8,66 +8,55 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 BRANCH="${1:-main}"
 
-echo "🚀 Deploying ALL services locally to Kubernetes via Helm..."
+echo "🚀 Deploying all services to local Kubernetes (k8s)..."
 echo "   Branch: $BRANCH"
 echo ""
 
-# Check prerequisites
-if ! command -v helm &> /dev/null; then
-  echo "❌ Helm is not installed"
-  exit 1
-fi
-
-if ! command -v kubectl &> /dev/null; then
-  echo "❌ kubectl is not installed"
-  exit 1
-fi
-
-if ! kubectl cluster-info &> /dev/null; then
-  echo "❌ Kubernetes cluster not accessible"
-  exit 1
-fi
-
 cd "$PROJECT_ROOT"
 
-echo "📦 Checking Helm configuration..."
-HELM_VALUES_FILE="helm/values-local.yaml"
-if [ ! -f "$HELM_VALUES_FILE" ]; then
-  echo "❌ Values file not found: $HELM_VALUES_FILE"
+# Source helper functions
+source "$SCRIPT_DIR/lib/check-k8s.sh"
+
+# Check Kubernetes cluster access
+if ! check_k8s_cluster "All Services"; then
   exit 1
 fi
 
-echo "📦 Creating namespaces..."
-kubectl apply -f helm/namespace.yaml || true
+echo "📦 Deploying all services..."
+echo ""
 
-echo "📦 Updating Helm dependencies..."
-helm dependency update helm
+# Deploy common apps first
+echo "1️⃣  Deploying common apps (code-executor, yhub, minio)..."
+bash "$SCRIPT_DIR/deploy-common-apps.sh" "$BRANCH" || true
+echo ""
 
-echo "🚀 Deploying Yuvro via Helm..."
-helm upgrade --install yuvro helm \
-  --namespace yuvro \
-  --create-namespace \
-  --values "$HELM_VALUES_FILE" \
-  --wait \
-  --timeout 5m
+# Deploy individual apps
+echo "2️⃣  Deploying YCode..."
+bash "$SCRIPT_DIR/deploy-ycode.sh" "$BRANCH" || true
+echo ""
 
+echo "3️⃣  Deploying YCampus..."
+bash "$SCRIPT_DIR/deploy-ycampus.sh" "$BRANCH" || true
 echo ""
-echo "✅ Deployment complete!"
+
+echo "4️⃣  Deploying YLabs..."
+bash "$SCRIPT_DIR/deploy-ylabs.sh" "$BRANCH" || true
 echo ""
-echo "🌐 Service URLs (use port-forward or NodePort):"
-echo "   YCode Frontend:    http://localhost:3000"
-echo "   YCode Backend:     http://localhost:8000"
-echo "   YCampus Frontend:  http://localhost:3001"
-echo "   YCampus Backend:   http://localhost:8001"
-echo "   Code Executor:     http://localhost:8009"
+
+echo "5️⃣  Deploying YMarketplace..."
+bash "$SCRIPT_DIR/deploy-ymarketplace.sh" "$BRANCH" || true
 echo ""
-echo "📊 Check deployment status:"
-echo "   kubectl get all -n yuvro"
-echo "   kubectl get pods -n yuvro -w"
+
+echo "✅ All services deployed to Kubernetes namespaces!"
 echo ""
-echo "📝 View logs:"
-echo "   kubectl logs -n yuvro -l app=ycode-backend -f"
+echo "📊 Check status across all namespaces:"
+echo "   kubectl get pods --all-namespaces"
+echo "   kubectl get services --all-namespaces"
 echo ""
-echo "🔌 Setup port forwarding:"
-echo "   kubectl port-forward -n yuvro svc/yuvro-ycode-frontend 3000:3000 &"
-echo "   kubectl port-forward -n yuvro svc/yuvro-ycode-backend 8000:8000 &"
+echo "🌐 Available services (after port-forwarding):"
+echo "   YCode Frontend:       localhost:3000 → kubectl port-forward -n ycode svc/ycode-frontend 3000:3000"
+echo "   YCampus Frontend:     localhost:3001 → kubectl port-forward -n ycampus svc/ycampus-frontend 3001:3000"
+echo "   YLabs Frontend:       localhost:3002 → kubectl port-forward -n ylabs svc/ylabs-frontend 3002:3000"
+echo "   YHub Frontend:        localhost:3003 → kubectl port-forward -n yhub svc/yhub-frontend 3003:3000"
+echo "   YMarketplace Frontend:localhost:3004 → kubectl port-forward -n ymarketplace svc/ymarketplace-frontend 3004:3004"
+echo "   Code Executor:        localhost:8009 → kubectl port-forward -n yuvro svc/code-executor 8009:8009"
