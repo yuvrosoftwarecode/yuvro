@@ -3006,14 +3006,35 @@ def _preview_hosts() -> list:
         pass
     return hosts
 
+_recent_preview_ports: dict = {}
+
+def _get_client_ip(request: Request) -> str:
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        return real_ip.strip()
+    fwd_for = request.headers.get("x-forwarded-for")
+    if fwd_for:
+        return fwd_for.split(",")[0].strip()
+    return request.client.host if request.client else ""
+
 @workspace_router.get("/preview")
 @workspace_router.get("/preview/{subpath:path}")
 async def workspace_preview_proxy(
+    request: Request,
     port: int = Query(8000),
     subpath: str = "",
 ):
     target_path = "/" + subpath if subpath else "/"
     last_err = None
+    client_ip = _get_client_ip(request)
+    if client_ip:
+        _recent_preview_ports[client_ip] = port
+
+    is_secure = (
+        request.url.scheme == "https"
+        or request.headers.get("x-forwarded-proto") == "https"
+    )
+
     for host in _preview_hosts():
         target_url = f"http://{host}:{port}{target_path}"
         try:
@@ -3026,7 +3047,8 @@ async def workspace_preview_proxy(
                     key="preview_port",
                     value=str(port),
                     path="/",
-                    samesite="lax",
+                    samesite="none" if is_secure else "lax",
+                    secure=is_secure,
                     max_age=3600,
                 )
                 return response
@@ -3042,7 +3064,7 @@ async def workspace_preview_proxy(
 
 @app.middleware("http")
 async def preview_cookie_proxy_middleware(request: Request, call_next):
-    """Proxy sub-requests from preview iframes (e.g. /swagger/schema/, /static/*, /api/*) using the preview_port cookie."""
+    """Proxy sub-requests from preview iframes (e.g. /swagger/schema/, /static/*, /api/*) using preview_port, referer, or client session."""
     path = request.url.path
     if (
         path == "/health"
@@ -3058,12 +3080,38 @@ async def preview_cookie_proxy_middleware(request: Request, call_next):
         return await call_next(request)
 
     port_str = request.cookies.get("preview_port") or request.query_params.get("port")
-    if port_str and port_str.isdigit():
+
+    # Fallback 1: Extract port from Referer header (e.g. when cookies are blocked in cross-site iframe)
+    if not port_str:
+        referer = request.headers.get("referer") or request.headers.get("referrer")
+        if referer:
+            try:
+                from urllib.parse import urlparse, parse_qs
+                parsed_query = parse_qs(urlparse(referer).query)
+                if "port" in parsed_query and parsed_query["port"]:
+                    port_str = parsed_query["port"][0]
+            except Exception:
+                pass
+
+    # Fallback 2: Retrieve last accessed preview port for this client IP
+    client_ip = _get_client_ip(request)
+    if not port_str and client_ip and client_ip in _recent_preview_ports:
+        port_str = str(_recent_preview_ports[client_ip])
+
+    if port_str and str(port_str).isdigit():
         port = int(port_str)
+        if client_ip:
+            _recent_preview_ports[client_ip] = port
+
         query_string = str(request.url.query)
         subpath = path + (f"?{query_string}" if query_string else "")
         body = await request.body()
         req_headers = dict(request.headers)
+
+        is_secure = (
+            request.url.scheme == "https"
+            or request.headers.get("x-forwarded-proto") == "https"
+        )
 
         for host in _preview_hosts():
             target_url = f"http://{host}:{port}{subpath}"
@@ -3083,19 +3131,37 @@ async def preview_cookie_proxy_middleware(request: Request, call_next):
                     resp_body = resp.read()
                     ctype = resp.headers.get("Content-Type", "application/json")
                     from fastapi.responses import Response
-                    return Response(
+                    res = Response(
                         content=resp_body,
                         status_code=resp.status,
                         media_type=ctype,
                     )
+                    res.set_cookie(
+                        key="preview_port",
+                        value=str(port),
+                        path="/",
+                        samesite="none" if is_secure else "lax",
+                        secure=is_secure,
+                        max_age=3600,
+                    )
+                    return res
             except _urllib_err.HTTPError as he:
                 err_body = he.read()
                 from fastapi.responses import Response
-                return Response(
+                err_res = Response(
                     content=err_body,
                     status_code=he.code,
                     media_type=he.headers.get("Content-Type", "application/json"),
                 )
+                err_res.set_cookie(
+                    key="preview_port",
+                    value=str(port),
+                    path="/",
+                    samesite="none" if is_secure else "lax",
+                    secure=is_secure,
+                    max_age=3600,
+                )
+                return err_res
             except Exception:
                 continue
 
