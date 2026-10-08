@@ -552,6 +552,14 @@ T1=\$(date +%s)
 docker network create executor    2>/dev/null || true
 docker network create yuvro_ylabs 2>/dev/null || true
 docker network create yuvro_marketplace 2>/dev/null || true
+
+# Clean up old containers to avoid naming conflicts
+if [ "$app" != "all" ]; then
+    for svc in $services; do
+        docker rm -f "yuvro-\${svc}-1" 2>/dev/null || true
+    done
+fi
+
 # Only use --remove-orphans when deploying all apps to avoid stopping other services
 # When deploying a single app, only manage its own containers
 if [ "$app" = "all" ]; then
