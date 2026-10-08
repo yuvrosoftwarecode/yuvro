@@ -2,12 +2,13 @@
 # This file provides a unified interface for managing YCode, YCampus, and Common services
 #
 # Usage:
-#   make install                        - Run with defaults (DEPLOY_ENV=local, DEPLOY_TYPE=docker)
-#   DEPLOY_ENV=dev make install         - Run in dev environment
-#   DEPLOY_TYPE=k8s make install        - Use Kubernetes
+#   make install                        - Run with defaults (DEPLOY_ENV=local, DEPLOY_INFRA_TYPE=local)
+#   DEPLOY_ENV=dev DEPLOY_INFRA_TYPE=ec2 make install  - Run in dev environment with EC2
+#   DEPLOY_INFRA_TYPE=eks make install  - Use EKS/Kubernetes
 
 .PHONY: help install run stop clean logs status port-forward
-.PHONY: deploy-all deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub deploy-ymarketplace deploy-code-executor
+.PHONY: deploy-all deploy-common-apps deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub deploy-ymarketplace deploy-code-executor
+.PHONY: destroy destroy-common-apps destroy-ycode destroy-ycampus destroy-ylabs destroy-yhub destroy-ymarketplace destroy-code-executor
 .PHONY: deployImages deployImages-ycode deployImages-ycampus deployImages-ylabs deployImages-yhub deployImages-ymarketplace deployImages-code-executor
 .PHONY: install-ycode install-ycampus install-ylabs install-yhub install-ymarketplace install-code-executor run-ycode run-ycampus run-ylabs run-yhub run-ymarketplace
 .PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub stop-ymarketplace stop-code-executor clean-ycode clean-ycampus clean-ylabs clean-yhub clean-ymarketplace clean-code-executor
@@ -28,19 +29,39 @@
 DEPLOY_ENV      ?= local
 DEPLOY_BRANCH   ?= main
 DEPLOY_INFRA_TYPE ?= local
-# DEPLOY_TYPE mapping:
-# - local: docker (local Docker Compose) - default
-# - dev: docker (AWS EC2 with Docker) - default, can override with k8s
-# - prod: k8s (Kubernetes) - default
-DEPLOY_TYPE ?= $(if $(filter prod,$(DEPLOY_ENV)),k8s,docker)
 
 # Enable BuildKit for all docker builds (faster, cache mounts, smaller images)
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
 
-# Validate DEPLOY_ENV
+# Validate DEPLOY_ENV and DEPLOY_INFRA_TYPE
 VALID_DEPLOY_ENVS       := local dev prod
 VALID_DEPLOY_INFRA_TYPES := local ec2 ecs eks
+
+# Determine deployment type from DEPLOY_INFRA_TYPE
+# local → docker compose, ec2 → docker, ecs → ECS, eks → Kubernetes
+ifeq ($(DEPLOY_INFRA_TYPE),local)
+  DEPLOYMENT_TYPE := docker_compose
+else ifeq ($(DEPLOY_INFRA_TYPE),ec2)
+  DEPLOYMENT_TYPE := docker
+else ifeq ($(DEPLOY_INFRA_TYPE),ecs)
+  DEPLOYMENT_TYPE := ecs
+else ifeq ($(DEPLOY_INFRA_TYPE),eks)
+  DEPLOYMENT_TYPE := kubernetes
+else
+  DEPLOYMENT_TYPE := unknown
+endif
+
+# Map DEPLOY_INFRA_TYPE to script directory names
+ifeq ($(DEPLOY_INFRA_TYPE),local)
+  INFRA_SCRIPTS_DIR := local_docker
+else ifeq ($(DEPLOY_INFRA_TYPE),ec2)
+  INFRA_SCRIPTS_DIR := dev_ec2
+else ifeq ($(DEPLOY_INFRA_TYPE),ecs)
+  INFRA_SCRIPTS_DIR := prod_ecs
+else ifeq ($(DEPLOY_INFRA_TYPE),eks)
+  INFRA_SCRIPTS_DIR := prod_eks
+endif
 
 # Services list
 SERVICES := ycode-backend ycampus-backend ylabs-backend yhub-backend ymarketplace-backend ycode-frontend ycampus-frontend ylabs-frontend ymarketplace-frontend code-executor
@@ -54,7 +75,7 @@ _validate-deploy:
 		echo "❌ Invalid DEPLOY_INFRA_TYPE='$(DEPLOY_INFRA_TYPE)'. Must be one of: $(VALID_DEPLOY_INFRA_TYPES)"; \
 		exit 1; \
 	fi
-	@echo "▶ DEPLOY_ENV=$(DEPLOY_ENV)  DEPLOY_TYPE=$(DEPLOY_TYPE)  DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)"
+	@echo "▶ DEPLOY_ENV=$(DEPLOY_ENV)  DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)  [$(DEPLOYMENT_TYPE)]"
 
 # ============================================================================
 # Environment-Specific Configuration Loading
@@ -163,17 +184,18 @@ validate-env-files: _validate-deploy
 	fi
 
 help:
-	@echo "Usage: [DEPLOY_ENV=local|dev|staging|prod] [DEPLOY_TYPE=docker|k8s] make <command>"
+	@echo "Usage: [DEPLOY_ENV=local|dev|prod] [DEPLOY_INFRA_TYPE=local|ec2|ecs|eks] make <command>"
 	@echo ""
 	@echo "Environment:"
-	@echo "  DEPLOY_ENV    local (default) | dev | staging | prod"
-	@echo "  DEPLOY_BRANCH main (default) | any git branch (dev only)"
+	@echo "  DEPLOY_ENV        local (default) | dev | prod"
+	@echo "  DEPLOY_BRANCH     main (default) | any git branch"
+	@echo "  DEPLOY_INFRA_TYPE local (default) | ec2 | ecs | eks"
 	@echo ""
-	@echo "Deployment Type (auto-selected based on DEPLOY_ENV):"
-	@echo "  local  → docker (Local Docker Compose)"
-	@echo "  dev    → docker (AWS EC2 with Docker) - can override with DEPLOY_TYPE=k8s"
-	@echo "  staging → k8s (Kubernetes)"
-	@echo "  prod   → k8s (Kubernetes)"
+	@echo "Deployment Type (determined by DEPLOY_INFRA_TYPE):"
+	@echo "  local → docker compose (Local Docker Compose)"
+	@echo "  ec2   → docker (AWS EC2 with Docker)"
+	@echo "  ecs   → ECS (AWS Elastic Container Service)"
+	@echo "  eks   → kubernetes (AWS EKS or other Kubernetes)"
 	@echo ""
 	@echo "Main Commands:"
 	@echo "  make install            Build and start all services"
@@ -259,20 +281,19 @@ help:
 	@echo "  make deployImages-ymarketplace      Build YMarketplace images only"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make install                        # Start all (local + Docker Compose)"
-	@echo "  DEPLOY_ENV=dev make install         # Deploy to AWS EC2 (Docker Compose)"
-	@echo "  DEPLOY_ENV=dev DEPLOY_TYPE=k8s make install  # Deploy to AWS EC2 (Kubernetes)"
-	@echo "  make install-ycode                  # Start YCode only"
-	@echo "  DEPLOY_ENV=staging make install     # Deploy to staging (Kubernetes)"
-	@echo "  DEPLOY_ENV=prod make install        # Deploy to production (Kubernetes)"
-	@echo "  make observability-dev              # Start observability stack"
-	@echo "  make secrets-load                   # Load secrets for environment"
+	@echo "  make install                                      # Start all (local + Docker Compose)"
+	@echo "  DEPLOY_ENV=dev DEPLOY_INFRA_TYPE=ec2 make install # Deploy to AWS EC2 (Docker)"
+	@echo "  DEPLOY_INFRA_TYPE=eks make install                # Deploy to EKS (Kubernetes)"
+	@echo "  make install-ycode                                # Start YCode only"
+	@echo "  DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=ecs make install # Deploy to ECS (production)"
+	@echo "  make observability-dev                            # Start observability stack"
+	@echo "  make secrets-load                                 # Load secrets for environment"
 
 # ============================================================================
-# Docker Compose Commands (DEPLOY_TYPE=docker)
+# Deployment Commands (DEPLOYMENT_TYPE-specific)
 # ============================================================================
 
-ifeq ($(DEPLOY_TYPE),docker)
+ifeq ($(DEPLOYMENT_TYPE),docker_compose)
   # Docker Compose uses environment-specific compose files
   ENV_OVERRIDE := $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml)
   YMARKETPLACE_OVERRIDE := $(if $(filter dev,$(DEPLOY_ENV)),-f ymarketplace/docker-compose.dev.yml,-f ymarketplace/docker-compose.local.yml)
@@ -282,25 +303,58 @@ endif
 install: _validate-deploy
 	@echo "📦 Initializing submodules..."
 	@git submodule update --init --remote --recursive
-	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker, BRANCH=$(DEPLOY_BRANCH)]..."; \
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
+		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_INFRA_TYPE=ec2, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
-		bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH); \
-	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🔨 Building and starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		bash infra/scripts/dev_ec2/deploy-common-apps.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-ycode.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-yhub.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-code-executor.sh $(DEPLOY_BRANCH); \
+	elif [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
+		echo "🔨 Building and starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_INFRA_TYPE=local]..."; \
+		echo ""; \
+		echo "📋 Creating external networks..."; \
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
-		docker compose $(COMPOSE_FILES) down --remove-orphans 2>/dev/null || true; \
-		docker compose $(COMPOSE_FILES) build --build-arg BUILDKIT_INLINE_CACHE=1; \
-		docker compose $(COMPOSE_FILES) up; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
-		echo "🚀 Deploying to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker network create yuvro_yuvro-storage 2>/dev/null || true; \
+		echo ""; \
+		echo "🚀 Deploying common apps (executor, yhub, minio)..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-common-apps.sh $(DEPLOY_BRANCH) || { \
+			echo "❌ Failed to deploy common apps"; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "🚀 Deploying YCode..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ycode.sh $(DEPLOY_BRANCH) || { \
+			echo "❌ Failed to deploy YCode"; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "🚀 Deploying YCampus..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ycampus.sh $(DEPLOY_BRANCH) || { \
+			echo "❌ Failed to deploy YCampus"; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "🚀 Deploying YLabs..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ylabs.sh $(DEPLOY_BRANCH) || { \
+			echo "❌ Failed to deploy YLabs"; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "🚀 Deploying YMarketplace..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ymarketplace.sh $(DEPLOY_BRANCH) || { \
+			echo "❌ Failed to deploy YMarketplace"; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "✅ All services deployed successfully!"; \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
+		echo "🚀 Deploying to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
 			echo "❌ Values file not found: helm/values-$(DEPLOY_ENV).yaml"; \
 			exit 1; \
@@ -320,36 +374,70 @@ install: _validate-deploy
 			--create-namespace \
 			--values helm/values-$(DEPLOY_ENV).yaml \
 			|| true; \
-		echo "✅ Deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
+		echo "✅ Deployment initiated! Check status with: make status"; \
+	elif [ "$(DEPLOYMENT_TYPE)" = "ecs" ]; then \
+		echo "🚀 Deploying to ECS [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		bash infra/scripts/prod_ecs/deploy-all.sh || true; \
+	else \
+		echo "❌ Unknown deployment type: $(DEPLOYMENT_TYPE)"; \
+		exit 1; \
 	fi
 
 run: _validate-deploy
 	@echo "📦 Initializing submodules..."
 	@git submodule update --init --remote --recursive
-	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker, BRANCH=$(DEPLOY_BRANCH)]..."; \
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
+		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_INFRA_TYPE=ec2, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
-		bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH); \
-	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
+		bash infra/scripts/dev_ec2/deploy-common-apps.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-ycode.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-yhub.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/dev_ec2/deploy-code-executor.sh $(DEPLOY_BRANCH); \
+	elif [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
+		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_INFRA_TYPE=local]..."; \
+		echo ""; \
+		echo "📋 Creating external networks..."; \
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
-		docker compose $(COMPOSE_FILES) up -d --wait || { \
-			echo "❌ One or more services failed to become healthy. Showing logs:"; \
-			docker compose $(COMPOSE_FILES) ps; \
-			docker compose $(COMPOSE_FILES) logs --tail=50; \
+		docker network create yuvro_yuvro-storage 2>/dev/null || true; \
+		echo ""; \
+		echo "🚀 Deploying common apps (executor, yhub, minio)..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-common-apps.sh $(DEPLOY_BRANCH) || { \
+			echo "❌ Failed to deploy common apps"; \
 			exit 1; \
 		}; \
 		echo ""; \
-		echo "✅ All services are up and healthy!"; \
+		echo "🚀 Deploying YCode..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ycode.sh $(DEPLOY_BRANCH) || { \
+			echo "❌ Failed to deploy YCode"; \
+			exit 1; \
+		}; \
 		echo ""; \
-		docker compose $(COMPOSE_FILES) ps; \
+		echo "🚀 Deploying YCampus..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ycampus.sh $(DEPLOY_BRANCH) || { \
+			echo "❌ Failed to deploy YCampus"; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "🚀 Deploying YLabs..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ylabs.sh $(DEPLOY_BRANCH) || { \
+			echo "❌ Failed to deploy YLabs"; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "🚀 Deploying YMarketplace..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ymarketplace.sh $(DEPLOY_BRANCH) || { \
+			echo "❌ Failed to deploy YMarketplace"; \
+			exit 1; \
+		}; \
+		echo ""; \
+		echo "✅ All services deployed successfully!"; \
+		echo ""; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f ymarketplace/docker-compose.yml ps 2>/dev/null || true; \
 		echo ""; \
 		echo "🌐 Service URLs:"; \
 		echo "   YCode Frontend:    http://localhost:3000"; \
@@ -364,9 +452,9 @@ run: _validate-deploy
 		echo "   Code Executor:     http://localhost:8009"; \
 		echo ""; \
 		echo "📺 Showing live logs. Press Ctrl+C to stop."; \
-			docker compose $(COMPOSE_FILES) logs -f; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
-		echo "🚀 Deploying to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f ymarketplace/docker-compose.yml logs -f; \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
+		echo "🚀 Deploying to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
 			echo "❌ Values file not found: helm/values-$(DEPLOY_ENV).yaml"; \
 			exit 1; \
@@ -388,11 +476,17 @@ run: _validate-deploy
 			--wait \
 			--timeout 5m \
 			|| { echo "❌ Deployment failed. Check: kubectl get pods -n yuvro"; exit 1; }; \
-		echo "✅ Deployment complete! Check status with: make status DEPLOY_TYPE=k8s"; \
+		echo "✅ Deployment complete! Check status with: make status"; \
+	elif [ "$(DEPLOYMENT_TYPE)" = "ecs" ]; then \
+		echo "🚀 Deploying to ECS [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		bash infra/scripts/prod_ecs/deploy-all.sh || true; \
+	else \
+		echo "❌ Unknown deployment type: $(DEPLOYMENT_TYPE)"; \
+		exit 1; \
 	fi
 
 stop: _validate-deploy
-	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
 		echo "🛑 Stopping AWS EC2 deployment [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		echo ""; \
 		echo "⚠️  This will terminate EC2 instances"; \
@@ -405,18 +499,21 @@ stop: _validate-deploy
 		echo "🛑 Destroying OpenTofu resources..."; \
 		cd infra/opentofu && tofu plan -destroy -var-file=dev.tfvars -out=tfplan_destroy && tofu apply tfplan_destroy && cd ../..; \
 		echo "✅ EC2 instances terminated!"; \
-	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🛑 Stopping all services..."; \
 		docker compose $(COMPOSE_FILES) down; \
 		echo "✅ All services stopped!"; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "🛑 Uninstalling from Kubernetes..."; \
 		helm uninstall yuvro --namespace yuvro 2>/dev/null || true; \
 		echo "✅ Uninstall complete!"; \
+	elif [ "$(DEPLOYMENT_TYPE)" = "ecs" ]; then \
+		echo "🛑 Stopping ECS deployment..."; \
+		bash infra/scripts/prod_ecs/stop.sh || true; \
 	fi
 
 clean: _validate-deploy
-	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
 		echo "🧹 Cleaning AWS EC2 deployment [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		echo ""; \
 		echo "⚠️  This will destroy all EC2 resources"; \
@@ -431,12 +528,12 @@ clean: _validate-deploy
 		echo "🧹 Cleaning OpenTofu state..."; \
 		rm -rf infra/opentofu/.terraform infra/opentofu/terraform.tfstate* infra/opentofu/tfplan* 2>/dev/null || true; \
 		echo "✅ Cleanup complete!"; \
-	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🧹 Cleaning all containers and volumes..."; \
 		docker compose $(COMPOSE_FILES) down -v --remove-orphans; \
 		docker system prune -f; \
 		echo "✅ Cleanup complete!"; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "🧹 Cleaning Kubernetes resources..."; \
 		helm uninstall yuvro --namespace yuvro 2>/dev/null || true; \
 		kubectl delete namespace yuvro 2>/dev/null || true; \
@@ -444,10 +541,13 @@ clean: _validate-deploy
 		kubectl delete namespace ycode 2>/dev/null || true; \
 		kubectl delete namespace ycampus 2>/dev/null || true; \
 		echo "✅ Cleanup complete!"; \
+	elif [ "$(DEPLOYMENT_TYPE)" = "ecs" ]; then \
+		echo "🧹 Cleaning ECS resources..."; \
+		bash infra/scripts/prod_ecs/cleanup.sh || true; \
 	fi
 
 logs: _validate-deploy
-	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
 		echo "📝 Viewing AWS EC2 deployment logs [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		echo ""; \
 		echo "⚠️  EC2 instances are managed by OpenTofu"; \
@@ -462,16 +562,19 @@ logs: _validate-deploy
 		echo "  3. View logs:"; \
 		echo "     docker compose logs -f"; \
 		exit 1; \
-	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "📝 Viewing logs from all services (Ctrl+C to exit)..."; \
 		docker compose $(COMPOSE_FILES) logs -f; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "📝 Viewing logs from all pods (Ctrl+C to exit)..."; \
 		kubectl logs -n yuvro -l app.kubernetes.io/part-of=yuvro -f 2>/dev/null || echo "No pods found"; \
+	elif [ "$(DEPLOYMENT_TYPE)" = "ecs" ]; then \
+		echo "📝 Viewing ECS logs..."; \
+		bash infra/scripts/prod_ecs/logs.sh || true; \
 	fi
 
 status: _validate-deploy
-	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
 		echo "📊 AWS EC2 deployment status [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		echo ""; \
 		if ! command -v tofu &> /dev/null; then \
@@ -486,19 +589,22 @@ status: _validate-deploy
 		echo ""; \
 		echo "📊 RDS Databases:"; \
 		aws rds describe-db-instances --region ap-south-1 --query 'DBInstances[?Tags[?Key==`Environment` && Value==`dev`]].[DBInstanceIdentifier,DBInstanceClass,DBInstanceStatus]' --output table 2>/dev/null || echo "No databases found"; \
-	elif [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "📊 Docker Compose status:"; \
 		docker compose $(COMPOSE_FILES) ps; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "📊 Kubernetes deployment status:"; \
 		kubectl get all -n yuvro 2>/dev/null || echo "No resources found"; \
 		echo ""; \
 		echo "📊 Namespaces:"; \
 		kubectl get namespaces | grep -E "^yuvro|^ycode|^ycampus" || true; \
+	elif [ "$(DEPLOYMENT_TYPE)" = "ecs" ]; then \
+		echo "📊 ECS deployment status:"; \
+		bash infra/scripts/prod_ecs/status.sh || true; \
 	fi
 
 port-forward: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "🔌 Setting up port forwards..."; \
 		echo "   YCode Frontend: http://localhost:3000"; \
 		echo "   YCode Backend: http://localhost:8000"; \
@@ -514,7 +620,104 @@ port-forward: _validate-deploy
 		kubectl port-forward -n yuvro svc/yuvro-code-executor 8009:8009 2>/dev/null & \
 		wait; \
 	else \
-		echo "❌ port-forward is only available for DEPLOY_TYPE=k8s"; \
+		echo "❌ port-forward is only available for DEPLOY_INFRA_TYPE=eks"; \
+	fi
+
+destroy: _validate-deploy
+	@echo "🗑️  Destroying ALL containers and volumes [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)]..."
+	@echo ""
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
+		echo "🧹 Stopping and removing all Docker containers and volumes..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml down -v --remove-orphans 2>/dev/null || true; \
+		docker compose -f docker-compose.ycampus.yml down -v --remove-orphans 2>/dev/null || true; \
+		docker compose -f docker-compose.ylabs.yml down -v --remove-orphans 2>/dev/null || true; \
+		docker compose -f docker-compose.yhub.yml down -v --remove-orphans 2>/dev/null || true; \
+		docker compose -f docker-compose.dev-ymarketplace.yml down -v --remove-orphans 2>/dev/null || true; \
+		docker compose -f docker-compose.code-executor.yml down -v --remove-orphans 2>/dev/null || true; \
+		docker system prune -f --volumes 2>/dev/null || true; \
+		echo "✅ All Docker containers and volumes destroyed!"; \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
+		echo "🧹 Removing ALL Kubernetes resources..."; \
+		helm uninstall yuvro --namespace yuvro 2>/dev/null || true; \
+		kubectl delete namespace yuvro 2>/dev/null || true; \
+		kubectl delete namespace yobservability 2>/dev/null || true; \
+		kubectl delete namespace ycode 2>/dev/null || true; \
+		kubectl delete namespace ycampus 2>/dev/null || true; \
+		echo "✅ All Kubernetes resources destroyed!"; \
+	else \
+		echo "❌ Unknown deployment type: $(DEPLOYMENT_TYPE)"; \
+		exit 1; \
+	fi
+
+destroy-common-apps: _validate-deploy
+	@echo "🗑️  Destroying common apps services [DEPLOY_ENV=$(DEPLOY_ENV)]..."
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
+		echo "🧹 Stopping common apps (executor, yhub, minio)..."; \
+		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml down -v --remove-orphans 2>/dev/null || true; \
+		echo "✅ Common apps destroyed!"; \
+	else \
+		echo "❌ destroy-common-apps is only available for local Docker deployment"; \
+		exit 1; \
+	fi
+
+destroy-ycode: _validate-deploy
+	@echo "🗑️  Destroying YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
+		docker compose -f docker-compose.ycode.yml down -v --remove-orphans 2>/dev/null || true; \
+		echo "✅ YCode destroyed!"; \
+	else \
+		echo "❌ destroy-ycode is only available for local Docker deployment"; \
+		exit 1; \
+	fi
+
+destroy-ycampus: _validate-deploy
+	@echo "🗑️  Destroying YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
+		docker compose -f docker-compose.ycampus.yml down -v --remove-orphans 2>/dev/null || true; \
+		echo "✅ YCampus destroyed!"; \
+	else \
+		echo "❌ destroy-ycampus is only available for local Docker deployment"; \
+		exit 1; \
+	fi
+
+destroy-ylabs: _validate-deploy
+	@echo "🗑️  Destroying YLabs services [DEPLOY_ENV=$(DEPLOY_ENV)]..."
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
+		docker compose -f docker-compose.ylabs.yml down -v --remove-orphans 2>/dev/null || true; \
+		echo "✅ YLabs destroyed!"; \
+	else \
+		echo "❌ destroy-ylabs is only available for local Docker deployment"; \
+		exit 1; \
+	fi
+
+destroy-yhub: _validate-deploy
+	@echo "🗑️  Destroying YHub services [DEPLOY_ENV=$(DEPLOY_ENV)]..."
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
+		docker compose -f docker-compose.yhub.yml down -v --remove-orphans 2>/dev/null || true; \
+		echo "✅ YHub destroyed!"; \
+	else \
+		echo "❌ destroy-yhub is only available for local Docker deployment"; \
+		exit 1; \
+	fi
+
+destroy-ymarketplace: _validate-deploy
+	@echo "🗑️  Destroying YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
+		docker compose -f docker-compose.dev-ymarketplace.yml down -v --remove-orphans 2>/dev/null || true; \
+		echo "✅ YMarketplace destroyed!"; \
+	else \
+		echo "❌ destroy-ymarketplace is only available for local Docker deployment"; \
+		exit 1; \
+	fi
+
+destroy-code-executor: _validate-deploy
+	@echo "🗑️  Destroying Code Executor service [DEPLOY_ENV=$(DEPLOY_ENV)]..."
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
+		docker compose -f docker-compose.code-executor.yml down -v --remove-orphans 2>/dev/null || true; \
+		echo "✅ Code Executor destroyed!"; \
+	else \
+		echo "❌ destroy-code-executor is only available for local Docker deployment"; \
+		exit 1; \
 	fi
 
 # ============================================================================
@@ -522,13 +725,13 @@ port-forward: _validate-deploy
 # ============================================================================
 
 install-ycode: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🔨 Building YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
 			build --build-arg BUILDKIT_INLINE_CACHE=1; \
 		echo "🚀 Starting YCode services..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "🚀 Deploying YCode to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
 			echo "❌ Values file not found: helm/values-$(DEPLOY_ENV).yaml"; \
@@ -548,17 +751,17 @@ install-ycode: _validate-deploy
 			--set postgresql-ycode.enabled=true \
 			--set postgresql-ycampus.enabled=false \
 			|| true; \
-		echo "✅ YCode deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
+		echo "✅ YCode deployment initiated! Check status with: make status"; \
 	fi
 
 install-ycampus: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🔨 Building YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
 			build --build-arg BUILDKIT_INLINE_CACHE=1; \
 		echo "🚀 Starting YCampus services..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) up; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "🚀 Deploying YCampus to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
 			echo "❌ Values file not found: helm/values-$(DEPLOY_ENV).yaml"; \
@@ -578,11 +781,11 @@ install-ycampus: _validate-deploy
 			--set postgresql-ycode.enabled=false \
 			--set postgresql-ycampus.enabled=true \
 			|| true; \
-		echo "✅ YCampus deployment initiated! Check status with: make status DEPLOY_TYPE=k8s"; \
+		echo "✅ YCampus deployment initiated! Check status with: make status"; \
 	fi
 
 run-ycode: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🚀 Starting YCode services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
@@ -601,7 +804,7 @@ run-ycode: _validate-deploy
 		echo "   YCode Frontend:  http://localhost:3000"; \
 		echo "   YCode Backend:   http://localhost:8000"; \
 		echo "   Code Executor:   http://localhost:8009"; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "🚀 Deploying YCode to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
 			echo "❌ Values file not found: helm/values-$(DEPLOY_ENV).yaml"; \
@@ -623,11 +826,11 @@ run-ycode: _validate-deploy
 			--wait \
 			--timeout 5m \
 			|| { echo "❌ Deployment failed. Check: kubectl get pods -n yuvro"; exit 1; }; \
-		echo "✅ YCode deployment complete! Check status with: make status DEPLOY_TYPE=k8s"; \
+		echo "✅ YCode deployment complete! Check status with: make status DEPLOY_INFRA_TYPE=k8s"; \
 	fi
 
 run-ycampus: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🚀 Starting YCampus services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
@@ -646,7 +849,7 @@ run-ycampus: _validate-deploy
 		echo "   YCampus Frontend:  http://localhost:3001"; \
 		echo "   YCampus Backend:   http://localhost:8001"; \
 		echo "   Code Executor:     http://localhost:8009"; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "🚀 Deploying YCampus to Kubernetes [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		if [ ! -f "helm/values-$(DEPLOY_ENV).yaml" ]; then \
 			echo "❌ Values file not found: helm/values-$(DEPLOY_ENV).yaml"; \
@@ -668,69 +871,69 @@ run-ycampus: _validate-deploy
 			--wait \
 			--timeout 5m \
 			|| { echo "❌ Deployment failed. Check: kubectl get pods -n yuvro"; exit 1; }; \
-		echo "✅ YCampus deployment complete! Check status with: make status DEPLOY_TYPE=k8s"; \
+		echo "✅ YCampus deployment complete! Check status with: make status DEPLOY_INFRA_TYPE=k8s"; \
 	fi
 
 stop-ycode: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🛑 Stopping YCode services..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "🛑 Uninstalling YCode from Kubernetes..."; \
 		helm uninstall yuvro-code --namespace yuvro 2>/dev/null || true; \
 		echo "✅ YCode uninstalled!"; \
 	fi
 
 stop-ycampus: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🛑 Stopping YCampus services..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "🛑 Uninstalling YCampus from Kubernetes..."; \
 		helm uninstall yuvro-code --namespace yuvro 2>/dev/null || true; \
 		echo "✅ YCampus uninstalled!"; \
 	fi
 
 clean-ycode: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🧹 Cleaning YCode containers and volumes..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down -v --remove-orphans; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "🧹 Cleaning YCode Kubernetes resources..."; \
 		helm uninstall yuvro-code --namespace yuvro 2>/dev/null || true; \
 		echo "✅ YCode cleaned!"; \
 	fi
 
 clean-ycampus: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🧹 Cleaning YCampus containers and volumes..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down -v --remove-orphans; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "🧹 Cleaning YCampus Kubernetes resources..."; \
 		helm uninstall yuvro-code --namespace yuvro 2>/dev/null || true; \
 		echo "✅ YCampus cleaned!"; \
 	fi
 
 logs-ycode: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "📝 Viewing YCode logs (Ctrl+C to exit)..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycode.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs -f; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "📝 Viewing YCode Kubernetes logs (Ctrl+C to exit)..."; \
 		kubectl logs -n yuvro -l app.kubernetes.io/instance=yuvro-code -f 2>/dev/null || echo "No pods found"; \
 	fi
 
 logs-ycampus: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "📝 Viewing YCampus logs (Ctrl+C to exit)..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ycampus.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs -f; \
-	elif [ "$(DEPLOY_TYPE)" = "k8s" ]; then \
+	elif [ "$(DEPLOYMENT_TYPE)" = "kubernetes" ]; then \
 		echo "📝 Viewing YCampus Kubernetes logs (Ctrl+C to exit)..."; \
 		kubectl logs -n yuvro -l app.kubernetes.io/instance=yuvro-code -f 2>/dev/null || echo "No pods found"; \
 	fi
 
 install-yhub: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🔨 Building YHub services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
 			build --build-arg BUILDKIT_INLINE_CACHE=1; \
@@ -741,7 +944,7 @@ install-yhub: _validate-deploy
 	fi
 
 install-ylabs: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🔨 Building YLabs services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) \
 			build --build-arg BUILDKIT_INLINE_CACHE=1; \
@@ -752,7 +955,7 @@ install-ylabs: _validate-deploy
 	fi
 
 install-ymarketplace: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🔨 Building YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
 		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f ymarketplace/docker-compose.dev.yml,-f ymarketplace/docker-compose.yml) \
@@ -764,7 +967,7 @@ install-ymarketplace: _validate-deploy
 	fi
 
 install-code-executor: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🔨 Building Code Executor [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker compose -f docker-compose.code-executor.yml \
 			build --build-arg BUILDKIT_INLINE_CACHE=1; \
@@ -775,7 +978,7 @@ install-code-executor: _validate-deploy
 	fi
 
 run-yhub: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🚀 Starting YHub services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
@@ -798,26 +1001,26 @@ run-yhub: _validate-deploy
 	fi
 
 stop-yhub: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🛑 Stopping YHub services..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down; \
 	fi
 
 clean-yhub: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🧹 Cleaning YHub containers and volumes..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down -v --remove-orphans; \
 	fi
 
 logs-yhub: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "📝 Viewing YHub logs (Ctrl+C to exit)..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.yhub.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs -f; \
 	fi
 
 # YLabs
 run-ylabs: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🚀 Starting YLabs services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
@@ -840,26 +1043,26 @@ run-ylabs: _validate-deploy
 	fi
 
 stop-ylabs: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🛑 Stopping YLabs services..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down; \
 	fi
 
 clean-ylabs: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🧹 Cleaning YLabs containers and volumes..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) down -v --remove-orphans; \
 	fi
 
 logs-ylabs: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "📝 Viewing YLabs logs (Ctrl+C to exit)..."; \
 		docker compose -f docker-compose.yuvro.yml -f docker-compose.ylabs.yml $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml) logs -f; \
 	fi
 
 # YMarketplace
 run-ymarketplace: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🚀 Starting YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
 		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) up -d --wait || { \
@@ -881,26 +1084,26 @@ run-ymarketplace: _validate-deploy
 	fi
 
 stop-ymarketplace: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🛑 Stopping YMarketplace services..."; \
 		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) down; \
 	fi
 
 clean-ymarketplace: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🧹 Cleaning YMarketplace containers and volumes..."; \
 		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) down -v --remove-orphans; \
 	fi
 
 logs-ymarketplace: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "📝 Viewing YMarketplace logs (Ctrl+C to exit)..."; \
 		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) logs -f; \
 	fi
 
 # Code Executor
 run-code-executor: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🚀 Starting Code Executor [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create executor 2>/dev/null || true; \
 		docker compose -f docker-compose.code-executor.yml up -d --wait || { \
@@ -921,19 +1124,19 @@ run-code-executor: _validate-deploy
 	fi
 
 stop-code-executor: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🛑 Stopping Code Executor..."; \
 		docker compose -f docker-compose.code-executor.yml down; \
 	fi
 
 clean-code-executor: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "🧹 Cleaning Code Executor containers and volumes..."; \
 		docker compose -f docker-compose.code-executor.yml down -v --remove-orphans; \
 	fi
 
 logs-code-executor: _validate-deploy
-	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
+	@if [ "$(DEPLOYMENT_TYPE)" = "docker_compose" ]; then \
 		echo "📝 Viewing Code Executor logs (Ctrl+C to exit)..."; \
 		docker compose -f docker-compose.code-executor.yml logs -f; \
 	fi
@@ -1177,29 +1380,33 @@ provision-infra-apply:
 provision-infra-destroy:
 	@echo "⚠️  Destroying infrastructure [env=$(DEPLOY_ENV)]..."
 	@bash infra/scripts/provision-infra.sh $(DEPLOY_ENV) destroy
-deploy-ycode:
+deploy-ycode: _validate-deploy
 	@echo "🚀 Deploying YCode [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
-	@bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH)
+	@bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ycode.sh $(DEPLOY_BRANCH)
 
-deploy-ycampus:
+deploy-common-apps: _validate-deploy
+	@echo "🚀 Deploying Common Services [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
+	@bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-common-apps.sh $(DEPLOY_BRANCH)
+
+deploy-ycampus: _validate-deploy
 	@echo "🚀 Deploying YCampus [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
-	@bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH)
+	@bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ycampus.sh $(DEPLOY_BRANCH)
 
-deploy-ylabs:
+deploy-ylabs: _validate-deploy
 	@echo "🚀 Deploying YLabs [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
-	@bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH)
+	@bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ylabs.sh $(DEPLOY_BRANCH)
 
-deploy-yhub:
+deploy-yhub: _validate-deploy
 	@echo "🚀 Deploying YHub [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
-	@bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH)
+	@bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-yhub.sh $(DEPLOY_BRANCH)
 
-deploy-ymarketplace:
+deploy-ymarketplace: _validate-deploy
 	@echo "🚀 Deploying YMarketplace [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
-	@bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH)
+	@bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ymarketplace.sh $(DEPLOY_BRANCH)
 
-deploy-code-executor:
+deploy-code-executor: _validate-deploy
 	@echo "🚀 Deploying Code Executor [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
-	@bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH)
+	@bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-code-executor.sh $(DEPLOY_BRANCH)
 
 # ============================================================================
 # Code Executor Commands

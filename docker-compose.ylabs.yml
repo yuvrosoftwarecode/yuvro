@@ -92,3 +92,5 @@ networks:
   executor:
     external: true
   yuvro-storage:
+    external: true
+    name: yuvro_yuvro-storage
