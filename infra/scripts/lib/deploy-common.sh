@@ -419,6 +419,10 @@ echo "   ✓ main repo cloned  [elapsed \$(( \$(date +%s)-T1 ))s]"
 # Initialize submodules
 echo "── initializing submodules ────────────────────────"
 T2=\$(date +%s)
+
+# Clear ymarketplace submodule if it exists (may have cached old config)
+rm -rf ymarketplace/.git
+
 git submodule sync --recursive
 
 # For ymarketplace, use the same deploy key as main repo if ymarketplace key not available
