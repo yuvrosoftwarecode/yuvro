@@ -33,6 +33,38 @@ def _build_unsigned_url(obj, bucket):
     return f"https://{bucket}.s3.{region}.amazonaws.com/{key}"
 
 
+def _ensure_minio_bucket_public(bucket: str):
+    if not bucket:
+        return
+    endpoint = getattr(settings, "AWS_S3_ENDPOINT_URL", "")
+    if not endpoint or getattr(settings, "AWS_QUERYSTRING_AUTH", True):
+        return
+    try:
+        import boto3
+        import json
+        client = boto3.client(
+            "s3",
+            region_name=getattr(settings, "AWS_S3_REGION_NAME", "ap-south-1") or "ap-south-1",
+            aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", "minioadmin") or "minioadmin",
+            aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", "minioadmin") or "minioadmin",
+            endpoint_url=endpoint,
+        )
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": "*",
+                    "Action": ["s3:GetObject"],
+                    "Resource": [f"arn:aws:s3:::{bucket}/*"]
+                }
+            ]
+        }
+        client.put_bucket_policy(Bucket=bucket, Policy=json.dumps(policy))
+    except Exception as err:
+        logger.debug("Failed to set MinIO bucket public policy: %s", err)
+
+
 def _build_signed_url(obj, bucket):
     try:
         import boto3
@@ -65,12 +97,19 @@ def _build_signed_url(obj, bucket):
         config=boto_config,
     )
     try:
-        return client.generate_presigned_url(
+        clean_key = str(obj).strip().lstrip("/")
+        url = client.generate_presigned_url(
             "get_object",
-            Params={"Bucket": bucket, "Key": obj},
-            ExpiresIn=600,
+            Params={"Bucket": bucket, "Key": clean_key},
+            ExpiresIn=getattr(settings, "AWS_QUERYSTRING_EXPIRE", 86400),
         )
-    except Exception:
+        public_endpoint = getattr(settings, "AWS_S3_PUBLIC_ENDPOINT_URL", "")
+        internal_endpoint = getattr(settings, "AWS_S3_ENDPOINT_URL", "")
+        if public_endpoint and internal_endpoint and internal_endpoint in url:
+            url = url.replace(internal_endpoint, public_endpoint, 1)
+        return url
+    except Exception as err:
+        logger.error(f"Failed to generate presigned URL: {err}")
         return None
 
 
@@ -88,7 +127,7 @@ def build_public_url(object_name):
         media_url = getattr(settings, "MEDIA_URL", "/media/")
         if not media_url.endswith("/"):
             media_url += "/"
-        return f"{media_url}{obj}"
+        return f"{media_url}{obj.lstrip('/')}"
 
     if getattr(settings, "AWS_QUERYSTRING_AUTH", True):
         signed = _build_signed_url(obj, bucket)
@@ -111,6 +150,10 @@ def upload_image(*, key, file_obj, replace_extensions=()):
     full_key = (f"{app_name}/" if app_name else "") + key.lstrip("/")
 
     try:
+        bucket = getattr(settings, "AWS_STORAGE_BUCKET_NAME", "") or ""
+        if bucket:
+            _ensure_minio_bucket_public(bucket)
+
         if replace_extensions and "." in full_key:
             base, _ = full_key.rsplit(".", 1)
             for prior_ext in replace_extensions:
