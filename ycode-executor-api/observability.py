@@ -37,7 +37,7 @@ def setup_telemetry():
     
     # Resource identifies your service
     resource = Resource.create({
-        "service.name": os.getenv("OTEL_SERVICE_NAME", "yuvro-code-executer"),
+        "service.name": os.getenv("OTEL_SERVICE_NAME", "ycode-executor-api"),
         "service.version": "1.0.0",
         "service.instance.id": os.getenv("HOSTNAME", "localhost"),
     })
