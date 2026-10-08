@@ -408,8 +408,8 @@ echo "   ✓ main repo cloned  [elapsed \$(( \$(date +%s)-T1 ))s]"
 # Initialize submodules
 echo "── initializing submodules ────────────────────────"
 T2=\$(date +%s)
-git submodule sync
-git submodule update --init --recursive
+git submodule sync --recursive
+git submodule update --init --recursive --force
 echo "   ✓ submodules initialized  [elapsed \$(( \$(date +%s)-T2 ))s]"
 
 # ── ymarketplace env.dev (non-secret, generated inline) ──────────────────────
