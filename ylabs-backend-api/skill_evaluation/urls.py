@@ -9,7 +9,8 @@ from .views import (
     CandidateNoteViewSet,
     CandidateTimelineEventViewSet,
     RecruiterActivityLogViewSet,
-    SharedReportView
+    SharedReportView,
+    EvaluationFeedbackAPIView
 )
 
 router = DefaultRouter()
@@ -23,5 +24,7 @@ router.register(r'activity-logs', RecruiterActivityLogViewSet, basename='recruit
 
 urlpatterns = [
     path('shared-report/<str:token>/', SharedReportView.as_view(), name='shared-report'),
+    path('evaluations/<str:pk>/feedback/', EvaluationFeedbackAPIView.as_view(), name='evaluation-feedback'),
     path('', include(router.urls)),
 ]
+

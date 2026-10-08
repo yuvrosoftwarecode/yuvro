@@ -766,7 +766,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     }
     try { document.exitFullscreen?.(); } catch {}
     try { clearGlobalProctoringData(); } catch {}
-    nav({ to: "/evaluation/complete" });
+    window.location.href = "/evaluation/complete?e=" + evaluationId;
   };
 
   const getSectionStatus = (secId: string): Status => {

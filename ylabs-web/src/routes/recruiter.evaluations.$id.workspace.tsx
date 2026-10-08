@@ -83,11 +83,12 @@ import { IntelligenceTab } from "@/components/recruiter/IntelligenceTab";
 import { SettingsTab } from "@/components/recruiter/SettingsTab";
 import { FollowUpsTab } from "@/components/recruiter/FollowUpsTab";
 import { CandidateRecordsTab } from "@/components/recruiter/CandidateRecordsTab";
+import { FeedbackTab } from "@/components/recruiter/FeedbackTab";
 import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnalyticsViewer";
 
 const searchSchema = z.object({
   tab: z
-    .enum(["overview", "candidates", "followups", "records", "intelligence", "settings"])
+    .enum(["overview", "candidates", "followups", "records", "feedback", "intelligence", "settings"])
     .default("overview")
     .catch("overview"),
   view: z
@@ -98,13 +99,14 @@ const searchSchema = z.object({
 });
 
 const TAB_LABELS: Record<
-  "overview" | "candidates" | "followups" | "records" | "intelligence" | "settings",
+  "overview" | "candidates" | "followups" | "records" | "feedback" | "intelligence" | "settings",
   string
 > = {
   overview: "Overview",
   candidates: "Submissions",
   followups: "Follow-ups",
   records: "Candidate Records",
+  feedback: "Feedback",
   intelligence: "Hiring Intelligence",
   settings: "Settings",
 };
@@ -293,7 +295,7 @@ function Workspace() {
           {/* Tabs & Actions */}
           <div className="mt-6 flex items-center justify-between">
             <nav className="flex items-center gap-1">
-              {(["overview", "candidates", "followups", "records"] as const).map(
+              {(["overview", "candidates", "followups", "records", "feedback"] as const).map(
                 (t) => (
                   <button
                     key={t}
@@ -333,6 +335,7 @@ function Workspace() {
         )}
         {tab === "followups" && <FollowUpsTab ev={ev} notify={notify} />}
         {tab === "records" && <CandidateRecordsTab ev={ev} notify={notify} onGotoFollowUps={() => goto("followups")} candidates={candidates} />}
+        {tab === "feedback" && <FeedbackTab ev={ev} />}
 
         {tab === "intelligence" && (
           <IntelligenceTab ev={ev} candidates={candidates} notify={notify} />
@@ -684,7 +687,7 @@ function OverviewTab({
 }: {
   ev: Evaluation;
   candidates: Candidate[];
-  onGoto: (t: "overview" | "candidates" | "followups" | "records" | "intelligence" | "settings") => void;
+  onGoto: (t: "overview" | "candidates" | "followups" | "records" | "feedback" | "intelligence" | "settings") => void;
   notify: (m: string) => void;
 }) {
   const [records, setRecords] = useState<any[]>([]);

@@ -485,3 +485,15 @@ class KnowledgeQuestionBankSerializer(serializers.ModelSerializer):
             ]
         return ret
 
+
+from .models import CandidateEvaluationFeedback
+
+class CandidateEvaluationFeedbackSerializer(serializers.ModelSerializer):
+    candidate_name = serializers.CharField(source='candidate.get_full_name', read_only=True)
+    candidate_email = serializers.CharField(source='candidate.email', read_only=True)
+
+    class Meta:
+        model = CandidateEvaluationFeedback
+        fields = ['id', 'evaluation', 'candidate', 'candidate_name', 'candidate_email', 'rating', 'description', 'created_at']
+        read_only_fields = ['id', 'candidate', 'created_at']
+
