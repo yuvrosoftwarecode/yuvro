@@ -360,7 +360,8 @@ function Workspace() {
 
 function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitle: string; onClose: () => void; notify: (m: string) => void }) {
   const [emailsInput, setEmailsInput] = useState("");
-  const [recipients, setRecipients] = useState<string[]>([]);
+  const [recipients, setRecipients] = useState<Array<{name: string, email: string}>>([]);
+  const [nameInput, setNameInput] = useState("");
   const [subject, setSubject] = useState("Invitation to Complete Evaluation");
   const [body, setBody] = useState("Hi {{name}},\n\nYou've been invited to complete the {{evaluation}} evaluation for {{company}}.\n\nGood luck,\nThe hiring team\n\n{{link}}");
   const [sending, setSending] = useState(false);
@@ -483,8 +484,8 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
   };
 
   const isValid = recipients.length > 0 || (emailsInput.trim() && emailRegex.test(emailsInput.trim()));
-  const allEmailsToPreview = [...recipients];
-  if (emailsInput.trim() && emailRegex.test(emailsInput.trim()) && !recipients.includes(emailsInput.trim())) {
+  const allEmailsToPreview = [...recipients.map(r => r.email)];
+  if (emailsInput.trim() && emailRegex.test(emailsInput.trim()) && !allEmailsToPreview.includes(emailsInput.trim().toLowerCase())) {
     allEmailsToPreview.push(emailsInput.trim());
   }
   const totalCount = allEmailsToPreview.length;
@@ -511,27 +512,46 @@ function InviteDialog({ evId, evTitle, onClose, notify }: { evId: string; evTitl
             {/* Emails */}
             <div className="space-y-1.5">
               <label className="text-[13px] font-medium text-neutral-700">Candidate Emails</label>
-              <div className="flex min-h-[46px] flex-wrap gap-2 rounded-lg border border-neutral-200 bg-white p-2 focus-within:border-neutral-400 transition-colors">
-                {recipients.map(r => (
-                  <span key={r} className="flex items-center gap-1.5 rounded-md bg-neutral-100 px-2.5 py-1 text-[12px] text-neutral-800">
-                    {r}
-                    <button onClick={() => removeRecipient(r)} className="text-neutral-500 hover:text-neutral-800">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-                <input
-                  type="text"
-                  value={emailsInput}
-                  onChange={(e) => setEmailsInput(e.target.value)}
-                  onKeyDown={handleEmailInput}
-                  onBlur={() => addRecipients(emailsInput)}
-                  placeholder={recipients.length === 0 ? "candidate1@example.com, candidate2@example.com..." : ""}
-                  className="min-w-[200px] flex-1 bg-transparent px-1 text-[13px] text-neutral-900 outline-none placeholder:text-neutral-400"
-                />
+              
+              <div className="flex gap-2 items-center mb-2">
+                  <input
+                    type="text"
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    placeholder="Name (Optional)"
+                    className="w-1/3 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
+                  />
+                  <input
+                    type="text"
+                    value={emailsInput}
+                    onChange={(e) => setEmailsInput(e.target.value)}
+                    onKeyDown={handleEmailInput}
+                    placeholder="candidate@example.com"
+                    className="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
+                  />
+                  <button onClick={() => addRecipients(emailsInput)} disabled={!emailsInput.trim()} className="rounded-lg bg-neutral-900 px-4 py-2 text-[13px] font-medium text-white hover:bg-neutral-800 disabled:opacity-50">
+                    Add
+                  </button>
               </div>
+
+              {recipients.length > 0 && (
+                  <div className="mt-2 flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-2">
+                    {recipients.map((r, idx) => (
+                      <div key={idx} className="flex items-center justify-between rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
+                        <div className="flex flex-col">
+                           {r.name && <span className="text-[13px] font-medium text-neutral-900">{r.name}</span>}
+                           <span className="text-[12px] text-neutral-500">{r.email}</span>
+                        </div>
+                        <button onClick={() => removeRecipient(r.email)} className="p-1 text-neutral-400 hover:text-red-500">
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+              )}
+
               <div className="flex items-center justify-between mt-1">
-                <div className="text-[12px] text-neutral-500">Paste multiple email addresses separated by commas or spaces.</div>
+                <div className="text-[12px] text-neutral-500">You can also paste multiple email addresses separated by commas.</div>
                 {error && <div className="text-[12px] text-red-500">{error}</div>}
               </div>
             </div>

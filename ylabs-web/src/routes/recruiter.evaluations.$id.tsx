@@ -2887,7 +2887,14 @@ function PublishScreen({
 }) {
   const [isPublishing, setIsPublishing] = useState(false);
   const [type, setType] = useState<"email" | "link" | "csv">("email");
-  const [recipients, setRecipients] = useState<string[]>([]);
+  const [recipients, setRecipients] = useState<Array<{name: string, email: string}>>(() => {
+    const emails = ev.invite?.emails;
+    if (Array.isArray(emails)) {
+      return emails.map((e: any) => typeof e === 'string' ? { name: '', email: e } : e);
+    }
+    return [];
+  });
+  const [nameInput, setNameInput] = useState("");
   const [emailsInput, setEmailsInput] = useState("");
   const [subject, setSubject] = useState(`Invitation: ${ev.title}`);
   const [body, setBody] = useState(`Hi {{name}},\n\nYou've been invited to take the {{evaluation}} assessment by {{company}}.\n\nClick the button below to get started:\n\n{{link}}\n\nGood luck!\n{{company}} Team`);
@@ -2926,21 +2933,24 @@ function PublishScreen({
       }
 
       const emailKey = Object.keys(data[0]).find((h) => h.toLowerCase().trim() === "email" || h.toLowerCase().trim() === "email address");
+      const nameKey = Object.keys(data[0]).find((h) => h.toLowerCase().trim() === "name" || h.toLowerCase().trim() === "full name" || h.toLowerCase().trim() === "first name");
 
       if (!emailKey) {
         setCsvError("Invalid format. Missing 'email' column header.");
         return;
       }
 
-      const parsedEmails = new Set<string>();
+      const parsedEmails = new Map<string, string>();
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       let invalidCount = 0;
 
       data.forEach((row) => {
         const email = row[emailKey]?.toString().trim();
+        const name = nameKey ? row[nameKey]?.toString().trim() || "" : "";
+        
         if (email) {
           if (emailRegex.test(email)) {
-            parsedEmails.add(email);
+            parsedEmails.set(email.toLowerCase(), name);
           } else {
             invalidCount++;
           }
@@ -2952,7 +2962,8 @@ function PublishScreen({
         return;
       }
 
-      setRecipients(Array.from(parsedEmails));
+      const newRecipients = Array.from(parsedEmails.entries()).map(([email, name]) => ({ email, name }));
+      setRecipients(newRecipients);
       setCsvSuccess(`Successfully loaded ${parsedEmails.size} valid emails.` + (invalidCount > 0 ? ` Ignored ${invalidCount} invalid.` : ""));
     } catch (err) {
       setCsvError("Failed to parse file.");
@@ -2960,25 +2971,41 @@ function PublishScreen({
   };
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const addRecipients = (raw: string) => {
+  const addRecipients = () => {
+    const raw = emailsInput;
+    if (!raw.trim()) return;
     const list = raw.split(/[,\n\s]+/).map(s => s.trim()).filter(Boolean);
     const valid = list.filter(e => emailRegex.test(e));
     if (valid.length > 0) {
-      setRecipients(prev => Array.from(new Set([...prev, ...valid])));
+      setRecipients(prev => {
+        let next = [...prev];
+        valid.forEach((e, idx) => {
+            const lowerE = e.toLowerCase();
+            const existingIdx = next.findIndex(r => r.email.toLowerCase() === lowerE);
+            const newName = idx === 0 && valid.length === 1 ? nameInput.trim() : "";
+            if (existingIdx !== -1) {
+                if (newName) next[existingIdx].name = newName;
+            } else {
+                next.push({ email: e, name: newName });
+            }
+        });
+        return next;
+      });
       setEmailsInput("");
+      setNameInput("");
     }
   };
 
   const handleEmailInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === "," || e.key === " ") {
       e.preventDefault();
-      addRecipients(emailsInput);
+      addRecipients();
     } else if (e.key === "Backspace" && !emailsInput && recipients.length > 0) {
       setRecipients(prev => prev.slice(0, -1));
     }
   };
 
-  const removeRecipient = (r: string) => setRecipients(prev => prev.filter(x => x !== r));
+  const removeRecipient = (r: string) => setRecipients(prev => prev.filter(x => x.email !== r));
 
   const insertPlaceholder = (ph: string) => {
     if (bodyRef.current) {
@@ -3000,7 +3027,21 @@ function PublishScreen({
   const submit = async () => {
     if (isPublishing) return;
     const pendingInputEmails = emailsInput ? emailsInput.split(/[,\n\s]+/).map(s => s.trim()).filter(e => emailRegex.test(e)) : [];
-    const finalRecipients = Array.from(new Set([...recipients, ...pendingInputEmails]));
+    
+    let finalRecipients = [...recipients];
+    if (pendingInputEmails.length > 0) {
+        pendingInputEmails.forEach((e, idx) => {
+            const lowerE = e.toLowerCase();
+            const existingIdx = finalRecipients.findIndex(r => r.email.toLowerCase() === lowerE);
+            const newName = idx === 0 && pendingInputEmails.length === 1 ? nameInput.trim() : "";
+            if (existingIdx !== -1) {
+                // Update name if new name is provided
+                if (newName) finalRecipients[existingIdx].name = newName;
+            } else {
+                finalRecipients.push({ email: e, name: newName });
+            }
+        });
+    }
     
     if (type === "csv" && finalRecipients.length === 0) {
       alert("Please upload a valid CSV/Excel file first.");
@@ -3018,7 +3059,7 @@ function PublishScreen({
         ev.expiry_time = customTime;
         ev.expiry_timezone = customTz;
       }
-      await onPublish({ type: publishType, emails: finalRecipients, expiry, attempts, link, subject, body });
+      await onPublish({ type: publishType, emails: finalRecipients as any, expiry, attempts, link, subject, body });
     } catch (err) {
       console.error(err);
       setIsPublishing(false);
@@ -3069,25 +3110,45 @@ function PublishScreen({
               <div className="text-[11px] uppercase tracking-widest text-neutral-500 mb-2">
                 Candidate Emails
               </div>
-              <div className="flex min-h-[46px] flex-wrap gap-2 rounded-lg border border-white/10 bg-black/30 p-2 focus-within:border-emerald-400/60 transition-colors">
-                {recipients.map((r) => (
-                  <span key={r} className="flex items-center gap-1.5 rounded-md bg-white/10 px-2.5 py-1 text-[12px] text-neutral-200">
-                    {r}
-                    <button onClick={() => removeRecipient(r)} disabled={isPublishing} className="text-neutral-400 hover:text-white">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-                <input
-                  type="text"
-                  value={emailsInput}
-                  onChange={(e) => setEmailsInput(e.target.value)}
-                  onKeyDown={handleEmailInput}
-                  onBlur={() => addRecipients(emailsInput)}
-                  disabled={isPublishing}
-                  placeholder={recipients.length === 0 ? "candidate1@example.com, candidate2@example.com..." : ""}
-                  className="min-w-[200px] flex-1 bg-transparent px-1 text-[12px] text-white outline-none placeholder:text-neutral-500"
-                />
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    disabled={isPublishing}
+                    placeholder="Name (Optional)"
+                    className="w-1/3 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 placeholder:text-neutral-500 disabled:opacity-50"
+                  />
+                  <input
+                    type="text"
+                    value={emailsInput}
+                    onChange={(e) => setEmailsInput(e.target.value)}
+                    onKeyDown={handleEmailInput}
+                    disabled={isPublishing}
+                    placeholder="candidate@example.com"
+                    className="flex-1 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 placeholder:text-neutral-500 disabled:opacity-50"
+                  />
+                  <button onClick={() => addRecipients()} disabled={isPublishing || !emailsInput.trim()} className="rounded-lg bg-emerald-500/20 px-4 py-2 text-[12px] font-medium text-emerald-400 hover:bg-emerald-500/30 disabled:opacity-50 transition-colors">
+                    Add
+                  </button>
+                </div>
+                
+                {recipients.length > 0 && (
+                  <div className="mt-2 flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-2">
+                    {recipients.map((r, idx) => (
+                      <div key={idx} className="flex items-center justify-between rounded-md border border-white/5 bg-white/5 px-3 py-2">
+                        <div className="flex flex-col">
+                           {r.name && <span className="text-[12px] font-medium text-neutral-200">{r.name}</span>}
+                           <span className="text-[11px] text-neutral-400">{r.email}</span>
+                        </div>
+                        <button onClick={() => removeRecipient(r.email)} disabled={isPublishing} className="p-1 text-neutral-400 hover:text-red-400">
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
