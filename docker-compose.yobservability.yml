@@ -128,8 +128,8 @@ services:
   # Extend code executor with observability
   yuvro-code-executor:
     env_file:
-      - ./yuvro-code-executer/.env
-      - ./yuvro-code-executer/.env.observability
+      - ./ycode-executor-api/.env
+      - ./ycode-executor-api/.env.observability
     depends_on:
       - yuvro-otel-collector
     networks:

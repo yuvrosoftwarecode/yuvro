@@ -82,9 +82,7 @@ services:
       - /app/venv
     depends_on:
       yuvro-minio:
-        condition: service_healthy
-      yuvro-minio-init:
-        condition: service_completed_successfully
+        condition: service_started
 
   ylabs-frontend:
     env_file:
@@ -116,39 +114,12 @@ services:
       yuvro-minio:
         condition: service_started
 
-  # ── YMarketplace ───────────────────────────────────────────────────────────
-  ymarketplace-db:
-    env_file:
-      - ./ymarketplace/backend/.env.local
-      - path: ./ymarketplace/backend/.env.local-secrets
-        required: false
-
-  ymarketplace-backend:
-    env_file:
-      - ./ymarketplace/backend/.env.local
-      - path: ./ymarketplace/backend/.env.local-secrets
-        required: false
-    volumes:
-      - ./ymarketplace/backend:/app
-      - /app/venv
-
-  ymarketplace-frontend:
-    env_file:
-      - ./ymarketplace/frontend/.env.local
-      - path: ./ymarketplace/frontend/.env.local-secrets
-        required: false
-    ports:
-      - "3004:3004"
-    volumes:
-      - ./ymarketplace/frontend:/app
-      - /app/node_modules
-
   # ── Code Executor ──────────────────────────────────────────────────────────
   yuvro-code-executor:
     env_file:
-      - ./yuvro-code-executer/.env.local
-      - path: ./yuvro-code-executer/.env.local-secrets
+      - ./ycode-executor-api/.env.local
+      - path: ./ycode-executor-api/.env.local-secrets
         required: false
     volumes:
-      - ./yuvro-code-executer:/app
+      - ./ycode-executor-api:/app
       - ./workspaces:/workspaces

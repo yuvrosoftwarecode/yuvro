@@ -279,7 +279,8 @@ help:
 ifeq ($(DEPLOY_TYPE),docker)
   # Docker Compose uses environment-specific compose files
   ENV_OVERRIDE := $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml)
-  COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f ymarketplace/docker-compose.yml $(ENV_OVERRIDE)
+  YMARKETPLACE_OVERRIDE := $(if $(filter dev,$(DEPLOY_ENV)),-f ymarketplace/docker-compose.dev.yml,-f ymarketplace/docker-compose.local.yml)
+  COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f ymarketplace/docker-compose.yml $(YMARKETPLACE_OVERRIDE) $(ENV_OVERRIDE)
 endif
 
 install: _validate-deploy
