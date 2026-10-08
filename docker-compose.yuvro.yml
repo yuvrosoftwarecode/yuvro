@@ -76,3 +76,6 @@ networks:
   ylabs:
     external: true
     name: yuvro_ylabs
+  marketplace:
+    external: true
+    name: yuvro_marketplace
