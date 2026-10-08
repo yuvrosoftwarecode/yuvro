@@ -279,10 +279,12 @@ help:
 ifeq ($(DEPLOY_TYPE),docker)
   # Docker Compose uses environment-specific compose files
   ENV_OVERRIDE := $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev.yml,-f docker-compose.local.yml)
-  COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.ymarketplace.yml $(ENV_OVERRIDE)
+  COMPOSE_FILES := -f docker-compose.yuvro.yml -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f ymarketplace/docker-compose.yml $(ENV_OVERRIDE)
 endif
 
 install: _validate-deploy
+	@echo "📦 Initializing submodules..."
+	@git submodule update --init --recursive
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
@@ -296,6 +298,7 @@ install: _validate-deploy
 		echo "🔨 Building and starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
+		docker network create yuvro_marketplace 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) down --remove-orphans 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) build --build-arg BUILDKIT_INLINE_CACHE=1; \
 		docker compose $(COMPOSE_FILES) up; \
@@ -324,6 +327,8 @@ install: _validate-deploy
 	fi
 
 run: _validate-deploy
+	@echo "📦 Initializing submodules..."
+	@git submodule update --init --recursive
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
@@ -337,6 +342,7 @@ run: _validate-deploy
 		echo "🚀 Starting all services [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker]..."; \
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
+		docker network create yuvro_marketplace 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) up -d --wait || { \
 			echo "❌ One or more services failed to become healthy. Showing logs:"; \
 			docker compose $(COMPOSE_FILES) ps; \
@@ -752,7 +758,7 @@ install-ymarketplace: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
-		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) \
+		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f ymarketplace/docker-compose.dev.yml,-f ymarketplace/docker-compose.yml) \
 			build --build-arg BUILDKIT_INLINE_CACHE=1; \
 		echo "🚀 Starting YMarketplace services..."; \
 		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) up; \
@@ -1380,7 +1386,7 @@ prod-down:
 deployImages: _validate-deploy
 	@echo "🐳 Building all images [DEPLOY_ENV=$(DEPLOY_ENV)] (layer cache preserved)..."
 	@export CACHEBUST=$$(date +%s); \
-	docker compose $(COMPOSE_FILES) -f docker-compose.ymarketplace.yml build \
+	docker compose $(COMPOSE_FILES) build \
 		--build-arg BUILDKIT_INLINE_CACHE=1 \
 		--build-arg CACHEBUST=$$CACHEBUST
 	@echo "✅ All images built!"
@@ -1420,7 +1426,7 @@ deployImages-yhub: _validate-deploy
 deployImages-ymarketplace: _validate-deploy
 	@echo "🐳 Building YMarketplace images (layer cache preserved)..."
 	@export CACHEBUST=$$(date +%s); \
-	docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) \
+	docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f ymarketplace/docker-compose.dev.yml,-f ymarketplace/docker-compose.yml) \
 		build --build-arg BUILDKIT_INLINE_CACHE=1 --build-arg CACHEBUST=$$CACHEBUST \
 		ymarketplace-backend ymarketplace-frontend
 	@echo "✅ YMarketplace images built!"

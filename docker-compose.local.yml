@@ -22,9 +22,7 @@ services:
       - /app/venv
     depends_on:
       yuvro-minio:
-        condition: service_healthy
-      yuvro-minio-init:
-        condition: service_completed_successfully
+        condition: service_started
 
   ycode-frontend:
     env_file:
@@ -54,9 +52,7 @@ services:
       - /app/venv
     depends_on:
       yuvro-minio:
-        condition: service_healthy
-      yuvro-minio-init:
-        condition: service_completed_successfully
+        condition: service_started
 
   ycampus-frontend:
     env_file:
@@ -113,9 +109,7 @@ services:
       - /app/venv
     depends_on:
       yuvro-minio:
-        condition: service_healthy
-      yuvro-minio-init:
-        condition: service_completed_successfully
+        condition: service_started
 
   # ── YMarketplace ───────────────────────────────────────────────────────────
   ymarketplace-db:
