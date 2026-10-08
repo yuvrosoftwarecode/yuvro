@@ -283,6 +283,8 @@ ifeq ($(DEPLOY_TYPE),docker)
 endif
 
 install: _validate-deploy
+	@echo "📦 Initializing submodules..."
+	@git submodule update --init --recursive
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
@@ -325,6 +327,8 @@ install: _validate-deploy
 	fi
 
 run: _validate-deploy
+	@echo "📦 Initializing submodules..."
+	@git submodule update --init --recursive
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_TYPE=docker, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
