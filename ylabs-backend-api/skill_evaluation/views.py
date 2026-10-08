@@ -1517,3 +1517,46 @@ class SharedReportView(APIView):
             'submission': sub_serializer.data,
             'timeline_events': event_serializer.data
         })
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+from .models import Evaluation, CandidateEvaluationFeedback
+from .serializers import CandidateEvaluationFeedbackSerializer
+
+from rest_framework.permissions import AllowAny
+class EvaluationFeedbackAPIView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, pk):
+        feedbacks = CandidateEvaluationFeedback.objects.filter(evaluation_id=pk)
+        serializer = CandidateEvaluationFeedbackSerializer(feedbacks, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        evaluation = get_object_or_404(Evaluation, pk=pk)
+        user = request.user
+        if not user.is_authenticated:
+            # For guest users, they might be logged in as guest.
+            pass
+        candidate_user = user if user.is_authenticated else None
+        if candidate_user:
+            feedback, created = CandidateEvaluationFeedback.objects.update_or_create(
+                evaluation=evaluation,
+                candidate=candidate_user,
+                defaults={
+                    'rating': request.data.get('rating'),
+                    'description': request.data.get('description', '')
+                }
+            )
+        else:
+            feedback = CandidateEvaluationFeedback.objects.create(
+                evaluation=evaluation,
+                candidate=None,
+                rating=request.data.get('rating'),
+                description=request.data.get('description', '')
+            )
+            created = True
+        serializer = CandidateEvaluationFeedbackSerializer(feedback)
+        return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+

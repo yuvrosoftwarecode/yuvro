@@ -480,3 +480,17 @@ class RecruiterActivityLog(BaseTimestampedAdminModel):
 
     def __str__(self):
         return f"{self.recruiter} - {self.kind} on {self.candidate_email}"
+
+class CandidateEvaluationFeedback(BaseTimestampedModel):
+    evaluation = models.ForeignKey(
+        Evaluation, on_delete=models.CASCADE, related_name="candidate_feedbacks"
+    )
+    candidate = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="evaluation_feedbacks", null=True, blank=True
+    )
+    rating = models.PositiveIntegerField()
+    description = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ("evaluation", "candidate")
+
