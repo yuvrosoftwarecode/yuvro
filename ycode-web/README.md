@@ -35,9 +35,9 @@ A modern React frontend application built with Vite, TypeScript, React Router, a
 npm install
 ```
 
-2. Copy environment variables:
+2. Create `.env` file with your configuration:
 ```bash
-cp .env.example .env
+# Create .env in ycode-web/ directory
 ```
 
 3. Update the `.env` file with your backend API URL:

@@ -186,7 +186,7 @@ codeExecutor:
   enabled: true
   replicaCount: 1
   
-  image: yuvro/code-executor:latest
+  image: ycode/executor-api:latest
   port: 8009
   resources:
     requests:

@@ -13,7 +13,7 @@ setup_nginx() {
     print_header "Setting up Nginx + SSL for Code Executor"
 
     # Copy Code Executor nginx config
-    scp_ec2 "$PROJECT_ROOT/yuvro-code-executer/nginx.ec2.conf" "ubuntu@$ip:/tmp/code-executor.conf"
+    scp_ec2 "$PROJECT_ROOT/ycode-executor-api/nginx.ec2.conf" "ubuntu@$ip:/tmp/code-executor.conf"
     ssh_ec2 "ubuntu@$ip" "sudo cp /tmp/code-executor.conf /etc/nginx/sites-available/yuvro-code-executor.conf && sudo ln -sf /etc/nginx/sites-available/yuvro-code-executor.conf /etc/nginx/sites-enabled/"
 
     # Code Executor domains

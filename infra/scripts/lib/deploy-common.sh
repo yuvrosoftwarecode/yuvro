@@ -293,8 +293,8 @@ app_secrets_for() {
         ylabs)        echo "ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets" ;;
         yhub)         echo "yhub-backend-api/.env.dev-secrets" ;;
         ymarketplace) echo "ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets" ;;
-        code-executor) echo "yuvro-code-executer/.env.dev-secrets" ;;
-        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets yuvro-code-executer/.env.dev-secrets" ;;
+        code-executor) echo "ycode-executor-api/.env.dev-secrets" ;;
+        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets ycode-executor-api/.env.dev-secrets" ;;
     esac
 }
 
@@ -318,8 +318,8 @@ app_nginx_config_for() {
         ylabs)        echo "ylabs-web/nginx.ec2.conf" ;;
         yhub)         echo "yhub-backend-api/nginx.ec2.conf" ;;
         ymarketplace) echo "ymarketplace/frontend/nginx.ec2.conf" ;;
-        code-executor) echo "yuvro-code-executer/nginx.ec2.conf" ;;
-        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/frontend/nginx.ec2.conf yuvro-code-executer/nginx.ec2.conf" ;;
+        code-executor) echo "ycode-executor-api/nginx.ec2.conf" ;;
+        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/frontend/nginx.ec2.conf ycode-executor-api/nginx.ec2.conf" ;;
     esac
 }
 

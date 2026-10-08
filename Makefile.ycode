@@ -18,9 +18,7 @@ setup:
 	@docker compose version >/dev/null 2>&1 || { echo "❌ Docker Compose is required."; exit 1; }
 
 	@echo "Creating environment files..."
-	@if [ ! -f ycode-backend-api/.env ]; then cp ycode-backend-api/.env.example ycode-backend-api/.env; echo "✅ Created backend .env"; fi
-	@if [ ! -f ycode-web/.env ]; then cp ycode-web/.env.example ycode-web/.env; echo "✅ Created frontend .env"; fi
-
+	@echo "⚠️  Ensure .env files exist in ycode-backend-api/ and ycode-web/ directories"
 	@echo "Creating executor network..."
 	@docker network create executor 2>/dev/null || true
 

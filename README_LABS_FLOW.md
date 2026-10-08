@@ -70,7 +70,7 @@ If a student attempts to navigate directly to a ticket's IDE (`/student/lab/$slu
 
 ### 2. Monolithic IDE Architecture
 - **Single Workspace**: All tickets (sprints) within a single lab share the exact same directory: `workspaces/labs/<lab_uuid>/users/<user_uuid>`. 
-- **File System**: The `yuvro-code-executer` backend intercepts REST (`/workspace/file`) and WebSocket (`/workspace/terminal`) calls, pointing them to this monolithic path.
+- **File System**: The `ycode-executor-api` backend intercepts REST (`/workspace/file`) and WebSocket (`/workspace/terminal`) calls, pointing them to this monolithic path.
 - **Git State**: If a user runs git commands inside the in-browser terminal, those changes apply directly to their connected GitHub repository because the backend runs `git remote add origin` with their personal token injected.
 
 ---

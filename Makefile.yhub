@@ -16,8 +16,7 @@ setup:
 	@docker compose version >/dev/null 2>&1 || { echo "❌ Docker Compose is required."; exit 1; }
 
 	@echo "Creating environment files..."
-	@if [ ! -f yhub-backend-api/.env ]; then cp yhub-backend-api/.env.example yhub-backend-api/.env; echo "✅ Created backend .env"; fi
-
+	@echo "⚠️  Ensure .env file exists in yhub-backend-api/ directory"
 	@echo "Creating executor network..."
 	@docker network create executor 2>/dev/null || true
 

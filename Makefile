@@ -106,10 +106,10 @@ load-env-files: _validate-deploy
 				fi \
 				;; \
 			code-executor) \
-				if [ -f "yuvro-code-executer/.env.$(DEPLOY_ENV)" ]; then \
-					echo "  ✓ yuvro-code-executer/.env.$(DEPLOY_ENV)"; \
+				if [ -f "ycode-executor-api/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ✓ ycode-executor-api/.env.$(DEPLOY_ENV)"; \
 				else \
-					echo "  ⚠ yuvro-code-executer/.env.$(DEPLOY_ENV) not found"; \
+					echo "  ⚠ ycode-executor-api/.env.$(DEPLOY_ENV) not found"; \
 				fi \
 				;; \
 		esac \
@@ -152,8 +152,8 @@ validate-env-files: _validate-deploy
 				fi \
 				;; \
 			code-executor) \
-				if [ ! -f "yuvro-code-executer/.env.$(DEPLOY_ENV)" ]; then \
-					echo "  ❌ Missing: yuvro-code-executer/.env.$(DEPLOY_ENV)"; \
+				if [ ! -f "ycode-executor-api/.env.$(DEPLOY_ENV)" ]; then \
+					echo "  ❌ Missing: ycode-executor-api/.env.$(DEPLOY_ENV)"; \
 					MISSING_FILES=1; \
 				fi \
 				;; \

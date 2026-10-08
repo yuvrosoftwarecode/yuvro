@@ -138,7 +138,7 @@ jobs:
               {"name":"yhub-backend","path":"yhub-backend-api","dockerfile":"yhub-backend-api/Dockerfile","app":"yhub"},
               {"name":"ymarketplace-backend","path":"ymarketplace/backend","dockerfile":"ymarketplace/backend/Dockerfile","app":"ymarketplace"},
               {"name":"ymarketplace-frontend","path":"ymarketplace/frontend","dockerfile":"ymarketplace/frontend/Dockerfile","app":"ymarketplace"},
-              {"name":"code-executor","path":"yuvro-code-executer","dockerfile":"yuvro-code-executer/Dockerfile","app":"executor"}
+              {"name":"code-executor","path":"ycode-executor-api","dockerfile":"ycode-executor-api/Dockerfile","app":"executor"}
             ]'
             echo "🔨 Building all 10 services"
           else
@@ -153,7 +153,7 @@ jobs:
               "yhub-backend": {"name":"yhub-backend","path":"yhub-backend-api","dockerfile":"yhub-backend-api/Dockerfile","app":"yhub"},
               "ymarketplace-backend": {"name":"ymarketplace-backend","path":"ymarketplace/backend","dockerfile":"ymarketplace/backend/Dockerfile","app":"ymarketplace"},
               "ymarketplace-frontend": {"name":"ymarketplace-frontend","path":"ymarketplace/frontend","dockerfile":"ymarketplace/frontend/Dockerfile","app":"ymarketplace"},
-              "code-executor": {"name":"code-executor","path":"yuvro-code-executer","dockerfile":"yuvro-code-executer/Dockerfile","app":"executor"}
+              "code-executor": {"name":"code-executor","path":"ycode-executor-api","dockerfile":"ycode-executor-api/Dockerfile","app":"executor"}
             }'
             
             SERVICES_JSON="["
