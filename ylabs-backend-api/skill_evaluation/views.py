@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
+import zoneinfo
 from core.storage import upload_image
 from .models import RecruiterActivityLog
 from .serializers import RecruiterActivityLogSerializer
@@ -49,6 +50,8 @@ def get_emails_list(emails):
         return []
     if isinstance(emails, dict):
         return list(emails.keys())
+    
+    parsed = emails
     if isinstance(emails, str):
         try:
             parsed = json.loads(emails)
@@ -139,9 +142,20 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 data['status'] = submission.hiring_status
                 data['completed_at'] = submission.completed_at.isoformat() if submission.completed_at else None
 
+        is_not_started = False
+        start_error = None
+        if instance.start_datetime and timezone.now() < instance.start_datetime:
+            ist = zoneinfo.ZoneInfo('Asia/Kolkata')
+            start_ist = instance.start_datetime.astimezone(ist)
+            is_not_started = True
+            start_error = f"This evaluation hasn't started yet. It will be accessible from {start_ist.strftime('%Y-%m-%d %I:%M %p')} IST."
+            
         is_expired = False
         if instance.expiry_datetime and timezone.now() > instance.expiry_datetime:
             is_expired = True
+            
+        data['is_not_started'] = is_not_started
+        data['start_error'] = start_error
         data['is_expired'] = is_expired
 
         return Response(data)
@@ -325,6 +339,16 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def check_registration(self, request, pk=None):
         evaluation = self.get_object()
         email = request.data.get('email')
+        
+        # Check access times
+        if evaluation.start_datetime and timezone.now() < evaluation.start_datetime:
+            ist = zoneinfo.ZoneInfo('Asia/Kolkata')
+            start_ist = evaluation.start_datetime.astimezone(ist)
+            return Response({"is_expired": True, "error": f"This evaluation hasn't started yet. It will be accessible from {start_ist.strftime('%Y-%m-%d %I:%M %p')} IST.", "registered": False}, status=status.HTTP_200_OK)
+            
+        if evaluation.expiry_datetime and timezone.now() > evaluation.expiry_datetime:
+            return Response({"is_expired": True, "error": "This evaluation has expired and is no longer accepting submissions.", "registered": False}, status=status.HTTP_200_OK)
+            
         if not email:
             return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
             

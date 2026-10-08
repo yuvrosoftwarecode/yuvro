@@ -59,6 +59,7 @@ class Evaluation(BaseTimestampedAdminModel):
         max_length=20, choices=ExperienceLevel.choices, default=ExperienceLevel.FRESHER
     )
     maximum_attempts = models.PositiveIntegerField(default=1)
+    start_datetime = models.DateTimeField(null=True, blank=True)
     expiry_datetime = models.DateTimeField(null=True, blank=True)
     is_published = models.BooleanField(default=False)
     settings = models.JSONField(default=dict, blank=True)

@@ -2901,11 +2901,27 @@ function PublishScreen({
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const [csvError, setCsvError] = useState("");
   const [csvSuccess, setCsvSuccess] = useState("");
-  const [expiry, setExpiry] = useState<"7" | "14" | "30" | "custom">(ev.invite?.expiry || "14");
-  const [attempts, setAttempts] = useState<"1" | "2" | "unlimited">(ev.invite?.attempts || "1");
-  const [customDate, setCustomDate] = useState(ev.expiry_date || "");
-  const [customTime, setCustomTime] = useState(ev.expiry_time || "23:59");
-  const [customTz, setCustomTz] = useState(ev.expiry_timezone || (typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC"));
+  const [scheduleType, setScheduleType] = useState<"none" | "scheduled">(ev.start_datetime || ev.expiry_datetime ? "scheduled" : "none");
+  const [startDate, setStartDate] = useState(() => {
+    if (!ev.start_datetime) return "";
+    const d = new Date(ev.start_datetime);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
+  const [startTime, setStartTime] = useState(() => {
+    if (!ev.start_datetime) return "";
+    const d = new Date(ev.start_datetime);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  });
+  const [expiryDate, setExpiryDate] = useState(() => {
+    if (!ev.expiry_datetime) return "";
+    const d = new Date(ev.expiry_datetime);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
+  const [expiryTime, setExpiryTime] = useState(() => {
+    if (!ev.expiry_datetime) return "";
+    const d = new Date(ev.expiry_datetime);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  });
 
   const link = useMemo(
     () => `${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${ev.id}`,
@@ -3054,12 +3070,24 @@ function PublishScreen({
     const publishType = type === "csv" ? "email" : type;
     setIsPublishing(true);
     try {
-      if (expiry === "custom" && customDate) {
-        ev.expiry_date = customDate;
-        ev.expiry_time = customTime;
-        ev.expiry_timezone = customTz;
+      let start_datetime: string | undefined;
+      let expiry_datetime: string | undefined;
+      
+      if (scheduleType === "scheduled") {
+        if (startDate) {
+          const d = new Date(`${startDate}T${startTime || "00:00"}:00`);
+          start_datetime = d.toISOString();
+        }
+        if (expiryDate) {
+          const d = new Date(`${expiryDate}T${expiryTime || "23:59"}:00`);
+          expiry_datetime = d.toISOString();
+        }
       }
-      await onPublish({ type: publishType, emails: finalRecipients as any, expiry, attempts, link, subject, body });
+      
+      ev.start_datetime = start_datetime;
+      ev.expiry_datetime = expiry_datetime;
+
+      await onPublish({ type: publishType, emails: finalRecipients as any, subject, body });
     } catch (err) {
       console.error(err);
       setIsPublishing(false);
@@ -3242,77 +3270,73 @@ function PublishScreen({
             </div>
           )}
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-4">
           <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-            <div className="text-[11px] uppercase tracking-widest text-neutral-500">Expiry</div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {EXPIRY_OPTIONS.map((opt) => (
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-[11px] uppercase tracking-widest text-neutral-500">Schedule</div>
+              <div className="flex gap-1.5">
                 <button
-                  key={opt.value}
+                  onClick={() => setScheduleType("none")}
                   disabled={isPublishing}
-                  onClick={() => setExpiry(opt.value as any)}
-                  className={`rounded-md border px-2.5 py-1 text-[11px] ${expiry === opt.value ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
+                  className={`rounded-md border px-2.5 py-1 text-[11px] ${scheduleType === "none" ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
                 >
-                  {opt.label}
+                  No time limit
                 </button>
-              ))}
+                <button
+                  onClick={() => setScheduleType("scheduled")}
+                  disabled={isPublishing}
+                  className={`rounded-md border px-2.5 py-1 text-[11px] ${scheduleType === "scheduled" ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
+                >
+                  Set dates
+                </button>
+              </div>
             </div>
-            {expiry === "custom" && (
-              <div className="mt-3 space-y-2 border-t border-white/5 pt-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-neutral-400">Date</label>
+
+            {scheduleType === "scheduled" && (
+              <div className="grid grid-cols-2 gap-6 mt-4 border-t border-white/5 pt-4">
+                <div>
+                  <label className="mb-2 block text-[11px] font-medium text-neutral-300">Start Date & Time (Optional)</label>
+                  <div className="flex gap-2">
                     <input
                       type="date"
-                      value={customDate}
-                      onChange={(e) => setCustomDate(e.target.value)}
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
                       disabled={isPublishing}
-                      className="mt-1 w-full rounded-md border border-white/10 bg-black/40 px-2 py-1 text-[11px] text-white outline-none focus:border-emerald-400/60"
+                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
                     />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-neutral-400">Time</label>
                     <input
                       type="time"
-                      value={customTime}
-                      onChange={(e) => setCustomTime(e.target.value)}
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
                       disabled={isPublishing}
-                      className="mt-1 w-full rounded-md border border-white/10 bg-black/40 px-2 py-1 text-[11px] text-white outline-none focus:border-emerald-400/60"
+                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
                     />
                   </div>
+                  <p className="mt-1.5 text-[10px] text-neutral-500">Leave blank to make it immediately accessible.</p>
                 </div>
+                
                 <div>
-                  <label className="text-[10px] text-neutral-400">Timezone</label>
-                  <select
-                    value={customTz}
-                    onChange={(e) => setCustomTz(e.target.value)}
-                    disabled={isPublishing}
-                    className="mt-1 w-full rounded-md border border-white/10 bg-black/40 px-2 py-1 text-[11px] text-white outline-none focus:border-emerald-400/60"
-                  >
-                    {TIMEZONES.map((tz) => (
-                      <option key={tz.value} value={tz.value} className="bg-[#121214] text-white">
-                        {tz.label}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="mb-2 block text-[11px] font-medium text-neutral-300">Expiry Date & Time (Optional)</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="date"
+                      value={expiryDate}
+                      onChange={(e) => setExpiryDate(e.target.value)}
+                      disabled={isPublishing}
+                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
+                    />
+                    <input
+                      type="time"
+                      value={expiryTime}
+                      onChange={(e) => setExpiryTime(e.target.value)}
+                      disabled={isPublishing}
+                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
+                    />
+                  </div>
+                  <p className="mt-1.5 text-[10px] text-neutral-500">Leave blank to never expire.</p>
                 </div>
               </div>
             )}
-          </div>
-          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-            <div className="text-[11px] uppercase tracking-widest text-neutral-500">Attempts</div>
-            <div className="mt-2 flex gap-1.5">
-              {(["1", "2", "unlimited"] as const).map((x) => (
-                <button
-                  key={x}
-                  disabled={isPublishing}
-                  onClick={() => setAttempts(x)}
-                  className={`rounded-md border px-2 py-1 text-[11px] ${attempts === x ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
-                >
-                  {x}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 
