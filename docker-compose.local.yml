@@ -80,6 +80,11 @@ services:
     volumes:
       - ./ylabs-backend-api:/app
       - /app/venv
+    depends_on:
+      yuvro-minio:
+        condition: service_healthy
+      yuvro-minio-init:
+        condition: service_completed_successfully
 
   ylabs-frontend:
     env_file:

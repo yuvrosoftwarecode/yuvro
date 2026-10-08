@@ -82,10 +82,11 @@ const getImageUrl = (imgUrl: string | undefined) => {
     
     let processedUrl = imgUrl;
     
-    if (processedUrl.includes('minio:9000') || processedUrl.includes('http://minio/') || processedUrl.includes('yuvro-minio:9000')) {
+    if (processedUrl.includes('minio:9000') || processedUrl.includes('http://minio/') || processedUrl.includes('yuvro-minio')) {
         processedUrl = processedUrl.replace('minio:9000', 'localhost:9100')
                                  .replace('http://minio/', 'http://localhost:9100/')
-                                 .replace('yuvro-minio:9000', 'localhost:9100');
+                                 .replace('yuvro-minio:9000', 'localhost:9100')
+                                 .replace('yuvro-minio', 'localhost:9100');
     }
 
     if (processedUrl.startsWith('http')) return processedUrl;
@@ -103,7 +104,7 @@ const getImageUrl = (imgUrl: string | undefined) => {
         cleanPath = cleanPath.replace(/^media\//, '');
     }
 
-    const baseUrl = (import.meta.env.VITE_BACKEND_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api')?.replace(/\/$/, '');
+    const baseUrl = (import.meta.env.VITE_BACKEND_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8002/api')?.replace(/\/$/, '');
     const rootUrl = baseUrl?.replace(/\/api\/?$/, '');
     return `${rootUrl}/media/${cleanPath}`;
 };
