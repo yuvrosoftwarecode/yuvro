@@ -4,7 +4,7 @@ from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
 
-def send_evaluation_email(evaluation, emails, is_reminder=False, custom_body=None):
+def send_evaluation_email(evaluation, emails, is_reminder=False, custom_body=None, custom_subject=None):
     frontend_url = getattr(settings, 'FRONTEND_URL', 'http://localhost:3002')
     eval_link = f"{frontend_url}/evaluation?e={evaluation.id}"
     

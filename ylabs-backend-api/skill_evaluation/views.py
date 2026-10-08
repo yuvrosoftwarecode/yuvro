@@ -123,29 +123,38 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             if not user:
                 user = User.objects.create(username="default_recruiter", email="default@example.com")
         instance = serializer.save(created_by=user)
+        subject = self.request.data.get('subject', None) if hasattr(self, 'request') else None
+        body = self.request.data.get('body', None) if hasattr(self, 'request') else None
         if instance.is_published and instance.candidate_invited_emails:
-            self.send_invitation_emails(instance, instance.candidate_invited_emails)
+            self.send_invitation_emails(instance, instance.candidate_invited_emails, subject=subject, body=body)
+
 
     def perform_update(self, serializer):
         old_instance = self.get_object()
         old_emails = set(get_emails_list(old_instance.candidate_invited_emails))
         instance = serializer.save()
         
+        subject = self.request.data.get('subject', None) if hasattr(self, 'request') else None
+        body = self.request.data.get('body', None) if hasattr(self, 'request') else None
         if instance.is_published and instance.candidate_invited_emails:
             new_emails = set(get_emails_list(instance.candidate_invited_emails)) - old_emails
             if new_emails:
-                self.send_invitation_emails(instance, new_emails)
+                self.send_invitation_emails(instance, new_emails, subject=subject, body=body)
 
-    def send_invitation_emails(self, evaluation, emails):
-        send_evaluation_email(evaluation, emails, is_reminder=False)
+
+    def send_invitation_emails(self, evaluation, emails, subject=None, body=None):
+        send_evaluation_email(evaluation, emails, is_reminder=False, custom_body=body, custom_subject=subject)
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def invite(self, request, pk=None):
         evaluation = self.get_object()
         emails = request.data.get('emails', [])
+        subject = request.data.get('subject', '')
+        body = request.data.get('body', '')
         template = request.data.get('template', '')
         
         emails_list = get_emails_list(emails)
+
         if not emails_list:
             return Response({"error": "No emails provided."}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -178,7 +187,8 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             # Custom logic if needed
             pass
             
-        self.send_invitation_emails(evaluation, list(new_emails))
+        self.send_invitation_emails(evaluation, list(new_emails), subject=subject, body=body or template)
+
         
         return Response({"status": "success", "invited": list(new_emails)})
 
