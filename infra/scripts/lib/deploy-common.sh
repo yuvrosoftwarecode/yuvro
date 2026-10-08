@@ -284,7 +284,7 @@ wire_secrets() {
 
 # ── copy secrets to EC2 ────────────────────────────────────────────────────────
 
-# Secrets, nginx config, and domains for each app
+# Secrets files for each app (only .env.dev-secrets, .env.dev is in git)
 app_secrets_for() {
     local app="${1:-all}"
     case "$app" in
