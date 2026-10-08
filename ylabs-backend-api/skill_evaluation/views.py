@@ -22,6 +22,7 @@ from .models import (
     UserLabQuestionBankSubmission,
     UserKnowledgeAssessmentSubmission,
     EvaluationSection,
+    EvaluationSectionType,
     CandidateTimelineEvent,
     CandidateTimelineEventType
 )
@@ -38,6 +39,7 @@ from .email_utils import send_evaluation_email
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 import os
+import re
 from lab.workspace_manager import provision_evaluation_user_repo, get_repo_name_from_url
 from .utils import is_database_lab
 import json
