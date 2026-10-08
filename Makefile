@@ -25,22 +25,22 @@
 # Environment Configuration
 # ============================================================================
 
-DEPLOY_ENV  ?= local
-DEPLOY_BRANCH ?= main
+DEPLOY_ENV      ?= local
+DEPLOY_BRANCH   ?= main
+DEPLOY_INFRA_TYPE ?= local
 # DEPLOY_TYPE mapping:
 # - local: docker (local Docker Compose) - default
 # - dev: docker (AWS EC2 with Docker) - default, can override with k8s
-# - staging: k8s (Kubernetes) - default
 # - prod: k8s (Kubernetes) - default
-DEPLOY_TYPE ?= $(if $(filter staging prod,$(DEPLOY_ENV)),k8s,docker)
+DEPLOY_TYPE ?= $(if $(filter prod,$(DEPLOY_ENV)),k8s,docker)
 
 # Enable BuildKit for all docker builds (faster, cache mounts, smaller images)
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
 
 # Validate DEPLOY_ENV
-VALID_DEPLOY_ENVS  := local dev staging prod
-VALID_DEPLOY_TYPES := docker k8s
+VALID_DEPLOY_ENVS       := local dev prod
+VALID_DEPLOY_INFRA_TYPES := local ec2 ecs eks
 
 # Services list
 SERVICES := ycode-backend ycampus-backend ylabs-backend yhub-backend ymarketplace-backend ycode-frontend ycampus-frontend ylabs-frontend ymarketplace-frontend code-executor
@@ -50,15 +50,11 @@ _validate-deploy:
 		echo "❌ Invalid DEPLOY_ENV='$(DEPLOY_ENV)'. Must be one of: $(VALID_DEPLOY_ENVS)"; \
 		exit 1; \
 	fi
-	@if ! echo "$(VALID_DEPLOY_TYPES)" | grep -qw "$(DEPLOY_TYPE)"; then \
-		echo "❌ Invalid DEPLOY_TYPE='$(DEPLOY_TYPE)'. Must be one of: $(VALID_DEPLOY_TYPES)"; \
+	@if ! echo "$(VALID_DEPLOY_INFRA_TYPES)" | grep -qw "$(DEPLOY_INFRA_TYPE)"; then \
+		echo "❌ Invalid DEPLOY_INFRA_TYPE='$(DEPLOY_INFRA_TYPE)'. Must be one of: $(VALID_DEPLOY_INFRA_TYPES)"; \
 		exit 1; \
 	fi
-	@if [ "$(filter staging prod,$(DEPLOY_ENV))" != "" ] && [ "$(DEPLOY_TYPE)" = "docker" ]; then \
-		echo "❌ Incompatible: DEPLOY_ENV=$(DEPLOY_ENV) requires DEPLOY_TYPE=k8s"; \
-		exit 1; \
-	fi
-	@echo "▶ DEPLOY_ENV=$(DEPLOY_ENV)  DEPLOY_TYPE=$(DEPLOY_TYPE)"
+	@echo "▶ DEPLOY_ENV=$(DEPLOY_ENV)  DEPLOY_TYPE=$(DEPLOY_TYPE)  DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)"
 
 # ============================================================================
 # Environment-Specific Configuration Loading
@@ -1182,27 +1178,27 @@ provision-infra-destroy:
 	@echo "⚠️  Destroying infrastructure [env=$(DEPLOY_ENV)]..."
 	@bash infra/scripts/provision-infra.sh $(DEPLOY_ENV) destroy
 deploy-ycode:
-	@echo "🚀 Deploying YCode to dev [branch=$(DEPLOY_BRANCH)]..."
+	@echo "🚀 Deploying YCode [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
 	@bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH)
 
 deploy-ycampus:
-	@echo "🚀 Deploying YCampus to dev [branch=$(DEPLOY_BRANCH)]..."
+	@echo "🚀 Deploying YCampus [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
 	@bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH)
 
 deploy-ylabs:
-	@echo "🚀 Deploying YLabs to dev [branch=$(DEPLOY_BRANCH)]..."
+	@echo "🚀 Deploying YLabs [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
 	@bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH)
 
 deploy-yhub:
-	@echo "🚀 Deploying YHub to dev [branch=$(DEPLOY_BRANCH)]..."
+	@echo "🚀 Deploying YHub [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
 	@bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH)
 
 deploy-ymarketplace:
-	@echo "🚀 Deploying YMarketplace to dev [branch=$(DEPLOY_BRANCH)]..."
+	@echo "🚀 Deploying YMarketplace [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
 	@bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH)
 
 deploy-code-executor:
-	@echo "🚀 Deploying Code Executor to dev [branch=$(DEPLOY_BRANCH)]..."
+	@echo "🚀 Deploying Code Executor [ENV=$(DEPLOY_ENV), INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."
 	@bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH)
 
 # ============================================================================

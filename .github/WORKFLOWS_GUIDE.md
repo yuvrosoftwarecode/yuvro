@@ -4,42 +4,38 @@ This document describes all GitHub Actions workflows for Yuvro infrastructure an
 
 ## Workflow Organization
 
-Workflows are organized by environment in dedicated subdirectories:
+Workflows are organized using environment prefixes and are located in `.github/workflows/` root directory (GitHub Actions does not support subdirectories):
 
 ```
 .github/workflows/
-├── dev_ec2/                    # Development (EC2 + Docker Compose)
-│   ├── deploy_ec2.yml          # Deploy Services to EC2
-│   ├── deploy_infra.yml        # Infrastructure management (plan/apply/plan & apply/destroy)
-│   └── setup_fixtures.yml      # Setup Test Fixtures
+├── dev_ec2_deploy_ec2.yml           # Dev - Deploy Services to EC2
+├── dev_ec2_deploy_infra.yml         # Dev - Infrastructure (OpenTofu)
+├── dev_ec2_setup_fixtures.yml       # Dev - Setup Test Fixtures
 │
-├── prod/                       # Production Shared Workflows
-│   └── create_release.yml      # Create Production Release (GHCR)
+├── prod_create_release.yml          # Prod - Create Release (GHCR - Shared)
 │
-├── prod_ecs/                   # Production ECS (Primary)
-│   ├── deploy_infra_ecs.yml    # Deploy Infrastructure (plan/apply/plan & apply/destroy)
-│   ├── deploy_release_ecs.yml  # Deploy Release to ECS
-│   └── setup_fixtures.yml      # Setup Fixtures
+├── prod_ecs_deploy_infra.yml        # Prod ECS - Deploy Infrastructure
+├── prod_ecs_deploy_release.yml      # Prod ECS - Deploy Release
+├── prod_ecs_setup_fixtures.yml      # Prod ECS - Setup Fixtures
 │
-├── prod_eks/                   # Production Kubernetes (Future)
-│   ├── deploy_infra_k8s.yml    # Deploy Infrastructure (plan/apply/plan & apply/destroy)
-│   └── deploy_release_k8s.yml  # Deploy Release to K8s
+├── prod_eks_deploy_infra.yml        # Prod EKS - Deploy Infrastructure
+├── prod_eks_deploy_release.yml      # Prod EKS - Deploy Release
 │
-└── WORKFLOWS_GUIDE.md          # This guide
+└── WORKFLOWS_GUIDE.md               # This guide
 ```
 
-**Environment Naming:**
-- `dev_ec2` - Development environment using EC2 + Docker Compose
-- `prod` - Production shared workflows (release creation for both ECS and EKS)
-- `prod_ecs` - Production environment using ECS (current primary)
-- `prod_eks` - Production environment using Kubernetes (future alternative)
+**Naming Convention:**
+- `dev_ec2_*` - Development environment (EC2 + Docker Compose)
+- `prod_ecs_*` - Production ECS environment (primary)
+- `prod_eks_*` - Production Kubernetes environment (future)
+- `prod_create_release` - Shared release workflow (works for both ECS and EKS)
 
 ---
 
 ## Development Workflows
 
 ### Dev - Deploy Infrastructure (OpenTofu)
-**File**: `.github/workflows/dev_ec2/deploy_infra.yml`
+**File**: `dev_deploy_infra.yml`
 **Purpose**: Manage development OpenTofu infrastructure
 **Trigger**: Manual workflow dispatch
 
@@ -72,7 +68,7 @@ Workflows are organized by environment in dedicated subdirectories:
 ---
 
 ### Dev - Deploy Services to EC2
-**File**: `.github/workflows/dev_ec2/deploy_ec2.yml`
+**File**: `dev_deploy_ec2.yml`
 **Purpose**: Deploy services to EC2 dev environment
 **Trigger**: Manual workflow dispatch
 
@@ -85,7 +81,7 @@ Workflows are organized by environment in dedicated subdirectories:
 ---
 
 ### Dev - Setup Test Fixtures
-**File**: `.github/workflows/dev_ec2/setup_fixtures.yml`
+**File**: `dev_setup_fixtures.yml`
 **Purpose**: Load test data into dev databases
 **Trigger**: Manual workflow dispatch
 
@@ -94,7 +90,7 @@ Workflows are organized by environment in dedicated subdirectories:
 ## Production Workflows
 
 ### Prod - Create Release
-**File**: `.github/workflows/prod/create_release.yml`
+**File**: `prod_create_release.yml`
 **Purpose**: Create production releases with GitHub Container Registry (GHCR) images
 **Trigger**: Manual workflow dispatch
 
