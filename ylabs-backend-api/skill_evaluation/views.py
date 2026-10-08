@@ -55,13 +55,42 @@ def get_emails_list(emails):
             if isinstance(parsed, dict):
                 return list(parsed.keys())
             if isinstance(parsed, list):
-                return parsed
+                return [e.get('email') if isinstance(e, dict) else e for e in parsed]
             return [emails]
         except Exception:
             return [emails]
     if isinstance(emails, list):
-        return emails
+        return [e.get('email') if isinstance(e, dict) else e for e in emails]
     return []
+
+def get_emails_with_names(emails):
+    result = {}
+    if not emails:
+        return result
+    if isinstance(emails, str):
+        try:
+            parsed = json.loads(emails)
+            emails = parsed
+        except Exception:
+            return {emails: ""}
+    
+    if isinstance(emails, dict):
+        for k, v in emails.items():
+            if isinstance(v, dict):
+                result[k] = v.get("name", "")
+            else:
+                result[k] = ""
+        return result
+        
+    if isinstance(emails, list):
+        for e in emails:
+            if isinstance(e, dict):
+                email = e.get("email")
+                if email:
+                    result[email] = e.get("name", "")
+            elif isinstance(e, str):
+                result[e] = ""
+    return result
 
 class EvaluationViewSet(viewsets.ModelViewSet):
     serializer_class = EvaluationSerializer
@@ -118,30 +147,77 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         return Response(data)
     
     def perform_create(self, serializer):
-        user = self.request.user
-        if not user or not user.is_authenticated:
-            User = get_user_model()
-            user = User.objects.first()
+        user = self.request.user if self.request and hasattr(self.request, 'user') and self.request.user.is_authenticated else None
+        if not user:
+            user = User.objects.filter(username="default_recruiter").first()
             if not user:
                 user = User.objects.create(username="default_recruiter", email="default@example.com")
+        
+        # Ensure dict format
+        validated_data = serializer.validated_data
+        invited = validated_data.get('candidate_invited_emails', [])
+        names_dict = get_emails_with_names(invited)
+        
+        if isinstance(invited, list):
+            now_ms = int(time.time() * 1000)
+            validated_data['candidate_invited_emails'] = {e: {"invited_at": now_ms, "name": names_dict.get(e, "")} for e in get_emails_list(invited)}
+            
         instance = serializer.save(created_by=user)
         subject = self.request.data.get('subject', None) if hasattr(self, 'request') else None
         body = self.request.data.get('body', None) if hasattr(self, 'request') else None
+        
         if instance.is_published and instance.candidate_invited_emails:
-            self.send_invitation_emails(instance, instance.candidate_invited_emails, subject=subject, body=body)
-
+            emails_to_send = [{"email": k, "name": v.get("name", "") if isinstance(v, dict) else ""} for k, v in instance.candidate_invited_emails.items()]
+            self.send_invitation_emails(instance, emails_to_send, subject=subject, body=body)
 
     def perform_update(self, serializer):
         old_instance = self.get_object()
         old_emails = set(get_emails_list(old_instance.candidate_invited_emails))
-        instance = serializer.save()
         
+        validated_data = serializer.validated_data
+        if 'candidate_invited_emails' in validated_data:
+            invited = validated_data['candidate_invited_emails']
+            names_dict = get_emails_with_names(invited)
+            
+            # merge with old
+            current = old_instance.candidate_invited_emails
+            if isinstance(current, list):
+                current = {e: {"invited_at": int(old_instance.created_at.timestamp() * 1000), "name": ""} for e in current}
+            elif not isinstance(current, dict):
+                current = {}
+                
+            for k, v in current.items():
+                if not isinstance(v, dict):
+                    current[k] = {"invited_at": v, "name": ""}
+                    
+            now_ms = int(time.time() * 1000)
+            new_invited = get_emails_list(invited)
+            
+            final_invited = {}
+            for e in new_invited:
+                if e in current:
+                    final_invited[e] = current[e]
+                    # update name if provided and wasn't there
+                    if names_dict.get(e):
+                        final_invited[e]["name"] = names_dict[e]
+                else:
+                    final_invited[e] = {"invited_at": now_ms, "name": names_dict.get(e, "")}
+            
+            validated_data['candidate_invited_emails'] = final_invited
+            
+        instance = serializer.save()
         subject = self.request.data.get('subject', None) if hasattr(self, 'request') else None
         body = self.request.data.get('body', None) if hasattr(self, 'request') else None
+        
         if instance.is_published and instance.candidate_invited_emails:
-            new_emails = set(get_emails_list(instance.candidate_invited_emails)) - old_emails
+            if not old_instance.is_published:
+                new_emails = set(get_emails_list(instance.candidate_invited_emails))
+            else:
+                new_emails = set(get_emails_list(instance.candidate_invited_emails)) - old_emails
+                
             if new_emails:
-                self.send_invitation_emails(instance, new_emails, subject=subject, body=body)
+                emails_to_send = [{"email": e, "name": instance.candidate_invited_emails[e].get("name", "") if isinstance(instance.candidate_invited_emails[e], dict) else ""} for e in new_emails]
+                self.send_invitation_emails(instance, emails_to_send, subject=subject, body=body)
 
 
     def send_invitation_emails(self, evaluation, emails, subject=None, body=None):
@@ -156,7 +232,8 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         template = request.data.get('template', '')
         
         emails_list = get_emails_list(emails)
-
+        names_dict = get_emails_with_names(emails)
+        
         if not emails_list:
             return Response({"error": "No emails provided."}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -171,28 +248,31 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 
         if isinstance(current_invited, list):
             fallback_ts = int(evaluation.created_at.timestamp() * 1000)
-            current_invited = {email: fallback_ts for email in current_invited}
+            current_invited = {email: {"invited_at": fallback_ts, "name": ""} for email in current_invited}
         elif not isinstance(current_invited, dict):
             current_invited = {}
             
+        # Ensure dict format is { email: { invited_at, name } }
+        for k, v in current_invited.items():
+            if not isinstance(v, dict):
+                current_invited[k] = {"invited_at": v, "name": ""}
+                
         now_ms = int(time.time() * 1000)
+        actually_new = []
         for email in new_emails:
             if email not in current_invited:
-                current_invited[email] = now_ms
+                current_invited[email] = {"invited_at": now_ms, "name": names_dict.get(email, "")}
+                actually_new.append({"email": email, "name": names_dict.get(email, "")})
+            else:
+                if names_dict.get(email):
+                    current_invited[email]["name"] = names_dict[email]
                 
         evaluation.candidate_invited_emails = current_invited
         evaluation.save(update_fields=['candidate_invited_emails', 'updated_at'])
         
-        # Optionally, we could use the custom template here for send_mail
-        # But we'll fallback to send_evaluation_email for simplicity
-        if template:
-            # Custom logic if needed
-            pass
-            
-        self.send_invitation_emails(evaluation, list(new_emails), subject=subject, body=body or template)
-
+        self.send_invitation_emails(evaluation, actually_new, subject=subject, body=body or template)
         
-        return Response({"status": "success", "invited": list(new_emails)})
+        return Response({"status": "success", "invited": emails_list})
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def public_register(self, request, pk=None):

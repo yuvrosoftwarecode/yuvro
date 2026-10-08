@@ -343,7 +343,7 @@ export interface Evaluation {
   sections: Section[];
   invite?: {
     type: "email" | "link" | "csv";
-    emails: string[];
+    emails: Array<{name: string; email: string}> | string[];
     expiry: "7" | "14" | "30" | "custom";
     attempts: "1" | "2" | "unlimited";
     link?: string;
@@ -389,6 +389,18 @@ function mapBackendToFrontend(be: any): Evaluation {
     } catch {}
   }
 
+  let parsedEmails: Array<{name: string, email: string}> = [];
+    if (Array.isArray(be.candidate_invited_emails)) {
+      parsedEmails = be.candidate_invited_emails.map((e: any) => typeof e === 'string' ? {name: '', email: e} : {name: e.name || '', email: e.email});
+    } else if (be.candidate_invited_emails && typeof be.candidate_invited_emails === 'object') {
+      parsedEmails = Object.entries(be.candidate_invited_emails).map(([email, data]: [string, any]) => {
+        if (typeof data === 'object' && data !== null) {
+          return { email, name: data.name || '' };
+        }
+        return { email, name: '' };
+      });
+    }
+
   return {
     id: be.id,
     title: be.title || "Untitled Evaluation",
@@ -407,7 +419,7 @@ function mapBackendToFrontend(be: any): Evaluation {
     invite: be.candidate_invited_emails?.length || expiry_datetime
       ? {
           type: "email",
-          emails: be.candidate_invited_emails || [],
+          emails: parsedEmails,
           expiry: expiry_preset,
           attempts: settings.attempts || "1",
         }
@@ -1074,7 +1086,7 @@ export async function saveFollowUps(evaluationId: string, data: any): Promise<an
   }
 }
 
-export async function inviteCandidates(evaluationId: string, emails: string[], subject: string = "", body: string = ""): Promise<any> {
+export async function inviteCandidates(evaluationId: string, emails: Array<{name: string; email: string}> | string[], subject: string = "", body: string = ""): Promise<any> {
   try {
     return await restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/invite/`, { emails, subject, body });
   } catch (err) {
