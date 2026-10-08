@@ -360,6 +360,11 @@ run_deploy() {
     else
         print_info "GitHub deploy key not found, skipping"
     fi
+    
+    # Copy ymarketplace deploy key if available (for private submodule access)
+    if [ -f "$HOME/.ssh/ymarketplace-deploy-key" ]; then
+        scp_ec2 "$HOME/.ssh/ymarketplace-deploy-key" "ubuntu@$ip:/home/ubuntu/.ssh/ymarketplace_deploy_key"
+    fi
 
     # Wire + copy secrets
     wire_secrets "$app"
@@ -388,6 +393,12 @@ Host github.com
   User git
   IdentityFile /home/ubuntu/.ssh/github_deploy_key
   StrictHostKeyChecking no
+
+Host github-ymarketplace
+  HostName github.com
+  User git
+  IdentityFile /home/ubuntu/.ssh/ymarketplace_deploy_key
+  StrictHostKeyChecking no
 SSHCFG
 chmod 600 /home/ubuntu/.ssh/config
 
@@ -409,6 +420,13 @@ echo "   ✓ main repo cloned  [elapsed \$(( \$(date +%s)-T1 ))s]"
 echo "── initializing submodules ────────────────────────"
 T2=\$(date +%s)
 git submodule sync --recursive
+
+# For ymarketplace, use the same deploy key as main repo if ymarketplace key not available
+if [ ! -f /home/ubuntu/.ssh/ymarketplace_deploy_key ] && [ -f /home/ubuntu/.ssh/github_deploy_key ]; then
+    cp /home/ubuntu/.ssh/github_deploy_key /home/ubuntu/.ssh/ymarketplace_deploy_key
+    chmod 600 /home/ubuntu/.ssh/ymarketplace_deploy_key
+fi
+
 git submodule update --init --recursive --force
 echo "   ✓ submodules initialized  [elapsed \$(( \$(date +%s)-T2 ))s]"
 
