@@ -1,3 +1,4 @@
 [submodule "ymarketplace"]
 	path = ymarketplace
 	url = https://github.com/yuvrosoftwarecode/yuvro-marketplace.git
+	branch = main
