@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link, Outlet, useLocation } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { z } from "zod";
 import {
   ChevronLeft,
@@ -2887,7 +2887,11 @@ function PublishScreen({
 }) {
   const [isPublishing, setIsPublishing] = useState(false);
   const [type, setType] = useState<"email" | "link" | "csv">("email");
-  const [emails, setEmails] = useState("");
+  const [recipients, setRecipients] = useState<string[]>([]);
+  const [emailsInput, setEmailsInput] = useState("");
+  const [subject, setSubject] = useState(`Invitation: ${ev.title}`);
+  const [body, setBody] = useState(`Hi {{name}},\n\nYou've been invited to take the {{evaluation}} assessment by {{company}}.\n\nClick the button below to get started:\n\n{{link}}\n\nGood luck!\n{{company}} Team`);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
   const [csvError, setCsvError] = useState("");
   const [csvSuccess, setCsvSuccess] = useState("");
   const [expiry, setExpiry] = useState<"7" | "14" | "30" | "custom">(ev.invite?.expiry || "14");
@@ -2902,27 +2906,29 @@ function PublishScreen({
   );
   const [copied, setCopied] = useState(false);
 
-  const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCsvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setCsvError("");
     setCsvSuccess("");
     const f = e.target.files?.[0];
     if (!f) return;
 
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const text = evt.target?.result as string;
-      const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+    try {
+      const arrayBuffer = await f.arrayBuffer();
+      const XLSX = await import("xlsx");
+      const workbook = XLSX.read(arrayBuffer, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json<any>(worksheet);
 
-      if (lines.length === 0) {
-        setCsvError("CSV file is empty.");
+      if (data.length === 0) {
+        setCsvError("File is empty.");
         return;
       }
 
-      const headers = parseCSVLine(lines[0]).map((h) => h.trim().toLowerCase());
-      const emailIdx = headers.findIndex((h) => h === "email");
+      const emailKey = Object.keys(data[0]).find((h) => h.toLowerCase().trim() === "email" || h.toLowerCase().trim() === "email address");
 
-      if (emailIdx === -1) {
-        setCsvError("Invalid CSV format. Missing 'email' column header.");
+      if (!emailKey) {
+        setCsvError("Invalid format. Missing 'email' column header.");
         return;
       }
 
@@ -2930,43 +2936,77 @@ function PublishScreen({
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       let invalidCount = 0;
 
-      for (let i = 1; i < lines.length; i++) {
-        const cols = parseCSVLine(lines[i]);
-        const emailStr = cols[emailIdx]?.trim();
-        if (emailStr) {
-          if (emailRegex.test(emailStr)) {
-            parsedEmails.add(emailStr);
+      data.forEach((row) => {
+        const email = row[emailKey]?.toString().trim();
+        if (email) {
+          if (emailRegex.test(email)) {
+            parsedEmails.add(email);
           } else {
             invalidCount++;
           }
         }
-      }
+      });
 
       if (parsedEmails.size === 0) {
-        setCsvError(`No valid emails found in CSV. ${invalidCount} invalid entries.`);
+        setCsvError(`No valid emails found. ${invalidCount} invalid entries.`);
         return;
       }
 
-      setEmails(Array.from(parsedEmails).join("\n"));
-      setCsvSuccess(
-        `Successfully loaded ${parsedEmails.size} valid emails.` +
-          (invalidCount > 0 ? ` Ignored ${invalidCount} invalid.` : ""),
-      );
-    };
-    reader.readAsText(f);
+      setRecipients(Array.from(parsedEmails));
+      setCsvSuccess(`Successfully loaded ${parsedEmails.size} valid emails.` + (invalidCount > 0 ? ` Ignored ${invalidCount} invalid.` : ""));
+    } catch (err) {
+      setCsvError("Failed to parse file.");
+    }
+  };
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const addRecipients = (raw: string) => {
+    const list = raw.split(/[,\n\s]+/).map(s => s.trim()).filter(Boolean);
+    const valid = list.filter(e => emailRegex.test(e));
+    if (valid.length > 0) {
+      setRecipients(prev => Array.from(new Set([...prev, ...valid])));
+      setEmailsInput("");
+    }
+  };
+
+  const handleEmailInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === "," || e.key === " ") {
+      e.preventDefault();
+      addRecipients(emailsInput);
+    } else if (e.key === "Backspace" && !emailsInput && recipients.length > 0) {
+      setRecipients(prev => prev.slice(0, -1));
+    }
+  };
+
+  const removeRecipient = (r: string) => setRecipients(prev => prev.filter(x => x !== r));
+
+  const insertPlaceholder = (ph: string) => {
+    if (bodyRef.current) {
+      const start = bodyRef.current.selectionStart;
+      const end = bodyRef.current.selectionEnd;
+      const newBody = body.substring(0, start) + ph + body.substring(end);
+      setBody(newBody);
+      setTimeout(() => {
+        if (bodyRef.current) {
+          bodyRef.current.focus();
+          bodyRef.current.setSelectionRange(start + ph.length, start + ph.length);
+        }
+      }, 0);
+    } else {
+      setBody(body + ph);
+    }
   };
 
   const submit = async () => {
     if (isPublishing) return;
-    if (type === "csv" && !emails) {
-      alert("Please upload a valid CSV first.");
+    const pendingInputEmails = emailsInput ? emailsInput.split(/[,\n\s]+/).map(s => s.trim()).filter(e => emailRegex.test(e)) : [];
+    const finalRecipients = Array.from(new Set([...recipients, ...pendingInputEmails]));
+    
+    if (type === "csv" && finalRecipients.length === 0) {
+      alert("Please upload a valid CSV/Excel file first.");
       return;
     }
-    const list = emails
-      .split(/[,\n\s]+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if ((type === "email" || type === "csv") && list.length === 0) {
+    if ((type === "email" || type === "csv") && finalRecipients.length === 0) {
       alert("Please provide at least one valid email.");
       return;
     }
@@ -2978,7 +3018,7 @@ function PublishScreen({
         ev.expiry_time = customTime;
         ev.expiry_timezone = customTz;
       }
-      await onPublish({ type: publishType, emails: list, expiry, attempts, link });
+      await onPublish({ type: publishType, emails: finalRecipients, expiry, attempts, link, subject, body });
     } catch (err) {
       console.error(err);
       setIsPublishing(false);
@@ -3026,17 +3066,29 @@ function PublishScreen({
         <div className="mt-6 rounded-2xl border border-white/5 bg-white/[0.02] p-5">
           {type === "email" && (
             <div>
-              <div className="text-[11px] uppercase tracking-widest text-neutral-500">
+              <div className="text-[11px] uppercase tracking-widest text-neutral-500 mb-2">
                 Candidate Emails
               </div>
-              <textarea
-                value={emails}
-                onChange={(e) => setEmails(e.target.value)}
-                disabled={isPublishing}
-                rows={4}
-                placeholder="candidate@example.com, another@example.com"
-                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-3 text-[12px] outline-none focus:border-emerald-400/60 disabled:opacity-50"
-              />
+              <div className="flex min-h-[46px] flex-wrap gap-2 rounded-lg border border-white/10 bg-black/30 p-2 focus-within:border-emerald-400/60 transition-colors">
+                {recipients.map((r) => (
+                  <span key={r} className="flex items-center gap-1.5 rounded-md bg-white/10 px-2.5 py-1 text-[12px] text-neutral-200">
+                    {r}
+                    <button onClick={() => removeRecipient(r)} disabled={isPublishing} className="text-neutral-400 hover:text-white">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  type="text"
+                  value={emailsInput}
+                  onChange={(e) => setEmailsInput(e.target.value)}
+                  onKeyDown={handleEmailInput}
+                  onBlur={() => addRecipients(emailsInput)}
+                  disabled={isPublishing}
+                  placeholder={recipients.length === 0 ? "candidate1@example.com, candidate2@example.com..." : ""}
+                  className="min-w-[200px] flex-1 bg-transparent px-1 text-[12px] text-white outline-none placeholder:text-neutral-500"
+                />
+              </div>
             </div>
           )}
           {type === "link" && (
@@ -3092,6 +3144,42 @@ function PublishScreen({
             </div>
           )}
         </div>
+
+        {(type === "email" || type === "csv") && (
+            <div className="mt-6 space-y-4 pt-6 border-t border-white/5">
+              <div>
+                <div className="text-[11px] uppercase tracking-widest text-neutral-500 mb-2">
+                  Email Subject
+                </div>
+                <input
+                  type="text"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  disabled={isPublishing}
+                  className="w-full rounded-lg border border-white/10 bg-black/30 p-3 text-[12px] outline-none focus:border-emerald-400/60 disabled:opacity-50 text-white"
+                />
+              </div>
+              <div>
+                <div className="text-[11px] uppercase tracking-widest text-neutral-500 mb-2 flex items-center justify-between">
+                  <span>Email Body</span>
+                  <div className="flex gap-2">
+                    <button onClick={() => insertPlaceholder('{{name}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Name</button>
+                    <button onClick={() => insertPlaceholder('{{evaluation}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Evaluation</button>
+                    <button onClick={() => insertPlaceholder('{{company}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Company</button>
+                    <button onClick={() => insertPlaceholder('{{link}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Link</button>
+                  </div>
+                </div>
+                <textarea
+                  ref={bodyRef}
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  disabled={isPublishing}
+                  rows={8}
+                  className="w-full rounded-lg border border-white/10 bg-black/30 p-3 text-[12px] outline-none focus:border-emerald-400/60 disabled:opacity-50 text-white font-mono leading-relaxed resize-none"
+                />
+              </div>
+            </div>
+          )}
 
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">

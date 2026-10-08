@@ -347,6 +347,8 @@ export interface Evaluation {
     expiry: "7" | "14" | "30" | "custom";
     attempts: "1" | "2" | "unlimited";
     link?: string;
+    subject?: string;
+    body?: string;
   };
   settings?: Record<string, any>;
   createdBy?: string;
@@ -507,15 +509,19 @@ function mapFrontendToBackend(fe: Evaluation): any {
   if (fe.expiry_timezone) settings.expiry_timezone = fe.expiry_timezone;
   if (fe.invite?.expiry) settings.expiry_preset = fe.invite.expiry;
 
-  return {
+  
+  const payload: any = {
     title: fe.title,
     domain: mapDomainToBackend(fe.domain),
     is_published: fe.status === "published",
+    status: fe.status || "draft",
     expiry_datetime: expiry_datetime,
     settings: settings,
-    candidate_invited_emails:
-      fe.invite?.type === "email" && fe.invite?.emails ? fe.invite.emails : [],
+    candidate_invited_emails: (fe.invite?.type === "email" || fe.invite?.type === "csv") && fe.invite?.emails ? fe.invite.emails : [],
+    subject: fe.invite?.subject || undefined,
+    body: fe.invite?.body || undefined,
     sections: fe.sections.map((s: any, idx: number) => {
+
       let type = "KNOWLEDGE_ASSESSMENT";
       let qs = [];
       let desc = "";
@@ -558,6 +564,8 @@ function mapFrontendToBackend(fe: Evaluation): any {
       };
     }),
   };
+
+  return payload;
 }
 
 export async function listEvaluations(): Promise<Evaluation[]> {
