@@ -1,0 +1,81 @@
+{
+  "lab_questions": [
+    {
+      "title": "Enforcing Concurrent Device Limits",
+      "type": "BACKEND",
+      "description": "A video streaming service allows 2 active devices for basic users. Users are sharing their passwords with 10 people simultaneously.",
+      "difficulty": "HARD",
+      "domain": "STREAMING",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 80,
+      "marks": 30,
+      "scenario": "FEATURE_IMPLEMENTATION",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/enforcing-concurrent-device-limits",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Session Eviction Logic",
+          "description": "The login endpoint issues JWTs endlessly.\n\n**Goal:** Track active sessions in the database or Redis. Upon a new login, check `active_session_count`. If it exceeds the limit (2), automatically revoke or delete the *oldest* active session token.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 45,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "List Active Devices",
+          "description": "Users should be able to view all devices currently streaming on their account.\n\n**Goal:** Implement a `GET /api/streaming/sessions/` endpoint. It must require authentication and return a JSON array of all active sessions belonging to the authenticated user, serialized exactly as `[{\"token\": \"...\", \"created_at\": \"...\"}]` sorted by oldest first.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Manual Device Revocation",
+          "description": "Users should be able to manually revoke a specific session to kick off another user.\n\n**Goal:** Implement a `DELETE /api/streaming/sessions/<token>/` endpoint. It must require authentication. If the specified token belongs to the authenticated user, delete it from the database and return `204 No Content`. If the token does not exist or belongs to a different user, return `404 Not Found`.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 20,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ],
+      "allow_task_selection": false
+    }
+  ]
+}
