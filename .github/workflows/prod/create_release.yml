@@ -28,11 +28,12 @@ on:
 
 permissions:
   contents: write
+  packages: write
   id-token: write
 
 env:
-  AWS_REGION: ap-south-1
-  ECR_REGISTRY_PREFIX: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+  REGISTRY: ghcr.io
+  REGISTRY_USERNAME: ${{ github.actor }}
 
 jobs:
   prepare-release:
@@ -79,15 +80,11 @@ jobs:
             fi
             
             # Extract PR titles from commit messages
-            # GitHub automatically creates merge commit messages like: "Merge pull request #123 from branch/name"
-            # and squash merge messages include: (#123)
             PR_NOTES=$(git log $COMMIT_RANGE --grep="Merge pull request\|#[0-9]" --pretty=format:"%b" --no-decorate | \
               grep -oE "(Merge pull request #[0-9]+|#[0-9]+)" | \
               sort -u | \
               while read pr_ref; do
-                # Extract just the number
                 PR_NUM=$(echo "$pr_ref" | grep -oE "[0-9]+")
-                # Try to get full commit message which may contain PR title
                 TITLE=$(git log $COMMIT_RANGE --format=%B | grep -A 1 "Merge pull request #$PR_NUM" | tail -1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
                 if [ -n "$TITLE" ] && [ "$TITLE" != "Merge pull request" ]; then
                   echo "- $TITLE (PR #$PR_NUM)"
@@ -108,9 +105,9 @@ jobs:
             ### Pull Requests
             $PR_NOTES
             
-            ## Docker Images
-            All built images are available in ECR at:
-            - ${{ env.ECR_REGISTRY_PREFIX }}
+            ## Container Images
+            All built images are available in GitHub Container Registry (GHCR) at:
+            - ${{ env.REGISTRY }}/${{ github.repository_owner }}/
             EOF
             )
           else
@@ -206,8 +203,8 @@ jobs:
           body: |
             ${{ needs.prepare-release.outputs.release_notes }}
             
-            ### ECR Registry
-            `${{ env.ECR_REGISTRY_PREFIX }}`
+            ### GHCR Registry
+            `${{ env.REGISTRY }}/${{ github.repository_owner }}/`
           draft: false
           prerelease: false
 
@@ -227,17 +224,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registries: ${{ secrets.AWS_ACCOUNT_ID }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.REGISTRY_USERNAME }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push - ${{ matrix.service.name }}
         uses: docker/build-push-action@v5
@@ -246,8 +238,8 @@ jobs:
           file: ./${{ matrix.service.dockerfile }}
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY_PREFIX }}/${{ matrix.service.name }}:${{ needs.prepare-release.outputs.release_version }}
-            ${{ env.ECR_REGISTRY_PREFIX }}/${{ matrix.service.name }}:latest
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.service.name }}:${{ needs.prepare-release.outputs.release_version }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.service.name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -255,7 +247,7 @@ jobs:
         run: |
           echo "✅ Pushed: ${{ matrix.service.name }}"
           echo "   Version: ${{ needs.prepare-release.outputs.release_version }}"
-          echo "   URI: ${{ env.ECR_REGISTRY_PREFIX }}/${{ matrix.service.name }}:${{ needs.prepare-release.outputs.release_version }}"
+          echo "   URI: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.service.name }}:${{ needs.prepare-release.outputs.release_version }}"
 
   build-summary:
     needs: [prepare-release, create-release, build-and-push-images]
@@ -269,8 +261,8 @@ jobs:
           echo "=========================================="
           echo ""
           echo "✅ GitHub Release created"
-          echo "✅ Docker images built and pushed to ECR"
+          echo "✅ Docker images built and pushed to GHCR"
           echo ""
-          echo "ECR Registry: ${{ env.ECR_REGISTRY_PREFIX }}"
+          echo "GHCR Registry: ${{ env.REGISTRY }}/${{ github.repository_owner }}/"
           echo ""
-          echo "📝 Next: Deploy using 'Prod - Deploy Release to K8s' workflow"
+          echo "📝 Next: Deploy using 'Prod - Deploy Release to ECS' or 'Prod - Deploy Release to K8s' workflow"

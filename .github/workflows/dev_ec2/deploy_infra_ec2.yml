@@ -1,4 +1,4 @@
-name: Dev - Deploy Infrastructure (OpenTofu)
+name: Dev - Deploy Infrastructure (EC2)
 
 on:
   workflow_dispatch:
@@ -11,6 +11,7 @@ on:
         options:
           - plan
           - apply
+          - plan & apply
           - destroy
 
 jobs:
@@ -72,6 +73,22 @@ jobs:
         elif [ "$ACTION" = "apply" ]; then
           echo "📋 Planning infrastructure changes..."
           tofu plan -var-file=../dev.tfvars -var="db_master_password=$DB_MASTER_PASSWORD" -out=tfplan
+          
+          echo "✅ Applying infrastructure changes..."
+          tofu apply tfplan
+          rm -f tfplan
+          
+          echo ""
+          echo "📊 Infrastructure Outputs:"
+          tofu output
+          
+        elif [ "$ACTION" = "plan & apply" ]; then
+          echo "📋 Planning infrastructure changes..."
+          tofu plan -var-file=../dev.tfvars -var="db_master_password=$DB_MASTER_PASSWORD" -out=tfplan
+          
+          echo ""
+          echo "⏳ Waiting 3 seconds before applying (review the plan above)..."
+          sleep 3
           
           echo "✅ Applying infrastructure changes..."
           tofu apply tfplan
