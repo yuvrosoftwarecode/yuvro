@@ -135,7 +135,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'is_public', 'domain', 
             'candidate_invited_emails', 'experience_level', 
-            'maximum_attempts', 'expiry_datetime', 'is_published', 
+            'maximum_attempts', 'start_datetime', 'expiry_datetime', 'is_published', 
             'settings', 'sections', 'created_at', 'updated_at', 'created_by',
             'completed_candidates_count', 'candidates_invited_count', 'total_candidates_count'
         ]

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { getLab, type AdminLab } from "@/lib/adminLabs";
 import { loadSprints, type LabSprint } from "@/lib/labSprints";
@@ -35,10 +35,11 @@ function AdminLabReportWrapper() {
                 testPct = parsed?.percentage ?? parsed?.total_score ?? 0;
               } catch (e) {}
             }
+            const isEvaluated = s.ticket_status === "done" || s.ticket_status === "in_review";
             overrides[s.lab_sprint_ticket] = {
               status: s.ticket_status,
               percentage: testPct,
-              earnedXp: s.yuvro_points > 0 ? s.yuvro_points : 0,
+              earnedXp: isEvaluated ? (s.yuvro_points ?? 0) : 0,
               minutes: s.minutes_solved ?? 0
             };
           }

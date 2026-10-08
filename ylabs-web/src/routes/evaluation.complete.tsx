@@ -154,21 +154,7 @@ function CompletePage() {
           </div>
         </div>
 
-        <div className="mx-auto mt-12 max-w-xs">
-          <PrimaryButton type="button" onClick={() => nav({ to: "/dashboard" })}>
-            Go to dashboard
-          </PrimaryButton>
-        </div>
-
 </>)}
-        
-        {isGuest && (
-          <div className="mx-auto mt-12 max-w-xs">
-            <PrimaryButton type="button" onClick={() => nav({ to: "/student/dashboard" })}>
-              Go to dashboard
-            </PrimaryButton>
-          </div>
-        )}
       </div>
     </EvalShell>
   );

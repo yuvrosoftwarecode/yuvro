@@ -343,17 +343,17 @@ export interface Evaluation {
   sections: Section[];
   invite?: {
     type: "email" | "link" | "csv";
-    emails: string[];
+    emails: Array<{name: string; email: string}> | string[];
     expiry: "7" | "14" | "30" | "custom";
     attempts: "1" | "2" | "unlimited";
     link?: string;
+    subject?: string;
+    body?: string;
   };
   settings?: Record<string, any>;
   createdBy?: string;
+  start_datetime?: string | null;
   expiry_datetime?: string | null;
-  expiry_date?: string;
-  expiry_time?: string;
-  expiry_timezone?: string;
 }
 
 // Ensure unique ID generation
@@ -367,25 +367,18 @@ const API_BASE = (
 
 function mapBackendToFrontend(be: any): Evaluation {
   const settings = be.settings || {};
-  let expiry_datetime = be.expiry_datetime || settings.expiry_datetime || null;
-  let expiry_date = settings.expiry_date || "";
-  let expiry_time = settings.expiry_time || "";
-  let expiry_timezone = settings.expiry_timezone || (typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC");
-  let expiry_preset: "7" | "14" | "30" | "custom" = settings.expiry_preset || "14";
 
-  if (expiry_datetime) {
-    try {
-      const d = new Date(expiry_datetime);
-      if (!isNaN(d.getTime())) {
-        if (!expiry_date) {
-          expiry_date = d.toISOString().split("T")[0];
+  let parsedEmails: Array<{name: string, email: string}> = [];
+    if (Array.isArray(be.candidate_invited_emails)) {
+      parsedEmails = be.candidate_invited_emails.map((e: any) => typeof e === 'string' ? {name: '', email: e} : {name: e.name || '', email: e.email});
+    } else if (be.candidate_invited_emails && typeof be.candidate_invited_emails === 'object') {
+      parsedEmails = Object.entries(be.candidate_invited_emails).map(([email, data]: [string, any]) => {
+        if (typeof data === 'object' && data !== null) {
+          return { email, name: data.name || '' };
         }
-        if (!expiry_time) {
-          expiry_time = d.toISOString().split("T")[1]?.slice(0, 5) || "23:59";
-        }
-      }
-    } catch {}
-  }
+        return { email, name: '' };
+      });
+    }
 
   return {
     id: be.id,
@@ -398,15 +391,13 @@ function mapBackendToFrontend(be: any): Evaluation {
     candidatesCompleted: be.completed_candidates_count || 0,
     createdBy: be.created_by || "",
     settings: settings,
-    expiry_datetime: expiry_datetime,
-    expiry_date: expiry_date,
-    expiry_time: expiry_time,
-    expiry_timezone: expiry_timezone,
-    invite: be.candidate_invited_emails?.length || expiry_datetime
+    start_datetime: be.start_datetime || null,
+    expiry_datetime: be.expiry_datetime || null,
+    invite: be.candidate_invited_emails && Object.keys(be.candidate_invited_emails).length > 0 || be.expiry_datetime
       ? {
           type: "email",
-          emails: be.candidate_invited_emails || [],
-          expiry: expiry_preset,
+          emails: parsedEmails,
+          expiry: "14",
           attempts: settings.attempts || "1",
         }
       : undefined,
@@ -480,42 +471,28 @@ export function syncDiscussionConfig(e: Evaluation): Evaluation {
 }
 
 function mapFrontendToBackend(fe: Evaluation): any {
-  let expiry_datetime: string | null = fe.expiry_datetime || null;
   const settings = { ...(fe.settings || {}) };
 
-  if (fe.expiry_date) {
-    try {
-      const timeStr = fe.expiry_time || "23:59";
-      const dtStr = `${fe.expiry_date}T${timeStr}:00`;
-      const dateObj = new Date(dtStr);
-      if (!isNaN(dateObj.getTime())) {
-        expiry_datetime = dateObj.toISOString();
-      }
-    } catch {}
-  } else if (!expiry_datetime && fe.invite?.expiry) {
-    const preset = fe.invite.expiry;
-    if (preset === "7" || preset === "14" || preset === "30") {
-      const d = new Date();
-      d.setDate(d.getDate() + parseInt(preset, 10));
-      expiry_datetime = d.toISOString();
-    }
-  }
-
-  settings.expiry_datetime = expiry_datetime;
-  if (fe.expiry_date) settings.expiry_date = fe.expiry_date;
-  if (fe.expiry_time) settings.expiry_time = fe.expiry_time;
-  if (fe.expiry_timezone) settings.expiry_timezone = fe.expiry_timezone;
-  if (fe.invite?.expiry) settings.expiry_preset = fe.invite.expiry;
-
-  return {
+  const payload: any = {
     title: fe.title,
     domain: mapDomainToBackend(fe.domain),
     is_published: fe.status === "published",
-    expiry_datetime: expiry_datetime,
+    status: fe.status || "draft",
+    start_datetime: fe.start_datetime || null,
+    expiry_datetime: fe.expiry_datetime || null,
     settings: settings,
-    candidate_invited_emails:
-      fe.invite?.type === "email" && fe.invite?.emails ? fe.invite.emails : [],
+    candidate_invited_emails: (fe.invite?.type === "email" || fe.invite?.type === "csv") && fe.invite?.emails ? fe.invite.emails.reduce((acc: any, curr: any) => {
+      if (typeof curr === 'string') {
+        acc[curr] = { invited_at: Date.now(), name: "" };
+      } else {
+        acc[curr.email] = { invited_at: Date.now(), name: curr.name || "" };
+      }
+      return acc;
+    }, {}) : {},
+    subject: fe.invite?.subject || undefined,
+    body: fe.invite?.body || undefined,
     sections: fe.sections.map((s: any, idx: number) => {
+
       let type = "KNOWLEDGE_ASSESSMENT";
       let qs = [];
       let desc = "";
@@ -558,6 +535,8 @@ function mapFrontendToBackend(fe: Evaluation): any {
       };
     }),
   };
+
+  return payload;
 }
 
 export async function listEvaluations(): Promise<Evaluation[]> {
@@ -1066,7 +1045,7 @@ export async function saveFollowUps(evaluationId: string, data: any): Promise<an
   }
 }
 
-export async function inviteCandidates(evaluationId: string, emails: string[], subject: string = "", body: string = ""): Promise<any> {
+export async function inviteCandidates(evaluationId: string, emails: Array<{name: string; email: string}> | string[], subject: string = "", body: string = ""): Promise<any> {
   try {
     return await restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/invite/`, { emails, subject, body });
   } catch (err) {

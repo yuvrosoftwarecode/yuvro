@@ -59,6 +59,7 @@ class Evaluation(BaseTimestampedAdminModel):
         max_length=20, choices=ExperienceLevel.choices, default=ExperienceLevel.FRESHER
     )
     maximum_attempts = models.PositiveIntegerField(default=1)
+    start_datetime = models.DateTimeField(null=True, blank=True)
     expiry_datetime = models.DateTimeField(null=True, blank=True)
     is_published = models.BooleanField(default=False)
     settings = models.JSONField(default=dict, blank=True)
@@ -198,6 +199,12 @@ class LabQuestionBank(QuestionBank):
         blank=True,
         default="",
         help_text="Command to run scoring tests (e.g., 'python yuvro_scoring_rules/main_test.py')"
+    )
+    connection_url = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Pre-configured connection URL for external databases (e.g. Aiven MySQL/Postgres)"
     )
     allow_task_selection = models.BooleanField(
         default=True,
