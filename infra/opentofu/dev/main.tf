@@ -119,12 +119,14 @@ module "ec2_nodes" {
   count  = var.instance_count > 0 ? 1 : 0
   source = "../modules/ec2_nodes"
 
-  environment       = "dev"
-  instance_type     = var.instance_type
-  instance_count    = var.instance_count
-  subnet_ids        = data.aws_subnets.public.ids
-  security_group_id = module.security_groups.app_sg_id
-  key_pair_name     = var.key_pair_name
-  root_volume_size  = var.root_volume_size
-  root_volume_type  = var.root_volume_type
+  environment           = "dev"
+  deploy_env            = var.deploy_env
+  deploy_infra_type     = var.deploy_infra_type
+  instance_type         = var.instance_type
+  instance_count        = var.instance_count
+  subnet_ids            = data.aws_subnets.public.ids
+  security_group_id     = module.security_groups.app_sg_id
+  key_pair_name         = var.key_pair_name
+  root_volume_size      = var.root_volume_size
+  root_volume_type      = var.root_volume_type
 }

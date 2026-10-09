@@ -77,7 +77,7 @@ resource "aws_instance" "app_node" {
   monitoring = true
 
   tags = {
-    Name = "${var.environment}-app-node-${count.index + 1}"
+    Name = var.deploy_infra_type != "" ? "${var.deploy_env}-${var.deploy_infra_type}-app-node-${count.index + 1}" : "${var.environment}-app-node-${count.index + 1}"
     Role = "app-node"
   }
 
@@ -93,7 +93,7 @@ resource "aws_eip" "app_node" {
   domain = "vpc"
 
   tags = {
-    Name = "${var.environment}-app-node-eip-${count.index + 1}"
+    Name = var.deploy_infra_type != "" ? "${var.deploy_env}-${var.deploy_infra_type}-app-node-eip-${count.index + 1}" : "${var.environment}-app-node-eip-${count.index + 1}"
   }
 }
 

@@ -3,6 +3,18 @@ variable "environment" {
   type        = string
 }
 
+variable "deploy_env" {
+  description = "Deployment environment (dev, prod, staging)"
+  type        = string
+  default     = ""
+}
+
+variable "deploy_infra_type" {
+  description = "Deployment infrastructure type (ec2, ecs, eks)"
+  type        = string
+  default     = ""
+}
+
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
