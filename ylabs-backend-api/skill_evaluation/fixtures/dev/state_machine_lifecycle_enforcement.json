@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "State Machine Lifecycle Enforcement",
+      "type": "BACKEND",
+      "description": "Fix lifecycle transition and status validation bugs in a Django REST Framework CRM Lead API. Enforce a strict state machine lifecycle (NEW -> CONTACTED -> WON) to prevent skipping stages or saving invalid status values, while ensuring partial updates on non-status fields continue to work seamlessly.",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "ENTRY_LEVEL",
+      "duration_minutes": 30,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "State-Machine-Lifecycle-Enforcement",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Enforce Valid Status Transitions",
+          "description": "### Scenario\nCRM leads must follow a strict lifecycle:\n```text\nNEW -> CONTACTED -> WON\n```\n\n### Existing Problem\nThe current implementation allows agents to directly jump from `NEW` to `WON`, skipping the required `CONTACTED` stage.\n\n### Goal\nImplement state machine transition validation in `crm/serializers.py` so that:\n- `NEW -> CONTACTED` is allowed (`200 OK`).\n- `CONTACTED -> WON` is allowed (`200 OK`).\n- `NEW -> WON` is rejected with `400 Bad Request`, and the lead's status in the database remains `NEW`.\n\n### Scoring Criteria (4 Marks)\n- **2 marks**: Correctly allows `NEW -> CONTACTED`.\n- **1 mark**: Correctly allows `CONTACTED -> WON`.\n- **1 mark**: Rejects `NEW -> WON` with `400 Bad Request` and preserves existing status.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 40,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Validate Status Values",
+          "description": "### Scenario\nThe Lead API should only accept status values that belong to the defined lifecycle:\n```text\nNEW, CONTACTED, WON\n```\n\n### Existing Problem\nThe API does not properly validate status choices, potentially accepting unrecognized or invalid status strings.\n\n### Goal\nEnsure that sending an invalid or unrecognized status (such as `{\"status\": \"INVALID\"}`) returns `400 Bad Request` and preserves the lead's existing database status.\n\n### Scoring Criteria (3 Marks)\n- **2 marks**: Invalid status values are rejected with `400 Bad Request`.\n- **1 mark**: Lead status remains unchanged in the database after the rejected request.",
+          "difficulty": "EASY",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Allow Non-Status Field Updates",
+          "description": "### Scenario\nAgents must be able to update normal lead information (such as `phone`, `email`, `company`, or `name`) without changing the lifecycle status.\n\n### Existing Problem\nThe initial validation logic naively requires `status` on every update, causing partial updates (`PATCH`) of non-status fields to fail with validation errors.\n\n### Goal\nEnsure that updating non-status fields on a lead (e.g. `PATCH /api/crm/leads/{id}/` with `{\"phone\": \"9876543210\"}`) succeeds with `200 OK` and preserves the lead's current status.\n\n### Scoring Criteria (3 Marks)\n- **2 marks**: Partial update of non-status fields succeeds with `200 OK`.\n- **1 mark**: Lead status remains unchanged after the update.",
+          "difficulty": "EASY",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
