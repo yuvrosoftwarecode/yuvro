@@ -6,6 +6,19 @@ variable "aws_region" {
   default     = "ap-south-1"
 }
 
+# Deployment Configuration
+variable "deploy_env" {
+  description = "Deployment environment (dev, prod, staging)"
+  type        = string
+  default     = "prod"
+}
+
+variable "deploy_infra_type" {
+  description = "Deployment infrastructure type (ec2, ecs, eks)"
+  type        = string
+  default     = "eks"
+}
+
 # VPC Configuration - Production VPC with separate subnets for EKS
 variable "vpc_cidr" {
   description = "CIDR block for production VPC"

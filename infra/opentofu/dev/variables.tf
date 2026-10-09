@@ -7,6 +7,19 @@ variable "aws_region" {
   default     = "ap-south-1"
 }
 
+# Deployment Configuration
+variable "deploy_env" {
+  description = "Deployment environment (dev, prod, staging)"
+  type        = string
+  default     = "dev"
+}
+
+variable "deploy_infra_type" {
+  description = "Deployment infrastructure type (ec2, ecs, eks)"
+  type        = string
+  default     = "ec2"
+}
+
 # VPC Configuration
 variable "availability_zones" {
   description = "List of availability zones"

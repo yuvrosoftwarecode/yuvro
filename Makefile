@@ -1246,18 +1246,28 @@ db-reset-ymarketplace:
 .PHONY: deploy-infra
 
 deploy-infra: _validate-deploy
-	@if [ "$(DEPLOY_INFRA_TYPE)" != "eks" ] && [ "$(DEPLOY_INFRA_TYPE)" != "ec2" ]; then \
-		echo "❌ deploy-infra is only available for DEPLOY_INFRA_TYPE=eks or ec2"; \
+	@if [ "$(DEPLOY_INFRA_TYPE)" != "eks" ] && [ "$(DEPLOY_INFRA_TYPE)" != "ecs" ] && [ "$(DEPLOY_INFRA_TYPE)" != "ec2" ]; then \
+		echo "❌ deploy-infra is only available for DEPLOY_INFRA_TYPE=eks, ecs, or ec2"; \
 		echo "   Current: DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)"; \
 		exit 1; \
 	fi
 	@if [ "$(DEPLOY_ENV)" = "prod" ]; then \
 		echo "🚀 Deploying Infrastructure to PRODUCTION [INFRA_TYPE=$(DEPLOY_INFRA_TYPE)]..."; \
-		echo "   This will provision: EKS cluster, RDS databases, IAM roles, etc."; \
+		if [ "$(DEPLOY_INFRA_TYPE)" = "eks" ]; then \
+			echo "   This will provision: EKS cluster, RDS database (prod-yuvro-db), IAM roles, security groups, etc."; \
+		elif [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
+			echo "   This will provision: ECS cluster, RDS database (prod-yuvro-db), ALB, IAM roles, security groups, etc."; \
+		fi; \
 		echo ""; \
 		cd infra/opentofu/prod && \
 		tofu init && \
-		tofu plan -out=tfplan_prod && \
+		if [ "$(DEPLOY_INFRA_TYPE)" = "eks" ]; then \
+			TFVARS_FILE="prod.tfvars"; \
+		elif [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
+			TFVARS_FILE="prod-ecs.tfvars"; \
+		fi; \
+		echo "📋 Using tfvars: $$TFVARS_FILE"; \
+		tofu plan -var-file="$$TFVARS_FILE" -out=tfplan_prod && \
 		echo ""; \
 		echo "📋 Review the OpenTofu plan above carefully!"; \
 		read -p "Do you want to apply this plan? (yes/no): " confirm; \
@@ -1272,9 +1282,14 @@ deploy-infra: _validate-deploy
 			tofu output; \
 			echo ""; \
 			echo "Next steps:"; \
-			echo "  1. Configure kubectl: aws eks update-kubeconfig --name yuvro-prod-cluster --region ap-south-1"; \
-			echo "  2. Verify cluster: kubectl cluster-info"; \
-			echo "  3. Deploy apps: DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=eks DEPLOY_BRANCH=$(DEPLOY_BRANCH) make deploy"; \
+			if [ "$(DEPLOY_INFRA_TYPE)" = "eks" ]; then \
+				echo "  1. Configure kubectl: aws eks update-kubeconfig --name yuvro-prod-cluster --region ap-south-1"; \
+				echo "  2. Verify cluster: kubectl cluster-info"; \
+			elif [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
+				echo "  1. Verify ECS cluster: aws ecs describe-clusters --clusters yuvro-prod-cluster --region ap-south-1"; \
+				echo "  2. Check services: aws ecs list-services --cluster yuvro-prod-cluster --region ap-south-1"; \
+			fi; \
+			echo "  3. Deploy apps: DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE) DEPLOY_BRANCH=$(DEPLOY_BRANCH) make deploy"; \
 		else \
 			echo "❌ Infrastructure deployment cancelled"; \
 			rm -f tfplan_prod; \
@@ -1295,6 +1310,9 @@ deploy: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "prod" ] && [ "$(DEPLOY_INFRA_TYPE)" = "eks" ]; then \
 		echo "🚀 Deploying ALL apps to PRODUCTION EKS via Helm [branch=$(DEPLOY_BRANCH)]..."; \
 		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
+	elif [ "$(DEPLOY_ENV)" = "prod" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
+		echo "🚀 Deploying ALL apps to PRODUCTION ECS via Docker [branch=$(DEPLOY_BRANCH)]..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_INFRA_TYPE)" = "k8s" ] || [ "$(DEPLOY_INFRA_TYPE)" = "local" ]; then \
 		echo "🚀 Deploying ALL apps to $(DEPLOY_ENV) [INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."; \
 		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
@@ -1307,6 +1325,7 @@ deploy: _validate-deploy
 		echo "  • DEPLOY_ENV=local DEPLOY_INFRA_TYPE=local (Docker Compose)"; \
 		echo "  • DEPLOY_ENV=local DEPLOY_INFRA_TYPE=k8s (Local Kubernetes)"; \
 		echo "  • DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=eks (Production EKS)"; \
+		echo "  • DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=ecs (Production ECS)"; \
 		exit 1; \
 	fi
 
