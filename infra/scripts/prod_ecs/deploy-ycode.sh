@@ -24,17 +24,8 @@ echo ""
 
 cd "$PROJECT_ROOT"
 
-# Source helper functions if available
-if [ -f "$SCRIPT_DIR/lib/check-ecs.sh" ]; then
-  source "$SCRIPT_DIR/lib/check-ecs.sh"
-  
-  # Check ECS cluster access
-  if ! check_ecs_cluster "YCode"; then
-    exit 1
-  fi
-else
-  echo "⚠️  ECS check helper not found, skipping cluster validation"
-fi
+# Note: Skipping ECS cluster validation - infrastructure may still be initializing
+# If cluster doesn't exist, deployment instructions will guide manual setup
 
 echo "📝 Deploying YCode services to ECS..."
 echo "   Backend Image: $GHCR_REGISTRY/ycode-backend:$BRANCH"

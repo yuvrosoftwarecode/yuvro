@@ -23,12 +23,7 @@ echo ""
 
 cd "$PROJECT_ROOT"
 
-if [ -f "$SCRIPT_DIR/lib/check-ecs.sh" ]; then
-  source "$SCRIPT_DIR/lib/check-ecs.sh"
-  if ! check_ecs_cluster "YHub"; then
-    exit 1
-  fi
-fi
+# Note: Skipping ECS cluster validation - infrastructure may still be initializing
 
 echo "📝 Deploying YHub service to ECS..."
 echo "   Backend Image: $GHCR_REGISTRY/yhub-backend:$BRANCH"

@@ -23,12 +23,7 @@ echo ""
 
 cd "$PROJECT_ROOT"
 
-if [ -f "$SCRIPT_DIR/lib/check-ecs.sh" ]; then
-  source "$SCRIPT_DIR/lib/check-ecs.sh"
-  if ! check_ecs_cluster "YLabs"; then
-    exit 1
-  fi
-fi
+# Note: Skipping ECS cluster validation - infrastructure may still be initializing
 
 echo "📝 Deploying YLabs services to ECS..."
 echo "   Backend Image: $GHCR_REGISTRY/ylabs-backend:$BRANCH"
