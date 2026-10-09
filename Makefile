@@ -300,6 +300,7 @@ install: _validate-deploy
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
+		docker network create yuvro_yuvro-storage 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) down --remove-orphans 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) build --build-arg BUILDKIT_INLINE_CACHE=1; \
 		docker compose $(COMPOSE_FILES) up; \
@@ -344,6 +345,7 @@ run: _validate-deploy
 		docker network create executor 2>/dev/null || true; \
 		docker network create yuvro_ylabs 2>/dev/null || true; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
+		docker network create yuvro_yuvro-storage 2>/dev/null || true; \
 		docker compose $(COMPOSE_FILES) up -d --wait || { \
 			echo "❌ One or more services failed to become healthy. Showing logs:"; \
 			docker compose $(COMPOSE_FILES) ps; \
@@ -759,6 +761,7 @@ install-ymarketplace: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🔨 Building YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
+		docker network create yuvro_yuvro-storage 2>/dev/null || true; \
 		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f ymarketplace/docker-compose.dev.yml,-f ymarketplace/docker-compose.yml) \
 			build --build-arg BUILDKIT_INLINE_CACHE=1; \
 		echo "🚀 Starting YMarketplace services..."; \
@@ -866,6 +869,7 @@ run-ymarketplace: _validate-deploy
 	@if [ "$(DEPLOY_TYPE)" = "docker" ]; then \
 		echo "🚀 Starting YMarketplace services [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
 		docker network create yuvro_marketplace 2>/dev/null || true; \
+		docker network create yuvro_yuvro-storage 2>/dev/null || true; \
 		docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) up -d --wait || { \
 			echo "❌ One or more YMarketplace services failed to become healthy. Showing logs:"; \
 			docker compose $(if $(filter dev,$(DEPLOY_ENV)),-f docker-compose.dev-ymarketplace.yml,-f docker-compose.ymarketplace.yml -f docker-compose.local.yml) ps; \
@@ -1101,6 +1105,8 @@ db-reset: _validate-deploy
 	@echo "🧹 Resetting all databases (removing containers + named volumes)..."
 	@docker network create executor 2>/dev/null || true
 	@docker network create yuvro_ylabs 2>/dev/null || true
+	@docker network create yuvro_marketplace 2>/dev/null || true
+	@docker network create yuvro_yuvro-storage 2>/dev/null || true
 	@docker compose $(COMPOSE_FILES) stop ycode-backend ycampus-backend yhub-backend ylabs-backend 2>/dev/null || true
 	@docker compose $(COMPOSE_FILES) rm -s -f ycode-db ycampus-db yhub-db ylabs-db 2>/dev/null || true
 	@docker volume rm yuvro_ycode_postgres_data yuvro_ycampus_postgres_data yuvro_yhub_postgres_data yuvro_ylabs_postgres_data 2>/dev/null || true
