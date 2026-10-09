@@ -1,0 +1,60 @@
+services:
+
+  ycampus-backend:
+    image: ghcr.io/yuvro/ycampus-backend:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-ycampus-backend-prod
+    restart: always
+    ports:
+      - "8001:8000"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+      - DEBUG=False
+      - ALLOWED_HOSTS=*
+      - CORS_ALLOWED_ORIGINS=*
+    env_file:
+      - ./ycampus-backend-api/.env.prod
+      - path: ./ycampus-backend-api/.env.prod-secrets
+        required: false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+
+  ycampus-frontend:
+    image: ghcr.io/yuvro/ycampus-frontend:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-ycampus-frontend-prod
+    restart: always
+    ports:
+      - "3001:80"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+    depends_on:
+      - ycampus-backend
+
+networks:
+  yuvro-net:
+    driver: bridge

@@ -1,9 +1,21 @@
-# Production Environment Variables - Kubernetes Deployment
+# Production Environment Variables - ECS Deployment
+
+variable "environment" {
+  description = "Environment name (prod, staging, dev)"
+  type        = string
+  default     = "prod"
+}
 
 variable "aws_region" {
   description = "AWS region for resources"
   type        = string
   default     = "ap-south-1"
+}
+
+variable "availability_zones" {
+  description = "Availability zones for the region"
+  type        = list(string)
+  default     = ["ap-south-1a", "ap-south-1b"]
 }
 
 # Deployment Configuration
@@ -16,7 +28,18 @@ variable "deploy_env" {
 variable "deploy_infra_type" {
   description = "Deployment infrastructure type (ec2, ecs, eks)"
   type        = string
-  default     = "eks"
+  default     = "ecs"
+}
+
+variable "tags" {
+  description = "Common tags for all resources"
+  type        = map(string)
+  default = {
+    Project     = "Yuvro"
+    Platform    = "ECS"
+    Environment = "prod"
+    ManagedBy   = "Terraform"
+  }
 }
 
 # VPC Configuration - Production VPC with separate subnets for EKS
@@ -103,6 +126,12 @@ variable "skip_final_snapshot" {
   default     = false
 }
 
+variable "existing_rds_endpoint" {
+  description = "Existing RDS endpoint (host:port format). If provided, uses external RDS instead of creating new one"
+  type        = string
+  default     = "prod-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com:5432"
+}
+
 variable "s3_cors_allowed_origins" {
   description = "List of allowed origins for S3 CORS configuration"
   type        = list(string)
@@ -124,7 +153,7 @@ variable "eks_cluster_name" {
 variable "kubernetes_version" {
   description = "Kubernetes version for EKS"
   type        = string
-  default     = "1.31"
+  default     = "1.37"
 }
 
 variable "eks_node_group_name" {

@@ -591,6 +591,36 @@ destroy: _validate-deploy
 		docker compose -f docker-compose.code-executor.yml down -v --remove-orphans 2>/dev/null || true; \
 		docker system prune -f --volumes 2>/dev/null || true; \
 		echo "✅ All Docker containers and volumes destroyed!"; \
+	elif [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
+		echo "🧹 Destroying EC2 infrastructure [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		echo "⚠️  WARNING: This will terminate EC2 instances and release Elastic IPs"; \
+		echo ""; \
+		if [ -z "$$CI" ] && [ -z "$$TF_INPUT" ]; then \
+			echo "To proceed with destruction, set environment variable:"; \
+			echo "  export TF_INPUT=false"; \
+			echo "Or run: TF_INPUT=false make destroy"; \
+			echo ""; \
+			echo "Skipping destruction in interactive mode for safety"; \
+			exit 0; \
+		fi; \
+		echo "🛑 Destroying OpenTofu resources..."; \
+		cd infra/opentofu/prod_ec2 && tofu destroy -auto-approve; cd ../../..; \
+		echo "✅ EC2 infrastructure destroyed!"; \
+	elif [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
+		echo "🧹 Destroying ECS infrastructure [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+		echo "⚠️  WARNING: This will terminate ECS clusters and related resources"; \
+		echo ""; \
+		if [ -z "$$CI" ] && [ -z "$$TF_INPUT" ]; then \
+			echo "To proceed with destruction, set environment variable:"; \
+			echo "  export TF_INPUT=false"; \
+			echo "Or run: TF_INPUT=false make destroy"; \
+			echo ""; \
+			echo "Skipping destruction in interactive mode for safety"; \
+			exit 0; \
+		fi; \
+		echo "🛑 Destroying OpenTofu resources..."; \
+		cd infra/opentofu/prod_ecs && tofu destroy -auto-approve; cd ../../..; \
+		echo "✅ ECS infrastructure destroyed!"; \
 	elif [ "$(DEPLOY_INFRA_TYPE)" = "eks" ] || [ "$(DEPLOY_INFRA_TYPE)" = "k8s" ]; then \
 		echo "🧹 Removing ALL Kubernetes resources..."; \
 		helm uninstall yuvro --namespace yuvro 2>/dev/null || true; \
@@ -598,7 +628,24 @@ destroy: _validate-deploy
 		kubectl delete namespace yobservability 2>/dev/null || true; \
 		kubectl delete namespace ycode 2>/dev/null || true; \
 		kubectl delete namespace ycampus 2>/dev/null || true; \
-		echo "✅ All Kubernetes resources destroyed!"; \
+		echo "✅ Kubernetes resources removed!"; \
+		if [ "$(DEPLOY_INFRA_TYPE)" = "eks" ] && [ "$(DEPLOY_ENV)" != "local" ]; then \
+			echo ""; \
+			echo "🧹 Destroying EKS infrastructure [DEPLOY_ENV=$(DEPLOY_ENV)]..."; \
+			echo "⚠️  WARNING: This will destroy EKS cluster, VPC, and all related resources"; \
+			echo ""; \
+			if [ -z "$$CI" ] && [ -z "$$TF_INPUT" ]; then \
+				echo "To proceed with destruction, set environment variable:"; \
+				echo "  export TF_INPUT=false"; \
+				echo "Or run: TF_INPUT=false make destroy"; \
+				echo ""; \
+				echo "Skipping infrastructure destruction in interactive mode for safety"; \
+			else \
+				echo "🛑 Destroying OpenTofu infrastructure..."; \
+				cd infra/opentofu/prod_eks && tofu destroy -auto-approve; cd ../../..; \
+				echo "✅ EKS infrastructure destroyed!"; \
+			fi; \
+		fi; \
 	else \
 		echo "❌ Unknown deployment infra type: $(DEPLOY_INFRA_TYPE)"; \
 		exit 1; \
@@ -1246,8 +1293,8 @@ db-reset-ymarketplace:
 .PHONY: deploy-infra
 
 deploy-infra: _validate-deploy
-	@if [ "$(DEPLOY_INFRA_TYPE)" != "eks" ] && [ "$(DEPLOY_INFRA_TYPE)" != "ecs" ]; then \
-		echo "❌ deploy-infra is only available for DEPLOY_INFRA_TYPE=eks or ecs"; \
+	@if [ "$(DEPLOY_INFRA_TYPE)" != "eks" ] && [ "$(DEPLOY_INFRA_TYPE)" != "ecs" ] && [ "$(DEPLOY_INFRA_TYPE)" != "ec2" ]; then \
+		echo "❌ deploy-infra is only available for DEPLOY_INFRA_TYPE=eks, ecs, or ec2"; \
 		echo "   Current: DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)"; \
 		exit 1; \
 	fi
@@ -1259,6 +1306,9 @@ deploy-infra: _validate-deploy
 		elif [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
 			INFRA_DIR="prod_ecs"; \
 			echo "   This will provision: ECS cluster, RDS database (prod-yuvro-db), IAM roles, security groups, etc."; \
+		elif [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
+			INFRA_DIR="prod_ec2"; \
+			echo "   This will provision: EC2 instance, RDS database (prod-yuvro-db), VPC, security groups, etc."; \
 		fi; \
 		echo ""; \
 		cd infra/opentofu/$$INFRA_DIR && \
@@ -1270,7 +1320,11 @@ deploy-infra: _validate-deploy
 		read -p "Do you want to apply this plan? (yes/no): " confirm; \
 		if [ "$$confirm" = "yes" ]; then \
 			echo "⏳ Applying infrastructure changes (this may take 15-30 minutes)..."; \
-			tofu apply tfplan_prod && \
+			TF_VARS=""; \
+			if [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ] && [ ! -z "$(GITHUB_TOKEN)" ]; then \
+				TF_VARS="-var github_token=$(GITHUB_TOKEN)"; \
+			fi; \
+			tofu apply $$TF_VARS -auto-approve tfplan_prod && \
 			rm -f tfplan_prod; \
 			echo ""; \
 			echo "✅ Infrastructure deployment complete!"; \
@@ -1285,8 +1339,12 @@ deploy-infra: _validate-deploy
 			elif [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
 				echo "  1. Verify ECS cluster: aws ecs describe-clusters --clusters yuvro-prod-ecs-cluster --region ap-south-1"; \
 				echo "  2. Check services: aws ecs list-services --cluster yuvro-prod-ecs-cluster --region ap-south-1"; \
+			elif [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
+				echo "  1. Get EC2 IP: cd infra/opentofu/prod_ec2 && terraform output ec2_elastic_ips"; \
+				echo "  2. Copy repo: scp -r -i key.pem . ubuntu@<IP>:/home/ubuntu/yuvro"; \
+				echo "  3. SSH: ssh -i key.pem ubuntu@<IP>"; \
 			fi; \
-			echo "  3. Deploy apps: DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE) DEPLOY_BRANCH=$(DEPLOY_BRANCH) make deploy"; \
+			echo "  4. Deploy apps: DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE) DEPLOY_BRANCH=$(DEPLOY_BRANCH) make deploy"; \
 		else \
 			echo "❌ Infrastructure deployment cancelled"; \
 			rm -f tfplan_prod; \
@@ -1310,6 +1368,9 @@ deploy: _validate-deploy
 	elif [ "$(DEPLOY_ENV)" = "prod" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
 		echo "🚀 Deploying ALL apps to PRODUCTION ECS via Docker [branch=$(DEPLOY_BRANCH)]..."; \
 		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
+	elif [ "$(DEPLOY_ENV)" = "prod" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
+		echo "🚀 Deploying ALL apps to PRODUCTION EC2 via Docker Compose [branch=$(DEPLOY_BRANCH)]..."; \
+		bash infra/scripts/prod_ec2/deploy-all.sh $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_INFRA_TYPE)" = "k8s" ] || [ "$(DEPLOY_INFRA_TYPE)" = "local" ]; then \
 		echo "🚀 Deploying ALL apps to $(DEPLOY_ENV) [INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."; \
 		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
@@ -1321,6 +1382,7 @@ deploy: _validate-deploy
 		echo "Supported combinations:"; \
 		echo "  • DEPLOY_ENV=local DEPLOY_INFRA_TYPE=local (Docker Compose)"; \
 		echo "  • DEPLOY_ENV=local DEPLOY_INFRA_TYPE=k8s (Local Kubernetes)"; \
+		echo "  • DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=ec2 (AWS EC2 with Docker Compose)"; \
 		echo "  • DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=eks (Production EKS)"; \
 		echo "  • DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=ecs (Production ECS)"; \
 		exit 1; \

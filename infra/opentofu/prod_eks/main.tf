@@ -104,23 +104,15 @@ module "security_groups" {
   vpc_id      = module.vpc.vpc_id
 }
 
-# RDS PostgreSQL - Consolidated Single Instance for All Apps
-module "rds_main" {
-  source = "../modules/rds"
+# RDS PostgreSQL - External, shared database
+# Database: prod-yuvro-db (created separately, not managed by Terraform)
+# Endpoint: prod-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com:5432
 
-  environment              = "prod"
-  db_name                  = "postgres"  # Use default postgres db; app databases created by migrations
-  db_username              = var.db_master_username
-  db_password              = var.db_master_password
-  instance_class           = var.db_instance_class
-  allocated_storage        = var.db_allocated_storage
-  max_allocated_storage    = var.db_max_allocated_storage
-  subnet_ids               = module.vpc.private_subnet_ids
-  security_group_id        = module.security_groups.rds_sg_id
-  backup_retention_days    = var.backup_retention_days
-  multi_az                 = var.multi_az
-  engine_version           = var.postgres_version
-  skip_final_snapshot      = var.skip_final_snapshot
+locals {
+  # External RDS endpoint
+  rds_endpoint = "prod-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com:5432"
+  rds_host     = "prod-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com"
+  rds_port     = 5432
 }
 
 # S3 Buckets Module
@@ -176,8 +168,8 @@ module "k8s_deployment" {
 
   environment       = "prod"
   namespace         = var.k8s_namespace
-  database_host     = module.rds_main.db_host
-  database_port     = module.rds_main.db_port
+  database_host     = local.rds_host
+  database_port     = local.rds_port
   database_user     = var.db_master_username
   database_password = var.db_master_password
   helm_chart_path   = var.helm_chart_path

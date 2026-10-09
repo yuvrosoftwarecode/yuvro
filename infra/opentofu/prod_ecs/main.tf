@@ -48,7 +48,7 @@ module "vpc" {
 
   environment              = "prod"
   vpc_cidr                 = var.vpc_cidr
-  availability_zones       = slice(data.aws_availability_zones.available.names, 0, 2)  # Use first 2 AZs
+  availability_zones       = var.availability_zones
   public_subnet_cidrs      = var.public_subnet_cidrs
   private_subnet_cidrs     = var.private_subnet_cidrs
   create_nat_gateway       = var.create_nat_gateway
@@ -70,24 +70,9 @@ module "security_groups" {
   vpc_id      = module.vpc.vpc_id
 }
 
-# RDS PostgreSQL - Consolidated Single Instance for All Apps
-module "rds_main" {
-  source = "../modules/rds"
-
-  environment              = "prod"
-  db_name                  = "postgres"  # Use default postgres db; app databases created by migrations
-  db_username              = var.db_master_username
-  db_password              = var.db_master_password
-  instance_class           = var.db_instance_class
-  allocated_storage        = var.db_allocated_storage
-  max_allocated_storage    = var.db_max_allocated_storage
-  subnet_ids               = module.vpc.private_subnet_ids
-  security_group_id        = module.security_groups.rds_sg_id
-  backup_retention_days    = var.backup_retention_days
-  multi_az                 = var.multi_az
-  engine_version           = var.postgres_version
-  skip_final_snapshot      = var.skip_final_snapshot
-}
+# RDS PostgreSQL - External, shared database
+# Database: prod-yuvro-db (created separately, not managed by Terraform)
+# Endpoint: prod-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com:5432
 
 # S3 Buckets Module
 module "s3" {
@@ -111,6 +96,16 @@ module "cloudwatch" {
   source = "../modules/cloudwatch"
 
   environment = "prod"
+}
+
+# Use existing RDS - parse the endpoint and port
+locals {
+  # If using existing RDS, parse the endpoint
+  rds_endpoint_parts = split(":", var.existing_rds_endpoint)
+  rds_endpoint       = var.existing_rds_endpoint
+  rds_host           = local.rds_endpoint_parts[0]
+  rds_port           = length(local.rds_endpoint_parts) > 1 ? tonumber(local.rds_endpoint_parts[1]) : 5432
+  rds_id             = "prod-yuvro-db"
 }
 
 # ========== PROD-SPECIFIC MODULES (ECS ONLY) ==========

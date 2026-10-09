@@ -16,22 +16,22 @@ output "private_subnet_ids" {
   value       = module.vpc.private_subnet_ids
 }
 
-# RDS Outputs
+# RDS Outputs (External Database)
 output "db_endpoint" {
   description = "RDS database endpoint (all apps share this instance)"
-  value       = module.rds_main.db_endpoint
+  value       = local.rds_endpoint
   sensitive   = true
 }
 
 output "db_host" {
   description = "RDS database hostname"
-  value       = module.rds_main.db_host
+  value       = local.rds_host
   sensitive   = true
 }
 
 output "db_port" {
   description = "RDS database port"
-  value       = module.rds_main.db_port
+  value       = local.rds_port
 }
 
 output "db_master_username" {
@@ -41,44 +41,44 @@ output "db_master_username" {
 }
 
 output "db_instance_id" {
-  description = "RDS instance ID"
-  value       = module.rds_main.db_instance_id
+  description = "RDS instance ID (external managed)"
+  value       = "External database - not managed by Terraform"
 }
 
 output "prod_rds_endpoint" {
   description = "Production RDS endpoint"
-  value       = module.rds_main.db_host
+  value       = local.rds_host
   sensitive   = true
 }
 
 # Application Database Connection Strings
 output "ycode_database_url" {
   description = "Connection string for YCode database"
-  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ycode?sslmode=require"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${local.rds_host}:${local.rds_port}/ycode?sslmode=require"
   sensitive   = true
 }
 
 output "ycampus_database_url" {
   description = "Connection string for YCampus database"
-  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ycampus?sslmode=require"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${local.rds_host}:${local.rds_port}/ycampus?sslmode=require"
   sensitive   = true
 }
 
 output "yhub_database_url" {
   description = "Connection string for YHub database"
-  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/yhub?sslmode=require"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${local.rds_host}:${local.rds_port}/yhub?sslmode=require"
   sensitive   = true
 }
 
 output "ylabs_database_url" {
   description = "Connection string for YLabs database"
-  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ylabs?sslmode=require"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${local.rds_host}:${local.rds_port}/ylabs?sslmode=require"
   sensitive   = true
 }
 
 output "ymarketplace_database_url" {
   description = "Connection string for YMarketplace database"
-  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/ymarketplace?sslmode=require"
+  value       = "postgresql://${var.db_master_username}:${var.db_master_password}@${local.rds_host}:${local.rds_port}/ymarketplace?sslmode=require"
   sensitive   = true
 }
 

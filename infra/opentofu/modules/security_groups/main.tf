@@ -1,16 +1,5 @@
-# Get existing security groups if they exist
-data "aws_security_group" "app_existing" {
-  count  = var.vpc_id != "" ? 1 : 0
-  name   = "${var.environment}-app-sg"
-  vpc_id = var.vpc_id
-
-  # Optional: try to find by name only if not found by name+vpc
-  depends_on = []
-}
-
-# Only create if doesn't exist
+# Always create security groups
 resource "aws_security_group" "app" {
-  count       = try(length(data.aws_security_group.app_existing) > 0 && data.aws_security_group.app_existing[0].id != null, false) ? 0 : 1
   name        = "${var.environment}-app-sg"
   description = "Security group for app nodes"
   vpc_id      = var.vpc_id
@@ -18,25 +7,10 @@ resource "aws_security_group" "app" {
   tags = {
     Name = "${var.environment}-app-sg"
   }
-
-  lifecycle {
-    ignore_changes = [name, description, vpc_id, tags]
-  }
 }
 
-# Get the actual security group (either created or existing)
-locals {
-  app_sg_id = try(data.aws_security_group.app_existing[0].id, aws_security_group.app[0].id)
-}
-
-data "aws_security_group" "rds_existing" {
-  count  = var.vpc_id != "" ? 1 : 0
-  name   = "${var.environment}-rds-sg"
-  vpc_id = var.vpc_id
-}
-
+# Always create RDS security group
 resource "aws_security_group" "rds" {
-  count       = try(length(data.aws_security_group.rds_existing) > 0 && data.aws_security_group.rds_existing[0].id != null, false) ? 0 : 1
   name        = "${var.environment}-rds-sg"
   description = "Security group for RDS databases"
   vpc_id      = var.vpc_id
@@ -44,14 +18,11 @@ resource "aws_security_group" "rds" {
   tags = {
     Name = "${var.environment}-rds-sg"
   }
-
-  lifecycle {
-    ignore_changes = [name, description, vpc_id, tags]
-  }
 }
 
 locals {
-  rds_sg_id = try(data.aws_security_group.rds_existing[0].id, aws_security_group.rds[0].id)
+  app_sg_id = aws_security_group.app.id
+  rds_sg_id = aws_security_group.rds.id
 }
 
 # App SSH rule

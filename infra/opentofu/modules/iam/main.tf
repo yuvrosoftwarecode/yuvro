@@ -1,11 +1,5 @@
-# Try to get existing role
-data "aws_iam_role" "app_service_existing" {
-  name = "${var.environment}-app-service-role"
-}
-
-# Only create if doesn't exist
+# Always create app service role
 resource "aws_iam_role" "app_service" {
-  count = try(data.aws_iam_role.app_service_existing.arn, null) != null ? 0 : 1
   name = "${var.environment}-app-service-role"
 
   assume_role_policy = jsonencode({
@@ -17,7 +11,8 @@ resource "aws_iam_role" "app_service" {
         Principal = {
           Service = [
             "ec2.amazonaws.com",
-            "eks.amazonaws.com"
+            "eks.amazonaws.com",
+            "ecs-tasks.amazonaws.com"
           ]
         }
       }
@@ -29,15 +24,15 @@ resource "aws_iam_role" "app_service" {
   }
 
   lifecycle {
-    ignore_changes = [assume_role_policy, tags]
+    ignore_changes = [tags]
   }
 }
 
-# Local to reference either created or existing
+# Local to reference created role
 locals {
-  app_service_role_id   = try(data.aws_iam_role.app_service_existing.id, aws_iam_role.app_service[0].id)
-  app_service_role_arn  = try(data.aws_iam_role.app_service_existing.arn, aws_iam_role.app_service[0].arn)
-  app_service_role_name = try(data.aws_iam_role.app_service_existing.name, aws_iam_role.app_service[0].name)
+  app_service_role_id   = aws_iam_role.app_service.id
+  app_service_role_arn  = aws_iam_role.app_service.arn
+  app_service_role_name = aws_iam_role.app_service.name
 }
 
 resource "aws_iam_role_policy" "app_service_s3" {
@@ -125,12 +120,7 @@ resource "aws_iam_instance_profile" "app_service" {
   }
 }
 
-data "aws_iam_user" "app_service_existing" {
-  user_name = "${var.environment}-app-service-user"
-}
-
 resource "aws_iam_user" "app_service" {
-  count = try(data.aws_iam_user.app_service_existing.arn, null) != null ? 0 : 1
   name = "${var.environment}-app-service-user"
 
   tags = {
@@ -143,9 +133,9 @@ resource "aws_iam_user" "app_service" {
 }
 
 locals {
-  app_service_user_id   = try(data.aws_iam_user.app_service_existing.user_id, aws_iam_user.app_service[0].unique_id)
-  app_service_user_name = try(data.aws_iam_user.app_service_existing.user_name, aws_iam_user.app_service[0].name)
-  app_service_user_arn  = try(data.aws_iam_user.app_service_existing.arn, aws_iam_user.app_service[0].arn)
+  app_service_user_id   = aws_iam_user.app_service.unique_id
+  app_service_user_name = aws_iam_user.app_service.name
+  app_service_user_arn  = aws_iam_user.app_service.arn
 }
 
 resource "aws_iam_user_policy" "app_service_s3" {

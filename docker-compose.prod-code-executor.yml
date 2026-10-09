@@ -1,0 +1,33 @@
+services:
+
+  yuvro-code-executor:
+    image: ghcr.io/yuvro/code-executor:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-code-executor-prod
+    restart: always
+    ports:
+      - "8009:8000"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+      - DEBUG=False
+    env_file:
+      - ./ycode-executor-api/.env.prod
+      - path: ./ycode-executor-api/.env.prod-secrets
+        required: false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+
+networks:
+  yuvro-net:
+    driver: bridge

@@ -8,13 +8,8 @@ data "tls_certificate" "github" {
   url = "https://token.actions.githubusercontent.com"
 }
 
-data "aws_iam_openid_connect_provider" "github_existing" {
-  arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com"
-}
-
-# Only create if doesn't exist
+# Always create GitHub OIDC provider - AWS will ignore if exists
 resource "aws_iam_openid_connect_provider" "github" {
-  count           = try(data.aws_iam_openid_connect_provider.github_existing.arn, null) != null ? 0 : 1
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.github.certificates[0].sha1_fingerprint]
   url             = "https://token.actions.githubusercontent.com"
@@ -24,12 +19,12 @@ resource "aws_iam_openid_connect_provider" "github" {
   }
 
   lifecycle {
-    ignore_changes = [client_id_list, thumbprint_list, url, tags]
+    ignore_changes = [tags]
   }
 }
 
 locals {
-  github_oidc_provider_arn = try(data.aws_iam_openid_connect_provider.github_existing.arn, aws_iam_openid_connect_provider.github[0].arn)
+  github_oidc_provider_arn = aws_iam_openid_connect_provider.github.arn
 }
 
 # IAM Role for GitHub Actions

@@ -187,7 +187,7 @@ resource "aws_launch_template" "ecs_lt" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = "${var.cluster_name}-instance"
+      Name = "yuvro-prod-ecs-cluster-instance-1"
     }
   }
 
