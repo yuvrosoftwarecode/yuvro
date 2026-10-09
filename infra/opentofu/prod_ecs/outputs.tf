@@ -1,4 +1,4 @@
-# Production Environment Outputs - Kubernetes Deployment
+# Production ECS Environment Outputs
 
 # VPC Outputs
 output "vpc_id" {
@@ -123,7 +123,6 @@ output "github_oidc_provider_arn" {
   value       = module.iam.github_oidc_provider_arn
 }
 
-
 # CloudWatch Outputs
 output "cloudwatch_log_group_name" {
   description = "CloudWatch log group name"
@@ -135,86 +134,42 @@ output "cloudwatch_log_group_arn" {
   value       = module.cloudwatch.log_group_arn
 }
 
-# ========== KUBERNETES / EKS OUTPUTS ==========
+# ========== ECS OUTPUTS ==========
 
-output "eks_cluster_name" {
-  description = "EKS cluster name"
-  value       = module.eks.cluster_name
+output "ecs_cluster_name" {
+  description = "ECS cluster name"
+  value       = module.ecs.cluster_name
 }
 
-output "eks_cluster_endpoint" {
-  description = "EKS cluster endpoint"
-  value       = module.eks.cluster_endpoint
-  sensitive   = true
+output "ecs_cluster_arn" {
+  description = "ECS cluster ARN"
+  value       = module.ecs.cluster_arn
 }
 
-output "eks_cluster_certificate_authority" {
-  description = "EKS cluster certificate authority data"
-  value       = module.eks.cluster_certificate_authority
-  sensitive   = true
+output "ecs_task_execution_role_arn" {
+  description = "ARN of ECS task execution role"
+  value       = module.ecs.ecs_task_execution_role_arn
 }
 
-output "eks_cluster_security_group_id" {
-  description = "Security group ID of EKS cluster"
-  value       = module.eks.cluster_security_group_id
+output "ecs_task_role_arn" {
+  description = "ARN of ECS task role"
+  value       = module.ecs.ecs_task_role_arn
 }
 
-output "eks_node_group_id" {
-  description = "EKS node group ID"
-  value       = module.eks.node_group_id
+output "ecs_log_group_name" {
+  description = "CloudWatch log group name for ECS"
+  value       = module.ecs.log_group_name
 }
 
-output "k8s_namespace" {
-  description = "Kubernetes namespace for Yuvro applications"
-  value       = var.k8s_namespace
-}
-
-output "helm_release_name" {
-  description = "Helm release name for Yuvro applications"
-  value       = module.k8s_deployment.release_name
-}
-
-output "helm_release_status" {
-  description = "Helm release status"
-  value       = module.k8s_deployment.release_status
-}
-
-output "k8s_kubeconfig_command" {
-  description = "Command to configure kubectl for EKS cluster"
-  value       = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${var.aws_region}"
+output "ecs_asg_name" {
+  description = "Auto Scaling Group name for ECS"
+  value       = module.ecs.asg_name
 }
 
 # ========== PROD DEPLOYMENT GUIDE ==========
 
 output "prod_deployment_guide" {
-  description = "Guide for production Kubernetes deployment"
-  value       = <<-EOT
-    Production Kubernetes Deployment Complete!
-    
-    1. Configure kubectl:
-       aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${var.aws_region}
-    
-    2. Verify cluster:
-       kubectl cluster-info
-       kubectl get nodes
-    
-    3. Check Yuvro namespace and deployments:
-       kubectl get namespace
-       kubectl -n ${var.k8s_namespace} get deployments
-       kubectl -n ${var.k8s_namespace} get pods
-    
-    4. View logs:
-       kubectl -n ${var.k8s_namespace} logs -f deployment/ycode-backend
-    
-    5. Database connection:
-       Host: ${module.rds_main.db_host}
-       Port: ${module.rds_main.db_port}
-       User: ${var.db_master_username}
-    
-    6. Access applications:
-       Configure DNS records and ingress URLs as per your setup
-       Helm release: ${module.k8s_deployment.release_name}
-       Namespace: ${var.k8s_namespace}
-  EOT
-  sensitive   = true
+  description = "Guide for production ECS deployment"
+  value = "Production ECS Deployment Complete! Cluster: ${module.ecs.cluster_name}. Verify: aws ecs describe-clusters --clusters ${module.ecs.cluster_name} --region ${var.aws_region}"
+  sensitive = true
 }

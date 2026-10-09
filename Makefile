@@ -1246,28 +1246,25 @@ db-reset-ymarketplace:
 .PHONY: deploy-infra
 
 deploy-infra: _validate-deploy
-	@if [ "$(DEPLOY_INFRA_TYPE)" != "eks" ] && [ "$(DEPLOY_INFRA_TYPE)" != "ecs" ] && [ "$(DEPLOY_INFRA_TYPE)" != "ec2" ]; then \
-		echo "❌ deploy-infra is only available for DEPLOY_INFRA_TYPE=eks, ecs, or ec2"; \
+	@if [ "$(DEPLOY_INFRA_TYPE)" != "eks" ] && [ "$(DEPLOY_INFRA_TYPE)" != "ecs" ]; then \
+		echo "❌ deploy-infra is only available for DEPLOY_INFRA_TYPE=eks or ecs"; \
 		echo "   Current: DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)"; \
 		exit 1; \
 	fi
 	@if [ "$(DEPLOY_ENV)" = "prod" ]; then \
 		echo "🚀 Deploying Infrastructure to PRODUCTION [INFRA_TYPE=$(DEPLOY_INFRA_TYPE)]..."; \
 		if [ "$(DEPLOY_INFRA_TYPE)" = "eks" ]; then \
+			INFRA_DIR="prod_eks"; \
 			echo "   This will provision: EKS cluster, RDS database (prod-yuvro-db), IAM roles, security groups, etc."; \
 		elif [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
-			echo "   This will provision: ECS cluster, RDS database (prod-yuvro-db), ALB, IAM roles, security groups, etc."; \
+			INFRA_DIR="prod_ecs"; \
+			echo "   This will provision: ECS cluster, RDS database (prod-yuvro-db), IAM roles, security groups, etc."; \
 		fi; \
 		echo ""; \
-		cd infra/opentofu/prod && \
+		cd infra/opentofu/$$INFRA_DIR && \
 		tofu init && \
-		if [ "$(DEPLOY_INFRA_TYPE)" = "eks" ]; then \
-			TFVARS_FILE="prod.tfvars"; \
-		elif [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
-			TFVARS_FILE="prod-ecs.tfvars"; \
-		fi; \
-		echo "📋 Using tfvars: $$TFVARS_FILE"; \
-		tofu plan -var-file="$$TFVARS_FILE" -out=tfplan_prod && \
+		echo "📋 Using infrastructure directory: $$INFRA_DIR"; \
+		tofu plan -out=tfplan_prod && \
 		echo ""; \
 		echo "📋 Review the OpenTofu plan above carefully!"; \
 		read -p "Do you want to apply this plan? (yes/no): " confirm; \
@@ -1286,8 +1283,8 @@ deploy-infra: _validate-deploy
 				echo "  1. Configure kubectl: aws eks update-kubeconfig --name yuvro-prod-cluster --region ap-south-1"; \
 				echo "  2. Verify cluster: kubectl cluster-info"; \
 			elif [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
-				echo "  1. Verify ECS cluster: aws ecs describe-clusters --clusters yuvro-prod-cluster --region ap-south-1"; \
-				echo "  2. Check services: aws ecs list-services --cluster yuvro-prod-cluster --region ap-south-1"; \
+				echo "  1. Verify ECS cluster: aws ecs describe-clusters --clusters yuvro-prod-ecs-cluster --region ap-south-1"; \
+				echo "  2. Check services: aws ecs list-services --cluster yuvro-prod-ecs-cluster --region ap-south-1"; \
 			fi; \
 			echo "  3. Deploy apps: DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE) DEPLOY_BRANCH=$(DEPLOY_BRANCH) make deploy"; \
 		else \

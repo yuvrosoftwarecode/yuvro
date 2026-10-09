@@ -5,14 +5,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "~> 2.23"
-    }
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 2.11"
-    }
     tls = {
       source  = "hashicorp/tls"
       version = "~> 4.0"
@@ -22,7 +14,7 @@ terraform {
   # Uncomment for remote state management
   # backend "s3" {
   #   bucket         = "ycode-terraform-state"
-  #   key            = "prod/terraform.tfstate"
+  #   key            = "prod-ecs/terraform.tfstate"
   #   region         = "us-east-1"
   #   encrypt        = true
   #   dynamodb_table = "terraform-locks"
@@ -37,33 +29,6 @@ provider "aws" {
       Environment = "prod"
       Project     = "Yuvro"
       ManagedBy   = "Terraform"
-    }
-  }
-}
-
-# Kubernetes Provider - Configured after EKS cluster is created
-provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority)
-
-  # Use exec plugin for authentication with retries
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "bash"
-    args        = ["-c", "aws eks get-token --cluster-name ${module.eks.cluster_name} --region ${var.aws_region}"]
-  }
-}
-
-# Helm Provider - Configured after Kubernetes provider
-provider "helm" {
-  kubernetes {
-    host                   = module.eks.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority)
-    
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "bash"
-      args        = ["-c", "aws eks get-token --cluster-name ${module.eks.cluster_name} --region ${var.aws_region}"]
     }
   }
 }
@@ -148,40 +113,19 @@ module "cloudwatch" {
   environment = "prod"
 }
 
-# ========== PROD-SPECIFIC MODULES (EKS + Kubernetes) ==========
+# ========== PROD-SPECIFIC MODULES (ECS ONLY) ==========
 
-# EKS Cluster - Production Kubernetes cluster
-module "eks" {
-  source = "../modules/eks"
+# ECS Cluster - Production ECS cluster for container orchestration
+module "ecs" {
+  source = "../modules/ecs"
 
-  environment           = "prod"
-  cluster_name          = var.eks_cluster_name
-  kubernetes_version    = var.kubernetes_version
-  subnet_ids            = module.vpc.private_subnet_ids
-  security_group_id     = module.security_groups.app_sg_id
-  node_group_name       = var.eks_node_group_name
-  desired_size          = var.eks_desired_size
-  min_size              = var.eks_min_size
-  max_size              = var.eks_max_size
-  instance_types        = var.eks_instance_types
-  disk_size             = var.eks_disk_size
-}
-
-# Kubernetes Deployment - Deploy Yuvro apps via Helm
-module "k8s_deployment" {
-  depends_on = [
-    module.eks.node_group_id,  # Wait for node group to be fully created and ready
-    module.eks.cluster_id
-  ]
-  source     = "../modules/k8s_deployment"
-
-  environment       = "prod"
-  namespace         = var.k8s_namespace
-  database_host     = module.rds_main.db_host
-  database_port     = module.rds_main.db_port
-  database_user     = var.db_master_username
-  database_password = var.db_master_password
-  helm_chart_path   = var.helm_chart_path
-  helm_values_file  = var.helm_values_file
-  apps_enabled      = var.apps_enabled
+  environment         = "prod"
+  cluster_name        = var.ecs_cluster_name
+  subnet_ids          = module.vpc.private_subnet_ids
+  security_group_id   = module.security_groups.app_sg_id
+  instance_type       = var.ecs_instance_type
+  asg_min_size        = var.ecs_asg_min_size
+  asg_max_size        = var.ecs_asg_max_size
+  asg_desired_capacity = var.ecs_asg_desired_capacity
+  log_retention_days  = var.ecs_log_retention_days
 }

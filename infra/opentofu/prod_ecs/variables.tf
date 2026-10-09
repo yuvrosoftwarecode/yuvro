@@ -192,3 +192,41 @@ variable "apps_enabled" {
     "ymarketplace" = true
   }
 }
+
+# ========== ECS CONFIGURATION ==========
+
+variable "ecs_cluster_name" {
+  description = "Name of the ECS cluster"
+  type        = string
+  default     = "yuvro-prod-ecs-cluster"
+}
+
+variable "ecs_instance_type" {
+  description = "EC2 instance type for ECS cluster"
+  type        = string
+  default     = "t3.large"
+}
+
+variable "ecs_asg_min_size" {
+  description = "Minimum number of ECS instances in ASG"
+  type        = number
+  default     = 1
+}
+
+variable "ecs_asg_max_size" {
+  description = "Maximum number of ECS instances in ASG"
+  type        = number
+  default     = 3
+}
+
+variable "ecs_asg_desired_capacity" {
+  description = "Desired number of ECS instances in ASG"
+  type        = number
+  default     = 2
+}
+
+variable "ecs_log_retention_days" {
+  description = "CloudWatch log retention days for ECS"
+  type        = number
+  default     = 30
+}
