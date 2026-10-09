@@ -1,69 +1,71 @@
 #!/bin/bash
-# Deploy YCampus to local Kubernetes (Docker Desktop or minikube)
-# Usage: bash infra/scripts/local_k8s/deploy-ycampus.sh [branch]
-# Deploys: ycampus-backend, ycampus-frontend, ycampus-db via kubectl
-
+# Deploy YCampus to local Kubernetes using centralized Helm chart
+# Databases are managed by Helm
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-BRANCH="${1:-main}"
-NAMESPACE="ycampus"
+BRANCH="${DEPLOY_BRANCH:-main}"
+NAMESPACE="yuvro-ns"
+HELM_CHART="$PROJECT_ROOT/infra/helm"
 
-echo "🚀 Deploying YCampus to local Kubernetes (k8s)..."
+echo "🚀 Deploying YCampus to local Kubernetes..."
 echo "   Branch: $BRANCH"
-echo "   Namespace: $NAMESPACE"
-echo ""
+echo "   Environment: ${DEPLOY_ENV:-local}"
 
 cd "$PROJECT_ROOT"
 
 # Source helper functions
 source "$SCRIPT_DIR/lib/check-k8s.sh"
 
-# Check Kubernetes cluster access
-if ! check_k8s_cluster "YCampus"; then
+# Verify Kubernetes cluster
+if ! check_k8s_cluster "YCampus"; then 
   exit 1
 fi
 
-echo "📋 Creating namespace '$NAMESPACE'..."
-kubectl create namespace $NAMESPACE 2>/dev/null || true
+# Build Docker images
+echo "🔨 Building Docker images..."
+docker-compose -f "$PROJECT_ROOT/docker-compose.ycampus.yml" build 2>/dev/null || true
 
-echo "🔧 Loading local Docker images into Kubernetes..."
-docker-compose -f docker-compose.ycampus.yml build 2>/dev/null || {
-  echo "⚠️  Could not build all images (some may be skipped)"
-}
-
-echo "🔗 Loading images into k8s cluster..."
-if command -v minikube &> /dev/null; then
-  minikube image load ycampus-backend:latest 2>/dev/null || true
-  minikube image load ycampus-frontend:latest 2>/dev/null || true
-  minikube image load postgres:15-alpine 2>/dev/null || true
-fi
-
-echo "📝 Deploying YCampus components via kubectl..."
-
-cat <<EOF | kubectl apply -f - -n $NAMESPACE
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ycampus-config
-  namespace: $NAMESPACE
-data:
-  BRANCH: "$BRANCH"
-  DEPLOY_ENV: "local"
-EOF
+# Set deploy environment
+DEPLOY_ENV="${DEPLOY_ENV:-local}"
+echo "📦 Loading configuration for DEPLOY_ENV=$DEPLOY_ENV..."
 
 echo ""
-echo "✅ YCampus namespace created and configured for Kubernetes!"
+echo "📝 Deploying YCampus with Helm (databases managed by Helm)..."
+helm upgrade --install ycampus "$HELM_CHART" \
+  --namespace "$NAMESPACE" \
+  --create-namespace \
+  --set "image.pullPolicy=IfNotPresent" \
+  --set "image.tag=$BRANCH" \
+  --set "env.DEPLOY_ENV=$DEPLOY_ENV" \
+  --set "components.ycode-backend.enabled=false" \
+  --set "components.ycode-frontend.enabled=false" \
+  --set "components.ycampus-backend.enabled=true" \
+  --set "components.ycampus-backend.database.enabled=true" \
+  --set "components.ycampus-frontend.enabled=true" \
+  --set "components.ylabs-backend.enabled=false" \
+  --set "components.ylabs-frontend.enabled=false" \
+  --set "components.yhub-backend.enabled=false" \
+  --set "components.ymarketplace-backend.enabled=false" \
+  --set "components.ymarketplace-frontend.enabled=false" \
+  --set "components.code-executor.enabled=false" || exit 1
+
 echo ""
-echo "ℹ️  Next steps:"
-echo "   1. Deploy individual services using kubectl"
-echo "   2. Port-forward to access services:"
-echo "      kubectl port-forward -n $NAMESPACE svc/ycampus-frontend 3001:3000"
-echo "      kubectl port-forward -n $NAMESPACE svc/ycampus-backend 8001:8000"
+echo "✅ YCampus deployed to local Kubernetes!"
+echo "📊 Deployment status:"
+helm list -n "$NAMESPACE"
 echo ""
-echo "   Or use local Docker instead:"
-echo "      DEPLOY_ENV=local DEPLOY_INFRA_TYPE=local make deploy-ycampus"
+echo "🔍 Pod status:"
+kubectl get pods -n "$NAMESPACE" || true
 echo ""
-echo "📊 Check status:"
-echo "   kubectl get all -n $NAMESPACE"
+echo "🌐 Services:"
+kubectl get svc -n "$NAMESPACE" || true
+echo ""
+echo "ℹ️  Access services at:"
+echo "   - http://localhost:3001 (YCampus Frontend)"
+echo "   - http://localhost:8001 (YCampus Backend)"
+echo ""
+echo "💡 To view logs:"
+echo "   kubectl logs -n $NAMESPACE deployment/ycampus-ycampus-backend -f"
+echo "   kubectl logs -n $NAMESPACE deployment/ycampus-ycampus-frontend -f"

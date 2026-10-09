@@ -1,0 +1,25 @@
+{{- range $key, $component := .Values.components }}
+{{- if $component.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Release.Name }}-{{ $key }}
+  namespace: yuvro-ns
+  labels:
+    app: yuvro
+    component: {{ $key }}
+    release: {{ $.Release.Name }}
+spec:
+  type: {{ $.Values.service.type }}
+  ports:
+    - port: {{ $.Values.service.port }}
+      targetPort: {{ $.Values.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    app: yuvro
+    component: {{ $key }}
+    release: {{ $.Release.Name }}
+{{- end }}
+{{- end }}

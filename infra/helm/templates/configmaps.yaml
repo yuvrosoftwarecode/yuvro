@@ -1,0 +1,18 @@
+{{- range $key, $component := .Values.components }}
+{{- if $component.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Release.Name }}-{{ $key }}-config
+  namespace: yuvro-ns
+  labels:
+    app: yuvro
+    component: {{ $key }}
+    release: {{ $.Release.Name }}
+data:
+  {{- range $envKey, $envValue := $.Values.env }}
+  {{ $envKey }}: "{{ $envValue }}"
+  {{- end }}
+{{- end }}
+{{- end }}

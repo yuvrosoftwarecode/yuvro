@@ -10,7 +10,6 @@ BRANCH="${1:-main}"
 
 echo "🚀 Deploying all services to local Kubernetes (k8s)..."
 echo "   Branch: $BRANCH"
-echo ""
 
 cd "$PROJECT_ROOT"
 
@@ -23,36 +22,28 @@ if ! check_k8s_cluster "All Services"; then
 fi
 
 echo "📦 Deploying all services..."
-echo ""
 
 # Deploy common apps first
 echo "1️⃣  Deploying common apps (code-executor, yhub, minio)..."
 bash "$SCRIPT_DIR/deploy-common-apps.sh" "$BRANCH" || true
-echo ""
 
 # Deploy individual apps
 echo "2️⃣  Deploying YCode..."
 bash "$SCRIPT_DIR/deploy-ycode.sh" "$BRANCH" || true
-echo ""
 
 echo "3️⃣  Deploying YCampus..."
 bash "$SCRIPT_DIR/deploy-ycampus.sh" "$BRANCH" || true
-echo ""
 
 echo "4️⃣  Deploying YLabs..."
 bash "$SCRIPT_DIR/deploy-ylabs.sh" "$BRANCH" || true
-echo ""
 
 echo "5️⃣  Deploying YMarketplace..."
 bash "$SCRIPT_DIR/deploy-ymarketplace.sh" "$BRANCH" || true
-echo ""
 
 echo "✅ All services deployed to Kubernetes namespaces!"
-echo ""
 echo "📊 Check status across all namespaces:"
 echo "   kubectl get pods --all-namespaces"
 echo "   kubectl get services --all-namespaces"
-echo ""
 echo "🌐 Available services (after port-forwarding):"
 echo "   YCode Frontend:       localhost:3000 → kubectl port-forward -n ycode svc/ycode-frontend 3000:3000"
 echo "   YCampus Frontend:     localhost:3001 → kubectl port-forward -n ycampus svc/ycampus-frontend 3001:3000"

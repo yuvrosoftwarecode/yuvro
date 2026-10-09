@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ycode-backend-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: ycode
+    component: backend
+data:
+  {{- range $key, $value := .Values.env }}
+  {{ $key }}: "{{ $value }}"
+  {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ycode-frontend-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: ycode
+    component: frontend
+data:
+  VITE_API_URL: "{{ .Values.env.VITE_API_URL }}"
+  VITE_CODE_EXECUTOR_URL: "{{ .Values.env.VITE_CODE_EXECUTOR_URL }}"

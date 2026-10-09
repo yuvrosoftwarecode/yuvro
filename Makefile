@@ -7,8 +7,9 @@
 #   DEPLOY_INFRA_TYPE=eks make install  - Use EKS/Kubernetes
 
 .PHONY: help install run stop logs status port-forward
-.PHONY: deploy-all deploy-common-apps deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub deploy-ymarketplace deploy-code-executor
+.PHONY: deploy-common-apps deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub deploy-ymarketplace deploy-code-executor
 .PHONY: destroy destroy-common-apps destroy-ycode destroy-ycampus destroy-ylabs destroy-yhub destroy-ymarketplace destroy-code-executor
+.PHONY: kompose-regen-ycode kompose-regen-ycampus kompose-regen-ylabs kompose-regen-yhub kompose-regen-ymarketplace kompose-regen-code-executor kompose-regen-all
 .PHONY: deployImages deployImages-ycode deployImages-ycampus deployImages-ylabs deployImages-yhub deployImages-ymarketplace deployImages-code-executor
 .PHONY: install-ycode install-ycampus install-ylabs install-yhub install-ymarketplace install-code-executor run-ycode run-ycampus run-ylabs run-yhub run-ymarketplace
 .PHONY: stop-ycode stop-ycampus stop-ylabs stop-yhub stop-ymarketplace stop-code-executor
@@ -251,7 +252,7 @@ help:
 	@echo "  make db-reset-ymarketplace          Reset YMarketplace database only"
 	@echo ""
 	@echo "Per-App Dev Deploy (DEPLOY_BRANCH=<branch> make deploy-<app>):"
-	@echo "  make deploy-all                     Deploy all services to dev"
+	@echo "  make deploy                     Deploy all services"
 	@echo "  make deploy-ycode                   Deploy YCode only"
 	@echo "  make deploy-ycampus                 Deploy YCampus only"
 	@echo "  make deploy-ylabs                   Deploy YLabs only"
@@ -1239,7 +1240,7 @@ db-reset-ymarketplace:
 # Per-App Dev Deploy Commands (DEPLOY_ENV=dev only)
 # ============================================================================
 
-deploy-all: _validate-deploy
+deploy: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "prod" ]; then \
 		echo "🚀 Deploying ALL services to PRODUCTION via OpenTofu [branch=$(DEPLOY_BRANCH)]..."; \
 		cd infra/opentofu/prod && \
@@ -1266,12 +1267,12 @@ deploy-all: _validate-deploy
 		cd - > /dev/null; \
 	else \
 		echo "🚀 Deploying ALL services to $(DEPLOY_ENV) [branch=$(DEPLOY_BRANCH)]..."; \
-		bash infra/scripts/deploy-ycode.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-yhub.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/deploy-code-executor.sh $(DEPLOY_BRANCH); \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ycode.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-yhub.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-code-executor.sh $(DEPLOY_BRANCH); \
 	fi
 
 # ============================================================================
