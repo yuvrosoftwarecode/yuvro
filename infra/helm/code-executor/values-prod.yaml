@@ -1,0 +1,62 @@
+# Code Executor Helm Chart Values - Production Environment
+
+# Image configuration
+image:
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# Environment variables from .env.prod
+env:
+  DEPLOY_ENV: "prod"
+  DEPLOY_TYPE: "kubernetes"
+  DEBUG: "False"
+  
+  # Code Executor Service Configuration (Production)
+  SERVICE_PORT: "8009"
+  DEFAULT_TIMEOUT: "15"
+  MAX_TIMEOUT: "60"
+  MAX_MEMORY_MB: "512"
+  
+  # OpenTelemetry (Production)
+  OTEL_ENABLED: "true"
+  OTEL_SERVICE_NAME: "code-executor-prod"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.yuvro-ns.svc.cluster.local:4317"
+  OTEL_RESOURCE_ATTRIBUTES: "service.name=code-executor,service.version=1.0.0,environment=production"
+  
+  # Prometheus Metrics
+  PROMETHEUS_PORT: "9002"
+  
+  # Security
+  SECURE_SSL_REDIRECT: "1"
+  SECURE_HSTS_SECONDS: "31536000"
+  SECURE_HSTS_INCLUDE_SUBDOMAINS: "1"
+  SECURE_HSTS_PRELOAD: "1"
+  
+  # Allowed Hosts
+  ALLOWED_HOSTS: "code-executor.yuvro-ns.svc.cluster.local,code-executor:8009"
+  
+  # Resource limits
+  CPU_LIMIT_CORES: "2"
+  MEMORY_LIMIT_MB: "512"
+
+# Components configuration for production
+components:
+  service:
+    enabled: true
+    replicas: 3  # High availability
+
+# Resource requests and limits for production
+resources:
+  service:
+    requests:
+      memory: "1Gi"
+      cpu: "1000m"
+    limits:
+      memory: "4Gi"
+      cpu: "4000m"
+
+# Service configuration for production (LoadBalancer for ALB)
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8009

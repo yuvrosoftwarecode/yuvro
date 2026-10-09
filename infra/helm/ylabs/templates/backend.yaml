@@ -1,0 +1,71 @@
+{{- if .Values.components.backend.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ylabs-backend
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: ylabs
+    component: backend
+spec:
+  replicas: {{ .Values.components.backend.replicas }}
+  selector:
+    matchLabels:
+      app: ylabs
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: ylabs
+        component: backend
+    spec:
+      containers:
+        - name: backend
+          image: yuvro-ylabs-backend:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: ylabs-backend-config
+            - secretRef:
+                name: ylabs-backend-secrets
+          resources:
+            {{- toYaml .Values.resources.backend | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /api/health/
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/health/
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ylabs-ylabs-backend
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: ylabs
+    component: backend
+spec:
+  selector:
+    app: ylabs
+    component: backend
+  ports:
+    - port: {{ .Values.service.backend.port }}
+      targetPort: {{ .Values.service.backend.targetPort }}
+      nodePort: {{ .Values.service.backend.nodePort }}
+      name: http
+  type: {{ .Values.service.type }}
+{{- end }}

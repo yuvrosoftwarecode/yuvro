@@ -1,0 +1,73 @@
+{{- if .Values.components.service.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yuvro-code-executor
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: code-executor
+    component: service
+spec:
+  replicas: {{ .Values.components.service.replicas }}
+  selector:
+    matchLabels:
+      app: code-executor
+      component: service
+  template:
+    metadata:
+      labels:
+        app: code-executor
+        component: service
+    spec:
+      containers:
+        - name: executor
+          image: yuvro-code-executor:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8009
+          env:
+            - name: DEPLOY_ENV
+              value: "{{ .Values.env.DEPLOY_ENV }}"
+            - name: DEBUG
+              value: "{{ .Values.env.DEBUG }}"
+          resources:
+            {{- toYaml .Values.resources.service | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8009
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8009
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yuvro-code-executor
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: code-executor
+    component: service
+spec:
+  selector:
+    app: code-executor
+    component: service
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+      name: http
+  type: {{ .Values.service.type }}
+{{- end }}

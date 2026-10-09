@@ -7,7 +7,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 BRANCH="${DEPLOY_BRANCH:-main}"
 NAMESPACE="yuvro-ns"
-HELM_CHART="$PROJECT_ROOT/infra/helm"
+HELM_CHART="$PROJECT_ROOT/infra/helm/yhub"
+DEPLOY_ENV="${DEPLOY_ENV:-local}"
 
 echo "🚀 Deploying YHub to local Kubernetes..."
 echo "   Branch: $BRANCH"
@@ -23,33 +24,30 @@ if ! check_k8s_cluster "YHub"; then
   exit 1
 fi
 
-# Build Docker images
-echo "🔨 Building Docker images..."
-docker-compose -f "$PROJECT_ROOT/docker-compose.yhub.yml" build 2>/dev/null || true
+# Build Docker images for Kubernetes
+echo "🔨 Building Docker images for Kubernetes..."
+# Backend: build with development stage
+DOCKER_BUILDKIT=1 docker build \
+  -t yuvro-yhub-backend:latest \
+  --target development \
+  "$PROJECT_ROOT/yhub-backend-api" 2>/dev/null || true
 
 # Set deploy environment
 DEPLOY_ENV="${DEPLOY_ENV:-local}"
 echo "📦 Loading configuration for DEPLOY_ENV=$DEPLOY_ENV..."
 
 echo ""
-echo "📝 Deploying YHub with Helm (databases managed by Helm)..."
-helm upgrade --install yhub "$HELM_CHART" \
-  --namespace "$NAMESPACE" \
-  --create-namespace \
-  --set "image.pullPolicy=IfNotPresent" \
-  --set "image.tag=$BRANCH" \
-  --set "env.DEPLOY_ENV=$DEPLOY_ENV" \
-  --set "components.ycode-backend.enabled=false" \
-  --set "components.ycode-frontend.enabled=false" \
-  --set "components.ycampus-backend.enabled=false" \
-  --set "components.ycampus-frontend.enabled=false" \
-  --set "components.ylabs-backend.enabled=false" \
-  --set "components.ylabs-frontend.enabled=false" \
-  --set "components.yhub-backend.enabled=true" \
-  --set "components.yhub-backend.database.enabled=true" \
-  --set "components.ymarketplace-backend.enabled=false" \
-  --set "components.ymarketplace-frontend.enabled=false" \
-  --set "components.code-executor.enabled=false" || exit 1
+echo "📝 Deploying YHub with Helm..."
+if [ "$DEPLOY_ENV" = "prod" ]; then
+  helm upgrade --install yhub "$HELM_CHART" \
+    --namespace "$NAMESPACE" \
+    --create-namespace \
+    -f "$HELM_CHART/values-prod.yaml" || exit 1
+else
+  helm upgrade --install yhub "$HELM_CHART" \
+    --namespace "$NAMESPACE" \
+    --create-namespace || exit 1
+fi
 
 echo ""
 echo "✅ YHub deployed to local Kubernetes!"
@@ -63,7 +61,8 @@ echo "🌐 Services:"
 kubectl get svc -n "$NAMESPACE" || true
 echo ""
 echo "ℹ️  Access services at:"
-echo "   - http://localhost:8003 (YHub Backend)"
+echo "   - http://localhost:30003 (YHub Frontend)"
+echo "   - http://localhost:30011 (YHub Backend)"
 echo ""
 echo "💡 To view logs:"
 echo "   kubectl logs -n $NAMESPACE deployment/yhub-yhub-backend -f"

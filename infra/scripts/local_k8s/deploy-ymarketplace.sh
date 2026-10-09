@@ -7,7 +7,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 BRANCH="${DEPLOY_BRANCH:-main}"
 NAMESPACE="yuvro-ns"
-HELM_CHART="$PROJECT_ROOT/infra/helm"
+HELM_CHART="$PROJECT_ROOT/infra/helm/ymarketplace"
+DEPLOY_ENV="${DEPLOY_ENV:-local}"
 
 echo "🚀 Deploying YMarketplace to local Kubernetes..."
 echo "   Branch: $BRANCH"
@@ -23,33 +24,36 @@ if ! check_k8s_cluster "YMarketplace"; then
   exit 1
 fi
 
-# Build Docker images
-echo "🔨 Building Docker images..."
-docker-compose -f "$PROJECT_ROOT/docker-compose.ymarketplace.yml" build 2>/dev/null || true
+# Build Docker images for Kubernetes
+echo "🔨 Building Docker images for Kubernetes..."
+# Frontend: build with 'serve' stage (nginx) for production/K8s
+DOCKER_BUILDKIT=1 docker build \
+  -t yuvro-ymarketplace-frontend:latest \
+  --target serve \
+  "$PROJECT_ROOT/ymarketplace/frontend" 2>/dev/null || true
+
+# Backend: build with development stage
+DOCKER_BUILDKIT=1 docker build \
+  -t yuvro-ymarketplace-backend:latest \
+  --target development \
+  "$PROJECT_ROOT/ymarketplace/backend" 2>/dev/null || true
 
 # Set deploy environment
 DEPLOY_ENV="${DEPLOY_ENV:-local}"
 echo "📦 Loading configuration for DEPLOY_ENV=$DEPLOY_ENV..."
 
 echo ""
-echo "📝 Deploying YMarketplace with Helm (databases managed by Helm)..."
-helm upgrade --install ymarketplace "$HELM_CHART" \
-  --namespace "$NAMESPACE" \
-  --create-namespace \
-  --set "image.pullPolicy=IfNotPresent" \
-  --set "image.tag=$BRANCH" \
-  --set "env.DEPLOY_ENV=$DEPLOY_ENV" \
-  --set "components.ycode-backend.enabled=false" \
-  --set "components.ycode-frontend.enabled=false" \
-  --set "components.ycampus-backend.enabled=false" \
-  --set "components.ycampus-frontend.enabled=false" \
-  --set "components.ylabs-backend.enabled=false" \
-  --set "components.ylabs-frontend.enabled=false" \
-  --set "components.yhub-backend.enabled=false" \
-  --set "components.ymarketplace-backend.enabled=true" \
-  --set "components.ymarketplace-backend.database.enabled=true" \
-  --set "components.ymarketplace-frontend.enabled=true" \
-  --set "components.code-executor.enabled=false" || exit 1
+echo "📝 Deploying YMarketplace with Helm..."
+if [ "$DEPLOY_ENV" = "prod" ]; then
+  helm upgrade --install ymarketplace "$HELM_CHART" \
+    --namespace "$NAMESPACE" \
+    --create-namespace \
+    -f "$HELM_CHART/values-prod.yaml" || exit 1
+else
+  helm upgrade --install ymarketplace "$HELM_CHART" \
+    --namespace "$NAMESPACE" \
+    --create-namespace || exit 1
+fi
 
 echo ""
 echo "✅ YMarketplace deployed to local Kubernetes!"
@@ -63,8 +67,8 @@ echo "🌐 Services:"
 kubectl get svc -n "$NAMESPACE" || true
 echo ""
 echo "ℹ️  Access services at:"
-echo "   - http://localhost:3004 (YMarketplace Frontend)"
-echo "   - http://localhost:8004 (YMarketplace Backend)"
+echo "   - http://localhost:30004 (YMarketplace Frontend)"
+echo "   - http://localhost:30012 (YMarketplace Backend)"
 echo ""
 echo "💡 To view logs:"
 echo "   kubectl logs -n $NAMESPACE deployment/ymarketplace-ymarketplace-backend -f"

@@ -1,36 +1,64 @@
 #!/bin/bash
-# Deploy Code Executor to local Kubernetes using centralized Helm chart
+# Deploy Code Executor to local Kubernetes
 set -e
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-BRANCH="${1:-main}"
-NAMESPACE="yuvro"
-HELM_CHART="$PROJECT_ROOT/infra/helm"
+BRANCH="${DEPLOY_BRANCH:-main}"
+NAMESPACE="yuvro-ns"
+HELM_CHART="$PROJECT_ROOT/infra/helm/code-executor"
+DEPLOY_ENV="${DEPLOY_ENV:-local}"
 COMPOSE_FILE="$PROJECT_ROOT/docker-compose.code-executor.yml"
 
 echo "🚀 Deploying Code Executor to local Kubernetes..."
+echo "   Branch: $BRANCH"
+echo "   Environment: ${DEPLOY_ENV:-local}"
+
 cd "$PROJECT_ROOT"
+
+# Source helper functions
 source "$SCRIPT_DIR/lib/check-k8s.sh"
-source "$PROJECT_ROOT/infra/scripts/lib/kompose-helper.sh"
 
-if ! check_kompose || ! check_k8s_cluster "Code Executor"; then exit 1; fi
+# Verify Kubernetes cluster
+if ! check_k8s_cluster "Code Executor"; then 
+  exit 1
+fi
 
-docker-compose -f "$COMPOSE_FILE" build 2>/dev/null || true
+# Build Docker images
+echo "🔨 Building Docker images..."
+DOCKER_BUILDKIT=1 docker build \
+  -t yuvro-code-executor:latest \
+  "$PROJECT_ROOT/ycode-executor-api" 2>/dev/null || true
 
-regenerate_helm_templates_if_needed \
-  "$COMPOSE_FILE" "$HELM_CHART/templates" "code-executor" "$NAMESPACE" \
-  "ycode-code-executor" "$BRANCH" "false" || exit 1
+# Set deploy environment
+echo "📦 Loading configuration for DEPLOY_ENV=$DEPLOY_ENV..."
 
-helm upgrade --install code-executor "$HELM_CHART" \
-  --namespace "yuvro-ns" --create-namespace \
-  --set "image.registry=ycode-code-executor" --set "image.tag=$BRANCH" \
-  --set "env.DEPLOY_ENV=${DEPLOY_ENV:-local}" \
-  --set "components.codeExecutor.enabled=true" \
-  --set "components.ycode.enabled=false" \
-  --set "components.ycampus.enabled=false" \
-  --set "components.ylabs.enabled=false" \
-  --set "components.ymarketplace.enabled=false" || exit 1
+echo ""
+echo "📝 Deploying Code Executor with Helm..."
+if [ "$DEPLOY_ENV" = "prod" ]; then
+  helm upgrade --install code-executor "$HELM_CHART" \
+    --namespace "$NAMESPACE" \
+    --create-namespace \
+    -f "$HELM_CHART/values-prod.yaml" || exit 1
+else
+  helm upgrade --install code-executor "$HELM_CHART" \
+    --namespace "$NAMESPACE" \
+    --create-namespace || exit 1
+fi
 
-echo "✅ Code Executor deployed!"
+echo ""
+echo "✅ Code Executor deployed successfully!"
+echo "📊 Deployment status:"
 helm list -n "$NAMESPACE"
-kubectl get all -n "$NAMESPACE"
+echo ""
+echo "🔍 Pod status:"
+kubectl get pods -n "$NAMESPACE" --selector app=code-executor || true
+echo ""
+echo "🌐 Services:"
+kubectl get svc -n "$NAMESPACE" --selector app=code-executor || true
+echo ""
+echo "ℹ️  Access services at:"
+echo "   - http://localhost:30013 (Code Executor)"
+echo ""
+echo "💡 To view logs:"
+echo "   kubectl logs -n $NAMESPACE deployment/yuvro-code-executor -f"

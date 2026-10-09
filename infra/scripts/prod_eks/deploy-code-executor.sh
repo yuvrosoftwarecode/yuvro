@@ -1,51 +1,63 @@
 #!/bin/bash
-# Deploy Code Executor to AWS EKS using centralized Helm chart from infra/helm
+# Deploy Code Executor to AWS EKS cluster using Helm from infra/helm/code-executor
+# Usage: bash infra/scripts/prod_eks/deploy-code-executor.sh [branch]
+# Uses app-specific Helm chart at infra/helm/code-executor/
+# Deploys: code-executor service to prod EKS
+
 set -e
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 BRANCH="${1:-main}"
-GITHUB_TOKEN="${GITHUB_TOKEN:-}"
-GITHUB_OWNER="${GITHUB_OWNER:-$(git -C "$PROJECT_ROOT" config user.name 2>/dev/null || echo 'yuvro')}"
-NAMESPACE="yuvro"
-HELM_CHART="$PROJECT_ROOT/infra/helm"
-COMPOSE_FILE="$PROJECT_ROOT/docker-compose.code-executor.yml"
+DEPLOY_ENV="${DEPLOY_ENV:-prod}"
+NAMESPACE="yuvro-ns"
+HELM_CHART="$PROJECT_ROOT/infra/helm/code-executor"
+HELM_VALUES_FILE="$HELM_CHART/values-prod.yaml"
 
-echo "🚀 Deploying Code Executor to AWS EKS (prod)..."
+echo "🚀 Deploying Code Executor to AWS EKS (production)..."
+echo "   Branch: $BRANCH"
+echo "   Environment: $DEPLOY_ENV"
+echo "   Namespace: $NAMESPACE"
+echo "   Helm Chart: $HELM_CHART"
+echo ""
+
 cd "$PROJECT_ROOT"
+
+# Source helper functions
 source "$SCRIPT_DIR/lib/check-eks.sh"
-source "$PROJECT_ROOT/infra/scripts/lib/kompose-helper.sh"
 
-if ! check_kompose || ! check_eks_cluster "Code Executor"; then exit 1; fi
-if [ -z "$GITHUB_TOKEN" ]; then echo "❌ GITHUB_TOKEN not set"; exit 1; fi
-if ! check_ghcr_access "$GITHUB_TOKEN"; then exit 1; fi
+# Check EKS cluster access
+if ! check_eks_cluster "Code Executor"; then
+  exit 1
+fi
 
-GHCR_REGISTRY="ghcr.io/${GITHUB_OWNER,,}"
-if ! login_to_ghcr "$GITHUB_TOKEN"; then exit 1; fi
+echo ""
+echo "🔍 Checking Helm chart..."
+if [ ! -f "$HELM_VALUES_FILE" ]; then
+  echo "❌ Values file not found: $HELM_VALUES_FILE"
+  echo "   Please create prod values file for Code Executor deployment"
+  exit 1
+fi
 
-kubectl create namespace $NAMESPACE 2>/dev/null || true
-docker-compose -f "$COMPOSE_FILE" build 2>/dev/null || true
-
-docker tag ycode-code-executor:latest ${GHCR_REGISTRY}/ycode-code-executor:${BRANCH} || true
-docker push ${GHCR_REGISTRY}/ycode-code-executor:${BRANCH} 2>/dev/null || true
-
-regenerate_helm_templates_if_needed \
-  "$COMPOSE_FILE" "$HELM_CHART/templates" "code-executor" "$NAMESPACE" \
-  "$GHCR_REGISTRY" "$BRANCH" "false" || exit 1
-
-kubectl create secret docker-registry ghcr-secret \
-  --docker-server=ghcr.io --docker-username=oauth2 --docker-password="$GITHUB_TOKEN" \
-  --docker-email=not-used@example.com -n $NAMESPACE 2>/dev/null || true
-
+echo "📝 Deploying Code Executor with Helm (values-prod.yaml)..."
 helm upgrade --install code-executor "$HELM_CHART" \
-  --namespace "yuvro-ns" --create-namespace \
-  --set "image.registry=$GHCR_REGISTRY" --set "image.tag=$BRANCH" \
-  --set "env.DEPLOY_ENV=${DEPLOY_ENV:-prod}" \
-  --set "components.codeExecutor.enabled=true" \
-  --set "components.ycode.enabled=false" \
-  --set "components.ycampus.enabled=false" \
-  --set "components.ylabs.enabled=false" \
-  --set "components.ymarketplace.enabled=false" || exit 1
+  --namespace "$NAMESPACE" \
+  --create-namespace \
+  -f "$HELM_VALUES_FILE" \
+  --set image.tag="$BRANCH" \
+  --set env.DEPLOY_ENV="$DEPLOY_ENV" \
+  || {
+  echo "❌ Helm deployment failed"
+  exit 1
+}
 
-echo "✅ Code Executor deployed!"
-helm list -n "$NAMESPACE"
-kubectl get all -n "$NAMESPACE"
+echo ""
+echo "✅ Code Executor deployed to EKS via Helm!"
+echo ""
+echo "📊 Deployment status:"
+helm list -n "$NAMESPACE" | grep code-executor || true
+echo ""
+kubectl get pods -n "$NAMESPACE" -l app=code-executor || true
+echo ""
+echo "ℹ️  View logs:"
+echo "   kubectl logs -n $NAMESPACE deployment/code-executor -f"

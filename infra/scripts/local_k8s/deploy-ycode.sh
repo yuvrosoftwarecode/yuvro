@@ -7,6 +7,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 BRANCH="${DEPLOY_BRANCH:-main}"
 NAMESPACE="yuvro-ns"
 HELM_CHART="$PROJECT_ROOT/infra/helm/ycode"
+DEPLOY_ENV="${DEPLOY_ENV:-local}"
 
 echo "🚀 Deploying YCode to local Kubernetes..."
 echo "   Branch: $BRANCH"
@@ -43,9 +44,17 @@ echo "📦 Loading configuration for DEPLOY_ENV=$DEPLOY_ENV..."
 
 echo ""
 echo "📝 Deploying YCode with Helm..."
-helm upgrade --install ycode "$HELM_CHART" \
-  --namespace "$NAMESPACE" \
-  --create-namespace || exit 1
+# Use values-prod.yaml for prod, values.yaml (local defaults) for local
+if [ "$DEPLOY_ENV" = "prod" ]; then
+  helm upgrade --install ycode "$HELM_CHART" \
+    --namespace "$NAMESPACE" \
+    --create-namespace \
+    -f "$HELM_CHART/values-prod.yaml" || exit 1
+else
+  helm upgrade --install ycode "$HELM_CHART" \
+    --namespace "$NAMESPACE" \
+    --create-namespace || exit 1
+fi
 
 echo ""
 echo "✅ YCode deployed successfully!"

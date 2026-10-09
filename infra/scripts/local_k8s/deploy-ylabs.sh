@@ -7,7 +7,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 BRANCH="${DEPLOY_BRANCH:-main}"
 NAMESPACE="yuvro-ns"
-HELM_CHART="$PROJECT_ROOT/infra/helm"
+HELM_CHART="$PROJECT_ROOT/infra/helm/ylabs"
+DEPLOY_ENV="${DEPLOY_ENV:-local}"
 
 echo "🚀 Deploying YLabs to local Kubernetes..."
 echo "   Branch: $BRANCH"
@@ -23,33 +24,36 @@ if ! check_k8s_cluster "YLabs"; then
   exit 1
 fi
 
-# Build Docker images
-echo "🔨 Building Docker images..."
-docker-compose -f "$PROJECT_ROOT/docker-compose.ylabs.yml" build 2>/dev/null || true
+# Build Docker images for Kubernetes
+echo "🔨 Building Docker images for Kubernetes..."
+# Frontend: build with 'serve' stage (nginx) for production/K8s
+DOCKER_BUILDKIT=1 docker build \
+  -t yuvro-ylabs-frontend:latest \
+  --target serve \
+  "$PROJECT_ROOT/ylabs-web" 2>/dev/null || true
+
+# Backend: build with development stage
+DOCKER_BUILDKIT=1 docker build \
+  -t yuvro-ylabs-backend:latest \
+  --target development \
+  "$PROJECT_ROOT/ylabs-backend-api" 2>/dev/null || true
 
 # Set deploy environment
 DEPLOY_ENV="${DEPLOY_ENV:-local}"
 echo "📦 Loading configuration for DEPLOY_ENV=$DEPLOY_ENV..."
 
 echo ""
-echo "📝 Deploying YLabs with Helm (databases managed by Helm)..."
-helm upgrade --install ylabs "$HELM_CHART" \
-  --namespace "$NAMESPACE" \
-  --create-namespace \
-  --set "image.pullPolicy=IfNotPresent" \
-  --set "image.tag=$BRANCH" \
-  --set "env.DEPLOY_ENV=$DEPLOY_ENV" \
-  --set "components.ycode-backend.enabled=false" \
-  --set "components.ycode-frontend.enabled=false" \
-  --set "components.ycampus-backend.enabled=false" \
-  --set "components.ycampus-frontend.enabled=false" \
-  --set "components.ylabs-backend.enabled=true" \
-  --set "components.ylabs-backend.database.enabled=true" \
-  --set "components.ylabs-frontend.enabled=true" \
-  --set "components.yhub-backend.enabled=false" \
-  --set "components.ymarketplace-backend.enabled=false" \
-  --set "components.ymarketplace-frontend.enabled=false" \
-  --set "components.code-executor.enabled=false" || exit 1
+echo "📝 Deploying YLabs with Helm..."
+if [ "$DEPLOY_ENV" = "prod" ]; then
+  helm upgrade --install ylabs "$HELM_CHART" \
+    --namespace "$NAMESPACE" \
+    --create-namespace \
+    -f "$HELM_CHART/values-prod.yaml" || exit 1
+else
+  helm upgrade --install ylabs "$HELM_CHART" \
+    --namespace "$NAMESPACE" \
+    --create-namespace || exit 1
+fi
 
 echo ""
 echo "✅ YLabs deployed to local Kubernetes!"
@@ -63,8 +67,8 @@ echo "🌐 Services:"
 kubectl get svc -n "$NAMESPACE" || true
 echo ""
 echo "ℹ️  Access services at:"
-echo "   - http://localhost:3002 (YLabs Frontend)"
-echo "   - http://localhost:8002 (YLabs Backend)"
+echo "   - http://localhost:30002 (YLabs Frontend)"
+echo "   - http://localhost:30010 (YLabs Backend)"
 echo ""
 echo "💡 To view logs:"
 echo "   kubectl logs -n $NAMESPACE deployment/ylabs-ylabs-backend -f"

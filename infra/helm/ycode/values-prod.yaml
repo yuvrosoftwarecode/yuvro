@@ -1,0 +1,110 @@
+# YCode Helm Chart Values - Production Environment
+
+# Image configuration
+image:
+  pullPolicy: IfNotPresent  # Pull from GHCR registry
+  tag: "latest"
+
+# Environment variables from .env.prod
+env:
+  DEPLOY_ENV: "prod"
+  DEPLOY_TYPE: "kubernetes"
+  DEBUG: "False"
+  APP_NAME: "ycode"
+  
+  # Hosts & CORS
+  ALLOWED_HOSTS: "ycode.yuvro.ai,www.ycode.yuvro.ai,api.ycode.yuvro.ai"
+  CORS_ALLOWED_ORIGINS: "https://ycode.yuvro.ai,https://www.ycode.yuvro.ai"
+  CSRF_TRUSTED_ORIGINS: "https://ycode.yuvro.ai,https://www.ycode.yuvro.ai"
+  
+  # JWT Settings
+  JWT_ACCESS_TOKEN_LIFETIME: "15"
+  JWT_REFRESH_TOKEN_LIFETIME: "7"
+  
+  # Database (uses AWS RDS)
+  DATABASE_URL: "postgresql://ycode_prod_user:${DB_PASSWORD}@ycode-rds-prod.c123456.ap-south-1.rds.amazonaws.com:5432/ycode_prod_db"
+  POSTGRES_DB: "ycode_prod_db"
+  POSTGRES_USER: "ycode_prod_user"
+  
+  # Storage (AWS S3)
+  STORAGE_BACKEND: "s3"
+  AWS_STORAGE_BUCKET_NAME: "yuvro-prod"
+  AWS_S3_REGION_NAME: "ap-south-1"
+  AWS_S3_ENDPOINT_URL: ""
+  AWS_S3_ADDRESSING_STYLE: "virtual"
+  AWS_QUERYSTRING_AUTH: "True"
+  
+  # Code Executor
+  CODE_EXECUTOR_SERVICE_URL: "http://code-executor:8009"
+  
+  # Email Configuration
+  EMAIL_BACKEND: "django.core.mail.backends.smtp.EmailBackend"
+  EMAIL_HOST: "smtp.hostinger.com"
+  EMAIL_PORT: "465"
+  EMAIL_USE_TLS: "False"
+  EMAIL_USE_SSL: "True"
+  DEFAULT_FROM_EMAIL: "contact@yuvro.ai"
+  
+  # Security
+  SECURE_SSL_REDIRECT: "1"
+  SECURE_HSTS_SECONDS: "31536000"
+  SECURE_HSTS_INCLUDE_SUBDOMAINS: "1"
+  SECURE_HSTS_PRELOAD: "1"
+  
+  # Frontend
+  VITE_API_URL: "https://api.ycode.yuvro.ai"
+  VITE_CODE_EXECUTOR_URL: "http://code-executor.yuvro-ns.svc.cluster.local:8009"
+
+# Secrets from .env.prod-secrets (references to secret values)
+secrets:
+  SECRET_KEY: "prod-yuvro-shared-jwt-secret-replace-with-strong-key-12345678901234"
+  DB_PASSWORD: "ReplaceWithStrongRDSPassword123!@#"
+  AWS_ACCESS_KEY_ID: "AKIA4Y6XDEPSPRODKEY1"
+  AWS_SECRET_ACCESS_KEY: "ReplaceWithActualAWSSecretAccessKey/ForProduction+YuvroProduction"
+  GOOGLE_OAUTH2_CLIENT_ID: "ReplaceWithProdGoogleClientId.apps.googleusercontent.com"
+  GOOGLE_OAUTH2_CLIENT_SECRET: "ReplaceWithProdGoogleClientSecret"
+  OPENAI_API_KEY: "sk-ReplaceWithProductionOpenAIKey"
+  ANTHROPIC_API_KEY: "sk-ant-ReplaceWithProductionAnthropicKey"
+  GEMINI_API_KEY: "AIzaSyReplaceWithProductionGeminiKey"
+  COHERE_API_KEY: "ReplaceWithProductionCohereKey"
+  HUGGINGFACE_API_KEY: "hf_ReplaceWithProductionHuggingFaceKey"
+  EMAIL_HOST_USER: "contact@yuvro.ai"
+  EMAIL_HOST_PASSWORD: "ReplaceWithProductionEmailPassword"
+
+# Components configuration for production
+components:
+  backend:
+    enabled: true
+    replicas: 3  # High availability
+  frontend:
+    enabled: true
+    replicas: 2
+  database:
+    enabled: false  # Use AWS RDS instead
+
+# Resource requests and limits for production
+resources:
+  backend:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  frontend:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Service configuration for production (LoadBalancer for ALB)
+service:
+  type: LoadBalancer
+  backend:
+    port: 80
+    targetPort: 8000
+  frontend:
+    port: 80
+    targetPort: 80

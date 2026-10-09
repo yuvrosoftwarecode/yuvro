@@ -1,8 +1,7 @@
 #!/bin/bash
-# Deploy YCode to AWS EKS cluster using Helm from infra/helm
+# Deploy YCode to AWS EKS cluster using Helm from infra/helm/ycode
 # Usage: bash infra/scripts/prod_eks/deploy-ycode.sh [branch]
-# Uses centralized Helm chart at infra/helm/
-# Generates manifests from docker-compose.ycode.yml if needed
+# Uses app-specific Helm chart at infra/helm/ycode/
 # Deploys: ycode-backend, ycode-frontend to prod EKS with GHCR images
 
 set -e
@@ -10,74 +9,63 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 BRANCH="${1:-main}"
-GITHUB_TOKEN="${GITHUB_TOKEN:-}"
-GITHUB_OWNER="${GITHUB_OWNER:-$(git -C "$PROJECT_ROOT" config user.name 2>/dev/null || echo 'yuvro')}"
-CLUSTER_NAME="yuvro-prod-eks"
+DEPLOY_ENV="${DEPLOY_ENV:-prod}"
 NAMESPACE="yuvro-ns"
-HELM_CHART="$PROJECT_ROOT/infra/helm"
-COMPOSE_FILE="$PROJECT_ROOT/docker-compose.ycode.yml"
+HELM_CHART="$PROJECT_ROOT/infra/helm/ycode"
+HELM_VALUES_FILE="$HELM_CHART/values-prod.yaml"
 
-echo "🚀 Deploying YCode to AWS EKS (prod)..."
+echo "🚀 Deploying YCode to AWS EKS (production)..."
 echo "   Branch: $BRANCH"
-echo "   Cluster: $CLUSTER_NAME"
+echo "   Environment: $DEPLOY_ENV"
 echo "   Namespace: $NAMESPACE"
-echo "   Registry: GitHub Container Registry (GHCR)"
-echo "   Helm Chart: infra/helm/"
+echo "   Helm Chart: $HELM_CHART"
 echo ""
 
 cd "$PROJECT_ROOT"
 
 # Source helper functions
 source "$SCRIPT_DIR/lib/check-eks.sh"
-source "$PROJECT_ROOT/infra/scripts/lib/kompose-helper.sh"
-
-# Check if kompose is installed
-if ! check_kompose; then
-  exit 1
-fi
 
 # Check EKS cluster access
 if ! check_eks_cluster "YCode"; then
   exit 1
 fi
 
-# Check if GITHUB_TOKEN is set
-if [ -z "$GITHUB_TOKEN" ]; then
-  echo "❌ GITHUB_TOKEN environment variable not set"
-  echo ""
-  echo "ℹ️  To use GHCR for image storage:"
-  echo "   1. Create a GitHub Personal Access Token (PAT) with 'write:packages' scope:"
-  echo "      https://github.com/settings/tokens/new"
-  echo "   2. Export the token:"
-  echo "      export GITHUB_TOKEN='ghp_xxxxxxxxxxxxx'"
-  echo "   3. Then run: DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=eks make deploy-ycode"
-  echo ""
-  exit 1
-fi
-
-# Check GHCR access
-if ! check_ghcr_access "$GITHUB_TOKEN"; then
-  exit 1
-fi
-
-GHCR_REGISTRY="ghcr.io/${GITHUB_OWNER,,}"
-echo "📦 GHCR Registry: $GHCR_REGISTRY"
 echo ""
-
-# Login to GHCR
-if ! login_to_ghcr "$GITHUB_TOKEN"; then
+echo "🔍 Checking Helm chart..."
+if [ ! -f "$HELM_VALUES_FILE" ]; then
+  echo "❌ Values file not found: $HELM_VALUES_FILE"
+  echo "   Please create prod values file for YCode deployment"
   exit 1
 fi
 
-echo ""
-echo "📋 Helm will create namespace via templates..."
-
-echo "🔧 Building Docker images..."
-docker-compose -f "$COMPOSE_FILE" build 2>/dev/null || {
-  echo "⚠️  Could not build all images (some may be skipped)"
+echo "📝 Deploying YCode with Helm (values-prod.yaml)..."
+helm upgrade --install ycode "$HELM_CHART" \
+  --namespace "$NAMESPACE" \
+  --create-namespace \
+  -f "$HELM_VALUES_FILE" \
+  --set image.tag="$BRANCH" \
+  --set env.DEPLOY_ENV="$DEPLOY_ENV" \
+  || {
+  echo "❌ Helm deployment failed"
+  exit 1
 }
 
-echo "📤 Tagging images for GHCR..."
+echo ""
+echo "✅ YCode deployed to EKS via Helm!"
+echo ""
+echo "📊 Deployment status:"
+helm list -n "$NAMESPACE" | grep ycode || true
+echo ""
+kubectl get pods -n "$NAMESPACE" -l app=ycode || true
+echo ""
+echo "ℹ️  View logs:"
+echo "   kubectl logs -n $NAMESPACE deployment/ycode-backend -f"
+echo "   kubectl logs -n $NAMESPACE deployment/ycode-frontend -f"
+echo ""
+echo "ℹ️  Port-forward for local testing:"
+echo "   kubectl port-forward -n $NAMESPACE svc/ycode-backend 8000:80"
+echo "   kubectl port-forward -n $NAMESPACE svc/ycode-frontend 3000:80"
 docker tag ycode-backend:latest ${GHCR_REGISTRY}/ycode-backend:${BRANCH} || true
 docker tag ycode-frontend:latest ${GHCR_REGISTRY}/ycode-frontend:${BRANCH} || true
 

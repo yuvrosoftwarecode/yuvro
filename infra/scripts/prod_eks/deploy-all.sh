@@ -1,37 +1,55 @@
 #!/bin/bash
-# EKS/Kubernetes Production Deployment Script
-# Deploys Yuvro services to AWS EKS cluster using Helm
-#
-# Usage: ./deploy-all.sh [service] [action]
-#   service  Service to deploy (all, ycode, ycampus, ylabs, yhub, ymarketplace) (default: all)
-#   action   Deployment action (deploy, upgrade, rollback) (default: deploy)
+# Deploy all Yuvro apps to AWS EKS cluster using Helm charts
+# Usage: bash infra/scripts/prod_eks/deploy-all.sh [branch]
+# Deploys all apps in sequence: ycode, ycampus, ylabs, yhub, ymarketplace, code-executor
 
-set -euo pipefail
+set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-SERVICE="${1:-all}"
-ACTION="${2:-deploy}"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+BRANCH="${1:-main}"
+DEPLOY_ENV="${DEPLOY_ENV:-prod}"
 
-# Color output
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+echo "🚀 Deploying ALL Yuvro apps to AWS EKS (production)..."
+echo "   Branch: $BRANCH"
+echo "   Environment: $DEPLOY_ENV"
+echo ""
 
-echo -e "${BLUE}========== EKS/Kubernetes Production Deployment ==========${NC}"
-echo -e "${BLUE}Service: $SERVICE${NC}"
-echo -e "${BLUE}Action: $ACTION${NC}"
+cd "$PROJECT_ROOT"
+
+# Array of apps to deploy
+APPS=("ycode" "ycampus" "ylabs" "yhub" "ymarketplace" "code-executor")
+
+# Deploy each app
+for app in "${APPS[@]}"; do
+  echo ""
+  echo "════════════════════════════════════════════════"
+  echo "📦 Deploying $app..."
+  echo "════════════════════════════════════════════════"
+  echo ""
+  
+  if ! bash "$SCRIPT_DIR/deploy-$app.sh" "$BRANCH"; then
+    echo "❌ Failed to deploy $app"
+    exit 1
+  fi
+  
+  echo ""
+done
+
 echo ""
-echo "This is a production EKS/Kubernetes deployment script."
-echo "Ensure kubectl is configured and EKS cluster is accessible."
+echo "════════════════════════════════════════════════"
+echo "✅ ALL apps deployed successfully!"
+echo "════════════════════════════════════════════════"
 echo ""
-echo "To implement full EKS deployment:"
-echo "1. Update infrastructure in infra/opentofu/prod/eks/"
-echo "2. Create Helm charts in helm/yuvro-production/"
-echo "3. Implement service deployment logic here"
-echo "4. Configure namespace, RBAC, and resource quotas"
-echo "5. Set up service mesh (optional: Istio, Linkerd)"
+echo "📊 Deployment summary:"
+kubectl get pods -n yuvro-ns || true
 echo ""
-echo -e "${YELLOW}Status: Template created. Implementation pending.${NC}"
+echo "📊 Helm releases:"
+helm list -n yuvro-ns || true
+echo ""
+echo "ℹ️  Monitor deployments:"
+echo "   kubectl get pods -n yuvro-ns --watch"
+echo ""
+echo "ℹ️  View logs:"
+echo "   kubectl logs -n yuvro-ns deployment/ycode-backend -f"
+echo "   kubectl logs -n yuvro-ns deployment/ycampus-backend -f"

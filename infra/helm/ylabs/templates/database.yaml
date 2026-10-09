@@ -1,44 +1,38 @@
-{{- $apps := list "ycode" "ycampus" "ylabs" "ymarketplace" "yhub" }}
-{{- $dbConfigs := dict "ycode" (dict "db" "ycode_backend_db" "port" "5432") "ycampus" (dict "db" "ycampus_backend_db" "port" "5433") "ylabs" (dict "db" "ylabs_backend_db" "port" "5434") "ymarketplace" (dict "db" "ymarketplace_backend_db" "port" "5436") "yhub" (dict "db" "yhub_backend_db" "port" "5435") }}
-
-{{- range $app := $apps }}
-{{- if index $.Values.components (printf "%s-backend" $app) }}
-{{- if index (index $.Values.components (printf "%s-backend" $app)) "database" }}
-{{- if (index (index $.Values.components (printf "%s-backend" $app)) "database").enabled }}
+{{- if .Values.components.database.enabled }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ $app }}-postgres-pvc
-  namespace: yuvro-ns
+  name: ylabs-postgres-pvc
+  namespace: {{ .Values.namespace }}
   labels:
-    app: {{ $app }}
+    app: ylabs
     component: database
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: {{ .Values.components.database.storage }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $app }}-db
-  namespace: yuvro-ns
+  name: ylabs-db
+  namespace: {{ .Values.namespace }}
   labels:
-    app: {{ $app }}
+    app: ylabs
     component: database
 spec:
-  replicas: 1
+  replicas: {{ .Values.components.database.replicas }}
   selector:
     matchLabels:
-      app: {{ $app }}
+      app: ylabs
       component: database
   template:
     metadata:
       labels:
-        app: {{ $app }}
+        app: ylabs
         component: database
     spec:
       containers:
@@ -48,11 +42,14 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_DB
-              value: "{{ index (index $dbConfigs $app) "db" }}"
+              value: "ylabs_backend_db"
             - name: POSTGRES_USER
               value: "postgres"
             - name: POSTGRES_PASSWORD
-              value: "password"
+              valueFrom:
+                secretKeyRef:
+                  name: ylabs-backend-secrets
+                  key: POSTGRES_PASSWORD
             - name: PGDATA
               value: "/var/lib/postgresql/data/pgdata"
           volumeMounts:
@@ -79,35 +76,27 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 3
           resources:
-            requests:
-              memory: "256Mi"
-              cpu: "250m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
+            {{- toYaml .Values.resources.database | nindent 12 }}
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:
-            claimName: {{ $app }}-postgres-pvc
+            claimName: ylabs-postgres-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: yuvro-postgresql-{{ $app }}
-  namespace: yuvro-ns
+  name: yuvro-postgresql-ylabs
+  namespace: {{ .Values.namespace }}
   labels:
-    app: {{ $app }}
+    app: ylabs
     component: database
 spec:
   selector:
-    app: {{ $app }}
+    app: ylabs
     component: database
   ports:
     - port: 5432
       targetPort: 5432
       name: postgres
   type: ClusterIP
-{{- end }}
-{{- end }}
-{{- end }}
 {{- end }}
