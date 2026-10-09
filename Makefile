@@ -7,7 +7,7 @@
 #   DEPLOY_INFRA_TYPE=eks make install  - Use EKS/Kubernetes
 
 .PHONY: help install run stop logs status port-forward
-.PHONY: deploy-common-apps deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub deploy-ymarketplace deploy-code-executor
+.PHONY: deploy deploy-infra deploy-common-apps deploy-ycode deploy-ycampus deploy-ylabs deploy-yhub deploy-ymarketplace deploy-code-executor
 .PHONY: destroy destroy-common-apps destroy-ycode destroy-ycampus destroy-ylabs destroy-yhub destroy-ymarketplace destroy-code-executor
 .PHONY: kompose-regen-ycode kompose-regen-ycampus kompose-regen-ylabs kompose-regen-yhub kompose-regen-ymarketplace kompose-regen-code-executor kompose-regen-all
 .PHONY: deployImages deployImages-ycode deployImages-ycampus deployImages-ylabs deployImages-yhub deployImages-ymarketplace deployImages-code-executor
@@ -252,7 +252,8 @@ help:
 	@echo "  make db-reset-ymarketplace          Reset YMarketplace database only"
 	@echo ""
 	@echo "Per-App Dev Deploy (DEPLOY_BRANCH=<branch> make deploy-<app>):"
-	@echo "  make deploy                     Deploy all services"
+	@echo "  make deploy-infra               Deploy infrastructure (EKS, RDS, IAM) - PROD only"
+	@echo "  make deploy                     Deploy all apps (Helm charts)"
 	@echo "  make deploy-ycode                   Deploy YCode only"
 	@echo "  make deploy-ycampus                 Deploy YCampus only"
 	@echo "  make deploy-ylabs                   Deploy YLabs only"
@@ -1239,55 +1240,96 @@ db-reset-ymarketplace:
 # ============================================================================
 # Per-App Dev Deploy Commands (DEPLOY_ENV=dev only)
 # ============================================================================
+# Infrastructure Provisioning (OpenTofu - EKS, RDS, etc.)
+# ============================================================================
 
-deploy: _validate-deploy
+.PHONY: deploy-infra
+
+deploy-infra: _validate-deploy
+	@if [ "$(DEPLOY_INFRA_TYPE)" != "eks" ] && [ "$(DEPLOY_INFRA_TYPE)" != "ec2" ]; then \
+		echo "❌ deploy-infra is only available for DEPLOY_INFRA_TYPE=eks or ec2"; \
+		echo "   Current: DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)"; \
+		exit 1; \
+	fi
 	@if [ "$(DEPLOY_ENV)" = "prod" ]; then \
-		echo "🚀 Deploying ALL services to PRODUCTION via OpenTofu [branch=$(DEPLOY_BRANCH)]..."; \
+		echo "🚀 Deploying Infrastructure to PRODUCTION [INFRA_TYPE=$(DEPLOY_INFRA_TYPE)]..."; \
+		echo "   This will provision: EKS cluster, RDS databases, IAM roles, etc."; \
+		echo ""; \
 		cd infra/opentofu/prod && \
 		tofu init && \
-		tofu plan -out=tfplan && \
+		tofu plan -out=tfplan_prod && \
 		echo ""; \
-		echo "Review the Terraform plan above carefully!"; \
+		echo "📋 Review the OpenTofu plan above carefully!"; \
 		read -p "Do you want to apply this plan? (yes/no): " confirm; \
 		if [ "$$confirm" = "yes" ]; then \
-			tofu apply tfplan && \
-			rm -f tfplan; \
+			echo "⏳ Applying infrastructure changes (this may take 15-30 minutes)..."; \
+			tofu apply tfplan_prod && \
+			rm -f tfplan_prod; \
 			echo ""; \
-			echo "✅ Production deployment complete!"; \
+			echo "✅ Infrastructure deployment complete!"; \
+			echo ""; \
+			echo "📊 Infrastructure Outputs:"; \
+			tofu output; \
 			echo ""; \
 			echo "Next steps:"; \
 			echo "  1. Configure kubectl: aws eks update-kubeconfig --name yuvro-prod-cluster --region ap-south-1"; \
 			echo "  2. Verify cluster: kubectl cluster-info"; \
-			echo "  3. Check deployments: kubectl -n yuvro-prod-ns get pods"; \
+			echo "  3. Deploy apps: DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=eks DEPLOY_BRANCH=$(DEPLOY_BRANCH) make deploy"; \
 		else \
-			echo "Deployment cancelled"; \
-			rm -f tfplan; \
+			echo "❌ Infrastructure deployment cancelled"; \
+			rm -f tfplan_prod; \
 			exit 1; \
 		fi; \
 		cd - > /dev/null; \
 	else \
-		echo "🚀 Deploying ALL services to $(DEPLOY_ENV) [branch=$(DEPLOY_BRANCH)]..."; \
-		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ycode.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-yhub.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-ymarketplace.sh $(DEPLOY_BRANCH) && \
-		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-code-executor.sh $(DEPLOY_BRANCH); \
+		echo "❌ Infrastructure provisioning (deploy-infra) is only available for DEPLOY_ENV=prod"; \
+		echo "   Current: DEPLOY_ENV=$(DEPLOY_ENV)"; \
+		exit 1; \
 	fi
 
 # ============================================================================
-# Infrastructure Provisioning
+# App Deployment (Helm Charts - YCode, YCampus, YLabs, YHub, YMarketplace)
+# ============================================================================
+
+deploy: _validate-deploy
+	@if [ "$(DEPLOY_ENV)" = "prod" ] && [ "$(DEPLOY_INFRA_TYPE)" = "eks" ]; then \
+		echo "🚀 Deploying ALL apps to PRODUCTION EKS via Helm [branch=$(DEPLOY_BRANCH)]..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
+	elif [ "$(DEPLOY_INFRA_TYPE)" = "k8s" ] || [ "$(DEPLOY_INFRA_TYPE)" = "local" ]; then \
+		echo "🚀 Deploying ALL apps to $(DEPLOY_ENV) [INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
+	else \
+		echo "❌ Unsupported deployment combination:"; \
+		echo "   DEPLOY_ENV=$(DEPLOY_ENV)"; \
+		echo "   DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)"; \
+		echo ""; \
+		echo "Supported combinations:"; \
+		echo "  • DEPLOY_ENV=local DEPLOY_INFRA_TYPE=local (Docker Compose)"; \
+		echo "  • DEPLOY_ENV=local DEPLOY_INFRA_TYPE=k8s (Local Kubernetes)"; \
+		echo "  • DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=eks (Production EKS)"; \
+		exit 1; \
+	fi
+
+# ============================================================================
+# Infrastructure Provisioning (Legacy - Deprecated)
 # ============================================================================
 
 provision-infra:
+	@echo "⚠️  provision-infra is deprecated. Use 'deploy-infra' instead."
+	@echo "   make deploy-infra    - Plan infrastructure changes"
+	@echo ""
 	@echo "📦 Provisioning infrastructure [env=$(DEPLOY_ENV)]..."
 	@bash infra/scripts/provision-infra.sh $(DEPLOY_ENV) plan
 
 provision-infra-apply:
+	@echo "⚠️  provision-infra-apply is deprecated. Use 'deploy-infra' instead."
+	@echo ""
 	@echo "📦 Provisioning & applying infrastructure [env=$(DEPLOY_ENV)]..."
 	@bash infra/scripts/provision-infra.sh $(DEPLOY_ENV) apply
 
 provision-infra-destroy:
+	@echo "⚠️  provision-infra-destroy is deprecated."
+	@echo ""
 	@echo "⚠️  Destroying infrastructure [env=$(DEPLOY_ENV)]..."
 	@bash infra/scripts/provision-infra.sh $(DEPLOY_ENV) destroy
 deploy-ycode: _validate-deploy

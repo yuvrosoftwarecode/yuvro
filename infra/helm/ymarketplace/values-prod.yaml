@@ -1,6 +1,6 @@
 # YMarketplace Helm Chart Values - Production Environment
 
-# Image configuration
+# Image configuration (pulls from GHCR registry in prod)
 image:
   pullPolicy: IfNotPresent
   tag: "latest"
@@ -75,7 +75,7 @@ secrets:
 components:
   backend:
     enabled: true
-    replicas: 3  # High availability
+    replicas: 2  # Default scale
   frontend:
     enabled: true
     replicas: 2

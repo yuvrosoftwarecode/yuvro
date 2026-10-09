@@ -2,6 +2,7 @@
 # Deploy all Yuvro apps to AWS EKS cluster using Helm charts
 # Usage: bash infra/scripts/prod_eks/deploy-all.sh [branch]
 # Deploys all apps in sequence: ycode, ycampus, ylabs, yhub, ymarketplace, code-executor
+# Images pulled from GHCR registry
 
 set -e
 
@@ -9,10 +10,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 BRANCH="${1:-main}"
 DEPLOY_ENV="${DEPLOY_ENV:-prod}"
+GITHUB_OWNER="${GITHUB_OWNER:-yuvro}"
+GHCR_REGISTRY="ghcr.io/$(echo "$GITHUB_OWNER" | tr '[:upper:]' '[:lower:]')"
 
 echo "🚀 Deploying ALL Yuvro apps to AWS EKS (production)..."
 echo "   Branch: $BRANCH"
 echo "   Environment: $DEPLOY_ENV"
+echo "   Registry: $GHCR_REGISTRY"
 echo ""
 
 cd "$PROJECT_ROOT"
@@ -53,3 +57,4 @@ echo ""
 echo "ℹ️  View logs:"
 echo "   kubectl logs -n yuvro-ns deployment/ycode-backend -f"
 echo "   kubectl logs -n yuvro-ns deployment/ycampus-backend -f"
+

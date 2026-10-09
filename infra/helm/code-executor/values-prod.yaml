@@ -1,6 +1,6 @@
 # Code Executor Helm Chart Values - Production Environment
 
-# Image configuration
+# Image configuration (pulls from GHCR registry in prod)
 image:
   pullPolicy: IfNotPresent
   tag: "latest"
@@ -43,7 +43,7 @@ env:
 components:
   service:
     enabled: true
-    replicas: 3  # High availability
+    replicas: 2  # Default scale
 
 # Resource requests and limits for production
 resources:

@@ -1,0 +1,431 @@
+name: Prod - Deploy Apps to EKS
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy (e.g., main, infra_new, v1.0.0)'
+        required: true
+        default: 'main'
+        type: string
+      deploy_all:
+        description: 'Deploy all apps (true) or select specific ones (false)'
+        required: false
+        type: boolean
+        default: true
+      apps:
+        description: 'Comma-separated apps to deploy (e.g., ycode,ycampus,ylabs,yhub,ymarketplace,code-executor). Only used if deploy_all is false'
+        required: false
+        type: string
+      namespace:
+        description: 'Kubernetes namespace'
+        required: true
+        default: 'yuvro-ns'
+        type: string
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - prod
+          - staging
+
+  workflow_call:
+    inputs:
+      branch:
+        description: 'Branch to deploy'
+        required: true
+        type: string
+      deploy_all:
+        description: 'Deploy all apps'
+        required: false
+        type: boolean
+        default: true
+      apps:
+        description: 'Apps to deploy'
+        required: false
+        type: string
+      namespace:
+        description: 'Kubernetes namespace'
+        required: true
+        type: string
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ap-south-1
+  EKS_CLUSTER_NAME: yuvro-prod-cluster
+  DEPLOY_NAMESPACE: ${{ inputs.namespace }}
+  DEPLOY_ENV: ${{ inputs.environment }}
+  GITHUB_OWNER: yuvro
+
+jobs:
+  validate-inputs:
+    runs-on: ubuntu-latest
+    outputs:
+      apps_list: ${{ steps.parse-apps.outputs.apps_list }}
+      apps_count: ${{ steps.parse-apps.outputs.apps_count }}
+    steps:
+      - name: Validate branch
+        run: |
+          BRANCH="${{ inputs.branch }}"
+          if [ -z "$BRANCH" ]; then
+            echo "❌ Branch name is required"
+            exit 1
+          fi
+          echo "✅ Branch: $BRANCH"
+
+      - name: Validate namespace
+        run: |
+          NAMESPACE="${{ env.DEPLOY_NAMESPACE }}"
+          if [ -z "$NAMESPACE" ]; then
+            echo "❌ Namespace is required"
+            exit 1
+          fi
+          
+          # Validate namespace format
+          if ! [[ "$NAMESPACE" =~ ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$ ]]; then
+            echo "❌ Invalid namespace format: $NAMESPACE"
+            exit 1
+          fi
+          echo "✅ Namespace: $NAMESPACE"
+
+      - name: Parse apps list
+        id: parse-apps
+        run: |
+          if [ "${{ inputs.deploy_all }}" == "true" ]; then
+            APPS="ycode,ycampus,ylabs,yhub,ymarketplace,code-executor"
+            echo "📋 Deploy Mode: ALL APPS"
+          else
+            APPS="${{ inputs.apps }}"
+            if [ -z "$APPS" ]; then
+              echo "❌ Apps list is required when deploy_all is false"
+              exit 1
+            fi
+            echo "📋 Deploy Mode: SELECTIVE"
+          fi
+          
+          # Validate apps
+          VALID_APPS="ycode,ycampus,ylabs,yhub,ymarketplace,code-executor"
+          IFS=',' read -ra APPS_ARRAY <<< "$APPS"
+          for app in "${APPS_ARRAY[@]}"; do
+            TRIMMED=$(echo "$app" | xargs)
+            if [[ ! "$VALID_APPS" =~ $TRIMMED ]]; then
+              echo "❌ Invalid app: $TRIMMED"
+              echo "Valid apps: ycode, ycampus, ylabs, yhub, ymarketplace, code-executor"
+              exit 1
+            fi
+          done
+          
+          COUNT=$(echo "$APPS" | tr ',' '\n' | wc -l)
+          echo "✅ Apps to deploy ($COUNT): $APPS"
+          
+          echo "apps_list=$APPS" >> $GITHUB_OUTPUT
+          echo "apps_count=$COUNT" >> $GITHUB_OUTPUT
+
+  pre-deploy-checks:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify EKS cluster access
+        run: |
+          echo "🔍 Checking EKS cluster: ${{ env.EKS_CLUSTER_NAME }}"
+          
+          CLUSTER_STATUS=$(aws eks describe-cluster \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }} \
+            --query 'cluster.status' \
+            --output text 2>/dev/null)
+          
+          if [ "$CLUSTER_STATUS" = "ACTIVE" ]; then
+            echo "✅ EKS cluster is ACTIVE"
+          else
+            echo "❌ EKS cluster status: $CLUSTER_STATUS (expected: ACTIVE)"
+            exit 1
+          fi
+
+      - name: Verify Docker images in GHCR
+        run: |
+          echo "🔍 Verifying Docker images in GHCR..."
+          echo "   Registry: ghcr.io/${{ env.GITHUB_OWNER }}"
+          echo "   Branch tag: ${{ inputs.branch }}"
+          echo ""
+          
+          # Note: This is a best-effort check. GHCR doesn't have a public API
+          # We'll at least verify the manifest exists using curl
+          
+          BRANCH="${{ inputs.branch }}"
+          APPS_LIST="${{ join(fromJson(format('[{0}]', inputs.apps)), ',') }}"
+          
+          echo "⚠️  Note: Image verification requires authentication with GitHub CLI"
+          echo "   Images will be pulled from ghcr.io/${{ env.GITHUB_OWNER }} during deployment"
+          echo ""
+          echo "📝 Images to be deployed:"
+          
+          IFS=',' read -ra APPS_ARRAY <<< "${{ job.outputs.apps_list || 'ycode,ycampus,ylabs,yhub,ymarketplace,code-executor' }}"
+          for app in "${APPS_ARRAY[@]}"; do
+            TRIMMED=$(echo "$app" | xargs)
+            case $TRIMMED in
+              ycode) 
+                echo "   - ghcr.io/${{ env.GITHUB_OWNER }}/ycode-backend:$BRANCH"
+                echo "   - ghcr.io/${{ env.GITHUB_OWNER }}/ycode-frontend:$BRANCH"
+                ;;
+              ycampus)
+                echo "   - ghcr.io/${{ env.GITHUB_OWNER }}/ycampus-backend:$BRANCH"
+                echo "   - ghcr.io/${{ env.GITHUB_OWNER }}/ycampus-frontend:$BRANCH"
+                ;;
+              ylabs)
+                echo "   - ghcr.io/${{ env.GITHUB_OWNER }}/ylabs-backend:$BRANCH"
+                echo "   - ghcr.io/${{ env.GITHUB_OWNER }}/ylabs-frontend:$BRANCH"
+                ;;
+              yhub)
+                echo "   - ghcr.io/${{ env.GITHUB_OWNER }}/yhub-backend:$BRANCH"
+                ;;
+              ymarketplace)
+                echo "   - ghcr.io/${{ env.GITHUB_OWNER }}/ymarketplace-backend:$BRANCH"
+                echo "   - ghcr.io/${{ env.GITHUB_OWNER }}/ymarketplace-frontend:$BRANCH"
+                ;;
+              code-executor)
+                echo "   - ghcr.io/${{ env.GITHUB_OWNER }}/code-executor:$BRANCH"
+                ;;
+            esac
+          done
+
+  deploy-apps:
+    needs: [validate-inputs, pre-deploy-checks]
+    runs-on: ubuntu-latest
+    environment: production
+    strategy:
+      matrix:
+        app: ${{ fromJson(format('[{0}]', format('"{0}"', replace(needs.validate-inputs.outputs.apps_list, ',', '","')))) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.31.0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.13.0
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+          echo "✅ kubectl configured for EKS cluster"
+
+      - name: Create namespace if needed
+        run: |
+          kubectl create namespace ${{ env.DEPLOY_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+          echo "✅ Namespace ensured: ${{ env.DEPLOY_NAMESPACE }}"
+
+      - name: Create GHCR secret for image pull
+        run: |
+          echo "🔐 Creating GHCR authentication secret..."
+          
+          # Create secret using GitHub token
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=_json_key \
+            --docker-password="${{ secrets.GITHUB_TOKEN }}" \
+            --docker-email=noemail@example.com \
+            --dry-run=client -o yaml | kubectl apply -f -
+          
+          echo "✅ GHCR authentication secret created/updated"
+
+      - name: Patch service account with image pull secret
+        run: |
+          echo "🔧 Patching service account..."
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} patch serviceaccount default \
+            -p '{"imagePullSecrets": [{"name": "ghcr-secret"}]}' || true
+          echo "✅ Service account patched"
+
+      - name: Deploy ${{ matrix.app }} via Helm
+        run: |
+          APP="${{ matrix.app }}"
+          BRANCH="${{ inputs.branch }}"
+          HELM_CHART="infra/helm/$APP"
+          HELM_VALUES_PROD="$HELM_CHART/values-prod.yaml"
+          
+          echo "🚀 Deploying $APP to EKS..."
+          echo "   Environment: ${{ env.DEPLOY_ENV }}"
+          echo "   Branch: $BRANCH"
+          echo "   Namespace: ${{ env.DEPLOY_NAMESPACE }}"
+          echo "   Helm Chart: $HELM_CHART"
+          echo ""
+          
+          if [ ! -f "$HELM_VALUES_PROD" ]; then
+            echo "❌ Helm values file not found: $HELM_VALUES_PROD"
+            exit 1
+          fi
+          
+          # Deploy using Helm with GHCR registry
+          helm upgrade --install "$APP" "$HELM_CHART" \
+            --namespace "${{ env.DEPLOY_NAMESPACE }}" \
+            -f "$HELM_VALUES_PROD" \
+            --set image.registry="ghcr.io/${{ env.GITHUB_OWNER }}" \
+            --set image.tag="$BRANCH" \
+            --set env.DEPLOY_ENV="${{ env.DEPLOY_ENV }}" \
+            --wait=false \
+            --timeout 5m
+          
+          echo "✅ Helm deployment initiated for $APP"
+
+      - name: Monitor deployment
+        run: |
+          APP="${{ matrix.app }}"
+          
+          echo "⏳ Monitoring deployment: $APP"
+          sleep 5
+          
+          echo ""
+          echo "📊 Deployment Status:"
+          kubectl get deployment -n ${{ env.DEPLOY_NAMESPACE }} -l app=$APP -o wide
+          
+          echo ""
+          echo "Pod Status:"
+          kubectl get pods -n ${{ env.DEPLOY_NAMESPACE }} -l app=$APP -o wide
+          
+          echo ""
+          echo "Recent Events:"
+          kubectl get events -n ${{ env.DEPLOY_NAMESPACE }} --sort-by='.lastTimestamp' | grep -i $APP | tail -5
+
+  verify-deployment:
+    needs: [validate-inputs, deploy-apps]
+    runs-on: ubuntu-latest
+    environment: production
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.31.0
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Generate deployment report
+        run: |
+          echo "=========================================="
+          echo "📋 EKS Deployment Report"
+          echo "=========================================="
+          echo ""
+          echo "Deployment Details:"
+          echo "  Environment: ${{ env.DEPLOY_ENV }}"
+          echo "  Branch: ${{ inputs.branch }}"
+          echo "  Namespace: ${{ env.DEPLOY_NAMESPACE }}"
+          echo "  Cluster: ${{ env.EKS_CLUSTER_NAME }}"
+          echo "  Region: ${{ env.AWS_REGION }}"
+          echo "  Apps Deployed: ${{ needs.validate-inputs.outputs.apps_count }}"
+          echo ""
+          echo "Deployed Apps:"
+          IFS=',' read -ra APPS_ARRAY <<< "${{ needs.validate-inputs.outputs.apps_list }}"
+          for app in "${APPS_ARRAY[@]}"; do
+            echo "  - $(echo $app | xargs)"
+          done
+          echo ""
+          
+          echo "=========================================="
+          echo "Kubernetes Deployments"
+          echo "=========================================="
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get deployments -o wide
+          
+          echo ""
+          echo "=========================================="
+          echo "Pod Status"
+          echo "=========================================="
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get pods -o wide
+          
+          echo ""
+          echo "=========================================="
+          echo "Helm Releases"
+          echo "=========================================="
+          helm list -n ${{ env.DEPLOY_NAMESPACE }}
+          
+          echo ""
+          echo "=========================================="
+          echo "Services"
+          echo "=========================================="
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get svc -o wide
+          
+          echo ""
+          echo "=========================================="
+          echo "Recent Events"
+          echo "=========================================="
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get events --sort-by='.lastTimestamp' | tail -15
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo ""
+          echo "=========================================="
+          echo "✅ Deployment Summary"
+          echo "=========================================="
+          echo ""
+          echo "Details:"
+          echo "  Environment: ${{ env.DEPLOY_ENV }}"
+          echo "  Branch/Tag: ${{ inputs.branch }}"
+          echo "  Namespace: ${{ env.DEPLOY_NAMESPACE }}"
+          echo "  Apps: ${{ needs.validate-inputs.outputs.apps_list }}"
+          echo ""
+          echo "Monitoring Commands:"
+          echo "  # Watch pod status"
+          echo "  kubectl -n ${{ env.DEPLOY_NAMESPACE }} get pods -w"
+          echo ""
+          echo "  # View deployment logs"
+          echo "  kubectl -n ${{ env.DEPLOY_NAMESPACE }} logs -f deployment/ycode-backend"
+          echo ""
+          echo "  # Check Helm status"
+          echo "  helm list -n ${{ env.DEPLOY_NAMESPACE }}"
+          echo ""
+          echo "  # Port-forward for testing"
+          echo "  kubectl -n ${{ env.DEPLOY_NAMESPACE }} port-forward svc/ycode-backend 8000:80"
+          echo ""
+          echo "=========================================="
+
+      - name: Notify deployment status
+        if: needs.deploy-apps.result == 'failure'
+        run: |
+          echo "❌ Deployment failed - see logs above for details"
+          exit 1

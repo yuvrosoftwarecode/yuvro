@@ -1,9 +1,10 @@
 # YCampus Helm Chart Values - Production Environment
 
-# Image configuration
+# Image configuration (pulls from GHCR registry in prod)
 image:
-  pullPolicy: IfNotPresent
-  tag: "latest"
+  registry: "ghcr.io/yuvro"  # Override via --set image.registry=ghcr.io/your-org
+  pullPolicy: IfNotPresent   # Pull from registry (don't use local images)
+  tag: "latest"              # Override via --set image.tag=branch-name
 
 # Environment variables from .env.prod
 env:
@@ -75,7 +76,7 @@ secrets:
 components:
   backend:
     enabled: true
-    replicas: 3  # High availability
+    replicas: 2  # Default scale
   frontend:
     enabled: true
     replicas: 2
