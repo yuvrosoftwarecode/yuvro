@@ -1370,7 +1370,7 @@ deploy: _validate-deploy
 		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
 	elif ([ "$(DEPLOY_ENV)" = "dev" ] || [ "$(DEPLOY_ENV)" = "prod" ]) && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
 		echo "🚀 Deploying ALL apps to $(DEPLOY_ENV) EC2 via Docker Compose [branch=$(DEPLOY_BRANCH)]..."; \
-		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_ENV) $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_INFRA_TYPE)" = "k8s" ] || [ "$(DEPLOY_INFRA_TYPE)" = "local" ]; then \
 		echo "🚀 Deploying ALL apps to $(DEPLOY_ENV) [INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."; \
 		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
