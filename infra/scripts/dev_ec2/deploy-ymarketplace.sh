@@ -66,6 +66,15 @@ sudo rm -f /etc/nginx/sites-enabled/yuvro-ymarketplace-http-only.conf
 # Enable the full HTTPS config
 sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace.conf /etc/nginx/sites-enabled/yuvro-ymarketplace.conf
 
+# Ensure other app configs are still enabled (don't disable them)
+for app_config in /etc/nginx/sites-available/yuvro-*.conf; do
+    [ -f "$app_config" ] || continue
+    config_name=$(basename "$app_config")
+    # Only enable if it's not the marketplace http-only temp config
+    [ "$config_name" = "yuvro-ymarketplace-http-only.conf" ] && continue
+    [ -e "/etc/nginx/sites-enabled/$config_name" ] || sudo ln -sf "$app_config" "/etc/nginx/sites-enabled/$config_name"
+done
+
 # Test and reload with full HTTPS config
 sudo nginx -t && sudo systemctl reload nginx && echo "✓ HTTPS config active" || echo "⚠ nginx test failed"
 
