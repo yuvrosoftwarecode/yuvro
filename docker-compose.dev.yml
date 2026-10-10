@@ -160,24 +160,23 @@ services:
     build:
       context: ./ymarketplace/ymarketplace-backend-api
       dockerfile: Dockerfile
-      target: dev
+      target: production
       args:
         - CACHEBUST=${CACHEBUST:-1}
     env_file:
-      - path: ./ymarketplace/ymarketplace-backend-api/.env.dev
-        required: false
+      - ./ymarketplace/ymarketplace-backend-api/.env.dev
       - path: ./ymarketplace/ymarketplace-backend-api/.env.dev-secrets
         required: false
     command: >
       sh -c "python manage.py migrate --noinput &&
              python manage.py collectstatic --noinput &&
-             gunicorn --bind 0.0.0.0:8004 --workers 3 --timeout 120 config.wsgi:application"
+             gunicorn --bind 0.0.0.0:8004 --workers 3 --timeout 120 ymarketplace-backend-api.wsgi:application"
 
   ymarketplace-frontend:
     build:
       context: ./ymarketplace/ymarketplace-web
       dockerfile: Dockerfile
-      target: dev
+      target: production
       args:
         - VITE_BACKEND_API_BASE_URL=${YMARKETPLACE_VITE_BACKEND_API_BASE_URL:-https://marketplace-backend-dev.yuvro.ai/api}
         - VITE_YHUB_BACKEND_API_BASE_URL=${YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL:-https://backend-hub-dev.yuvro.ai/api}
