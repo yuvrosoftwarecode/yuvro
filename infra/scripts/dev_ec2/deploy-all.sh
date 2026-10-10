@@ -14,7 +14,7 @@ set -euo pipefail
 
 # ========== CONFIGURATION ==========
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 OPENTOFU_DIR="$PROJECT_ROOT/infra/opentofu"
 ENVIRONMENT="${1:-}"
 PLAN_ONLY="${2:-}"
