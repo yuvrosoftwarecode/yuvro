@@ -1368,9 +1368,9 @@ deploy: _validate-deploy
 	elif [ "$(DEPLOY_ENV)" = "prod" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ecs" ]; then \
 		echo "🚀 Deploying ALL apps to PRODUCTION ECS via Docker [branch=$(DEPLOY_BRANCH)]..."; \
 		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
-	elif [ "$(DEPLOY_ENV)" = "prod" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
-		echo "🚀 Deploying ALL apps to PRODUCTION EC2 via Docker Compose [branch=$(DEPLOY_BRANCH)]..."; \
-		bash infra/scripts/prod_ec2/deploy-all.sh $(DEPLOY_BRANCH); \
+	elif ([ "$(DEPLOY_ENV)" = "dev" ] || [ "$(DEPLOY_ENV)" = "prod" ]) && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
+		echo "🚀 Deploying ALL apps to $(DEPLOY_ENV) EC2 via Docker Compose [branch=$(DEPLOY_BRANCH)]..."; \
+		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
 	elif [ "$(DEPLOY_INFRA_TYPE)" = "k8s" ] || [ "$(DEPLOY_INFRA_TYPE)" = "local" ]; then \
 		echo "🚀 Deploying ALL apps to $(DEPLOY_ENV) [INFRA_TYPE=$(DEPLOY_INFRA_TYPE), BRANCH=$(DEPLOY_BRANCH)]..."; \
 		bash infra/scripts/$(INFRA_SCRIPTS_DIR)/deploy-all.sh $(DEPLOY_BRANCH); \
@@ -1382,6 +1382,7 @@ deploy: _validate-deploy
 		echo "Supported combinations:"; \
 		echo "  • DEPLOY_ENV=local DEPLOY_INFRA_TYPE=local (Docker Compose)"; \
 		echo "  • DEPLOY_ENV=local DEPLOY_INFRA_TYPE=k8s (Local Kubernetes)"; \
+		echo "  • DEPLOY_ENV=dev DEPLOY_INFRA_TYPE=ec2 (AWS EC2 with Docker Compose)"; \
 		echo "  • DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=ec2 (AWS EC2 with Docker Compose)"; \
 		echo "  • DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=eks (Production EKS)"; \
 		echo "  • DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=ecs (Production ECS)"; \
