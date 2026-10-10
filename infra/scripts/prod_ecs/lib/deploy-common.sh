@@ -431,7 +431,7 @@ if [ ! -f /home/ubuntu/.ssh/ymarketplace_deploy_key ] && [ -f /home/ubuntu/.ssh/
     chmod 600 /home/ubuntu/.ssh/ymarketplace_deploy_key
 fi
 
-git submodule update --init --recursive --force
+git submodule update --init --recursive --remote --force
 echo "   ✓ submodules initialized  [elapsed \$(( \$(date +%s)-T2 ))s]"
 
 # ── ymarketplace env.dev (non-secret, generated inline) ──────────────────────
