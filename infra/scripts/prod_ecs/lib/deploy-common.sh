@@ -222,7 +222,7 @@ wire_secrets() {
     # S3 into all backends
     for f in ycode-backend-api/.env.dev-secrets ycampus-backend-api/.env.dev-secrets \
               yhub-backend-api/.env.dev-secrets  ylabs-backend-api/.env.dev-secrets \
-              ymarketplace/backend/.env.dev-secrets; do
+              ymarketplace/ymarketplace-backend-api/.env.dev-secrets; do
         _set_kv "$SECRETS_DIR/$f" "AWS_STORAGE_BUCKET_NAME" "$S3_BUCKET"
         _set_kv "$SECRETS_DIR/$f" "AWS_ACCESS_KEY_ID"        "$S3_KEY_ID"
         _set_kv "$SECRETS_DIR/$f" "AWS_SECRET_ACCESS_KEY"    "$S3_SECRET"
@@ -268,7 +268,7 @@ wire_secrets() {
         print_success "YLabs database: ylabs (on consolidated RDS)"
 
         # YMarketplace
-        f="$SECRETS_DIR/ymarketplace/backend/.env.dev-secrets"
+        f="$SECRETS_DIR/ymarketplace/ymarketplace-backend-api/.env.dev-secrets"
         _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ymarketplace"
         _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
         _set_kv "$f" "DB_NAME" "ymarketplace"; _set_kv "$f" "DB_USER" "$DB_USER"
@@ -292,9 +292,9 @@ app_secrets_for() {
         ycampus)      echo "ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets" ;;
         ylabs)        echo "ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets" ;;
         yhub)         echo "yhub-backend-api/.env.dev-secrets" ;;
-        ymarketplace) echo "ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets" ;;
+        ymarketplace) echo "ymarketplace/ymarketplace-backend-api/.env.dev-secrets ymarketplace/ymarketplace-web/.env.dev-secrets" ;;
         code-executor) echo "ycode-executor-api/.env.dev-secrets" ;;
-        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets ycode-executor-api/.env.dev-secrets" ;;
+        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets ymarketplace/ymarketplace-backend-api/.env.dev-secrets ymarketplace/ymarketplace-web/.env.dev-secrets ycode-executor-api/.env.dev-secrets" ;;
     esac
 }
 
@@ -317,9 +317,9 @@ app_nginx_config_for() {
         ycampus)      echo "ycampus-web/nginx.ec2.conf" ;;
         ylabs)        echo "ylabs-web/nginx.ec2.conf" ;;
         yhub)         echo "yhub-backend-api/nginx.ec2.conf" ;;
-        ymarketplace) echo "ymarketplace/frontend/nginx.ec2.conf" ;;
+        ymarketplace) echo "ymarketplace/ymarketplace-web/nginx.ec2.conf" ;;
         code-executor) echo "ycode-executor-api/nginx.ec2.conf" ;;
-        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/frontend/nginx.ec2.conf ycode-executor-api/nginx.ec2.conf" ;;
+        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/ymarketplace-web/nginx.ec2.conf ycode-executor-api/nginx.ec2.conf" ;;
     esac
 }
 

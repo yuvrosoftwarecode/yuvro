@@ -294,7 +294,7 @@ app_secrets_for() {
         yhub)         echo "yhub-backend-api/.env.dev-secrets" ;;
         ymarketplace) echo "ymarketplace/ymarketplace-backend-api/.env.dev-secrets ymarketplace/ymarketplace-web/.env.dev-secrets" ;;
         code-executor) echo "ycode-executor-api/.env.dev-secrets" ;;
-        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets ycode-executor-api/.env.dev-secrets" ;;
+        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets ymarketplace/ymarketplace-backend-api/.env.dev-secrets ymarketplace/ymarketplace-web/.env.dev-secrets ycode-executor-api/.env.dev-secrets" ;;
     esac
 }
 
@@ -319,7 +319,7 @@ app_nginx_config_for() {
         yhub)         echo "yhub-backend-api/nginx.ec2.conf" ;;
         ymarketplace) echo "ymarketplace/ymarketplace-web/nginx.ec2.conf" ;;
         code-executor) echo "ycode-executor-api/nginx.ec2.conf" ;;
-        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/frontend/nginx.ec2.conf ycode-executor-api/nginx.ec2.conf" ;;
+        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/ymarketplace-web/nginx.ec2.conf ycode-executor-api/nginx.ec2.conf" ;;
     esac
 }
 
@@ -437,8 +437,8 @@ echo "   ✓ submodules initialized  [elapsed \$(( \$(date +%s)-T2 ))s]"
 # ── ymarketplace env.dev (non-secret, generated inline) ──────────────────────
 # The submodule gitignores .env.dev so we write it directly on EC2
 echo "── ymarketplace env files ───────────────────────────"
-mkdir -p ymarketplace/backend ymarketplace/frontend
-cat > ymarketplace/backend/.env.dev << 'MPBACKENDENV'
+mkdir -p ymarketplace/ymarketplace-backend-api ymarketplace/ymarketplace-web
+cat > ymarketplace/ymarketplace-backend-api/.env.dev << 'MPBACKENDENV'
 DEPLOY_ENV=dev
 DEPLOY_TYPE=docker
 DEBUG=False
@@ -461,7 +461,7 @@ EMAIL_USE_SSL=True
 EMAIL_USE_TLS=False
 DEFAULT_FROM_EMAIL=contact@yuvro.ai
 MPBACKENDENV
-cat > ymarketplace/frontend/.env.dev << 'MPFRONTENDENV'
+cat > ymarketplace/ymarketplace-web/.env.dev << 'MPFRONTENDENV'
 DEPLOY_ENV=dev
 DEPLOY_TYPE=docker
 VITE_BACKEND_API_BASE_URL=https://backend-marketplace-dev.yuvro.ai/api
@@ -475,7 +475,7 @@ echo "   ✓ ymarketplace env files written"
 echo "── secrets ─────────────────────────────────────────"
 for sf in yhub-backend-api/.env.dev-secrets ylabs-backend-api/.env.dev-secrets \
           ycode-backend-api/.env.dev-secrets ycampus-backend-api/.env.dev-secrets \
-          ymarketplace/backend/.env.dev-secrets; do
+          ymarketplace/ymarketplace-backend-api/.env.dev-secrets; do
     [ -f "\$sf" ] && echo "   ✓ \$sf" || echo "   ⚠ missing: \$sf"
 done
 
