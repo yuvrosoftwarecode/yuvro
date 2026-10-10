@@ -14,7 +14,7 @@ setup_nginx() {
     print_header "Setting up Nginx + SSL for YMarketplace"
 
     # Copy YMarketplace nginx config
-    scp_ec2 "$PROJECT_ROOT/ymarketplace/frontend/nginx.ec2.conf" "ubuntu@$ip:/tmp/ymarketplace.conf"
+    scp_ec2 "$PROJECT_ROOT/ymarketplace/ymarketplace-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ymarketplace.conf"
 
     # YMarketplace domains
     local domains="marketplace-dev.yuvro.ai backend-marketplace-dev.yuvro.ai marketplace.yuvro.ai"

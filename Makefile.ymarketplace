@@ -15,8 +15,8 @@ setup:
 	@docker compose version >/dev/null 2>&1 || { echo "❌ Docker Compose is required."; exit 1; }
 
 	@echo "Creating environment files..."
-	@if [ ! -f ymarketplace/backend/.env.local ]; then cp ymarketplace/backend/.env.local.example ymarketplace/backend/.env.local; echo "✅ Created backend .env.local"; fi
-	@if [ ! -f ymarketplace/frontend/.env.local ]; then cp ymarketplace/frontend/.env.local.example ymarketplace/frontend/.env.local; echo "✅ Created frontend .env.local"; fi
+	@if [ ! -f ymarketplace/ymarketplace-backend-api/.env.local ]; then cp ymarketplace/ymarketplace-backend-api/.env.local.example ymarketplace/ymarketplace-backend-api/.env.local; echo "✅ Created backend .env.local"; fi
+	@if [ ! -f ymarketplace/ymarketplace-web/.env.local ]; then cp ymarketplace/ymarketplace-web/.env.local.example ymarketplace/ymarketplace-web/.env.local; echo "✅ Created frontend .env.local"; fi
 
 	@echo "Creating marketplace network..."
 	@docker network create yuvro_marketplace 2>/dev/null || true
@@ -124,7 +124,7 @@ backend-install:
 		exit 1; \
 	fi
 	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend pip install $(PKG)
-	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend pip freeze > ymarketplace/backend/requirements.txt
+	docker compose -f docker-compose.ymarketplace.yml exec ymarketplace-backend pip freeze > ymarketplace/ymarketplace-backend-api/requirements.txt
 
 # ============================================================================
 # Frontend

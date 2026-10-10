@@ -158,15 +158,15 @@ services:
 
   ymarketplace-backend:
     build:
-      context: ./ymarketplace/backend
+      context: ./ymarketplace/ymarketplace-backend-api
       dockerfile: Dockerfile
       target: dev
       args:
         - CACHEBUST=${CACHEBUST:-1}
     env_file:
-      - path: ./ymarketplace/backend/.env.dev
+      - path: ./ymarketplace/ymarketplace-backend-api/.env.dev
         required: false
-      - path: ./ymarketplace/backend/.env.dev-secrets
+      - path: ./ymarketplace/ymarketplace-backend-api/.env.dev-secrets
         required: false
     command: >
       sh -c "python manage.py migrate --noinput &&
@@ -175,7 +175,7 @@ services:
 
   ymarketplace-frontend:
     build:
-      context: ./ymarketplace/frontend
+      context: ./ymarketplace/ymarketplace-web
       dockerfile: Dockerfile
       target: dev
       args:
@@ -183,9 +183,9 @@ services:
         - VITE_YHUB_BACKEND_API_BASE_URL=${YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL:-https://backend-hub-dev.yuvro.ai/api}
         - CACHEBUST=${CACHEBUST:-1}
     env_file:
-      - path: ./ymarketplace/frontend/.env.dev
+      - path: ./ymarketplace/ymarketplace-web/.env.dev
         required: false
-      - path: ./ymarketplace/frontend/.env.dev-secrets
+      - path: ./ymarketplace/ymarketplace-web/.env.dev-secrets
         required: false
     ports:
       - "3004:3004"
