@@ -252,7 +252,7 @@ help:
 	@echo "  make db-reset-ymarketplace          Reset YMarketplace database only"
 	@echo ""
 	@echo "Per-App Dev Deploy (DEPLOY_BRANCH=<branch> make deploy-<app>):"
-	@echo "  make deploy-infra               Deploy infrastructure (EKS, RDS, IAM) - PROD only"
+	@echo "  make deploy-infra               Deploy infrastructure (EKS, RDS, IAM) - DEV or PROD"
 	@echo "  make deploy                     Deploy all apps (Helm charts)"
 	@echo "  make deploy-ycode                   Deploy YCode only"
 	@echo "  make deploy-ycampus                 Deploy YCampus only"
@@ -1298,8 +1298,12 @@ deploy-infra: _validate-deploy
 		echo "   Current: DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE)"; \
 		exit 1; \
 	fi
-	@if [ "$(DEPLOY_ENV)" = "prod" ]; then \
-		echo "🚀 Deploying Infrastructure to PRODUCTION [INFRA_TYPE=$(DEPLOY_INFRA_TYPE)]..."; \
+	@if [ "$(DEPLOY_ENV)" = "prod" ] || [ "$(DEPLOY_ENV)" = "dev" ]; then \
+		if [ "$(DEPLOY_ENV)" = "prod" ]; then \
+			echo "🚀 Deploying Infrastructure to PRODUCTION [INFRA_TYPE=$(DEPLOY_INFRA_TYPE)]..."; \
+		elif [ "$(DEPLOY_ENV)" = "dev" ]; then \
+			echo "🚀 Updating Infrastructure in DEV [INFRA_TYPE=$(DEPLOY_INFRA_TYPE)]..."; \
+		fi; \
 		if [ "$(DEPLOY_INFRA_TYPE)" = "eks" ]; then \
 			INFRA_DIR="prod_eks"; \
 			echo "   This will provision: EKS cluster, RDS database (prod-yuvro-db), IAM roles, security groups, etc."; \
@@ -1307,25 +1311,30 @@ deploy-infra: _validate-deploy
 			INFRA_DIR="prod_ecs"; \
 			echo "   This will provision: ECS cluster, RDS database (prod-yuvro-db), IAM roles, security groups, etc."; \
 		elif [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
-			INFRA_DIR="prod_ec2"; \
-			echo "   This will provision: EC2 instance, RDS database (prod-yuvro-db), VPC, security groups, etc."; \
+			if [ "$(DEPLOY_ENV)" = "dev" ]; then \
+				INFRA_DIR="dev_ec2"; \
+				echo "   This will update: EC2 instance, RDS database (dev-yuvro-db), IAM roles, security groups, etc."; \
+			else \
+				INFRA_DIR="prod_ec2"; \
+				echo "   This will provision: EC2 instance, RDS database (prod-yuvro-db), VPC, security groups, etc."; \
+			fi; \
 		fi; \
 		echo ""; \
 		cd infra/opentofu/$$INFRA_DIR && \
 		tofu init && \
 		echo "📋 Using infrastructure directory: $$INFRA_DIR"; \
-		tofu plan -out=tfplan_prod && \
+		tofu plan -out=tfplan && \
 		echo ""; \
 		echo "📋 Review the OpenTofu plan above carefully!"; \
 		read -p "Do you want to apply this plan? (yes/no): " confirm; \
 		if [ "$$confirm" = "yes" ]; then \
-			echo "⏳ Applying infrastructure changes (this may take 15-30 minutes)..."; \
+			echo "⏳ Applying infrastructure changes..."; \
 			TF_VARS=""; \
 			if [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ] && [ ! -z "$(GITHUB_TOKEN)" ]; then \
 				TF_VARS="-var github_token=$(GITHUB_TOKEN)"; \
 			fi; \
-			tofu apply $$TF_VARS -auto-approve tfplan_prod && \
-			rm -f tfplan_prod; \
+			tofu apply $$TF_VARS -auto-approve tfplan && \
+			rm -f tfplan; \
 			echo ""; \
 			echo "✅ Infrastructure deployment complete!"; \
 			echo ""; \
@@ -1340,19 +1349,17 @@ deploy-infra: _validate-deploy
 				echo "  1. Verify ECS cluster: aws ecs describe-clusters --clusters yuvro-prod-ecs-cluster --region ap-south-1"; \
 				echo "  2. Check services: aws ecs list-services --cluster yuvro-prod-ecs-cluster --region ap-south-1"; \
 			elif [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
-				echo "  1. Get EC2 IP: cd infra/opentofu/prod_ec2 && terraform output ec2_elastic_ips"; \
-				echo "  2. Copy repo: scp -r -i key.pem . ubuntu@<IP>:/home/ubuntu/yuvro"; \
-				echo "  3. SSH: ssh -i key.pem ubuntu@<IP>"; \
+				echo "  1. Get EC2 IP: cd infra/opentofu/$$INFRA_DIR && tofu output app_node_public_ips"; \
+				echo "  2. Deploy apps: DEPLOY_ENV=$(DEPLOY_ENV) DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE) DEPLOY_BRANCH=$(DEPLOY_BRANCH) make deploy"; \
 			fi; \
-			echo "  4. Deploy apps: DEPLOY_ENV=prod DEPLOY_INFRA_TYPE=$(DEPLOY_INFRA_TYPE) DEPLOY_BRANCH=$(DEPLOY_BRANCH) make deploy"; \
 		else \
 			echo "❌ Infrastructure deployment cancelled"; \
-			rm -f tfplan_prod; \
+			rm -f tfplan; \
 			exit 1; \
 		fi; \
 		cd - > /dev/null; \
 	else \
-		echo "❌ Infrastructure provisioning (deploy-infra) is only available for DEPLOY_ENV=prod"; \
+		echo "❌ Infrastructure provisioning (deploy-infra) is only available for DEPLOY_ENV=dev or DEPLOY_ENV=prod"; \
 		echo "   Current: DEPLOY_ENV=$(DEPLOY_ENV)"; \
 		exit 1; \
 	fi
