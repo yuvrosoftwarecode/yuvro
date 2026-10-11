@@ -479,27 +479,59 @@ for sf in yhub-backend-api/.env.dev-secrets ylabs-backend-api/.env.dev-secrets \
     [ -f "\$sf" ] && echo "   ✓ \$sf" || echo "   ⚠ missing: \$sf"
 done
 
-# ── build args ───────────────────────────────────────────────────────────────
-export YCODE_VITE_BACKEND_API_BASE_URL="https://backend-code-dev.yuvro.ai/api"
-export VITE_YHUB_BACKEND_API_BASE_URL="https://backend-hub-dev.yuvro.ai/api"
-export YCODE_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
-export YCAMPUS_VITE_BACKEND_API_BASE_URL="https://backend-campus-dev.yuvro.ai/api"
-export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="https://code-executer-dev.yuvro.ai"
-export YLABS_VITE_BACKEND_API_BASE_URL="https://backend-dev.yuvrolabs.com/api"
-export YLABS_VITE_YHUB_BACKEND_API_BASE_URL="https://backend-hub-dev.yuvro.ai/api"
-export YLABS_VITE_YCODE_BACKEND_API_BASE_URL="https://backend-code-dev.yuvro.ai/api"
-export YMARKETPLACE_VITE_BACKEND_API_BASE_URL="https://backend-marketplace-dev.yuvro.ai/api"
-export YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL="https://backend-hub-dev.yuvro.ai/api"
-export VITE_GOOGLE_CLIENT_ID="$vite_google"
-export YCAMPUS_VITE_GOOGLE_CLIENT_ID="$ycampus_google"
-export YLABS_VITE_GOOGLE_CLIENT_ID="$ylabs_google"
-export YMARKETPLACE_VITE_GOOGLE_CLIENT_ID="$ymarketplace_google"
-export VITE_DEPLOY_COMMIT_SHA=\$(git rev-parse HEAD 2>/dev/null || echo unknown)
-export VITE_DEPLOY_BRANCH=\$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)
-export VITE_DEPLOY_APP_VERSION=\$(python3 -c "import json;print(json.load(open('ycode-web/package.json'))['version'])" 2>/dev/null || echo 1.0.0)
-export CACHEBUST=\$(date +%s)
+# ── build args ─────────────────────────────────────────────────────────────
+# These are frontend build-time variables that must be exported for docker build
+# to include them in the static bundle (Vite bakes them in at build time)
+# 
+# API URLs come from app .env files (already environment-specific)
+# Deployment info is generated at deploy time
+setup_build_args() {
+    local app="${1:-all}"
+    
+    # Read API URLs from .env files (environment-specific configs)
+    # If .env file exists, source it; otherwise use sensible defaults
+    local ycode_backend_url="https://backend-code-dev.yuvro.ai/api"
+    local yhub_backend_url="https://backend-hub-dev.yuvro.ai/api"
+    local code_executor_url="https://code-executer-dev.yuvro.ai"
+    local ycampus_backend_url="https://backend-campus-dev.yuvro.ai/api"
+    local ylabs_backend_url="https://backend-dev.yuvrolabs.com/api"
+    local ymarketplace_backend_url="https://backend-marketplace-dev.yuvro.ai/api"
+    
+    # Try to read from .env files if they exist
+    [ -f "$PROJECT_ROOT/ycode-web/.env.dev" ] && ycode_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ycode-web/.env.dev" | cut -d= -f2- | tr -d '"')
+    [ -f "$PROJECT_ROOT/ycampus-web/.env.dev" ] && ycampus_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ycampus-web/.env.dev" | cut -d= -f2- | tr -d '"')
+    [ -f "$PROJECT_ROOT/ylabs-web/.env.dev" ] && ylabs_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ylabs-web/.env.dev" | cut -d= -f2- | tr -d '"')
+    [ -f "$PROJECT_ROOT/ymarketplace/ymarketplace-web/.env.dev" ] && ymarketplace_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ymarketplace/ymarketplace-web/.env.dev" | cut -d= -f2- | tr -d '"')
+    
+    # Export all build args (used by docker build)
+    export YCODE_VITE_BACKEND_API_BASE_URL="$ycode_backend_url"
+    export VITE_YHUB_BACKEND_API_BASE_URL="$yhub_backend_url"
+    export YCODE_VITE_CODE_EXECUTOR_BASE_URL="$code_executor_url"
+    export YCAMPUS_VITE_BACKEND_API_BASE_URL="$ycampus_backend_url"
+    export YCAMPUS_VITE_CODE_EXECUTOR_BASE_URL="$code_executor_url"
+    export YLABS_VITE_BACKEND_API_BASE_URL="$ylabs_backend_url"
+    export YLABS_VITE_YHUB_BACKEND_API_BASE_URL="$yhub_backend_url"
+    export YLABS_VITE_YCODE_BACKEND_API_BASE_URL="$ycode_backend_url"
+    export YMARKETPLACE_VITE_BACKEND_API_BASE_URL="$ymarketplace_backend_url"
+    export YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL="$yhub_backend_url"
+    
+    # Google OAuth IDs (from variables set by caller or read from .env)
+    export VITE_GOOGLE_CLIENT_ID="${vite_google:-}"
+    export YCAMPUS_VITE_GOOGLE_CLIENT_ID="${ycampus_google:-}"
+    export YLABS_VITE_GOOGLE_CLIENT_ID="${ylabs_google:-}"
+    export YMARKETPLACE_VITE_GOOGLE_CLIENT_ID="${ymarketplace_google:-}"
+    
+    # Deployment metadata (generated at build time)
+    export VITE_DEPLOY_COMMIT_SHA="$(git rev-parse HEAD 2>/dev/null || echo unknown)"
+    export VITE_DEPLOY_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+    export VITE_DEPLOY_APP_VERSION="$(python3 -c "import json;print(json.load(open('ycode-web/package.json'))['version'])" 2>/dev/null || echo 1.0.0)"
+    export CACHEBUST="$(date +%s)"
+}
+
+setup_build_args "$app"
 echo "── build args ──────────────────────────────────────"
-echo "   branch=\$VITE_DEPLOY_BRANCH  sha=\${VITE_DEPLOY_COMMIT_SHA:0:7}"
+echo "   ycode_backend: $YCODE_VITE_BACKEND_API_BASE_URL"
+echo "   branch=$VITE_DEPLOY_BRANCH  sha=${VITE_DEPLOY_COMMIT_SHA:0:7}"
 
 # ── EBS expand ───────────────────────────────────────────────────────────────
 sudo growpart /dev/nvme0n1 1 2>/dev/null || true

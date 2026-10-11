@@ -1,11 +1,13 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket" "base" {
-  bucket = "yuvro-prod-${data.aws_caller_identity.current.account_id}"
+  # Use pattern: yuvro-{environment}
+  # This allows all environments (dev, prod) to use consistent naming
+  bucket = "yuvro-${var.environment}"
 
   tags = {
-    Name        = "yuvro-prod"
-    Environment = "prod"
+    Name        = "yuvro-${var.environment}"
+    Environment = var.environment
   }
 }
 
