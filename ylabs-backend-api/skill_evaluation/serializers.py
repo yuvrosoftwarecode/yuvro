@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.utils import timezone
+from datetime import timedelta
 from .models import RecruiterActivityLog
 from .models import LabQuestionBankTask
 from django.contrib.auth import get_user_model
@@ -435,14 +437,100 @@ class UserLabQuestionBankSubmissionSerializer(serializers.ModelSerializer):
             except Exception:
                 pass
 
-        if not data.get('minutes_solved') and instance.created_at and instance.updated_at:
-            delta = instance.updated_at - instance.created_at
-            if delta.total_seconds() >= 30:
-                calc_min = max(1, round(delta.total_seconds() / 60))
-                data['minutes_solved'] = calc_min
-                if instance.minutes_solved == 0:
-                    instance.minutes_solved = calc_min
-                    instance.save(update_fields=['minutes_solved'])
+        # Check stored seconds_solved or timestamps
+        stored_secs = getattr(instance, 'seconds_solved', 0) or 0
+        if stored_secs > 0:
+            data['seconds_solved'] = stored_secs
+        elif getattr(instance, 'submitted_at', None) and getattr(instance, 'started_at', None) and instance.submitted_at > instance.started_at:
+            delta = (instance.submitted_at - instance.started_at).total_seconds()
+            data['seconds_solved'] = max(1, round(delta))
+        elif instance.created_at and instance.updated_at and (instance.updated_at - instance.created_at).total_seconds() >= 1:
+            delta = (instance.updated_at - instance.created_at).total_seconds()
+            data['seconds_solved'] = max(1, round(delta))
+        else:
+            data['seconds_solved'] = 0
+
+        # For historical or zero-duration records, infer from candidate timeline & submission intervals
+        if not data.get('seconds_solved'):
+            from .models import CandidateTimelineEvent, CandidateTimelineEventType
+            user = instance.user
+            eval_id = instance.evaluation_id
+            if user and eval_id:
+                all_subs = list(UserLabQuestionBankSubmission.objects.filter(
+                    user=user, evaluation_id=eval_id
+                ).order_by('created_at'))
+                
+                start_event = CandidateTimelineEvent.objects.filter(
+                    evaluation_id=eval_id,
+                    candidate_email=user.email,
+                    title__in=[CandidateTimelineEventType.STARTED, "Candidate started evaluation", "Evaluation started"]
+                ).order_by('occurred_at').first()
+                start_time = start_event.occurred_at if start_event else None
+                if not start_time:
+                    eval_sub = user.evaluation_submissions.filter(evaluation_id=eval_id).first()
+                    start_time = eval_sub.created_at if eval_sub else None
+
+                try:
+                    curr_idx = [s.id for s in all_subs].index(instance.id)
+                except ValueError:
+                    curr_idx = -1
+
+                if curr_idx == 0 and start_time and instance.created_at and instance.created_at > start_time:
+                    calc = round((instance.created_at - start_time).total_seconds())
+                    if calc > 0:
+                        data['seconds_solved'] = calc
+                elif curr_idx > 0:
+                    prev_sub = all_subs[curr_idx - 1]
+                    if prev_sub.created_at and instance.created_at and instance.created_at > prev_sub.created_at:
+                        calc = round((instance.created_at - prev_sub.created_at).total_seconds())
+                        if calc > 0:
+                            data['seconds_solved'] = calc
+
+            if not data.get('seconds_solved') and data.get('minutes_solved'):
+                data['seconds_solved'] = int(data['minutes_solved']) * 60
+            elif not data.get('seconds_solved'):
+                if data.get('solution') or data.get('solution_output') or data.get('score'):
+                    data['seconds_solved'] = 25
+                else:
+                    data['seconds_solved'] = 0
+
+        # Ensure started_at and submitted_at are defined
+        submitted_at_val = getattr(instance, 'submitted_at', None) or instance.updated_at or instance.created_at
+        started_at_val = getattr(instance, 'started_at', None)
+        if not started_at_val and submitted_at_val:
+            sec_dur = data.get('seconds_solved', 0)
+            if sec_dur > 0:
+                started_at_val = submitted_at_val - timezone.timedelta(seconds=sec_dur)
+            else:
+                started_at_val = instance.created_at or submitted_at_val
+
+        data['started_at'] = started_at_val.isoformat() if started_at_val else None
+        data['submitted_at'] = submitted_at_val.isoformat() if submitted_at_val else None
+
+        # Persist seconds_solved, minutes_solved, started_at, and submitted_at to the database
+        if data.get('seconds_solved'):
+            try:
+                update_fields = []
+                if getattr(instance, 'seconds_solved', 0) != data['seconds_solved']:
+                    instance.seconds_solved = data['seconds_solved']
+                    update_fields.append('seconds_solved')
+                calc_mins = round(data['seconds_solved'] / 60)
+                if instance.minutes_solved != calc_mins:
+                    instance.minutes_solved = calc_mins
+                    update_fields.append('minutes_solved')
+                if not getattr(instance, 'started_at', None) and started_at_val:
+                    instance.started_at = started_at_val
+                    update_fields.append('started_at')
+                if not getattr(instance, 'submitted_at', None) and submitted_at_val:
+                    instance.submitted_at = submitted_at_val
+                    update_fields.append('submitted_at')
+                if update_fields:
+                    instance.save(update_fields=update_fields)
+            except Exception:
+                pass
+
+        if not data.get('minutes_solved') and data.get('seconds_solved'):
+            data['minutes_solved'] = round(data['seconds_solved'] / 60)
 
         return data
 
@@ -451,6 +539,45 @@ class UserKnowledgeAssessmentSubmissionSerializer(serializers.ModelSerializer):
         model = UserKnowledgeAssessmentSubmission
         fields = '__all__'
         read_only_fields = ('user',)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        answers = data.get('answers') or []
+        if answers and all(not a.get('seconds_spent') and not a.get('seconds') for a in answers):
+            from .models import CandidateTimelineEvent, CandidateTimelineEventType
+            candidate_email = instance.user.email if instance.user else None
+            per_q = 0
+            if candidate_email:
+                prev_event = CandidateTimelineEvent.objects.filter(
+                    evaluation=instance.evaluation,
+                    candidate_email=candidate_email,
+                    title__in=[CandidateTimelineEventType.STARTED, CandidateTimelineEventType.LABS_SUBMITTED]
+                ).order_by('-occurred_at').first()
+                curr_event = CandidateTimelineEvent.objects.filter(
+                    evaluation=instance.evaluation,
+                    candidate_email=candidate_email,
+                    title=CandidateTimelineEventType.ASSESSMENT_SUBMITTED
+                ).order_by('-occurred_at').first()
+                end_time = curr_event.occurred_at if curr_event else instance.created_at
+                if prev_event and end_time and end_time > prev_event.occurred_at:
+                    total_secs = max(1, round((end_time - prev_event.occurred_at).total_seconds()))
+                    per_q = max(1, round(total_secs / len(answers)))
+            if per_q == 0 and instance.created_at and instance.user:
+                eval_sub = instance.user.evaluation_submissions.filter(evaluation=instance.evaluation).first()
+                if eval_sub and eval_sub.created_at and instance.created_at > eval_sub.created_at:
+                    total_secs = max(1, round((instance.created_at - eval_sub.created_at).total_seconds()))
+                    per_q = max(1, round(total_secs / len(answers)))
+            if per_q > 0:
+                for a in answers:
+                    if not a.get('seconds_spent'):
+                        a['seconds_spent'] = per_q
+                data['answers'] = answers
+                try:
+                    instance.answers = answers
+                    instance.save(update_fields=['answers'])
+                except Exception:
+                    pass
+        return data
 
 class FollowUpConfigSerializer(serializers.ModelSerializer):
     class Meta:

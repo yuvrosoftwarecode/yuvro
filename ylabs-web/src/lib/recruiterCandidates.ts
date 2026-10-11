@@ -31,6 +31,7 @@ export interface Candidate {
   status: CandStatus;
   hiringStatus: HiringStatus;
   submittedAt: number; // ms
+  startedAt?: number; // ms
   completionMinutes: number;
   avatarHue: number;
   resumeUrl?: string;
@@ -439,6 +440,7 @@ export function getCandidates(
       hiring = sub.hiring_status || "Pending Review";
     }
     const submittedAt = sub.completed_at ? new Date(sub.completed_at).getTime() : new Date(sub.created_at || now).getTime();
+    const startedAt = sub.created_at ? new Date(sub.created_at).getTime() : (sub.completed_at ? new Date(sub.completed_at).getTime() : now);
     const completionMinutes = sub.duration ? Math.round(sub.duration / 60) : 25 + Math.floor(r() * 110);
     const skills = Array.from(
       new Set(Array.from({ length: 3 + Math.floor(r() * 4) }, () => pick(r, SKILL_POOL))),
@@ -538,6 +540,7 @@ export function getCandidates(
         status,
         hiringStatus: hiring,
         submittedAt,
+        startedAt,
         completionMinutes,
         avatarHue: Math.floor(r() * 360),
         eci,

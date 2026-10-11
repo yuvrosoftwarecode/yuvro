@@ -58,6 +58,7 @@ class RestApiUtil {
             const sessionSeconds = Math.round((Date.now() - (window as any).__labSessionStartTime) / 1000);
             // Backend expects an integer (whole minutes), minimum 1
             bodyObj.minutes_solved = Math.max(1, Math.round(sessionSeconds / 60));
+            bodyObj.seconds_solved = sessionSeconds;
             fetchOptions.body = JSON.stringify(bodyObj);
           }
         } catch (e) {

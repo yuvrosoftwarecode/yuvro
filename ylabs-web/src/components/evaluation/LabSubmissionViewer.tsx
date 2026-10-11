@@ -312,7 +312,24 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
         }
     };
 
-    const timeTaken = minutesSolved ?? labSub?.minutes_solved ?? 0;
+    let totalSecs = 0;
+    if (labSub?.seconds_solved != null && Number(labSub.seconds_solved) > 0) {
+        totalSecs = Number(labSub.seconds_solved);
+    } else if (labSub?.created_at && labSub?.updated_at) {
+        const start = new Date(labSub.created_at).getTime();
+        const end = new Date(labSub.updated_at).getTime();
+        if (!isNaN(start) && !isNaN(end) && end > start) {
+            totalSecs = Math.round((end - start) / 1000);
+        }
+    }
+    if (totalSecs === 0) {
+        const m = minutesSolved ?? labSub?.minutes_solved ?? 0;
+        totalSecs = Number(m) * 60;
+    }
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    const timeTakenFormatted = `${mins}m ${secs}s`;
+    const timeTaken = mins;
     const score = labSub?.score ?? 0;
 
     const eciColor = (v: number) => v >= 70 ? "text-emerald-500" : v >= 55 ? "text-amber-500" : "text-red-500";
@@ -423,7 +440,7 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="rounded-lg border bg-card p-3">
                                         <div className="text-[10px] uppercase text-muted-foreground">Time taken</div>
-                                        <div className="text-lg font-medium text-foreground">{timeTaken}m</div>
+                                        <div className="text-lg font-medium text-foreground">{timeTakenFormatted}</div>
                                     </div>
                                     <div className="rounded-lg border bg-card p-3">
                                         <div className="text-[10px] uppercase text-muted-foreground">Files changed</div>

@@ -317,6 +317,9 @@ class UserLabQuestionBankSubmission(BaseTimestampedModel):
     feedback = models.TextField(blank=True)
     score = models.PositiveIntegerField(default=0)
     minutes_solved = models.PositiveIntegerField(default=0)
+    seconds_solved = models.PositiveIntegerField(default=0, help_text="Total seconds spent solving this lab")
+    started_at = models.DateTimeField(null=True, blank=True, help_text="Timestamp when candidate opened/started this lab")
+    submitted_at = models.DateTimeField(null=True, blank=True, help_text="Timestamp when candidate submitted this lab")
 
     class Meta:
         unique_together = ("user", "evaluation", "lab_question")
