@@ -63,7 +63,12 @@ export const useProctoring = ({
 
     // ── Core logActivity ──────────────────────────────────────────────────────
     const logActivity = useCallback(async (activityType: string, metaData: any = {}, explicitBlob?: Blob | null) => {
-        if (!enabled && activityType !== 'vitarka_session_started') return null;
+        if (!enabled && 
+            activityType !== 'vitarka_session_started' && 
+            activityType !== 'passport_photo_captured' && 
+            activityType !== 'initial_screenshot_captured') {
+            return null;
+        }
 
         try {
             const url = `/skill_evaluation/evaluations/${assessmentId}/log_activity/`;
@@ -71,16 +76,32 @@ export const useProctoring = ({
             const activeQuestionTitle = metaData.question_title || questionTitleRef.current;
             const timestamp = new Date().toISOString();
             
-            const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
-            const isCritical = criticalTypes.some(vt => activityType.includes(vt));
+            const violationTypes = [
+                'tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 
+                'new_tab_detected', 'new_window_detected', 'face_not_detected', 
+                'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 
+                'suspicious_activity', 'device_change', 'external_monitor', 
+                'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 
+                'mic_stopped', 'repeated_permission_loss', 'copy_detected', 
+                'paste_detected', 'cut_detected', 'screenshot_detected', 'right_click_detected'
+            ];
+            const isViolation = violationTypes.some(vt => activityType.includes(vt));
             
-            let blob: Blob | null = explicitBlob || null;
+            let blob: Blob | null = null;
             let screenBlob: Blob | null = null;
-            if (!blob && isCritical && captureFrameRef.current) {
-                blob = await captureFrameRef.current();
-            }
-            if (!explicitBlob && isCritical && captureScreenFrameRef.current) {
-                screenBlob = await captureScreenFrameRef.current();
+
+            if (activityType === 'initial_screenshot_captured') {
+                screenBlob = explicitBlob || (captureScreenFrameRef.current ? await captureScreenFrameRef.current() : null);
+            } else if (activityType === 'passport_photo_captured') {
+                blob = explicitBlob || (captureFrameRef.current ? await captureFrameRef.current() : null);
+            } else {
+                blob = explicitBlob || null;
+                if (!blob && isViolation && captureFrameRef.current) {
+                    blob = await captureFrameRef.current();
+                }
+                if (isViolation && captureScreenFrameRef.current) {
+                    screenBlob = await captureScreenFrameRef.current();
+                }
             }
 
             const submissionLevelTypes = ['passport_photo_captured', 'initial_screenshot_captured'];
@@ -97,7 +118,7 @@ export const useProctoring = ({
                 if (shouldSendQuestionTitle) formData.append('question_title', activeQuestionTitle);
                 
                 if (blob) {
-                    formData.append('snapshot', blob, 'snapshot.jpg');
+                    formData.append('snapshot', blob, activityType === 'passport_photo_captured' ? 'passport.jpg' : 'snapshot.jpg');
                 }
                 if (screenBlob) {
                     formData.append('screenshot', screenBlob, 'screenshot.jpg');
@@ -514,6 +535,7 @@ export const useProctoring = ({
         const screenVideo = document.createElement('video');
         screenVideo.muted = true;
         screenVideo.playsInline = true;
+        screenVideo.autoplay = true;
         screenVideo.style.position = 'fixed';
         screenVideo.style.top = '0';
         screenVideo.style.left = '-9999px';
@@ -522,6 +544,11 @@ export const useProctoring = ({
         screenVideo.style.opacity = '0';
         screenVideo.style.pointerEvents = 'none';
         document.body.appendChild(screenVideo);
+
+        if (screenStream) {
+            screenVideo.srcObject = screenStream;
+            screenVideo.play().catch(console.warn);
+        }
 
         const canvas = document.createElement('canvas');
 
@@ -546,17 +573,42 @@ export const useProctoring = ({
         captureScreenFrameRef.current = async (): Promise<Blob | null> => {
             return new Promise((resolve) => {
                 if (!isActive || !screenVideo.srcObject) return resolve(null);
-                if (screenVideo.readyState < 2) return resolve(null);
                 
-                canvas.width = screenVideo.videoWidth || 1280;
-                canvas.height = screenVideo.videoHeight || 720;
-                const ctx = canvas.getContext('2d');
-                if (!ctx) return resolve(null);
-                
-                ctx.drawImage(screenVideo, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob((blob) => {
-                    resolve(blob);
-                }, 'image/jpeg', 0.5);
+                const doCapture = () => {
+                    try {
+                        const width = screenVideo.videoWidth || 1280;
+                        const height = screenVideo.videoHeight || 720;
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        if (!ctx) return resolve(null);
+                        
+                        ctx.drawImage(screenVideo, 0, 0, width, height);
+                        canvas.toBlob((blob) => {
+                            resolve(blob);
+                        }, 'image/jpeg', 0.6);
+                    } catch (e) {
+                        resolve(null);
+                    }
+                };
+
+                if (screenVideo.readyState >= 2) {
+                    doCapture();
+                } else {
+                    const onData = () => {
+                        screenVideo.removeEventListener('loadeddata', onData);
+                        screenVideo.removeEventListener('canplay', onData);
+                        doCapture();
+                    };
+                    screenVideo.addEventListener('loadeddata', onData);
+                    screenVideo.addEventListener('canplay', onData);
+                    setTimeout(() => {
+                        screenVideo.removeEventListener('loadeddata', onData);
+                        screenVideo.removeEventListener('canplay', onData);
+                        if (screenVideo.readyState >= 2) doCapture();
+                        else resolve(null);
+                    }, 1500);
+                }
             });
         };
 
@@ -570,10 +622,16 @@ export const useProctoring = ({
 
                 const captureAndUpload = async () => {
                     const blob = await captureFrameRef.current?.();
-                    if (!blob || !isActive) return;
+                    const screenBlob = screenStream?.active ? await captureScreenFrameRef.current?.() : null;
+                    if ((!blob && !screenBlob) || !isActive) return;
 
                     const formData = new FormData();
-                    formData.append('snapshot', blob, 'snapshot.jpg');
+                    if (blob) {
+                        formData.append('snapshot', blob, 'snapshot.jpg');
+                    }
+                    if (screenBlob) {
+                        formData.append('screenshot', screenBlob, 'screenshot.jpg');
+                    }
                     formData.append('activity_type', 'snapshot');
                     formData.append('timestamp', new Date().toISOString());
                     const activeQId = questionIdRef.current;

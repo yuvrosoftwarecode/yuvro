@@ -549,7 +549,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
   const { logActivity } = useProctoring({
     assessmentId: evaluationId,
     assessmentType: "skill_evaluation",
-    enabled: !!proctoringConfig.enableProctoring && !isPreviewMode,
+    enabled: (!!anySectionNeedsProctoring || !!proctoringConfig.enableProctoring || !!proctoringData) && !isPreviewMode,
     questionId: (activeSection?.type === "KNOWLEDGE_ASSESSMENT" ? activeSection.questions?.[qIndex]?.id : null) || activeQuestionId || openLab || section || undefined,
     questionTitle: activeDiscussionQuestion || undefined,
     mediaStream: proctoringData?.cameraStream,
@@ -568,7 +568,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
 
   const initialImagesLogged = useRef(false);
   useEffect(() => {
-    if (proctoringData && !initialImagesLogged.current) {
+    if (proctoringData && evaluationId && !initialImagesLogged.current) {
       initialImagesLogged.current = true;
       if (proctoringData.photoBlob) {
         logActivity('passport_photo_captured', { source: 'proctoring_gate' }, proctoringData.photoBlob);
@@ -577,7 +577,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
         logActivity('initial_screenshot_captured', { source: 'proctoring_gate' }, proctoringData.screenshotBlob);
       }
     }
-  }, [proctoringData, logActivity]);
+  }, [proctoringData, evaluationId, logActivity]);
 
   useEffect(() => {
     if (!anySectionNeedsProctoring || isPreviewMode) return;

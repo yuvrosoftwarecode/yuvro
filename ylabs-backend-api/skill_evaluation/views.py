@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 import zoneinfo
-from core.storage import upload_image
+from core.storage import upload_image, build_public_url
 from .models import RecruiterActivityLog
 from .serializers import RecruiterActivityLogSerializer
 import logging
@@ -378,7 +378,10 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             user_id = str(user.id)
             object_key = f"{user_id}/skill_evaluation/{evaluation.id}/attempt-{attempt_count}/{filename}"
             
-            return upload_image(key=object_key, file_obj=file_obj)
+            saved_key = upload_image(key=object_key, file_obj=file_obj)
+            if saved_key:
+                return build_public_url(saved_key) or saved_key
+            return None
         except Exception as e:
             logger = logging.getLogger(__name__)
             logger.error(f"Error saving snapshot: {e}", exc_info=True)
@@ -404,10 +407,22 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             
         submission = UserEvaluationSubmission.objects.filter(user=user, evaluation=evaluation).first()
         if not submission:
-            return Response({"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND)
+            submission, _ = UserEvaluationSubmission.objects.get_or_create(
+                user=user,
+                evaluation=evaluation,
+                defaults={
+                    'duration': 0,
+                    'discussion_mode': DiscussionMode.AUTOMATIC
+                }
+            )
             
         image_file = request.FILES.get("snapshot")
         screen_file = request.FILES.get("screenshot")
+        
+        # Fallback if frontend sent initial screenshot under snapshot field
+        if not screen_file and activity_type == "initial_screenshot_captured" and image_file:
+            screen_file = image_file
+            image_file = None
         
         image_path = None
         if image_file:
@@ -437,16 +452,32 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         if screen_path:
             event["screen_path"] = screen_path
             
-        non_violation_types = ["snapshot", "camera_enabled", "camera_disabled", "passport_photo_captured", "initial_screenshot_captured"]
+        non_violation_types = [
+            "snapshot", 
+            "screen_snapshot", 
+            "camera_enabled", 
+            "camera_disabled", 
+            "passport_photo_captured", 
+            "initial_screenshot_captured"
+        ]
         
-        CRITICAL_VIOLATION_TYPES = ["new_tab_detected", "new_window_detected", "devtools_opened", "camera_disabled", "microphone_disabled", "face_not_detected", "multiple_faces_detected", "face_recognition_failed", "violation_critical"]
-        GENERAL_VIOLATION_TYPES = ["copy_detected", "paste_detected", "cut_detected", "select_all_detected", "right_click_detected", "keyboard_shortcut", "screenshot_detected", "suspicious_movement", "violation_warning", "tab_switched"]
+        CRITICAL_VIOLATION_TYPES = [
+            "new_tab_detected", "new_window_detected", "devtools_opened", 
+            "camera_disabled", "microphone_disabled", "face_not_detected", 
+            "multiple_faces_detected", "face_recognition_failed", "violation_critical"
+        ]
+        GENERAL_VIOLATION_TYPES = [
+            "copy_detected", "paste_detected", "cut_detected", 
+            "select_all_detected", "right_click_detected", "keyboard_shortcut", 
+            "screenshot_detected", "suspicious_movement", "violation_warning", "tab_switched"
+        ]
         
         is_proctoring = (
             activity_type in CRITICAL_VIOLATION_TYPES
             or activity_type in GENERAL_VIOLATION_TYPES
-            or activity_type == "snapshot"
+            or activity_type in ["snapshot", "screen_snapshot"]
             or bool(image_path)
+            or bool(screen_path)
         )
         is_violation = is_proctoring and (activity_type not in non_violation_types)
         

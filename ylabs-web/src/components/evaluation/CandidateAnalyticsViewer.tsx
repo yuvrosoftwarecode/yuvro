@@ -104,6 +104,10 @@ const getImageUrl = (imgUrl: string | undefined) => {
         cleanPath = cleanPath.replace(/^media\//, '');
     }
 
+    if (cleanPath.startsWith('ylabs/')) {
+        return `http://localhost:9100/yuvro-local/${cleanPath}`;
+    }
+
     const baseUrl = (import.meta.env.VITE_BACKEND_API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8002/api')?.replace(/\/$/, '');
     const rootUrl = baseUrl?.replace(/\/api\/?$/, '');
     return `${rootUrl}/media/${cleanPath}`;
@@ -456,8 +460,8 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
     const initialScreenshots = allImages.filter(i => i.event.activity_type === 'initial_screenshot_captured').map(i => i.event);
     const generalSnapshots = allImages.filter(i => i.event.activity_type !== 'passport_photo_captured' && i.event.activity_type !== 'initial_screenshot_captured');
 
-    const latestPassport = passportPhotos.length > 0 ? passportPhotos[0] : null;
-    const latestScreenshot = initialScreenshots.length > 0 ? initialScreenshots[0] : null;
+    const latestPassport = passportPhotos.length > 0 ? passportPhotos[passportPhotos.length - 1] : null;
+    const latestScreenshot = initialScreenshots.length > 0 ? initialScreenshots[initialScreenshots.length - 1] : null;
 
     const totalViolations = riskAnalysis.violations.length;
 
