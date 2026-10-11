@@ -471,66 +471,145 @@ export const useProctoring = ({
         let isActive = true;
         let snapshotIntervalId: ReturnType<typeof setInterval>;
 
-        // Shared off-screen video + canvas
+        // Shared off-screen video elements
         const video = document.createElement('video');
         video.muted = true;
         video.playsInline = true;
+        video.autoplay = true;
         video.style.position = 'fixed';
         video.style.top = '0';
-        video.style.left = '-9999px';
-        video.style.width = '1px';
-        video.style.height = '1px';
-        video.style.opacity = '0';
+        video.style.left = '0';
+        video.style.width = '320px';
+        video.style.height = '240px';
+        video.style.opacity = '0.001';
         video.style.pointerEvents = 'none';
+        video.style.zIndex = '-9999';
         document.body.appendChild(video);
 
         const screenVideo = document.createElement('video');
         screenVideo.muted = true;
         screenVideo.playsInline = true;
+        screenVideo.autoplay = true;
         screenVideo.style.position = 'fixed';
         screenVideo.style.top = '0';
-        screenVideo.style.left = '-9999px';
-        screenVideo.style.width = '1px';
-        screenVideo.style.height = '1px';
-        screenVideo.style.opacity = '0';
+        screenVideo.style.left = '0';
+        screenVideo.style.width = '320px';
+        screenVideo.style.height = '240px';
+        screenVideo.style.opacity = '0.001';
         screenVideo.style.pointerEvents = 'none';
+        screenVideo.style.zIndex = '-9999';
         document.body.appendChild(screenVideo);
 
-        const canvas = document.createElement('canvas');
+        const captureStream = async (stream: MediaStream | null | undefined, fallbackVid: HTMLVideoElement, quality = 0.6): Promise<Blob | null> => {
+            if (!stream) return null;
+            const track = stream.getVideoTracks().find(t => t.readyState === 'live');
+            if (!track) return null;
 
-        // Expose a raw capture function for critical violations
+            // Strategy 1: WebCodecs MediaStreamTrackProcessor
+            if (typeof (window as any).MediaStreamTrackProcessor === 'function') {
+                try {
+                    const processor = new (window as any).MediaStreamTrackProcessor({ track });
+                    const reader = processor.readable.getReader();
+                    const timeoutPromise = new Promise<{ value: undefined; done: true }>((resolve) => 
+                        setTimeout(() => resolve({ value: undefined, done: true }), 400)
+                    );
+                    const result = await Promise.race([reader.read(), timeoutPromise]);
+                    if (result && result.value) {
+                        const frame = result.value;
+                        try {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = frame.displayWidth || frame.codedWidth || 1280;
+                            canvas.height = frame.displayHeight || frame.codedHeight || 720;
+                            const ctx = canvas.getContext('2d');
+                            if (ctx) {
+                                ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+                                const b = await new Promise<Blob | null>(res => canvas.toBlob(res, 'image/jpeg', quality));
+                                if (b) return b;
+                            }
+                        } finally {
+                            frame.close();
+                            reader.releaseLock();
+                        }
+                    } else {
+                        reader.releaseLock();
+                    }
+                } catch (e) {}
+            }
+
+            // Strategy 2: ImageCapture API (camera tracks only)
+            const isDisplayMedia = !!((track.getSettings && (track.getSettings() as any).displaySurface));
+            if (!isDisplayMedia && typeof (window as any).ImageCapture === 'function') {
+                try {
+                    const capturer = new (window as any).ImageCapture(track);
+                    const bitmap = await Promise.race([
+                        capturer.grabFrame(),
+                        new Promise<any>((_, reject) => setTimeout(() => reject(new Error('timeout')), 400))
+                    ]);
+                    if (bitmap && bitmap.width > 0 && bitmap.height > 0) {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = bitmap.width;
+                        canvas.height = bitmap.height;
+                        const ctx = canvas.getContext('2d');
+                        if (ctx) {
+                            ctx.drawImage(bitmap, 0, 0);
+                            const b = await new Promise<Blob | null>(res => canvas.toBlob(res, 'image/jpeg', quality));
+                            if (b) return b;
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            // Strategy 3: Video Element + Canvas
+            if (fallbackVid) {
+                try {
+                    if (fallbackVid.srcObject !== stream) {
+                        fallbackVid.srcObject = stream;
+                    }
+                    if (fallbackVid.paused) {
+                        await fallbackVid.play().catch(() => {});
+                    }
+                    if (fallbackVid.readyState < 2) {
+                        await new Promise<void>((resolve) => {
+                            const timer = setTimeout(resolve, 300);
+                            const onReady = () => {
+                                clearTimeout(timer);
+                                fallbackVid.removeEventListener('loadeddata', onReady);
+                                fallbackVid.removeEventListener('canplay', onReady);
+                                resolve();
+                            };
+                            fallbackVid.addEventListener('loadeddata', onReady);
+                            fallbackVid.addEventListener('canplay', onReady);
+                        });
+                    }
+                    const width = fallbackVid.videoWidth;
+                    const height = fallbackVid.videoHeight;
+                    if (width > 0 && height > 0) {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        if (ctx) {
+                            ctx.drawImage(fallbackVid, 0, 0, width, height);
+                            const b = await new Promise<Blob | null>(res => canvas.toBlob(res, 'image/jpeg', quality));
+                            if (b) return b;
+                        }
+                    }
+                } catch (e) {
+                    return null;
+                }
+            }
+            return null;
+        };
+
+        // Expose capture functions for violations and snapshots
         captureFrameRef.current = async (): Promise<Blob | null> => {
-            return new Promise((resolve) => {
-                if (!isActive || !video.srcObject) return resolve(null);
-                if (video.readyState < 2) return resolve(null);
-                
-                canvas.width = video.videoWidth || 640;
-                canvas.height = video.videoHeight || 480;
-                const ctx = canvas.getContext('2d');
-                if (!ctx) return resolve(null);
-                
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob((blob) => {
-                    resolve(blob);
-                }, 'image/jpeg', 0.5);
-            });
+            if (!isActive) return null;
+            return captureStream(mediaStream || internalStream, video, 0.5);
         };
 
         captureScreenFrameRef.current = async (): Promise<Blob | null> => {
-            return new Promise((resolve) => {
-                if (!isActive || !screenVideo.srcObject) return resolve(null);
-                if (screenVideo.readyState < 2) return resolve(null);
-                
-                canvas.width = screenVideo.videoWidth || 1280;
-                canvas.height = screenVideo.videoHeight || 720;
-                const ctx = canvas.getContext('2d');
-                if (!ctx) return resolve(null);
-                
-                ctx.drawImage(screenVideo, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob((blob) => {
-                    resolve(blob);
-                }, 'image/jpeg', 0.5);
-            });
+            if (!isActive) return null;
+            return captureStream(screenStream, screenVideo, 0.6);
         };
 
         // ── Snapshot uploader ─────────────────────────────────────────────────

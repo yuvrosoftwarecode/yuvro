@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
+from django.db import transaction
 import zoneinfo
 from core.storage import upload_image, build_public_url
 from .models import RecruiterActivityLog
@@ -481,16 +482,18 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         )
         is_violation = is_proctoring and (activity_type not in non_violation_types)
         
-        if is_violation:
-            if not isinstance(submission.proctoring_events, list):
-                submission.proctoring_events = []
-            submission.proctoring_events.append(event)
-        else:
-            if not isinstance(submission.general_events, list):
-                submission.general_events = []
-            submission.general_events.append(event)
-            
-        submission.save()
+        with transaction.atomic():
+            submission = UserEvaluationSubmission.objects.select_for_update().get(id=submission.id)
+            if is_violation:
+                if not isinstance(submission.proctoring_events, list):
+                    submission.proctoring_events = []
+                submission.proctoring_events.append(event)
+                submission.save(update_fields=['proctoring_events', 'updated_at'])
+            else:
+                if not isinstance(submission.general_events, list):
+                    submission.general_events = []
+                submission.general_events.append(event)
+                submission.save(update_fields=['general_events', 'updated_at'])
         
         # Calculate violations (we can refine this later if section-based)
         sub_violations = len(submission.proctoring_events) if isinstance(submission.proctoring_events, list) else 0

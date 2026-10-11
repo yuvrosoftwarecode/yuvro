@@ -86,12 +86,6 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
         .then(res => processWorkspaceData(res))
         .catch(err => setDebugData({ error: err.message || err.toString() }));
     }
-
-    return () => {
-      try {
-        clearGlobalProctoringData();
-      } catch (e) {}
-    };
   }, [evaluationId, previewData]);
 
   const processWorkspaceData = (res: any) => {
@@ -570,12 +564,15 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
   useEffect(() => {
     if (proctoringData && evaluationId && !initialImagesLogged.current) {
       initialImagesLogged.current = true;
-      if (proctoringData.photoBlob) {
-        logActivity('passport_photo_captured', { source: 'proctoring_gate' }, proctoringData.photoBlob);
-      }
-      if (proctoringData.screenshotBlob) {
-        logActivity('initial_screenshot_captured', { source: 'proctoring_gate' }, proctoringData.screenshotBlob);
-      }
+      const uploadInitialBlobs = async () => {
+        if (proctoringData.photoBlob) {
+          await logActivity('passport_photo_captured', { source: 'proctoring_gate' }, proctoringData.photoBlob);
+        }
+        if (proctoringData.screenshotBlob) {
+          await logActivity('initial_screenshot_captured', { source: 'proctoring_gate' }, proctoringData.screenshotBlob);
+        }
+      };
+      uploadInitialBlobs();
     }
   }, [proctoringData, evaluationId, logActivity]);
 
@@ -598,8 +595,14 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then((newStream) => {
           if (isCancelled) return;
-          const currentData = getGlobalProctoringData() || { photoBlob: null, screenshotBlob: null, screenStream: null, cameraStream: null };
-          const newData = { ...currentData, cameraStream: newStream };
+          const currentData = getGlobalProctoringData();
+          const existingScreenStream = currentData?.screenStream || proctoringData?.screenStream || null;
+          const newData = {
+            cameraStream: newStream,
+            screenStream: existingScreenStream,
+            photoBlob: currentData?.photoBlob || proctoringData?.photoBlob || null,
+            screenshotBlob: currentData?.screenshotBlob || proctoringData?.screenshotBlob || null,
+          };
           setGlobalProctoringData(newData);
           setProctoringData(newData);
           setMediaDisabled(false);
