@@ -50,7 +50,10 @@ resource "aws_iam_role_policy" "app_service_s3" {
           "s3:DeleteObject",
           "s3:ListBucket"
         ]
-        Resource = var.s3_bucket_arns
+        Resource = concat(
+          var.s3_bucket_arns,
+          ["arn:aws:s3:::yuvro-${var.environment}", "arn:aws:s3:::yuvro-${var.environment}/*"]
+        )
       },
       {
         Effect = "Allow"
@@ -151,7 +154,10 @@ resource "aws_iam_user_policy" "app_service_s3" {
           "s3:ListBucket",
           "s3:GetBucketLocation"
         ]
-        Resource = var.s3_bucket_arns
+        Resource = concat(
+          var.s3_bucket_arns,
+          ["arn:aws:s3:::yuvro-${var.environment}"]
+        )
       },
       {
         Effect = "Allow"
@@ -162,7 +168,10 @@ resource "aws_iam_user_policy" "app_service_s3" {
           "s3:GetObjectVersion",
           "s3:DeleteObjectVersion"
         ]
-        Resource = [for arn in var.s3_bucket_arns : "${arn}/*"]
+        Resource = concat(
+          [for arn in var.s3_bucket_arns : "${arn}/*"],
+          ["arn:aws:s3:::yuvro-${var.environment}/*"]
+        )
       },
       {
         Effect = "Allow"
@@ -173,6 +182,8 @@ resource "aws_iam_user_policy" "app_service_s3" {
       }
     ]
   })
+}
+}
 }
 
 resource "aws_iam_access_key" "app_service" {
