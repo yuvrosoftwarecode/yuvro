@@ -378,7 +378,7 @@ run_deploy() {
     [ -f "$PROJECT_ROOT/ycode-web/.env.dev-secrets" ]           && vite_google=$(grep         '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ycode-web/.env.dev-secrets"           | cut -d= -f2- | tr -d '"'"'")
     [ -f "$PROJECT_ROOT/ycampus-web/.env.dev-secrets" ]         && ycampus_google=$(grep       '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ycampus-web/.env.dev-secrets"         | cut -d= -f2- | tr -d '"'"'")
     [ -f "$PROJECT_ROOT/ylabs-web/.env.dev-secrets" ]           && ylabs_google=$(grep         '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ylabs-web/.env.dev-secrets"           | cut -d= -f2- | tr -d '"'"'")
-    [ -f "$PROJECT_ROOT/ymarketplace/frontend/.env.dev-secrets" ] && ymarketplace_google=$(grep '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ymarketplace/frontend/.env.dev-secrets" | cut -d= -f2- | tr -d '"'"'")
+    [ -f "$PROJECT_ROOT/ymarketplace/ymarketplace-web/.env.dev-secrets" ] && ymarketplace_google=$(grep '^VITE_GOOGLE_CLIENT_ID=' "$PROJECT_ROOT/ymarketplace/ymarketplace-web/.env.dev-secrets" | cut -d= -f2- | tr -d '"'"'")
     ycampus_google="${ycampus_google:-$vite_google}"
     ylabs_google="${ylabs_google:-$vite_google}"
     ymarketplace_google="${ymarketplace_google:-$vite_google}"
