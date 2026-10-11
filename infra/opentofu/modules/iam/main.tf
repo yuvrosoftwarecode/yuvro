@@ -183,8 +183,6 @@ resource "aws_iam_user_policy" "app_service_s3" {
     ]
   })
 }
-}
-}
 
 resource "aws_iam_access_key" "app_service" {
   user = local.app_service_user_name
