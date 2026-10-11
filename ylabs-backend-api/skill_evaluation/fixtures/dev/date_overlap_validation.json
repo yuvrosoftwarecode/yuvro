@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Date Overlap Validation",
+      "type": "BACKEND",
+      "description": "Fix hotel booking date conflict validation in a Django REST Framework API. Enforce strict overlap prevention (subset, partial, full) for confirmed room bookings while ensuring checkout-equal-checkin adjacent bookings and bookings across different rooms succeed.",
+      "difficulty": "HARD",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Date-Overlap-Validation",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Prevent Subset Date Overlaps",
+          "description": "### Scenario\nHotel rooms cannot be double-booked for confirmed reservations during the same dates.\n\n### Existing Problem\nThe API allows a new booking whose stay falls entirely within the dates of an existing confirmed booking for the same room (e.g., existing booking from Oct 10 to Oct 15, new booking from Oct 12 to Oct 14).\n\n### Goal\nAdd validation to `bookings/serializers.py` so that subset date overlaps for the same room are rejected with `400 Bad Request`.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Rejects subset date overlaps for the same room with `400 Bad Request`.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 15,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Partial Date Overlaps",
+          "description": "### Scenario\nHotel reservations must not partially overlap existing confirmed reservations for the same room.\n\n### Existing Problem\nThe API allows a new booking whose start date begins before an existing booking ends, or whose end date extends past an existing booking start date (e.g., existing booking from Oct 10 to Oct 15, new booking from Oct 14 to Oct 18).\n\n### Goal\nAdd validation to `bookings/serializers.py` so that partial date overlaps for the same room are rejected with `400 Bad Request`.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Rejects partial date overlaps for the same room with `400 Bad Request`.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Validate Chronological Dates & Allow Adjacent Bookings",
+          "description": "### Scenario\nBookings must have valid chronological dates (`check_out > check_in`), and back-to-back adjacent bookings (where checkout date equals the next guest's checkin date) must be permitted.\n\n### Existing Problem\nThe API does not enforce `check_out > check_in` or properly support adjacent boundary bookings without incorrect conflict detection.\n\n### Goal\n- Enforce that `check_out <= check_in` returns `400 Bad Request`.\n- Allow adjacent bookings (e.g., existing Oct 10 to Oct 15, new Oct 15 to Oct 18) to successfully create with `201 Created`.\n\n### Scoring Criteria (4 Marks)\n- **2 marks**: Rejects invalid date order (`check_out <= check_in`) with `400 Bad Request`.\n- **2 marks**: Allows valid adjacent booking with `201 Created`.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 40,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

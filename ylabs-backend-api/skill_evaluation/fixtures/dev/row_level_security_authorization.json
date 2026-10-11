@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Row-Level Security Authorization",
+      "type": "BACKEND",
+      "description": "Fix broken object-level authorization, row-level data isolation, and insecure lead assignment in a Django REST Framework CRM API. Implement custom DRF permissions, queryset filtering, and creation hooks so that sales agents can only access, view, and create leads assigned to themselves, while managers and superusers retain administrative access across all leads.",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 30,
+      "scenario": "SECURITY",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "row-level-authorization",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Enforce Object-Level Authorization on Lead Detail API",
+          "description": "### Scenario\nIn this CRM application, sales agents manage customer leads assigned to them. The endpoint `GET /api/crm/leads/{id}/` retrieves individual lead details.\n\n### Existing Problem\nThe viewset currently retrieves leads without object-level permission checking (`permission_classes = [IsAuthenticated]`). Any authenticated sales agent can access or update another agent's lead simply by modifying the lead ID in the URL (IDOR / BOLA vulnerability).\n\n### Goal\nImplement object-level authorization in `crm/` so that:\n1. **Assigned Agent**: Can retrieve (`GET`) and update (`PUT`/`PATCH`) their own assigned leads (`200 OK`).\n2. **Different Agent**: Is blocked with `403 Forbidden` or `404 Not Found` when requesting or updating another agent's lead.\n3. **Manager / Superuser**: Users with `is_staff=True` or `is_superuser=True` retain administrative access to view and update any lead (`200 OK`).\n\n### Requirements\n1. Create a custom permission class subclassing `rest_framework.permissions.BasePermission` (e.g. `IsAssignedAgent` in `crm/permissions.py`).\n2. Implement `has_object_permission(self, request, view, obj)` to:\n   - Return `True` if `request.user` is staff or superuser.\n   - Return `True` if `request.user == obj.assigned_agent`.\n   - Return `False` otherwise.\n3. Apply the custom permission class to `LeadViewSet` in `crm/views.py`.\n\n### Scoring Criteria (10 Marks)\n- **Access Blocked (5 Marks)**: Agent A is blocked (`403 Forbidden` or `404 Not Found`) when attempting to read or modify Agent B's lead.\n- **Access Granted (3 Marks)**: Agent A successfully retrieves and updates their own assigned lead (`200 OK`).\n- **Manager Override (2 Marks)**: Manager / Superuser successfully accesses and updates any lead (`200 OK`).",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Implement Row-Level Filtering on Lead List API",
+          "description": "### Scenario\nSales agents list customer leads via `GET /api/crm/leads/`.\n\n### Existing Problem\nThe view currently returns all leads in the CRM database (`Lead.objects.all()`), exposing confidential leads assigned to other sales agents across the organization.\n\n### Goal\nImplement row-level queryset filtering by overriding `get_queryset(self)` in `LeadViewSet` so that:\n1. **Sales Agents**: Only receive leads where `assigned_agent == request.user`.\n2. **Managers / Superusers**: Receive all leads across the organization (`Lead.objects.all()`).\n\n### Requirements\n1. Override `get_queryset(self)` in `LeadViewSet` (`crm/views.py`).\n2. Check whether `self.request.user` is a staff member (`is_staff`) or superuser (`is_superuser`).\n3. Return all leads for managers/superusers, and filter by `assigned_agent=self.request.user` for standard sales agents.\n\n### Scoring Criteria (10 Marks)\n- **Agent List Isolation (6 Marks)**: Sales agents only receive leads assigned to themselves; leads belonging to other agents are excluded from the list response.\n- **Manager Full Visibility (4 Marks)**: Managers and superusers receive the complete organization-wide lead list.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Enforce Secure Auto-Assignment on Lead Creation",
+          "description": "### Scenario\nSales agents and managers create new leads via `POST /api/crm/leads/`.\n\n### Existing Problem\nCurrently, sales agents can pass an arbitrary `assigned_agent` ID in the JSON request body, allowing fraudulent lead assignments. Furthermore, agents should have new leads auto-assigned without needing to send their own user ID.\n\n### Goal\nImplement creation authorization by overriding `perform_create(self, serializer)` in `LeadViewSet` so that:\n1. **Sales Agents**: Leads created by sales agents are automatically assigned to `request.user`. Any conflicting `assigned_agent` value supplied by a sales agent is overridden.\n2. **Managers / Superusers**: Can explicitly assign the created lead to any sales agent, or default to themselves if omitted.\n\n### Requirements\n1. Override `perform_create(self, serializer)` in `LeadViewSet` (`crm/views.py`).\n2. For sales agents, save the serializer with `assigned_agent=self.request.user`.\n3. For managers (`is_staff` or `is_superuser`), respect `assigned_agent` if provided in `serializer.validated_data`, or assign to `self.request.user` if omitted.\n\n### Scoring Criteria (10 Marks)\n- **Agent Auto-Assignment & Spoofing Prevention (6 Marks)**: Leads created by agents are auto-assigned to the authenticated agent, and assignment tampering attempts are prevented.\n- **Manager Custom Assignment (4 Marks)**: Managers can successfully assign new leads to other sales agents.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

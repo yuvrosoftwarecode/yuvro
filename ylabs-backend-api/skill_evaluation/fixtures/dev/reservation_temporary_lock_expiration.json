@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Reservation Temporary Lock Expiration",
+      "type": "BACKEND",
+      "description": "Optimize hotel room availability logic in a Django REST Framework API. Fix abandoned checkout bottlenecks by expiring PENDING_PAYMENT booking locks older than 15 minutes, while maintaining temporary locks for recent pending bookings and permanent blocks for confirmed reservations.",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 30,
+      "marks": 10,
+      "scenario": "LOGIC_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Reservation-Temporary-Lock-Expiration",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Respect Recent Booking Locks",
+          "description": "### Scenario\nA customer initiating checkout holds a temporary reservation lock on a room.\n\n### Requirement\nA `PENDING_PAYMENT` booking created less than 15 minutes ago (e.g. 5 minutes ago) must block room availability for overlapping dates (`available: false`).\n\n**Testing in Swagger UI:**\n1. Open Swagger UI preview.\n2. Create a pending booking using `POST /api/bookings/` with status `\"PENDING_PAYMENT\"`.\n3. Query `GET /api/bookings/availability/` for the same room and overlapping dates.\n4. Observe that the response returns `\"available\": false`.\n\n### Scoring Criteria (4 Marks)\n- **4 marks**: Active pending booking (<15m) locks room availability.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 40,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Release Expired Booking Locks",
+          "description": "### Scenario\nUnder high booking traffic, users frequently abandon checkouts without completing payment.\n\n### Existing Problem\nThe API treats all pending bookings as permanent locks, blocking room availability indefinitely.\n\n### Goal\nUpdate the availability logic in `bookings/views.py` so that `PENDING_PAYMENT` bookings older than 15 minutes (e.g. 16 minutes ago) no longer block room availability (`available: true`).\n\n**Testing in Swagger UI:**\n1. Open Swagger UI preview.\n2. Create a room and an expired pending booking (created > 15 minutes ago).\n3. Query `GET /api/bookings/availability/` for that room and overlapping dates.\n4. Observe that the response returns `\"available\": true`.\n\n### Scoring Criteria (4 Marks)\n- **4 marks**: Expired pending booking (>15m) releases room availability.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 40,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Keep Confirmed Bookings Unavailable",
+          "description": "### Scenario\nConfirmed bookings must always guarantee reservation validity.\n\n### Requirement\nA room with a `CONFIRMED` booking for the requested dates must remain unavailable (`available: false`), even when an expired pending booking also exists for that room.\n\n**Testing in Swagger UI:**\n1. Open Swagger UI preview.\n2. Create a booking with status `\"CONFIRMED\"`.\n3. Query `GET /api/bookings/availability/` for the same room and overlapping dates.\n4. Observe that the response returns `\"available\": false`.\n\n### Scoring Criteria (2 Marks)\n- **2 marks**: Confirmed bookings remain unavailable regardless of expired locks.",
+          "difficulty": "EASY",
+          "marks": 2,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 20,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
