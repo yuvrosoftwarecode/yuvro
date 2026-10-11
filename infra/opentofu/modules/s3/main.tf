@@ -1,20 +1,17 @@
-data "aws_s3_bucket" "base_existing" {
-  bucket = "yuvro-${var.environment}-${data.aws_caller_identity.current.account_id}"
-}
+data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket" "base" {
-  count  = try(data.aws_s3_bucket.base_existing.id, null) != null ? 0 : 1
-  bucket = "yuvro-${var.environment}-${data.aws_caller_identity.current.account_id}"
+  bucket = "yuvro-prod-${data.aws_caller_identity.current.account_id}"
 
   tags = {
-    Name        = "yuvro-${var.environment}"
-    Environment = var.environment
+    Name        = "yuvro-prod"
+    Environment = "prod"
   }
 }
 
 locals {
-  s3_bucket_id  = try(data.aws_s3_bucket.base_existing.id, aws_s3_bucket.base[0].id)
-  s3_bucket_arn = try(data.aws_s3_bucket.base_existing.arn, aws_s3_bucket.base[0].arn)
+  s3_bucket_id  = aws_s3_bucket.base.id
+  s3_bucket_arn = aws_s3_bucket.base.arn
 }
 
 resource "aws_s3_bucket_versioning" "base" {
@@ -83,8 +80,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "base" {
     }
   }
 }
-
-data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket_cors_configuration" "base" {
   bucket = local.s3_bucket_id

@@ -13,6 +13,10 @@
 aws_region = "ap-south-1"
 environment = "dev"
 
+# Deployment Configuration
+deploy_env = "dev"
+deploy_infra_type = "ec2"
+
 # VPC Configuration - Minimal (2 AZs for RDS requirement, public subnets only)
 vpc_cidr = "10.0.0.0/16"
 availability_zones = ["ap-south-1a", "ap-south-1b"]

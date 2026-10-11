@@ -1,0 +1,13 @@
+apiVersion: v2
+name: yhub
+description: YHub Learning Platform - Backend, Frontend, and Database
+type: application
+version: 1.0.0
+appVersion: 1.0
+keywords:
+  - yhub
+  - learning
+  - hub
+  - platform
+maintainers:
+  - name: Yuvro Team

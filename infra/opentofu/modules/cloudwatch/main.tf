@@ -1,41 +1,28 @@
-# Try to get existing log group
-data "aws_cloudwatch_log_group" "application_existing" {
-  name = "/aws/ycode/${var.environment}/application"
-}
-
-# Use data source if exists, create otherwise
+# Create log groups directly - no data source lookups
 resource "aws_cloudwatch_log_group" "application" {
-  count             = try(data.aws_cloudwatch_log_group.application_existing.id, null) != null ? 0 : 1
   name              = "/aws/ycode/${var.environment}/application"
   retention_in_days = var.environment == "prod" ? 30 : 7
+  skip_destroy      = false
 
   tags = {
     Name = "${var.environment}-application-logs"
   }
 }
 
-data "aws_cloudwatch_log_group" "kubernetes_existing" {
-  name = "/aws/ycode/${var.environment}/kubernetes"
-}
-
 resource "aws_cloudwatch_log_group" "kubernetes" {
-  count             = try(data.aws_cloudwatch_log_group.kubernetes_existing.id, null) != null ? 0 : 1
   name              = "/aws/ycode/${var.environment}/kubernetes"
   retention_in_days = var.environment == "prod" ? 30 : 7
+  skip_destroy      = false
 
   tags = {
     Name = "${var.environment}-kubernetes-logs"
   }
 }
 
-data "aws_cloudwatch_log_group" "database_existing" {
-  name = "/aws/ycode/${var.environment}/database"
-}
-
 resource "aws_cloudwatch_log_group" "database" {
-  count             = try(data.aws_cloudwatch_log_group.database_existing.id, null) != null ? 0 : 1
   name              = "/aws/ycode/${var.environment}/database"
   retention_in_days = var.environment == "prod" ? 30 : 7
+  skip_destroy      = false
 
   tags = {
     Name = "${var.environment}-database-logs"
@@ -126,10 +113,10 @@ resource "aws_cloudwatch_dashboard" "main" {
 
 data "aws_region" "current" {}
 
-# Locals to reference either created or existing log groups
+# Locals to reference created log groups
 locals {
-  application_log_group_name = try(data.aws_cloudwatch_log_group.application_existing.name, aws_cloudwatch_log_group.application[0].name)
-  application_log_group_arn  = try(data.aws_cloudwatch_log_group.application_existing.arn, aws_cloudwatch_log_group.application[0].arn)
-  kubernetes_log_group_name  = try(data.aws_cloudwatch_log_group.kubernetes_existing.name, aws_cloudwatch_log_group.kubernetes[0].name)
-  database_log_group_name    = try(data.aws_cloudwatch_log_group.database_existing.name, aws_cloudwatch_log_group.database[0].name)
+  application_log_group_name = aws_cloudwatch_log_group.application.name
+  application_log_group_arn  = aws_cloudwatch_log_group.application.arn
+  kubernetes_log_group_name  = aws_cloudwatch_log_group.kubernetes.name
+  database_log_group_name    = aws_cloudwatch_log_group.database.name
 }

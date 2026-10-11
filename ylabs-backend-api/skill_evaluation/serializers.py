@@ -115,6 +115,55 @@ class UserEvaluationSubmissionSerializer(serializers.ModelSerializer):
             ret["proctoring_events"] = process_events(ret["proctoring_events"])
         if ret.get("general_events"):
             ret["general_events"] = process_events(ret["general_events"])
+
+        # Ensure passport_photo_captured and initial_screenshot_captured are included
+        # even if an earlier concurrent request race omitted them from general_events
+        all_evts = (ret.get("general_events") or []) + (ret.get("proctoring_events") or [])
+        has_passport = any(
+            isinstance(e, dict) and (e.get("activity_type") == "passport_photo_captured" or "passport_" in str(e.get("image_path") or ""))
+            for e in all_evts
+        )
+        has_screenshot = any(
+            isinstance(e, dict) and (e.get("activity_type") == "initial_screenshot_captured" or "screenshot_" in str(e.get("screen_path") or ""))
+            for e in all_evts
+        )
+        if (not has_passport or not has_screenshot) and instance.user and instance.evaluation:
+            try:
+                from django.core.files.storage import default_storage
+                from django.conf import settings
+                from django.utils import timezone
+                app_name = (getattr(settings, "APP_NAME", "") or "").strip().strip("/")
+                prefix = f"{app_name}/" if app_name else ""
+                dir_path = f"{prefix}{instance.user.id}/skill_evaluation/{instance.evaluation.id}/attempt-1"
+                _, files = default_storage.listdir(dir_path)
+                if not has_passport:
+                    passport_file = next((f for f in sorted(files) if f.startswith("passport_")), None)
+                    if passport_file:
+                        p_path = f"{dir_path}/{passport_file}"
+                        passport_event = {
+                            "timestamp": instance.created_at.isoformat() if instance.created_at else timezone.now().isoformat(),
+                            "activity_type": "passport_photo_captured",
+                            "meta_data": {"source": "proctoring_gate"},
+                            "image_path": build_public_url(p_path) or p_path
+                        }
+                        if not isinstance(ret.get("general_events"), list):
+                            ret["general_events"] = []
+                        ret["general_events"].insert(0, passport_event)
+                if not has_screenshot:
+                    screenshot_file = next((f for f in sorted(files) if f.startswith("screenshot_")), None)
+                    if screenshot_file:
+                        s_path = f"{dir_path}/{screenshot_file}"
+                        screenshot_event = {
+                            "timestamp": instance.created_at.isoformat() if instance.created_at else timezone.now().isoformat(),
+                            "activity_type": "initial_screenshot_captured",
+                            "meta_data": {"source": "proctoring_gate"},
+                            "screen_path": build_public_url(s_path) or s_path
+                        }
+                        if not isinstance(ret.get("general_events"), list):
+                            ret["general_events"] = []
+                        ret["general_events"].insert(0, screenshot_event)
+            except Exception as e:
+                logger.debug(f"Error checking storage for identity snapshots: {e}")
             
         return ret
 

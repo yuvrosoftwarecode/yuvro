@@ -1,4 +1,4 @@
-name: Dev - Deploy Branch Code to EC2
+name: Dev - Deploy Branch Code to EC2 Docker
 
 on:
   workflow_dispatch:

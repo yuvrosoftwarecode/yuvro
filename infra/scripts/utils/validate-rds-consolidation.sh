@@ -124,7 +124,7 @@ check_item "YLabs backend env has consolidated URL" \
     "grep -q 'dev-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com' $PROJECT_ROOT/ylabs-backend-api/.env.dev-secrets"
 
 check_item "YMarketplace backend env has consolidated URL" \
-    "grep -q 'dev-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com' $PROJECT_ROOT/ymarketplace/backend/.env.dev-secrets"
+    "grep -q 'dev-yuvro-db.ctie88aqw5oa.ap-south-1.rds.amazonaws.com' $PROJECT_ROOT/ymarketplace/ymarketplace-backend-api/.env.dev-secrets"
 
 echo ""
 

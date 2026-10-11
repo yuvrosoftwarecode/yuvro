@@ -108,9 +108,9 @@ resource "aws_eks_node_group" "main" {
   instance_types = var.instance_types
   disk_size      = var.disk_size
 
-  # Use IAM instance profile for node group
+  # Set EC2 instance name tags for nodes
   tags = {
-    Name = var.node_group_name
+    Name = "yuvro-prod-eks-cluster-instance-1"
   }
 
   depends_on = [

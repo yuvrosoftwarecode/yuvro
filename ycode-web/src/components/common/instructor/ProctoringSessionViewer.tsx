@@ -388,12 +388,26 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
         return uniqueItems.sort((a, b) => new Date(a.event.timestamp).getTime() - new Date(b.event.timestamp).getTime());
     }, [submission]);
 
-    const passportPhotos = allImages.filter(i => i.event.activity_type === 'passport_photo_captured').map(i => i.event);
-    const initialScreenshots = allImages.filter(i => i.event.activity_type === 'initial_screenshot_captured').map(i => i.event);
-    const generalSnapshots = allImages.filter(i => i.event.activity_type !== 'passport_photo_captured' && i.event.activity_type !== 'initial_screenshot_captured');
+    const passportItem = allImages.find(i => 
+        i.event.activity_type === 'passport_photo_captured' || 
+        i.path?.includes('passport_') || 
+        i.event.image_path?.includes('passport_')
+    );
+    const initialScreenItem = allImages.find(i => 
+        i.event.activity_type === 'initial_screenshot_captured'
+    ) || allImages.find(i => i.type === 'screen' && i.event.activity_type !== 'snapshot');
 
-    const latestPassport = passportPhotos.length > 0 ? passportPhotos[0] : null;
-    const latestScreenshot = initialScreenshots.length > 0 ? initialScreenshots[0] : null;
+    // General snapshots are all images (camera and screen captures) taken during the test
+    const generalSnapshots = allImages.filter(i => {
+        if (passportItem && (i.path === passportItem.path || i.event === passportItem.event)) return false;
+        if (i.event.activity_type === 'passport_photo_captured') return false;
+        if (initialScreenItem && (i.path === initialScreenItem.path || i.event === initialScreenItem.event)) return false;
+        if (i.event.activity_type === 'initial_screenshot_captured') return false;
+        return true;
+    });
+
+    const latestPassport = passportItem?.event || null;
+    const latestScreenshot = initialScreenItem?.event || null;
 
     const totalViolations = riskAnalysis.violations.length;
     const questionActivities = submission.question_activities || [];
@@ -1236,6 +1250,72 @@ const ProctoringSessionViewer: React.FC<ProctoringSessionViewerProps> = ({ submi
                                                             <div><strong>Ambient Audio Noise:</strong> {event.meta_data.db_level} dB</div>
                                                         )}
                                                     </div>
+
+                                                    {/* Captured Evidence Images (Screenshot & Camera) */}
+                                                    {(event.screen_path || event.image_path) && (
+                                                        <div className="mt-3 pt-3 border-t border-border space-y-2">
+                                                            <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                                                                <Camera className="h-3.5 w-3.5 text-blue-500" />
+                                                                <span>Captured Violation Evidence</span>
+                                                            </div>
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                                                                {event.screen_path && (
+                                                                    <div className="space-y-1">
+                                                                        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                                                                            <span className="font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                                                                                <Maximize className="h-3 w-3" /> Screen Capture
+                                                                            </span>
+                                                                            <span className="text-[10px] text-muted-foreground">Click to expand</span>
+                                                                        </div>
+                                                                        <div 
+                                                                            className="relative aspect-video rounded-lg overflow-hidden border border-blue-200 dark:border-blue-900/50 bg-black cursor-zoom-in group/img shadow-sm hover:shadow transition-all"
+                                                                            onClick={() => setActiveLightboxImg(getImageUrl(event.screen_path))}
+                                                                            title="View full screen capture"
+                                                                        >
+                                                                            <img 
+                                                                                src={getImageUrl(event.screen_path)} 
+                                                                                alt="Screen capture at violation" 
+                                                                                className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-200"
+                                                                                onError={(e) => {
+                                                                                    (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Screenshot+Load+Error';
+                                                                                }}
+                                                                            />
+                                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
+                                                                                <Eye className="h-6 w-6 text-white" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                                {event.image_path && (
+                                                                    <div className="space-y-1">
+                                                                        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                                                                            <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                                                                <Camera className="h-3 w-3" /> Camera Snapshot
+                                                                            </span>
+                                                                            <span className="text-[10px] text-muted-foreground">Click to expand</span>
+                                                                        </div>
+                                                                        <div 
+                                                                            className="relative aspect-video rounded-lg overflow-hidden border border-emerald-200 dark:border-emerald-900/50 bg-black cursor-zoom-in group/img shadow-sm hover:shadow transition-all"
+                                                                            onClick={() => setActiveLightboxImg(getImageUrl(event.image_path))}
+                                                                            title="View camera snapshot"
+                                                                        >
+                                                                            <img 
+                                                                                src={getImageUrl(event.image_path)} 
+                                                                                alt="Camera snapshot at violation" 
+                                                                                className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-200"
+                                                                                onError={(e) => {
+                                                                                    (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Camera+Load+Error';
+                                                                                }}
+                                                                            />
+                                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity">
+                                                                                <Eye className="h-6 w-6 text-white" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         );

@@ -161,9 +161,9 @@ compose_files_for() {
         ycampus)      echo "$base -f docker-compose.ycampus.yml -f docker-compose.dev.yml" ;;
         ylabs)        echo "$base -f docker-compose.ylabs.yml -f docker-compose.dev.yml" ;;
         yhub)         echo "$base -f docker-compose.yhub.yml -f docker-compose.dev.yml" ;;
-        ymarketplace) echo "-f ymarketplace/docker-compose.dev.yml" ;;
+        ymarketplace) echo "$base -f docker-compose.dev.yml" ;;
         code-executor) echo "-f docker-compose.code-executor.yml" ;;
-        all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f ymarketplace/docker-compose.dev.yml -f docker-compose.code-executor.yml -f docker-compose.dev.yml" ;;
+        all|*)   echo "$base -f docker-compose.ycode.yml -f docker-compose.ycampus.yml -f docker-compose.ylabs.yml -f docker-compose.yhub.yml -f docker-compose.code-executor.yml -f docker-compose.dev.yml" ;;
     esac
 }
 
@@ -222,7 +222,7 @@ wire_secrets() {
     # S3 into all backends
     for f in ycode-backend-api/.env.dev-secrets ycampus-backend-api/.env.dev-secrets \
               yhub-backend-api/.env.dev-secrets  ylabs-backend-api/.env.dev-secrets \
-              ymarketplace/backend/.env.dev-secrets; do
+              ymarketplace/ymarketplace-backend-api/.env.dev-secrets; do
         _set_kv "$SECRETS_DIR/$f" "AWS_STORAGE_BUCKET_NAME" "$S3_BUCKET"
         _set_kv "$SECRETS_DIR/$f" "AWS_ACCESS_KEY_ID"        "$S3_KEY_ID"
         _set_kv "$SECRETS_DIR/$f" "AWS_SECRET_ACCESS_KEY"    "$S3_SECRET"
@@ -268,7 +268,7 @@ wire_secrets() {
         print_success "YLabs database: ylabs (on consolidated RDS)"
 
         # YMarketplace
-        f="$SECRETS_DIR/ymarketplace/backend/.env.dev-secrets"
+        f="$SECRETS_DIR/ymarketplace/ymarketplace-backend-api/.env.dev-secrets"
         _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ymarketplace"
         _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
         _set_kv "$f" "DB_NAME" "ymarketplace"; _set_kv "$f" "DB_USER" "$DB_USER"
@@ -292,9 +292,9 @@ app_secrets_for() {
         ycampus)      echo "ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets" ;;
         ylabs)        echo "ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets" ;;
         yhub)         echo "yhub-backend-api/.env.dev-secrets" ;;
-        ymarketplace) echo "ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets" ;;
+        ymarketplace) echo "ymarketplace/ymarketplace-backend-api/.env.dev-secrets ymarketplace/ymarketplace-web/.env.dev-secrets" ;;
         code-executor) echo "ycode-executor-api/.env.dev-secrets" ;;
-        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets ymarketplace/backend/.env.dev-secrets ymarketplace/frontend/.env.dev-secrets ycode-executor-api/.env.dev-secrets" ;;
+        all|*)   echo "ycode-backend-api/.env.dev-secrets ycode-web/.env.dev-secrets ycampus-backend-api/.env.dev-secrets ycampus-web/.env.dev-secrets ylabs-backend-api/.env.dev-secrets ylabs-web/.env.dev-secrets yhub-backend-api/.env.dev-secrets ymarketplace/ymarketplace-backend-api/.env.dev-secrets ymarketplace/ymarketplace-web/.env.dev-secrets ycode-executor-api/.env.dev-secrets" ;;
     esac
 }
 
@@ -317,9 +317,9 @@ app_nginx_config_for() {
         ycampus)      echo "ycampus-web/nginx.ec2.conf" ;;
         ylabs)        echo "ylabs-web/nginx.ec2.conf" ;;
         yhub)         echo "yhub-backend-api/nginx.ec2.conf" ;;
-        ymarketplace) echo "ymarketplace/frontend/nginx.ec2.conf" ;;
+        ymarketplace) echo "ymarketplace/ymarketplace-web/nginx.ec2.conf" ;;
         code-executor) echo "ycode-executor-api/nginx.ec2.conf" ;;
-        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/frontend/nginx.ec2.conf ycode-executor-api/nginx.ec2.conf" ;;
+        all|*)   echo "ycode-web/nginx.ec2.conf ycampus-web/nginx.ec2.conf ylabs-web/nginx.ec2.conf yhub-backend-api/nginx.ec2.conf ymarketplace/ymarketplace-web/nginx.ec2.conf ycode-executor-api/nginx.ec2.conf" ;;
     esac
 }
 
@@ -431,51 +431,16 @@ if [ ! -f /home/ubuntu/.ssh/ymarketplace_deploy_key ] && [ -f /home/ubuntu/.ssh/
     chmod 600 /home/ubuntu/.ssh/ymarketplace_deploy_key
 fi
 
-git submodule update --init --recursive --force
+git submodule update --init --recursive --remote --force
 echo "   ✓ submodules initialized  [elapsed \$(( \$(date +%s)-T2 ))s]"
 
-# ── ymarketplace env.dev (non-secret, generated inline) ──────────────────────
-# The submodule gitignores .env.dev so we write it directly on EC2
-echo "── ymarketplace env files ───────────────────────────"
-mkdir -p ymarketplace/backend ymarketplace/frontend
-cat > ymarketplace/backend/.env.dev << 'MPBACKENDENV'
-DEPLOY_ENV=dev
-DEPLOY_TYPE=docker
-DEBUG=False
-ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,marketplace-backend-dev.yuvro.ai,marketplace-dev.yuvro.ai,marketplace.yuvro.ai
-CORS_ALLOWED_ORIGINS=https://marketplace-dev.yuvro.ai,http://marketplace-dev.yuvro.ai
-CSRF_TRUSTED_ORIGINS=https://marketplace-backend-dev.yuvro.ai,https://marketplace-dev.yuvro.ai,https://marketplace.yuvro.ai
-APP_NAME=yuvro-marketplace
-FRONTEND_URL=https://marketplace-dev.yuvro.ai
-STORAGE_BACKEND=s3
-AWS_S3_REGION_NAME=ap-south-1
-AWS_S3_ADDRESSING_STYLE=virtual
-AWS_QUERYSTRING_AUTH=True
-OTEL_ENABLED=false
-OTEL_SERVICE_NAME=yuvro-marketplace-backend-dev
-OTEL_SERVICE_VERSION=1.0.0
-EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=smtp.hostinger.com
-EMAIL_PORT=465
-EMAIL_USE_SSL=True
-EMAIL_USE_TLS=False
-DEFAULT_FROM_EMAIL=contact@yuvro.ai
-MPBACKENDENV
-cat > ymarketplace/frontend/.env.dev << 'MPFRONTENDENV'
-DEPLOY_ENV=dev
-DEPLOY_TYPE=docker
-VITE_BACKEND_API_BASE_URL=https://backend-marketplace-dev.yuvro.ai/api
-VITE_YHUB_BACKEND_API_BASE_URL=https://backend-hub-dev.yuvro.ai/api
-VITE_APP_NAME=yuvro-marketplace
-VITE_DEPLOY_ENV=dev
-MPFRONTENDENV
-echo "   ✓ ymarketplace env files written"
+# Environment files are already committed to git and will be pulled with submodule
 
 # secrets status
 echo "── secrets ─────────────────────────────────────────"
 for sf in yhub-backend-api/.env.dev-secrets ylabs-backend-api/.env.dev-secrets \
           ycode-backend-api/.env.dev-secrets ycampus-backend-api/.env.dev-secrets \
-          ymarketplace/backend/.env.dev-secrets; do
+          ymarketplace/ymarketplace-backend-api/.env.dev-secrets; do
     [ -f "\$sf" ] && echo "   ✓ \$sf" || echo "   ⚠ missing: \$sf"
 done
 

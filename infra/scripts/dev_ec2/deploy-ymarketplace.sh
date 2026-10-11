@@ -4,7 +4,7 @@
 #   branch  Git branch to deploy (default: main)
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 OPENTOFU_DIR="$PROJECT_ROOT/infra/opentofu"
 source "$SCRIPT_DIR/lib/deploy-common.sh"
 
@@ -14,7 +14,7 @@ setup_nginx() {
     print_header "Setting up Nginx + SSL for YMarketplace"
 
     # Copy YMarketplace nginx config
-    scp_ec2 "$PROJECT_ROOT/ymarketplace/frontend/nginx.ec2.conf" "ubuntu@$ip:/tmp/ymarketplace.conf"
+    scp_ec2 "$PROJECT_ROOT/ymarketplace/ymarketplace-web/nginx.ec2.conf" "ubuntu@$ip:/tmp/ymarketplace.conf"
 
     # YMarketplace domains
     local domains="marketplace-dev.yuvro.ai backend-marketplace-dev.yuvro.ai marketplace.yuvro.ai"
@@ -65,6 +65,15 @@ sudo rm -f /etc/nginx/sites-enabled/yuvro-ymarketplace-http-only.conf
 
 # Enable the full HTTPS config
 sudo ln -sf /etc/nginx/sites-available/yuvro-ymarketplace.conf /etc/nginx/sites-enabled/yuvro-ymarketplace.conf
+
+# Ensure other app configs are still enabled (don't disable them)
+for app_config in /etc/nginx/sites-available/yuvro-*.conf; do
+    [ -f "$app_config" ] || continue
+    config_name=$(basename "$app_config")
+    # Only enable if it's not the marketplace http-only temp config
+    [ "$config_name" = "yuvro-ymarketplace-http-only.conf" ] && continue
+    [ -e "/etc/nginx/sites-enabled/$config_name" ] || sudo ln -sf "$app_config" "/etc/nginx/sites-enabled/$config_name"
+done
 
 # Test and reload with full HTTPS config
 sudo nginx -t && sudo systemctl reload nginx && echo "✓ HTTPS config active" || echo "⚠ nginx test failed"

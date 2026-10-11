@@ -1,0 +1,78 @@
+#!/bin/bash
+# Deploy YCode to AWS EKS cluster using Helm from infra/helm/ycode
+# Usage: bash infra/scripts/prod_eks/deploy-ycode.sh [branch]
+# Uses app-specific Helm chart at infra/helm/ycode/
+# Deploys: ycode-backend, ycode-frontend to prod EKS from GHCR registry
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+BRANCH="${1:-main}"
+DEPLOY_ENV="${DEPLOY_ENV:-prod}"
+NAMESPACE="yuvro-ns"
+HELM_CHART="$PROJECT_ROOT/infra/helm/ycode"
+HELM_VALUES_FILE="$HELM_CHART/values-prod.yaml"
+GITHUB_OWNER="${GITHUB_OWNER:-yuvro}"
+GHCR_REGISTRY="ghcr.io/$(echo "$GITHUB_OWNER" | tr '[:upper:]' '[:lower:]')"
+
+echo "🚀 Deploying YCode to AWS EKS (production)..."
+echo "   Branch: $BRANCH"
+echo "   Environment: $DEPLOY_ENV"
+echo "   Namespace: $NAMESPACE"
+echo "   Helm Chart: $HELM_CHART"
+echo "   Registry: $GHCR_REGISTRY"
+echo ""
+
+cd "$PROJECT_ROOT"
+
+# Source helper functions
+source "$SCRIPT_DIR/lib/check-eks.sh"
+
+# Check EKS cluster access
+if ! check_eks_cluster "YCode"; then
+  exit 1
+fi
+
+echo ""
+echo "🔍 Checking Helm chart..."
+if [ ! -f "$HELM_VALUES_FILE" ]; then
+  echo "❌ Values file not found: $HELM_VALUES_FILE"
+  echo "   Please create prod values file for YCode deployment"
+  exit 1
+fi
+
+echo "📝 Deploying YCode with Helm (values-prod.yaml)..."
+echo "   Using images from: $GHCR_REGISTRY/ycode-backend:$BRANCH"
+echo "   Using images from: $GHCR_REGISTRY/ycode-frontend:$BRANCH"
+echo ""
+
+helm upgrade --install ycode "$HELM_CHART" \
+  --namespace "$NAMESPACE" \
+  --create-namespace \
+  -f "$HELM_VALUES_FILE" \
+  --set image.registry="$GHCR_REGISTRY" \
+  --set image.tag="$BRANCH" \
+  --set env.DEPLOY_ENV="$DEPLOY_ENV" \
+  || {
+  echo "❌ Helm deployment failed"
+  exit 1
+}
+
+echo ""
+echo "✅ YCode deployed to EKS via Helm!"
+echo ""
+echo "📊 Deployment status:"
+helm list -n "$NAMESPACE" | grep ycode || true
+echo ""
+kubectl get pods -n "$NAMESPACE" -l app=ycode || true
+echo ""
+echo "ℹ️  View logs:"
+echo "   kubectl logs -n $NAMESPACE deployment/ycode-backend -f"
+echo "   kubectl logs -n $NAMESPACE deployment/ycode-frontend -f"
+echo ""
+echo "ℹ️  Port-forward for local testing:"
+echo "   kubectl port-forward -n $NAMESPACE svc/ycode-backend 8000:80"
+echo "   kubectl port-forward -n $NAMESPACE svc/ycode-frontend 3000:80"
+
+

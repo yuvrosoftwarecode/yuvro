@@ -1,0 +1,36 @@
+# Code Executor Helm Chart Values
+
+namespace: yuvro-ns
+
+# Image configuration
+image:
+  pullPolicy: Never
+  tag: "latest"
+
+# Environment variables
+env:
+  DEPLOY_ENV: "local"
+  DEBUG: "True"
+
+# Components
+components:
+  service:
+    enabled: true
+    replicas: 1
+
+# Resource limits and requests
+resources:
+  service:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+
+# Service configuration
+service:
+  type: NodePort
+  port: 80
+  targetPort: 8009
+  nodePort: 30013
