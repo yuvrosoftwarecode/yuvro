@@ -147,11 +147,22 @@ def build_public_url(object_name):
             media_url += "/"
         return f"{media_url}{obj.lstrip('/')}"
 
+    # Try signed URL first if enabled
     if getattr(settings, "AWS_QUERYSTRING_AUTH", True):
-        signed = _build_signed_url(obj, bucket)
-        if signed:
-            return signed
-    return _build_unsigned_url(obj, bucket)
+        try:
+            signed = _build_signed_url(obj, bucket)
+            if signed:
+                return signed
+        except Exception as err:
+            logger.warning(f"Failed to generate signed URL, falling back to unsigned: {err}")
+    
+    # Always generate unsigned URL as fallback
+    url = _build_unsigned_url(obj, bucket)
+    if url:
+        return url
+    
+    # Last resort: return object name for local media
+    return obj
 
 
 def upload_image(*, key, file_obj, replace_extensions=()):
