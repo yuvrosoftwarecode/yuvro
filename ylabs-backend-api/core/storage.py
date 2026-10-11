@@ -37,7 +37,7 @@ def _ensure_minio_bucket_public(bucket: str):
     if not bucket:
         return
     endpoint = getattr(settings, "AWS_S3_ENDPOINT_URL", "")
-    if not endpoint or getattr(settings, "AWS_QUERYSTRING_AUTH", True):
+    if not endpoint:
         return
     try:
         import boto3
@@ -49,18 +49,36 @@ def _ensure_minio_bucket_public(bucket: str):
             aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", "minioadmin") or "minioadmin",
             endpoint_url=endpoint,
         )
-        policy = {
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Effect": "Allow",
-                    "Principal": "*",
-                    "Action": ["s3:GetObject"],
-                    "Resource": [f"arn:aws:s3:::{bucket}/*"]
-                }
-            ]
-        }
-        client.put_bucket_policy(Bucket=bucket, Policy=json.dumps(policy))
+        try:
+            client.head_bucket(Bucket=bucket)
+        except Exception:
+            try:
+                client.create_bucket(Bucket=bucket)
+                logger.info("Auto-created MinIO bucket: %s", bucket)
+            except Exception as create_err:
+                try:
+                    region = getattr(settings, "AWS_S3_REGION_NAME", "") or "ap-south-1"
+                    client.create_bucket(
+                        Bucket=bucket,
+                        CreateBucketConfiguration={"LocationConstraint": region}
+                    )
+                    logger.info("Auto-created MinIO bucket with region %s: %s", region, bucket)
+                except Exception as retry_err:
+                    logger.warning("Could not auto-create MinIO bucket %s: %s (retry: %s)", bucket, create_err, retry_err)
+
+        if not getattr(settings, "AWS_QUERYSTRING_AUTH", True):
+            policy = {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": "*",
+                        "Action": ["s3:GetObject"],
+                        "Resource": [f"arn:aws:s3:::{bucket}/*"]
+                    }
+                ]
+            }
+            client.put_bucket_policy(Bucket=bucket, Policy=json.dumps(policy))
     except Exception as err:
         logger.debug("Failed to set MinIO bucket public policy: %s", err)
 
