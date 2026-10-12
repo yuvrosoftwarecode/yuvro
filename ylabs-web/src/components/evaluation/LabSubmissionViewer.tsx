@@ -312,24 +312,24 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
         }
     };
 
-    let totalSecs = 0;
-    if (labSub?.seconds_solved != null && Number(labSub.seconds_solved) > 0) {
-        totalSecs = Number(labSub.seconds_solved);
-    } else if (labSub?.created_at && labSub?.updated_at) {
-        const start = new Date(labSub.created_at).getTime();
-        const end = new Date(labSub.updated_at).getTime();
-        if (!isNaN(start) && !isNaN(end) && end > start) {
+    let timeTakenFormatted = "0m 0s";
+    if (typeof labSub?.time_taken === "string" && labSub.time_taken.trim()) {
+        timeTakenFormatted = labSub.time_taken.trim();
+    } else {
+        let totalSecs = 0;
+        const start = labSub?.started_at ? new Date(labSub.started_at).getTime() : (labSub?.created_at ? new Date(labSub.created_at).getTime() : 0);
+        const end = labSub?.submitted_at ? new Date(labSub.submitted_at).getTime() : (labSub?.updated_at ? new Date(labSub.updated_at).getTime() : 0);
+        if (start > 0 && end > 0 && end > start) {
             totalSecs = Math.round((end - start) / 1000);
+        } else if (minutesSolved != null && minutesSolved > 0) {
+            totalSecs = Number(minutesSolved) * 60;
+        } else if (labSub?.minutes_solved != null && Number(labSub.minutes_solved) > 0) {
+            totalSecs = Number(labSub.minutes_solved) * 60;
         }
+        const mins = Math.floor(totalSecs / 60);
+        const secs = totalSecs % 60;
+        timeTakenFormatted = `${mins}m ${secs}s`;
     }
-    if (totalSecs === 0) {
-        const m = minutesSolved ?? labSub?.minutes_solved ?? 0;
-        totalSecs = Number(m) * 60;
-    }
-    const mins = Math.floor(totalSecs / 60);
-    const secs = totalSecs % 60;
-    const timeTakenFormatted = `${mins}m ${secs}s`;
-    const timeTaken = mins;
     const score = labSub?.score ?? 0;
 
     const eciColor = (v: number) => v >= 70 ? "text-emerald-500" : v >= 55 ? "text-amber-500" : "text-red-500";

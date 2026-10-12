@@ -316,10 +316,20 @@ class UserLabQuestionBankSubmission(BaseTimestampedModel):
     solution_output = models.TextField(blank=True)
     feedback = models.TextField(blank=True)
     score = models.PositiveIntegerField(default=0)
-    minutes_solved = models.PositiveIntegerField(default=0)
-    seconds_solved = models.PositiveIntegerField(default=0, help_text="Total seconds spent solving this lab")
     started_at = models.DateTimeField(null=True, blank=True, help_text="Timestamp when candidate opened/started this lab")
     submitted_at = models.DateTimeField(null=True, blank=True, help_text="Timestamp when candidate submitted this lab")
+
+    @property
+    def time_taken(self):
+        start = self.started_at or self.created_at
+        end = self.submitted_at or self.updated_at
+        if start and end and end > start:
+            total_seconds = max(0, round((end - start).total_seconds()))
+        else:
+            total_seconds = 0
+        minutes = total_seconds // 60
+        seconds = total_seconds % 60
+        return f"{minutes}m {seconds}s"
 
     class Meta:
         unique_together = ("user", "evaluation", "lab_question")

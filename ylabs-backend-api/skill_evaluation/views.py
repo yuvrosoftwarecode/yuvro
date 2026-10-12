@@ -689,44 +689,28 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             user=request.user, evaluation=evaluation, lab_question=lab
         ).first()
 
-        raw_seconds = request.data.get('seconds_solved')
-        raw_minutes = request.data.get('minutes_solved')
-        calc_seconds = 0
-        if raw_seconds is not None:
-            try:
-                calc_seconds = max(0, int(raw_seconds))
-            except (ValueError, TypeError):
-                calc_seconds = 0
+        started_at = None
+        if existing and existing.started_at:
+            started_at = existing.started_at
+        elif request.data.get('started_at'):
+            from django.utils.dateparse import parse_datetime
+            started_at = parse_datetime(str(request.data.get('started_at')))
 
-        if calc_seconds == 0 and existing and existing.started_at:
-            calc_seconds = max(1, round((now - existing.started_at).total_seconds()))
-        elif calc_seconds == 0 and existing and existing.created_at and existing.updated_at and existing.updated_at > existing.created_at:
-            calc_seconds = max(1, round((existing.updated_at - existing.created_at).total_seconds()))
-
-        if calc_seconds == 0 and raw_minutes:
-            try:
-                calc_seconds = int(raw_minutes) * 60
-            except (ValueError, TypeError):
-                calc_seconds = 0
-
-        # Fallback to session interval if candidate started earlier
-        if calc_seconds == 0:
-            eval_sub = request.user.evaluation_submissions.filter(evaluation=evaluation).first()
-            if eval_sub and eval_sub.created_at and now > eval_sub.created_at:
-                calc_seconds = max(15, min(180, round((now - eval_sub.created_at).total_seconds())))
-
-        minutes_solved = round(calc_seconds / 60)
-        started_at = (
-            existing.started_at if existing and existing.started_at
-            else (now - timezone.timedelta(seconds=calc_seconds) if calc_seconds > 0 else now)
-        )
+        if not started_at:
+            if existing and existing.created_at:
+                started_at = existing.created_at
+            else:
+                raw_seconds = request.data.get('seconds_solved') or request.data.get('time_taken_seconds')
+                try:
+                    calc_seconds = max(0, int(raw_seconds)) if raw_seconds is not None else 0
+                except (ValueError, TypeError):
+                    calc_seconds = 0
+                started_at = now - timezone.timedelta(seconds=calc_seconds) if calc_seconds > 0 else now
 
         score_val = request.data.get('score')
         solution_output_val = request.data.get('solution_output')
         defaults = {
             'status': status_val,
-            'minutes_solved': minutes_solved,
-            'seconds_solved': calc_seconds,
             'started_at': started_at,
             'submitted_at': now,
         }
@@ -1516,12 +1500,7 @@ class UserLabQuestionBankSubmissionViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         now = timezone.now()
-        secs = serializer.validated_data.get('seconds_solved', 0)
-        started = serializer.validated_data.get('started_at')
-        if not started and secs:
-            started = now - timezone.timedelta(seconds=secs)
-        elif not started:
-            started = now
+        started = serializer.validated_data.get('started_at') or now
         instance = serializer.save(user=self.request.user, started_at=started, submitted_at=now)
         self._ensure_git_diff(instance)
 

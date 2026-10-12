@@ -110,6 +110,39 @@ export function formatDurationSecs(totalSeconds: number): string {
   return `${m}m ${s}s`;
 }
 
+export function parseLabDurationSecs(sub: any): number {
+  if (!sub) return 0;
+  if (typeof sub.time_taken === "string" && sub.time_taken.trim()) {
+    const str = sub.time_taken.trim();
+    const mMatch = str.match(/(\d+)\s*m/);
+    const sMatch = str.match(/(\d+)\s*s/);
+    if (mMatch || sMatch) {
+      const mins = mMatch ? parseInt(mMatch[1], 10) : 0;
+      const secs = sMatch ? parseInt(sMatch[1], 10) : 0;
+      return mins * 60 + secs;
+    }
+  }
+  let sec = Number(sub.seconds_solved ?? 0);
+  if (sec === 0 && sub.started_at && sub.submitted_at) {
+    const start = new Date(sub.started_at).getTime();
+    const end = new Date(sub.submitted_at).getTime();
+    if (!isNaN(start) && !isNaN(end) && end > start) {
+      sec = Math.round((end - start) / 1000);
+    }
+  }
+  if (sec === 0 && sub.created_at && sub.updated_at) {
+    const start = new Date(sub.created_at).getTime();
+    const end = new Date(sub.updated_at).getTime();
+    if (!isNaN(start) && !isNaN(end) && end > start) {
+      sec = Math.round((end - start) / 1000);
+    }
+  }
+  if (sec === 0 && Number(sub.minutes_solved ?? 0) > 0) {
+    sec = Number(sub.minutes_solved) * 60;
+  }
+  return sec;
+}
+
 export function MissingVitarkaSessionModal({
   isOpen,
   onClose,
@@ -1577,25 +1610,8 @@ function EvaluationSummary({
       if (sub.solution || sub.solution_output || Number(sub.score || 0) > 0) {
         labsAttemptedCount += 1;
       }
-      let sec = Number(sub.seconds_solved ?? 0);
-      if (sec === 0 && sub.started_at && sub.submitted_at) {
-        const start = new Date(sub.started_at).getTime();
-        const end = new Date(sub.submitted_at).getTime();
-        if (!isNaN(start) && !isNaN(end) && end > start) {
-          sec = Math.round((end - start) / 1000);
-        }
-      }
-      if (sec === 0 && sub.created_at && sub.updated_at) {
-        const start = new Date(sub.created_at).getTime();
-        const end = new Date(sub.updated_at).getTime();
-        if (!isNaN(start) && !isNaN(end) && end > start) {
-          sec = Math.round((end - start) / 1000);
-        }
-      }
-      if (sec === 0 && Number(sub.minutes_solved ?? 0) > 0) {
-        sec = Number(sub.minutes_solved) * 60;
-      }
-      let m = Math.max(0, Math.round(sec / 60));
+      const sec = parseLabDurationSecs(sub);
+      const m = Math.max(0, Math.round(sec / 60));
       totalLabMinutes += m;
       totalLabSeconds += sec;
     }
@@ -2081,25 +2097,7 @@ export function LabsPane({
     }) || rawLabSubs.find(
       (s: any) => s.lab_question === lab.id || s.lab_question === lab.lab_id
     ) || rawLabSubs[i];
-    let sec = Number(sub?.seconds_solved ?? 0);
-    if (sec === 0 && sub?.started_at && sub?.submitted_at) {
-      const start = new Date(sub.started_at).getTime();
-      const end = new Date(sub.submitted_at).getTime();
-      if (!isNaN(start) && !isNaN(end) && end > start) {
-        sec = Math.round((end - start) / 1000);
-      }
-    }
-    if (sec === 0 && sub?.created_at && sub?.updated_at) {
-      const start = new Date(sub.created_at).getTime();
-      const end = new Date(sub.updated_at).getTime();
-      if (!isNaN(start) && !isNaN(end) && end > start) {
-        sec = Math.round((end - start) / 1000);
-      }
-    }
-    if (sec === 0 && Number(sub?.minutes_solved ?? 0) > 0) {
-      sec = Number(sub.minutes_solved) * 60;
-    }
-    return sum + sec;
+    return sum + parseLabDurationSecs(sub);
   }, 0);
 
   const displayTotalTime = (labsReport?.total_time_seconds != null && labsReport.total_time_seconds > 0)
@@ -2165,25 +2163,8 @@ export function LabsPane({
         const maxMarks = stats.maxMarks;
         const scorePct = stats.scorePct;
 
-        let sec = Number(labSub?.seconds_solved ?? 0);
-        if (sec === 0 && labSub?.started_at && labSub?.submitted_at) {
-          const start = new Date(labSub.started_at).getTime();
-          const end = new Date(labSub.submitted_at).getTime();
-          if (!isNaN(start) && !isNaN(end) && end > start) {
-            sec = Math.round((end - start) / 1000);
-          }
-        }
-        if (sec === 0 && labSub?.created_at && labSub?.updated_at) {
-          const start = new Date(labSub.created_at).getTime();
-          const end = new Date(labSub.updated_at).getTime();
-          if (!isNaN(start) && !isNaN(end) && end > start) {
-            sec = Math.round((end - start) / 1000);
-          }
-        }
-        if (sec === 0 && Number(labSub?.minutes_solved ?? 0) > 0) {
-          sec = Number(labSub.minutes_solved) * 60;
-        }
-        const labTimeFormatted = formatDurationSecs(sec);
+        const sec = parseLabDurationSecs(labSub);
+        const labTimeFormatted = labSub?.time_taken || formatDurationSecs(sec);
         const timeLimit = lab.duration_minutes ?? lab.duration ?? 0;
 
         return (
@@ -3739,26 +3720,9 @@ export function generateMockLabAttempt(lab: any, labSub: any, labsReport?: any) 
   const tasksTotal = stats.tasksTotal;
   const tasksCompleted = stats.tasksCompleted;
 
-  let totalSeconds = Number(labSub?.seconds_solved ?? 0);
-  if (totalSeconds === 0 && labSub?.started_at && labSub?.submitted_at) {
-    const start = new Date(labSub.started_at).getTime();
-    const end = new Date(labSub.submitted_at).getTime();
-    if (!isNaN(start) && !isNaN(end) && end > start) {
-      totalSeconds = Math.round((end - start) / 1000);
-    }
-  }
-  if (totalSeconds === 0 && labSub?.created_at && labSub?.updated_at) {
-    const start = new Date(labSub.created_at).getTime();
-    const end = new Date(labSub.updated_at).getTime();
-    if (!isNaN(start) && !isNaN(end) && end > start) {
-      totalSeconds = Math.round((end - start) / 1000);
-    }
-  }
-  if (totalSeconds === 0 && Number(labSub?.minutes_solved ?? 0) > 0) {
-    totalSeconds = Number(labSub.minutes_solved) * 60;
-  }
+  const totalSeconds = parseLabDurationSecs(labSub);
   const timeTaken = Math.max(1, Math.round(totalSeconds / 60));
-  const timeTakenFormatted = formatDurationSecs(totalSeconds);
+  const timeTakenFormatted = labSub?.time_taken || formatDurationSecs(totalSeconds);
   const timeLimit = lab.duration_minutes ?? lab.duration ?? 0;
 
   const changedFiles: string[] = [];
