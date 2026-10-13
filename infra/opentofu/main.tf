@@ -5,6 +5,14 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.23"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.11"
+    }
   }
 
   # Uncomment for remote state management
@@ -23,29 +31,71 @@ provider "aws" {
   default_tags {
     tags = {
       Environment = var.environment
-      Project     = "YCode"
+      Project     = "Yuvro"
       ManagedBy   = "Terraform"
     }
   }
 }
 
-# VPC Module
-module "vpc" {
-  source = "./modules/vpc"
-
-  environment         = var.environment
-  vpc_cidr            = var.vpc_cidr
-  availability_zones  = var.availability_zones
-  public_subnet_cidrs = var.public_subnet_cidrs
-  private_subnet_cidrs = var.private_subnet_cidrs
+# Kubernetes Provider - Configured after EKS cluster is created
+provider "kubernetes" {
+  host                   = var.environment == "prod" && var.enable_kubernetes ? module.eks[0].cluster_endpoint : ""
+  cluster_ca_certificate = var.environment == "prod" && var.enable_kubernetes ? base64decode(module.eks[0].cluster_certificate_authority) : ""
+  token                  = var.environment == "prod" && var.enable_kubernetes ? data.aws_eks_cluster_auth.cluster[0].token : ""
 }
 
-# Security Groups Module
+# Helm Provider - Configured after Kubernetes provider
+provider "helm" {
+  kubernetes {
+    host                   = var.environment == "prod" && var.enable_kubernetes ? module.eks[0].cluster_endpoint : ""
+    cluster_ca_certificate = var.environment == "prod" && var.enable_kubernetes ? base64decode(module.eks[0].cluster_certificate_authority) : ""
+    token                  = var.environment == "prod" && var.enable_kubernetes ? data.aws_eks_cluster_auth.cluster[0].token : ""
+  }
+}
+
+# Get EKS cluster auth token (only for prod with K8s enabled)
+data "aws_eks_cluster_auth" "cluster" {
+  count = var.environment == "prod" && var.enable_kubernetes ? 1 : 0
+  name  = module.eks[0].cluster_name
+}
+
+
+# Use existing VPC instead of creating new one (to avoid VPC limit issues)
+# The existing VPC with EC2 and RDS is vpc-0893533f938d45e9d
+data "aws_vpc" "main" {
+  id = "vpc-0893533f938d45e9d"
+}
+
+data "aws_subnets" "public" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
+  }
+  
+  filter {
+    name   = "tag:Name"
+    values = ["${var.environment}-public-subnet-*"]
+  }
+}
+
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
+  }
+  
+  filter {
+    name   = "tag:Name"
+    values = ["${var.environment}-private-subnet-*"]
+  }
+}
+
+# Security Groups Module - reference existing VPC
 module "security_groups" {
   source = "./modules/security_groups"
 
   environment = var.environment
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = data.aws_vpc.main.id
 }
 
 # EC2 App Nodes Module (Docker Compose on dev, can be used for other envs too)
@@ -56,26 +106,26 @@ module "ec2_nodes" {
   environment       = var.environment
   instance_type     = var.instance_type
   instance_count    = var.instance_count
-  subnet_ids        = module.vpc.public_subnet_ids
+  subnet_ids        = data.aws_subnets.public.ids
   security_group_id = module.security_groups.app_sg_id
   key_pair_name     = var.key_pair_name
   root_volume_size  = var.root_volume_size
   root_volume_type  = var.root_volume_type
 }
 
-# RDS PostgreSQL for YCode
-# Uses private subnets if available, otherwise uses public subnets (for minimal dev setup)
-module "rds_ycode" {
+# RDS PostgreSQL - Consolidated Single Instance for All Apps
+# All apps use separate databases within the same RDS instance for cost savings and easier management
+module "rds_main" {
   source = "./modules/rds"
 
   environment              = var.environment
-  db_name                  = "ycode"
-  db_username              = var.ycode_db_username
-  db_password              = var.ycode_db_password
-  instance_class           = var.ycode_db_instance_class
-  allocated_storage         = var.ycode_db_allocated_storage
-  max_allocated_storage     = var.ycode_db_max_allocated_storage
-  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
+  db_name                  = "postgres"  # Use default postgres db; app databases created by migrations
+  db_username              = var.db_master_username
+  db_password              = var.db_master_password
+  instance_class           = var.db_instance_class
+  allocated_storage         = var.db_allocated_storage
+  max_allocated_storage     = var.db_max_allocated_storage
+  subnet_ids               = length(data.aws_subnets.private.ids) > 0 ? data.aws_subnets.private.ids : data.aws_subnets.public.ids
   security_group_id        = module.security_groups.rds_sg_id
   backup_retention_days    = var.backup_retention_days
   multi_az                 = var.multi_az
@@ -83,82 +133,9 @@ module "rds_ycode" {
   skip_final_snapshot      = var.skip_final_snapshot
 }
 
-# RDS PostgreSQL for YCampus
-# Uses private subnets if available, otherwise uses public subnets (for minimal dev setup)
-module "rds_ycampus" {
-  source = "./modules/rds"
+# Note: Application databases are created by deployment scripts when they run migrations
+# This is the standard Django pattern: python manage.py migrate creates the database if it doesn't exist
 
-  environment              = var.environment
-  db_name                  = "ycampus"
-  db_username              = var.ycampus_db_username
-  db_password              = var.ycampus_db_password
-  instance_class           = var.ycampus_db_instance_class
-  allocated_storage         = var.ycampus_db_allocated_storage
-  max_allocated_storage     = var.ycampus_db_max_allocated_storage
-  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
-  security_group_id        = module.security_groups.rds_sg_id
-  backup_retention_days    = var.backup_retention_days
-  multi_az                 = var.multi_az
-  engine_version           = var.postgres_version
-  skip_final_snapshot      = var.skip_final_snapshot
-}
-
-# RDS PostgreSQL for YHub
-module "rds_yhub" {
-  source = "./modules/rds"
-
-  environment              = var.environment
-  db_name                  = "yhub"
-  db_username              = var.yhub_db_username
-  db_password              = var.yhub_db_password
-  instance_class           = var.yhub_db_instance_class
-  allocated_storage         = var.yhub_db_allocated_storage
-  max_allocated_storage     = var.yhub_db_max_allocated_storage
-  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
-  security_group_id        = module.security_groups.rds_sg_id
-  backup_retention_days    = var.backup_retention_days
-  multi_az                 = var.multi_az
-  engine_version           = var.postgres_version
-  skip_final_snapshot      = var.skip_final_snapshot
-}
-
-# RDS PostgreSQL for YLabs
-module "rds_ylabs" {
-  source = "./modules/rds"
-
-  environment              = var.environment
-  db_name                  = "ylabs"
-  db_username              = var.ylabs_db_username
-  db_password              = var.ylabs_db_password
-  instance_class           = var.ylabs_db_instance_class
-  allocated_storage         = var.ylabs_db_allocated_storage
-  max_allocated_storage     = var.ylabs_db_max_allocated_storage
-  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
-  security_group_id        = module.security_groups.rds_sg_id
-  backup_retention_days    = var.backup_retention_days
-  multi_az                 = var.multi_az
-  engine_version           = var.postgres_version
-  skip_final_snapshot      = var.skip_final_snapshot
-}
-
-# RDS PostgreSQL for YMarketplace
-module "rds_ymarketplace" {
-  source = "./modules/rds"
-
-  environment              = var.environment
-  db_name                  = "ymarketplace"
-  db_username              = var.ymarketplace_db_username
-  db_password              = var.ymarketplace_db_password
-  instance_class           = var.ymarketplace_db_instance_class
-  allocated_storage         = var.ymarketplace_db_allocated_storage
-  max_allocated_storage     = var.ymarketplace_db_max_allocated_storage
-  subnet_ids               = length(module.vpc.private_subnet_ids) > 0 ? module.vpc.private_subnet_ids : module.vpc.public_subnet_ids
-  security_group_id        = module.security_groups.rds_sg_id
-  backup_retention_days    = var.backup_retention_days
-  multi_az                 = var.multi_az
-  engine_version           = var.postgres_version
-  skip_final_snapshot      = var.skip_final_snapshot
-}
 
 # S3 Buckets Module
 module "s3" {
@@ -173,6 +150,7 @@ module "iam" {
   source = "./modules/iam"
 
   environment = var.environment
+  aws_region = var.aws_region
   s3_bucket_arns = [
     module.s3.base_bucket_arn
   ]
@@ -183,4 +161,41 @@ module "cloudwatch" {
   source = "./modules/cloudwatch"
 
   environment = var.environment
+}
+
+# EKS Cluster Module (Production Only)
+module "eks" {
+  count  = var.environment == "prod" && var.enable_kubernetes ? 1 : 0
+  source = "./modules/eks"
+
+  environment           = var.environment
+  cluster_name          = var.eks_cluster_name
+  kubernetes_version    = var.kubernetes_version
+  subnet_ids            = length(data.aws_subnets.private.ids) > 0 ? data.aws_subnets.private.ids : data.aws_subnets.public.ids
+  security_group_id     = module.security_groups.app_sg_id
+  node_group_name       = var.eks_node_group_name
+  desired_size          = var.eks_desired_size
+  min_size              = var.eks_min_size
+  max_size              = var.eks_max_size
+  instance_types        = var.eks_instance_types
+  disk_size             = var.eks_disk_size
+}
+
+# Kubernetes Deployment Module (Production Only)
+module "k8s_deployment" {
+  count = var.environment == "prod" && var.enable_kubernetes ? 1 : 0
+  depends_on = [
+    module.eks,
+  ]
+  source = "./modules/k8s_deployment"
+
+  environment               = var.environment
+  namespace                 = var.k8s_namespace
+  database_host             = module.rds_main.endpoint
+  database_port             = module.rds_main.port
+  database_user             = var.db_master_username
+  database_password         = var.db_master_password
+  helm_chart_path           = var.helm_chart_path
+  helm_values_file          = var.helm_values_file
+  apps_enabled              = var.apps_enabled
 }

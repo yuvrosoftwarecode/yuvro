@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ymarketplace-backend-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: ymarketplace
+    component: backend
+data:
+  {{- range $key, $value := .Values.env }}
+  {{ $key }}: "{{ $value }}"
+  {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ymarketplace-frontend-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: ymarketplace
+    component: frontend
+data:
+  VITE_API_URL: "{{ .Values.env.VITE_API_URL }}"
+  VITE_CODE_EXECUTOR_URL: "{{ .Values.env.VITE_CODE_EXECUTOR_URL }}"

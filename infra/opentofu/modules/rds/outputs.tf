@@ -4,6 +4,12 @@ output "db_endpoint" {
   sensitive   = true
 }
 
+output "db_host" {
+  description = "Database host (hostname only)"
+  value       = aws_db_instance.main.address
+  sensitive   = true
+}
+
 output "db_port" {
   description = "Database port"
   value       = aws_db_instance.main.port

@@ -13,7 +13,12 @@ data "aws_ami" "ubuntu" {
   }
 }
 
+data "aws_iam_role" "app_node_existing" {
+  name = "${var.environment}-app-node-role"
+}
+
 resource "aws_iam_role" "app_node" {
+  count = try(data.aws_iam_role.app_node_existing.arn, null) != null ? 0 : 1
   name = "${var.environment}-app-node-role"
 
   assume_role_policy = jsonencode({
@@ -24,16 +29,29 @@ resource "aws_iam_role" "app_node" {
       Principal = { Service = "ec2.amazonaws.com" }
     }]
   })
+
+  lifecycle {
+    ignore_changes = [assume_role_policy]
+  }
+}
+
+locals {
+  app_node_role_id   = try(data.aws_iam_role.app_node_existing.id, aws_iam_role.app_node[0].id)
+  app_node_role_name = try(data.aws_iam_role.app_node_existing.name, aws_iam_role.app_node[0].name)
 }
 
 resource "aws_iam_role_policy_attachment" "app_node_ssm" {
-  role       = aws_iam_role.app_node.name
+  role       = local.app_node_role_name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_instance_profile" "app_node" {
   name = "${var.environment}-app-node-profile"
-  role = aws_iam_role.app_node.name
+  role = local.app_node_role_name
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 resource "aws_instance" "app_node" {
@@ -59,7 +77,7 @@ resource "aws_instance" "app_node" {
   monitoring = true
 
   tags = {
-    Name = "${var.environment}-app-node-${count.index + 1}"
+    Name = var.deploy_infra_type != "" ? "${var.deploy_env}-${var.deploy_infra_type}-app-node-${count.index + 1}" : "${var.environment}-app-node-${count.index + 1}"
     Role = "app-node"
   }
 
@@ -75,7 +93,7 @@ resource "aws_eip" "app_node" {
   domain = "vpc"
 
   tags = {
-    Name = "${var.environment}-app-node-eip-${count.index + 1}"
+    Name = var.deploy_infra_type != "" ? "${var.deploy_env}-${var.deploy_infra_type}-app-node-eip-${count.index + 1}" : "${var.environment}-app-node-eip-${count.index + 1}"
   }
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import restApiAuthUtil from '../utils/RestApiAuthUtil';
+import { getGlobalProctoringData } from '../utils/proctoringStore';
 
 // ─── API base — never hardcode localhost ──────────────────────────────────────
 const BACKEND_API_BASE = import.meta.env.VITE_BACKEND_API_BASE_URL
@@ -63,7 +64,12 @@ export const useProctoring = ({
 
     // ── Core logActivity ──────────────────────────────────────────────────────
     const logActivity = useCallback(async (activityType: string, metaData: any = {}, explicitBlob?: Blob | null) => {
-        if (!enabled && activityType !== 'vitarka_session_started') return null;
+        if (!enabled && 
+            activityType !== 'vitarka_session_started' && 
+            activityType !== 'passport_photo_captured' && 
+            activityType !== 'initial_screenshot_captured') {
+            return null;
+        }
 
         try {
             const url = `/skill_evaluation/evaluations/${assessmentId}/log_activity/`;
@@ -71,16 +77,32 @@ export const useProctoring = ({
             const activeQuestionTitle = metaData.question_title || questionTitleRef.current;
             const timestamp = new Date().toISOString();
             
-            const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
-            const isCritical = criticalTypes.some(vt => activityType.includes(vt));
+            const violationTypes = [
+                'tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 
+                'new_tab_detected', 'new_window_detected', 'face_not_detected', 
+                'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 
+                'suspicious_activity', 'device_change', 'external_monitor', 
+                'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 
+                'mic_stopped', 'repeated_permission_loss', 'copy_detected', 
+                'paste_detected', 'cut_detected', 'screenshot_detected', 'right_click_detected'
+            ];
+            const isViolation = violationTypes.some(vt => activityType.includes(vt));
             
-            let blob: Blob | null = explicitBlob || null;
+            let blob: Blob | null = null;
             let screenBlob: Blob | null = null;
-            if (!blob && isCritical && captureFrameRef.current) {
-                blob = await captureFrameRef.current();
-            }
-            if (!explicitBlob && isCritical && captureScreenFrameRef.current) {
-                screenBlob = await captureScreenFrameRef.current();
+
+            if (activityType === 'initial_screenshot_captured') {
+                screenBlob = explicitBlob || (captureScreenFrameRef.current ? await captureScreenFrameRef.current() : null);
+            } else if (activityType === 'passport_photo_captured') {
+                blob = explicitBlob || (captureFrameRef.current ? await captureFrameRef.current() : null);
+            } else {
+                blob = explicitBlob || null;
+                if (!blob && isViolation && captureFrameRef.current) {
+                    blob = await captureFrameRef.current();
+                }
+                if (isViolation && captureScreenFrameRef.current) {
+                    screenBlob = await captureScreenFrameRef.current();
+                }
             }
 
             const submissionLevelTypes = ['passport_photo_captured', 'initial_screenshot_captured'];
@@ -97,7 +119,7 @@ export const useProctoring = ({
                 if (shouldSendQuestionTitle) formData.append('question_title', activeQuestionTitle);
                 
                 if (blob) {
-                    formData.append('snapshot', blob, 'snapshot.jpg');
+                    formData.append('snapshot', blob, activityType === 'passport_photo_captured' ? 'passport.jpg' : 'snapshot.jpg');
                 }
                 if (screenBlob) {
                     formData.append('screenshot', screenBlob, 'screenshot.jpg');
@@ -498,71 +520,167 @@ export const useProctoring = ({
         let isActive = true;
         let snapshotIntervalId: ReturnType<typeof setInterval>;
 
-        // Shared off-screen video + canvas
+        // Shared off-screen video elements
         const video = document.createElement('video');
         video.muted = true;
         video.playsInline = true;
+        video.autoplay = true;
         video.style.position = 'fixed';
         video.style.top = '0';
-        video.style.left = '-9999px';
-        video.style.width = '1px';
-        video.style.height = '1px';
-        video.style.opacity = '0';
+        video.style.left = '0';
+        video.style.width = '320px';
+        video.style.height = '240px';
+        video.style.opacity = '0.001';
         video.style.pointerEvents = 'none';
+        video.style.zIndex = '-9999';
         document.body.appendChild(video);
 
         const screenVideo = document.createElement('video');
         screenVideo.muted = true;
         screenVideo.playsInline = true;
+        screenVideo.autoplay = true;
         screenVideo.style.position = 'fixed';
         screenVideo.style.top = '0';
-        screenVideo.style.left = '-9999px';
-        screenVideo.style.width = '1px';
-        screenVideo.style.height = '1px';
-        screenVideo.style.opacity = '0';
+        screenVideo.style.left = '0';
+        screenVideo.style.width = '320px';
+        screenVideo.style.height = '240px';
+        screenVideo.style.opacity = '0.001';
         screenVideo.style.pointerEvents = 'none';
+        screenVideo.style.zIndex = '-9999';
         document.body.appendChild(screenVideo);
 
-        const canvas = document.createElement('canvas');
+        const activeScr = screenStream || getGlobalProctoringData()?.screenStream;
+        if (activeScr) {
+            screenVideo.srcObject = activeScr;
+            screenVideo.play().catch(() => {});
+        }
 
-        // Expose a raw capture function for critical violations
+        const captureStream = async (stream: MediaStream | null | undefined, fallbackVid: HTMLVideoElement, quality = 0.6): Promise<Blob | null> => {
+            if (!stream) return null;
+            const track = stream.getVideoTracks().find(t => t.readyState === 'live');
+            if (!track) return null;
+
+            // Strategy 1: WebCodecs MediaStreamTrackProcessor (works on both display media & camera tracks, even in background/hidden tabs)
+            if (typeof (window as any).MediaStreamTrackProcessor === 'function') {
+                try {
+                    const processor = new (window as any).MediaStreamTrackProcessor({ track });
+                    const reader = processor.readable.getReader();
+                    const readPromise = reader.read();
+                    const timeoutPromise = new Promise<{ value: undefined; done: true }>((resolve) => 
+                        setTimeout(() => resolve({ value: undefined, done: true }), 400)
+                    );
+                    const result = await Promise.race([readPromise, timeoutPromise]);
+                    if (result && result.value) {
+                        const frame = result.value;
+                        try {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = frame.displayWidth || frame.codedWidth || 1280;
+                            canvas.height = frame.displayHeight || frame.codedHeight || 720;
+                            const ctx = canvas.getContext('2d');
+                            if (ctx) {
+                                ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+                                const b = await new Promise<Blob | null>(res => canvas.toBlob(res, 'image/jpeg', quality));
+                                if (b) return b;
+                            }
+                        } finally {
+                            frame.close();
+                            reader.releaseLock();
+                        }
+                    } else {
+                        reader.releaseLock();
+                    }
+                } catch (e) {
+                    // Fall through to other strategies
+                }
+            }
+
+            // Strategy 2: ImageCapture API (only works on camera tracks from getUserMedia, NOT screen share)
+            const isDisplayMedia = !!((track.getSettings && (track.getSettings() as any).displaySurface));
+            if (!isDisplayMedia && typeof (window as any).ImageCapture === 'function') {
+                try {
+                    const capturer = new (window as any).ImageCapture(track);
+                    const bitmap = await Promise.race([
+                        capturer.grabFrame(),
+                        new Promise<any>((_, reject) => setTimeout(() => reject(new Error('timeout')), 400))
+                    ]);
+                    if (bitmap && bitmap.width > 0 && bitmap.height > 0) {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = bitmap.width;
+                        canvas.height = bitmap.height;
+                        const ctx = canvas.getContext('2d');
+                        if (ctx) {
+                            ctx.drawImage(bitmap, 0, 0);
+                            const b = await new Promise<Blob | null>(res => canvas.toBlob(res, 'image/jpeg', quality));
+                            if (b) return b;
+                        }
+                    }
+                } catch (e) {
+                    // Fall back to video element
+                }
+            }
+
+            // Strategy 3: Video Element + Canvas
+            if (fallbackVid) {
+                try {
+                    if (fallbackVid.srcObject !== stream) {
+                        fallbackVid.srcObject = stream;
+                    }
+                    if (fallbackVid.paused) {
+                        await fallbackVid.play().catch(() => {});
+                    }
+                    if (fallbackVid.readyState < 2) {
+                        await new Promise<void>((resolve) => {
+                            const timer = setTimeout(resolve, 300);
+                            const onReady = () => {
+                                clearTimeout(timer);
+                                fallbackVid.removeEventListener('loadeddata', onReady);
+                                fallbackVid.removeEventListener('canplay', onReady);
+                                resolve();
+                            };
+                            fallbackVid.addEventListener('loadeddata', onReady);
+                            fallbackVid.addEventListener('canplay', onReady);
+                        });
+                    }
+                    const width = fallbackVid.videoWidth;
+                    const height = fallbackVid.videoHeight;
+                    if (width > 0 && height > 0) {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        if (ctx) {
+                            ctx.drawImage(fallbackVid, 0, 0, width, height);
+                            const b = await new Promise<Blob | null>(res => canvas.toBlob(res, 'image/jpeg', quality));
+                            if (b) return b;
+                        }
+                    }
+                } catch (e) {
+                    return null;
+                }
+            }
+            return null;
+        };
+
+        // Expose capture functions for violations and snapshots
         captureFrameRef.current = async (): Promise<Blob | null> => {
-            return new Promise((resolve) => {
-                if (!isActive || !video.srcObject) return resolve(null);
-                if (video.readyState < 2) return resolve(null);
-                
-                canvas.width = video.videoWidth || 640;
-                canvas.height = video.videoHeight || 480;
-                const ctx = canvas.getContext('2d');
-                if (!ctx) return resolve(null);
-                
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob((blob) => {
-                    resolve(blob);
-                }, 'image/jpeg', 0.5);
-            });
+            if (!isActive) return null;
+            const liveStream = (mediaStream && mediaStream.active && mediaStream.getVideoTracks().some(t => t.readyState === 'live'))
+                ? mediaStream
+                : (internalStream && internalStream.active ? internalStream : getGlobalProctoringData()?.cameraStream);
+            return captureStream(liveStream, video, 0.5);
         };
 
         captureScreenFrameRef.current = async (): Promise<Blob | null> => {
-            return new Promise((resolve) => {
-                if (!isActive || !screenVideo.srcObject) return resolve(null);
-                if (screenVideo.readyState < 2) return resolve(null);
-                
-                canvas.width = screenVideo.videoWidth || 1280;
-                canvas.height = screenVideo.videoHeight || 720;
-                const ctx = canvas.getContext('2d');
-                if (!ctx) return resolve(null);
-                
-                ctx.drawImage(screenVideo, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob((blob) => {
-                    resolve(blob);
-                }, 'image/jpeg', 0.5);
-            });
+            if (!isActive) return null;
+            const liveStream = (screenStream && screenStream.active && screenStream.getVideoTracks().some(t => t.readyState === 'live'))
+                ? screenStream
+                : getGlobalProctoringData()?.screenStream;
+            return captureStream(liveStream, screenVideo, 0.6);
         };
 
         // ── Snapshot uploader ─────────────────────────────────────────────────
         const takeAndUploadSnapshot = async (stream: MediaStream) => {
-            if (!stream.active || !isActive) return;
+            if (!isActive) return;
             try {
                 if (video.srcObject !== stream) {
                     video.srcObject = stream;
@@ -570,10 +688,16 @@ export const useProctoring = ({
 
                 const captureAndUpload = async () => {
                     const blob = await captureFrameRef.current?.();
-                    if (!blob || !isActive) return;
+                    const screenBlob = await captureScreenFrameRef.current?.();
+                    if ((!blob && !screenBlob) || !isActive) return;
 
                     const formData = new FormData();
-                    formData.append('snapshot', blob, 'snapshot.jpg');
+                    if (blob) {
+                        formData.append('snapshot', blob, 'snapshot.jpg');
+                    }
+                    if (screenBlob) {
+                        formData.append('screenshot', screenBlob, 'screenshot.jpg');
+                    }
                     formData.append('activity_type', 'snapshot');
                     formData.append('timestamp', new Date().toISOString());
                     const activeQId = questionIdRef.current;
@@ -733,11 +857,11 @@ export const useProctoring = ({
                     video.srcObject = streamToUse;
                     video.play().catch(console.warn);
 
-                    if (screenStream) {
+                    const scrToUse = screenStream || getGlobalProctoringData()?.screenStream;
+                    if (scrToUse) {
                         screenVideo.autoplay = true;
-                        screenVideo.srcObject = screenStream;
+                        screenVideo.srcObject = scrToUse;
                         screenVideo.play().catch(console.warn);
-                        // Let autoplay handle playback. We don't strictly need to wait for loadedmetadata for screenVideo to initialize the camera capture loop.
                     }
 
                     // Fallback in case metadata is already loaded

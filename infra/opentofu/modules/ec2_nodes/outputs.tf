@@ -20,5 +20,5 @@ output "eip_allocation_ids" {
 
 output "iam_role_arn" {
   description = "IAM role ARN for nodes"
-  value       = aws_iam_role.app_node.arn
+  value       = local.app_node_role_id != "" ? data.aws_iam_role.app_node_existing.arn : aws_iam_role.app_node[0].arn
 }

@@ -79,7 +79,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "up{job=\"yuvro-code-executer\"}",
+          "expr": "up{job=\"ycode-executor-api\"}",
           "instant": false,
           "legendFormat": "Service Status",
           "range": true,
@@ -150,7 +150,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "active_code_executions{job=\"yuvro-code-executer\"}",
+          "expr": "active_code_executions{job=\"ycode-executor-api\"}",
           "instant": false,
           "legendFormat": "Active Executions",
           "range": true,
@@ -217,7 +217,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "code_execution_memory_bytes{job=\"yuvro-code-executer\"}",
+          "expr": "code_execution_memory_bytes{job=\"ycode-executor-api\"}",
           "instant": false,
           "legendFormat": "Execution Memory",
           "range": true,
@@ -284,7 +284,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "process_resident_memory_bytes{job=\"yuvro-code-executer\"}",
+          "expr": "process_resident_memory_bytes{job=\"ycode-executor-api\"}",
           "instant": false,
           "legendFormat": "Process Memory",
           "range": true,
@@ -351,7 +351,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(process_cpu_seconds_total{job=\"yuvro-code-executer\"}[5m]) * 100",
+          "expr": "rate(process_cpu_seconds_total{job=\"ycode-executor-api\"}[5m]) * 100",
           "instant": false,
           "legendFormat": "CPU Usage",
           "range": true,
@@ -418,7 +418,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(code_executions_total{job=\"yuvro-code-executer\"}[5m]))",
+          "expr": "sum(rate(code_executions_total{job=\"ycode-executor-api\"}[5m]))",
           "instant": false,
           "legendFormat": "Execution Rate",
           "range": true,
@@ -513,7 +513,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "active_code_executions{job=\"yuvro-code-executer\"}",
+          "expr": "active_code_executions{job=\"ycode-executor-api\"}",
           "instant": false,
           "legendFormat": "Active Executions",
           "range": true,
@@ -608,7 +608,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "code_execution_memory_bytes{job=\"yuvro-code-executer\"}",
+          "expr": "code_execution_memory_bytes{job=\"ycode-executor-api\"}",
           "instant": false,
           "legendFormat": "Execution Memory Usage",
           "range": true,
@@ -703,7 +703,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(code_executions_total{job=\"yuvro-code-executer\"}[5m])",
+          "expr": "rate(code_executions_total{job=\"ycode-executor-api\"}[5m])",
           "instant": false,
           "legendFormat": "{{language}} - {{status}}",
           "range": true,
@@ -798,7 +798,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(code_execution_duration_seconds_sum{job=\"yuvro-code-executer\"}[5m]) / rate(code_execution_duration_seconds_count{job=\"yuvro-code-executer\"}[5m]) * 1000",
+          "expr": "rate(code_execution_duration_seconds_sum{job=\"ycode-executor-api\"}[5m]) / rate(code_execution_duration_seconds_count{job=\"ycode-executor-api\"}[5m]) * 1000",
           "instant": false,
           "legendFormat": "{{language}} Avg Duration",
           "range": true,
@@ -826,7 +826,7 @@
   "timepicker": {},
   "timezone": "",
   "title": "YC Platform - Code Executor Dashboard",
-  "uid": "yuvro-code-executer",
+  "uid": "ycode-executor-api",
   "version": 1,
   "weekStart": ""
 }

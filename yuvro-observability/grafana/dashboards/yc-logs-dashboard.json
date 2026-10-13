@@ -317,7 +317,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{service_name=\"yuvro-code-executer\"}",
+          "expr": "{service_name=\"ycode-executor-api\"}",
           "queryType": "",
           "refId": "A"
         }

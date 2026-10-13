@@ -38,12 +38,18 @@ interface RealLab {
   ticket_type?: string;
   minutes: number;
   problem: string;
-  tasks: { id: string; title: string; description: string; scoring_rules?: any; solution?: any; expected_output?: any }[];
+  tasks: { id: string; title: string; description: string; original_index?: number; marks?: number; duration_minutes?: number; parent_task_id?: string; scoring_rules?: any; solution?: any; expected_output?: any }[];
   file: string;
   code: string;
   terminal: string[];
   startup_command?: string;
   test_command?: string;
+  connection_url?: string;
+  marks?: number;
+  points?: number;
+  max_score?: number;
+  selected_task_ids?: string[];
+  selected_task_id?: string;
 }
 
 
@@ -80,12 +86,6 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
         .then(res => processWorkspaceData(res))
         .catch(err => setDebugData({ error: err.message || err.toString() }));
     }
-
-    return () => {
-      try {
-        clearGlobalProctoringData();
-      } catch (e) {}
-    };
   }, [evaluationId, previewData]);
 
   const processWorkspaceData = (res: any) => {
@@ -199,6 +199,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                 problem: q.description || q.scenario || "Complete the lab objectives.",
                 startup_command: q.startup_command || undefined,
                 test_command: q.test_command || undefined,
+                connection_url: q.connection_url || undefined,
                 marks: calcMarks,
                 points: calcMarks,
                 max_score: calcMarks,
@@ -216,8 +217,8 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                   solution: t.solution,
                   expected_output: t.expected_output
                 })),
-                file: q.programming_languages?.includes("PYTHON") ? "main.py" : q.programming_languages?.includes("JAVA") ? "Main.java" : "index.js",
-                code: "// Code editor initialized.",
+                file: (q as any).starter_path || (q as any).starterPath || q.file || (q.programming_languages?.includes("PYTHON") ? "main.py" : q.programming_languages?.includes("JAVA") ? "Main.java" : "index.js"),
+                code: (q as any).starter_code || (q as any).starterCode || q.code || "// Code editor initialized.",
                 terminal: []
               });
               durationMinutes += calcDuration;
@@ -542,7 +543,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
   const { logActivity } = useProctoring({
     assessmentId: evaluationId,
     assessmentType: "skill_evaluation",
-    enabled: !!proctoringConfig.enableProctoring && !isPreviewMode,
+    enabled: (!!anySectionNeedsProctoring || !!proctoringConfig.enableProctoring || !!proctoringData) && !isPreviewMode,
     questionId: (activeSection?.type === "KNOWLEDGE_ASSESSMENT" ? activeSection.questions?.[qIndex]?.id : null) || activeQuestionId || openLab || section || undefined,
     questionTitle: activeDiscussionQuestion || undefined,
     mediaStream: proctoringData?.cameraStream,
@@ -561,16 +562,19 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
 
   const initialImagesLogged = useRef(false);
   useEffect(() => {
-    if (proctoringData && !initialImagesLogged.current) {
+    if (proctoringData && evaluationId && !initialImagesLogged.current) {
       initialImagesLogged.current = true;
-      if (proctoringData.photoBlob) {
-        logActivity('passport_photo_captured', { source: 'proctoring_gate' }, proctoringData.photoBlob);
-      }
-      if (proctoringData.screenshotBlob) {
-        logActivity('initial_screenshot_captured', { source: 'proctoring_gate' }, proctoringData.screenshotBlob);
-      }
+      const uploadInitialBlobs = async () => {
+        if (proctoringData.photoBlob) {
+          await logActivity('passport_photo_captured', { source: 'proctoring_gate' }, proctoringData.photoBlob);
+        }
+        if (proctoringData.screenshotBlob) {
+          await logActivity('initial_screenshot_captured', { source: 'proctoring_gate' }, proctoringData.screenshotBlob);
+        }
+      };
+      uploadInitialBlobs();
     }
-  }, [proctoringData, logActivity]);
+  }, [proctoringData, evaluationId, logActivity]);
 
   useEffect(() => {
     if (!anySectionNeedsProctoring || isPreviewMode) return;
@@ -591,8 +595,14 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then((newStream) => {
           if (isCancelled) return;
-          const currentData = getGlobalProctoringData() || { photoBlob: null, screenshotBlob: null, screenStream: null, cameraStream: null };
-          const newData = { ...currentData, cameraStream: newStream };
+          const currentData = getGlobalProctoringData();
+          const existingScreenStream = currentData?.screenStream || proctoringData?.screenStream || null;
+          const newData = {
+            cameraStream: newStream,
+            screenStream: existingScreenStream,
+            photoBlob: currentData?.photoBlob || proctoringData?.photoBlob || null,
+            screenshotBlob: currentData?.screenshotBlob || proctoringData?.screenshotBlob || null,
+          };
           setGlobalProctoringData(newData);
           setProctoringData(newData);
           setMediaDisabled(false);
@@ -759,7 +769,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     }
     try { document.exitFullscreen?.(); } catch {}
     try { clearGlobalProctoringData(); } catch {}
-    nav({ to: "/evaluation/complete" });
+    window.location.href = "/evaluation/complete?e=" + evaluationId;
   };
 
   const getSectionStatus = (secId: string): Status => {
@@ -976,6 +986,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
 
           if (submission && (submission.solution || submission.score !== undefined)) {
             hasSubmissions = true;
+            const scoreVal = Number(submission.score ?? 100);
             const labTaskCount = Array.isArray(lab.tasks) && lab.tasks.length > 0 ? lab.tasks.length : 5;
             const passedTaskCount = scoreVal === 100 ? labTaskCount : Math.round((scoreVal / 100) * labTaskCount);
             labDetails += `Score: ${scoreVal}/100\n`;
@@ -1167,16 +1178,22 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                   common_mistakes: [],
                   startup_command: lab.startup_command,
                   test_command: (lab as any).test_command,
+                  connection_url: lab.connection_url,
                   marks: (lab as any).marks || 10,
                   points: (lab as any).points || (lab as any).marks || 10,
                   max_score: (lab as any).max_score || (lab as any).marks || 10,
+                  file: (lab as any).starterPath || (lab as any).starter_path || lab.file,
+                  code: (lab as any).starterCode || (lab as any).starter_code || lab.code,
+                  starterCode: (lab as any).starterCode || (lab as any).starter_code || (lab.code !== "// Code editor initialized." ? lab.code : undefined),
+                  starterPath: (lab as any).starterPath || (lab as any).starter_path || lab.file,
                 };
+                const starterCodeVal = (lab as any).starterCode || (lab as any).starter_code || ((lab.code && lab.code !== "// Code editor initialized.") ? lab.code : undefined);
                 return (
                   <TicketIDE
                     key={lab.id}
                     slug={lab.id}
                     ticket={mappedTicket}
-                    previewOverride={null}
+                    previewOverride={starterCodeVal ? { starterCode: starterCodeVal } : null}
                     isEvaluationMode={true}
                     isRecruiterPreview={isRecruiterPreview}
                     evaluationId={evaluationId}

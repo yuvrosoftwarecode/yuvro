@@ -1,3 +1,4 @@
+# Always create app service role
 resource "aws_iam_role" "app_service" {
   name = "${var.environment}-app-service-role"
 
@@ -10,7 +11,8 @@ resource "aws_iam_role" "app_service" {
         Principal = {
           Service = [
             "ec2.amazonaws.com",
-            "eks.amazonaws.com"
+            "eks.amazonaws.com",
+            "ecs-tasks.amazonaws.com"
           ]
         }
       }
@@ -20,11 +22,22 @@ resource "aws_iam_role" "app_service" {
   tags = {
     Name = "${var.environment}-app-service-role"
   }
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
+}
+
+# Local to reference created role
+locals {
+  app_service_role_id   = aws_iam_role.app_service.id
+  app_service_role_arn  = aws_iam_role.app_service.arn
+  app_service_role_name = aws_iam_role.app_service.name
 }
 
 resource "aws_iam_role_policy" "app_service_s3" {
   name = "${var.environment}-app-service-s3-policy"
-  role = aws_iam_role.app_service.id
+  role = local.app_service_role_id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -37,7 +50,10 @@ resource "aws_iam_role_policy" "app_service_s3" {
           "s3:DeleteObject",
           "s3:ListBucket"
         ]
-        Resource = var.s3_bucket_arns
+        Resource = concat(
+          var.s3_bucket_arns,
+          ["arn:aws:s3:::yuvro-${var.environment}", "arn:aws:s3:::yuvro-${var.environment}/*"]
+        )
       },
       {
         Effect = "Allow"
@@ -52,7 +68,7 @@ resource "aws_iam_role_policy" "app_service_s3" {
 
 resource "aws_iam_role_policy" "app_service_cloudwatch" {
   name = "${var.environment}-app-service-cloudwatch-policy"
-  role = aws_iam_role.app_service.id
+  role = local.app_service_role_id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -81,7 +97,7 @@ resource "aws_iam_role_policy" "app_service_cloudwatch" {
 
 resource "aws_iam_role_policy" "app_service_secrets" {
   name = "${var.environment}-app-service-secrets-policy"
-  role = aws_iam_role.app_service.id
+  role = local.app_service_role_id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -100,7 +116,11 @@ resource "aws_iam_role_policy" "app_service_secrets" {
 
 resource "aws_iam_instance_profile" "app_service" {
   name = "${var.environment}-app-service-profile"
-  role = aws_iam_role.app_service.name
+  role = local.app_service_role_name
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 resource "aws_iam_user" "app_service" {
@@ -109,11 +129,21 @@ resource "aws_iam_user" "app_service" {
   tags = {
     Name = "${var.environment}-app-service-user"
   }
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
+}
+
+locals {
+  app_service_user_id   = aws_iam_user.app_service.unique_id
+  app_service_user_name = aws_iam_user.app_service.name
+  app_service_user_arn  = aws_iam_user.app_service.arn
 }
 
 resource "aws_iam_user_policy" "app_service_s3" {
   name = "${var.environment}-app-service-user-s3"
-  user = aws_iam_user.app_service.name
+  user = local.app_service_user_name
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -124,7 +154,10 @@ resource "aws_iam_user_policy" "app_service_s3" {
           "s3:ListBucket",
           "s3:GetBucketLocation"
         ]
-        Resource = var.s3_bucket_arns
+        Resource = concat(
+          var.s3_bucket_arns,
+          ["arn:aws:s3:::yuvro-${var.environment}"]
+        )
       },
       {
         Effect = "Allow"
@@ -135,7 +168,10 @@ resource "aws_iam_user_policy" "app_service_s3" {
           "s3:GetObjectVersion",
           "s3:DeleteObjectVersion"
         ]
-        Resource = [for arn in var.s3_bucket_arns : "${arn}/*"]
+        Resource = concat(
+          [for arn in var.s3_bucket_arns : "${arn}/*"],
+          ["arn:aws:s3:::yuvro-${var.environment}/*"]
+        )
       },
       {
         Effect = "Allow"
@@ -149,5 +185,11 @@ resource "aws_iam_user_policy" "app_service_s3" {
 }
 
 resource "aws_iam_access_key" "app_service" {
-  user = aws_iam_user.app_service.name
+  user = local.app_service_user_name
+
+  depends_on = [aws_iam_user_policy.app_service_s3]
+
+  lifecycle {
+    ignore_changes = all
+  }
 }

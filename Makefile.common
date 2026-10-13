@@ -9,7 +9,6 @@
 
 setup:
 	@echo "🚀 Setting up Common Services..."
-	@if [ ! -f yuvro-code-executer/.env ]; then cp yuvro-code-executer/.env.example yuvro-code-executer/.env; echo "✅ Created code-executor .env"; fi
 	@echo "Creating executor network..."
 	@docker network create executor 2>/dev/null || true
 	@echo "Starting code executor..."

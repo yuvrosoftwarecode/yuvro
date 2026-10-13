@@ -1,4 +1,8 @@
+data "aws_caller_identity" "current" {}
+
 resource "aws_s3_bucket" "base" {
+  # Use pattern: yuvro-{environment}
+  # This allows all environments (dev, prod) to use consistent naming
   bucket = "yuvro-${var.environment}"
 
   tags = {
@@ -7,8 +11,13 @@ resource "aws_s3_bucket" "base" {
   }
 }
 
+locals {
+  s3_bucket_id  = aws_s3_bucket.base.id
+  s3_bucket_arn = aws_s3_bucket.base.arn
+}
+
 resource "aws_s3_bucket_versioning" "base" {
-  bucket = aws_s3_bucket.base.id
+  bucket = local.s3_bucket_id
 
   versioning_configuration {
     status = "Enabled"
@@ -16,7 +25,7 @@ resource "aws_s3_bucket_versioning" "base" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "base" {
-  bucket = aws_s3_bucket.base.id
+  bucket = local.s3_bucket_id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -26,16 +35,36 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "base" {
 }
 
 resource "aws_s3_bucket_public_access_block" "base" {
-  bucket = aws_s3_bucket.base.id
+  bucket = local.s3_bucket_id
 
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+  # Allow public read access for serving images/files
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_policy" "public_read" {
+  bucket = local.s3_bucket_id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicRead"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${local.s3_bucket_arn}/*"
+      }
+    ]
+  })
+
+  depends_on = [aws_s3_bucket_public_access_block.base]
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "base" {
-  bucket = aws_s3_bucket.base.id
+  bucket = local.s3_bucket_id
 
   rule {
     id     = "abort-incomplete-multipart"
@@ -74,10 +103,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "base" {
   }
 }
 
-data "aws_caller_identity" "current" {}
-
 resource "aws_s3_bucket_cors_configuration" "base" {
-  bucket = aws_s3_bucket.base.id
+  bucket = local.s3_bucket_id
 
   cors_rule {
     allowed_headers = ["*"]

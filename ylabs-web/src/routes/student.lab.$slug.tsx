@@ -24,6 +24,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useMemo, useState, useEffect, useCallback } from "react";
+import { useAuth } from "@/lib/auth";
 import type { Ticket, Status } from "@/lib/dummy";
 import { getLab, type AdminLab } from "@/lib/adminLabs";
 import { loadSprints, type LabSprint } from "@/lib/labSprints";
@@ -402,6 +403,7 @@ const normalizeDiff = (diff?: string) => {
 };
 
 function LabDashboard() {
+  const { user } = useAuth();
   const { slug } = useParams({ from: "/student/lab/$slug" });
   const ticketMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId", shouldThrow: false });
   const reportMatch = useMatch({ from: "/student/lab/$slug/report", shouldThrow: false });
@@ -532,9 +534,10 @@ function LabDashboard() {
                   testPct = p?.percentage ?? p?.total_score ?? 0;
                 } catch (e) {}
               }
+              const isEvaluated = s.ticket_status === "done" || s.ticket_status === "in_review";
               overrides[s.lab_sprint_ticket] = {
                 status: s.ticket_status as Status,
-                earnedXp: s.yuvro_points > 0 ? s.yuvro_points : (testPct / 100),
+                earnedXp: isEvaluated ? (s.yuvro_points ?? 0) : (testPct / 100),
                 fromApi: true,
               };
             }

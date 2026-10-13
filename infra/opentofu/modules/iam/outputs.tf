@@ -1,11 +1,11 @@
 output "app_service_role_arn" {
   description = "Application service role ARN"
-  value       = aws_iam_role.app_service.arn
+  value       = local.app_service_role_arn
 }
 
 output "app_service_role_name" {
   description = "Application service role name"
-  value       = aws_iam_role.app_service.name
+  value       = local.app_service_role_name
 }
 
 output "app_service_instance_profile_arn" {
@@ -15,7 +15,7 @@ output "app_service_instance_profile_arn" {
 
 output "app_service_user_name" {
   description = "IAM user name used by the app to talk to AWS APIs"
-  value       = aws_iam_user.app_service.name
+  value       = local.app_service_user_name
 }
 
 output "app_service_access_key_id" {

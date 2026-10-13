@@ -1,0 +1,110 @@
+# YMarketplace Helm Chart Values - Production Environment
+
+# Image configuration (pulls from GHCR registry in prod)
+image:
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# Environment variables from .env.prod
+env:
+  DEPLOY_ENV: "prod"
+  DEPLOY_TYPE: "kubernetes"
+  DEBUG: "False"
+  APP_NAME: "yuvro-marketplace"
+  
+  # Hosts & CORS
+  ALLOWED_HOSTS: "ymarketplace.yuvro.ai,www.ymarketplace.yuvro.ai,api.ymarketplace.yuvro.ai"
+  CORS_ALLOWED_ORIGINS: "https://ymarketplace.yuvro.ai,https://www.ymarketplace.yuvro.ai"
+  CSRF_TRUSTED_ORIGINS: "https://ymarketplace.yuvro.ai,https://www.ymarketplace.yuvro.ai"
+  
+  # Database (uses AWS RDS)
+  DATABASE_URL: "postgresql://ymarketplace_prod_user:${DB_PASSWORD}@ymarketplace-rds-prod.c123456.ap-south-1.rds.amazonaws.com:5432/ymarketplace_prod_db"
+  POSTGRES_DB: "ymarketplace_prod_db"
+  POSTGRES_USER: "ymarketplace_prod_user"
+  
+  # Storage (AWS S3)
+  STORAGE_BACKEND: "s3"
+  AWS_STORAGE_BUCKET_NAME: "yuvro-prod"
+  AWS_S3_REGION_NAME: "ap-south-1"
+  AWS_S3_ENDPOINT_URL: ""
+  AWS_S3_ADDRESSING_STYLE: "virtual"
+  
+  # Backend URLs (production)
+  YHUB_BACKEND_API_BASE_URL: "https://api.yhub.yuvro.ai/api"
+  
+  # Frontend URL
+  FRONTEND_URL: "https://ymarketplace.yuvro.ai"
+  
+  # Email Configuration
+  EMAIL_BACKEND: "django.core.mail.backends.smtp.EmailBackend"
+  EMAIL_HOST: "smtp.hostinger.com"
+  EMAIL_PORT: "465"
+  EMAIL_USE_SSL: "True"
+  EMAIL_USE_TLS: "False"
+  DEFAULT_FROM_EMAIL: "contact@yuvro.ai"
+  
+  # Observability
+  OTEL_ENABLED: "false"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+  OTEL_SERVICE_NAME: "yuvro-marketplace-backend-prod"
+  OTEL_SERVICE_VERSION: "1.0.0"
+  PROMETHEUS_METRICS_PORT: "9001"
+  
+  # Security
+  SECURE_SSL_REDIRECT: "1"
+  SECURE_HSTS_SECONDS: "31536000"
+  SECURE_HSTS_INCLUDE_SUBDOMAINS: "1"
+  SECURE_HSTS_PRELOAD: "1"
+  
+  # Frontend Configuration
+  VITE_API_URL: "https://api.ymarketplace.yuvro.ai"
+
+# Secrets from .env.prod-secrets
+secrets:
+  SECRET_KEY: "prod-yuvro-marketplace-secret-key-replace-with-strong-key"
+  JWT_SECRET_KEY: "prod-yuvro-marketplace-jwt-secret-replace-with-strong-key"
+  DB_PASSWORD: "ReplaceWithStrongRDSPassword123!@#"
+  AWS_ACCESS_KEY_ID: "AKIA4Y6XDEPSPRODKEY5"
+  AWS_SECRET_ACCESS_KEY: "ReplaceWithActualAWSSecretAccessKey/ForProduction+YuvroMarketplace"
+  GOOGLE_CLIENT_ID: "ReplaceWithProdGoogleClientId.apps.googleusercontent.com"
+  GOOGLE_CLIENT_SECRET: "ReplaceWithProdGoogleClientSecret"
+  EMAIL_HOST_USER: "contact@yuvro.ai"
+  EMAIL_HOST_PASSWORD: "ReplaceWithProductionEmailPassword"
+
+# Components configuration for production
+components:
+  backend:
+    enabled: true
+    replicas: 2  # Default scale
+  frontend:
+    enabled: true
+    replicas: 2
+  database:
+    enabled: false  # Use AWS RDS instead
+
+# Resource requests and limits for production
+resources:
+  backend:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  frontend:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Service configuration for production (LoadBalancer for ALB)
+service:
+  type: LoadBalancer
+  backend:
+    port: 80
+    targetPort: 8000
+  frontend:
+    port: 80
+    targetPort: 80

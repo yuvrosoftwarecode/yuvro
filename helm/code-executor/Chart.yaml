@@ -1,4 +1,0 @@
-apiVersion: v2
-name: code-executor
-description: Code Executor Service Helm chart
-version: 1.0.0

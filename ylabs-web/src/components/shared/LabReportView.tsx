@@ -30,8 +30,9 @@ export function LabReportView({ realLab, realSprints, statusOverrides, slug, bac
         const override = statusOverrides[t.id];
         const pct = override?.percentage ?? 0;
         const maxXp = t.xp || 0;
-        const eXp = override?.earnedXp > 0
-          ? override.earnedXp
+        const isEvaluated = override?.status === "done" || override?.status === "in_review";
+        const eXp = isEvaluated
+          ? (override?.earnedXp ?? 0)
           : Math.round((pct / 100) * maxXp);
         const minutesInt = override?.minutes ?? 0;
         const formattedTime = minutesInt > 0 ? `${minutesInt}m` : "-";
@@ -62,8 +63,9 @@ export function LabReportView({ realLab, realSprints, statusOverrides, slug, bac
         const override = statusOverrides[t.id];
         const pct = override?.percentage ?? 0;
         const maxXp = t.xp || 0;
-        const eXp = override?.earnedXp > 0
-          ? override.earnedXp
+        const isEvaluated = override?.status === "done" || override?.status === "in_review";
+        const eXp = isEvaluated
+          ? (override?.earnedXp ?? 0)
           : Math.round((pct / 100) * maxXp);
         return { 
           id: t.id, 

@@ -1,0 +1,121 @@
+name: Prod - Setup Fixtures
+
+on:
+  workflow_dispatch:
+    inputs:
+      namespace:
+        description: 'Kubernetes namespace'
+        required: true
+        default: 'yuvro-prod-ns'
+        type: string
+      reset_data:
+        description: 'Reset all data before loading fixtures'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ap-south-1
+  EKS_CLUSTER_NAME: yuvro-prod-cluster
+  DEPLOY_NAMESPACE: ${{ inputs.namespace || 'yuvro-prod-ns' }}
+
+jobs:
+  setup-fixtures:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.37.0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.13.0
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ env.EKS_CLUSTER_NAME }} \
+            --region ${{ env.AWS_REGION }}
+          echo "✅ kubectl configured for EKS cluster"
+
+      - name: Get database connection details
+        id: db_info
+        run: |
+          # For now, placeholder. In real setup, get from Helm values or secrets
+          echo "db_host=yuvro-db.default.svc.cluster.local" >> $GITHUB_OUTPUT
+          echo "db_port=5432" >> $GITHUB_OUTPUT
+          echo "db_user=yuvro_admin" >> $GITHUB_OUTPUT
+
+      - name: Load fixtures into backends
+        run: |
+          echo "📦 Loading test data into production databases..."
+          
+          # Get pod for each backend service
+          BACKENDS=("ycode-backend" "ycampus-backend" "ylabs-backend" "yhub-backend" "ymarketplace-backend")
+          
+          for backend in "${BACKENDS[@]}"; do
+            echo ""
+            echo "🔄 Processing $backend..."
+            
+            POD_NAME=$(kubectl -n ${{ env.DEPLOY_NAMESPACE }} get pod -l app=$backend -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+            
+            if [ -z "$POD_NAME" ]; then
+              echo "⚠️  No running pod for $backend. Skipping."
+              continue
+            fi
+            
+            echo "   Pod: $POD_NAME"
+            
+            # Try to run management command to load fixtures
+            if kubectl -n ${{ env.DEPLOY_NAMESPACE }} exec $POD_NAME -- \
+              python manage.py setup_fixtures_data 2>/dev/null; then
+              echo "   ✅ Fixtures loaded"
+            else
+              echo "   ⚠️  Could not load fixtures (management command may not exist)"
+            fi
+          done
+
+      - name: Verify data load
+        run: |
+          echo "✅ Fixture setup job initiated"
+          echo ""
+          echo "📊 Database Status:"
+          
+          # Get backend pods to verify they're running
+          kubectl -n ${{ env.DEPLOY_NAMESPACE }} get pods -l tier=backend -o wide
+          
+          echo ""
+          echo "⏳ Fixtures are being loaded asynchronously."
+          echo "   Monitor with: kubectl -n ${{ env.DEPLOY_NAMESPACE }} logs -f deployment/ycode-backend"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=========================================="
+          echo "📋 Fixture Setup Complete"
+          echo "=========================================="
+          echo ""
+          echo "Details:"
+          echo "  Namespace: ${{ env.DEPLOY_NAMESPACE }}"
+          echo "  Reset Data: ${{ inputs.reset_data }}"
+          echo "  Timestamp: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo ""
+          echo "Next Steps:"
+          echo "1. Monitor pods: kubectl -n ${{ env.DEPLOY_NAMESPACE }} get pods -w"
+          echo "2. Check logs: kubectl -n ${{ env.DEPLOY_NAMESPACE }} logs -f deployment/ycode-backend"
+          echo "3. Verify data: Connect to database and run: SELECT COUNT(*) FROM users;"

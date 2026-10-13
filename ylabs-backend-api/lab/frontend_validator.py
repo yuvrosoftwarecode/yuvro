@@ -17,7 +17,7 @@ try:
 except ImportError:
     _pil_available = False
 
-ui_diff_path = os.path.join(settings.BASE_DIR, '..', 'yuvro-code-executer', 'ui-diff')
+ui_diff_path = os.path.join(settings.BASE_DIR, '..', 'ycode-executor-api', 'ui-diff')
 if ui_diff_path not in sys.path:
     sys.path.insert(0, ui_diff_path)
 

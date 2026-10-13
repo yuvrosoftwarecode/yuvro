@@ -1,4 +1,0 @@
-apiVersion: v2
-name: postgresql-ycampus
-description: PostgreSQL for YCampus Helm chart
-version: 1.0.0

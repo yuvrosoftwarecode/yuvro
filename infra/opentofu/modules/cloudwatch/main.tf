@@ -1,6 +1,8 @@
+# Create log groups directly - no data source lookups
 resource "aws_cloudwatch_log_group" "application" {
   name              = "/aws/ycode/${var.environment}/application"
   retention_in_days = var.environment == "prod" ? 30 : 7
+  skip_destroy      = false
 
   tags = {
     Name = "${var.environment}-application-logs"
@@ -10,6 +12,7 @@ resource "aws_cloudwatch_log_group" "application" {
 resource "aws_cloudwatch_log_group" "kubernetes" {
   name              = "/aws/ycode/${var.environment}/kubernetes"
   retention_in_days = var.environment == "prod" ? 30 : 7
+  skip_destroy      = false
 
   tags = {
     Name = "${var.environment}-kubernetes-logs"
@@ -19,6 +22,7 @@ resource "aws_cloudwatch_log_group" "kubernetes" {
 resource "aws_cloudwatch_log_group" "database" {
   name              = "/aws/ycode/${var.environment}/database"
   retention_in_days = var.environment == "prod" ? 30 : 7
+  skip_destroy      = false
 
   tags = {
     Name = "${var.environment}-database-logs"
@@ -108,3 +112,11 @@ resource "aws_cloudwatch_dashboard" "main" {
 }
 
 data "aws_region" "current" {}
+
+# Locals to reference created log groups
+locals {
+  application_log_group_name = aws_cloudwatch_log_group.application.name
+  application_log_group_arn  = aws_cloudwatch_log_group.application.arn
+  kubernetes_log_group_name  = aws_cloudwatch_log_group.kubernetes.name
+  database_log_group_name    = aws_cloudwatch_log_group.database.name
+}

@@ -1,0 +1,565 @@
+name: Create RDS Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to create RDS database for'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - plan & apply
+          - destroy
+      region:
+        description: 'AWS Region (default: ap-south-1)'
+        required: false
+        default: 'ap-south-1'
+        type: string
+      engine_version:
+        description: 'PostgreSQL engine version (default: 15.4)'
+        required: false
+        default: '15.4'
+        type: string
+      instance_class:
+        description: 'RDS instance class (default: dev=db.t3.micro, prod=db.t3.small)'
+        required: false
+        type: string
+      allocated_storage:
+        description: 'Initial storage in GB (default: dev=20, prod=100)'
+        required: false
+        type: string
+      max_allocated_storage:
+        description: 'Max auto-scaling storage in GB (default: dev=100, prod=500)'
+        required: false
+        type: string
+      multi_az:
+        description: 'Enable Multi-AZ (default: dev=false, prod=true)'
+        required: false
+        type: choice
+        options:
+          - 'default'
+          - 'true'
+          - 'false'
+      backup_retention_days:
+        description: 'Backup retention days (default: dev=7, prod=30)'
+        required: false
+        type: string
+
+jobs:
+  create-rds:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Validate Inputs
+      run: |
+        ENV="${{ github.event.inputs.environment }}"
+        if [ -z "$ENV" ]; then
+          echo "❌ Environment must be specified"
+          exit 1
+        fi
+        echo "✅ Environment: $ENV"
+    
+    - name: Set Default Values
+      id: defaults
+      run: |
+        ENV="${{ github.event.inputs.environment }}"
+        REGION="${{ github.event.inputs.region }}"
+        INSTANCE="${{ github.event.inputs.instance_class }}"
+        STORAGE="${{ github.event.inputs.allocated_storage }}"
+        MAX_STORAGE="${{ github.event.inputs.max_allocated_storage }}"
+        MULTI_AZ="${{ github.event.inputs.multi_az }}"
+        BACKUP_DAYS="${{ github.event.inputs.backup_retention_days }}"
+        
+        # Set defaults based on environment
+        if [ "$ENV" = "dev" ]; then
+          INSTANCE=${INSTANCE:-db.t3.micro}
+          STORAGE=${STORAGE:-20}
+          MAX_STORAGE=${MAX_STORAGE:-100}
+          MULTI_AZ=${MULTI_AZ:-false}
+          BACKUP_DAYS=${BACKUP_DAYS:-7}
+        else  # prod
+          INSTANCE=${INSTANCE:-db.t3.small}
+          STORAGE=${STORAGE:-100}
+          MAX_STORAGE=${MAX_STORAGE:-500}
+          MULTI_AZ=${MULTI_AZ:-true}
+          BACKUP_DAYS=${BACKUP_DAYS:-30}
+        fi
+        
+        # If multi_az is set to "default", use the environment default
+        if [ "$MULTI_AZ" = "default" ]; then
+          MULTI_AZ=$([ "$ENV" = "prod" ] && echo "true" || echo "false")
+        fi
+        
+        # Export outputs for use in subsequent steps
+        echo "instance_class=$INSTANCE" >> $GITHUB_OUTPUT
+        echo "allocated_storage=$STORAGE" >> $GITHUB_OUTPUT
+        echo "max_allocated_storage=$MAX_STORAGE" >> $GITHUB_OUTPUT
+        echo "multi_az=$MULTI_AZ" >> $GITHUB_OUTPUT
+        echo "backup_retention_days=$BACKUP_DAYS" >> $GITHUB_OUTPUT
+        echo "region=$REGION" >> $GITHUB_OUTPUT
+        
+        echo "📋 RDS Configuration:"
+        echo "  Environment: $ENV"
+        echo "  Region: $REGION"
+        echo "  Instance Class: $INSTANCE"
+        echo "  Allocated Storage: $STORAGE GB"
+        echo "  Max Auto-Scaling Storage: $MAX_STORAGE GB"
+        echo "  Multi-AZ: $MULTI_AZ"
+        echo "  Backup Retention: $BACKUP_DAYS days"
+        echo "  Engine Version: ${{ github.event.inputs.engine_version }}"
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ (github.event.inputs.environment == 'prod') && secrets.PROD_AWS_ACCESS_KEY_ID || secrets.DEPLOY_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ (github.event.inputs.environment == 'prod') && secrets.PROD_AWS_SECRET_ACCESS_KEY || secrets.DEPLOY_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ steps.defaults.outputs.region }}
+        role-to-assume: ${{ (github.event.inputs.environment == 'prod') && secrets.PROD_AWS_ROLE_TO_ASSUME || '' }}
+        duration-seconds: 3600
+    
+    - name: Load Database Credentials
+      run: |
+        ENV="${{ github.event.inputs.environment }}"
+        SECRETS_FILE="ycode-backend-api/.env.${ENV}-secrets"
+        
+        if [ -f "$SECRETS_FILE" ]; then
+          echo "✅ Found $SECRETS_FILE, loading database credentials..."
+          source "$SECRETS_FILE"
+          
+          # Export DB_MASTER_PASSWORD to GitHub environment
+          if [ -n "$DB_MASTER_PASSWORD" ]; then
+            echo "DB_MASTER_PASSWORD=$DB_MASTER_PASSWORD" >> $GITHUB_ENV
+            echo "✅ Database password loaded from .env file"
+          fi
+        else
+          echo "⚠️  $SECRETS_FILE not found, using GitHub secret"
+          SECRET_NAME="${ENV^^}_DB_MASTER_PASSWORD"
+          SECRET_VALUE=$(eval echo "\${{ secrets.$SECRET_NAME }}")
+          
+          if [ -z "$SECRET_VALUE" ]; then
+            echo "❌ ${SECRET_NAME} secret is required when $SECRETS_FILE is not present"
+            exit 1
+          fi
+          echo "DB_MASTER_PASSWORD=$SECRET_VALUE" >> $GITHUB_ENV
+          echo "✅ Database password loaded from GitHub secret"
+        fi
+    
+    - name: Set up OpenTofu
+      uses: opentofu/setup-opentofu@v1
+      with:
+        version: 1.8.0
+    
+    - name: Create RDS Infrastructure Module
+      env:
+        ENV: ${{ github.event.inputs.environment }}
+        REGION: ${{ steps.defaults.outputs.region }}
+      run: |
+        # Create a temporary RDS-only Terraform configuration
+        TEMP_DIR="/tmp/rds-only-deploy"
+        mkdir -p "$TEMP_DIR"
+        
+        cat > "$TEMP_DIR/rds.tf" << 'EOF'
+        terraform {
+          required_version = ">= 1.0"
+          
+          required_providers {
+            aws = {
+              source  = "hashicorp/aws"
+              version = "~> 5.0"
+            }
+          }
+        }
+        
+        provider "aws" {
+          region = var.aws_region
+        }
+        
+        module "rds_main" {
+          source = "../../infra/opentofu/modules/rds"
+          
+          environment              = var.environment
+          security_group_id        = aws_security_group.rds.id
+          subnet_ids              = data.aws_subnets.available.ids
+          
+          db_name                 = var.db_name
+          db_username             = var.db_username
+          db_password             = var.db_master_password
+          engine_version          = var.engine_version
+          instance_class          = var.instance_class
+          allocated_storage       = var.allocated_storage
+          max_allocated_storage   = var.max_allocated_storage
+          multi_az                = var.multi_az
+          backup_retention_days   = var.backup_retention_days
+          skip_final_snapshot     = var.skip_final_snapshot
+        }
+        
+        # Create VPC for RDS
+        resource "aws_vpc" "main" {
+          cidr_block           = "10.0.0.0/16"
+          enable_dns_hostnames = true
+          enable_dns_support   = true
+          
+          tags = {
+            Name = "${var.environment}-rds-vpc"
+          }
+        }
+        
+        resource "aws_subnet" "main" {
+          count             = 3
+          vpc_id            = aws_vpc.main.id
+          cidr_block        = "10.0.${count.index}.0/24"
+          availability_zone = data.aws_availability_zones.available.names[count.index]
+          
+          tags = {
+            Name = "${var.environment}-rds-subnet-${count.index + 1}"
+          }
+        }
+        
+        data "aws_availability_zones" "available" {
+          state = "available"
+        }
+        
+        data "aws_subnets" "available" {
+          filter {
+            name   = "vpc-id"
+            values = [aws_vpc.main.id]
+          }
+        }
+        
+        # Security group for RDS
+        resource "aws_security_group" "rds" {
+          name        = "${var.environment}-rds-sg"
+          description = "Security group for RDS database"
+          vpc_id      = aws_vpc.main.id
+          
+          ingress {
+            from_port   = 5432
+            to_port     = 5432
+            protocol    = "tcp"
+            cidr_blocks = ["10.0.0.0/16"]
+          }
+          
+          egress {
+            from_port   = 0
+            to_port     = 0
+            protocol    = "-1"
+            cidr_blocks = ["0.0.0.0/0"]
+          }
+          
+          tags = {
+            Name = "${var.environment}-rds-sg"
+          }
+        }
+        
+        output "rds_endpoint" {
+          description = "RDS database endpoint"
+          value       = module.rds_main.db_endpoint
+          sensitive   = true
+        }
+        
+        output "rds_host" {
+          description = "RDS database hostname"
+          value       = module.rds_main.db_host
+          sensitive   = true
+        }
+        
+        output "rds_port" {
+          description = "RDS database port"
+          value       = module.rds_main.db_port
+        }
+        
+        output "vpc_id" {
+          description = "VPC ID"
+          value       = aws_vpc.main.id
+        }
+        
+        output "database_url" {
+          description = "Complete database connection string"
+          value       = "postgresql://${var.db_username}:${var.db_master_password}@${module.rds_main.db_host}:${module.rds_main.db_port}/${var.db_name}?sslmode=require"
+          sensitive   = true
+        }
+        EOF
+        
+        cat > "$TEMP_DIR/variables.tf" << 'EOF'
+        variable "aws_region" {
+          description = "AWS region"
+          type        = string
+          default     = "ap-south-1"
+        }
+        
+        variable "environment" {
+          description = "Environment name"
+          type        = string
+        }
+        
+        variable "db_name" {
+          description = "Database name"
+          type        = string
+          default     = "yuvro_db"
+        }
+        
+        variable "db_username" {
+          description = "Database master username"
+          type        = string
+          default     = "postgres"
+        }
+        
+        variable "db_master_password" {
+          description = "Database master password"
+          type        = string
+          sensitive   = true
+        }
+        
+        variable "engine_version" {
+          description = "PostgreSQL engine version"
+          type        = string
+          default     = "15.4"
+        }
+        
+        variable "instance_class" {
+          description = "RDS instance class"
+          type        = string
+        }
+        
+        variable "allocated_storage" {
+          description = "Initial allocated storage in GB"
+          type        = number
+        }
+        
+        variable "max_allocated_storage" {
+          description = "Maximum auto-scaling storage in GB"
+          type        = number
+        }
+        
+        variable "multi_az" {
+          description = "Enable Multi-AZ"
+          type        = bool
+        }
+        
+        variable "backup_retention_days" {
+          description = "Backup retention period in days"
+          type        = number
+        }
+        
+        variable "skip_final_snapshot" {
+          description = "Skip final snapshot on destroy"
+          type        = bool
+          default     = false
+        }
+        EOF
+        
+        echo "✅ RDS infrastructure module created"
+    
+    - name: Deploy RDS (Plan)
+      if: github.event.inputs.action == 'plan' || github.event.inputs.action == 'plan & apply'
+      env:
+        ACTION: ${{ github.event.inputs.action }}
+        ENV: ${{ github.event.inputs.environment }}
+        REGION: ${{ steps.defaults.outputs.region }}
+      run: |
+        TEMP_DIR="/tmp/rds-only-deploy"
+        cd "$TEMP_DIR"
+        
+        echo "📦 Initializing OpenTofu..."
+        tofu init
+        
+        echo "📋 Planning RDS database creation..."
+        tofu plan \
+          -var="environment=$ENV" \
+          -var="aws_region=$REGION" \
+          -var="instance_class=${{ steps.defaults.outputs.instance_class }}" \
+          -var="allocated_storage=${{ steps.defaults.outputs.allocated_storage }}" \
+          -var="max_allocated_storage=${{ steps.defaults.outputs.max_allocated_storage }}" \
+          -var="multi_az=${{ steps.defaults.outputs.multi_az }}" \
+          -var="backup_retention_days=${{ steps.defaults.outputs.backup_retention_days }}" \
+          -var="engine_version=${{ github.event.inputs.engine_version }}" \
+          -var="db_master_password=$DB_MASTER_PASSWORD" \
+          -out=tfplan
+        
+        echo ""
+        echo "📊 Plan Summary:"
+        tofu show tfplan | tail -30
+    
+    - name: Deploy RDS (Apply)
+      if: github.event.inputs.action == 'apply' || github.event.inputs.action == 'plan & apply'
+      env:
+        ACTION: ${{ github.event.inputs.action }}
+        ENV: ${{ github.event.inputs.environment }}
+        REGION: ${{ steps.defaults.outputs.region }}
+      run: |
+        TEMP_DIR="/tmp/rds-only-deploy"
+        cd "$TEMP_DIR"
+        
+        if [ "$ACTION" != "apply" ] && [ "$ACTION" != "plan & apply" ]; then
+          echo "⏭️  Skipping apply"
+          exit 0
+        fi
+        
+        if [ "$ACTION" = "plan & apply" ]; then
+          echo ""
+          echo "⏳ Waiting 5 seconds before applying (review the plan above)..."
+          sleep 5
+        fi
+        
+        echo "✅ Applying RDS database creation..."
+        echo "⏳ This may take 10-15 minutes. Please wait..."
+        
+        if [ ! -f tfplan ]; then
+          echo "📋 Planning RDS database creation..."
+          tofu plan \
+            -var="environment=$ENV" \
+            -var="aws_region=$REGION" \
+            -var="instance_class=${{ steps.defaults.outputs.instance_class }}" \
+            -var="allocated_storage=${{ steps.defaults.outputs.allocated_storage }}" \
+            -var="max_allocated_storage=${{ steps.defaults.outputs.max_allocated_storage }}" \
+            -var="multi_az=${{ steps.defaults.outputs.multi_az }}" \
+            -var="backup_retention_days=${{ steps.defaults.outputs.backup_retention_days }}" \
+            -var="engine_version=${{ github.event.inputs.engine_version }}" \
+            -var="db_master_password=$DB_MASTER_PASSWORD" \
+            -out=tfplan
+        fi
+        
+        tofu apply -auto-approve tfplan
+        rm -f tfplan
+        
+        echo ""
+        echo "✅ RDS Database Created Successfully!"
+        echo ""
+        echo "📊 Database Outputs:"
+        tofu output
+    
+    - name: Display Database Connection String
+      if: github.event.inputs.action == 'apply' || github.event.inputs.action == 'plan & apply'
+      env:
+        ENV: ${{ github.event.inputs.environment }}
+      run: |
+        TEMP_DIR="/tmp/rds-only-deploy"
+        cd "$TEMP_DIR" 2>/dev/null || exit 0
+        
+        if [ -f .terraform.lock.hcl ]; then
+          echo ""
+          echo "🔗 Database Connection Details:"
+          echo "================================"
+          tofu output -raw rds_endpoint 2>/dev/null && echo "" || echo "Endpoint not yet available"
+          echo ""
+          echo "⚠️  Save these connection details securely!"
+          echo "Store the database URL in GitHub secrets or .env files"
+        fi
+    
+    - name: Validate RDS Creation
+      if: github.event.inputs.action == 'apply' || github.event.inputs.action == 'plan & apply'
+      env:
+        ENV: ${{ github.event.inputs.environment }}
+        REGION: ${{ steps.defaults.outputs.region }}
+      run: |
+        echo "🔍 Validating RDS database creation..."
+        
+        # Find the RDS instance
+        DB_INSTANCE=$(aws rds describe-db-instances \
+          --region "$REGION" \
+          --query "DBInstances[?DBInstanceIdentifier==\`${ENV}-yuvro-db\`].DBInstanceIdentifier" \
+          --output text)
+        
+        if [ -n "$DB_INSTANCE" ]; then
+          echo "✅ RDS Instance Found: $DB_INSTANCE"
+          
+          # Get status
+          STATUS=$(aws rds describe-db-instances \
+            --db-instance-identifier "$DB_INSTANCE" \
+            --region "$REGION" \
+            --query "DBInstances[0].DBInstanceStatus" \
+            --output text)
+          
+          echo "📊 Status: $STATUS"
+          
+          # Get endpoint
+          ENDPOINT=$(aws rds describe-db-instances \
+            --db-instance-identifier "$DB_INSTANCE" \
+            --region "$REGION" \
+            --query "DBInstances[0].Endpoint.Address" \
+            --output text)
+          
+          echo "🔗 Endpoint: $ENDPOINT"
+          
+          if [ "$STATUS" = "available" ]; then
+            echo "✅ Database is ready for connections!"
+          else
+            echo "⏳ Database is still initializing (Status: $STATUS)"
+            echo "   It may take a few more minutes to be fully available"
+          fi
+        else
+          echo "⚠️  Could not find RDS instance ${ENV}-yuvro-db"
+        fi
+    
+    - name: Deploy RDS (Destroy)
+      if: github.event.inputs.action == 'destroy'
+      env:
+        ENV: ${{ github.event.inputs.environment }}
+        REGION: ${{ steps.defaults.outputs.region }}
+      run: |
+        TEMP_DIR="/tmp/rds-only-deploy"
+        cd "$TEMP_DIR"
+        
+        tofu init
+        
+        echo "⚠️  DESTROYING RDS database for $ENV environment..."
+        echo "This will DELETE the database and all data!"
+        echo ""
+        
+        tofu plan \
+          -destroy \
+          -var="environment=$ENV" \
+          -var="aws_region=$REGION" \
+          -var="instance_class=${{ steps.defaults.outputs.instance_class }}" \
+          -var="allocated_storage=${{ steps.defaults.outputs.allocated_storage }}" \
+          -var="max_allocated_storage=${{ steps.defaults.outputs.max_allocated_storage }}" \
+          -var="multi_az=${{ steps.defaults.outputs.multi_az }}" \
+          -var="backup_retention_days=${{ steps.defaults.outputs.backup_retention_days }}" \
+          -var="engine_version=${{ github.event.inputs.engine_version }}" \
+          -var="db_master_password=$DB_MASTER_PASSWORD" \
+          -out=tfplan_destroy
+        
+        echo ""
+        echo "⏳ Waiting 10 seconds before destroying (review the plan above)..."
+        sleep 10
+        
+        tofu apply -auto-approve tfplan_destroy
+        rm -f tfplan_destroy
+        
+        echo "✅ RDS database destroyed"
+    
+    - name: Notify Result
+      if: always()
+      run: |
+        ACTION="${{ github.event.inputs.action }}"
+        ENV="${{ github.event.inputs.environment }}"
+        RESULT="${{ job.status }}"
+        
+        echo ""
+        echo "=========================================="
+        if [ "$RESULT" = "success" ]; then
+          echo "✅ RDS Database $ACTION completed successfully!"
+          echo "   Environment: $ENV"
+          echo "   Action: $ACTION"
+        else
+          echo "❌ RDS Database $ACTION failed!"
+          echo "   Environment: $ENV"
+          echo "   Action: $ACTION"
+          exit 1
+        fi
+        echo "=========================================="

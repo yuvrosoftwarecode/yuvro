@@ -1,0 +1,42 @@
+name: Prod - Deploy Release to ECS
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release version to deploy (e.g., v1.0.0)'
+        required: true
+        type: string
+      cluster_name:
+        description: 'ECS cluster name'
+        required: false
+        default: 'yuvro-prod-cluster'
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ap-south-1
+
+jobs:
+  deploy-ecs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder - ECS deployment
+        run: |
+          echo "=========================================="
+          echo "⏳ ECS Deployment - Coming Soon"
+          echo "=========================================="
+          echo ""
+          echo "This workflow is a placeholder for future ECS deployments."
+          echo "Currently, Yuvro is deployed to Kubernetes (EKS)."
+          echo ""
+          echo "ECS deployment will be implemented to support:"
+          echo "- Alternative deployment target"
+          echo "- EC2-based container orchestration"
+          echo "- Fargate serverless containers"
+          echo ""
+          echo "📝 Release: ${{ inputs.release_version }}"
+          echo "📋 Cluster: ${{ inputs.cluster_name }}"

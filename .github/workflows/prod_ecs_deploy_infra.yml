@@ -1,0 +1,209 @@
+name: Prod - Deploy Infrastructure (ECS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - plan & apply
+          - destroy
+  workflow_call:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: string
+
+jobs:
+  deploy-infra-ecs:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-south-1
+        role-to-assume: ${{ secrets.PROD_AWS_ROLE_TO_ASSUME }}
+        duration-seconds: 3600
+    
+    - name: Set up OpenTofu
+      uses: opentofu/setup-opentofu@v1
+      with:
+        version: 1.8.0
+    
+    - name: Load Prod Secrets
+      run: |
+        if [ -f "ycode-backend-api/.env.prod-secrets" ]; then
+          echo "✅ Found .env.prod-secrets, loading database credentials..."
+          source ycode-backend-api/.env.prod-secrets
+          if [ -z "$PROD_DB_MASTER_PASSWORD" ] && [ -n "$DB_MASTER_PASSWORD" ]; then
+            echo "DB_MASTER_PASSWORD=$DB_MASTER_PASSWORD" >> $GITHUB_ENV
+          fi
+        else
+          echo "⚠️  .env.prod-secrets not found, using GitHub secret"
+          if [ -z "${{ secrets.PROD_DB_MASTER_PASSWORD }}" ]; then
+            echo "❌ PROD_DB_MASTER_PASSWORD secret is required when .env.prod-secrets is not present"
+            exit 1
+          fi
+          echo "DB_MASTER_PASSWORD=${{ secrets.PROD_DB_MASTER_PASSWORD }}" >> $GITHUB_ENV
+        fi
+    
+    - name: Validate Action
+      run: |
+        ACTION="${{ inputs.action }}"
+        if [ "$ACTION" = "destroy" ]; then
+          echo "⚠️  WARNING: You are about to DESTROY production ECS infrastructure!"
+          echo "This action will DELETE all AWS ECS resources in the production environment."
+          echo "Please ensure you have a backup and understand the consequences."
+          exit 0
+        fi
+    
+    - name: Deploy Infrastructure (Prod ECS)
+      env:
+        ACTION: ${{ inputs.action }}
+        DEPLOY_ENV: prod
+        DEPLOY_TYPE: ecs
+        AWS_REGION: ap-south-1
+      run: |
+        echo "🚀 OpenTofu Infrastructure Deployment [action=$ACTION, type=ECS]..."
+        
+        cd infra/opentofu/prod-ecs
+        
+        # Initialize
+        echo "📦 Initializing OpenTofu..."
+        tofu init
+        
+        if [ "$ACTION" = "plan" ]; then
+          echo "📋 Planning ECS infrastructure changes..."
+          tofu plan \
+            -var-file=../prod-ecs.tfvars \
+            -var="db_master_password=$DB_MASTER_PASSWORD" \
+            -out=tfplan_ecs
+          
+          echo ""
+          echo "📊 Plan Summary:"
+          tofu show tfplan_ecs | tail -20
+          
+        elif [ "$ACTION" = "apply" ]; then
+          echo "📋 Planning ECS infrastructure changes..."
+          tofu plan \
+            -var-file=../prod-ecs.tfvars \
+            -var="db_master_password=$DB_MASTER_PASSWORD" \
+            -out=tfplan_ecs
+          
+          echo "✅ Applying ECS infrastructure changes to PRODUCTION..."
+          echo "⏳ This may take 10-20 minutes. Please wait..."
+          
+          tofu apply -auto-approve tfplan_ecs
+          rm -f tfplan_ecs
+          
+          echo ""
+          echo "📊 Infrastructure Outputs:"
+          tofu output
+          
+          # Save outputs for downstream jobs
+          tofu output -json > /tmp/prod_ecs_outputs.json
+          
+        elif [ "$ACTION" = "plan & apply" ]; then
+          echo "📋 Planning ECS infrastructure changes..."
+          tofu plan \
+            -var-file=../prod-ecs.tfvars \
+            -var="db_master_password=$DB_MASTER_PASSWORD" \
+            -out=tfplan_ecs
+          
+          echo ""
+          echo "📊 Plan Summary:"
+          tofu show tfplan_ecs | tail -20
+          
+          echo ""
+          echo "⏳ Waiting 5 seconds before applying (review the plan above)..."
+          sleep 5
+          
+          echo "✅ Applying ECS infrastructure changes to PRODUCTION..."
+          echo "⏳ This may take 10-20 minutes. Please wait..."
+          
+          tofu apply -auto-approve tfplan_ecs
+          rm -f tfplan_ecs
+          
+          echo ""
+          echo "📊 Infrastructure Outputs:"
+          tofu output
+          
+          # Save outputs for downstream jobs
+          tofu output -json > /tmp/prod_ecs_outputs.json
+          
+        elif [ "$ACTION" = "destroy" ]; then
+          echo "⚠️  DESTROYING PRODUCTION ECS infrastructure..."
+          echo "This will delete all AWS ECS resources in the production environment!"
+          echo ""
+          echo "Proceeding with caution..."
+          
+          tofu plan \
+            -destroy \
+            -var-file=../prod-ecs.tfvars \
+            -var="db_master_password=$DB_MASTER_PASSWORD" \
+            -out=tfplan_destroy_ecs
+          
+          tofu apply -auto-approve tfplan_destroy_ecs
+          rm -f tfplan_destroy_ecs
+          
+          echo "✅ Production ECS infrastructure destroyed"
+        fi
+        
+        cd - > /dev/null
+        echo "✅ Infrastructure operation complete!"
+    
+    - name: Post-Deployment Validation
+      if: inputs.action == 'apply'
+      run: |
+        echo "🔍 Validating production ECS deployment..."
+        
+        # Check ECS cluster status
+        CLUSTER_NAME=$(cd infra/opentofu/prod-ecs && tofu output -raw ecs_cluster_name 2>/dev/null || echo "")
+        if [ -n "$CLUSTER_NAME" ]; then
+          echo "✅ ECS Cluster: $CLUSTER_NAME"
+          aws ecs describe-clusters --clusters "$CLUSTER_NAME" --region ap-south-1 | jq '.clusters[0].status'
+        fi
+        
+        # Check RDS instance status
+        DB_INSTANCE=$(cd infra/opentofu/prod-ecs && tofu output -raw rds_db_instance_id 2>/dev/null || echo "")
+        if [ -n "$DB_INSTANCE" ]; then
+          echo "✅ RDS Instance: $DB_INSTANCE"
+          aws rds describe-db-instances --db-instance-identifier "$DB_INSTANCE" --region ap-south-1 | jq '.DBInstances[0].DBInstanceStatus'
+        fi
+        
+        # Check ALB status
+        LB_ARN=$(cd infra/opentofu/prod-ecs && tofu output -raw alb_arn 2>/dev/null || echo "")
+        if [ -n "$LB_ARN" ]; then
+          echo "✅ Application Load Balancer created"
+          aws elbv2 describe-load-balancers --load-balancer-arns "$LB_ARN" --region ap-south-1 | jq '.LoadBalancers[0].State.Code'
+        fi
+        
+        echo "✅ Validation complete!"
+    
+    - name: Notify Deployment Status
+      if: always()
+      run: |
+        ACTION="${{ inputs.action }}"
+        RESULT="${{ job.status }}"
+        
+        if [ "$RESULT" = "success" ]; then
+          echo "✅ Production ECS infrastructure $ACTION succeeded!"
+        else
+          echo "❌ Production ECS infrastructure $ACTION failed!"
+          exit 1
+        fi
+

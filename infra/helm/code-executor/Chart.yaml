@@ -1,0 +1,12 @@
+apiVersion: v2
+name: code-executor
+description: Yuvro Code Executor Service - Python, JavaScript, Java, C++, C
+type: application
+version: 1.0.0
+appVersion: 1.0
+keywords:
+  - code-executor
+  - execution
+  - service
+maintainers:
+  - name: Yuvro Team

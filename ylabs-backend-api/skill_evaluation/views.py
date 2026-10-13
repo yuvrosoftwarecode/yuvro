@@ -5,7 +5,9 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
-from core.storage import upload_image
+from django.db import transaction
+import zoneinfo
+from core.storage import upload_image, build_public_url
 from .models import RecruiterActivityLog
 from .serializers import RecruiterActivityLogSerializer
 import logging
@@ -22,6 +24,7 @@ from .models import (
     UserLabQuestionBankSubmission,
     UserKnowledgeAssessmentSubmission,
     EvaluationSection,
+    EvaluationSectionType,
     CandidateTimelineEvent,
     CandidateTimelineEventType
 )
@@ -38,6 +41,7 @@ from .email_utils import send_evaluation_email
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 import os
+import re
 from lab.workspace_manager import provision_evaluation_user_repo, get_repo_name_from_url
 from .utils import is_database_lab
 import json
@@ -47,19 +51,50 @@ def get_emails_list(emails):
         return []
     if isinstance(emails, dict):
         return list(emails.keys())
+    
+    parsed = emails
     if isinstance(emails, str):
         try:
             parsed = json.loads(emails)
             if isinstance(parsed, dict):
                 return list(parsed.keys())
             if isinstance(parsed, list):
-                return parsed
+                return [e.get('email') if isinstance(e, dict) else e for e in parsed]
             return [emails]
         except Exception:
             return [emails]
     if isinstance(emails, list):
-        return emails
+        return [e.get('email') if isinstance(e, dict) else e for e in emails]
     return []
+
+def get_emails_with_names(emails):
+    result = {}
+    if not emails:
+        return result
+    if isinstance(emails, str):
+        try:
+            parsed = json.loads(emails)
+            emails = parsed
+        except Exception:
+            return {emails: ""}
+    
+    if isinstance(emails, dict):
+        for k, v in emails.items():
+            if isinstance(v, dict):
+                result[k] = v.get("name", "")
+            else:
+                result[k] = ""
+        return result
+        
+    if isinstance(emails, list):
+        for e in emails:
+            if isinstance(e, dict):
+                email = e.get("email")
+                if email:
+                    result[email] = e.get("name", "")
+            elif isinstance(e, str):
+                result[e] = ""
+    return result
 
 class EvaluationViewSet(viewsets.ModelViewSet):
     serializer_class = EvaluationSerializer
@@ -108,44 +143,112 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 data['status'] = submission.hiring_status
                 data['completed_at'] = submission.completed_at.isoformat() if submission.completed_at else None
 
+        is_not_started = False
+        start_error = None
+        if instance.start_datetime and timezone.now() < instance.start_datetime:
+            ist = zoneinfo.ZoneInfo('Asia/Kolkata')
+            start_ist = instance.start_datetime.astimezone(ist)
+            is_not_started = True
+            start_error = f"This evaluation hasn't started yet. It will be accessible from {start_ist.strftime('%Y-%m-%d %I:%M %p')} IST."
+            
         is_expired = False
         if instance.expiry_datetime and timezone.now() > instance.expiry_datetime:
             is_expired = True
+            
+        data['is_not_started'] = is_not_started
+        data['start_error'] = start_error
         data['is_expired'] = is_expired
 
         return Response(data)
     
     def perform_create(self, serializer):
-        user = self.request.user
-        if not user or not user.is_authenticated:
-            User = get_user_model()
-            user = User.objects.first()
+        user = self.request.user if self.request and hasattr(self.request, 'user') and self.request.user.is_authenticated else None
+        if not user:
+            user = User.objects.filter(username="default_recruiter").first()
             if not user:
                 user = User.objects.create(username="default_recruiter", email="default@example.com")
+        
+        # Ensure dict format
+        validated_data = serializer.validated_data
+        invited = validated_data.get('candidate_invited_emails', [])
+        names_dict = get_emails_with_names(invited)
+        
+        if isinstance(invited, list):
+            now_ms = int(time.time() * 1000)
+            validated_data['candidate_invited_emails'] = {e: {"invited_at": now_ms, "name": names_dict.get(e, "")} for e in get_emails_list(invited)}
+            
         instance = serializer.save(created_by=user)
+        subject = self.request.data.get('subject', None) if hasattr(self, 'request') else None
+        body = self.request.data.get('body', None) if hasattr(self, 'request') else None
+        
         if instance.is_published and instance.candidate_invited_emails:
-            self.send_invitation_emails(instance, instance.candidate_invited_emails)
+            emails_to_send = [{"email": k, "name": v.get("name", "") if isinstance(v, dict) else ""} for k, v in instance.candidate_invited_emails.items()]
+            self.send_invitation_emails(instance, emails_to_send, subject=subject, body=body)
 
     def perform_update(self, serializer):
         old_instance = self.get_object()
         old_emails = set(get_emails_list(old_instance.candidate_invited_emails))
+        
+        validated_data = serializer.validated_data
+        if 'candidate_invited_emails' in validated_data:
+            invited = validated_data['candidate_invited_emails']
+            names_dict = get_emails_with_names(invited)
+            
+            # merge with old
+            current = old_instance.candidate_invited_emails
+            if isinstance(current, list):
+                current = {e: {"invited_at": int(old_instance.created_at.timestamp() * 1000), "name": ""} for e in current}
+            elif not isinstance(current, dict):
+                current = {}
+                
+            for k, v in current.items():
+                if not isinstance(v, dict):
+                    current[k] = {"invited_at": v, "name": ""}
+                    
+            now_ms = int(time.time() * 1000)
+            new_invited = get_emails_list(invited)
+            
+            final_invited = {}
+            for e in new_invited:
+                if e in current:
+                    final_invited[e] = current[e]
+                    # update name if provided and wasn't there
+                    if names_dict.get(e):
+                        final_invited[e]["name"] = names_dict[e]
+                else:
+                    final_invited[e] = {"invited_at": now_ms, "name": names_dict.get(e, "")}
+            
+            validated_data['candidate_invited_emails'] = final_invited
+            
         instance = serializer.save()
+        subject = self.request.data.get('subject', None) if hasattr(self, 'request') else None
+        body = self.request.data.get('body', None) if hasattr(self, 'request') else None
         
         if instance.is_published and instance.candidate_invited_emails:
-            new_emails = set(get_emails_list(instance.candidate_invited_emails)) - old_emails
+            if not old_instance.is_published:
+                new_emails = set(get_emails_list(instance.candidate_invited_emails))
+            else:
+                new_emails = set(get_emails_list(instance.candidate_invited_emails)) - old_emails
+                
             if new_emails:
-                self.send_invitation_emails(instance, new_emails)
+                emails_to_send = [{"email": e, "name": instance.candidate_invited_emails[e].get("name", "") if isinstance(instance.candidate_invited_emails[e], dict) else ""} for e in new_emails]
+                self.send_invitation_emails(instance, emails_to_send, subject=subject, body=body)
 
-    def send_invitation_emails(self, evaluation, emails):
-        send_evaluation_email(evaluation, emails, is_reminder=False)
+
+    def send_invitation_emails(self, evaluation, emails, subject=None, body=None):
+        send_evaluation_email(evaluation, emails, is_reminder=False, custom_body=body, custom_subject=subject)
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def invite(self, request, pk=None):
         evaluation = self.get_object()
         emails = request.data.get('emails', [])
+        subject = request.data.get('subject', '')
+        body = request.data.get('body', '')
         template = request.data.get('template', '')
         
         emails_list = get_emails_list(emails)
+        names_dict = get_emails_with_names(emails)
+        
         if not emails_list:
             return Response({"error": "No emails provided."}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -160,27 +263,31 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 
         if isinstance(current_invited, list):
             fallback_ts = int(evaluation.created_at.timestamp() * 1000)
-            current_invited = {email: fallback_ts for email in current_invited}
+            current_invited = {email: {"invited_at": fallback_ts, "name": ""} for email in current_invited}
         elif not isinstance(current_invited, dict):
             current_invited = {}
             
+        # Ensure dict format is { email: { invited_at, name } }
+        for k, v in current_invited.items():
+            if not isinstance(v, dict):
+                current_invited[k] = {"invited_at": v, "name": ""}
+                
         now_ms = int(time.time() * 1000)
+        actually_new = []
         for email in new_emails:
             if email not in current_invited:
-                current_invited[email] = now_ms
+                current_invited[email] = {"invited_at": now_ms, "name": names_dict.get(email, "")}
+                actually_new.append({"email": email, "name": names_dict.get(email, "")})
+            else:
+                if names_dict.get(email):
+                    current_invited[email]["name"] = names_dict[email]
                 
         evaluation.candidate_invited_emails = current_invited
         evaluation.save(update_fields=['candidate_invited_emails', 'updated_at'])
         
-        # Optionally, we could use the custom template here for send_mail
-        # But we'll fallback to send_evaluation_email for simplicity
-        if template:
-            # Custom logic if needed
-            pass
-            
-        self.send_invitation_emails(evaluation, list(new_emails))
+        self.send_invitation_emails(evaluation, actually_new, subject=subject, body=body or template)
         
-        return Response({"status": "success", "invited": list(new_emails)})
+        return Response({"status": "success", "invited": emails_list})
 
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def public_register(self, request, pk=None):
@@ -233,6 +340,16 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def check_registration(self, request, pk=None):
         evaluation = self.get_object()
         email = request.data.get('email')
+        
+        # Check access times
+        if evaluation.start_datetime and timezone.now() < evaluation.start_datetime:
+            ist = zoneinfo.ZoneInfo('Asia/Kolkata')
+            start_ist = evaluation.start_datetime.astimezone(ist)
+            return Response({"is_expired": True, "error": f"This evaluation hasn't started yet. It will be accessible from {start_ist.strftime('%Y-%m-%d %I:%M %p')} IST.", "registered": False}, status=status.HTTP_200_OK)
+            
+        if evaluation.expiry_datetime and timezone.now() > evaluation.expiry_datetime:
+            return Response({"is_expired": True, "error": "This evaluation has expired and is no longer accepting submissions.", "registered": False}, status=status.HTTP_200_OK)
+            
         if not email:
             return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -262,7 +379,10 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             user_id = str(user.id)
             object_key = f"{user_id}/skill_evaluation/{evaluation.id}/attempt-{attempt_count}/{filename}"
             
-            return upload_image(key=object_key, file_obj=file_obj)
+            saved_key = upload_image(key=object_key, file_obj=file_obj)
+            if saved_key:
+                return build_public_url(saved_key) or saved_key
+            return None
         except Exception as e:
             logger = logging.getLogger(__name__)
             logger.error(f"Error saving snapshot: {e}", exc_info=True)
@@ -288,10 +408,22 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             
         submission = UserEvaluationSubmission.objects.filter(user=user, evaluation=evaluation).first()
         if not submission:
-            return Response({"error": "Submission not found"}, status=status.HTTP_404_NOT_FOUND)
+            submission, _ = UserEvaluationSubmission.objects.get_or_create(
+                user=user,
+                evaluation=evaluation,
+                defaults={
+                    'duration': 0,
+                    'discussion_mode': DiscussionMode.AUTOMATIC
+                }
+            )
             
         image_file = request.FILES.get("snapshot")
         screen_file = request.FILES.get("screenshot")
+        
+        # Fallback if frontend sent initial screenshot under snapshot field
+        if not screen_file and activity_type == "initial_screenshot_captured" and image_file:
+            screen_file = image_file
+            image_file = None
         
         image_path = None
         if image_file:
@@ -321,29 +453,47 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         if screen_path:
             event["screen_path"] = screen_path
             
-        non_violation_types = ["snapshot", "camera_enabled", "camera_disabled", "passport_photo_captured", "initial_screenshot_captured"]
+        non_violation_types = [
+            "snapshot", 
+            "screen_snapshot", 
+            "camera_enabled", 
+            "camera_disabled", 
+            "passport_photo_captured", 
+            "initial_screenshot_captured"
+        ]
         
-        CRITICAL_VIOLATION_TYPES = ["new_tab_detected", "new_window_detected", "devtools_opened", "camera_disabled", "microphone_disabled", "face_not_detected", "multiple_faces_detected", "face_recognition_failed", "violation_critical"]
-        GENERAL_VIOLATION_TYPES = ["copy_detected", "paste_detected", "cut_detected", "select_all_detected", "right_click_detected", "keyboard_shortcut", "screenshot_detected", "suspicious_movement", "violation_warning", "tab_switched"]
+        CRITICAL_VIOLATION_TYPES = [
+            "new_tab_detected", "new_window_detected", "devtools_opened", 
+            "camera_disabled", "microphone_disabled", "face_not_detected", 
+            "multiple_faces_detected", "face_recognition_failed", "violation_critical"
+        ]
+        GENERAL_VIOLATION_TYPES = [
+            "copy_detected", "paste_detected", "cut_detected", 
+            "select_all_detected", "right_click_detected", "keyboard_shortcut", 
+            "screenshot_detected", "suspicious_movement", "violation_warning", "tab_switched"
+        ]
         
         is_proctoring = (
             activity_type in CRITICAL_VIOLATION_TYPES
             or activity_type in GENERAL_VIOLATION_TYPES
-            or activity_type == "snapshot"
+            or activity_type in ["snapshot", "screen_snapshot"]
             or bool(image_path)
+            or bool(screen_path)
         )
         is_violation = is_proctoring and (activity_type not in non_violation_types)
         
-        if is_violation:
-            if not isinstance(submission.proctoring_events, list):
-                submission.proctoring_events = []
-            submission.proctoring_events.append(event)
-        else:
-            if not isinstance(submission.general_events, list):
-                submission.general_events = []
-            submission.general_events.append(event)
-            
-        submission.save()
+        with transaction.atomic():
+            submission = UserEvaluationSubmission.objects.select_for_update().get(id=submission.id)
+            if is_violation:
+                if not isinstance(submission.proctoring_events, list):
+                    submission.proctoring_events = []
+                submission.proctoring_events.append(event)
+                submission.save(update_fields=['proctoring_events', 'updated_at'])
+            else:
+                if not isinstance(submission.general_events, list):
+                    submission.general_events = []
+                submission.general_events.append(event)
+                submission.save(update_fields=['general_events', 'updated_at'])
         
         # Calculate violations (we can refine this later if section-based)
         sub_violations = len(submission.proctoring_events) if isinstance(submission.proctoring_events, list) else 0
@@ -604,12 +754,14 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                         })
                         
                     try:
+                        db_conn_url = getattr(lab, 'connection_url', None) or ""
                         response = requests.post(f"{executer_host}/workspace/database_submit", json={
                             "user_id": str(request.user.id),
                             "lab_id": str(lab.id),
                             "sprint_id": str(lab.id),
                             "database_engine": db_engine,
                             "evaluation_id": str(evaluation.id),
+                            "connection_url": db_conn_url,
                             "tasks": payload_tasks
                         }, timeout=30)
                         if response.status_code == 200:
@@ -1399,3 +1551,46 @@ class SharedReportView(APIView):
             'submission': sub_serializer.data,
             'timeline_events': event_serializer.data
         })
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+from .models import Evaluation, CandidateEvaluationFeedback
+from .serializers import CandidateEvaluationFeedbackSerializer
+
+from rest_framework.permissions import AllowAny
+class EvaluationFeedbackAPIView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, pk):
+        feedbacks = CandidateEvaluationFeedback.objects.filter(evaluation_id=pk)
+        serializer = CandidateEvaluationFeedbackSerializer(feedbacks, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        evaluation = get_object_or_404(Evaluation, pk=pk)
+        user = request.user
+        if not user.is_authenticated:
+            # For guest users, they might be logged in as guest.
+            pass
+        candidate_user = user if user.is_authenticated else None
+        if candidate_user:
+            feedback, created = CandidateEvaluationFeedback.objects.update_or_create(
+                evaluation=evaluation,
+                candidate=candidate_user,
+                defaults={
+                    'rating': request.data.get('rating'),
+                    'description': request.data.get('description', '')
+                }
+            )
+        else:
+            feedback = CandidateEvaluationFeedback.objects.create(
+                evaluation=evaluation,
+                candidate=None,
+                rating=request.data.get('rating'),
+                description=request.data.get('description', '')
+            )
+            created = True
+        serializer = CandidateEvaluationFeedbackSerializer(feedback)
+        return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+

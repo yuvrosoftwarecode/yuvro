@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link, Outlet, useLocation } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { z } from "zod";
 import {
   ChevronLeft,
@@ -2887,14 +2887,41 @@ function PublishScreen({
 }) {
   const [isPublishing, setIsPublishing] = useState(false);
   const [type, setType] = useState<"email" | "link" | "csv">("email");
-  const [emails, setEmails] = useState("");
+  const [recipients, setRecipients] = useState<Array<{name: string, email: string}>>(() => {
+    const emails = ev.invite?.emails;
+    if (Array.isArray(emails)) {
+      return emails.map((e: any) => typeof e === 'string' ? { name: '', email: e } : e);
+    }
+    return [];
+  });
+  const [nameInput, setNameInput] = useState("");
+  const [emailsInput, setEmailsInput] = useState("");
+  const [subject, setSubject] = useState(`Invitation: ${ev.title}`);
+  const [body, setBody] = useState(`Hi {{name}},\n\nYou've been invited to take the {{evaluation}} assessment by {{company}}.\n\nClick the button below to get started:\n\n{{link}}\n\nGood luck!\n{{company}} Team`);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
   const [csvError, setCsvError] = useState("");
   const [csvSuccess, setCsvSuccess] = useState("");
-  const [expiry, setExpiry] = useState<"7" | "14" | "30" | "custom">(ev.invite?.expiry || "14");
-  const [attempts, setAttempts] = useState<"1" | "2" | "unlimited">(ev.invite?.attempts || "1");
-  const [customDate, setCustomDate] = useState(ev.expiry_date || "");
-  const [customTime, setCustomTime] = useState(ev.expiry_time || "23:59");
-  const [customTz, setCustomTz] = useState(ev.expiry_timezone || (typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC"));
+  const [scheduleType, setScheduleType] = useState<"none" | "scheduled">(ev.start_datetime || ev.expiry_datetime ? "scheduled" : "none");
+  const [startDate, setStartDate] = useState(() => {
+    if (!ev.start_datetime) return "";
+    const d = new Date(ev.start_datetime);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
+  const [startTime, setStartTime] = useState(() => {
+    if (!ev.start_datetime) return "";
+    const d = new Date(ev.start_datetime);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  });
+  const [expiryDate, setExpiryDate] = useState(() => {
+    if (!ev.expiry_datetime) return "";
+    const d = new Date(ev.expiry_datetime);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
+  const [expiryTime, setExpiryTime] = useState(() => {
+    if (!ev.expiry_datetime) return "";
+    const d = new Date(ev.expiry_datetime);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  });
 
   const link = useMemo(
     () => `${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${ev.id}`,
@@ -2902,83 +2929,165 @@ function PublishScreen({
   );
   const [copied, setCopied] = useState(false);
 
-  const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCsvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setCsvError("");
     setCsvSuccess("");
     const f = e.target.files?.[0];
     if (!f) return;
 
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const text = evt.target?.result as string;
-      const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+    try {
+      const arrayBuffer = await f.arrayBuffer();
+      const XLSX = await import("xlsx");
+      const workbook = XLSX.read(arrayBuffer, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json<any>(worksheet);
 
-      if (lines.length === 0) {
-        setCsvError("CSV file is empty.");
+      if (data.length === 0) {
+        setCsvError("File is empty.");
         return;
       }
 
-      const headers = parseCSVLine(lines[0]).map((h) => h.trim().toLowerCase());
-      const emailIdx = headers.findIndex((h) => h === "email");
+      const emailKey = Object.keys(data[0]).find((h) => h.toLowerCase().trim() === "email" || h.toLowerCase().trim() === "email address");
+      const nameKey = Object.keys(data[0]).find((h) => h.toLowerCase().trim() === "name" || h.toLowerCase().trim() === "full name" || h.toLowerCase().trim() === "first name");
 
-      if (emailIdx === -1) {
-        setCsvError("Invalid CSV format. Missing 'email' column header.");
+      if (!emailKey) {
+        setCsvError("Invalid format. Missing 'email' column header.");
         return;
       }
 
-      const parsedEmails = new Set<string>();
+      const parsedEmails = new Map<string, string>();
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       let invalidCount = 0;
 
-      for (let i = 1; i < lines.length; i++) {
-        const cols = parseCSVLine(lines[i]);
-        const emailStr = cols[emailIdx]?.trim();
-        if (emailStr) {
-          if (emailRegex.test(emailStr)) {
-            parsedEmails.add(emailStr);
+      data.forEach((row) => {
+        const email = row[emailKey]?.toString().trim();
+        const name = nameKey ? row[nameKey]?.toString().trim() || "" : "";
+        
+        if (email) {
+          if (emailRegex.test(email)) {
+            parsedEmails.set(email.toLowerCase(), name);
           } else {
             invalidCount++;
           }
         }
-      }
+      });
 
       if (parsedEmails.size === 0) {
-        setCsvError(`No valid emails found in CSV. ${invalidCount} invalid entries.`);
+        setCsvError(`No valid emails found. ${invalidCount} invalid entries.`);
         return;
       }
 
-      setEmails(Array.from(parsedEmails).join("\n"));
-      setCsvSuccess(
-        `Successfully loaded ${parsedEmails.size} valid emails.` +
-          (invalidCount > 0 ? ` Ignored ${invalidCount} invalid.` : ""),
-      );
-    };
-    reader.readAsText(f);
+      const newRecipients = Array.from(parsedEmails.entries()).map(([email, name]) => ({ email, name }));
+      setRecipients(newRecipients);
+      setCsvSuccess(`Successfully loaded ${parsedEmails.size} valid emails.` + (invalidCount > 0 ? ` Ignored ${invalidCount} invalid.` : ""));
+    } catch (err) {
+      setCsvError("Failed to parse file.");
+    }
+  };
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const addRecipients = () => {
+    const raw = emailsInput;
+    if (!raw.trim()) return;
+    const list = raw.split(/[,\n\s]+/).map(s => s.trim()).filter(Boolean);
+    const valid = list.filter(e => emailRegex.test(e));
+    if (valid.length > 0) {
+      setRecipients(prev => {
+        let next = [...prev];
+        valid.forEach((e, idx) => {
+            const lowerE = e.toLowerCase();
+            const existingIdx = next.findIndex(r => r.email.toLowerCase() === lowerE);
+            const newName = idx === 0 && valid.length === 1 ? nameInput.trim() : "";
+            if (existingIdx !== -1) {
+                if (newName) next[existingIdx].name = newName;
+            } else {
+                next.push({ email: e, name: newName });
+            }
+        });
+        return next;
+      });
+      setEmailsInput("");
+      setNameInput("");
+    }
+  };
+
+  const handleEmailInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === "," || e.key === " ") {
+      e.preventDefault();
+      addRecipients();
+    } else if (e.key === "Backspace" && !emailsInput && recipients.length > 0) {
+      setRecipients(prev => prev.slice(0, -1));
+    }
+  };
+
+  const removeRecipient = (r: string) => setRecipients(prev => prev.filter(x => x.email !== r));
+
+  const insertPlaceholder = (ph: string) => {
+    if (bodyRef.current) {
+      const start = bodyRef.current.selectionStart;
+      const end = bodyRef.current.selectionEnd;
+      const newBody = body.substring(0, start) + ph + body.substring(end);
+      setBody(newBody);
+      setTimeout(() => {
+        if (bodyRef.current) {
+          bodyRef.current.focus();
+          bodyRef.current.setSelectionRange(start + ph.length, start + ph.length);
+        }
+      }, 0);
+    } else {
+      setBody(body + ph);
+    }
   };
 
   const submit = async () => {
     if (isPublishing) return;
-    if (type === "csv" && !emails) {
-      alert("Please upload a valid CSV first.");
+    const pendingInputEmails = emailsInput ? emailsInput.split(/[,\n\s]+/).map(s => s.trim()).filter(e => emailRegex.test(e)) : [];
+    
+    let finalRecipients = [...recipients];
+    if (pendingInputEmails.length > 0) {
+        pendingInputEmails.forEach((e, idx) => {
+            const lowerE = e.toLowerCase();
+            const existingIdx = finalRecipients.findIndex(r => r.email.toLowerCase() === lowerE);
+            const newName = idx === 0 && pendingInputEmails.length === 1 ? nameInput.trim() : "";
+            if (existingIdx !== -1) {
+                // Update name if new name is provided
+                if (newName) finalRecipients[existingIdx].name = newName;
+            } else {
+                finalRecipients.push({ email: e, name: newName });
+            }
+        });
+    }
+    
+    if (type === "csv" && finalRecipients.length === 0) {
+      alert("Please upload a valid CSV/Excel file first.");
       return;
     }
-    const list = emails
-      .split(/[,\n\s]+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if ((type === "email" || type === "csv") && list.length === 0) {
+    if ((type === "email" || type === "csv") && finalRecipients.length === 0) {
       alert("Please provide at least one valid email.");
       return;
     }
     const publishType = type === "csv" ? "email" : type;
     setIsPublishing(true);
     try {
-      if (expiry === "custom" && customDate) {
-        ev.expiry_date = customDate;
-        ev.expiry_time = customTime;
-        ev.expiry_timezone = customTz;
+      let start_datetime: string | undefined;
+      let expiry_datetime: string | undefined;
+      
+      if (scheduleType === "scheduled") {
+        if (startDate) {
+          const d = new Date(`${startDate}T${startTime || "00:00"}:00`);
+          start_datetime = d.toISOString();
+        }
+        if (expiryDate) {
+          const d = new Date(`${expiryDate}T${expiryTime || "23:59"}:00`);
+          expiry_datetime = d.toISOString();
+        }
       }
-      await onPublish({ type: publishType, emails: list, expiry, attempts, link });
+      
+      ev.start_datetime = start_datetime;
+      ev.expiry_datetime = expiry_datetime;
+
+      await onPublish({ type: publishType, emails: finalRecipients as any, subject, body });
     } catch (err) {
       console.error(err);
       setIsPublishing(false);
@@ -3026,17 +3135,49 @@ function PublishScreen({
         <div className="mt-6 rounded-2xl border border-white/5 bg-white/[0.02] p-5">
           {type === "email" && (
             <div>
-              <div className="text-[11px] uppercase tracking-widest text-neutral-500">
+              <div className="text-[11px] uppercase tracking-widest text-neutral-500 mb-2">
                 Candidate Emails
               </div>
-              <textarea
-                value={emails}
-                onChange={(e) => setEmails(e.target.value)}
-                disabled={isPublishing}
-                rows={4}
-                placeholder="candidate@example.com, another@example.com"
-                className="mt-2 w-full rounded-lg border border-white/10 bg-black/30 p-3 text-[12px] outline-none focus:border-emerald-400/60 disabled:opacity-50"
-              />
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    disabled={isPublishing}
+                    placeholder="Name (Optional)"
+                    className="w-1/3 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 placeholder:text-neutral-500 disabled:opacity-50"
+                  />
+                  <input
+                    type="text"
+                    value={emailsInput}
+                    onChange={(e) => setEmailsInput(e.target.value)}
+                    onKeyDown={handleEmailInput}
+                    disabled={isPublishing}
+                    placeholder="candidate@example.com"
+                    className="flex-1 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 placeholder:text-neutral-500 disabled:opacity-50"
+                  />
+                  <button onClick={() => addRecipients()} disabled={isPublishing || !emailsInput.trim()} className="rounded-lg bg-emerald-500/20 px-4 py-2 text-[12px] font-medium text-emerald-400 hover:bg-emerald-500/30 disabled:opacity-50 transition-colors">
+                    Add
+                  </button>
+                </div>
+                
+                {recipients.length > 0 && (
+                  <div className="mt-2 flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-2">
+                    {recipients.map((r, idx) => (
+                      <div key={idx} className="flex items-center justify-between rounded-md border border-white/5 bg-white/5 px-3 py-2">
+                        <div className="flex flex-col">
+                           {r.name && <span className="text-[12px] font-medium text-neutral-200">{r.name}</span>}
+                           <span className="text-[11px] text-neutral-400">{r.email}</span>
+                        </div>
+                        <button onClick={() => removeRecipient(r.email)} disabled={isPublishing} className="p-1 text-neutral-400 hover:text-red-400">
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
           {type === "link" && (
@@ -3093,77 +3234,109 @@ function PublishScreen({
           )}
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-            <div className="text-[11px] uppercase tracking-widest text-neutral-500">Expiry</div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {EXPIRY_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
+        {(type === "email" || type === "csv") && (
+            <div className="mt-6 space-y-4 pt-6 border-t border-white/5">
+              <div>
+                <div className="text-[11px] uppercase tracking-widest text-neutral-500 mb-2">
+                  Email Subject
+                </div>
+                <input
+                  type="text"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
                   disabled={isPublishing}
-                  onClick={() => setExpiry(opt.value as any)}
-                  className={`rounded-md border px-2.5 py-1 text-[11px] ${expiry === opt.value ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-            {expiry === "custom" && (
-              <div className="mt-3 space-y-2 border-t border-white/5 pt-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-neutral-400">Date</label>
-                    <input
-                      type="date"
-                      value={customDate}
-                      onChange={(e) => setCustomDate(e.target.value)}
-                      disabled={isPublishing}
-                      className="mt-1 w-full rounded-md border border-white/10 bg-black/40 px-2 py-1 text-[11px] text-white outline-none focus:border-emerald-400/60"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-neutral-400">Time</label>
-                    <input
-                      type="time"
-                      value={customTime}
-                      onChange={(e) => setCustomTime(e.target.value)}
-                      disabled={isPublishing}
-                      className="mt-1 w-full rounded-md border border-white/10 bg-black/40 px-2 py-1 text-[11px] text-white outline-none focus:border-emerald-400/60"
-                    />
+                  className="w-full rounded-lg border border-white/10 bg-black/30 p-3 text-[12px] outline-none focus:border-emerald-400/60 disabled:opacity-50 text-white"
+                />
+              </div>
+              <div>
+                <div className="text-[11px] uppercase tracking-widest text-neutral-500 mb-2 flex items-center justify-between">
+                  <span>Email Body</span>
+                  <div className="flex gap-2">
+                    <button onClick={() => insertPlaceholder('{{name}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Name</button>
+                    <button onClick={() => insertPlaceholder('{{evaluation}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Evaluation</button>
+                    <button onClick={() => insertPlaceholder('{{company}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Company</button>
+                    <button onClick={() => insertPlaceholder('{{link}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Link</button>
                   </div>
                 </div>
+                <textarea
+                  ref={bodyRef}
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  disabled={isPublishing}
+                  rows={8}
+                  className="w-full rounded-lg border border-white/10 bg-black/30 p-3 text-[12px] outline-none focus:border-emerald-400/60 disabled:opacity-50 text-white font-mono leading-relaxed resize-none"
+                />
+              </div>
+            </div>
+          )}
+
+        <div className="mt-4">
+          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-[11px] uppercase tracking-widest text-neutral-500">Schedule</div>
+              <div className="flex gap-1.5">
+                <button
+                  onClick={() => setScheduleType("none")}
+                  disabled={isPublishing}
+                  className={`rounded-md border px-2.5 py-1 text-[11px] ${scheduleType === "none" ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
+                >
+                  No time limit
+                </button>
+                <button
+                  onClick={() => setScheduleType("scheduled")}
+                  disabled={isPublishing}
+                  className={`rounded-md border px-2.5 py-1 text-[11px] ${scheduleType === "scheduled" ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
+                >
+                  Set dates
+                </button>
+              </div>
+            </div>
+
+            {scheduleType === "scheduled" && (
+              <div className="grid grid-cols-2 gap-6 mt-4 border-t border-white/5 pt-4">
                 <div>
-                  <label className="text-[10px] text-neutral-400">Timezone</label>
-                  <select
-                    value={customTz}
-                    onChange={(e) => setCustomTz(e.target.value)}
-                    disabled={isPublishing}
-                    className="mt-1 w-full rounded-md border border-white/10 bg-black/40 px-2 py-1 text-[11px] text-white outline-none focus:border-emerald-400/60"
-                  >
-                    {TIMEZONES.map((tz) => (
-                      <option key={tz.value} value={tz.value} className="bg-[#121214] text-white">
-                        {tz.label}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="mb-2 block text-[11px] font-medium text-neutral-300">Start Date & Time (Optional)</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      disabled={isPublishing}
+                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
+                    />
+                    <input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      disabled={isPublishing}
+                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
+                    />
+                  </div>
+                  <p className="mt-1.5 text-[10px] text-neutral-500">Leave blank to make it immediately accessible.</p>
+                </div>
+                
+                <div>
+                  <label className="mb-2 block text-[11px] font-medium text-neutral-300">Expiry Date & Time (Optional)</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="date"
+                      value={expiryDate}
+                      onChange={(e) => setExpiryDate(e.target.value)}
+                      disabled={isPublishing}
+                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
+                    />
+                    <input
+                      type="time"
+                      value={expiryTime}
+                      onChange={(e) => setExpiryTime(e.target.value)}
+                      disabled={isPublishing}
+                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
+                    />
+                  </div>
+                  <p className="mt-1.5 text-[10px] text-neutral-500">Leave blank to never expire.</p>
                 </div>
               </div>
             )}
-          </div>
-          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-            <div className="text-[11px] uppercase tracking-widest text-neutral-500">Attempts</div>
-            <div className="mt-2 flex gap-1.5">
-              {(["1", "2", "unlimited"] as const).map((x) => (
-                <button
-                  key={x}
-                  disabled={isPublishing}
-                  onClick={() => setAttempts(x)}
-                  className={`rounded-md border px-2 py-1 text-[11px] ${attempts === x ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
-                >
-                  {x}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 

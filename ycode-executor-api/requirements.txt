@@ -1,0 +1,44 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+websockets>=12.0
+pydantic==2.7.1
+psutil==5.9.8
+python-multipart==0.0.6
+httpx==0.27.0
+ptyprocess==0.7.0
+pytest
+playwright>=1.40.0
+requests
+
+# OpenTelemetry (lightweight instrumentation)
+opentelemetry-api==1.24.0
+opentelemetry-sdk==1.24.0
+opentelemetry-exporter-otlp==1.24.0
+opentelemetry-instrumentation-fastapi==0.45b0
+opentelemetry-instrumentation-httpx==0.45b0
+opentelemetry-instrumentation-logging==0.45b0
+prometheus-client==0.20.0
+
+# Database Drivers
+psycopg2-binary
+pymysql
+pymongo
+dnspython
+
+# UI-DIFF (pixel/image comparison for UI testing)
+# Used in: services/code_executor.py -> ui-diff comparison
+pillow>=10.0.0
+opencv-python-headless>=4.9.0
+scikit-image>=0.22.0
+imagehash>=4.3.1
+scipy>=1.11.0
+colormath>=3.0.0
+matplotlib>=3.7.0
+pyyaml>=6.0.1
+typer[all]>=0.9.0
+numpy>=1.24.0
+
+# Face Verification (optional: gracefully degrades if not installed)
+# Uncomment to enable face verification with deepface detection:
+# deepface>=0.0.89
+

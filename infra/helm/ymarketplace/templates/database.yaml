@@ -1,0 +1,102 @@
+{{- if .Values.components.database.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ymarketplace-postgres-pvc
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: ymarketplace
+    component: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.components.database.storage }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ymarketplace-db
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: ymarketplace
+    component: database
+spec:
+  replicas: {{ .Values.components.database.replicas }}
+  selector:
+    matchLabels:
+      app: ymarketplace
+      component: database
+  template:
+    metadata:
+      labels:
+        app: ymarketplace
+        component: database
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "ymarketplace_backend_db"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ymarketplace-backend-secrets
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U postgres
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.resources.database | nindent 12 }}
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: ymarketplace-postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yuvro-postgresql-ymarketplace
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: ymarketplace
+    component: database
+spec:
+  selector:
+    app: ymarketplace
+    component: database
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+  type: ClusterIP
+{{- end }}

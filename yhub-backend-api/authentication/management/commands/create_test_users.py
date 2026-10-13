@@ -44,6 +44,12 @@ class Command(BaseCommand):
             default=config('YLABS_BACKEND_URL', default='http://host.docker.internal:8002'),
             help='Base URL of YLabs API.',
         )
+        parser.add_argument(
+            '--ymarketplace-url',
+            type=str,
+            default=config('YMARKETPLACE_BACKEND_URL', default='http://host.docker.internal:8004'),
+            help='Base URL of YMarketplace API.',
+        )
 
     def handle(self, *args, **options):
         if options["clear"]:
@@ -55,6 +61,7 @@ class Command(BaseCommand):
         
         ycode_url = options['ycode_url'].rstrip('/')
         ylabs_url = options['ylabs_url'].rstrip('/')
+        ymarketplace_url = options['ymarketplace_url'].rstrip('/')
 
         # 1. Ensure a local superuser exists to generate a valid admin JWT
         admin_user, admin_created = User.objects.get_or_create(
@@ -74,7 +81,7 @@ class Command(BaseCommand):
         # Generate JWT for sync
         token_serializer = CustomTokenObtainPairSerializer()
         token_data = token_serializer.get_token(admin_user)
-        token_data["products"] = ["ycode", "ylabs"]
+        token_data["products"] = ["ycode", "ylabs", "marketplace"]
         access_token = str(token_data.access_token)
         headers = {'Authorization': f'Bearer {access_token}', 'Content-Type': 'application/json'}
 
@@ -154,6 +161,15 @@ class Command(BaseCommand):
                             msg += f", failed to sync {user.username} to ylab (status: {resp.status_code}, error: {resp.text})"
                     except requests.RequestException as e:
                         msg += f", failed to sync {user.username} to ylab (exception: {str(e)})"
+
+                    try:
+                        resp = requests.post(f"{ymarketplace_url}/api/auth/sync-shadow-user/", json=payload, headers=headers)
+                        if resp.status_code in (200, 201):
+                            msg += f", {user.username} synced to ymarketplace"
+                        else:
+                            msg += f", failed to sync {user.username} to ymarketplace (status: {resp.status_code}, error: {resp.text})"
+                    except requests.RequestException as e:
+                        msg += f", failed to sync {user.username} to ymarketplace (exception: {str(e)})"
 
                 self.stdout.write(self.style.SUCCESS(msg))
 

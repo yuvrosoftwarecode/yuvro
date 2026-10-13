@@ -1,0 +1,293 @@
+# Production Docker Compose - All Services
+# Usage: docker-compose -f docker-compose.prod.yml up -d
+# Or use individual compose files: docker-compose -f docker-compose.prod-*.yml up -d
+
+services:
+
+  # ===== YCode =====
+  ycode-backend:
+    image: ghcr.io/yuvro/ycode-backend:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-ycode-backend-prod
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+      - DEBUG=False
+      - ALLOWED_HOSTS=*
+      - CORS_ALLOWED_ORIGINS=*
+    env_file:
+      - ./ycode-backend-api/.env.prod
+      - path: ./ycode-backend-api/.env.prod-secrets
+        required: false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+
+  ycode-frontend:
+    image: ghcr.io/yuvro/ycode-frontend:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-ycode-frontend-prod
+    restart: always
+    ports:
+      - "3000:80"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+    depends_on:
+      - ycode-backend
+
+  # ===== YCampus =====
+  ycampus-backend:
+    image: ghcr.io/yuvro/ycampus-backend:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-ycampus-backend-prod
+    restart: always
+    ports:
+      - "8001:8000"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+      - DEBUG=False
+      - ALLOWED_HOSTS=*
+      - CORS_ALLOWED_ORIGINS=*
+    env_file:
+      - ./ycampus-backend-api/.env.prod
+      - path: ./ycampus-backend-api/.env.prod-secrets
+        required: false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+
+  ycampus-frontend:
+    image: ghcr.io/yuvro/ycampus-frontend:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-ycampus-frontend-prod
+    restart: always
+    ports:
+      - "3001:80"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+    depends_on:
+      - ycampus-backend
+
+  # ===== YLabs =====
+  ylabs-backend:
+    image: ghcr.io/yuvro/ylabs-backend:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-ylabs-backend-prod
+    restart: always
+    ports:
+      - "8002:8000"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+      - DEBUG=False
+      - ALLOWED_HOSTS=*
+      - CORS_ALLOWED_ORIGINS=*
+    env_file:
+      - ./ylabs-backend-api/.env.prod
+      - path: ./ylabs-backend-api/.env.prod-secrets
+        required: false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+
+  ylabs-frontend:
+    image: ghcr.io/yuvro/ylabs-frontend:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-ylabs-frontend-prod
+    restart: always
+    ports:
+      - "3002:80"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+    depends_on:
+      - ylabs-backend
+
+  # ===== YHub =====
+  yhub-backend:
+    image: ghcr.io/yuvro/yhub-backend:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-yhub-backend-prod
+    restart: always
+    ports:
+      - "8003:8000"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+      - DEBUG=False
+      - ALLOWED_HOSTS=*
+      - CORS_ALLOWED_ORIGINS=*
+    env_file:
+      - ./yhub-backend-api/.env.prod
+      - path: ./yhub-backend-api/.env.prod-secrets
+        required: false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+
+  # ===== YMarketplace =====
+  ymarketplace-backend:
+    image: ghcr.io/yuvro/ymarketplace-backend:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-ymarketplace-backend-prod
+    restart: always
+    ports:
+      - "8004:8000"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+      - DEBUG=False
+      - ALLOWED_HOSTS=*
+      - CORS_ALLOWED_ORIGINS=*
+    env_file:
+      - ./ymarketplace-backend-api/.env.prod
+      - path: ./ymarketplace-backend-api/.env.prod-secrets
+        required: false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+
+  ymarketplace-frontend:
+    image: ghcr.io/yuvro/ymarketplace-frontend:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-ymarketplace-frontend-prod
+    restart: always
+    ports:
+      - "3004:80"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+    depends_on:
+      - ymarketplace-backend
+
+  # ===== Code Executor =====
+  yuvro-code-executor:
+    image: ghcr.io/yuvro/code-executor:${DEPLOY_BRANCH:-main}
+    container_name: yuvro-code-executor-prod
+    restart: always
+    ports:
+      - "8009:8000"
+    environment:
+      - DEPLOY_ENV=prod
+      - DEPLOY_INFRA_TYPE=ec2
+      - DEBUG=False
+    env_file:
+      - ./ycode-executor-api/.env.prod
+      - path: ./ycode-executor-api/.env.prod-secrets
+        required: false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - yuvro-net
+
+networks:
+  yuvro-net:
+    driver: bridge

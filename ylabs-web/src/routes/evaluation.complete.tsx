@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { EvalShell, PrimaryButton, Spinner } from "@/components/evaluation/EvalShell";
+import { CandidateFeedbackForm } from "@/components/evaluation/CandidateFeedbackForm";
 import { clearGlobalProctoringData } from "@/utils/proctoringStore";
 import { evaluationService } from "../services/evaluationService";
 import authService from "../services/authService";
@@ -22,10 +23,30 @@ function CompletePage() {
   const searchParams = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : ""
   );
-  const evaluationId = searchParams.get("e") || "";
+  
+  const [evaluationId, setEvaluationId] = useState(() => {
+    let id = searchParams.get("e") || "";
+    if (!id && typeof window !== "undefined") {
+      try {
+        const c = localStorage.getItem("yuvro-eval-candidate");
+        if (c) {
+          const parsed = JSON.parse(c);
+          id = parsed.evaluationId || parsed.evaluation_id || parsed.evaluation || parsed.id;
+        }
+      } catch {}
+    }
+    return id;
+  });
+
+  const [guestToken, setGuestToken] = useState<string | null>(null);
 
   useEffect(() => {
     clearGlobalProctoringData();
+    
+    // Save token before clearing so feedback can be submitted
+    const token = localStorage.getItem("access");
+    if (token) setGuestToken(token);
+
     authService.getCurrentUser().then(user => {
       if (user.is_guest_user) {
         setIsGuest(true);
@@ -117,58 +138,12 @@ function CompletePage() {
           work and be in touch shortly.
         </p>
 
-        {maxScore !== null && (
-          <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2 text-[13px] font-medium text-neutral-800">
-            <span>Evaluation Maximum Score:</span>
-            <span className="font-mono text-emerald-600 font-semibold">{maxScore} pts</span>
-          </div>
-        )}
 
-{!isGuest && (<>
         <div className="mt-12 text-left">
-          <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-            Keep sharpening
-          </div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {[
-              { t: "Practice Labs", d: "Real, timeboxed engineering scenarios.", to: "/dashboard" },
-              {
-                t: "Coding Challenges",
-                d: "Short problems, curated by difficulty.",
-                to: "/dashboard",
-              },
-              { t: "AI Discussions", d: "Rehearse how you explain your work.", to: "/dashboard" },
-            ].map((c) => (
-              <Link
-                key={c.t}
-                to={c.to}
-                className="group rounded-xl border border-neutral-200 bg-white p-5 text-left transition hover:border-neutral-900"
-              >
-                <div className="text-[14px] text-neutral-900">{c.t}</div>
-                <div className="mt-1 text-[12px] leading-relaxed text-neutral-500">{c.d}</div>
-                <div className="mt-6 text-[12px] text-neutral-500 group-hover:text-neutral-900">
-                  Open →
-                </div>
-              </Link>
-            ))}
+          <div className="mx-auto max-w-md">
+            <CandidateFeedbackForm evaluationId={evaluationId} guestToken={guestToken} />
           </div>
         </div>
-
-        <div className="mx-auto mt-12 max-w-xs">
-          <PrimaryButton type="button" onClick={() => nav({ to: "/dashboard" })}>
-            Go to dashboard
-          </PrimaryButton>
-        </div>
-
-</>)}
-        
-        {isGuest && (
-          <div className="mx-auto mt-12 max-w-xs">
-            <PrimaryButton type="button" onClick={() => nav({ to: "/student/dashboard" })}>
-              Go to dashboard
-            </PrimaryButton>
-          </div>
-        )}
       </div>
     </EvalShell>
   );
