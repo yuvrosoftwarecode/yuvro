@@ -1,10 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminShell, Badge, KpiCard } from "@/components/admin/AdminShell";
-import { Database, Link, Plus, Search, Trash2 } from "lucide-react";
+import { Database, Link, Plus, Search, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { questionBankService } from "@/services/questionBankService";
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useState, useMemo, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -14,10 +20,26 @@ import { Textarea } from "@/components/ui/textarea";
 export const Route = createFileRoute("/admin/questions")({ component: QuestionsPage });
 
 const CATS = [
-  "Java", "Python", "React", "SQL", "DevOps", "Security", "System Design", "Testing", "Debugging", "Code Reviews"
+  "Java",
+  "Python",
+  "React",
+  "SQL",
+  "DevOps",
+  "Security",
+  "System Design",
+  "Testing",
+  "Debugging",
+  "Code Reviews",
 ];
 const TYPES = [
-  "Coding Task", "Bug Scenario", "Debugging Case", "Security Vuln", "Optimization", "Database Issue", "API Problem", "Deployment Failure"
+  "Coding Task",
+  "Bug Scenario",
+  "Debugging Case",
+  "Security Vuln",
+  "Optimization",
+  "Database Issue",
+  "API Problem",
+  "Deployment Failure",
 ];
 
 const LAB_TYPES = ["DATABASE", "BACKEND", "FRONTEND", "FULL_STACK", "QUALITY_ASSURANCE", "DEVOPS"];
@@ -57,7 +79,11 @@ const DEFAULT_FORM = {
 };
 
 const arrayToString = (arr: any) => (Array.isArray(arr) ? arr.join(", ") : "");
-const stringToArray = (str: string) => str.split(",").map((s) => s.trim()).filter((s) => s);
+const stringToArray = (str: string) =>
+  str
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s);
 
 function QuestionsPage() {
   const queryClient = useQueryClient();
@@ -69,6 +95,56 @@ function QuestionsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>(DEFAULT_FORM);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [selectedType, setSelectedType] = useState("All");
+  const [difficulty, setDifficulty] = useState("All");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, category, selectedType, difficulty]);
+
+  const filteredQuestions = useMemo(() => {
+    return questions.filter((q: any) => {
+      const matchSearch =
+        !search ||
+        q.title?.toLowerCase().includes(search.toLowerCase()) ||
+        q.description?.toLowerCase().includes(search.toLowerCase()) ||
+        q.id?.toLowerCase().includes(search.toLowerCase());
+
+      const matchCategory =
+        category === "All" ||
+        q.programming_languages?.some((lang: string) =>
+          lang.toLowerCase().includes(category.toLowerCase()),
+        ) ||
+        q.domain?.toLowerCase().includes(category.toLowerCase());
+
+      const matchType =
+        selectedType === "All" ||
+        q.scenario?.toLowerCase().includes(selectedType.toLowerCase().replace(/\s+/g, "_")) ||
+        q.type?.toLowerCase().includes(selectedType.toLowerCase().replace(/\s+/g, "_"));
+
+      const matchDifficulty =
+        difficulty === "All" || q.difficulty?.toUpperCase() === difficulty.toUpperCase();
+
+      return matchSearch && matchCategory && matchType && matchDifficulty;
+    });
+  }, [questions, search, category, selectedType, difficulty]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / pageSize));
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const paginatedQuestions = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredQuestions.slice(start, start + pageSize);
+  }, [filteredQuestions, page, pageSize]);
 
   const createMutation = useMutation({
     mutationFn: (data: any) => questionBankService.createLabQuestion(data),
@@ -79,7 +155,8 @@ function QuestionsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => questionBankService.updateLabQuestion(id, data),
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      questionBankService.updateLabQuestion(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["labQuestions"] });
       closeModal();
@@ -117,12 +194,18 @@ function QuestionsPage() {
       allow_task_selection: q.allow_task_selection !== false,
       programming_languages: q.programming_languages || [],
       databases: q.databases || [],
-      backend_frameworks: (q.backend_frameworks || []).map((f: string) => f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f),
+      backend_frameworks: (q.backend_frameworks || []).map((f: string) =>
+        f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f,
+      ),
       frontend_frameworks: q.frontend_frameworks || [],
       tasks: (q.tasks || []).map((t: any, i: number) => ({
         ...t,
         id: t.id || `task_${i}`,
-        parent_task_id: t.parent_task_id || t.scoring_rules?.parent_task_id || (typeof t.parent_task === "string" ? t.parent_task : t.parent_task?.id) || null,
+        parent_task_id:
+          t.parent_task_id ||
+          t.scoring_rules?.parent_task_id ||
+          (typeof t.parent_task === "string" ? t.parent_task : t.parent_task?.id) ||
+          null,
       })),
     });
     setIsModalOpen(true);
@@ -161,7 +244,11 @@ function QuestionsPage() {
           const dbs = formData.databases || [];
           if (dbs.includes("MONGODB")) {
             solutionObj = { "query.js": trimmed };
-          } else if (dbs.includes("MYSQL") || dbs.includes("POSTGRESQL") || dbs.includes("SQLITE")) {
+          } else if (
+            dbs.includes("MYSQL") ||
+            dbs.includes("POSTGRESQL") ||
+            dbs.includes("SQLITE")
+          ) {
             solutionObj = { "query.sql": trimmed };
           } else {
             solutionObj = { code: trimmed };
@@ -170,7 +257,10 @@ function QuestionsPage() {
           solutionObj = {};
         }
       }
-      const pId = t.parent_task_id || (typeof t.parent_task === "string" ? t.parent_task : t.parent_task?.id) || null;
+      const pId =
+        t.parent_task_id ||
+        (typeof t.parent_task === "string" ? t.parent_task : t.parent_task?.id) ||
+        null;
       return {
         ...t,
         order_index: index,
@@ -185,7 +275,7 @@ function QuestionsPage() {
     });
 
     const sanitizedBackendFrameworks = (formData.backend_frameworks || []).map((f: string) =>
-      f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f
+      f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f,
     );
 
     const payload = {
@@ -238,7 +328,7 @@ function QuestionsPage() {
       title="Question Bank"
       breadcrumb={["Engineering", "Question Bank"]}
       right={
-        <button 
+        <button
           onClick={openNewModal}
           className="text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground inline-flex items-center gap-1.5 hover:bg-primary/90 transition"
         >
@@ -247,7 +337,12 @@ function QuestionsPage() {
       }
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <KpiCard label="Total items" value={isLoading ? "..." : questions.length.toString()} color="primary" icon={Database} />
+        <KpiCard
+          label="Total items"
+          value={isLoading ? "..." : questions.length.toString()}
+          color="primary"
+          icon={Database}
+        />
         <KpiCard label="Avg success rate" value="N/A" color="warning" />
         <KpiCard label="Attached to sprints" value="N/A" color="ui" />
         <KpiCard label="Items added (7d)" value="N/A" delta="0" color="success" />
@@ -258,27 +353,45 @@ function QuestionsPage() {
           <div className="flex items-center gap-2 rounded-md border border-border bg-background/50 px-2.5 py-1.5 text-xs flex-1 min-w-[200px]">
             <Search className="h-3.5 w-3.5 text-muted-foreground" />
             <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search question bank…"
               className="bg-transparent outline-none flex-1"
             />
           </div>
-          <select className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5">
-            <option>All categories</option>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5 outline-none cursor-pointer"
+          >
+            <option value="All">All categories</option>
             {CATS.map((c) => (
-              <option key={c}>{c}</option>
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
-          <select className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5">
-            <option>All types</option>
+          <select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+            className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5 outline-none cursor-pointer"
+          >
+            <option value="All">All types</option>
             {TYPES.map((c) => (
-              <option key={c}>{c}</option>
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
-          <select className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5">
-            <option>All difficulty</option>
-            <option>Easy</option>
-            <option>Medium</option>
-            <option>Hard</option>
+          <select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+            className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5 outline-none cursor-pointer"
+          >
+            <option value="All">All difficulty</option>
+            <option value="EASY">Easy</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HARD">Hard</option>
           </select>
         </div>
       </div>
@@ -286,41 +399,158 @@ function QuestionsPage() {
       {isLoading ? (
         <div className="p-8 text-center text-muted-foreground">Loading questions...</div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-4">
-          {questions.map((q: any) => (
-            <div
-              key={q.id}
-              className="rounded-xl border border-border/60 bg-card/40 p-4 hover:border-primary/40 transition"
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-mono text-[10px] text-muted-foreground">{q.id.substring(0, 8)}...</span>
-                <Badge tone={q.difficulty === "HARD" ? "destructive" : (q.difficulty === "MEDIUM" ? "warning" : "success")}>{q.difficulty}</Badge>
+        <>
+          <div className="grid md:grid-cols-2 gap-4">
+            {paginatedQuestions.map((q: any) => (
+              <div
+                key={q.id}
+                className="rounded-xl border border-border/60 bg-card/40 p-4 hover:border-primary/40 transition"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-mono text-[10px] text-muted-foreground">
+                    {q.id.substring(0, 8)}...
+                  </span>
+                  <Badge
+                    tone={
+                      q.difficulty === "HARD"
+                        ? "destructive"
+                        : q.difficulty === "MEDIUM"
+                          ? "warning"
+                          : "success"
+                    }
+                  >
+                    {q.difficulty}
+                  </Badge>
+                </div>
+                <h3 className="font-semibold mb-2">{q.title}</h3>
+                <div className="flex flex-wrap gap-1 mb-3">
+                  <Badge tone="primary">{q.domain}</Badge>
+                  <Badge tone="ui">{q.scenario}</Badge>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    Marks <span className="font-mono text-foreground">{q.marks}</span>
+                  </span>
+                  <span className="text-muted-foreground">
+                    Duration{" "}
+                    <span className="font-mono text-foreground">{q.duration_minutes}m</span>
+                  </span>
+                  <button
+                    onClick={() => openEditModal(q)}
+                    className="text-primary hover:underline cursor-pointer"
+                  >
+                    Edit →
+                  </button>
+                </div>
               </div>
-              <h3 className="font-semibold mb-2">{q.title}</h3>
-              <div className="flex flex-wrap gap-1 mb-3">
-                <Badge tone="primary">{q.domain}</Badge>
-                <Badge tone="ui">{q.scenario}</Badge>
+            ))}
+            {filteredQuestions.length === 0 && (
+              <div className="col-span-2 p-8 text-center text-muted-foreground">
+                No questions found.
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">
-                  Marks <span className="font-mono text-foreground">{q.marks}</span>
+            )}
+          </div>
+
+          {filteredQuestions.length > 0 && (
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/40 backdrop-blur p-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-3">
+                <span>
+                  Showing{" "}
+                  <span className="font-medium text-foreground">
+                    {(page - 1) * pageSize + 1}–
+                    {Math.min(page * pageSize, filteredQuestions.length)}
+                  </span>{" "}
+                  of <span className="font-medium text-foreground">{filteredQuestions.length}</span>{" "}
+                  questions
                 </span>
-                <span className="text-muted-foreground">
-                  Duration <span className="font-mono text-foreground">{q.duration_minutes}m</span>
-                </span>
-                <button 
-                  onClick={() => openEditModal(q)}
-                  className="text-primary hover:underline cursor-pointer"
+                <div className="flex items-center gap-1.5 ml-2">
+                  <span>Per page:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setPage(1);
+                    }}
+                    className="rounded border border-border bg-background px-2 py-0.5 text-xs text-foreground outline-none cursor-pointer"
+                  >
+                    {[10, 20, 50, 100].map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-2.5 py-1 rounded border border-border hover:bg-accent text-foreground disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition inline-flex items-center gap-1"
                 >
-                  Edit →
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                  <span>Prev</span>
+                </button>
+
+                <div className="flex items-center gap-1 px-1">
+                  {totalPages <= 7
+                    ? Array.from({ length: totalPages }, (_, i) => i + 1).map((item) => (
+                        <button
+                          key={item}
+                          onClick={() => setPage(item)}
+                          className={`h-7 w-7 rounded border text-xs font-medium cursor-pointer transition ${
+                            page === item
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "border-border hover:bg-accent text-foreground"
+                          }`}
+                        >
+                          {item}
+                        </button>
+                      ))
+                    : Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter((p) => {
+                          return p === 1 || p === totalPages || Math.abs(p - page) <= 1;
+                        })
+                        .reduce<(number | string)[]>((acc, p, idx, arr) => {
+                          if (idx > 0 && (p as number) - (arr[idx - 1] as number) > 1) {
+                            acc.push("...");
+                          }
+                          acc.push(p);
+                          return acc;
+                        }, [])
+                        .map((item, idx) =>
+                          typeof item === "string" ? (
+                            <span key={`ellipsis-${idx}`} className="px-1 text-muted-foreground">
+                              ...
+                            </span>
+                          ) : (
+                            <button
+                              key={item}
+                              onClick={() => setPage(item)}
+                              className={`h-7 w-7 rounded border text-xs font-medium cursor-pointer transition ${
+                                page === item
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "border-border hover:bg-accent text-foreground"
+                              }`}
+                            >
+                              {item}
+                            </button>
+                          ),
+                        )}
+                </div>
+
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-2.5 py-1 rounded border border-border hover:bg-accent text-foreground disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition inline-flex items-center gap-1"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
-          ))}
-          {questions.length === 0 && (
-            <div className="col-span-2 p-8 text-center text-muted-foreground">No questions found.</div>
           )}
-        </div>
+        </>
       )}
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -332,19 +562,28 @@ function QuestionsPage() {
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="title">Title</Label>
-                <Input id="title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
               </div>
-              
+
               <div className="grid gap-2">
                 <Label htmlFor="description">Description</Label>
-                <Textarea id="description" rows={4} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+                <Textarea
+                  id="description"
+                  rows={4}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="difficulty">Difficulty</Label>
-                  <select 
-                    id="difficulty" 
+                  <select
+                    id="difficulty"
                     value={formData.difficulty}
                     onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
@@ -356,21 +595,23 @@ function QuestionsPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="type">Lab Role / Type</Label>
-                  <select 
+                  <select
                     id="type"
-                    value={formData.type} 
+                    value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                   >
-                    {LAB_TYPES.map(t => (
-                      <option key={t} value={t}>{t.replace("_", " ")}</option>
+                    {LAB_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t.replace("_", " ")}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="experience">Experience</Label>
-                  <select 
-                    id="experience" 
+                  <select
+                    id="experience"
                     value={formData.experience}
                     onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
@@ -382,54 +623,101 @@ function QuestionsPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="scenario">Scenario</Label>
-                  <select 
+                  <select
                     id="scenario"
-                    value={formData.scenario} 
+                    value={formData.scenario}
                     onChange={(e) => setFormData({ ...formData, scenario: e.target.value })}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                   >
-                    {SCENARIOS.map(s => (
-                      <option key={s} value={s}>{s.replace("_", " ")}</option>
+                    {SCENARIOS.map((s) => (
+                      <option key={s} value={s}>
+                        {s.replace("_", " ")}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="marks">Marks</Label>
-                  <Input id="marks" type="number" value={formData.marks} onChange={(e) => setFormData({ ...formData, marks: parseInt(e.target.value) || 0 })} />
+                  <Input
+                    id="marks"
+                    type="number"
+                    value={formData.marks}
+                    onChange={(e) =>
+                      setFormData({ ...formData, marks: parseInt(e.target.value) || 0 })
+                    }
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="duration">Duration (min)</Label>
-                  <Input id="duration" type="number" value={formData.duration_minutes} onChange={(e) => setFormData({ ...formData, duration_minutes: parseInt(e.target.value) || 0 })} />
+                  <Input
+                    id="duration"
+                    type="number"
+                    value={formData.duration_minutes}
+                    onChange={(e) =>
+                      setFormData({ ...formData, duration_minutes: parseInt(e.target.value) || 0 })
+                    }
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="grid gap-2 md:col-span-2">
                   <Label htmlFor="repo_url">Git Repo Starter URL</Label>
-                  <Input id="repo_url" value={formData.git_repo_starter_url} onChange={(e) => setFormData({ ...formData, git_repo_starter_url: e.target.value })} placeholder="https://github.com/..." />
+                  <Input
+                    id="repo_url"
+                    value={formData.git_repo_starter_url}
+                    onChange={(e) =>
+                      setFormData({ ...formData, git_repo_starter_url: e.target.value })
+                    }
+                    placeholder="https://github.com/..."
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="starter_branch">Starter Branch</Label>
-                  <Input id="starter_branch" value={formData.git_repo_starter_branch} onChange={(e) => setFormData({ ...formData, git_repo_starter_branch: e.target.value })} placeholder="main" />
+                  <Input
+                    id="starter_branch"
+                    value={formData.git_repo_starter_branch}
+                    onChange={(e) =>
+                      setFormData({ ...formData, git_repo_starter_branch: e.target.value })
+                    }
+                    placeholder="main"
+                  />
                 </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="startup_cmd">Startup Command</Label>
-                <Input id="startup_cmd" value={formData.startup_command} onChange={(e) => setFormData({ ...formData, startup_command: e.target.value })} />
+                <Input
+                  id="startup_cmd"
+                  value={formData.startup_command}
+                  onChange={(e) => setFormData({ ...formData, startup_command: e.target.value })}
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="test_cmd">Test Command</Label>
-                <Input id="test_cmd" placeholder="e.g. npm run test" value={formData.test_command || ""} onChange={(e) => setFormData({ ...formData, test_command: e.target.value })} />
+                <Input
+                  id="test_cmd"
+                  placeholder="e.g. npm run test"
+                  value={formData.test_command || ""}
+                  onChange={(e) => setFormData({ ...formData, test_command: e.target.value })}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="prog_langs">Programming Languages</Label>
-                  <select 
-                    id="prog_langs" 
+                  <select
+                    id="prog_langs"
                     multiple
                     value={formData.programming_languages}
-                    onChange={(e) => setFormData({ ...formData, programming_languages: Array.from(e.target.selectedOptions, option => option.value) })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        programming_languages: Array.from(
+                          e.target.selectedOptions,
+                          (option) => option.value,
+                        ),
+                      })
+                    }
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                   >
                     <option value="C">C</option>
@@ -444,11 +732,16 @@ function QuestionsPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="dbs">Databases</Label>
-                  <select 
-                    id="dbs" 
+                  <select
+                    id="dbs"
                     multiple
                     value={formData.databases}
-                    onChange={(e) => setFormData({ ...formData, databases: Array.from(e.target.selectedOptions, option => option.value) })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        databases: Array.from(e.target.selectedOptions, (option) => option.value),
+                      })
+                    }
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                   >
                     <option value="SQLITE">SQLite</option>
@@ -459,9 +752,14 @@ function QuestionsPage() {
                     <option value="ELASTICSEARCH">Elasticsearch</option>
                   </select>
                 </div>
-                {formData.databases?.some((d: string) => ["MYSQL", "POSTGRESQL", "MONGODB"].includes(d)) && (
+                {formData.databases?.some((d: string) =>
+                  ["MYSQL", "POSTGRESQL", "MONGODB"].includes(d),
+                ) && (
                   <div className="grid gap-2 border p-3 rounded-md bg-muted/20">
-                    <Label htmlFor="connection_url" className="font-semibold flex items-center gap-1.5">
+                    <Label
+                      htmlFor="connection_url"
+                      className="font-semibold flex items-center gap-1.5"
+                    >
                       <Database className="h-4 w-4 text-primary" />
                       Evaluation Database Connection URL (e.g. Aiven MySQL)
                     </Label>
@@ -472,17 +770,26 @@ function QuestionsPage() {
                       onChange={(e) => setFormData({ ...formData, connection_url: e.target.value })}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Candidates will automatically execute queries against this database without needing credentials.
+                      Candidates will automatically execute queries against this database without
+                      needing credentials.
                     </p>
                   </div>
                 )}
                 <div className="grid gap-2">
                   <Label htmlFor="backend_fws">Backend Frameworks</Label>
-                  <select 
-                    id="backend_fws" 
+                  <select
+                    id="backend_fws"
                     multiple
                     value={formData.backend_frameworks}
-                    onChange={(e) => setFormData({ ...formData, backend_frameworks: Array.from(e.target.selectedOptions, option => option.value) })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        backend_frameworks: Array.from(
+                          e.target.selectedOptions,
+                          (option) => option.value,
+                        ),
+                      })
+                    }
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                   >
                     <option value="DJANGO">Django</option>
@@ -497,11 +804,19 @@ function QuestionsPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="frontend_fws">Frontend Frameworks</Label>
-                  <select 
-                    id="frontend_fws" 
+                  <select
+                    id="frontend_fws"
                     multiple
                     value={formData.frontend_frameworks}
-                    onChange={(e) => setFormData({ ...formData, frontend_frameworks: Array.from(e.target.selectedOptions, option => option.value) })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        frontend_frameworks: Array.from(
+                          e.target.selectedOptions,
+                          (option) => option.value,
+                        ),
+                      })
+                    }
                     className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                   >
                     <option value="REACT">React</option>
@@ -516,14 +831,16 @@ function QuestionsPage() {
               <div className="mt-4 border-t pt-4">
                 <div className="flex justify-between items-center mb-4">
                   <h4 className="font-semibold">Tasks</h4>
-                  <Button variant="outline" size="sm" onClick={addTask} type="button">Add Task</Button>
+                  <Button variant="outline" size="sm" onClick={addTask} type="button">
+                    Add Task
+                  </Button>
                 </div>
                 <div className="space-y-4">
                   {formData.tasks.map((task: any, index: number) => (
                     <div key={index} className="p-4 border rounded-md relative bg-background/50">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="absolute top-2 right-2 h-8 w-8 text-destructive"
                         onClick={() => removeTask(index)}
                       >
@@ -532,26 +849,35 @@ function QuestionsPage() {
                       <div className="grid gap-4 pr-8">
                         <div className="grid gap-2">
                           <Label>Task Title</Label>
-                          <Input value={task.title} onChange={(e) => updateTask(index, "title", e.target.value)} placeholder="e.g. Calculate Total Revenue by Category" />
+                          <Input
+                            value={task.title}
+                            onChange={(e) => updateTask(index, "title", e.target.value)}
+                            placeholder="e.g. Calculate Total Revenue by Category"
+                          />
                         </div>
                         <div className="grid gap-2">
                           <Label>Description</Label>
-                          <Textarea rows={2} value={task.description} onChange={(e) => updateTask(index, "description", e.target.value)} placeholder="Task requirements, input schemas, and expected outputs..." />
+                          <Textarea
+                            rows={2}
+                            value={task.description}
+                            onChange={(e) => updateTask(index, "description", e.target.value)}
+                            placeholder="Task requirements, input schemas, and expected outputs..."
+                          />
                         </div>
                         <div className="grid gap-2">
                           <Label>Solution / Reference Query</Label>
-                          <Textarea 
-                            rows={3} 
+                          <Textarea
+                            rows={3}
                             className="font-mono text-xs"
                             placeholder="e.g. SELECT * FROM users; or db.orders.aggregate([...]); or JSON solution object"
-                            value={getSolutionString(task.solution)} 
-                            onChange={(e) => updateTask(index, "solution", e.target.value)} 
+                            value={getSolutionString(task.solution)}
+                            onChange={(e) => updateTask(index, "solution", e.target.value)}
                           />
                         </div>
                         <div className="grid grid-cols-3 gap-4">
                           <div className="grid gap-2">
                             <Label>Difficulty</Label>
-                            <select 
+                            <select
                               value={task.difficulty}
                               onChange={(e) => updateTask(index, "difficulty", e.target.value)}
                               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
@@ -563,11 +889,23 @@ function QuestionsPage() {
                           </div>
                           <div className="grid gap-2">
                             <Label>Marks</Label>
-                            <Input type="number" value={task.marks} onChange={(e) => updateTask(index, "marks", parseInt(e.target.value) || 0)} />
+                            <Input
+                              type="number"
+                              value={task.marks}
+                              onChange={(e) =>
+                                updateTask(index, "marks", parseInt(e.target.value) || 0)
+                              }
+                            />
                           </div>
                           <div className="grid gap-2">
                             <Label>Duration (min)</Label>
-                            <Input type="number" value={task.duration_minutes} onChange={(e) => updateTask(index, "duration_minutes", parseInt(e.target.value) || 0)} />
+                            <Input
+                              type="number"
+                              value={task.duration_minutes}
+                              onChange={(e) =>
+                                updateTask(index, "duration_minutes", parseInt(e.target.value) || 0)
+                              }
+                            />
                           </div>
                         </div>
                         <div className="grid gap-2">
@@ -577,7 +915,9 @@ function QuestionsPage() {
                           </Label>
                           <select
                             value={task.parent_task_id || task.parent_task || ""}
-                            onChange={(e) => updateTask(index, "parent_task_id", e.target.value || null)}
+                            onChange={(e) =>
+                              updateTask(index, "parent_task_id", e.target.value || null)
+                            }
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                           >
                             <option value="">None (Independent Task)</option>
@@ -592,14 +932,17 @@ function QuestionsPage() {
                             })}
                           </select>
                           <p className="text-[11px] text-muted-foreground">
-                            Selecting this task when creating an evaluation will automatically select the linked task.
+                            Selecting this task when creating an evaluation will automatically
+                            select the linked task.
                           </p>
                         </div>
                       </div>
                     </div>
                   ))}
                   {formData.tasks.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">No tasks added yet.</p>
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No tasks added yet.
+                    </p>
                   )}
                 </div>
               </div>
@@ -609,7 +952,10 @@ function QuestionsPage() {
             <Button variant="outline" onClick={closeModal}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>
+            <Button
+              onClick={handleSave}
+              disabled={createMutation.isPending || updateMutation.isPending}
+            >
               {createMutation.isPending || updateMutation.isPending ? "Saving..." : "Save changes"}
             </Button>
           </DialogFooter>
