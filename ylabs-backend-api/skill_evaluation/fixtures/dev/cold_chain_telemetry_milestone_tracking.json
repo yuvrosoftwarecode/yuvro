@@ -1,0 +1,81 @@
+{
+  "lab_questions": [
+    {
+      "title": "Cold Chain Telemetry & Route Milestone Tracking",
+      "type": "BACKEND",
+      "description": "Sensitive pharmaceutical shipments require strictly verified route progression and temperature logging. The tracking API currently accepts waypoint updates out of sequence and ignores temperature excursions reported by IoT vehicle sensors.",
+      "difficulty": "HARD",
+      "domain": "SUPPLY_CHAIN",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 30,
+      "scenario": "DATA_INTEGRITY",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/cold-chain-telemetry-milestone-tracking",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Strict Sequential Waypoint Enforcement",
+          "description": "The `POST /api/shipments/{id}/checkpoints/` endpoint allows drivers to mark milestone checkpoints in arbitrary order (e.g., logging \"Out for Delivery\" before \"Customs Clearance\").\n\n**Goal:** Validate milestone submissions against the predefined `RouteStop.order_index`. Reject any checkpoint submission if any earlier mandatory waypoint has not been marked as `COMPLETED`. Allow non-waypoint telemetry pings (GPS updates) without triggering milestone validation errors.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 20,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Temperature Anomaly Detection & Auto-Quarantine",
+          "description": "IoT sensors stream temperature logs to `POST /api/shipments/{id}/telemetry/`. The system records the data points but fails to flag shipments that exceed thermal safety limits (-20°C to -10°C).\n\n**Goal:** Ingest telemetry logs. If 3 consecutive readings breach the shipment's configured temperature threshold (`min_temp` / `max_temp`), automatically transition the `Shipment.status` to `QUARANTINED`, set `is_compromised = True`, and generate an `IncidentLog`. Isolated transient readings (1 or 2 outlier sensor glitches followed by normal temperatures) must not trigger quarantine.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 25,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Cryptographic Proof-of-Delivery (POD) Verification",
+          "description": "The `POST /api/shipments/{id}/complete/` endpoint marks packages as delivered without validating recipient authorization, allowing unauthorized completion.\n\n**Goal:** Require a 6-digit delivery passcode or HMAC token in the completion request. Hash the incoming passcode using Python's `hashlib.sha256` and compare against the recipient's stored `delivery_passcode_hash`. Transition shipment to `DELIVERED` and record `delivered_at` only upon a valid match.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ],
+      "allow_task_selection": false
+    }
+  ]
+}
