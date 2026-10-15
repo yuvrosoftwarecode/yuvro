@@ -1,0 +1,81 @@
+{
+  "lab_questions": [
+    {
+      "title": "Data Privacy & PII Masking",
+      "type": "BACKEND",
+      "description": "Evaluate a candidate's ability to implement secure, role-based data masking directly inside DRF serializers, enforce tenant-level access controls, and maintain compliance audit trails.",
+      "difficulty": "HARD",
+      "domain": "HEALTHCARE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 30,
+      "scenario": "SECURITY",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/data-privacy-pii-masking",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Dynamic Serializer Representation",
+          "description": "The `GET /api/patients/{id}/` returns the patient's full Social Security Number (SSN) to all staff.\n\n**Goal:** Modify the DRF Serializer to dynamically mask the SSN (e.g., `***-**-1234`) using `to_representation()` if the `request.user.role` is not 'DOCTOR' or 'ADMIN'.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 30,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Record-Level Access Control",
+          "description": "Doctors are currently able to query and view medical records for patients that are not assigned to them.\n\n**Goal:** Update `PatientDetailView.get_queryset()` to filter the queryset. If the user's role is `DOCTOR`, they must only be able to retrieve patients where `assigned_doctor == request.user`. Other roles (like `ADMIN` or `RECEPTIONIST`) should retain access to all patients. If a doctor accesses a patient not assigned to them, DRF should naturally return a `404 Not Found`.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "HIPAA Audit Logging",
+          "description": "HIPAA compliance requires an audit trail whenever highly sensitive patient data is accessed.\n\n**Goal:** Create an `AuditLog` model mapping a `user` to a `patient`. Override the `retrieve` method in `PatientDetailView` so that whenever a patient record is successfully fetched, a new `AuditLog` entry is created in the database recording who accessed it.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ],
+      "allow_task_selection": false
+    }
+  ]
+}

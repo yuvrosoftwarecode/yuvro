@@ -1,0 +1,82 @@
+{
+  "lab_questions": [
+    {
+      "title": "Tier-Based API Rate Limiting",
+      "type": "BACKEND",
+      "description": "Basic users are spamming a heavy Video Recommendation endpoint, degrading server performance for Premium users.",
+      "difficulty": "MEDIUM",
+      "domain": "STREAMING",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 65,
+      "marks": 30,
+      "scenario": "INFRASTRUCTURE",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/tier-based-api-rate-limiting",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Dynamic DRF Throttling",
+          "description": "There is no rate limiting on `GET /api/recommendations/`.\n\n**Goal:** Create a custom DRF `UserRateThrottle` class. Override `allow_request()` or `get_rate()`. If `request.user.profile.tier == 'BASIC'`, limit to 5/min. If `PREMIUM`, limit to 50/min. Wire it up to the `RecommendationView`.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 30,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Anonymous User Throttling",
+          "description": "Unauthenticated users are currently completely blocked from seeing recommendations. We want to allow them, but severely restrict their rate.\n\n**Goal:** Change `RecommendationView` permissions to allow anyone. Then, implement DRF's `AnonRateThrottle` to limit unauthenticated users to exactly `2/min`.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Scoped Throttling for Feedback",
+          "description": "The platform needs a new endpoint for users to submit video feedback, which must be strictly rate-limited for everyone to prevent spam.\n\n**Goal:** Create a `FeedbackView` mapped to `POST /api/recommendations/feedback/`. Use DRF's `ScopedRateThrottle` with the scope name `'feedback'`. Configure your Django `settings.py` to limit the `feedback` scope to `3/min`.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 20,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ],
+      "allow_task_selection": false
+    }
+  ]
+}
+

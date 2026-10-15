@@ -1,0 +1,81 @@
+{
+  "lab_questions": [
+    {
+      "title": "Double-Entry Ledger Posting & Fiscal Period Immutability",
+      "type": "BACKEND",
+      "description": "The core financial module of an enterprise ERP system allows journal entries to be posted with unbalanced debits and credits, and permits retroactive modifications to closed financial quarters.",
+      "difficulty": "HARD",
+      "domain": "ERP",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 30,
+      "scenario": "DATA_INTEGRITY",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/double-entry-ledger-posting",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Double-Entry Balancing & Atomic Journal Posting",
+          "description": "The `POST /api/ledger/journal-entries/` endpoint accepts line items without verifying mathematical balance. An entry with $500 Debit and $300 Credit gets committed, corrupting the general ledger.\n\n**Goal:** Enforce double-entry bookkeeping rules in serializer validation and view logic. Verify that `sum(lines.debit_amount) == sum(lines.credit_amount)`. Atomically persist the header and all child lines inside `transaction.atomic()`. Reject unbalanced requests with `400 Bad Request` or `422 Unprocessable Entity` without leaving orphan database rows.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 20,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Closed Fiscal Period Immutability",
+          "description": "Users can post journal entries dated inside past, audited fiscal periods or edit historical journal entries, violating compliance regulations.\n\n**Goal:** Intercept create, update, and delete operations on `JournalEntry`. Look up the matching `FiscalPeriod` based on the entry's `posting_date`. If `fiscal_period.is_closed == True`, reject the request with `403 Forbidden` (`{\"error\": \"CANNOT_POST_TO_CLOSED_PERIOD\"}`). Only allow operations where `fiscal_period.is_closed == False`.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 25,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Foreign Currency Revaluation & Unrealized FX Offset",
+          "description": "Foreign currency accounts (e.g., EUR bank balance on a USD base ledger) are reported at original booking rates, causing discrepancies on periodic financial statements.\n\n**Goal:** Implement `POST /api/ledger/accounts/{id}/revalue/`. Calculate the difference between the account's historical base-currency balance and its current balance converted using the latest `ExchangeRate`. Automatically post an offsetting balancing entry to the system's `Unrealized FX Gain/Loss` account.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ],
+      "allow_task_selection": false
+    }
+  ]
+}
