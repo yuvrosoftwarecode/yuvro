@@ -47,6 +47,7 @@ export function AdminShell({
   const nav = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [q, setQ] = useState("");
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem("yuvro-admin-sidebar-collapsed") === "1";
@@ -59,6 +60,10 @@ export function AdminShell({
       } catch {}
       return next;
     });
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   // Role check is now handled in the parent admin layout (admin.tsx)
   useEffect(() => {
@@ -84,36 +89,54 @@ export function AdminShell({
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex">
+    <div className="h-screen overflow-hidden bg-background text-foreground flex">
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
       <aside
-        className={`hidden md:flex shrink-0 flex-col border-r border-border bg-card/30 backdrop-blur transition-[width] duration-200 ${collapsed ? "w-14" : "w-60"}`}
+        className={`${
+          mobileOpen ? "fixed inset-y-0 left-0 z-50 flex w-60 shadow-2xl bg-card" : "hidden"
+        } md:flex md:static shrink-0 flex-col h-full border-r border-border bg-card/95 md:bg-card/30 backdrop-blur transition-[width] duration-200 ${
+          collapsed ? "md:w-14" : "md:w-60"
+        }`}
       >
-        <div className="h-14 flex items-center gap-2 px-3 border-b border-border">
+        <div className="h-14 shrink-0 flex items-center gap-2 px-3 border-b border-border">
           <div className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-gradient-to-br from-primary to-ui text-primary-foreground font-mono text-xs">
             Y
           </div>
-          {!collapsed && (
+          {(!collapsed || mobileOpen) && (
             <div className="min-w-0">
               <div className="text-sm font-semibold leading-tight truncate">Yuvro Labs</div>
               <div className="text-[10px] text-muted-foreground truncate">Operations Console</div>
             </div>
           )}
           <button
-            onClick={toggleCollapsed}
+            onClick={() => {
+              if (mobileOpen) {
+                setMobileOpen(false);
+              } else {
+                toggleCollapsed();
+              }
+            }}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             className="ml-auto grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
           >
-            {collapsed ? (
+            {collapsed && !mobileOpen ? (
               <PanelLeftOpen className="h-4 w-4" />
             ) : (
               <PanelLeftClose className="h-4 w-4" />
             )}
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto p-2 space-y-4 text-sm">
+        <nav className="flex-1 overflow-y-auto min-h-0 p-2 space-y-4 text-sm">
           {NAV.map((g) => (
             <div key={g.group}>
-              {!collapsed && (
+              {(!collapsed || mobileOpen) && (
                 <div className="px-2 mb-1 text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
                   {g.group}
                 </div>
@@ -125,10 +148,12 @@ export function AdminShell({
                     <Link
                       key={n.to}
                       to={n.to as any}
-                      title={collapsed ? n.label : undefined}
-                      className={`w-full flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-3 py-1.5"} transition ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title={collapsed && !mobileOpen ? n.label : undefined}
+                      onClick={() => setMobileOpen(false)}
+                      className={`w-full flex items-center gap-2.5 rounded-md ${collapsed && !mobileOpen ? "justify-center px-0 py-2" : "px-3 py-1.5"} transition ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                     >
-                      <n.icon className="h-4 w-4 shrink-0" /> {!collapsed && n.label}
+                      <n.icon className="h-4 w-4 shrink-0" />{" "}
+                      {(!collapsed || mobileOpen) && n.label}
                     </Link>
                   );
                 })}
@@ -136,32 +161,32 @@ export function AdminShell({
             </div>
           ))}
         </nav>
-        <div className="p-2 border-t border-border">
+        <div className="p-2 border-t border-border shrink-0">
           <button
             onClick={() => {
               logout();
               nav({ to: "/" });
             }}
             title="Sign out"
-            className={`w-full flex items-center gap-2.5 rounded-md ${collapsed ? "justify-center px-0 py-2" : "px-3 py-2"} text-sm text-muted-foreground hover:bg-accent hover:text-foreground`}
+            className={`w-full flex items-center gap-2.5 rounded-md ${collapsed && !mobileOpen ? "justify-center px-0 py-2" : "px-3 py-2"} text-sm text-muted-foreground hover:bg-accent hover:text-foreground`}
           >
-            <LogOut className="h-4 w-4 shrink-0" /> {!collapsed && "Sign out"}
+            <LogOut className="h-4 w-4 shrink-0" /> {(!collapsed || mobileOpen) && "Sign out"}
           </button>
-          <DeployInfo collapsed={collapsed} />
+          <DeployInfo collapsed={collapsed && !mobileOpen} />
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 border-b border-border bg-background/60 backdrop-blur sticky top-0 z-30 flex items-center gap-4 px-6">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+        <header className="h-14 shrink-0 border-b border-border bg-background/60 backdrop-blur z-30 flex items-center gap-4 px-6">
           <button
-            onClick={toggleCollapsed}
+            onClick={() => setMobileOpen((o) => !o)}
             className="md:hidden grid h-8 w-8 place-items-center rounded-md border text-muted-foreground hover:bg-accent"
             title="Toggle sidebar"
           >
-            {collapsed ? (
-              <PanelLeftOpen className="h-4 w-4" />
-            ) : (
+            {mobileOpen ? (
               <PanelLeftClose className="h-4 w-4" />
+            ) : (
+              <PanelLeftOpen className="h-4 w-4" />
             )}
           </button>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -224,7 +249,7 @@ export function AdminShell({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto min-h-0">
           <div className="p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
             <div className="flex items-end justify-between mb-6 gap-4 flex-wrap">
               <div>
