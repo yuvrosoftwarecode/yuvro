@@ -208,10 +208,9 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             now_ms = int(time.time() * 1000)
             new_invited = get_emails_list(invited)
             
-            final_invited = {}
+            final_invited = dict(current)
             for e in new_invited:
-                if e in current:
-                    final_invited[e] = current[e]
+                if e in final_invited:
                     # update name if provided and wasn't there
                     if names_dict.get(e):
                         final_invited[e]["name"] = names_dict[e]

@@ -355,6 +355,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
 
   const [proctoringData, setProctoringData] = useState<ProctoringData | null>(getGlobalProctoringData());
   const [mediaDisabled, setMediaDisabled] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [showTabWarning, setShowTabWarning] = useState(false);
   const [showFullscreenWarning, setShowFullscreenWarning] = useState(false);
   
@@ -540,6 +541,18 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     return () => clearInterval(t);
   }, [activeTimerInfo?.key, activeTimerInfo?.isSubmitted]);
 
+  const devToolsAttempts = useRef<number>(0);
+  // Initialize initial value once evaluationId is available
+  useEffect(() => {
+    if (evaluationId) {
+      try {
+        const stored = parseInt(sessionStorage.getItem(`__devToolsAttempts_${evaluationId}`) || "0", 10) || 0;
+        devToolsAttempts.current = stored;
+      } catch {}
+    }
+  }, [evaluationId]);
+  const lastDevToolsTime = useRef<number>(0);
+
   const { logActivity } = useProctoring({
     assessmentId: evaluationId,
     assessmentType: "skill_evaluation",
@@ -552,10 +565,43 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     enableCopyPaste: proctoringConfig.enableCopyPaste,
     tabSwitchAllowed: proctoringConfig.tabSwitchAllowed,
     onViolation: (type, data) => {
-      // Handle violation
       console.warn("Proctoring violation:", type, data);
+      if (type === "devtools_opened") {
+        const now = Date.now();
+        // Cooldown debounce of 1200ms to prevent single long keypress from counting as 2 strikes
+        if (now - lastDevToolsTime.current < 1200) return;
+        lastDevToolsTime.current = now;
+
+        const isProctoringActive = (!!anySectionNeedsProctoring || !!proctoringConfig.enableProctoring || !!proctoringData) && !isPreviewMode;
+        if (!isProctoringActive) return;
+
+        const currentAttempts = (typeof devToolsAttempts.current === "number" ? devToolsAttempts.current : 0) + 1;
+        devToolsAttempts.current = currentAttempts;
+        try {
+          sessionStorage.setItem(`__devToolsAttempts_${evaluationId}`, String(currentAttempts));
+        } catch {}
+
+        if (currentAttempts === 1) {
+          setModal({
+            kind: "proctoring-violation",
+            message: "Developer tools and inspection shortcuts are strictly prohibited. This is your final warning: if you try to open developer tools again, your evaluation will be automatically submitted immediately.",
+          });
+        } else {
+          setModal({
+            kind: "proctoring-violation",
+            message: "You have attempted to open developer tools again after being warned. Your evaluation is now being automatically submitted.",
+          });
+          isSubmittingRef.current = true;
+          setMediaDisabled(false);
+          setTimeout(() => {
+            submitEvaluation(true);
+          }, 1800);
+        }
+      }
     },
     onAutoSubmit: () => {
+      isSubmittingRef.current = true;
+      setMediaDisabled(false);
       submitEvaluation(true);
     }
   });
@@ -592,9 +638,10 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     };
 
     if (!isStreamValid(stream)) {
+      if (isSubmittingRef.current) return;
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then((newStream) => {
-          if (isCancelled) return;
+          if (isCancelled || isSubmittingRef.current) return;
           const currentData = getGlobalProctoringData();
           const existingScreenStream = currentData?.screenStream || proctoringData?.screenStream || null;
           const newData = {
@@ -608,12 +655,16 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
           setMediaDisabled(false);
         })
         .catch(() => {
-          if (!isCancelled) setMediaDisabled(true);
+          if (!isCancelled && !isSubmittingRef.current) setMediaDisabled(true);
         });
       return () => { isCancelled = true; };
     }
 
     const checkMedia = () => {
+      if (isSubmittingRef.current) {
+        setMediaDisabled(false);
+        return;
+      }
       if (!isStreamValid(proctoringData?.cameraStream)) {
         setMediaDisabled(true);
       } else {
@@ -648,6 +699,8 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
           const limit = proctoringConfig.tabSwitchLimit ?? 1;
           if (tabSwitches.current > limit) {
              setModal({ kind: "proctoring-violation", message: `You have exceeded the maximum allowed tab switches (${limit}). Your evaluation is being terminated.` });
+             isSubmittingRef.current = true;
+             setMediaDisabled(false);
              setTimeout(() => {
                submitEvaluation(true);
              }, 3000);
@@ -745,6 +798,8 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
   };
 
   const submitEvaluation = async (autoSubmit: boolean | any = false) => {
+    isSubmittingRef.current = true;
+    setMediaDisabled(false);
     if (typeof autoSubmit !== "boolean") autoSubmit = false;
     try {
       const pfx = `eval_${evalPrefix}_timer_`;
@@ -1066,7 +1121,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     }
   };
 
-  if (mediaDisabled) {
+  if (mediaDisabled && !isSubmittingRef.current && modal?.kind !== "submitting-evaluation" && modal?.kind !== "proctoring-violation") {
     return (
       <div className="fixed inset-0 z-[9999] bg-neutral-900 flex flex-col items-center justify-center text-white">
         <div className="max-w-md text-center p-8 bg-neutral-800 rounded-xl shadow-2xl">
