@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Vehicle Entry Validation & Duplicate Entry Prevention",
+      "type": "BACKEND",
+      "description": "Debug and fix 3 critical vehicle entry validation and concurrency bugs in a Django REST Framework API. Validate vehicle registration numbers and reject missing or malformed formats, prevent duplicate active parking sessions for the same vehicle across slots, and enforce slot eligibility so entry into inactive or already-occupied slots is rejected.",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 30,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Vehicle-Entry-Validation-&-Duplicate-Entry-Prevention",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Validate Vehicle Registration",
+          "description": "The entry API `POST /api/parking/entry/` currently accepts missing, empty, whitespace-only, or malformed vehicle registration numbers without validation.\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Submit `POST /api/parking/entry/` with `{\"slot_id\": 1, \"vehicle_number\": \"\"}` or `{\"slot_id\": 1, \"vehicle_number\": \"INVALID_REG\"}`.\n3. Observe that the API accepts the invalid input and creates a parking session.\n\n**Goal:** Validate `vehicle_number` in `parking/views.py` using standard format `^[A-Z]{2}[- ]?[0-9]{1,2}[- ]?[A-Z]{1,2}[- ]?[0-9]{4}$` so missing or malformed registrations return **HTTP 400 Bad Request**.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 4,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Duplicate Active Entries",
+          "description": "The entry API currently allows the same vehicle to create multiple active parking sessions across different slots simultaneously.\n\n**Testing in Swagger UI:**\n1. Submit `POST /api/parking/entry/` with `{\"slot_id\": 1, \"vehicle_number\": \"KA-01-AB-1234\"}` to check in a vehicle.\n2. Submit another `POST /api/parking/entry/` request with `{\"slot_id\": 2, \"vehicle_number\": \"KA-01-AB-1234\"}` for the same vehicle.\n3. Observe that the API accepts the second request and creates a duplicate active session.\n\n**Goal:** Check for existing active sessions in `parking/views.py` so a duplicate entry request while the vehicle is already parked is rejected with **HTTP 409 Conflict** (or **HTTP 400 Bad Request**). Allow entry once the prior session is completed via checkout.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 3,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Validate Entry Status",
+          "description": "The entry API currently allows vehicles to enter parking slots that are inactive (disabled or under maintenance) or already occupied by another active session.\n\n**Testing in Swagger UI:**\n1. Submit `POST /api/parking/entry/` with a slot that has `is_active=False`.\n2. Observe that the API accepts entry instead of rejecting it.\n3. Submit `POST /api/parking/entry/` with a slot that is already occupied by another active vehicle.\n4. Observe that the API creates another session on the same physical slot.\n\n**Goal:** Validate slot status in `parking/views.py`: reject inactive slots with **HTTP 400 Bad Request**, reject already-occupied slots with **HTTP 409 Conflict**, and return **HTTP 404** if the slot does not exist.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 3,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

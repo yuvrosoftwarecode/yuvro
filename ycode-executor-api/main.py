@@ -1746,7 +1746,7 @@ def _build_tree(base: Path, rel: Path | None = None) -> dict:
     children = []
     try:
         for child in sorted(current.iterdir(), key=lambda p: (p.is_file(), p.name)):
-            if child.name in [".bash_history", ".git"]:
+            if child.name in [".bash_history", ".git", "problem.md", "solution.md"]:
                 continue
             child_rel = child.relative_to(base)
             children.append(_build_tree(base, child_rel))
@@ -1778,9 +1778,9 @@ def _seed_from_starter_repo(ws: Path, lab_id: str, evaluation_id: Optional[str] 
                 break
         
         if starter_src and starter_src.exists():
-            ignore = shutil.ignore_patterns('.git', 'yuvro_scoring_rules')
+            ignore = shutil.ignore_patterns('.git', 'yuvro_scoring_rules', 'problem.md', 'solution.md')
             for item in starter_src.iterdir():
-                if item.name in ('.git', 'yuvro_scoring_rules'):
+                if item.name in ('.git', 'yuvro_scoring_rules', 'problem.md', 'solution.md'):
                     continue
                 dst = ws / item.name
                 if item.is_dir():
