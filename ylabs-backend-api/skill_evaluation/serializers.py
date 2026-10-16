@@ -172,6 +172,25 @@ class EvaluationSectionSerializer(serializers.ModelSerializer):
         model = EvaluationSection
         fields = ['id', 'title', 'description', 'order_index', 'type', 'questions', 'proctoring_config']
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if instance.type == EvaluationSectionType.LAB and isinstance(ret.get('questions'), list):
+            enriched = []
+            for q in ret['questions']:
+                if isinstance(q, dict) and q.get('id'):
+                    lab = LabQuestionBank.objects.filter(id=q['id']).first()
+                    if lab and lab.solution:
+                        q_copy = dict(q)
+                        if not q_copy.get('solution'):
+                            q_copy['solution'] = lab.solution
+                        if not q_copy.get('solution_files') and isinstance(lab.solution, dict):
+                            q_copy['solution_files'] = [{'path': k, 'code': v} for k, v in lab.solution.items()]
+                        enriched.append(q_copy)
+                        continue
+                enriched.append(q)
+            ret['questions'] = enriched
+        return ret
+
 class EvaluationSerializer(serializers.ModelSerializer):
     sections = EvaluationSectionSerializer(many=True, required=False)
     created_by = serializers.SerializerMethodField()
@@ -281,6 +300,19 @@ class LabQuestionBankSerializer(serializers.ModelSerializer):
                     "DJANGO_REST_FRAMEWORK" if f == "DJANGO_REST_FRAMEWOR" else f
                     for f in data["backend_frameworks"]
                 ]
+            if "domain" in data and isinstance(data["domain"], str):
+                d = data["domain"].strip().upper().replace(" ", "_")
+                if d in ("PAYMENTS", "PAYMENT_GATEWAY"):
+                    d = "PAYMENT"
+                elif d in ("SUPPLYCHAIN", "LOGISTICS"):
+                    d = "SUPPLY_CHAIN"
+            if "solution_files" in data and isinstance(data["solution_files"], list):
+                sol_dict = {}
+                for item in data["solution_files"]:
+                    if isinstance(item, dict) and item.get("path") and item.get("code"):
+                        sol_dict[item["path"].strip()] = item["code"]
+                if sol_dict and "solution" not in data:
+                    data["solution"] = sol_dict
         return super().to_internal_value(data)
 
     def to_representation(self, instance):
@@ -290,6 +322,9 @@ class LabQuestionBankSerializer(serializers.ModelSerializer):
                 "DJANGO_REST_FRAMEWORK" if f == "DJANGO_REST_FRAMEWOR" else f
                 for f in ret["backend_frameworks"]
             ]
+        sol = ret.get("solution")
+        if isinstance(sol, dict):
+            ret["solution_files"] = [{"path": k, "code": v} for k, v in sol.items()]
         return ret
 
     def create(self, validated_data):

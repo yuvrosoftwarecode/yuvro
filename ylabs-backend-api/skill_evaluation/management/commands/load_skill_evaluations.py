@@ -119,6 +119,7 @@ class Command(BaseCommand):
                     "backend_frameworks": q_data.get("backend_frameworks", []),
                     "frontend_frameworks": q_data.get("frontend_frameworks", []),
                     "created_by": admin_user,
+                    "solution": q_data.get("solution", {}),
                 },
             )
 

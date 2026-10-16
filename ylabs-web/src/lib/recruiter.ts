@@ -127,6 +127,9 @@ export interface LabItem {
   selected_task_ids?: string[];
   selected_task_id?: string;
   selected_task?: any;
+  solution?: any;
+  solution_files?: any[];
+  solutions?: any[];
 }
 
 export function countDistinctSelectedTasks(selectedTaskIds: any[]): number {
@@ -555,6 +558,8 @@ export async function listEvaluations(): Promise<Evaluation[]> {
             const labId = String(l.id || l.lab_id || "");
             const fullLab = (allLabs as any[]).find((f: any) => String(f.id) === labId);
             const base = fullLab ? { ...fullLab, ...l, tasks: fullLab.tasks || l.tasks } : { ...l };
+            if (!base.solution && fullLab?.solution) base.solution = fullLab.solution;
+            if (!base.solution_files && fullLab?.solution_files) base.solution_files = fullLab.solution_files;
             const stats = getLabCalculatedStats(base);
             if (stats.selectedTasks.length > 0 && stats.selectedTasks.length < (fullLab?.tasks?.length || 5)) {
               base.selected_task_ids = stats.selectedTasks.map((t: any, idx: number) => String(t.id ?? t.task_slug ?? `task-${idx}`));
@@ -642,6 +647,8 @@ export async function hydrateLabQuestions(ev: Evaluation): Promise<Evaluation> {
           );
           const lObj = typeof l === "object" ? l : { id: labId };
           const base = fullLab ? { ...fullLab, ...lObj, tasks: (fullLab.tasks && fullLab.tasks.length > 0 ? fullLab.tasks : lObj.tasks) } : { ...lObj };
+          if (!base.solution && fullLab?.solution) base.solution = fullLab.solution;
+          if (!base.solution_files && fullLab?.solution_files) base.solution_files = fullLab.solution_files;
 
           if (base.selected_task_id && (!base.selected_task_ids || base.selected_task_ids.length === 0)) {
             base.selected_task_ids = [String(base.selected_task_id)];

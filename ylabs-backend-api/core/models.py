@@ -48,6 +48,7 @@ class QuestionDomain(models.TextChoices):
     INSURANCE = "INSURANCE", "Insurance"
     PAYMENT = "PAYMENT", "Payment"
     SUPPLY_CHAIN = "SUPPLY_CHAIN", "Supply Chain"
+    ERP = "ERP", "ERP"
     OTHER = "OTHER", "Other"
 
 class ExperienceLevel(models.TextChoices):
