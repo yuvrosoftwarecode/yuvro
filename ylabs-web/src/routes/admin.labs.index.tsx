@@ -1,6 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AdminShell, Badge, KpiCard } from "@/components/admin/AdminShell";
-import { Plus, FlaskConical, Trash2, Pencil, CheckCircle2, BarChart2 } from "lucide-react";
+import {
+  Plus,
+  FlaskConical,
+  Trash2,
+  Pencil,
+  CheckCircle2,
+  BarChart2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   loadLabs,
@@ -21,6 +30,8 @@ function LabsPage() {
   const [q, setQ] = useState("");
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const refresh = async () => {
     setLoading(true);
@@ -37,6 +48,10 @@ function LabsPage() {
     refresh();
   }, []);
 
+  useEffect(() => {
+    setPage(1);
+  }, [q, type]);
+
   const filtered = useMemo(() => {
     return labs.filter(
       (l) =>
@@ -46,6 +61,19 @@ function LabsPage() {
           l.description.toLowerCase().includes(q.toLowerCase())),
     );
   }, [labs, type, q]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const paginatedLabs = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, page, pageSize]);
 
   const remove = async (id: string) => {
     await deleteLab(id);
@@ -114,7 +142,13 @@ function LabsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 && (
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground text-xs">
+                    Loading labs...
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground text-xs">
                     No labs match your filters.{" "}
@@ -123,61 +157,61 @@ function LabsPage() {
                     </Link>
                   </td>
                 </tr>
-              )}
-              {filtered.map((l) => (
-                <tr key={l.id} className="border-t border-border/40 hover:bg-accent/30 align-top">
-                  <td className="px-4 py-2.5 font-medium">
-                    <div className="flex items-center gap-2.5">
-                      <LabIcon name={l.title} icon={l.icon} size="h-7 w-7" />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span>{l.title}</span>
-                          {l.custom && <Badge tone="success">new</Badge>}
-                        </div>
-                        <div className="text-[11px] text-muted-foreground truncate max-w-[280px]">
-                          {l.description}
+              ) : (
+                paginatedLabs.map((l) => (
+                  <tr key={l.id} className="border-t border-border/40 hover:bg-accent/30 align-top">
+                    <td className="px-4 py-2.5 font-medium">
+                      <div className="flex items-center gap-2.5">
+                        <LabIcon name={l.title} icon={l.icon} size="h-7 w-7" />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span>{l.title}</span>
+                            {l.custom && <Badge tone="success">new</Badge>}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground truncate max-w-[280px]">
+                            {l.description}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <Badge tone="primary">{labTypeLabel(l.type)}</Badge>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <Badge
-                      tone={
-                        l.difficulty === "hard"
-                          ? "destructive"
-                          : l.difficulty === "medium"
-                            ? "warning"
-                            : "success"
-                      }
-                    >
-                      {difficultyLabel(l.difficulty)}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <div className="flex flex-wrap gap-1 max-w-[260px]">
-                      {(l.skills || []).slice(0, 4).map((s) => (
-                        <span
-                          key={s}
-                          className="text-[10px] px-1.5 py-0.5 rounded border border-border/50 bg-muted/20"
-                        >
-                          {s}
-                        </span>
-                      ))}
-                      {(l.skills || []).length > 4 && (
-                        <span className="text-[10px] text-muted-foreground">
-                          +{(l.skills || []).length - 4}
-                        </span>
-                      )}
-                      {!(l.skills || []).length && (
-                        <span className="text-[11px] text-muted-foreground">—</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-2.5 text-xs">
-                    <div className="flex items-center gap-3">
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <Badge tone="primary">{labTypeLabel(l.type)}</Badge>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <Badge
+                        tone={
+                          l.difficulty === "hard"
+                            ? "destructive"
+                            : l.difficulty === "medium"
+                              ? "warning"
+                              : "success"
+                        }
+                      >
+                        {difficultyLabel(l.difficulty)}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <div className="flex flex-wrap gap-1 max-w-[260px]">
+                        {(l.skills || []).slice(0, 4).map((s) => (
+                          <span
+                            key={s}
+                            className="text-[10px] px-1.5 py-0.5 rounded border border-border/50 bg-muted/20"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                        {(l.skills || []).length > 4 && (
+                          <span className="text-[10px] text-muted-foreground">
+                            +{(l.skills || []).length - 4}
+                          </span>
+                        )}
+                        {!(l.skills || []).length && (
+                          <span className="text-[11px] text-muted-foreground">—</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-2.5 text-xs">
+                      <div className="flex items-center gap-3">
                         <Link
                           to="/admin/labs/$id/analytics"
                           params={{ id: l.id }}
@@ -185,26 +219,125 @@ function LabsPage() {
                         >
                           <BarChart2 className="h-3 w-3" /> Analytics
                         </Link>
-                      <Link
-                        to="/admin/labs/$id/edit"
-                        params={{ id: l.id }}
-                        className="text-primary hover:underline inline-flex items-center gap-1"
-                      >
-                        <Pencil className="h-3 w-3" /> Edit
-                      </Link>
-                      <button
-                        onClick={() => setConfirmId(l.id)}
-                        className="text-destructive hover:underline inline-flex items-center gap-1"
-                      >
-                        <Trash2 className="h-3 w-3" /> Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        <Link
+                          to="/admin/labs/$id/edit"
+                          params={{ id: l.id }}
+                          className="text-primary hover:underline inline-flex items-center gap-1"
+                        >
+                          <Pencil className="h-3 w-3" /> Edit
+                        </Link>
+                        <button
+                          onClick={() => setConfirmId(l.id)}
+                          className="text-destructive hover:underline inline-flex items-center gap-1"
+                        >
+                          <Trash2 className="h-3 w-3" /> Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
+
+        {filtered.length > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3 text-xs text-muted-foreground border-t border-border/60">
+            <div className="flex items-center gap-3">
+              <span>
+                Showing{" "}
+                <span className="font-medium text-foreground">
+                  {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)}
+                </span>{" "}
+                of <span className="font-medium text-foreground">{filtered.length}</span> labs
+              </span>
+              <div className="flex items-center gap-1.5 ml-2">
+                <span>Per page:</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setPage(1);
+                  }}
+                  className="rounded border border-border bg-background px-2 py-0.5 text-xs text-foreground outline-none cursor-pointer"
+                >
+                  {[10, 20, 50].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-2.5 py-1 rounded border border-border hover:bg-accent text-foreground disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition inline-flex items-center gap-1"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                <span>Prev</span>
+              </button>
+
+              <div className="flex items-center gap-1 px-1">
+                {totalPages <= 7
+                  ? Array.from({ length: totalPages }, (_, i) => i + 1).map((item) => (
+                      <button
+                        key={item}
+                        onClick={() => setPage(item)}
+                        className={`h-7 w-7 rounded border text-xs font-medium cursor-pointer transition ${
+                          page === item
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "border-border hover:bg-accent text-foreground"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    ))
+                  : Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((p) => {
+                        return p === 1 || p === totalPages || Math.abs(p - page) <= 1;
+                      })
+                      .reduce<(number | string)[]>((acc, p, idx, arr) => {
+                        if (idx > 0 && (p as number) - (arr[idx - 1] as number) > 1) {
+                          acc.push("...");
+                        }
+                        acc.push(p);
+                        return acc;
+                      }, [])
+                      .map((item, idx) =>
+                        typeof item === "string" ? (
+                          <span key={`ellipsis-${idx}`} className="px-1 text-muted-foreground">
+                            ...
+                          </span>
+                        ) : (
+                          <button
+                            key={item}
+                            onClick={() => setPage(item)}
+                            className={`h-7 w-7 rounded border text-xs font-medium cursor-pointer transition ${
+                              page === item
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "border-border hover:bg-accent text-foreground"
+                            }`}
+                          >
+                            {item}
+                          </button>
+                        ),
+                      )}
+              </div>
+
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-2.5 py-1 rounded border border-border hover:bg-accent text-foreground disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition inline-flex items-center gap-1"
+              >
+                <span>Next</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {confirmId && (

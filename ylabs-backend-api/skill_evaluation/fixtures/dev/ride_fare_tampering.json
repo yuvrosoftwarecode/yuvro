@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Client-Side Fare Tampering",
+      "type": "BACKEND",
+      "description": "Evaluate a candidate's ability to secure API endpoints against malicious client payloads by enforcing read-only fields, server-side calculations, and input validation.",
+      "difficulty": "EASY",
+      "domain": "RIDE_BOOKING",
+      "experience": "ENTRY_LEVEL",
+      "duration_minutes": 40,
+      "marks": 30,
+      "scenario": "SECURITY",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/client-side-fare-tampering",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Enforce Server-Side Fare Calculation",
+          "description": "The mobile app calculates the estimated fare and sends it to the backend. The `POST /api/rides/` endpoint currently trusts the `fare_amount` in the JSON payload, allowing malicious users to request $1 rides.\n\n**Goal:** Add `fare_amount` to `read_only_fields` in the serializer. Override the `perform_create` method in the view to calculate the fare dynamically on the backend based on `distance * rate` (The rate is $1.50).",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 20,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Negative Distance Exploit",
+          "description": "Malicious users might send a negative distance (e.g., `-5`) to trick the server into calculating a negative fare, resulting in an account credit.\n\n**Goal:** Add a validator in the serializer to reject any distance that is less than or equal to 0. Return a `400 Bad Request`.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Enforce Maximum Distance Cap",
+          "description": "Users might submit absurdly large distances (e.g., `5000`) causing extreme fare calculations that breach the system's business logic.\n\n**Goal:** Add a validator in the serializer to ensure the distance does not exceed a maximum cap of `1000.00`. If it does, reject the request and return a `400 Bad Request`.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

@@ -1128,3 +1128,13 @@ export async function editCandidateDeadline(evId: string, email: string, deadlin
   });
   return res.ok;
 }
+
+export async function forceFinishSubmissions(evaluationId: string, candidateEmails: string[]): Promise<boolean> {
+  try {
+    const res = await restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/force_finish_submissions/`, { candidate_emails: candidateEmails });
+    return !!res;
+  } catch (err) {
+    console.error("forceFinishSubmissions error:", err);
+    return false;
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "External API Failures & Sagas (Rollbacks)",
+      "type": "BACKEND",
+      "description": "Evaluate a candidate's ability to maintain data integrity when interfacing with external services. The lab covers database transactions, atomic blocks, request deduplication (idempotency), and fault tolerance via retries.",
+      "difficulty": "HARD",
+      "domain": "FINANCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 30,
+      "scenario": "DATA_INTEGRITY",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/external-api-failures-rollbacks",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Transaction Atomicity & Rollbacks",
+          "description": "Buying a stock involves deducting the wallet balance, then calling the NASDAQ API. `POST /api/orders/buy/` deducts the balance and commits *before* making the HTTP request. If the NASDAQ API times out, the user loses their money but gets no stock.\n\n**Goal:** Wrap the entire operation in `transaction.atomic()`. If the `requests.post()` to the external exchange raises a `Timeout` or `RequestException`, raise an exception (or rollback manually) so the database rolls back the wallet deduction automatically, preventing financial loss.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 30,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Idempotent Order Deduplication",
+          "description": "Users on slow connections frequently double-click the 'Buy' button, causing the API to receive duplicate requests. This results in users being double-charged and double-credited with stock.\n\n**Goal:** The frontend now sends a unique `idempotency_key` in the payload. Check if a `StockOrder` with this `idempotency_key` already exists. If it does, return `200 OK` (with the existing order details) and skip the deduction and external API call entirely.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Fault Tolerance & Connection Retries",
+          "description": "The external stock exchange API is notoriously flaky, occasionally dropping connections (`ConnectionError`). Currently, a single dropped connection completely fails the user's order.\n\n**Goal:** Implement a retry mechanism for the `requests.post()` call. If a `ConnectionError` occurs, the system should retry the request up to a total of 3 attempts before finally failing and rolling back.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

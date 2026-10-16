@@ -1,0 +1,81 @@
+{
+  "lab_questions": [
+    {
+      "title": "Timezone-Aware Scheduling",
+      "type": "BACKEND",
+      "description": "Doctors create availability slots in their local timezone. Patients book them from different timezones. The application currently stores everything as naive datetime strings.",
+      "difficulty": "HARD",
+      "domain": "HEALTHCARE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 80,
+      "marks": 30,
+      "scenario": "LOGIC_OPTIMIZATION",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/timezone-aware-scheduling",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "UTC Normalization",
+          "description": "The POST /api/doctors/availability/ endpoint saves naive datetimes. Patients booking slots are off by hours.\n\n**Goal:** Ensure all incoming scheduling data is coerced to timezone-aware UTC using Python utilities before database saving. The output GET API must serialize these back out with proper ISO-8601 offset strings.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 45,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Double Booking",
+          "description": "Doctors should not be able to create overlapping availability slots. Since slots can be created from different timezones, naive overlap checks can fail.\n\n**Goal:** Add a `validate()` method to the serializer that queries the database for existing slots for the same `doctor_name`. If the proposed slot overlaps with an existing slot (i.e. starts before the existing slot ends AND ends after the existing slot starts), raise a `serializers.ValidationError({\"non_field_errors\": \"Overlapping slot\"})`.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 20,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Maximum Slot Duration",
+          "description": "A single availability slot must not exceed 8 real-world hours. Because a slot might cross a Daylight Saving Time (DST) transition boundary, naive math might be inaccurate.\n\n**Goal:** Validate that the duration between `start_time` and `end_time` is strictly 8 hours or less. Use the UTC-aware datetimes to calculate this true duration. Raise a `serializers.ValidationError({\"non_field_errors\": \"Duration exceeds 8 hours\"})` if it fails.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ],
+      "allow_task_selection": false
+    }
+  ]
+}

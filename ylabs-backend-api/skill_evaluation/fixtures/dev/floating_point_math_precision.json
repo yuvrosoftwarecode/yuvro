@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Floating Point Math Precision Bug",
+      "type": "BACKEND",
+      "description": "Evaluate a candidate's ability to recognize and resolve floating point math artifacts, enforce database-level data integrity, and handle edge cases like ZeroDivisionErrors in financial calculations.",
+      "difficulty": "MEDIUM",
+      "domain": "FINANCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 30,
+      "scenario": "DATA_INTEGRITY",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/floating-point-math-precision",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Migrate Float to Decimal",
+          "description": "The `Order` and `Wallet` models use Django's `FloatField`. When the `GET /api/finance/net-worth/{id}/` endpoint runs math like `0.1 + 0.2`, it occasionally yields `0.30000000000000004`, causing financial discrepancies.\n\n**Goal:** Alter the models to use `DecimalField(max_digits=10, decimal_places=2)`. Update the calculation logic in the view to strictly use Python's `Decimal` module instead of standard floats.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 30,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Negative Order Amounts",
+          "description": "Currently, malicious systems can inject negative `Order` amounts, which drains a user's calculated net worth.\n\n**Goal:** Protect the database layer by adding a `MinValueValidator(Decimal('0.00'))` to the `Order.amount` field so that calling `full_clean()` on an order with a negative amount raises a `ValidationError`.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Graceful Zero Division Handling",
+          "description": "The API endpoint also attempts to calculate the `average_order_size` (total order amounts / number of orders). However, if a user has 0 orders, the API crashes completely with a `ZeroDivisionError`.\n\n**Goal:** Update the logic in the view to handle wallets with zero orders gracefully. If there are no orders, return `0.00` for `average_order_size` and a `200 OK` status.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
