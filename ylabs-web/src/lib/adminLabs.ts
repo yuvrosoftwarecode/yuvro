@@ -5,6 +5,8 @@ export type LabType =
 
 export type LabDifficulty = "EASY" | "MEDIUM" | "HARD";
 
+export type LabStatus = "active" | "inactive" | "draft" | "upcoming";
+
 export interface AdminLab {
   id: string;
   title: string;
@@ -16,7 +18,8 @@ export interface AdminLab {
   skills: string[];
   git_repo_starter_url: string;
   difficulty: LabDifficulty;
-  is_active: boolean;
+  status: LabStatus;
+  is_active?: boolean;
   payment_tier: "free" | "freemium" | "premium";
   payment_amount: number;
   created_at?: string;
@@ -40,6 +43,13 @@ export const DIFFICULTIES: { value: LabDifficulty; label: string }[] = [
   { value: "HARD", label: "Hard" },
 ];
 
+export const LAB_STATUSES: { value: LabStatus; label: string }[] = [
+  { value: "active", label: "Active" },
+  { value: "upcoming", label: "Upcoming" },
+  { value: "draft", label: "Draft" },
+  { value: "inactive", label: "Inactive" },
+];
+
 export const labTypeLabel = (t: LabType) =>
   LAB_TYPES.find((x) => x.value === t || x.value.toLowerCase() === (t as string)?.toLowerCase())
     ?.label ?? t;
@@ -47,6 +57,9 @@ export const difficultyLabel = (d: LabDifficulty) =>
   DIFFICULTIES.find(
     (x) => x.value === d || x.value.toLowerCase() === (d as string)?.toLowerCase(),
   )?.label ?? d;
+export const labStatusLabel = (s?: LabStatus | string) =>
+  LAB_STATUSES.find((x) => x.value === s || x.value.toLowerCase() === s?.toLowerCase())
+    ?.label ?? (s ? s.charAt(0).toUpperCase() + s.slice(1) : "Active");
 
 export async function loadLabs(): Promise<AdminLab[]> {
   return await restApiAuthUtil.get<AdminLab[]>("/lab/labs/");
