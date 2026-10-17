@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Policy Coverage & Claim Eligibility Validation",
+      "type": "BACKEND",
+      "description": "An insurance claim intake system validates claims against policy coverage rules, dates, and exclusions. Three critical bugs have been identified in the claim submission API: accepting claims where the incident occurred before the policy start date, accepting claims for unapproved coverage types or excluded perils, and naively checking policy expiry against the current date instead of validating incident dates against the policy period (allowing incidents after policy expiration while rejecting valid claims submitted after policy expiry for in-period incidents).\n\nCandidates must identify and fix all three bugs in `insurance/views.py` while ensuring eligible claims are processed successfully.",
+      "difficulty": "MEDIUM",
+      "domain": "INSURANCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 30,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Policy-Coverage-&-Claim-Eligibility-Validation",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Validate Incident Date",
+          "description": "### Scenario\nAn insurance claim can only be filed for an incident that occurred on or after the policy's effective coverage start date.\n\n### Existing Problem\nThe `POST /api/insurance/claims/` endpoint in `insurance/views.py` fails to verify whether `incident_date` is on or after `policy.start_date`. As a result, claims for incidents that occurred before the policy came into effect are accepted.\n\n### Goal\n- Require a non-empty, valid `incident_date`.\n- Enforce `incident_date >= policy.start_date`. Reject incidents occurring before the policy start date with `400 Bad Request` without creating claim records.\n- Allow valid boundary incidents where `incident_date == policy.start_date` with `201 Created`.\n\n### Scoring Criteria (4 Marks)\n- **4 marks**: Incident date is validated against the policy start date, and incidents prior to start date are rejected without creating database records.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 40,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Validate Coverage Type and Exclusions",
+          "description": "### Scenario\nAn insurance policy covers specific categories of loss (e.g. `COMPREHENSIVE`, `COLLISION`) and explicitly excludes certain perils (e.g. `FLOOD,EARTHQUAKE,INTENTIONAL`).\n\n### Existing Problem\nThe `POST /api/insurance/claims/` endpoint ignores `coverage_type` and policy `exclusions`. It accepts claims for coverage types the policy does not include, and accepts claims for perils explicitly excluded under the policy terms.\n\n### Goal\n- Verify that the claim's `coverage_type` matches `policy.coverage_type`. Reject unsupported coverage types with `400 Bad Request`.\n- Parse policy `exclusions` and verify that the claim's `peril` is not excluded (case-insensitively). Reject excluded perils with `400 Bad Request`.\n- Allow claims with matching coverage types and covered perils with `201 Created`.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Coverage types and excluded perils are properly enforced, rejecting ineligible claims without creating database records.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Handle Expired Policies",
+          "description": "### Scenario\nClaims must only cover incidents that occurred during the active policy period (`incident_date <= policy.end_date`). However, claims submitted after the policy expiration date are legally valid and permitted if the incident itself occurred during the active coverage window.\n\n### Existing Problem\nThe `POST /api/insurance/claims/` endpoint naively checks if the current system date is past `policy.end_date`. This causes two critical bugs: it incorrectly rejects valid late-filed claims where the incident occurred during active coverage, while failing to check `incident_date > policy.end_date`, allowing claims for incidents that occurred after policy coverage expired.\n\n### Goal\n- Enforce `incident_date <= policy.end_date`. Reject claims for incidents that occurred after policy expiration with `400 Bad Request`.\n- Allow valid claims submitted after the policy end date as long as the incident occurred during the active policy window (`policy.start_date <= incident_date <= policy.end_date`), returning `201 Created`.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Incidents occurring after policy expiration are rejected, and valid late-submitted claims for in-period incidents are correctly accepted.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
