@@ -1,13 +1,27 @@
 from rest_framework import serializers
-from .models import Lab, LabSprint, LabSprintTicket, UserLabEnrollment, UserLabSprintTicketSubmission
+from .models import (
+    Lab,
+    LabStatus,
+    LabSprint,
+    LabSprintTicket,
+    UserLabEnrollment,
+    UserLabSprintTicketSubmission,
+)
 
 class LabSerializer(serializers.ModelSerializer):
     total_tickets = serializers.IntegerField(read_only=True, required=False)
+    is_active = serializers.BooleanField(read_only=True, required=False)
 
     class Meta:
         model = Lab
         fields = '__all__'
         read_only_fields = ('created_by', 'created_at', 'updated_at')
+
+    def to_internal_value(self, data):
+        ret = super().to_internal_value(data)
+        if 'status' not in ret and 'is_active' in data:
+            ret['status'] = LabStatus.ACTIVE if data['is_active'] else LabStatus.INACTIVE
+        return ret
 
 class LabSprintSerializer(serializers.ModelSerializer):
     class Meta:

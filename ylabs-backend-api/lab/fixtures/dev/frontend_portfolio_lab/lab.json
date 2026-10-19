@@ -7,7 +7,8 @@
       "description": "Build a modern portfolio website from scratch using HTML and CSS. You will be evaluated based on the visual accuracy and structural correctness of your web pages.",
       "difficulty": "EASY",
       "icon": "Portfolio",
-      "git_repo_starter_url": "https://github.com/yuvro/frontend-portfolio"
+      "git_repo_starter_url": "https://github.com/yuvro/frontend-portfolio",
+      "status": "active"
     }
   ]
 }

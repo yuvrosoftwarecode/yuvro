@@ -17,8 +17,10 @@ import {
   LAB_TYPES,
   labTypeLabel,
   difficultyLabel,
+  labStatusLabel,
   type AdminLab,
   type LabType,
+  type LabStatus,
 } from "@/lib/adminLabs";
 import { LabIcon } from "@/components/LabIcon";
 
@@ -81,8 +83,10 @@ function LabsPage() {
     refresh();
   };
 
-  const activeCount = labs.filter((l) => l.is_active).length;
-  const typesCovered = new Set(labs.map((l) => l.type)).size;
+  const activeCount = labs.filter(
+    (l) => (l.status || (l.is_active !== false ? "active" : "inactive")) === "active",
+  ).length;
+  const upcomingCount = labs.filter((l) => l.status === "upcoming").length;
   const totalSkills = labs.reduce((a, l) => a + (l.skills?.length || 0), 0);
 
   return (
@@ -101,7 +105,7 @@ function LabsPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KpiCard label="Total labs" value={labs.length} color="primary" icon={FlaskConical} />
         <KpiCard label="Active labs" value={activeCount} color="success" icon={CheckCircle2} />
-        <KpiCard label="Types covered" value={typesCovered} color="ui" />
+        <KpiCard label="Upcoming labs" value={upcomingCount} color="ui" />
         <KpiCard label="Skills catalogued" value={totalSkills} color="warning" />
       </div>
 
@@ -134,7 +138,7 @@ function LabsPage() {
           <table className="w-full text-sm">
             <thead className="text-[11px] uppercase tracking-wide text-muted-foreground bg-muted/20">
               <tr>
-                {["Lab", "Type", "Difficulty", "Skills", "Actions"].map((h) => (
+                {["Lab", "Type", "Difficulty", "Status", "Skills", "Actions"].map((h) => (
                   <th key={h} className="text-left font-medium px-4 py-2">
                     {h}
                   </th>
@@ -144,13 +148,13 @@ function LabsPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground text-xs">
+                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground text-xs">
                     Loading labs...
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground text-xs">
+                  <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground text-xs">
                     No labs match your filters.{" "}
                     <Link to="/admin/labs/new" className="text-primary hover:underline">
                       Create one →
@@ -188,6 +192,21 @@ function LabsPage() {
                         }
                       >
                         {difficultyLabel(l.difficulty)}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <Badge
+                        tone={
+                          (l.status || (l.is_active === false ? "inactive" : "active")) === "active"
+                            ? "success"
+                            : (l.status || "") === "upcoming"
+                              ? "primary"
+                              : (l.status || "") === "draft"
+                                ? "warning"
+                                : "muted"
+                        }
+                      >
+                        {labStatusLabel(l.status || (l.is_active === false ? "inactive" : "active"))}
                       </Badge>
                     </td>
                     <td className="px-4 py-2.5">

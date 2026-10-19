@@ -1461,6 +1461,10 @@ export function TicketIDE({
             : `/lab/labs/${labId}/`;
           const { default: api } = await import("@/utils/RestApiAuthUtil");
           const realLab = await api.get<any>(labEndpoint);
+          if (realLab?.status === "upcoming") {
+            navigate({ to: "/student/dashboard" });
+            return;
+          }
           currentTitle = (realLab as any)?.title || (realLab as any)?.name || (realLab as any)?.data?.title || "";
         } catch (e) {
           currentTitle = labs.find(l => l.slug === slug)?.name || "";

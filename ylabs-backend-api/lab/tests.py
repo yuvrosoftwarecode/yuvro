@@ -66,6 +66,8 @@ class LabModelsTest(TestCase):
         )
 
         self.assertEqual(lab.title, "Python Basics")
+        self.assertEqual(lab.status, "active")
+        self.assertTrue(lab.is_active)
         self.assertEqual(sprint.lab, lab)
         self.assertEqual(ticket.sprint, sprint)
         self.assertEqual(enrollment.lab, lab)

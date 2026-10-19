@@ -10,6 +10,8 @@ import {
   type AdminLab,
   type LabType,
   type LabDifficulty,
+  type LabStatus,
+  LAB_STATUSES,
 } from "@/lib/adminLabs";
 import { loadSprintsWithSeed, saveSprints, type LabSprint } from "@/lib/labSprints";
 import { SprintBuilder } from "@/components/admin/SprintBuilder";
@@ -101,7 +103,8 @@ function EditLab() {
         prerequisites: prereqsText,
         skills: toList(skillsText),
         git_repo_starter_url: lab.gitRepoStarterUrl || (lab as any).git_repo_starter_url,
-        is_active: lab.isActive || (lab as any).is_active,
+        status: lab.status || (lab.is_active === false ? "inactive" : "active"),
+        is_active: (lab.status ? lab.status === "active" : lab.is_active ?? true),
         payment_tier: lab.payment_tier ?? "free",
         payment_amount:
           (lab.payment_tier ?? "free") === "free"
@@ -216,15 +219,17 @@ function EditLab() {
                   </select>
                 </Field>
                 <Field label="Status">
-                  <label className="flex items-center gap-2 text-xs px-3 py-2 rounded-md border border-border">
-                    <input
-                      type="checkbox"
-                      checked={lab.is_active ?? lab.isActive}
-                      onChange={(e) => set("is_active", e.target.checked)}
-                      className="h-3.5 w-3.5"
-                    />
-                    Active (visible to students)
-                  </label>
+                  <select
+                    value={lab.status || (lab.is_active === false ? "inactive" : "active")}
+                    onChange={(e) => set("status", e.target.value as LabStatus)}
+                    className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-xs"
+                  >
+                    {LAB_STATUSES.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
                 </Field>
                 <Field label="Access Plan">
                   <select
