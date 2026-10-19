@@ -1,0 +1,81 @@
+{
+  "lab_questions": [
+    {
+      "title": "Three-Way Procurement Matching & Approval Hierarchy",
+      "type": "BACKEND",
+      "description": "The accounts payable workflow allows vendor invoices to be approved and paid without verifying that the goods were actually received, leading to duplicate payments and billing discrepancy leakage.",
+      "difficulty": "HARD",
+      "domain": "ERP",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 30,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/three-way-procurement-matching",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Three-Way Invoice Reconciliation (PO vs. GRN vs. Invoice)",
+          "description": "The `POST /api/procurement/invoices/{id}/match/` endpoint automatically marks invoices as ready for payment, even when the invoiced quantity exceeds received inventory or the invoiced price exceeds the agreed Purchase Order (PO).\n\n**Goal:** Implement three-way reconciliation matching. Compare invoice line items against corresponding Goods Receipt Notes (GRN) and Purchase Order (PO) lines. If billed quantity exceeds total received quantity across all GRNs, or invoiced unit price exceeds PO price by more than a 2% tolerance threshold, flag the invoice status as `ON_HOLD` and record the discrepancy reason. Otherwise, mark the invoice as `MATCHED`.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 25,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Multi-Tier Approval Matrix by Dollar Threshold",
+          "description": "The `POST /api/procurement/invoices/{id}/approve/` endpoint allows a single user approval regardless of invoice dollar value, bypassing separation-of-duties controls.\n\n**Goal:** Implement a tiered approval hierarchy matrix: invoices <= $5,000 require Department Manager approval; $5,000.01 - $50,000 require Manager followed by Finance Director approval; > $50,000 require Manager, Director, and CFO approvals. Enforce strict sequential approval order and return `403 Forbidden` if an unauthorized or out-of-order role attempts approval. Mark invoice `status = APPROVED` only upon receiving the final required tier signoff.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 20,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Automated Vendor Credit Memo Offsetting",
+          "description": "When executing `POST /api/procurement/invoices/{id}/pay/`, the system pays the full invoice amount even when the vendor has active, unused credit memos on file.\n\n**Goal:** Query active `VendorCreditMemo` records for the invoice's vendor in FIFO order. Automatically apply available credit balances against the invoice balance before computing the net disbursement amount. Create a `PaymentDisbursement` record with `amount_paid` and `credit_applied`, update the credit memo status to `CONSUMED`, and transition the invoice status to `PAID`.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 10,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ],
+      "allow_task_selection": false
+    }
+  ]
+}

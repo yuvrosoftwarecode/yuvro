@@ -344,6 +344,30 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
   const [answers, setAnswers] = useState<Record<string, any>>({}); // Maps question id to its answer
   const [marked, setMarked] = useState<Record<string, Set<string>>>({}); // Maps section id to set of marked question ids
   const [qIndex, setQIndex] = useState(0);
+  const [questionTimes, setQuestionTimes] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem(`eval_${evalPrefix}_qtimes`);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [labTimes, setLabTimes] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem(`eval_${evalPrefix}_lab_times`);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [labStartTimes, setLabStartTimes] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem(`eval_${evalPrefix}_lab_starts`);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
   const [submittedSections, setSubmittedSections] = useState<Set<string>>(new Set());
   
   const [codingCode, setCodingCode] = useState<Record<string, string>>({});
@@ -546,6 +570,54 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     return () => clearInterval(t);
   }, [activeTimerInfo?.key, activeTimerInfo?.isSubmitted]);
 
+  // Track active question time in Knowledge Assessment
+  useEffect(() => {
+    if (activeSection?.type !== "KNOWLEDGE_ASSESSMENT" || !activeSection.questions) return;
+    const currentQ = activeSection.questions[qIndex];
+    if (!currentQ || !currentQ.id) return;
+    const qId = String(currentQ.id);
+
+    const interval = setInterval(() => {
+      setQuestionTimes(prev => {
+        const next = { ...prev, [qId]: (prev[qId] || 0) + 1 };
+        try {
+          localStorage.setItem(`eval_${evalPrefix}_qtimes`, JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [activeSection?.id, activeSection?.type, qIndex, evalPrefix]);
+
+  // Track active lab time in Engineering Labs
+  useEffect(() => {
+    if (!openLab) return;
+    const labKey = String(openLab);
+
+    setLabStartTimes(prev => {
+      if (!prev[labKey]) {
+        const nowIso = new Date().toISOString();
+        const next = { ...prev, [labKey]: nowIso };
+        try { localStorage.setItem(`eval_${evalPrefix}_lab_starts`, JSON.stringify(next)); } catch {}
+        return next;
+      }
+      return prev;
+    });
+
+    const interval = setInterval(() => {
+      setLabTimes(prev => {
+        const next = { ...prev, [labKey]: (prev[labKey] || 0) + 1 };
+        try {
+          localStorage.setItem(`eval_${evalPrefix}_lab_times`, JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [openLab, evalPrefix]);
+
   const { logActivity } = useProctoring({
     assessmentId: evaluationId,
     assessmentType: "skill_evaluation",
@@ -723,8 +795,21 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
           }
         }
 
+        const labKey = String(e.data.labId);
+        const secSolved = Number(e.data.seconds_solved || labTimes[labKey] || 0);
+        const minSolved = Number(e.data.minutes_solved || (secSolved > 0 ? Math.max(1, Math.round(secSolved / 60)) : 1));
+        const startedAt = e.data.started_at || labStartTimes[labKey] || (secSolved > 0 ? new Date(Date.now() - secSolved * 1000).toISOString() : new Date().toISOString());
+        const submittedAt = e.data.submitted_at || new Date().toISOString();
+
         if (evaluationId) {
-          evaluationService.submitLab?.(evaluationId, e.data.labId, { status: "done", score: e.data.score }).catch(console.error);
+          evaluationService.submitLab?.(evaluationId, e.data.labId, {
+            status: "done",
+            score: e.data.score,
+            seconds_solved: secSolved,
+            minutes_solved: minSolved,
+            started_at: startedAt,
+            submitted_at: submittedAt
+          }).catch(console.error);
         }
 
         setSubmittedLabs(prev => {
@@ -741,7 +826,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [evaluationId, appSections, section, qIndex]);
+  }, [evaluationId, appSections, section, qIndex, labTimes, labStartTimes]);
 
   // Autosave feel
   const touchAutosave = () => {
@@ -767,8 +852,62 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
         try { localStorage.removeItem(k); } catch {}
         try { sessionStorage.removeItem(k); } catch {}
       });
-    } catch {}
-    try {
+      for (const sec of appSections) {
+        if (sec.type === "KNOWLEDGE_ASSESSMENT" && !submittedSections.has(sec.id)) {
+          try {
+            const richAnswers: any[] = [];
+            let secElapsed = 0;
+            try {
+              const startedAtStr = getStorageItem(`eval_${evalPrefix}_timer_sec_${sec.id}`);
+              if (startedAtStr) {
+                secElapsed = Math.max(0, Math.floor((Date.now() - new Date(startedAtStr).getTime()) / 1000));
+              }
+            } catch {}
+            const totalQCount = sec.questions?.length || 1;
+            const fallbackPerQ = secElapsed > 0 ? Math.max(1, Math.round(secElapsed / totalQCount)) : 0;
+            (sec.questions || []).forEach((q: any) => {
+              if (answers[q.id] !== undefined) {
+                let isCorrect = false;
+                if (q.mcq_options && Array.isArray(q.mcq_options) && q.mcq_options.length > 0) {
+                  const correctIndices = q.mcq_options
+                    .map((opt: any, idx: number) => opt.is_correct ? idx : -1)
+                    .filter((idx: number) => idx !== -1);
+                  const userAns = answers[q.id];
+                  const userIndices = Array.isArray(userAns)
+                    ? userAns.map(Number)
+                    : (userAns !== undefined && userAns !== null ? [Number(userAns)] : []);
+                  isCorrect = correctIndices.length > 0 &&
+                    userIndices.length === correctIndices.length &&
+                    [...userIndices].sort().every((val, i) => val === [...correctIndices].sort()[i]);
+                } else if (typeof answers[q.id] === "string" && typeof q.correct === "string") {
+                  if (q.format?.toUpperCase() === "CODING") {
+                    const normUser = answers[q.id].replace(/\s+/g, "").replace(/'/g, '"');
+                    const normCorrect = q.correct.replace(/\s+/g, "").replace(/'/g, '"');
+                    isCorrect = normUser === normCorrect;
+                  } else {
+                    isCorrect = answers[q.id].trim() === q.correct.trim();
+                  }
+                } else {
+                  isCorrect = answers[q.id] === q.correct;
+                }
+                const recordedSecs = questionTimes[String(q.id)] || 0;
+                const finalSecs = recordedSecs > 0 ? recordedSecs : (fallbackPerQ > 0 ? fallbackPerQ : 35);
+                richAnswers.push({
+                  question_id: q.id,
+                  selected_option: answers[q.id],
+                  is_correct: isCorrect,
+                  seconds_spent: finalSecs
+                });
+              }
+            });
+            if (richAnswers.length > 0) {
+              await evaluationService.submitKnowledgeAnswers?.(evaluationId, sec.id, richAnswers);
+            }
+          } catch (e) {
+            console.error("Auto submitting knowledge section error:", e);
+          }
+        }
+      }
       await evaluationService.finishEvaluation?.(evaluationId, autoSubmit);
     } catch (e) {
       console.error(e);
@@ -826,8 +965,19 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     touchAutosave();
   };
   const confirmSubmitLab = async (labId: LabId) => {
+    const labKey = String(labId);
+    const secSolved = Number(labTimes[labKey] || 0);
+    const minSolved = secSolved > 0 ? Math.max(1, Math.round(secSolved / 60)) : 1;
+    const startedAt = labStartTimes[labKey] || (secSolved > 0 ? new Date(Date.now() - secSolved * 1000).toISOString() : new Date().toISOString());
+    const submittedAt = new Date().toISOString();
     try {
-      if (evaluationId) await evaluationService.submitLab?.(evaluationId, labId, { status: "done" });
+      if (evaluationId) await evaluationService.submitLab?.(evaluationId, labId, {
+        status: "done",
+        seconds_solved: secSolved,
+        minutes_solved: minSolved,
+        started_at: startedAt,
+        submitted_at: submittedAt
+      });
     } catch (e) {
       console.error(e);
     }
@@ -854,6 +1004,16 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
       const sec = appSections.find(s => s.id === secId);
       const richAnswers: any[] = [];
       if (sec && sec.type === "KNOWLEDGE_ASSESSMENT" && sec.questions) {
+        let secElapsed = 0;
+        try {
+          const startedAtStr = getStorageItem(`eval_${evalPrefix}_timer_sec_${sec.id}`);
+          if (startedAtStr) {
+            secElapsed = Math.max(0, Math.floor((Date.now() - new Date(startedAtStr).getTime()) / 1000));
+          }
+        } catch {}
+        const totalQCount = sec.questions.length || 1;
+        const fallbackPerQ = secElapsed > 0 ? Math.max(1, Math.round(secElapsed / totalQCount)) : 0;
+
         sec.questions.forEach((q: any) => {
           if (answers[q.id] !== undefined) {
             let isCorrect = false;
@@ -879,10 +1039,15 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
             } else {
               isCorrect = answers[q.id] === q.correct;
             }
+
+            const recordedSecs = questionTimes[String(q.id)] || 0;
+            const finalSecs = recordedSecs > 0 ? recordedSecs : (fallbackPerQ > 0 ? fallbackPerQ : 35);
+
             richAnswers.push({
               question_id: q.id,
               selected_option: answers[q.id],
-              is_correct: isCorrect
+              is_correct: isCorrect,
+              seconds_spent: finalSecs
             });
           }
         });

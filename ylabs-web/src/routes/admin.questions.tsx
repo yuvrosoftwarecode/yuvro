@@ -14,6 +14,7 @@ import {
   Loader2,
   Check,
   ChevronRight,
+  ChevronLeft,
   ArrowLeft,
   Clock,
   Code2,
@@ -21,7 +22,7 @@ import {
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { questionBankService } from "@/services/questionBankService";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,30 @@ const DOMAINS = [
   { value: "INSURANCE", label: "Insurance & Underwriting" },
   { value: "EDTECH", label: "EdTech & Learning" },
   { value: "OTHER", label: "Other / General" },
+];
+
+const CATS = [
+  "Java",
+  "Python",
+  "React",
+  "SQL",
+  "DevOps",
+  "Security",
+  "System Design",
+  "Testing",
+  "Debugging",
+  "Code Reviews",
+];
+
+const TYPES = [
+  "Coding Task",
+  "Bug Scenario",
+  "Debugging Case",
+  "Security Vuln",
+  "Optimization",
+  "Database Issue",
+  "API Problem",
+  "Deployment Failure",
 ];
 
 const LAB_TYPES = ["DATABASE", "BACKEND", "FRONTEND", "FULL_STACK", "QUALITY_ASSURANCE", "DEVOPS"];
@@ -94,6 +119,13 @@ const DEFAULT_FORM = {
   tasks: [],
   solution_files: [{ path: "", code: "" }],
 };
+
+const arrayToString = (arr: any) => (Array.isArray(arr) ? arr.join(", ") : "");
+const stringToArray = (str: string) =>
+  str
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s);
 
 function MultiSelectPills({
   label,
@@ -177,11 +209,61 @@ function QuestionsPage() {
   const [step, setStep] = useState(0);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>(DEFAULT_FORM);
-
-  // List Filter States
   const [search, setSearch] = useState("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState("ALL");
+  const [category, setCategory] = useState("All");
   const [selectedDomain, setSelectedDomain] = useState("ALL");
+  const [selectedType, setSelectedType] = useState("All");
+  const [difficulty, setDifficulty] = useState("All");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, category, selectedDomain, selectedType, difficulty]);
+
+  const filteredQuestions = useMemo(() => {
+    return questions.filter((q: any) => {
+      const matchSearch =
+        !search ||
+        q.title?.toLowerCase().includes(search.toLowerCase()) ||
+        q.description?.toLowerCase().includes(search.toLowerCase()) ||
+        q.id?.toLowerCase().includes(search.toLowerCase());
+
+      const matchCategory =
+        category === "All" ||
+        q.programming_languages?.some((lang: string) =>
+          lang.toLowerCase().includes(category.toLowerCase()),
+        ) ||
+        q.domain?.toLowerCase().includes(category.toLowerCase());
+
+      const matchDomain =
+        selectedDomain === "ALL" ||
+        q.domain?.toUpperCase() === selectedDomain.toUpperCase();
+
+      const matchType =
+        selectedType === "All" ||
+        q.scenario?.toLowerCase().includes(selectedType.toLowerCase().replace(/\s+/g, "_")) ||
+        q.type?.toLowerCase().includes(selectedType.toLowerCase().replace(/\s+/g, "_"));
+
+      const matchDifficulty =
+        difficulty === "All" || q.difficulty?.toUpperCase() === difficulty.toUpperCase();
+
+      return matchSearch && matchCategory && matchDomain && matchType && matchDifficulty;
+    });
+  }, [questions, search, category, selectedDomain, selectedType, difficulty]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / pageSize));
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const paginatedQuestions = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredQuestions.slice(start, start + pageSize);
+  }, [filteredQuestions, page, pageSize]);
 
   // Verification Suite States
   const [isVerifying, setIsVerifying] = useState(false);
@@ -438,7 +520,11 @@ function QuestionsPage() {
           const dbs = formData.databases || [];
           if (dbs.includes("MONGODB")) {
             solutionObj = { "query.js": trimmed };
-          } else if (dbs.includes("MYSQL") || dbs.includes("POSTGRESQL") || dbs.includes("SQLITE")) {
+          } else if (
+            dbs.includes("MYSQL") ||
+            dbs.includes("POSTGRESQL") ||
+            dbs.includes("SQLITE")
+          ) {
             solutionObj = { "query.sql": trimmed };
           } else {
             solutionObj = { code: trimmed };
@@ -469,7 +555,7 @@ function QuestionsPage() {
     });
 
     const sanitizedBackendFrameworks = (formData.backend_frameworks || []).map((f: string) =>
-      f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f
+      f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f,
     );
 
     const solutionMap: Record<string, string> = {};
@@ -530,17 +616,6 @@ function QuestionsPage() {
     });
   };
 
-  // Filter questions for the list view
-  const filteredQuestions = questions.filter((q: any) => {
-    const matchesSearch =
-      !search ||
-      q.title?.toLowerCase().includes(search.toLowerCase()) ||
-      q.description?.toLowerCase().includes(search.toLowerCase()) ||
-      q.domain?.toLowerCase().includes(search.toLowerCase());
-    const matchesDifficulty = selectedDifficulty === "ALL" || q.difficulty === selectedDifficulty;
-    const matchesDomain = selectedDomain === "ALL" || q.domain === selectedDomain;
-    return matchesSearch && matchesDifficulty && matchesDomain;
-  });
 
   // ==========================================
   // FULL PAGE STEPPER BUILDER VIEW
@@ -1374,9 +1449,22 @@ function QuestionsPage() {
           </div>
 
           <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5 outline-none cursor-pointer"
+          >
+            <option value="All">All categories</option>
+            {CATS.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+
+          <select
             value={selectedDomain}
             onChange={(e) => setSelectedDomain(e.target.value)}
-            className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5"
+            className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5 outline-none cursor-pointer"
           >
             <option value="ALL">All Domains</option>
             {DOMAINS.map((d) => (
@@ -1387,11 +1475,24 @@ function QuestionsPage() {
           </select>
 
           <select
-            value={selectedDifficulty}
-            onChange={(e) => setSelectedDifficulty(e.target.value)}
-            className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5"
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+            className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5 outline-none cursor-pointer"
           >
-            <option value="ALL">All Difficulties</option>
+            <option value="All">All types</option>
+            {TYPES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+            className="text-xs bg-transparent border border-border rounded-md px-2 py-1.5 outline-none cursor-pointer"
+          >
+            <option value="All">All difficulty</option>
             <option value="EASY">Easy</option>
             <option value="MEDIUM">Medium</option>
             <option value="HARD">Hard</option>
@@ -1402,75 +1503,177 @@ function QuestionsPage() {
       {isLoading ? (
         <div className="p-8 text-center text-muted-foreground">Loading questions...</div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-4">
-          {filteredQuestions.map((q: any) => (
-            <div
-              key={q.id}
-              className="rounded-xl border border-border/60 bg-card/40 p-4 hover:border-primary/40 transition flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-mono text-[10px] text-muted-foreground">{q.id.substring(0, 8)}...</span>
-                  <Badge
-                    tone={
-                      q.difficulty === "HARD"
-                        ? "destructive"
-                        : q.difficulty === "MEDIUM"
-                        ? "warning"
-                        : "success"
-                    }
-                  >
-                    {q.difficulty}
-                  </Badge>
+        <>
+          <div className="grid md:grid-cols-2 gap-4">
+            {paginatedQuestions.map((q: any) => (
+              <div
+                key={q.id}
+                className="rounded-xl border border-border/60 bg-card/40 p-4 hover:border-primary/40 transition flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-mono text-[10px] text-muted-foreground">{q.id.substring(0, 8)}...</span>
+                    <Badge
+                      tone={
+                        q.difficulty === "HARD"
+                          ? "destructive"
+                          : q.difficulty === "MEDIUM"
+                          ? "warning"
+                          : "success"
+                      }
+                    >
+                      {q.difficulty}
+                    </Badge>
+                  </div>
+                  <h3 className="font-semibold text-sm mb-1.5">{q.title}</h3>
+                  {q.description && (
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{q.description}</p>
+                  )}
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    <Badge tone="primary">{q.domain || "OTHER"}</Badge>
+                    {q.scenario && <Badge tone="ui">{q.scenario}</Badge>}
+                    {q.type && <Badge tone="muted">{q.type}</Badge>}
+                  </div>
                 </div>
-                <h3 className="font-semibold text-sm mb-1.5">{q.title}</h3>
-                {q.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{q.description}</p>
-                )}
-                <div className="flex flex-wrap gap-1 mb-3">
-                  <Badge tone="primary">{q.domain || "OTHER"}</Badge>
-                  {q.scenario && <Badge tone="ui">{q.scenario}</Badge>}
-                  {q.type && <Badge tone="muted">{q.type}</Badge>}
+
+                <div className="flex items-center justify-between text-xs pt-3 border-t border-border/40">
+                  <span className="text-muted-foreground">
+                    Marks <span className="font-mono text-foreground font-semibold">{q.marks || 0}</span>
+                  </span>
+                  <span className="text-muted-foreground">
+                    Duration <span className="font-mono text-foreground font-semibold">{q.duration_minutes || 0}m</span>
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => openEditBuilder(q)}
+                      className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition cursor-pointer"
+                      title="Edit question"
+                      aria-label="Edit question"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(q)}
+                      disabled={deleteMutation.isPending}
+                      className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition cursor-pointer disabled:opacity-50"
+                      title="Delete question"
+                      aria-label="Delete question"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {filteredQuestions.length === 0 && (
+              <div className="col-span-2 p-8 text-center text-muted-foreground">
+                No questions found matching your filters.
+              </div>
+            )}
+          </div>
+
+          {filteredQuestions.length > 0 && (
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/40 backdrop-blur p-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-3">
+                <span>
+                  Showing{" "}
+                  <span className="font-medium text-foreground">
+                    {(page - 1) * pageSize + 1}–
+                    {Math.min(page * pageSize, filteredQuestions.length)}
+                  </span>{" "}
+                  of <span className="font-medium text-foreground">{filteredQuestions.length}</span>{" "}
+                  questions
+                </span>
+                <div className="flex items-center gap-1.5 ml-2">
+                  <span>Per page:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setPage(1);
+                    }}
+                    className="rounded border border-border bg-background px-2 py-0.5 text-xs text-foreground outline-none cursor-pointer"
+                  >
+                    {[10, 20, 50, 100].map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs pt-3 border-t border-border/40">
-                <span className="text-muted-foreground">
-                  Marks <span className="font-mono text-foreground font-semibold">{q.marks || 0}</span>
-                </span>
-                <span className="text-muted-foreground">
-                  Duration <span className="font-mono text-foreground font-semibold">{q.duration_minutes || 0}m</span>
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => openEditBuilder(q)}
-                    className="p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition cursor-pointer"
-                    title="Edit question"
-                    aria-label="Edit question"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(q)}
-                    disabled={deleteMutation.isPending}
-                    className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition cursor-pointer disabled:opacity-50"
-                    title="Delete question"
-                    aria-label="Delete question"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-2.5 py-1 rounded border border-border hover:bg-accent text-foreground disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition inline-flex items-center gap-1"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                  <span>Prev</span>
+                </button>
+
+                <div className="flex items-center gap-1 px-1">
+                  {totalPages <= 7
+                    ? Array.from({ length: totalPages }, (_, i) => i + 1).map((item) => (
+                        <button
+                          key={item}
+                          onClick={() => setPage(item)}
+                          className={`h-7 w-7 rounded border text-xs font-medium cursor-pointer transition ${
+                            page === item
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "border-border hover:bg-accent text-foreground"
+                          }`}
+                        >
+                          {item}
+                        </button>
+                      ))
+                    : Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter((p) => {
+                          return p === 1 || p === totalPages || Math.abs(p - page) <= 1;
+                        })
+                        .reduce<(number | string)[]>((acc, p, idx, arr) => {
+                          if (idx > 0 && (p as number) - (arr[idx - 1] as number) > 1) {
+                            acc.push("...");
+                          }
+                          acc.push(p);
+                          return acc;
+                        }, [])
+                        .map((item, idx) =>
+                          typeof item === "string" ? (
+                            <span key={`ellipsis-${idx}`} className="px-1 text-muted-foreground">
+                              ...
+                            </span>
+                          ) : (
+                            <button
+                              key={item}
+                              onClick={() => setPage(item)}
+                              className={`h-7 w-7 rounded border text-xs font-medium cursor-pointer transition ${
+                                page === item
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "border-border hover:bg-accent text-foreground"
+                              }`}
+                            >
+                              {item}
+                            </button>
+                          ),
+                        )}
                 </div>
+
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-2.5 py-1 rounded border border-border hover:bg-accent text-foreground disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition inline-flex items-center gap-1"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
               </div>
             </div>
-          ))}
-          {filteredQuestions.length === 0 && (
-            <div className="col-span-2 p-8 text-center text-muted-foreground">
-              No questions found matching your filters.
-            </div>
           )}
-        </div>
+        </>
       )}
     </AdminShell>
   );

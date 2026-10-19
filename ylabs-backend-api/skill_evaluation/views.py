@@ -526,6 +526,58 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         return Response({"status": "success", "message": f"Updated hiring status to {new_status}"})
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def force_finish_submissions(self, request, pk=None):
+        evaluation = self.get_object()
+        candidate_emails = request.data.get('candidate_emails', [])
+        
+        if not candidate_emails:
+            return Response({"error": "No candidates provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        submissions = UserEvaluationSubmission.objects.filter(
+            evaluation=evaluation, 
+            user__email__in=candidate_emails, 
+            completed_at__isnull=True
+        )
+        
+        count = 0
+        for submission in submissions:
+            submission.completed_at = timezone.now()
+            submission.save(update_fields=['completed_at'])
+            
+            user = submission.user
+            CandidateTimelineEvent.objects.get_or_create(
+                evaluation=evaluation,
+                candidate_email=user.email,
+                title=CandidateTimelineEventType.AUTO_SUBMITTED,
+                defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": request.user}
+            )
+            
+            has_vitarka = any(sec.type == "VITARKA_AI_INTERVIEW" for sec in evaluation.sections.all())
+            has_started_vitarka = False
+            if has_vitarka and isinstance(submission.general_events, list):
+                for event in submission.general_events:
+                    if isinstance(event, dict) and event.get('activity_type') == 'vitarka_session_started':
+                        has_started_vitarka = True
+                        break
+                        
+            if has_vitarka and has_started_vitarka:
+                CandidateTimelineEvent.objects.get_or_create(
+                    evaluation=evaluation,
+                    candidate_email=user.email,
+                    title=CandidateTimelineEventType.VITARKA_COMPLETED,
+                    defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": request.user}
+                )
+
+            has_proctoring = any(sec.proctoring_config for sec in evaluation.sections.all())
+            if has_proctoring:
+                from .face_verification_proxy import run_async_face_verification
+                run_async_face_verification(UserEvaluationSubmission, submission.id)
+                
+            count += 1
+            
+        return Response({"status": "success", "message": f"Force finished {count} submissions."})
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def finish(self, request, pk=None):
         evaluation = self.get_object()
         user = request.user
@@ -591,7 +643,31 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             run_async_face_verification(UserEvaluationSubmission, submission.id)
             
         return Response({"status": "success", "message": "Evaluation finished successfully"})
-            
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def start_lab(self, request, pk=None):
+        evaluation = self.get_object()
+        lab_id = request.data.get('lab_id')
+        if not lab_id:
+            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            lab = LabQuestionBank.objects.get(id=lab_id)
+        except LabQuestionBank.DoesNotExist:
+            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        now = timezone.now()
+        submission, created = UserLabQuestionBankSubmission.objects.get_or_create(
+            user=request.user,
+            evaluation=evaluation,
+            lab_question=lab,
+            defaults={'started_at': now, 'status': 'IN_PROGRESS'}
+        )
+        if not submission.started_at:
+            submission.started_at = now
+            submission.save(update_fields=['started_at'])
+
+        return Response({"status": "started", "started_at": submission.started_at})
+
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def submit_lab(self, request, pk=None):
         evaluation = self.get_object()
@@ -607,28 +683,36 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             
         status_val = request.data.get('status', 'in_review')
         solution = request.data.get('solution', '')
-        minutes_solved = request.data.get('minutes_solved')
-        if not minutes_solved:
-            existing = UserLabQuestionBankSubmission.objects.filter(
-                user=request.user, evaluation=evaluation, lab_question=lab
-            ).first()
+        now = timezone.now()
+
+        existing = UserLabQuestionBankSubmission.objects.filter(
+            user=request.user, evaluation=evaluation, lab_question=lab
+        ).first()
+
+        started_at = None
+        if existing and existing.started_at:
+            started_at = existing.started_at
+        elif request.data.get('started_at'):
+            from django.utils.dateparse import parse_datetime
+            started_at = parse_datetime(str(request.data.get('started_at')))
+
+        if not started_at:
             if existing and existing.created_at:
-                import django.utils.timezone as tz
-                delta = tz.now() - existing.created_at
-                minutes_solved = max(1, round(delta.total_seconds() / 60))
+                started_at = existing.created_at
             else:
-                minutes_solved = 0
-        else:
-            try:
-                minutes_solved = int(minutes_solved)
-            except (ValueError, TypeError):
-                minutes_solved = 0
+                raw_seconds = request.data.get('seconds_solved') or request.data.get('time_taken_seconds')
+                try:
+                    calc_seconds = max(0, int(raw_seconds)) if raw_seconds is not None else 0
+                except (ValueError, TypeError):
+                    calc_seconds = 0
+                started_at = now - timezone.timedelta(seconds=calc_seconds) if calc_seconds > 0 else now
 
         score_val = request.data.get('score')
         solution_output_val = request.data.get('solution_output')
         defaults = {
             'status': status_val,
-            'minutes_solved': minutes_solved
+            'started_at': started_at,
+            'submitted_at': now,
         }
         if solution:
             defaults['solution'] = solution
@@ -883,11 +967,36 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 q_marks = float(q.get('marks') or 1) if q else 1
                 computed_score += q_marks
 
+            seconds_spent = 0
+            if a.get('seconds_spent') is not None:
+                try:
+                    seconds_spent = int(a.get('seconds_spent'))
+                except (ValueError, TypeError):
+                    seconds_spent = 0
+            elif a.get('seconds') is not None:
+                try:
+                    seconds_spent = int(a.get('seconds'))
+                except (ValueError, TypeError):
+                    seconds_spent = 0
+
             evaluated_answers.append({
                 'question_id': qid,
                 'selected_option': user_opt,
-                'is_correct': is_corr
+                'is_correct': is_corr,
+                'seconds_spent': seconds_spent
             })
+
+        if evaluated_answers and all(ans.get('seconds_spent', 0) == 0 for ans in evaluated_answers):
+            last_event = CandidateTimelineEvent.objects.filter(
+                evaluation=evaluation,
+                candidate_email=request.user.email,
+                title__in=[CandidateTimelineEventType.STARTED, CandidateTimelineEventType.LABS_SUBMITTED]
+            ).order_by('-occurred_at').first()
+            if last_event and last_event.occurred_at:
+                elapsed = max(1, round((timezone.now() - last_event.occurred_at).total_seconds()))
+                per_q = max(1, round(elapsed / len(evaluated_answers)))
+                for ea in evaluated_answers:
+                    ea['seconds_spent'] = per_q
 
         submission, created = UserKnowledgeAssessmentSubmission.objects.update_or_create(
             user=request.user,
@@ -1590,11 +1699,14 @@ class UserLabQuestionBankSubmissionViewSet(viewsets.ModelViewSet):
         return UserLabQuestionBankSubmission.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        instance = serializer.save(user=self.request.user)
+        now = timezone.now()
+        started = serializer.validated_data.get('started_at') or now
+        instance = serializer.save(user=self.request.user, started_at=started, submitted_at=now)
         self._ensure_git_diff(instance)
 
     def perform_update(self, serializer):
-        instance = serializer.save()
+        now = timezone.now()
+        instance = serializer.save(submitted_at=now)
         self._ensure_git_diff(instance)
 
     def _ensure_git_diff(self, instance):

@@ -52,6 +52,7 @@ import {
   getEvaluationSubmissions,
   inviteCandidates,
   generateSharedReportLink,
+  forceFinishSubmissions,
 } from "@/lib/recruiter";
 import {
   getCandidates,
@@ -119,6 +120,19 @@ export const Route = createFileRoute("/recruiter/evaluations/$id/workspace")({
   component: Workspace,
 });
 
+function getMockInterviewId(evaluation: Evaluation | null) {
+  const discSec: any = evaluation?.sections?.find(
+    (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
+  );
+  let mockInterviewId = discSec?.mockInterviewId;
+  if (!mockInterviewId && discSec?.description) {
+    try {
+      mockInterviewId = JSON.parse(discSec.description).mockInterviewId;
+    } catch {}
+  }
+  return mockInterviewId;
+}
+
 function Workspace() {
   const { id } = Route.useParams();
   const { tab } = Route.useSearch();
@@ -129,6 +143,7 @@ function Workspace() {
   const [toast, setToast] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     getEvaluation(id).then((e) => {
@@ -137,15 +152,7 @@ function Workspace() {
         setEv(e);
         getEvaluationSubmissions(e.id).then(setSubmissions).catch(() => setSubmissions([]));
 
-        const discSec = e.sections?.find(
-          (s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka"
-        );
-        let mockInterviewId = discSec?.mockInterviewId;
-        if (!mockInterviewId && discSec?.description) {
-          try {
-            mockInterviewId = JSON.parse(discSec.description).mockInterviewId;
-          } catch {}
-        }
+        const mockInterviewId = getMockInterviewId(e);
         if (mockInterviewId) {
           yhubApiAuthUtil
             .get<any[]>(`/interview/submissions/?mock_interview=${mockInterviewId}&ordering=-created_at`)
@@ -244,8 +251,151 @@ function Workspace() {
     }
   };
 
-  const refreshSubmissions = () => {
-    getEvaluationSubmissions(ev.id).then(setSubmissions).catch(() => setSubmissions([]));
+
+  const refreshSubmissions = async () => {
+    if (!ev) return;
+    try {
+      const subs = await getEvaluationSubmissions(ev.id);
+      setSubmissions(subs);
+    } catch {
+      setSubmissions([]);
+    }
+
+    const mockInterviewId = getMockInterviewId(ev);
+    if (mockInterviewId) {
+      try {
+        const vSubs = await yhubApiAuthUtil.get<any[]>(
+          `/interview/submissions/?mock_interview=${mockInterviewId}&ordering=-created_at`
+        );
+        if (Array.isArray(vSubs)) {
+          setVitarkaSubmissions(vSubs);
+        }
+      } catch (err) {
+        console.error("Failed to refresh vitarka submissions:", err);
+      }
+    }
+  };
+
+  const handleGenerateReports = async () => {
+    if (!ev) return;
+    const now = Date.now();
+    const evaluationMinutes = totals.minutes;
+    const mockInterviewId = getMockInterviewId(ev);
+
+    // 1. Identify all candidates whose start time has exceeded the evaluation duration
+    const timeElapsedCandidates = candidates.filter((c) => {
+      const startMs = c.startedAt || (c.rawSubmission?.created_at ? new Date(c.rawSubmission.created_at).getTime() : c.submittedAt);
+      const elapsedMinutes = (now - startMs) / (1000 * 60);
+      return elapsedMinutes > evaluationMinutes;
+    });
+
+    if (timeElapsedCandidates.length === 0) {
+      const inProgressNotExpired = candidates.filter((c) => {
+        const startMs = c.startedAt || (c.rawSubmission?.created_at ? new Date(c.rawSubmission.created_at).getTime() : c.submittedAt);
+        const elapsedMinutes = (now - startMs) / (1000 * 60);
+        return (!c.rawSubmission?.completed_at || c.status === "In Progress") && elapsedMinutes <= evaluationMinutes;
+      });
+
+      if (inProgressNotExpired.length > 0) {
+        notify(`${inProgressNotExpired.length} candidate(s) are currently in progress within the time limit (${evaluationMinutes} min).`);
+      } else {
+        notify("No candidates have exceeded the time limit.");
+      }
+      return;
+    }
+
+    // 2. Out of the candidates who exceeded the time limit, find who needs report generation:
+    // Either their main evaluation submission is incomplete OR their Vitarka AI analysis was not generated yet
+    const candidatesToProcess = timeElapsedCandidates.filter((c) => {
+      const isSubmissionIncomplete = !c.rawSubmission?.completed_at || c.status === "In Progress";
+      
+      const vSub = c.rawSubmission?.vitarka_submission || vitarkaSubmissions.find((vs: any) =>
+        (c.email && (vs.user?.email === c.email || vs.user_email === c.email || vs.candidate_email === c.email)) ||
+        (c.realUserId && (vs.user === c.realUserId || vs.user?.id === c.realUserId)) ||
+        (c.id && (vs.candidate_id === c.id || vs.candidate_id === String(c.realUserId)))
+      );
+
+      const hasVitarkaPendingReport = Boolean(
+        vSub && !(vSub.report_bundle || vSub.report || vSub.session_state?.report_bundle || vSub.session_state?.report)
+      );
+
+      return isSubmissionIncomplete || hasVitarkaPendingReport;
+    });
+
+    if (candidatesToProcess.length === 0) {
+      notify("All candidates exceeding the time limit already have reports generated.");
+      return;
+    }
+
+    setGenerating(true);
+
+    try {
+      // Step A: Force finish main evaluation submissions for incomplete ones
+      const emailsToFinish = candidatesToProcess
+        .filter((c) => !c.rawSubmission?.completed_at || c.status === "In Progress")
+        .map((c) => c.email);
+
+      if (emailsToFinish.length > 0) {
+        await forceFinishSubmissions(ev.id, emailsToFinish);
+      }
+
+      // Step B: For each candidate, if Vitarka session exists and report is pending, trigger generate_report
+      if (mockInterviewId) {
+        for (const c of candidatesToProcess) {
+          let vSub = c.rawSubmission?.vitarka_submission || vitarkaSubmissions.find((vs: any) =>
+            (c.email && (vs.user?.email === c.email || vs.user_email === c.email || vs.candidate_email === c.email)) ||
+            (c.realUserId && (vs.user === c.realUserId || vs.user?.id === c.realUserId)) ||
+            (c.id && (vs.candidate_id === c.id || vs.candidate_id === String(c.realUserId)))
+          );
+
+          if (!vSub?.id) {
+            try {
+              const params = new URLSearchParams();
+              params.append("mock_interview", mockInterviewId);
+              if (c.email) params.append("email", c.email);
+              else if (c.realUserId) params.append("user", c.realUserId);
+              params.append("ordering", "-created_at");
+              const res = await yhubApiAuthUtil.get<any[]>(`/interview/submissions/?${params.toString()}`);
+              if (res && res.length > 0) {
+                vSub = res[0];
+              }
+            } catch (err) {
+              console.error("Failed to query Vitarka submission for", c.email, err);
+            }
+          }
+
+          if (vSub?.id) {
+            const hasReport = Boolean(
+              vSub.report_bundle || vSub.report || vSub.session_state?.report_bundle || vSub.session_state?.report
+            );
+
+            if (!hasReport) {
+              const sessionId = vSub.session_id || vSub.interview_session_id;
+              if (sessionId) {
+                try {
+                  await yhubApiAuthUtil.post(`/interviews/${sessionId}/end_interview/`, {});
+                } catch {}
+              }
+
+              try {
+                await yhubApiAuthUtil.post(`/interview/submissions/${vSub.id}/generate_report/`, {});
+              } catch (err) {
+                console.error("Failed to generate Vitarka report for submission", vSub.id, err);
+              }
+            }
+          }
+        }
+      }
+
+      // Step C: Refresh both evaluation submissions and Vitarka submissions
+      await refreshSubmissions();
+      notify(`Generated reports for ${candidatesToProcess.length} candidate(s).`);
+    } catch (err) {
+      console.error("Failed to generate reports", err);
+      notify("Failed to generate reports.");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
@@ -319,6 +469,12 @@ function Workspace() {
               </HeaderBtn>
               <HeaderBtn onClick={copyLink} icon={<CopyIcon className="h-3.5 w-3.5" />}>
                 Copy Link
+              </HeaderBtn>
+              <HeaderBtn 
+                onClick={handleGenerateReports} 
+                icon={<FileText className={`h-3.5 w-3.5 ${generating ? "animate-pulse" : ""}`} />}
+              >
+                {generating ? "Generating..." : "Generate Reports"}
               </HeaderBtn>
 
             </div>

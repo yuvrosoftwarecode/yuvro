@@ -312,7 +312,24 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
         }
     };
 
-    const timeTaken = minutesSolved ?? labSub?.minutes_solved ?? 0;
+    let timeTakenFormatted = "0m 0s";
+    if (typeof labSub?.time_taken === "string" && labSub.time_taken.trim()) {
+        timeTakenFormatted = labSub.time_taken.trim();
+    } else {
+        let totalSecs = 0;
+        const start = labSub?.started_at ? new Date(labSub.started_at).getTime() : (labSub?.created_at ? new Date(labSub.created_at).getTime() : 0);
+        const end = labSub?.submitted_at ? new Date(labSub.submitted_at).getTime() : (labSub?.updated_at ? new Date(labSub.updated_at).getTime() : 0);
+        if (start > 0 && end > 0 && end > start) {
+            totalSecs = Math.round((end - start) / 1000);
+        } else if (minutesSolved != null && minutesSolved > 0) {
+            totalSecs = Number(minutesSolved) * 60;
+        } else if (labSub?.minutes_solved != null && Number(labSub.minutes_solved) > 0) {
+            totalSecs = Number(labSub.minutes_solved) * 60;
+        }
+        const mins = Math.floor(totalSecs / 60);
+        const secs = totalSecs % 60;
+        timeTakenFormatted = `${mins}m ${secs}s`;
+    }
     const score = labSub?.score ?? 0;
 
     const eciColor = (v: number) => v >= 70 ? "text-emerald-500" : v >= 55 ? "text-amber-500" : "text-red-500";
@@ -423,7 +440,7 @@ export const LabSubmissionViewer: React.FC<LabSubmissionViewerProps> = ({
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="rounded-lg border bg-card p-3">
                                         <div className="text-[10px] uppercase text-muted-foreground">Time taken</div>
-                                        <div className="text-lg font-medium text-foreground">{timeTaken}m</div>
+                                        <div className="text-lg font-medium text-foreground">{timeTakenFormatted}</div>
                                     </div>
                                     <div className="rounded-lg border bg-card p-3">
                                         <div className="text-[10px] uppercase text-muted-foreground">Files changed</div>

@@ -2757,6 +2757,12 @@ export function TicketIDE({
   };
 
   async function handleSubmit() {
+    const sessionStartMs = (window as any).__labSessionStartTime || Date.now();
+    const elapsedSessionSecs = Math.max(1, Math.round((Date.now() - sessionStartMs) / 1000));
+    const elapsedSessionMins = Math.max(1, Math.round(elapsedSessionSecs / 60));
+    const startedAtIso = new Date(sessionStartMs).toISOString();
+    const submittedAtIso = new Date().toISOString();
+
     if (isReal) {
       const filesToSave = getFilesToSave();
       try {
@@ -2812,6 +2818,10 @@ export function TicketIDE({
             [submissionsStatusField]: "in_review",
             solution: JSON.stringify(getFilesToSave()),
             score: computedSqlScore,
+            seconds_solved: elapsedSessionSecs,
+            minutes_solved: elapsedSessionMins,
+            started_at: startedAtIso,
+            submitted_at: submittedAtIso,
             ...(sqlSolutionOutput ? { solution_output: sqlSolutionOutput } : {}),
           };
           if (submissionId) {
@@ -2827,10 +2837,34 @@ export function TicketIDE({
               [submissionsStatusField]: "done"
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedSqlScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) {
+            window.parent.postMessage({
+              type: "LAB_SUBMITTED",
+              labId: ticket.id,
+              score: computedSqlScore,
+              seconds_solved: elapsedSessionSecs,
+              minutes_solved: elapsedSessionMins,
+              started_at: startedAtIso,
+              submitted_at: submittedAtIso
+            }, "*");
+          } else {
+            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          }
         });
       } else {
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedSqlScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) {
+          window.parent.postMessage({
+            type: "LAB_SUBMITTED",
+            labId: ticket.id,
+            score: computedSqlScore,
+            seconds_solved: elapsedSessionSecs,
+            minutes_solved: elapsedSessionMins,
+            started_at: startedAtIso,
+            submitted_at: submittedAtIso
+          }, "*");
+        } else {
+          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+        }
       }
       return;
     }
@@ -2846,6 +2880,10 @@ export function TicketIDE({
               [submissionsStatusField]: computedUiScore > 0 ? "done" : "in_progress",
               solution: JSON.stringify(getFilesToSave()),
               score: computedUiScore,
+              seconds_solved: elapsedSessionSecs,
+              minutes_solved: elapsedSessionMins,
+              started_at: startedAtIso,
+              submitted_at: submittedAtIso,
               solution_output: uiSolutionOutput
             }).catch(console.error).finally(() => setSubmitting(false));
           } else {
@@ -2855,13 +2893,41 @@ export function TicketIDE({
               [submissionsStatusField]: computedUiScore > 0 ? "done" : "in_progress",
               solution: JSON.stringify(getFilesToSave()),
               score: computedUiScore,
+              seconds_solved: elapsedSessionSecs,
+              minutes_solved: elapsedSessionMins,
+              started_at: startedAtIso,
+              submitted_at: submittedAtIso,
               solution_output: uiSolutionOutput
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedUiScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) {
+            window.parent.postMessage({
+              type: "LAB_SUBMITTED",
+              labId: ticket.id,
+              score: computedUiScore,
+              seconds_solved: elapsedSessionSecs,
+              minutes_solved: elapsedSessionMins,
+              started_at: startedAtIso,
+              submitted_at: submittedAtIso
+            }, "*");
+          } else {
+            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          }
         });
       } else {
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedUiScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) {
+          window.parent.postMessage({
+            type: "LAB_SUBMITTED",
+            labId: ticket.id,
+            score: computedUiScore,
+            seconds_solved: elapsedSessionSecs,
+            minutes_solved: elapsedSessionMins,
+            started_at: startedAtIso,
+            submitted_at: submittedAtIso
+          }, "*");
+        } else {
+          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+        }
       }
       return;
     }
@@ -2910,6 +2976,10 @@ export function TicketIDE({
             [submissionsStatusField]: computedScore > 0 ? "done" : "in_progress",
             solution: JSON.stringify(getFilesToSave()),
             score: computedScore,
+            seconds_solved: elapsedSessionSecs,
+            minutes_solved: elapsedSessionMins,
+            started_at: startedAtIso,
+            submitted_at: submittedAtIso,
             ...(solutionOutput ? { solution_output: solutionOutput } : {}),
           };
           if (submissionId) {
@@ -2922,11 +2992,35 @@ export function TicketIDE({
               ...payload,
             }).catch(console.error).finally(() => setSubmitting(false));
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) {
+            window.parent.postMessage({
+              type: "LAB_SUBMITTED",
+              labId: ticket.id,
+              score: computedScore,
+              seconds_solved: elapsedSessionSecs,
+              minutes_solved: elapsedSessionMins,
+              started_at: startedAtIso,
+              submitted_at: submittedAtIso
+            }, "*");
+          } else {
+            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          }
         });
       } else {
         setSubmitting(false);
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id, score: computedScore }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) {
+          window.parent.postMessage({
+            type: "LAB_SUBMITTED",
+            labId: ticket.id,
+            score: computedScore,
+            seconds_solved: elapsedSessionSecs,
+            minutes_solved: elapsedSessionMins,
+            started_at: startedAtIso,
+            submitted_at: submittedAtIso
+          }, "*");
+        } else {
+          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+        }
       }
       return;
     }
@@ -2970,6 +3064,10 @@ export function TicketIDE({
               [submissionsStatusField]: legacyStatus,
               solution: JSON.stringify(getFilesToSave()),
               score: legacyScore,
+              seconds_solved: elapsedSessionSecs,
+              minutes_solved: elapsedSessionMins,
+              started_at: startedAtIso,
+              submitted_at: submittedAtIso,
               solution_output: legacyOutput
             }).catch(console.error);
           } else {
@@ -2979,13 +3077,40 @@ export function TicketIDE({
               [submissionsStatusField]: legacyStatus,
               solution: JSON.stringify(getFilesToSave()),
               score: legacyScore,
+              seconds_solved: elapsedSessionSecs,
+              minutes_solved: elapsedSessionMins,
+              started_at: startedAtIso,
+              submitted_at: submittedAtIso,
               solution_output: legacyOutput
             }).catch(console.error);
           }
-          if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+          if (isEvaluationMode) {
+            window.parent.postMessage({
+              type: "LAB_SUBMITTED",
+              labId: ticket.id,
+              score: legacyScore,
+              seconds_solved: elapsedSessionSecs,
+              minutes_solved: elapsedSessionMins,
+              started_at: startedAtIso,
+              submitted_at: submittedAtIso
+            }, "*");
+          } else {
+            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          }
         });
       } else {
-        if (isEvaluationMode) { window.parent.postMessage({ type: "LAB_SUBMITTED", labId: ticket.id }, "*"); } else { navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } }); }
+        if (isEvaluationMode) {
+          window.parent.postMessage({
+            type: "LAB_SUBMITTED",
+            labId: ticket.id,
+            seconds_solved: elapsedSessionSecs,
+            minutes_solved: elapsedSessionMins,
+            started_at: startedAtIso,
+            submitted_at: submittedAtIso
+          }, "*");
+        } else {
+          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+        }
       }
     }, 600);
   }

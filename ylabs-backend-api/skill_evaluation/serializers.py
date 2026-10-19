@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.utils import timezone
+from datetime import timedelta
 from .models import RecruiterActivityLog
 from .models import LabQuestionBankTask
 from django.contrib.auth import get_user_model
@@ -427,6 +429,8 @@ class LabQuestionBankSerializer(serializers.ModelSerializer):
 from .models import UserLabQuestionBankSubmission, UserKnowledgeAssessmentSubmission
 
 class UserLabQuestionBankSubmissionSerializer(serializers.ModelSerializer):
+    time_taken = serializers.CharField(read_only=True)
+
     class Meta:
         model = UserLabQuestionBankSubmission
         fields = '__all__'
@@ -470,15 +474,8 @@ class UserLabQuestionBankSubmissionSerializer(serializers.ModelSerializer):
             except Exception:
                 pass
 
-        if not data.get('minutes_solved') and instance.created_at and instance.updated_at:
-            delta = instance.updated_at - instance.created_at
-            if delta.total_seconds() >= 30:
-                calc_min = max(1, round(delta.total_seconds() / 60))
-                data['minutes_solved'] = calc_min
-                if instance.minutes_solved == 0:
-                    instance.minutes_solved = calc_min
-                    instance.save(update_fields=['minutes_solved'])
-
+        # Calculate minutes and seconds on the fly as a single result
+        data['time_taken'] = instance.time_taken
         return data
 
 class UserKnowledgeAssessmentSubmissionSerializer(serializers.ModelSerializer):
@@ -486,6 +483,45 @@ class UserKnowledgeAssessmentSubmissionSerializer(serializers.ModelSerializer):
         model = UserKnowledgeAssessmentSubmission
         fields = '__all__'
         read_only_fields = ('user',)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        answers = data.get('answers') or []
+        if answers and all(not a.get('seconds_spent') and not a.get('seconds') for a in answers):
+            from .models import CandidateTimelineEvent, CandidateTimelineEventType
+            candidate_email = instance.user.email if instance.user else None
+            per_q = 0
+            if candidate_email:
+                prev_event = CandidateTimelineEvent.objects.filter(
+                    evaluation=instance.evaluation,
+                    candidate_email=candidate_email,
+                    title__in=[CandidateTimelineEventType.STARTED, CandidateTimelineEventType.LABS_SUBMITTED]
+                ).order_by('-occurred_at').first()
+                curr_event = CandidateTimelineEvent.objects.filter(
+                    evaluation=instance.evaluation,
+                    candidate_email=candidate_email,
+                    title=CandidateTimelineEventType.ASSESSMENT_SUBMITTED
+                ).order_by('-occurred_at').first()
+                end_time = curr_event.occurred_at if curr_event else instance.created_at
+                if prev_event and end_time and end_time > prev_event.occurred_at:
+                    total_secs = max(1, round((end_time - prev_event.occurred_at).total_seconds()))
+                    per_q = max(1, round(total_secs / len(answers)))
+            if per_q == 0 and instance.created_at and instance.user:
+                eval_sub = instance.user.evaluation_submissions.filter(evaluation=instance.evaluation).first()
+                if eval_sub and eval_sub.created_at and instance.created_at > eval_sub.created_at:
+                    total_secs = max(1, round((instance.created_at - eval_sub.created_at).total_seconds()))
+                    per_q = max(1, round(total_secs / len(answers)))
+            if per_q > 0:
+                for a in answers:
+                    if not a.get('seconds_spent'):
+                        a['seconds_spent'] = per_q
+                data['answers'] = answers
+                try:
+                    instance.answers = answers
+                    instance.save(update_fields=['answers'])
+                except Exception:
+                    pass
+        return data
 
 class FollowUpConfigSerializer(serializers.ModelSerializer):
     class Meta:

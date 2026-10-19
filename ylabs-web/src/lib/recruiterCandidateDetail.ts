@@ -977,6 +977,7 @@ export interface TimelineEvent {
   id: string | number;
   label: string;
   time: string;
+  occurred_at?: string;
   done: boolean;
   tone: "success" | "warn" | "neutral";
 }
@@ -1009,6 +1010,7 @@ export function formatTimelineEvents(rawEvents: any[]): TimelineEvent[] {
       id: r.id || String(Math.random()),
       label: r.title,
       time: formatDistanceToNow(new Date(r.occurred_at), { addSuffix: true }),
+      occurred_at: r.occurred_at,
       done: r.status !== "PENDING",
       tone,
     };
