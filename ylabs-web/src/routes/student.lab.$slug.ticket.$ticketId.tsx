@@ -1622,7 +1622,73 @@ export function TicketIDE({
   const [sidePanel, setSidePanel] = useState<null | "preview" | "mentor">(null);
   const [previewDevice, setPreviewDevice] = useState<"Mobile" | "Tablet" | "Desktop">("Desktop");
   const [sideWidth, setSideWidth] = useState<number | null>(null);
+  const [leftWidth, setLeftWidth] = useState<number>(360);
+  const [explorerWidth, setExplorerWidth] = useState<number>(240);
+  const [bottomHeight, setBottomHeight] = useState<number>(240);
+  const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false);
+  const [quickSearchQuery, setQuickSearchQuery] = useState("");
   const splitContainerRef = useRef<HTMLDivElement>(null);
+  const mainIdeRef = useRef<HTMLDivElement>(null);
+
+  function startLeftResize(e: React.MouseEvent) {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = leftWidth;
+    const onMove = (ev: MouseEvent) => {
+      const next = startWidth + (ev.clientX - startX);
+      setLeftWidth(Math.min(650, Math.max(260, next)));
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }
+
+  function startExplorerResize(e: React.MouseEvent) {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = explorerWidth;
+    const onMove = (ev: MouseEvent) => {
+      const next = startWidth + (ev.clientX - startX);
+      setExplorerWidth(Math.min(480, Math.max(160, next)));
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }
+
+  function startBottomResize(e: React.MouseEvent) {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startHeight = bottomHeight;
+    const onMove = (ev: MouseEvent) => {
+      const next = startHeight - (ev.clientY - startY);
+      setBottomHeight(Math.min(600, Math.max(140, next)));
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "row-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }
 
   function startResize(e: React.MouseEvent) {
     e.preventDefault();
@@ -1970,11 +2036,15 @@ export function TicketIDE({
     }
   }, [files]);
 
-  // Keyboard: Ctrl/Cmd+Enter to run
+  // Keyboard: Ctrl/Cmd+Enter to run, Ctrl/Cmd+S to save, Ctrl/Cmd+P to quick-open files
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleRun(); }
       if ((e.metaKey || e.ctrlKey) && e.key === "s") { e.preventDefault(); handleSave(false); }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "p" || e.key === "P")) {
+        e.preventDefault();
+        setQuickSwitcherOpen((prev) => !prev);
+      }
     };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
@@ -3471,7 +3541,7 @@ export function TicketIDE({
           <Settings className="mt-auto h-4 w-4" />
         </div>
 
-        {/* Left panel (collapsible) */}
+        {/* Left panel (collapsible & resizable) */}
         {leftCollapsed ? (
           <aside className="hidden md:flex w-10 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
             {[
@@ -3503,71 +3573,82 @@ export function TicketIDE({
             </button>
           </aside>
         ) : (
-          <aside className="hidden md:flex w-[30%] min-w-[300px] max-w-[460px] flex-col border-r bg-editor-panel">
-            <div className="flex items-center border-b text-xs">
-              {[
-                { k: "problem", label: "Problem" },
-                ...(!isEvaluationMode || isRecruiterPreview ? [
-                  { k: "hints", label: "Hints" },
-                  // { k: "discuss", label: "Discuss" },
-                  { k: "solution", label: "Solution" },
-                ] : []),
-              ].map((t) => (
+          <>
+            <aside
+              style={{ width: `${leftWidth}px`, flexShrink: 0 }}
+              className="hidden md:flex flex-col border-r bg-editor-panel max-w-[55vw] min-w-[260px]"
+            >
+              <div className="flex items-center border-b text-xs">
+                {[
+                  { k: "problem", label: "Problem" },
+                  ...(!isEvaluationMode || isRecruiterPreview ? [
+                    { k: "hints", label: "Hints" },
+                    // { k: "discuss", label: "Discuss" },
+                    { k: "solution", label: "Solution" },
+                  ] : []),
+                ].map((t) => (
+                  <button
+                    key={t.k}
+                    onClick={() => setTab(t.k as typeof tab)}
+                    className={`px-3 py-2 ${tab === t.k ? "bg-editor-bg text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
                 <button
-                  key={t.k}
-                  onClick={() => setTab(t.k as typeof tab)}
-                  className={`px-3 py-2 ${tab === t.k ? "bg-editor-bg text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => setLeftCollapsed(true)}
+                  title="Collapse panel"
+                  className="ml-auto mr-2 grid h-7 w-7 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
                 >
-                  {t.label}
+                  <PanelLeftClose className="h-3.5 w-3.5" />
                 </button>
-              ))}
-              <button
-                onClick={() => setLeftCollapsed(true)}
-                title="Collapse panel"
-                className="ml-auto mr-2 grid h-7 w-7 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
-              >
-                <PanelLeftClose className="h-3.5 w-3.5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
-              {tab === "problem" && (
-                <ProblemPanel 
-                  ticket={ticket} 
-                  slug={slug} 
-                  labName={labTitle}
-                  isAlgo={isMultiLang}
-                  isReal={!tickets.some(t => t.id === ticket.id)} 
-                  evaluating={evaluating}
-                  evalResult={evalResult}
-                  ticketScore={ticketScore}
-                  onEvaluate={handleEvaluate}
-                />
-              )}
-              {tab === "solution" && (
-                <SolutionPanel
-                  ticket={ticket}
-                  isPreview={isRecruiterPreview}
-                  onLoadIntoEditor={(code, language) => {
-                    const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
-                    const ext = langMap[language.toLowerCase()] || "txt";
-                    const targetFile = `solution.${ext}`;
-                    setFiles(prev => ({ ...prev, [targetFile]: code }));
-                    setActiveFile(targetFile);
-                  }}
-                />
-              )}
-              {tab === "hints" && (
-                <HintsPanel
-                  ticket={ticket}
-                  elapsed={elapsed}
-                  initialRevealedHints={initialRevealedHints}
-                  isPreview={isRecruiterPreview}
-                  onUnlock={(n, c) => showToast(`Hint ${n} revealed`)}
-                />
-              )}
-              {/* {tab === "discuss" && <DiscussPanel />} */}
-            </div>
-          </aside>
+              </div>
+              <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
+                {tab === "problem" && (
+                  <ProblemPanel 
+                    ticket={ticket} 
+                    slug={slug} 
+                    labName={labTitle}
+                    isAlgo={isMultiLang}
+                    isReal={!tickets.some(t => t.id === ticket.id)} 
+                    evaluating={evaluating}
+                    evalResult={evalResult}
+                    ticketScore={ticketScore}
+                    onEvaluate={handleEvaluate}
+                  />
+                )}
+                {tab === "solution" && (
+                  <SolutionPanel
+                    ticket={ticket}
+                    isPreview={isRecruiterPreview}
+                    onLoadIntoEditor={(code, language) => {
+                      const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
+                      const ext = langMap[language.toLowerCase()] || "txt";
+                      const targetFile = `solution.${ext}`;
+                      setFiles(prev => ({ ...prev, [targetFile]: code }));
+                      setActiveFile(targetFile);
+                    }}
+                  />
+                )}
+                {tab === "hints" && (
+                  <HintsPanel
+                    ticket={ticket}
+                    elapsed={elapsed}
+                    initialRevealedHints={initialRevealedHints}
+                    isPreview={isRecruiterPreview}
+                    onUnlock={(n, c) => showToast(`Hint ${n} revealed`)}
+                  />
+                )}
+                {/* {tab === "discuss" && <DiscussPanel />} */}
+              </div>
+            </aside>
+            <div
+              role="separator"
+              onMouseDown={startLeftResize}
+              className="hidden md:block w-1 cursor-col-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
+              title="Drag to resize problem panel"
+            />
+          </>
         )}
 
         {/* Center editor */}
@@ -3575,7 +3656,11 @@ export function TicketIDE({
           <div ref={splitContainerRef} className="flex flex-1 min-h-0">
             {/* File tree */}
             {fileTreeOpen && (
-              <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs ${isAnySql || isMongo ? "font-mono text-[13px]" : ""}`}>
+              <>
+                <div
+                  style={{ width: `${explorerWidth}px`, flexShrink: 0 }}
+                  className={`flex flex-col border-r bg-editor-panel text-xs ${isAnySql || isMongo ? "font-mono text-[13px]" : ""}`}
+                >
                 <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                   <span>Explorer</span>
                   <div className="flex items-center gap-1 normal-case">
@@ -3833,7 +3918,14 @@ export function TicketIDE({
                   </div>
                 </div>
               </div>
-            )}
+              <div
+                role="separator"
+                onMouseDown={startExplorerResize}
+                className="w-1 cursor-col-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
+                title="Drag to resize explorer"
+              />
+            </>
+          )}
 
             <div className="flex flex-1 min-w-0 flex-col">
               {/* Tabs row */}
@@ -3881,6 +3973,17 @@ export function TicketIDE({
                       </select>
                     </label>
                   )}
+                  <button
+                    title="Quick Open File (Ctrl+P)"
+                    onClick={() => setQuickSwitcherOpen(true)}
+                    className="flex items-center gap-1.5 rounded border border-border bg-background px-2 py-0.5 font-medium hover:bg-accent text-foreground transition-colors"
+                  >
+                    <Search className="h-3 w-3 text-muted-foreground" />
+                    <span>Find File</span>
+                    <kbd className="hidden sm:inline-block rounded bg-muted px-1 py-0.2 text-[9px] font-mono text-muted-foreground border">
+                      Ctrl+P
+                    </kbd>
+                  </button>
                   {isJava && <CompileBadge state={compileState} />}
                   {!isEvaluationMode && (
                     <button
@@ -3937,8 +4040,17 @@ export function TicketIDE({
                 )}
               </div>
 
-              {/* Bottom panel */}
-              <div className="border-t bg-editor-panel">
+              {/* Bottom panel (resizable) */}
+              <div
+                role="separator"
+                onMouseDown={startBottomResize}
+                className="h-1 cursor-row-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
+                title="Drag to resize console / terminal height"
+              />
+              <div
+                style={{ height: `${bottomHeight}px`, flexShrink: 0 }}
+                className="border-t bg-editor-panel flex flex-col min-h-0"
+              >
                 <div className="flex items-center border-b text-xs overflow-x-auto">
                   {[
                     { k: "terminal", label: "Terminal", icon: TerminalIcon },
@@ -3962,7 +4074,7 @@ export function TicketIDE({
                     </div>
                   )}
                 </div>
-                <div className={`h-60 max-h-[45vh] min-h-[14rem] ${bottomTab === "terminal" ? "p-0 overflow-hidden flex flex-col" : "overflow-auto scrollbar-thin p-3 text-xs"}`}>
+                <div className={`flex-1 min-h-0 ${bottomTab === "terminal" ? "p-0 overflow-hidden flex flex-col" : "overflow-auto scrollbar-thin p-3 text-xs"}`}>
                   {bottomTab === "output" && (
                     <ExecutionOutputView
                       output={output}
@@ -4208,6 +4320,88 @@ export function TicketIDE({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Quick Open File Switcher Modal (Ctrl+P / Command+P) */}
+      <Dialog open={quickSwitcherOpen} onOpenChange={setQuickSwitcherOpen}>
+        <DialogContent className="max-w-lg p-0 overflow-hidden border border-border shadow-2xl bg-card">
+          <div className="flex items-center gap-2 border-b px-4 py-3 bg-muted/30">
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+            <input
+              type="text"
+              autoFocus
+              value={quickSearchQuery}
+              onChange={(e) => setQuickSearchQuery(e.target.value)}
+              placeholder="Search files by name (e.g. tests.py, views.py, main.py)..."
+              className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const filtered = fileList.filter((f) =>
+                    f.toLowerCase().includes(quickSearchQuery.toLowerCase())
+                  );
+                  if (filtered.length > 0) {
+                    openFile(filtered[0]);
+                    setQuickSwitcherOpen(false);
+                    setQuickSearchQuery("");
+                  }
+                }
+              }}
+            />
+            <kbd className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground border">
+              ESC
+            </kbd>
+          </div>
+          <div className="max-h-72 overflow-y-auto p-2">
+            {(() => {
+              const matches = fileList.filter((f) =>
+                f.toLowerCase().includes(quickSearchQuery.toLowerCase())
+              );
+              if (matches.length === 0) {
+                return (
+                  <div className="p-4 text-center text-xs text-muted-foreground">
+                    No files found matching "{quickSearchQuery}"
+                  </div>
+                );
+              }
+              return matches.map((f) => {
+                const parts = f.split("/");
+                const fileName = parts.pop() || f;
+                const dirPath = parts.join("/");
+                const isCurrent = activeFile === f;
+                return (
+                  <button
+                    key={f}
+                    onClick={() => {
+                      openFile(f);
+                      setQuickSwitcherOpen(false);
+                      setQuickSearchQuery("");
+                    }}
+                    className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs transition-colors ${
+                      isCurrent
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "text-foreground hover:bg-accent"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileCode2 className="h-3.5 w-3.5 shrink-0 text-info" />
+                      <span className="font-mono text-sm">{fileName}</span>
+                      {dirPath && (
+                        <span className="text-[11px] text-muted-foreground truncate">
+                          ({dirPath})
+                        </span>
+                      )}
+                    </div>
+                    {isCurrent && (
+                      <span className="text-[10px] text-primary shrink-0 uppercase tracking-wide">
+                        Active
+                      </span>
+                    )}
+                  </button>
+                );
+              });
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Modals */}
       {isExamplesPanelOpen && (
         <ExamplesPanel
