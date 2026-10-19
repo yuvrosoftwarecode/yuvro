@@ -3,8 +3,8 @@ from .models import Lab, LabSprint, LabSprintTicket, UserLabEnrollment, UserLabS
 
 @admin.register(Lab)
 class LabAdmin(admin.ModelAdmin):
-    list_display = ('title', 'type', 'difficulty', 'is_active')
-    list_filter = ('type', 'difficulty', 'is_active')
+    list_display = ('title', 'type', 'difficulty', 'status')
+    list_filter = ('type', 'difficulty', 'status')
     search_fields = ('title', 'description')
 
 @admin.register(LabSprint)

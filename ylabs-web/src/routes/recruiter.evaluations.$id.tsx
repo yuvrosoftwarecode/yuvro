@@ -2930,13 +2930,7 @@ function PublishScreen({
 }) {
   const [isPublishing, setIsPublishing] = useState(false);
   const [type, setType] = useState<"email" | "link" | "csv">("email");
-  const [recipients, setRecipients] = useState<Array<{name: string, email: string}>>(() => {
-    const emails = ev.invite?.emails;
-    if (Array.isArray(emails)) {
-      return emails.map((e: any) => typeof e === 'string' ? { name: '', email: e } : e);
-    }
-    return [];
-  });
+  const [recipients, setRecipients] = useState<Array<{name: string, email: string}>>([]);
   const [nameInput, setNameInput] = useState("");
   const [emailsInput, setEmailsInput] = useState("");
   const [subject, setSubject] = useState(`Invitation: ${ev.title}`);

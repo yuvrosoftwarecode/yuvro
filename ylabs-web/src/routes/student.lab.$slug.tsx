@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useMatch, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useMatch, useParams, useNavigate } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { labs, tickets, leaderboard } from "@/lib/dummy";
@@ -403,6 +403,7 @@ const normalizeDiff = (diff?: string) => {
 };
 
 function LabDashboard() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { slug } = useParams({ from: "/student/lab/$slug" });
   const ticketMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId", shouldThrow: false });
@@ -684,12 +685,17 @@ function LabDashboard() {
     return isSprintLocked(slug, idx, lab.name);
   };
 
+  const isUpcoming = realLab ? realLab.status === "upcoming" : !isDsaLab(lab.name, slug);
+  const isDsa = !isUpcoming;
+
   const handleStartLabPrompt = () => {
+    if (isUpcoming) {
+      toast.info("This lab is upcoming and not open for enrollment.");
+      return;
+    }
     setEnrollRepoName(`yuvro_${lab.name?.toLowerCase().replace(/\s+/g, "_") || "lab"}`);
     setEnrollModalOpen(true);
   };
-
-  const isDsa = Boolean(realLab) || isDsaLab(lab.name, slug);
 
   useEffect(() => {
     if (!isDsa && activeSprint) {
@@ -698,8 +704,8 @@ function LabDashboard() {
   }, [isDsa, activeSprint]);
 
   const openSprint = (sprintId: string, index: number, sprint?: { is_locked?: boolean }) => {
-    if (!isDsa) {
-      toast.info("This lab is upcoming. Sprints are for preview only.");
+    if (isUpcoming) {
+      toast.info("This lab is upcoming and cannot be opened yet.");
       return;
     }
     if (realLab && isEnrolled === false) {
@@ -879,12 +885,58 @@ function LabDashboard() {
     }
   };
 
-  if (ticketMatch || reportMatch) return <Outlet />;
+  if (ticketMatch || reportMatch) {
+    if (isUpcoming) {
+      navigate({ to: "/student/dashboard" });
+      return null;
+    }
+    return <Outlet />;
+  }
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (isUpcoming) {
+    return (
+      <div className="min-h-screen bg-background">
+        <TopNav />
+        <main className="mx-auto max-w-2xl px-4 py-16 text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-500/10 text-3xl">
+            <LabIcon name={lab.name} icon={lab.icon} size="h-10 w-10" />
+          </div>
+          <span className="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-600 dark:text-purple-400 mb-3">
+            Upcoming Lab
+          </span>
+          <h1 className="text-3xl font-bold tracking-tight">{lab.name}</h1>
+          <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+            {lab.description || "This lab is currently in development and will be available soon."}
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <DiffBadge value={lab.difficulty} />
+            <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground capitalize">
+              {tier}
+            </span>
+          </div>
+          <div className="mt-8 rounded-xl border border-dashed border-border bg-card/50 p-6 text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">Content is being prepared</p>
+            <p className="mt-1 text-xs">
+              Sprints, tickets, and interactive sandboxes for this lab cannot be opened yet.
+            </p>
+          </div>
+          <div className="mt-8">
+            <Link
+              to="/student/dashboard"
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+            >
+              Back to Dashboard
+            </Link>
+          </div>
+        </main>
       </div>
     );
   }

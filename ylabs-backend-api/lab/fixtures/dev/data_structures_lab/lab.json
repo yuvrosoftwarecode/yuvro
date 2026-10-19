@@ -5,7 +5,8 @@
       "type": "ALGO",
       "description": "Master Data Structures by solving essential algorithmic challenges. Learn Arrays, Strings, Linked Lists, Trees, Graphs and more.",
       "difficulty": "ADVANCED",
-      "icon": "Algorithm"
+      "icon": "Algorithm",
+      "status": "active"
     }
   ]
 }

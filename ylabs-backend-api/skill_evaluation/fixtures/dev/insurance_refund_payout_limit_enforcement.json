@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Insurance Refund & Payout Limit Enforcement",
+      "type": "BACKEND",
+      "description": "An insurance management platform processes financial disbursements and settlements (payouts) against approved insurance claims. Each insurance policy defines a maximum aggregate coverage_limit, while each claim specifies an approved claim_amount. Three critical bugs have been identified in the payout processing API: failing to enforce cumulative claim and policy limits, accepting invalid (zero or negative) amounts without updating claim balances to PAID upon settlement, and failing to prevent duplicate payouts on repeated submissions.\n\nCandidates must identify and fix all three bugs in `insurance/views.py` while ensuring legitimate settlements are processed correctly.",
+      "difficulty": "HARD",
+      "domain": "INSURANCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Insurance-Refund-&-Payout-Limit-Enforcement",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Enforce the Maximum Policy Payout",
+          "description": "### Scenario\nTotal disbursements on an insurance claim or policy must not exceed the applicable approved claim limit or policy aggregate coverage limit.\n\n### Existing Problem\nThe `POST /api/insurance/payouts/` endpoint only checks whether an individual payout amount is less than or equal to `claim.claim_amount`. It fails to aggregate previous successful payouts, allowing cumulative payouts to exceed the claim limit and parent policy coverage limit.\n\n### Goal\n- Calculate cumulative completed payouts for the claim using `Sum('amount')`. Reject amounts exceeding `claim.claim_amount - existing_claim_payouts` with `400 Bad Request`.\n- Calculate cumulative completed payouts for the policy using `Sum('amount')`. Reject amounts exceeding `policy.coverage_limit - existing_policy_payouts` with `400 Bad Request`.\n- Reject payouts against claims or policies whose limits are already fully exhausted with `400 Bad Request`.\n\n### Scoring Criteria (4 Marks)\n- **4 marks**: Cumulative claim and policy payout limits are strictly enforced and excessive payouts are rejected without creating database records.",
+          "difficulty": "HARD",
+          "marks": 4,
+          "duration_minutes": 20,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 40,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Support Valid Partial Payouts",
+          "description": "### Scenario\nClaims adjusters may issue partial settlements towards an approved claim. Valid partial payouts within remaining limits must succeed, and zero or negative amounts must be rejected.\n\n### Existing Problem\nThe `POST /api/insurance/payouts/` endpoint fails to validate positive amounts, allowing zero or negative values. Additionally, it fails to update the claim status to `PAID` once the full claim settlement amount has been reached.\n\n### Goal\n- Enforce `amount > 0`. Reject missing, zero, or negative amounts with `400 Bad Request`.\n- Allow valid partial payouts within the remaining limit with `201 Created`.\n- Accurately calculate and return remaining balances.\n- When cumulative completed payouts reach `claim.claim_amount`, transition `claim.status` to `PAID`.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Valid partial payouts are accepted, negative/zero amounts rejected, and claim status/balances accurately updated upon full settlement.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Duplicate Payouts",
+          "description": "### Scenario\nRepeated or retried network submissions with the same payout reference must be handled idempotently and safely without creating multiple payout records.\n\n### Existing Problem\nThe `POST /api/insurance/payouts/` endpoint does not verify whether `payout_reference` has already been processed, allowing repeated requests with the same reference to create duplicate disbursements.\n\n### Goal\n- Require a non-empty `payout_reference` string. Reject missing references with `400 Bad Request`.\n- Check if `payout_reference` already exists. If found, reject repeated submissions with `409 Conflict` (or `400 Bad Request`) without creating duplicate records or altering balances.\n- Ensure legitimate payouts with distinct references succeed with `201 Created`.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Duplicate payouts for repeated requests with the same reference are safely prevented while allowing distinct payouts.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

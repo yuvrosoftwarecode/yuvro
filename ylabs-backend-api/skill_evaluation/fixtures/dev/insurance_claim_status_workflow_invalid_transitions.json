@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Insurance Claim Status Workflow & Invalid Transitions",
+      "type": "BACKEND",
+      "description": "An insurance claim status management platform coordinates claim lifecycle progression and payout authorizations. Three critical bugs have been reported in the claim management API: allowing invalid status transitions that bypass the defined workflow (such as skipping approval or resurrecting rejected claims), allowing payout processing against claims that have not been approved, and permitting modifications to financial and date details on finalized (rejected or paid) claims.\n\nCandidates must identify and fix all three bugs in `insurance/views.py` while ensuring legitimate transitions, approved payouts, and permitted administrative notes are processed correctly.",
+      "difficulty": "MEDIUM",
+      "domain": "INSURANCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 30,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Insurance-Claim-Status-Workflow-&-Invalid-Transitions",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Prevent Invalid Status Transitions",
+          "description": "### Scenario\nInsurance claims follow a structured lifecycle: SUBMITTED claims can transition to APPROVED or REJECTED. APPROVED claims can transition to PAID or REJECTED. REJECTED and PAID are terminal states.\n\n### Existing Problem\nThe `PATCH /api/insurance/claims/<id>/status/` endpoint sets `claim.status` directly without verifying valid transitions. This allows claims to jump from SUBMITTED directly to PAID, revert from APPROVED to SUBMITTED, or transition out of terminal REJECTED or PAID states.\n\n### Goal\n- Enforce valid transitions: `SUBMITTED -> [APPROVED, REJECTED]`, `APPROVED -> [PAID, REJECTED]`, and disallow any transition out of `REJECTED` or `PAID`.\n- Reject invalid transition requests with `400 Bad Request` without modifying the claim status in the database.\n- Allow valid transitions to succeed with `200 OK`.\n\n### Scoring Criteria (4 Marks)\n- **4 marks**: Valid transitions succeed, and unauthorized state jumps or modifications to terminal statuses are rejected.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 40,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Payouts for Unapproved Claims",
+          "description": "### Scenario\nFinancial payouts may only be processed and disbursed against claims that have been formally reviewed and APPROVED.\n\n### Existing Problem\nThe `POST /api/insurance/payouts/` endpoint processes payouts for any claim ID without verifying `claim.status`. As a result, payouts can be issued against SUBMITTED or REJECTED claims.\n\n### Goal\n- Verify that `claim.status == Claim.STATUS_APPROVED` before recording a payout.\n- Reject payout requests against claims in SUBMITTED or REJECTED status with `400 Bad Request` without creating payout records.\n- Allow valid payout disbursements against APPROVED claims with `201 Created`.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Payouts are strictly rejected for unapproved claims and allowed for approved claims.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Changes to Finalized Claims",
+          "description": "### Scenario\nOnce an insurance claim reaches a finalized state (REJECTED or PAID), its core financial and incident attributes (`claim_amount`, `incident_date`, `status`) must be immutable for audit integrity. Only administrative notes or descriptions may be updated.\n\n### Existing Problem\nThe `PATCH /api/insurance/claims/<id>/` endpoint allows modifying `claim_amount` and `incident_date` on claims that are already REJECTED or PAID.\n\n### Goal\n- Check if `claim.status` is finalized (`REJECTED` or `PAID`).\n- If finalized, reject any request attempting to modify `claim_amount`, `incident_date`, or `status` with `400 Bad Request` without altering database values.\n- Allow administrative updates to `incident_description` on finalized claims, returning `200 OK`.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Finalized claims reject core field tampering while allowing permitted administrative updates.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

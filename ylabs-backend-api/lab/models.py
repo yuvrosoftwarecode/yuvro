@@ -69,6 +69,13 @@ class PaymentTier(models.TextChoices):
     PREMIUM = "premium", "Premium"
 
 
+class LabStatus(models.TextChoices):
+    ACTIVE = "active", "Active"
+    INACTIVE = "inactive", "Inactive"
+    DRAFT = "draft", "Draft"
+    UPCOMING = "upcoming", "Upcoming"
+
+
 class Lab(BaseTimestampedAdminModel):
     title = models.CharField(max_length=255)
     type = models.CharField(max_length=40, choices=LabType.choices, default=LabType.BACKEND)
@@ -78,9 +85,17 @@ class Lab(BaseTimestampedAdminModel):
     skills = models.JSONField(default=list, blank=True)
     git_repo_starter_url = models.URLField(blank=True)
     difficulty = models.CharField(max_length=10, choices=Difficulty.choices, default=Difficulty.EASY)
-    is_active = models.BooleanField(default=True)
+    status = models.CharField(max_length=20, choices=LabStatus.choices, default=LabStatus.ACTIVE)
     payment_tier = models.CharField(max_length=20, choices=PaymentTier.choices, default=PaymentTier.FREE)
     payment_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    @property
+    def is_active(self):
+        return self.status == LabStatus.ACTIVE
+
+    @is_active.setter
+    def is_active(self, value):
+        self.status = LabStatus.ACTIVE if value else LabStatus.INACTIVE
 
     def clean(self):
         super().clean()

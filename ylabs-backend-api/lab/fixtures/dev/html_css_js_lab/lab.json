@@ -5,7 +5,8 @@
       "type": "FRONTEND",
       "description": "A hands-on, project-driven lab where you build real things from scratch. Sprint 1 teaches you HTML by building a full restaurant menu page. Sprint 2 has you style that page to look like a professional website using modern CSS. Sprint 3 takes you all the way to a fully interactive Task Manager app with JavaScript and localStorage. Each sprint is a complete, standalone project — not exercises, but real products.",
       "difficulty": "MEDIUM",
-      "icon": "Frontend"
+      "icon": "Frontend",
+      "status": "active"
     }
   ]
 }

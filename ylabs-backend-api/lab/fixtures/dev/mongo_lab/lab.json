@@ -5,7 +5,8 @@
       "type": "DATABASE",
       "description": "Complete Database administration and development environment setup.",
       "difficulty": "MEDIUM",
-      "icon": "Mongo"
+      "icon": "Mongo",
+      "status": "active"
     }
   ]
 }

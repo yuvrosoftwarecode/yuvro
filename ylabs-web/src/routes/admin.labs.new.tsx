@@ -8,6 +8,8 @@ import {
   DIFFICULTIES,
   type LabType,
   type LabDifficulty,
+  type LabStatus,
+  LAB_STATUSES,
 } from "@/lib/adminLabs";
 import { saveSprints, type LabSprint } from "@/lib/labSprints";
 import { SprintBuilder } from "@/components/admin/SprintBuilder";
@@ -32,7 +34,7 @@ function LabBuilder() {
     prerequisites: "",
     skills: "",
     gitRepoStarterUrl: "",
-    isActive: true,
+    status: "active" as LabStatus,
     payment_tier: "free" as "free" | "freemium" | "premium",
     payment_amount: "0",
   });
@@ -80,7 +82,8 @@ function LabBuilder() {
         skills: toList(form.skills),
         git_repo_starter_url: form.gitRepoStarterUrl.trim(),
         difficulty: (form.difficulty as string).toUpperCase() as LabDifficulty,
-        is_active: form.isActive,
+        status: form.status,
+        is_active: form.status === "active",
         payment_tier: form.payment_tier,
         payment_amount: form.payment_tier === "free" ? 0 : parseFloat(form.payment_amount) || 0,
       });
@@ -194,15 +197,17 @@ function LabBuilder() {
                   </select>
                 </Field>
                 <Field label="Status">
-                  <label className="flex items-center gap-2 text-xs px-3 py-2 rounded-md border border-border">
-                    <input
-                      type="checkbox"
-                      checked={form.isActive}
-                      onChange={(e) => set("isActive", e.target.checked)}
-                      className="h-3.5 w-3.5"
-                    />
-                    Active (visible to students)
-                  </label>
+                  <select
+                    value={form.status}
+                    onChange={(e) => set("status", e.target.value as LabStatus)}
+                    className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-xs"
+                  >
+                    {LAB_STATUSES.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
                 </Field>
                 <Field label="Access Plan">
                   <select

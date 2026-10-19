@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from authentication.permissions import IsAdminUser
 from .models import (
-    Lab, LabSprint, LabSprintTicket,
+    Lab, LabStatus, LabSprint, LabSprintTicket,
     UserLabEnrollment, UserLabSprintTicketSubmission,
     TicketProgressStatus, UserLabActivity
 )
@@ -82,7 +82,22 @@ class LabViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         from django.db.models import Count
-        return Lab.objects.annotate(total_tickets=Count('sprints__tasks'))
+        queryset = Lab.objects.annotate(total_tickets=Count('sprints__tasks'))
+        user = self.request.user
+        is_admin = bool(
+            user.is_authenticated and (
+                user.is_staff or 
+                user.is_superuser or 
+                getattr(user, 'role', '') == 'admin'
+            )
+        )
+        if not is_admin:
+            queryset = queryset.filter(status__in=[LabStatus.ACTIVE, LabStatus.UPCOMING])
+        else:
+            status_param = self.request.query_params.get('status')
+            if status_param:
+                queryset = queryset.filter(status=status_param)
+        return queryset
 
     
     def get_permissions(self):
@@ -202,9 +217,12 @@ class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
         return UserLabEnrollment.objects.filter(user=user)
 
     def perform_create(self, serializer):
-        
-        
         lab = serializer.validated_data.get('lab')
+        if lab and lab.status != LabStatus.ACTIVE:
+            raise ValidationError(
+                f"Cannot enroll in this lab because its status is '{lab.status}'. "
+                "Only active labs are open for enrollment."
+            )
         requested_repo_name = self.request.data.get('github_repo_name')
         if not requested_repo_name:
             requested_repo_name = f"yuvro_{lab.title.replace(' ', '_').lower()}"

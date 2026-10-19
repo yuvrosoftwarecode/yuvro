@@ -251,8 +251,10 @@ export const useProctoring = ({
             onViolationRef.current?.('cut_detected');
         };
         const handleContextMenu = (e: MouseEvent) => {
-            if (enableCopyPaste === true) return;
+            // Always prevent browser context menu to forbid 'Inspect' and dev tools,
+            // regardless of whether copy/paste is enabled.
             e.preventDefault();
+            e.stopPropagation();
             logActivity('right_click_detected', { method: 'direct', x: e.clientX, y: e.clientY });
             onViolationRef.current?.('right_click_detected');
         };
@@ -345,8 +347,8 @@ export const useProctoring = ({
 
             const code = (e.code || '').toLowerCase();
             const isDevToolsLetter = (
-                ['i', 'j', 'c', 'k', 'e', 's', 'm', 'u', 'ˆ', '∆', 'ç', '¨'].includes(key) ||
-                ['keyi', 'keyj', 'keyc', 'keyk', 'keye', 'keys', 'keym', 'keyu'].includes(code)
+                ['i', 'j', 'c', 'k', 'e', 's', 'm', 'u', 'd', 'p', 'ˆ', '∆', 'ç', '¨', '', '´', 'ß', 'µ', 'î', 'π'].includes(key) ||
+                ['keyi', 'keyj', 'keyc', 'keyk', 'keye', 'keys', 'keym', 'keyd', 'keyu', 'keyp'].includes(code)
             );
 
             // ── Cmd+Option+I/J/C (Mac DevTools — Chrome, Safari, Edge) ───────

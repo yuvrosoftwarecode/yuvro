@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Parking Fee Calculation & Duplicate Checkout Charges",
+      "type": "BACKEND",
+      "description": "Debug and fix 3 critical parking fee calculation, validation, and concurrency bugs in a Django REST Framework checkout API. Enforce an hourly round-up billing policy, reject checkout on non-existent or already-completed sessions, and prevent duplicate checkout charges under repeated or concurrent requests.",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 30,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Parking-Fee-Calculation-&-Duplicate-Checkout-Charges",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Calculate Parking Duration Correctly",
+          "description": "The checkout API calculates parking fees incorrectly when a vehicle stays for part of an hour due to integer truncation.\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Submit a checkout request `POST /api/parking/checkout/` for a session lasting 1 hour and 15 minutes.\n3. Observe that the API incorrectly charges for 1 hour ($10.00) instead of rounding up to 2 hours ($20.00).\n\n**Goal:** Refactor the fee calculation in `parking/views.py` to enforce the hourly round-up policy so partial hours are billed for the next full hour.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 4,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Reject Invalid Checkout Requests",
+          "description": "The system allows checkout when a vehicle has no active parking session or when its session has already ended.\n\n**Testing in Swagger UI:**\n1. Submit a `POST /api/parking/checkout/` request with a non-existent `session_id` or a session that has already completed.\n2. Observe that the API accepts the checkout and generates additional charges.\n\n**Goal:** Ensure invalid checkout requests are rejected with **HTTP 404** (if missing) or **HTTP 400 Bad Request** (if completed/inactive) without creating a charge.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 3,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Duplicate Checkout Charges",
+          "description": "Repeated or simultaneous checkout requests create multiple charges for the same parking session.\n\n**Expected Behavior:**\n- A parking session must be charged exactly once.\n- Repeated sequential checkout requests must not create additional charges.\n- Simultaneous checkout requests must not result in duplicate charges.\n- Use appropriate transactions (`transaction.atomic()`), locking (`select_for_update()`), or idempotency checks to prevent race conditions.\n\n**Goal:** Ensure that checkout requests are idempotent and duplicate charges are prevented.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 3,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
