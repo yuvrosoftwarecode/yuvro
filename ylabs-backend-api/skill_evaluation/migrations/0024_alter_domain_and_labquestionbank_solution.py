@@ -2,6 +2,20 @@
 
 from django.db import migrations, models
 
+def add_solution_column_if_not_exists(apps, schema_editor):
+    table_name = "skill_evaluation_labquestionbank"
+    column_name = "solution"
+    with schema_editor.connection.cursor() as cursor:
+        if schema_editor.connection.vendor == "postgresql":
+            cursor.execute(
+                f'ALTER TABLE "{table_name}" ADD COLUMN IF NOT EXISTS "{column_name}" jsonb DEFAULT \'{{}}\'::jsonb;'
+            )
+        else:
+            try:
+                cursor.execute(f"SELECT {column_name} FROM {table_name} LIMIT 1;")
+            except Exception:
+                cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} json DEFAULT '{{}}';")
+
 
 class Migration(migrations.Migration):
 
@@ -86,13 +100,23 @@ class Migration(migrations.Migration):
                 max_length=20,
             ),
         ),
-        migrations.AddField(
-            model_name="labquestionbank",
-            name="solution",
-            field=models.JSONField(
-                blank=True,
-                default=dict,
-                help_text="Reference working solution files { 'relative/path': 'solution code' }",
-            ),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name="labquestionbank",
+                    name="solution",
+                    field=models.JSONField(
+                        blank=True,
+                        default=dict,
+                        help_text="Reference working solution files { 'relative/path': 'solution code' }",
+                    ),
+                ),
+            ],
+            database_operations=[
+                migrations.RunPython(
+                    code=add_solution_column_if_not_exists,
+                    reverse_code=migrations.RunPython.noop,
+                ),
+            ],
         ),
     ]
