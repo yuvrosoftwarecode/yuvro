@@ -213,15 +213,16 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
                         else:
                             shutil.copy2(src, dst)
 
-                from skill_evaluation.models import LabQuestionBank, LabQuestionBankTask
-                from skill_evaluation.utils import is_database_lab
-
-                tasks = list(LabQuestionBankTask.objects.filter(lab_question_bank_id=lab_uuid).order_by('order_index'))
+                tasks = []
                 lab = None
                 try:
-                    lab = LabQuestionBank.objects.get(id=lab_uuid)
+                    from skill_evaluation.models import LabQuestionBank, LabQuestionBankTask
+                    tasks = list(LabQuestionBankTask.objects.filter(lab_question_bank_id=lab_uuid).order_by('order_index'))
+                    lab = LabQuestionBank.objects.filter(id=lab_uuid).first()
                 except Exception:
                     pass
+
+                from skill_evaluation.utils import is_database_lab
 
                 if is_database_lab(lab, tasks):
                     num_tasks = len(tasks)

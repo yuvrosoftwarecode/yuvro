@@ -50,6 +50,9 @@ interface RealLab {
   max_score?: number;
   selected_task_ids?: string[];
   selected_task_id?: string;
+  solution?: any;
+  solution_files?: any[];
+  solutions?: any[];
 }
 
 
@@ -205,6 +208,9 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                 max_score: calcMarks,
                 selected_task_ids: q.selected_task_ids,
                 selected_task_id: q.selected_task_id,
+                solution: q.solution,
+                solution_files: q.solution_files,
+                solutions: q.solutions,
                 tasks: rawTasks.map((t: any) => ({
                   id: t.id || "",
                   title: t.title || "Task",
@@ -1406,6 +1412,9 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                   code: (lab as any).starterCode || (lab as any).starter_code || lab.code,
                   starterCode: (lab as any).starterCode || (lab as any).starter_code || (lab.code !== "// Code editor initialized." ? lab.code : undefined),
                   starterPath: (lab as any).starterPath || (lab as any).starter_path || lab.file,
+                  solution: (lab as any).solution,
+                  solution_files: (lab as any).solution_files,
+                  solutions: (lab as any).solutions,
                 };
                 const starterCodeVal = (lab as any).starterCode || (lab as any).starter_code || ((lab.code && lab.code !== "// Code editor initialized.") ? lab.code : undefined);
                 return (

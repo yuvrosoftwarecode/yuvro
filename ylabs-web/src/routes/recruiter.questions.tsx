@@ -34,7 +34,23 @@ export const Route = createFileRoute("/recruiter/questions")({
   component: RecruiterQuestionBankPage,
 });
 
-const DOMAINS = ["BACKEND", "FRONTEND", "FULLSTACK", "DEVOPS", "DATA", "SECURITY", "OTHER"];
+const DOMAINS = [
+  { value: "ERP", label: "Enterprise Resource Planning (ERP)" },
+  { value: "PAYMENT", label: "Payments & Fintech" },
+  { value: "SUPPLY_CHAIN", label: "Supply Chain & Logistics" },
+  { value: "FINANCE", label: "Banking & Financial Services" },
+  { value: "RETAIL", label: "E-Commerce & Retail" },
+  { value: "HEALTHCARE", label: "Healthcare & Life Sciences" },
+  { value: "INSURANCE", label: "Insurance & Underwriting" },
+  { value: "EDTECH", label: "EdTech & Learning" },
+  { value: "BACKEND", label: "Backend Engineering" },
+  { value: "FRONTEND", label: "Frontend Engineering" },
+  { value: "FULLSTACK", label: "Fullstack Engineering" },
+  { value: "DEVOPS", label: "DevOps & Cloud" },
+  { value: "DATA", label: "Data Engineering" },
+  { value: "SECURITY", label: "Cybersecurity" },
+  { value: "OTHER", label: "Other / General" },
+];
 const LAB_TYPES = ["DATABASE", "BACKEND", "FRONTEND", "FULL_STACK", "QUALITY_ASSURANCE", "DEVOPS"];
 const SCENARIOS = [
   "DEBUGGING",
@@ -53,6 +69,7 @@ const DEFAULT_LAB_FORM = {
   title: "",
   description: "",
   difficulty: "EASY",
+  domain: "ERP",
   type: "BACKEND",
   experience: "FRESHER",
   scenario: "FEATURE_DEVELOPMENT",
@@ -632,6 +649,7 @@ function RecruiterQuestionBankPage() {
     setLabFormData({
       title: q.title || "",
       description: q.description || "",
+      domain: q.domain || "OTHER",
       difficulty: q.difficulty || "EASY",
       type: q.type || "BACKEND",
       experience: q.experience || "FRESHER",
@@ -725,7 +743,7 @@ function RecruiterQuestionBankPage() {
       ...labFormData,
       backend_frameworks: sanitizedBackendFrameworks,
       tasks: preparedTasks,
-      domain: "OTHER",
+      domain: labFormData.domain || "OTHER",
     };
 
     if (editingLabId) {
@@ -1024,8 +1042,8 @@ function RecruiterQuestionBankPage() {
             >
               <option value="ALL" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">All Domains</option>
               {DOMAINS.map((d) => (
-                <option key={d} value={d} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
-                  {d}
+                <option key={d.value} value={d.value} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
+                  {d.label}
                 </option>
               ))}
             </select>
@@ -1299,6 +1317,21 @@ function RecruiterQuestionBankPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Domain / Industry</label>
+                <select
+                  value={labFormData.domain || "OTHER"}
+                  onChange={(e) => setLabFormData({ ...labFormData, domain: e.target.value })}
+                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                >
+                  {DOMAINS.map((d) => (
+                    <option key={d.value} value={d.value} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
+                      {d.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <label className="text-[11px] uppercase tracking-widest text-neutral-500">Difficulty</label>
                 <select

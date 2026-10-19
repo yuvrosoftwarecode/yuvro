@@ -1,0 +1,91 @@
+{
+  "lab_questions": [
+    {
+      "title": "Three-Way Procurement Matching & Approval Hierarchy",
+      "type": "BACKEND",
+      "description": "The accounts payable workflow allows vendor invoices to be approved and paid without verifying that the goods were actually received, leading to duplicate payments and billing discrepancy leakage.",
+      "difficulty": "HARD",
+      "domain": "ERP",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 60,
+      "marks": 30,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "feature/three-way-procurement-matching",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "connection_url": "",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Three-Way Invoice Reconciliation (PO vs. GRN vs. Invoice)",
+          "description": "The `POST /api/procurement/invoices/{id}/match/` endpoint automatically marks invoices as ready for payment, even when the invoiced quantity exceeds received inventory or the invoiced price exceeds the agreed Purchase Order (PO).\n\n**Goal:** Implement three-way reconciliation matching. Compare invoice line items against corresponding Goods Receipt Notes (GRN) and Purchase Order (PO) lines. If billed quantity exceeds total received quantity across all GRNs, or invoiced unit price exceeds PO price by more than a 2% tolerance threshold, flag the invoice status as `ON_HOLD` and record the discrepancy reason. Otherwise, mark the invoice as `MATCHED`.",
+          "difficulty": "HARD",
+          "marks": 10,
+          "duration_minutes": 25,
+          "order_index": 0,
+          "scoring_rules": {
+            "clean_code": 0,
+            "logic_score": 10,
+            "system_query": "N/A",
+            "parent_task_id": null,
+            "expected_result": "N/A",
+            "visual_accuracy": 0
+          },
+          "expected_output": [],
+          "solution": {}
+        },
+        {
+          "title": "Multi-Tier Approval Matrix by Dollar Threshold",
+          "description": "The `POST /api/procurement/invoices/{id}/approve/` endpoint allows a single user approval regardless of invoice dollar value, bypassing separation-of-duties controls.\n\n**Goal:** Implement a tiered approval hierarchy matrix: invoices <= $5,000 require Department Manager approval; $5,000.01 - $50,000 require Manager followed by Finance Director approval; > $50,000 require Manager, Director, and CFO approvals. Enforce strict sequential approval order and return `403 Forbidden` if an unauthorized or out-of-order role attempts approval. Mark invoice `status = APPROVED` only upon receiving the final required tier signoff.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 20,
+          "order_index": 1,
+          "scoring_rules": {
+            "clean_code": 0,
+            "logic_score": 10,
+            "system_query": "N/A",
+            "parent_task_id": null,
+            "expected_result": "N/A",
+            "visual_accuracy": 0
+          },
+          "expected_output": [],
+          "solution": {}
+        },
+        {
+          "title": "Automated Vendor Credit Memo Offsetting",
+          "description": "When executing `POST /api/procurement/invoices/{id}/pay/`, the system pays the full invoice amount even when the vendor has active, unused credit memos on file.\n\n**Goal:** Query active `VendorCreditMemo` records for the invoice's vendor in FIFO order. Automatically apply available credit balances against the invoice balance before computing the net disbursement amount. Create a `PaymentDisbursement` record with `amount_paid` and `credit_applied`, update the credit memo status to `CONSUMED`, and transition the invoice status to `PAID`.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "clean_code": 0,
+            "logic_score": 10,
+            "system_query": "N/A",
+            "parent_task_id": null,
+            "expected_result": "N/A",
+            "visual_accuracy": 0
+          },
+          "expected_output": [],
+          "solution": {}
+        }
+      ],
+      "allow_task_selection": true,
+      "solution": {
+        "procurement/views.py": "from decimal import Decimal\nfrom rest_framework.views import APIView\nfrom rest_framework.response import Response\nfrom rest_framework import status\nfrom django.shortcuts import get_object_or_404\nfrom django.db import models\nfrom .models import (\n    VendorInvoice, PaymentDisbursement, GoodsReceiptLine, VendorCreditMemo\n)\n\n\nclass InvoiceMatchView(APIView):\n    def post(self, request, id=None):\n        invoice = get_object_or_404(VendorInvoice, id=id)\n\n        discrepancies = []\n        for line in invoice.lines.all():\n            # Check quantity against cumulative GoodsReceiptLines for this PO line\n            total_received = GoodsReceiptLine.objects.filter(\n                po_line=line.po_line\n            ).aggregate(total=models.Sum('quantity_received'))['total'] or 0\n\n            if line.quantity > total_received:\n                discrepancies.append(\n                    f\"Line {line.id}: Invoiced qty ({line.quantity}) exceeds received qty ({total_received})\"\n                )\n\n            # Check unit price tolerance (max 2% above PO line price)\n            po_price = line.po_line.unit_price\n            max_allowed_price = po_price * Decimal('1.02')\n            if line.unit_price > max_allowed_price:\n                discrepancies.append(\n                    f\"Line {line.id}: Invoiced price ({line.unit_price}) exceeds PO price ({po_price}) by >2%\"\n                )\n\n        if discrepancies:\n            invoice.status = 'ON_HOLD'\n            invoice.discrepancy_reason = \"; \".join(discrepancies)\n            invoice.save()\n            return Response({\n                \"status\": \"ON_HOLD\",\n                \"invoice_number\": invoice.invoice_number,\n                \"discrepancy_reason\": invoice.discrepancy_reason\n            }, status=status.HTTP_200_OK)\n\n        invoice.status = 'MATCHED'\n        invoice.discrepancy_reason = None\n        invoice.save()\n\n        return Response({\n            \"status\": \"MATCHED\",\n            \"invoice_number\": invoice.invoice_number\n        }, status=status.HTTP_200_OK)\n\n\nclass InvoiceApproveView(APIView):\n    def post(self, request, id=None):\n        invoice = get_object_or_404(VendorInvoice, id=id)\n        role = request.data.get(\"role\")\n\n        # Determine required approval hierarchy based on total amount\n        if invoice.total_amount <= Decimal(\"5000.00\"):\n            required_roles = [\"MANAGER\"]\n        elif invoice.total_amount <= Decimal(\"50000.00\"):\n            required_roles = [\"MANAGER\", \"DIRECTOR\"]\n        else:\n            required_roles = [\"MANAGER\", \"DIRECTOR\", \"CFO\"]\n\n        current_approvals = list(invoice.approvals or [])\n\n        # Check if already fully approved\n        if len(current_approvals) >= len(required_roles):\n            return Response({\n                \"status\": invoice.status,\n                \"approvals\": current_approvals\n            }, status=status.HTTP_200_OK)\n\n        # The next expected role in sequence\n        expected_role = required_roles[len(current_approvals)]\n        if role != expected_role:\n            return Response({\n                \"error\": f\"Invalid approval sequence. Expected role: {expected_role}, received: {role}\"\n            }, status=status.HTTP_403_FORBIDDEN)\n\n        # Record valid approval\n        current_approvals.append(role)\n        invoice.approvals = current_approvals\n\n        if len(current_approvals) == len(required_roles):\n            invoice.status = \"APPROVED\"\n\n        invoice.save()\n\n        return Response({\n            \"status\": invoice.status,\n            \"invoice_number\": invoice.invoice_number,\n            \"approvals\": invoice.approvals\n        }, status=status.HTTP_200_OK)\n\n\nclass InvoicePayView(APIView):\n    def post(self, request, id=None):\n        invoice = get_object_or_404(VendorInvoice, id=id)\n\n        # Retrieve open vendor credit memos in FIFO order\n        open_memos = VendorCreditMemo.objects.filter(\n            vendor=invoice.vendor, status='OPEN'\n        ).order_by('created_at')\n\n        remaining_invoice_amount = invoice.total_amount\n        total_credit_applied = Decimal('0.00')\n\n        for memo in open_memos:\n            if remaining_invoice_amount <= Decimal('0.00'):\n                break\n            if memo.amount <= remaining_invoice_amount:\n                total_credit_applied += memo.amount\n                remaining_invoice_amount -= memo.amount\n                memo.status = 'CONSUMED'\n                memo.save()\n            else:\n                total_credit_applied += remaining_invoice_amount\n                memo.amount -= remaining_invoice_amount\n                remaining_invoice_amount = Decimal('0.00')\n                memo.save()\n\n        net_cash_paid = invoice.total_amount - total_credit_applied\n\n        disbursement = PaymentDisbursement.objects.create(\n            invoice=invoice,\n            amount_paid=net_cash_paid,\n            credit_applied=total_credit_applied\n        )\n\n        invoice.paid_amount = invoice.total_amount\n        invoice.status = 'PAID'\n        invoice.save()\n\n        return Response({\n            \"status\": \"PAID\",\n            \"invoice_number\": invoice.invoice_number,\n            \"amount_paid\": str(disbursement.amount_paid),\n            \"credit_applied\": str(disbursement.credit_applied)\n        }, status=status.HTTP_200_OK)"
+      }
+    }
+  ]
+}
