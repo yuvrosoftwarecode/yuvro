@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Insurance Premium Payment Processing & Duplicate Payment Prevention",
+      "type": "BACKEND",
+      "description": "An insurance financial settlement platform manages quote calculation and policy premium collection. Three critical bugs have been reported in the premium payment API: calculating inaccurate premiums due to double discounting, applying taxes to gross base rather than discounted amounts, and using floating point arithmetic; accepting underpayments and prematurely marking policies as PAID and active; and failing to prevent duplicate payment transactions on repeated submissions.\n\nCandidates must identify and fix all three bugs in `insurance/views.py` while ensuring legitimate premium settlements are processed accurately.",
+      "difficulty": "HARD",
+      "domain": "INSURANCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Insurance-Premium-Payment-Processing-&-Duplicate-Payment-Prevention",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Calculate the Premium Payable Correctly",
+          "description": "### Scenario\nPolicy premium quotes consist of base premium minus applicable discounts, plus administrative processing fees and applicable sales/insurance taxes.\n\n### Existing Problem\nThe `GET /api/insurance/policies/<id>/premium/` endpoint uses naive float arithmetic, calculates tax against the pre-discount base premium, and subtracts the discount amount twice when calculating `total_premium`.\n\n### Goal\n- Calculate `discount_amount` using `policy.base_premium * (policy.discount_percentage / 100)`.\n- Compute `discounted_base = policy.base_premium - discount_amount`.\n- Calculate `tax_amount` as a percentage of `discounted_base` (`discounted_base * (policy.tax_rate / 100)`).\n- Compute `total_premium = discounted_base + policy.processing_fee + tax_amount`.\n- Use `Decimal` quantized to 2 decimal places with `ROUND_HALF_UP`.\n\n### Scoring Criteria (4 Marks)\n- **4 marks**: Policy premium breakdown is accurately computed using Decimal arithmetic without double discounting or miscalculated tax.",
+          "difficulty": "HARD",
+          "marks": 4,
+          "duration_minutes": 20,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 40,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Reject Invalid or Underpaid Premium Transactions",
+          "description": "### Scenario\nPremium payments must cover the remaining policy balance before a policy can be bound and activated.\n\n### Existing Problem\nThe `POST /api/insurance/payments/` endpoint accepts zero or negative payment amounts, accepts underpayments (amount less than the remaining balance), and unconditionally sets `policy.payment_status = 'PAID'` and `policy.is_active = True`.\n\n### Goal\n- Validate `amount > 0`. Reject zero, negative, or invalid amounts with `400 Bad Request`.\n- Reject underpayments (`amount < remaining_balance`) with `400 Bad Request` without marking the policy as PAID or activating it.\n- Reject payments on policies that are already fully PAID with `400 Bad Request`.\n- Upon full valid settlement, update `policy.payment_status` to `PAID` and `is_active` to `True`.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Zero, negative, and underpaid transactions are rejected, and policies are only marked PAID and active upon full settlement.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Duplicate Premium Payments",
+          "description": "### Scenario\nPayment retries or multiple submissions with the same transaction reference must be handled idempotently.\n\n### Existing Problem\nThe `POST /api/insurance/payments/` endpoint does not verify whether `payment_reference` has already been recorded, allowing duplicate payment records to be stored for repeated submissions.\n\n### Goal\n- Require a non-empty `payment_reference` string.\n- Query if `payment_reference` already exists. If found, reject duplicate submissions with `409 Conflict` (or `400 Bad Request`) without creating duplicate database records.\n- Allow legitimate payments with distinct references to succeed with `201 Created`.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Duplicate payments are prevented under retried requests while allowing distinct payments.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
