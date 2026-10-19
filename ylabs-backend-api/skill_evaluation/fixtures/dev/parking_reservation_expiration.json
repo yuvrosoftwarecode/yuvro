@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Parking Reservation & Expiration Management",
+      "type": "BACKEND",
+      "description": "Debug and fix 3 critical reservation management bugs in a Django REST Framework API. Prevent overlapping slot reservations across time intervals, correctly expire past reservations so slots become available without touching future reservations, and enforce reservation ownership so users can only cancel their own reservations.",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 30,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Parking-Reservation-&-Expiration-Management",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Prevent Overlapping Reservations",
+          "description": "The reservation API `POST /api/parking/reserve/` allows users to reserve the same parking slot for overlapping time periods.\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Submit `POST /api/parking/reserve/` with `{\"slot_id\": 1, \"user_id\": 1, \"start_time\": \"...\", \"end_time\": \"...\"}` to reserve a slot.\n3. Submit a second reservation request for the same slot with an overlapping time window.\n4. Observe that the API returns `201 Created` instead of rejecting the overlap.\n\n**Goal:** Fix the overlap validation query in `parking/views.py` using `start_time__lt=end_time` and `end_time__gt=start_time` so overlapping reservations return **HTTP 409 Conflict**.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 4,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Expire Past Reservations",
+          "description": "The expiration endpoint `POST /api/parking/expire/` mistakenly marks future reservations as expired instead of expiring reservations whose `end_time` has already passed.\n\n**Testing in Swagger UI:**\n1. Submit `POST /api/parking/expire/`.\n2. Observe that future reservations have their status set to `EXPIRED`, while reservations with past end dates remain active or pending.\n\n**Goal:** Update the query filter in `parking/views.py` using `end_time__lte=now` to expire only reservations that have already ended, leaving future and active reservations unaffected.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 3,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Enforce Reservation Cancellation Authorization",
+          "description": "The cancellation endpoint `POST /api/parking/cancel/<reservation_id>/` allows any caller to cancel any reservation without verifying user ownership.\n\n**Expected Behavior:**\n- Require `user_id` in the cancellation request body.\n- Verify that the requesting `user_id` matches the reservation owner (`reservation.user_id`).\n- Reject requests missing `user_id` with **HTTP 400 Bad Request**.\n- Reject requests from non-owners with **HTTP 403 Forbidden**.\n- Return **HTTP 404** if the reservation does not exist.\n\n**Goal:** Enforce ownership validation in `CancelReservationView` in `parking/views.py` before permitting cancellation.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 3,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

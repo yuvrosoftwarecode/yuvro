@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Parking Slot Allocation & Concurrency Conflicts",
+      "type": "BACKEND",
+      "description": "Debug and fix parking slot allocation and concurrency bugs in a Django REST Framework API. The lab covers preventing duplicate allocations on active slots, eliminating race conditions under concurrent requests using database transactions and row-level locking, and ensuring vacated slots can be reused after vehicle checkout.",
+      "difficulty": "HARD",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Parking-Slot-Allocation-and-Concurrency-Conflicts",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Prevent Duplicate Slot Allocation",
+          "description": "The `POST /api/parking/allocate/` endpoint currently allows a vehicle to occupy a parking slot that is already assigned to another vehicle with an active parking session.\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Submit `POST /api/parking/allocate/` with `{\"slot_id\": 1, \"vehicle_number\": \"KA-01-AB-1234\"}` to allocate the slot.\n3. Submit a second `POST /api/parking/allocate/` request for the same slot with another vehicle `{\"slot_id\": 1, \"vehicle_number\": \"DL-02-CD-5678\"}`.\n4. Observe that the API returns `201 Created` and creates a duplicate active session instead of rejecting the request.\n\n**Goal:** Fix the validation query in `parking/views.py` so that allocating an already occupied slot is rejected with **HTTP 400 Bad Request** or **HTTP 409 Conflict**.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 15,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 4,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Handle Concurrent Allocation Requests",
+          "description": "When two or more vehicles simultaneously request the same parking slot, race conditions allow multiple requests to succeed, creating multiple active sessions for a single physical slot.\n\n**Expected Behavior:**\n- Ensure strictly only one vehicle can successfully allocate a particular slot.\n- Use database transactions (`transaction.atomic()`), locking (`select_for_update()`), or database constraints to serialize requests and prevent race conditions.\n- Handle competing concurrent requests safely by returning **HTTP 400 Bad Request** or **HTTP 409 Conflict** without crashing.\n- Ensure the database maintains at most 1 active session per parking slot.\n\n**Goal:** Implement concurrency control in `parking/views.py` using `transaction.atomic()` and `select_for_update()` on `ParkingSlot`.",
+          "difficulty": "HARD",
+          "marks": 4,
+          "duration_minutes": 20,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 4,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Allow Slot Reuse After Checkout",
+          "description": "A parking slot currently remains unavailable even after the previous vehicle has completed checkout via `POST /api/parking/checkout/`.\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Allocate a slot via `POST /api/parking/allocate/` with `{\"slot_id\": 1, \"vehicle_number\": \"KA-01-AB-1234\"}`.\n3. Complete checkout via `POST /api/parking/checkout/` with `{\"slot_id\": 1}`.\n4. Attempt to allocate the slot for a new vehicle via `POST /api/parking/allocate/` with `{\"slot_id\": 1, \"vehicle_number\": \"MH-04-EF-9999\"}`.\n5. Observe that the API incorrectly rejects the request with `400 Bad Request`, permanently blocking the vacated slot.\n\n**Goal:** Ensure `parking/views.py` allows a new vehicle to allocate the slot after checkout, returning **HTTP 201 Created**.",
+          "difficulty": "EASY",
+          "marks": 2,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 2,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}
