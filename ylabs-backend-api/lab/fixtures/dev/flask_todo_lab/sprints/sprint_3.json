@@ -1,0 +1,154 @@
+{
+  "title": "Sprint 3 \u2014 Task CRUD Operations & User Isolation",
+  "description": "Implement task creation, listing, and single retrieval while enforcing strict per-user data ownership.",
+  "order_index": 3,
+  "lab_title": "Flask Todo REST API Lab",
+  "tickets": [
+    {
+      "title": "Ticket 1 - Create New Task API",
+      "ticket_slug": "flask-todo-31",
+      "description": "Implement `POST /api/tasks` allowing an authenticated user to create a task.\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Request Body\n```json\n{\n  \"title\": \"Complete Flask Lab\",\n  \"description\": \"Finish all 4 sprints with passing tests\"\n}\n```\n\n### Requirements\n1. Protect endpoint with `@token_required`.\n2. Validate that `title` is non-empty. Return `400 Bad Request` if title is missing.\n3. Create new task associated with `current_user.id`.\n4. Return `201 Created` with `{\"message\": \"Task created successfully\", \"task\": {...}}`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Associate created entities with authenticated users.",
+        "Implement payload validation for required fields.",
+        "Return proper HTTP 201 Created responses."
+      ],
+      "tasks": [
+        {
+          "title": "Require authentication on `POST /api/tasks`.",
+          "points": 30
+        },
+        {
+          "title": "Validate non-empty title in request payload.",
+          "points": 30
+        },
+        {
+          "title": "Persist task to database with `user_id` set to current user.",
+          "points": 40
+        }
+      ],
+      "common_mistakes": [
+        "Allowing the client to pass arbitrary `user_id` in the request body instead of taking it from the JWT token.",
+        "Allowing empty string titles."
+      ],
+      "hints": [
+        "Always use `current_user.id` to set `user_id` on the new `Task` instance.",
+        "Check `if not title:` after calling `.strip()`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routes/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
+      },
+      "solution": {
+        "app/routes/tasks.py": "from flask import Blueprint, request, jsonify\nfrom app import db\nfrom app.models import Task\nfrom app.utils.auth_helpers import token_required\n\ntasks_bp = Blueprint('tasks', __name__, url_prefix='/api/tasks')\n\n@tasks_bp.route('', methods=['POST'])\n@token_required\ndef create_task(current_user):\n    data = request.get_json() or {}\n    title = data.get('title', '').strip()\n    description = data.get('description', '')\n\n    if not title:\n        return jsonify({'error': 'Title is required'}), 400\n\n    task = Task(\n        user_id=current_user.id,\n        title=title,\n        description=description\n    )\n    db.session.add(task)\n    db.session.commit()\n\n    return jsonify({\n        'message': 'Task created successfully',\n        'task': task.to_dict()\n    }), 201\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - List Authenticated User Tasks",
+      "ticket_slug": "flask-todo-32",
+      "description": "Implement `GET /api/tasks` returning all tasks belonging to the authenticated user.\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Requirements\n1. Protect endpoint with `@token_required`.\n2. Query only tasks where `user_id == current_user.id`.\n3. Return `200 OK` with JSON `{\"tasks\": [...]}` containing an array of serialized task objects.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Filter queries by authenticated user identifier.",
+        "Serialize collections of ORM models into JSON arrays.",
+        "Ensure data isolation between multiple users."
+      ],
+      "tasks": [
+        {
+          "title": "Query tasks filtered by `current_user.id`.",
+          "points": 50
+        },
+        {
+          "title": "Return JSON list of tasks with HTTP 200.",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Querying all tasks (`Task.query.all()`) instead of filtering by `user_id`.",
+        "Returning un-serialized SQLAlchemy objects causing JSON serialization errors."
+      ],
+      "hints": [
+        "Use `Task.query.filter_by(user_id=current_user.id).all()`.",
+        "List comprehension: `[task.to_dict() for task in tasks]`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routes/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
+      },
+      "solution": {
+        "app/routes/tasks.py": "from flask import Blueprint, request, jsonify\nfrom app import db\nfrom app.models import Task\nfrom app.utils.auth_helpers import token_required\n\ntasks_bp = Blueprint('tasks', __name__, url_prefix='/api/tasks')\n\n@tasks_bp.route('', methods=['POST'])\n@token_required\ndef create_task(current_user):\n    data = request.get_json() or {}\n    title = data.get('title', '').strip()\n    description = data.get('description', '')\n\n    if not title:\n        return jsonify({'error': 'Title is required'}), 400\n\n    task = Task(\n        user_id=current_user.id,\n        title=title,\n        description=description\n    )\n    db.session.add(task)\n    db.session.commit()\n\n    return jsonify({\n        'message': 'Task created successfully',\n        'task': task.to_dict()\n    }), 201\n\n@tasks_bp.route('', methods=['GET'])\n@token_required\ndef list_tasks(current_user):\n    tasks = Task.query.filter_by(user_id=current_user.id).order_by(Task.created_at.desc()).all()\n    return jsonify({\n        'tasks': [task.to_dict() for task in tasks]\n    }), 200\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
+    },
+    {
+      "title": "Ticket 3 - Retrieve Task by ID with Ownership Authorization",
+      "ticket_slug": "flask-todo-33",
+      "description": "Implement `GET /api/tasks/<id>` to retrieve the details of a specific task.\n\n### Requirements\n1. Protect endpoint with `@token_required`.\n2. Find task by `id`. If no task exists, return `404 Not Found`.\n3. **Ownership Check**: If the task belongs to a different user, return `404 Not Found` (or `403 Forbidden`) with `{\"error\": \"Task not found\"}` to prevent resource enumeration.\n4. If the task belongs to `current_user`, return `200 OK` with `{\"task\": task.to_dict()}`.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Implement single-resource REST endpoints with URL parameters.",
+        "Enforce horizontal authorization / access control checks.",
+        "Prevent indirect object reference (IDOR) vulnerabilities."
+      ],
+      "tasks": [
+        {
+          "title": "Retrieve task by primary key from URL parameter.",
+          "points": 40
+        },
+        {
+          "title": "Enforce ownership check: verify `task.user_id == current_user.id`.",
+          "points": 40
+        },
+        {
+          "title": "Return HTTP 404 on missing or unauthorized task access.",
+          "points": 20
+        }
+      ],
+      "common_mistakes": [
+        "Returning tasks of other users without checking `user_id` (IDOR security flaw).",
+        "Crashing with 500 when non-existent IDs are queried."
+      ],
+      "hints": [
+        "Query using `Task.query.filter_by(id=task_id, user_id=current_user.id).first()` for atomic lookup and authorization.",
+        "If `not task`, return `jsonify({'error': 'Task not found'}), 404`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routes/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
+      },
+      "solution": {
+        "app/routes/tasks.py": "from flask import Blueprint, request, jsonify\nfrom app import db\nfrom app.models import Task\nfrom app.utils.auth_helpers import token_required\n\ntasks_bp = Blueprint('tasks', __name__, url_prefix='/api/tasks')\n\n@tasks_bp.route('', methods=['POST'])\n@token_required\ndef create_task(current_user):\n    data = request.get_json() or {}\n    title = data.get('title', '').strip()\n    description = data.get('description', '')\n\n    if not title:\n        return jsonify({'error': 'Title is required'}), 400\n\n    task = Task(\n        user_id=current_user.id,\n        title=title,\n        description=description\n    )\n    db.session.add(task)\n    db.session.commit()\n\n    return jsonify({\n        'message': 'Task created successfully',\n        'task': task.to_dict()\n    }), 201\n\n@tasks_bp.route('', methods=['GET'])\n@token_required\ndef list_tasks(current_user):\n    tasks = Task.query.filter_by(user_id=current_user.id).order_by(Task.created_at.desc()).all()\n    return jsonify({\n        'tasks': [task.to_dict() for task in tasks]\n    }), 200\n\n@tasks_bp.route('/<int:task_id>', methods=['GET'])\n@token_required\ndef get_task(current_user, task_id):\n    task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()\n    if not task:\n        return jsonify({'error': 'Task not found'}), 404\n    return jsonify({'task': task.to_dict()}), 200\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
+    }
+  ]
+}

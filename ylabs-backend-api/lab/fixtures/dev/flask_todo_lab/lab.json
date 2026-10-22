@@ -1,0 +1,24 @@
+{
+  "labs": [
+    {
+      "title": "Flask Todo REST API Lab",
+      "type": "BACKEND",
+      "description": "Master backend REST API development with Python and Flask. Build a production-ready Todo management API from scratch featuring SQLite database modeling with Flask-SQLAlchemy, secure JWT authentication with password hashing, and user-isolated task CRUD endpoints without any UI.",
+      "difficulty": "EASY",
+      "icon": "FlaskConical",
+      "prerequisites": "Basic Python programming and understanding of HTTP methods.",
+      "skills": [
+        "Python",
+        "Flask",
+        "REST API",
+        "Flask-SQLAlchemy",
+        "SQLite",
+        "JWT Authentication",
+        "Password Hashing",
+        "Data Validation"
+      ],
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/lab_todo_flask",
+      "status": "active"
+    }
+  ]
+}

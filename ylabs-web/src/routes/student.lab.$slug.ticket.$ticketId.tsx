@@ -916,8 +916,9 @@ export function StudentTicketView({
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "bash",
             status: "Not Started",
-            startup_command: t.startup_command,
-            test_command: t.test_command,
+            startup_command: t.startup_command || t.scoring_rules?.startup_command,
+            test_command: t.test_command || t.scoring_rules?.test_command,
+            starter_path: t.starter_path || t.starterPath || t.scoring_rules?.starter_path || t.scoring_rules?.starterPath,
             connection_url: t.connection_url || t.uri || "",
             uri: t.connection_url || t.uri || "",
             databases: t.databases || [],
@@ -1393,7 +1394,23 @@ export function TicketIDE({
   const [files, setFiles] = useState<Record<string, string>>(starters);
   const [dirty, setDirty] = useState<Record<string, boolean>>({});
 
-  const fileList = useMemo(() => Object.keys(files).filter(k => Boolean(k && k.trim())), [files]);
+  const isInternalOrHiddenFile = (p: string): boolean => {
+    if (!p) return true;
+    const lower = p.toLowerCase();
+    return (
+      lower.includes("yuvro_scoring_rules") ||
+      lower.includes("scoring_rules") ||
+      lower.includes("__pycache__") ||
+      lower.endsWith(".pyc") ||
+      lower.startsWith(".git") ||
+      lower.includes("/.git")
+    );
+  };
+
+  const fileList = useMemo(
+    () => Object.keys(files).filter(k => Boolean(k && k.trim()) && !isInternalOrHiddenFile(k)),
+    [files]
+  );
   
   const [activeFile, setActiveFile] = useState<FileName>(() => {
     if (initialFiles) {
@@ -1506,7 +1523,7 @@ export function TicketIDE({
           }
         }
 
-        const fileKeys = Object.keys(paths).filter(k => Boolean(k && k.trim()));
+        const fileKeys = Object.keys(paths).filter(k => Boolean(k && k.trim()) && !isInternalOrHiddenFile(k));
         setFiles(prev => {
           const next = { ...paths };
           for (const k of fileKeys) {
@@ -1527,10 +1544,10 @@ export function TicketIDE({
 
         if (preferredFile) {
           setOpenTabs(prev => {
-            const clean = prev.filter(t => Boolean(t && t.trim()));
+            const clean = prev.filter(t => Boolean(t && t.trim()) && !isInternalOrHiddenFile(t));
             return clean.includes(preferredFile) ? clean : [...clean, preferredFile];
           });
-          setActiveFile(preferredFile);
+          setActiveFile(prev => isInternalOrHiddenFile(prev) ? preferredFile : (prev || preferredFile));
           if (paths[preferredFile] && paths[preferredFile] !== "") {
             loadedFiles.current.add(preferredFile);
           } else {
@@ -1737,6 +1754,7 @@ export function TicketIDE({
 
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [initialRevealedHints, setInitialRevealedHints] = useState<number[]>([]);
+  const [initialSolutionRevealed, setInitialSolutionRevealed] = useState(false);
   const creatingSubmissionRef = useRef(false);
   
   useEffect(() => {
@@ -1798,6 +1816,9 @@ export function TicketIDE({
             setSubmissionId(sub.id);
             if (sub.revealed_hints) {
               setInitialRevealedHints(sub.revealed_hints);
+            }
+            if (sub.solution_revealed) {
+              setInitialSolutionRevealed(true);
             }
             if (sub.ticket_status === "backlog") {
               await api.patch(`${submissionsEndpoint}${ sub.id }/`, {
@@ -3621,12 +3642,15 @@ export function TicketIDE({
                   <SolutionPanel
                     ticket={ticket}
                     isPreview={isRecruiterPreview}
-                    onLoadIntoEditor={(code, language) => {
-                      const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
-                      const ext = langMap[language.toLowerCase()] || "txt";
-                      const targetFile = `solution.${ext}`;
+                    initialSolutionRevealed={initialSolutionRevealed}
+                    onLoadIntoEditor={(code, language, filePath) => {
+                      const targetFile = filePath || ticket.starter_path || ticket.starterPath || activeFile || "solution.py";
                       setFiles(prev => ({ ...prev, [targetFile]: code }));
                       setActiveFile(targetFile);
+                      if (isReal) {
+                        wsWriteFile(effectiveUserId, labId, sprintId, targetFile, code, evaluationId).catch(console.error);
+                      }
+                      showToast(`Loaded solution into ${targetFile}`);
                     }}
                   />
                 )}
@@ -7575,48 +7599,163 @@ function UiDiffView({ result }: { result: any }) {
 }
 
 
-export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: { ticket: any, onLoadIntoEditor?: (code: string, language: string) => void, isPreview?: boolean }) {
-  // In preview mode, use ticket.solutions directly without API reveal
-  const previewSols: any[] = isPreview
-    ? (Array.isArray(ticket?.solutions) ? ticket.solutions.map((s: any) => ({
-        approach: s.approach || 'optimal',
-        language: s.language || 'python',
-        code: s.code || '',
-        title: s.title || 'Solution',
-        complexity_analysis: s.complexity_analysis || '',
-      })) : [])
-    : [];
+export function normalizeSolutions(raw: any, starterPath?: string): any[] {
+  if (!raw) return [];
 
-  const [revealedSolution, setRevealedSolution] = useState(isPreview);
-  const [fetchedSolutions, setFetchedSolutions] = useState<any[]>(isPreview ? previewSols : []);
+  // Case 1: Already an array
+  if (Array.isArray(raw)) {
+    return raw.map((s: any, idx: number) => ({
+      id: s.id || `sol-${idx}`,
+      approach: s.approach || "optimal",
+      language: s.language || "python",
+      code: s.code || "",
+      title: s.title || s.file_path || (s.language ? s.language.toUpperCase() : `Solution ${idx + 1}`),
+      file_path: s.file_path || starterPath || "",
+      complexity_analysis: s.complexity_analysis || "",
+    }));
+  }
+
+  // Case 2: Object with solutions array { solutions: [...] }
+  if (raw && typeof raw === "object" && Array.isArray(raw.solutions)) {
+    return normalizeSolutions(raw.solutions, starterPath);
+  }
+
+  // Case 3: Object mapping file paths to code strings: { "app/__init__.py": "...", "config.py": "..." }
+  if (raw && typeof raw === "object") {
+    const extToLang: Record<string, string> = {
+      py: "python", js: "javascript", jsx: "javascript", ts: "typescript", tsx: "typescript",
+      sql: "sql", sh: "bash", bash: "bash", java: "java", cpp: "cpp", c: "c", html: "html",
+      css: "css", json: "json"
+    };
+
+    const result: any[] = [];
+    const entries = Object.entries(raw);
+
+    for (let idx = 0; idx < entries.length; idx++) {
+      const [key, val] = entries[idx];
+      if (typeof val === "string") {
+        const ext = key.includes(".") ? key.split(".").pop()?.toLowerCase() || "" : "";
+        const lang = extToLang[ext] || "python";
+        result.push({
+          id: `sol-${idx}`,
+          approach: "optimal",
+          language: lang,
+          code: val,
+          title: key.includes("/") || key.includes(".") ? key : (starterPath || "Solution"),
+          file_path: key.includes(".") ? key : (starterPath || ""),
+          complexity_analysis: "",
+        });
+      } else if (typeof val === "object" && val !== null && (val as any).code) {
+        const item: any = val;
+        result.push({
+          id: item.id || `sol-${idx}`,
+          approach: item.approach || "optimal",
+          language: item.language || "python",
+          code: item.code || "",
+          title: item.title || key,
+          file_path: item.file_path || (key.includes(".") ? key : starterPath || ""),
+          complexity_analysis: item.complexity_analysis || "",
+        });
+      }
+    }
+    return result;
+  }
+
+  // Case 4: Plain string
+  if (typeof raw === "string" && raw.trim()) {
+    return [{
+      id: "sol-0",
+      approach: "optimal",
+      language: "python",
+      code: raw,
+      title: starterPath || "Solution",
+      file_path: starterPath || "",
+      complexity_analysis: "",
+    }];
+  }
+
+  return [];
+}
+
+export function SolutionPanel({ 
+  ticket, 
+  onLoadIntoEditor, 
+  isPreview = false,
+  initialSolutionRevealed = false
+}: { 
+  ticket: any, 
+  onLoadIntoEditor?: (code: string, language: string, filePath?: string) => void, 
+  isPreview?: boolean,
+  initialSolutionRevealed?: boolean
+}) {
+  const normalizedSols = useMemo(() => {
+    return normalizeSolutions(ticket?.solutions || ticket?.solution, ticket?.starter_path);
+  }, [ticket]);
+
+  const [revealedSolution, setRevealedSolution] = useState(isPreview || initialSolutionRevealed);
+  const [fetchedSolutions, setFetchedSolutions] = useState<any[]>(
+    (isPreview || initialSolutionRevealed) ? normalizedSols : []
+  );
   const [loading, setLoading] = useState(false);
-  const [selectedApproach, setSelectedApproach] = useState<string>(previewSols[0]?.approach || 'optimal');
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(previewSols[0]?.language || '');
+  const [selectedApproach, setSelectedApproach] = useState<string>("optimal");
+  const [selectedId, setSelectedId] = useState<string>("");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [showWarningDialog, setShowWarningDialog] = useState(false);
+
+  useEffect(() => {
+    if (initialSolutionRevealed || isPreview) {
+      setRevealedSolution(true);
+      if (normalizedSols.length > 0 && fetchedSolutions.length === 0) {
+        setFetchedSolutions(normalizedSols);
+      }
+    }
+  }, [initialSolutionRevealed, isPreview, normalizedSols, fetchedSolutions.length]);
+
+  useEffect(() => {
+    if (fetchedSolutions.length > 0) {
+      const firstApproach = fetchedSolutions[0]?.approach || "optimal";
+      setSelectedApproach(prev => prev || firstApproach);
+      const match = fetchedSolutions.find((s: any) => (s.approach || "optimal") === (selectedApproach || firstApproach));
+      if (match) {
+        setSelectedId(prev => prev || match.id);
+        setSelectedLanguage(prev => prev || match.language);
+      }
+    }
+  }, [fetchedSolutions, selectedApproach]);
 
   const handleRevealSolution = async () => {
     setLoading(true);
     try {
       const { default: api } = await import("@/utils/RestApiAuthUtil");
-      const data = await api.post(`/lab/submissions/reveal-solution/`, { ticket_id: ticket.id });
-      const sols = data?.solutions || [];
-      setFetchedSolutions(sols);
+      const data: any = await api.post(`/lab/submissions/reveal-solution/`, { ticket_id: ticket.id });
+      const raw = data?.solutions || data?.solution || data || (ticket as any)?.solution;
+      const sols = normalizeSolutions(raw, (ticket as any)?.starter_path);
+      const finalSols = sols.length > 0 ? sols : normalizedSols;
+      setFetchedSolutions(finalSols);
       
-      const firstApproach = sols.length > 0 ? (sols[0].approach || 'optimal') : '';
-      setSelectedApproach(firstApproach);
-      const firstLangForApproach = sols.find((s: any) => (s.approach || 'optimal') === firstApproach)?.language || '';
-      setSelectedLanguage(firstLangForApproach);
-      
+      if (finalSols.length > 0) {
+        const firstApproach = finalSols[0].approach || "optimal";
+        setSelectedApproach(firstApproach);
+        const match = finalSols.find((s: any) => (s.approach || "optimal") === firstApproach);
+        if (match) {
+          setSelectedId(match.id);
+          setSelectedLanguage(match.language);
+        }
+      }
       setRevealedSolution(true);
     } catch (err) {
       console.error("Failed to reveal solution", err);
+      if (normalizedSols.length > 0) {
+        setFetchedSolutions(normalizedSols);
+        setRevealedSolution(true);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   // Preview mode with no solutions on the ticket
-  if (isPreview && previewSols.length === 0) {
+  if (isPreview && normalizedSols.length === 0) {
     return (
       <div className="text-center py-8 w-full border rounded-md mt-4 border-editor-border bg-editor-panel">
         <Key className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
@@ -7672,53 +7811,65 @@ export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: {
 
   const solutionsForApproach = fetchedSolutions.filter((s: any) => (s.approach || 'optimal') === selectedApproach);
 
-  if (solutionsForApproach.length > 0 && !solutionsForApproach.find((s: any) => s.language === selectedLanguage)) {
-    setSelectedLanguage(solutionsForApproach[0].language);
-  }
-
-  const sol = solutionsForApproach.find((s: any) => s.language === selectedLanguage);
+  const sol = solutionsForApproach.find((s: any) => s.id === selectedId) ||
+              solutionsForApproach.find((s: any) => s.language === selectedLanguage) ||
+              solutionsForApproach[0];
 
   return (
     <div className="w-full space-y-4 text-xs">
-      <div className="flex border-b border-border overflow-x-auto hide-scrollbar">
-        {approaches.map((approach: any) => (
-          <button
-            key={approach}
-            onClick={() => setSelectedApproach(approach)}
-            className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors ${
-              selectedApproach === approach
-                ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {getApproachLabel(approach)}
-          </button>
-        ))}
-      </div>
+      {approaches.length > 1 && (
+        <div className="flex border-b border-border overflow-x-auto hide-scrollbar">
+          {approaches.map((approach: any) => (
+            <button
+              key={approach}
+              onClick={() => {
+                setSelectedApproach(approach);
+                const nextMatch = fetchedSolutions.find((s: any) => (s.approach || 'optimal') === approach);
+                if (nextMatch) {
+                  setSelectedId(nextMatch.id);
+                  setSelectedLanguage(nextMatch.language);
+                }
+              }}
+              className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors ${
+                selectedApproach === approach
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {getApproachLabel(approach)}
+            </button>
+          ))}
+        </div>
+      )}
 
-      <div className="flex flex-wrap gap-2">
-        {solutionsForApproach.map((s: any) => (
-          <button
-            key={s.language}
-            onClick={() => setSelectedLanguage(s.language)}
-            className={`px-3 py-1.5 rounded-full font-medium transition-colors border ${
-              selectedLanguage === s.language
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-editor-bg text-muted-foreground border-border hover:border-muted-foreground/30"
-            }`}
-          >
-            {s.language.toUpperCase()}
-          </button>
-        ))}
-      </div>
+      {solutionsForApproach.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {solutionsForApproach.map((s: any) => (
+            <button
+              key={s.id}
+              onClick={() => {
+                setSelectedId(s.id);
+                setSelectedLanguage(s.language);
+              }}
+              className={`px-3 py-1.5 rounded-full font-medium transition-colors border ${
+                (sol && sol.id === s.id)
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-editor-bg text-muted-foreground border-border hover:border-muted-foreground/30"
+              }`}
+            >
+              {s.title || s.language?.toUpperCase() || "SOLUTION"}
+            </button>
+          ))}
+        </div>
+      )}
 
       {sol && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-muted-foreground">{sol.title}</span>
+            <span className="font-semibold text-muted-foreground">{sol.title || sol.file_path || "Solution"}</span>
             {onLoadIntoEditor && (
               <button
-                onClick={() => onLoadIntoEditor(sol.code, sol.language)}
+                onClick={() => onLoadIntoEditor(sol.code, sol.language, sol.file_path)}
                 className="inline-flex h-7 items-center justify-center rounded px-3 text-[11px] font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
               >
                 <Download className="w-3 h-3 mr-1.5" />
