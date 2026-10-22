@@ -58,6 +58,11 @@ services:
       - ./ycode-web/.env.local
       - path: ./ycode-web/.env.local-secrets
         required: false
+    volumes:
+      - ./ycode-web:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
     stdin_open: true
     tty: true
     depends_on:

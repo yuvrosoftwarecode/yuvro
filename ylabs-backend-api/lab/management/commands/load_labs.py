@@ -139,6 +139,7 @@ class Command(BaseCommand):
                 "skills": lab_data.get("skills", []),
                 "git_repo_starter_url": lab_data.get("git_repo_starter_url", ""),
                 "difficulty": lab_data.get("difficulty", "MEDIUM"),
+                "status": lab_data.get("status", "active" if lab_data.get("is_active", True) else "inactive"),
                 "created_by": admin_user,
             }
             if "id" in lab_data:

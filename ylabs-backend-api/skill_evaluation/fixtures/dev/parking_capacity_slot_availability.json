@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Parking Capacity & Slot Availability Management",
+      "type": "BACKEND",
+      "description": "Debug and fix 3 critical parking capacity and availability management bugs in a Django REST Framework API. Accurately calculate available slots by excluding disabled, reserved, and occupied slots without double-counting, reject new vehicle allocations when the parking lot reaches maximum capacity under serial and concurrent requests, and ensure slot availability updates immediately after vehicle checkout.",
+      "difficulty": "MEDIUM",
+      "domain": "BACKEND",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 30,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Parking-Capacity-and-Slot-Availability-Management",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Calculate Available Slots Correctly",
+          "description": "The availability endpoint `GET /api/parking/availability/` uses a naive calculation (`total_slots - occupied_slots`) that misreports parking capacity by treating disabled and reserved slots as available.\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Submit `GET /api/parking/availability/` on a parking lot with disabled (`is_active=False`) or reserved (`is_reserved=True`) slots.\n3. Observe that disabled and reserved slots are counted in `available_slots`.\n\n**Goal:** Fix the availability calculation in `parking/views.py` so that only active (`is_active=True`), non-reserved (`is_reserved=False`), and unoccupied slots without an active session (`status=\"ACTIVE\"`) are counted as available, avoiding double-counting.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 4,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Reject Entry When the Lot Is Full",
+          "description": "The allocation endpoint `POST /api/parking/allocate/` allows new vehicles to enter and be assigned slots even when no eligible vacant slots remain in the facility.\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Allocate all available eligible slots using `POST /api/parking/allocate/`.\n3. Submit an additional allocation request once all slots are occupied.\n4. Observe that the API accepts the entry with `201 Created` instead of rejecting it.\n\n**Goal:** Ensure allocation requests are rejected with **HTTP 400 Bad Request** or **HTTP 409 Conflict** when the lot is full or the requested slot is ineligible, and protect against concurrent over-allocation using database transactions and row-level locks.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 3,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Update Availability After Checkout",
+          "description": "The checkout endpoint `POST /api/parking/checkout/` fails to mark the parking session as completed, causing vacated slots to remain occupied in availability queries.\n\n**Testing in Swagger UI:**\n1. Open preview to view the Swagger UI.\n2. Allocate a slot and verify the availability count decreases.\n3. Checkout the slot via `POST /api/parking/checkout/`.\n4. Call `GET /api/parking/availability/` and observe that available slots does not increase.\n5. Observe that repeated checkout requests on the same session are not rejected.\n\n**Goal:** Update `CheckoutSlotView` in `parking/views.py` to set `session.status = ParkingSession.STATUS_COMPLETED`, update `exit_time`, immediately release the slot in availability, and reject repeated checkouts with **HTTP 400 Bad Request**.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 3,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

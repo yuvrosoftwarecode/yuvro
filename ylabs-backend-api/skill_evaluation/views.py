@@ -208,10 +208,9 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             now_ms = int(time.time() * 1000)
             new_invited = get_emails_list(invited)
             
-            final_invited = {}
+            final_invited = dict(current)
             for e in new_invited:
-                if e in current:
-                    final_invited[e] = current[e]
+                if e in final_invited:
                     # update name if provided and wasn't there
                     if names_dict.get(e):
                         final_invited[e]["name"] = names_dict[e]
@@ -1468,13 +1467,213 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         records_list.sort(key=lambda x: x['lastActivity'] or 0, reverse=True)
         return Response(records_list)
 
+def export_lab_question_to_fixture(lab_question):
+    """
+    Exports a LabQuestionBank instance and its tasks into standard
+    dev fixture JSON format at skill_evaluation/fixtures/dev/<slug>.json
+    """
+    slug = re.sub(r'[^a-z0-9_]+', '_', (lab_question.title or '').lower().strip()).strip('_')
+    if not slug:
+        slug = f"lab_question_{lab_question.id}"
+
+    tasks_data = []
+    for task in lab_question.tasks.all().order_by("order_index"):
+        scoring_rules = task.scoring_rules or {
+            "logic_score": task.marks,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+        }
+        tasks_data.append({
+            "title": task.title,
+            "description": task.description,
+            "difficulty": task.difficulty,
+            "marks": task.marks,
+            "duration_minutes": task.duration_minutes,
+            "order_index": task.order_index,
+            "scoring_rules": scoring_rules,
+            "expected_output": task.expected_output or [],
+            "solution": task.solution or {}
+        })
+
+    fixture_content = {
+        "lab_questions": [
+            {
+                "title": lab_question.title,
+                "type": lab_question.type,
+                "description": lab_question.description,
+                "difficulty": lab_question.difficulty,
+                "domain": lab_question.domain,
+                "experience": lab_question.experience,
+                "duration_minutes": lab_question.duration_minutes,
+                "marks": lab_question.marks,
+                "scenario": lab_question.scenario,
+                "git_repo_starter_url": lab_question.git_repo_starter_url,
+                "git_repo_starter_branch": lab_question.git_repo_starter_branch,
+                "startup_command": lab_question.startup_command,
+                "test_command": lab_question.test_command,
+                "connection_url": getattr(lab_question, 'connection_url', None) or "",
+                "programming_languages": lab_question.programming_languages,
+                "databases": lab_question.databases,
+                "backend_frameworks": lab_question.backend_frameworks,
+                "frontend_frameworks": lab_question.frontend_frameworks,
+                "tasks": tasks_data,
+                "allow_task_selection": lab_question.allow_task_selection,
+                "solution": lab_question.solution or {}
+            }
+        ]
+    }
+
+    fixtures_dir = os.path.join(settings.BASE_DIR, "skill_evaluation", "fixtures", "dev")
+    os.makedirs(fixtures_dir, exist_ok=True)
+    file_path = os.path.join(fixtures_dir, f"{slug}.json")
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(fixture_content, f, indent=2)
+    return file_path, fixture_content
+
+
 class LabQuestionBankViewSet(viewsets.ModelViewSet):
     queryset = LabQuestionBank.objects.all()
     serializer_class = LabQuestionBankSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        user = self.request.user if (self.request.user and self.request.user.is_authenticated) else None
+        if not user:
+            from django.contrib.auth import get_user_model
+            user = get_user_model().objects.filter(is_superuser=True).first()
+        instance = serializer.save(created_by=user)
+        try:
+            export_lab_question_to_fixture(instance)
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"Auto-export fixture failed on create: {e}")
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        try:
+            export_lab_question_to_fixture(instance)
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"Auto-export fixture failed on update: {e}")
+
+    @action(detail=True, methods=['get', 'post'], permission_classes=[AllowAny])
+    def export_fixture(self, request, pk=None):
+        lab = self.get_object()
+        file_path, fixture_content = export_lab_question_to_fixture(lab)
+        return Response({
+            "status": "success",
+            "message": f"Exported fixture to {file_path}",
+            "file_path": file_path,
+            "fixture": fixture_content
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    def verify(self, request):
+        import uuid as uuid_lib
+        import requests
+        import shutil
+        from lab.workspace_manager import provision_evaluation_lab_starter_repo, provision_evaluation_user_repo
+
+        repo_url = request.data.get("git_repo_starter_url")
+        branch = request.data.get("git_repo_starter_branch", "main")
+        test_command = request.data.get("test_command", "python yuvro_scoring_rules/main_test.py")
+        solution_files = request.data.get("solution_files") or {}
+        solution_code = request.data.get("solution_code")
+        solution_file_path = request.data.get("solution_file_path", "procurement/views.py")
+
+        if not repo_url:
+            return Response({"error": "git_repo_starter_url is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        test_id = str(uuid_lib.uuid4())
+        eval_id = str(uuid_lib.uuid4())
+        starter_lab_dir = os.path.join(settings.WORKSPACES_ROOT, "evaluation", eval_id, "labs", test_id)
+        user_lab_dir = os.path.join(settings.WORKSPACES_ROOT, "evaluation", eval_id, "users", test_id, "labs", test_id)
+
+        try:
+            starter_path = provision_evaluation_lab_starter_repo(eval_id, test_id, repo_url, branch=branch)
+            provision_evaluation_user_repo(eval_id, test_id, test_id, starter_path)
+
+            executor_url = os.environ.get("CODE_EXECUTOR_URL", os.environ.get("CODE_EXECUTER_URL", "http://yuvro-code-executor:8009"))
+            
+            # If Django manage.py is present and test_command doesn't already run migrate, prepend migrate
+            test_exec_cmd = test_command
+            if os.path.exists(os.path.join(user_lab_dir, "manage.py")) and "migrate" not in test_command:
+                test_exec_cmd = f"python manage.py migrate && {test_command}"
+
+            # 1. Run test command on starter code
+            starter_resp = requests.post(
+                f"{executor_url}/workspace/run_test_command",
+                json={
+                    "user_id": test_id,
+                    "lab_id": test_id,
+                    "evaluation_id": eval_id,
+                    "command": test_exec_cmd
+                },
+                timeout=60
+            )
+            starter_data = starter_resp.json() if starter_resp.status_code == 200 else {}
+            starter_score = starter_data.get("total_score", 0)
+            max_score = starter_data.get("max_possible_score", 30) or 30
+
+            # 2. If solution is provided, apply it and test
+            solution_data = None
+            solution_score = None
+            if solution_files or solution_code:
+                if isinstance(solution_files, dict) and solution_files:
+                    for rel_p, code in solution_files.items():
+                        target = os.path.join(user_lab_dir, rel_p.lstrip("/\\"))
+                        os.makedirs(os.path.dirname(target), exist_ok=True)
+                        with open(target, "w", encoding="utf-8") as f:
+                            f.write(code)
+                elif solution_code:
+                    target = os.path.join(user_lab_dir, solution_file_path.lstrip("/\\"))
+                    os.makedirs(os.path.dirname(target), exist_ok=True)
+                    with open(target, "w", encoding="utf-8") as f:
+                        f.write(solution_code)
+
+                sol_resp = requests.post(
+                    f"{executor_url}/workspace/run_test_command",
+                    json={
+                        "user_id": test_id,
+                        "lab_id": test_id,
+                        "evaluation_id": eval_id,
+                        "command": test_exec_cmd
+                    },
+                    timeout=60
+                )
+                solution_data = sol_resp.json() if sol_resp.status_code == 200 else {}
+                solution_score = solution_data.get("total_score", 0)
+
+            starter_passed = (starter_score == 0)
+            solution_passed = (solution_score == max_score) if solution_score is not None else None
+            is_valid = starter_passed and (solution_passed is True or solution_passed is None)
+
+            return Response({
+                "status": "success",
+                "is_valid": is_valid,
+                "starter": {
+                    "score": starter_score,
+                    "max_score": max_score,
+                    "passed": starter_passed,
+                    "tasks": starter_data.get("data", {}).get("tasks", {}),
+                    "stdout": starter_data.get("stdout", ""),
+                    "stderr": starter_data.get("stderr", "")
+                },
+                "solution": {
+                    "score": solution_score,
+                    "max_score": max_score,
+                    "passed": solution_passed,
+                    "tasks": solution_data.get("data", {}).get("tasks", {}),
+                    "stdout": solution_data.get("stdout", ""),
+                    "stderr": solution_data.get("stderr", "")
+                } if solution_data else None
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": f"Verification failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        finally:
+            shutil.rmtree(starter_lab_dir, ignore_errors=True)
+            shutil.rmtree(user_lab_dir, ignore_errors=True)
 
 
 class KnowledgeQuestionBankViewSet(viewsets.ModelViewSet):

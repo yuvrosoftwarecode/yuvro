@@ -18,7 +18,7 @@
       ],
       "prerequisites": "Basic understanding of JavaScript and web development.",
       "git_repo_starter_url": "https://github.com/CloudVexSolutions/yuvro_task1",
-      "is_active": true
+      "status": "active"
     }
   ]
 }

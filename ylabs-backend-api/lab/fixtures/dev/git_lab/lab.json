@@ -5,7 +5,8 @@
       "type": "DEVOPS",
       "description": "Complete Git , GitHub and development environment setup.",
       "difficulty": "MEDIUM",
-      "icon": "Git"
+      "icon": "Git",
+      "status": "active"
     }
   ]
 }

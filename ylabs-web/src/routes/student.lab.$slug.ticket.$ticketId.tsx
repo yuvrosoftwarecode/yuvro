@@ -1461,6 +1461,10 @@ export function TicketIDE({
             : `/lab/labs/${labId}/`;
           const { default: api } = await import("@/utils/RestApiAuthUtil");
           const realLab = await api.get<any>(labEndpoint);
+          if (realLab?.status === "upcoming") {
+            navigate({ to: "/student/dashboard" });
+            return;
+          }
           currentTitle = (realLab as any)?.title || (realLab as any)?.name || (realLab as any)?.data?.title || "";
         } catch (e) {
           currentTitle = labs.find(l => l.slug === slug)?.name || "";
@@ -1618,7 +1622,73 @@ export function TicketIDE({
   const [sidePanel, setSidePanel] = useState<null | "preview" | "mentor">(null);
   const [previewDevice, setPreviewDevice] = useState<"Mobile" | "Tablet" | "Desktop">("Desktop");
   const [sideWidth, setSideWidth] = useState<number | null>(null);
+  const [leftWidth, setLeftWidth] = useState<number>(360);
+  const [explorerWidth, setExplorerWidth] = useState<number>(240);
+  const [bottomHeight, setBottomHeight] = useState<number>(240);
+  const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false);
+  const [quickSearchQuery, setQuickSearchQuery] = useState("");
   const splitContainerRef = useRef<HTMLDivElement>(null);
+  const mainIdeRef = useRef<HTMLDivElement>(null);
+
+  function startLeftResize(e: React.MouseEvent) {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = leftWidth;
+    const onMove = (ev: MouseEvent) => {
+      const next = startWidth + (ev.clientX - startX);
+      setLeftWidth(Math.min(650, Math.max(260, next)));
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }
+
+  function startExplorerResize(e: React.MouseEvent) {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = explorerWidth;
+    const onMove = (ev: MouseEvent) => {
+      const next = startWidth + (ev.clientX - startX);
+      setExplorerWidth(Math.min(480, Math.max(160, next)));
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }
+
+  function startBottomResize(e: React.MouseEvent) {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startHeight = bottomHeight;
+    const onMove = (ev: MouseEvent) => {
+      const next = startHeight - (ev.clientY - startY);
+      setBottomHeight(Math.min(600, Math.max(140, next)));
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "row-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }
 
   function startResize(e: React.MouseEvent) {
     e.preventDefault();
@@ -1966,11 +2036,15 @@ export function TicketIDE({
     }
   }, [files]);
 
-  // Keyboard: Ctrl/Cmd+Enter to run
+  // Keyboard: Ctrl/Cmd+Enter to run, Ctrl/Cmd+S to save, Ctrl/Cmd+P to quick-open files
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleRun(); }
       if ((e.metaKey || e.ctrlKey) && e.key === "s") { e.preventDefault(); handleSave(false); }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "p" || e.key === "P")) {
+        e.preventDefault();
+        setQuickSwitcherOpen((prev) => !prev);
+      }
     };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
@@ -3467,7 +3541,7 @@ export function TicketIDE({
           <Settings className="mt-auto h-4 w-4" />
         </div>
 
-        {/* Left panel (collapsible) */}
+        {/* Left panel (collapsible & resizable) */}
         {leftCollapsed ? (
           <aside className="hidden md:flex w-10 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
             {[
@@ -3499,71 +3573,111 @@ export function TicketIDE({
             </button>
           </aside>
         ) : (
-          <aside className="hidden md:flex w-[30%] min-w-[300px] max-w-[460px] flex-col border-r bg-editor-panel">
-            <div className="flex items-center border-b text-xs">
-              {[
-                { k: "problem", label: "Problem" },
-                ...(!isEvaluationMode || isRecruiterPreview ? [
-                  { k: "hints", label: "Hints" },
-                  // { k: "discuss", label: "Discuss" },
-                  { k: "solution", label: "Solution" },
-                ] : []),
-              ].map((t) => (
+          <>
+            <aside
+              style={{ width: `${leftWidth}px`, flexShrink: 0 }}
+              className="hidden md:flex flex-col border-r bg-editor-panel max-w-[55vw] min-w-[260px]"
+            >
+              <div className="flex items-center border-b text-xs">
+                {[
+                  { k: "problem", label: "Problem" },
+                  ...(!isEvaluationMode || isRecruiterPreview ? [
+                    { k: "hints", label: "Hints" },
+                    // { k: "discuss", label: "Discuss" },
+                    { k: "solution", label: "Solution" },
+                  ] : []),
+                ].map((t) => (
+                  <button
+                    key={t.k}
+                    onClick={() => setTab(t.k as typeof tab)}
+                    className={`px-3 py-2 ${tab === t.k ? "bg-editor-bg text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
                 <button
-                  key={t.k}
-                  onClick={() => setTab(t.k as typeof tab)}
-                  className={`px-3 py-2 ${tab === t.k ? "bg-editor-bg text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => setLeftCollapsed(true)}
+                  title="Collapse panel"
+                  className="ml-auto mr-2 grid h-7 w-7 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
                 >
-                  {t.label}
+                  <PanelLeftClose className="h-3.5 w-3.5" />
                 </button>
-              ))}
-              <button
-                onClick={() => setLeftCollapsed(true)}
-                title="Collapse panel"
-                className="ml-auto mr-2 grid h-7 w-7 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
-              >
-                <PanelLeftClose className="h-3.5 w-3.5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
-              {tab === "problem" && (
-                <ProblemPanel 
-                  ticket={ticket} 
-                  slug={slug} 
-                  labName={labTitle}
-                  isAlgo={isMultiLang}
-                  isReal={!tickets.some(t => t.id === ticket.id)} 
-                  evaluating={evaluating}
-                  evalResult={evalResult}
-                  ticketScore={ticketScore}
-                  onEvaluate={handleEvaluate}
-                />
-              )}
-              {tab === "solution" && (
-                <SolutionPanel
-                  ticket={ticket}
-                  isPreview={isRecruiterPreview}
-                  onLoadIntoEditor={(code, language) => {
-                    const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
-                    const ext = langMap[language.toLowerCase()] || "txt";
-                    const targetFile = `solution.${ext}`;
-                    setFiles(prev => ({ ...prev, [targetFile]: code }));
-                    setActiveFile(targetFile);
-                  }}
-                />
-              )}
-              {tab === "hints" && (
-                <HintsPanel
-                  ticket={ticket}
-                  elapsed={elapsed}
-                  initialRevealedHints={initialRevealedHints}
-                  isPreview={isRecruiterPreview}
-                  onUnlock={(n, c) => showToast(`Hint ${n} revealed`)}
-                />
-              )}
-              {/* {tab === "discuss" && <DiscussPanel />} */}
-            </div>
-          </aside>
+              </div>
+              <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
+                {tab === "problem" && (
+                  <ProblemPanel 
+                    ticket={ticket} 
+                    slug={slug} 
+                    labName={labTitle}
+                    isAlgo={isMultiLang}
+                    isReal={!tickets.some(t => t.id === ticket.id)} 
+                    evaluating={evaluating}
+                    evalResult={evalResult}
+                    ticketScore={ticketScore}
+                    onEvaluate={handleEvaluate}
+                  />
+                )}
+                {tab === "solution" && (
+                  <SolutionPanel
+                    ticket={ticket}
+                    isPreview={isRecruiterPreview}
+                    onLoadIntoEditor={(code, language, targetFilePath) => {
+                      const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
+                      const ext = langMap[language.toLowerCase()] || "txt";
+                      const targetFile = targetFilePath || `solution.${ext}`;
+                      setFiles(prev => ({ ...prev, [targetFile]: code }));
+                      setDirty(prev => ({ ...prev, [targetFile]: true }));
+                      setOpenTabs(prev => prev.includes(targetFile) ? prev : [...prev, targetFile]);
+                      setActiveFile(targetFile);
+                      if (isReal) {
+                        wsWriteFile(effectiveUserId, labId, sprintId, targetFile, code, evaluationId)
+                          .catch(() => showToast(`⚠️ Could not write ${targetFile}`));
+                      }
+                      showToast(`Loaded ${targetFile} into editor`);
+                    }}
+                    onLoadAllIntoEditor={(fileMap) => {
+                      setFiles(prev => ({ ...prev, ...fileMap }));
+                      setDirty(prev => {
+                        const next = { ...prev };
+                        Object.keys(fileMap).forEach(k => { next[k] = true; });
+                        return next;
+                      });
+                      const fileKeys = Object.keys(fileMap);
+                      setOpenTabs(prev => {
+                        const set = new Set(prev);
+                        fileKeys.forEach(k => set.add(k));
+                        return Array.from(set);
+                      });
+                      if (fileKeys.length > 0) {
+                        setActiveFile(fileKeys[0]);
+                      }
+                      if (isReal) {
+                        Promise.all(fileKeys.map(k => wsWriteFile(effectiveUserId, labId, sprintId, k, fileMap[k], evaluationId)))
+                          .catch(() => showToast(`⚠️ Could not write all files`));
+                      }
+                      showToast(`Loaded ${fileKeys.length} solution file(s) into editor`);
+                    }}
+                  />
+                )}
+                {tab === "hints" && (
+                  <HintsPanel
+                    ticket={ticket}
+                    elapsed={elapsed}
+                    initialRevealedHints={initialRevealedHints}
+                    isPreview={isRecruiterPreview}
+                    onUnlock={(n, c) => showToast(`Hint ${n} revealed`)}
+                  />
+                )}
+                {/* {tab === "discuss" && <DiscussPanel />} */}
+              </div>
+            </aside>
+            <div
+              role="separator"
+              onMouseDown={startLeftResize}
+              className="hidden md:block w-1 cursor-col-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
+              title="Drag to resize problem panel"
+            />
+          </>
         )}
 
         {/* Center editor */}
@@ -3571,7 +3685,11 @@ export function TicketIDE({
           <div ref={splitContainerRef} className="flex flex-1 min-h-0">
             {/* File tree */}
             {fileTreeOpen && (
-              <div className={`flex w-60 shrink-0 flex-col border-r bg-editor-panel text-xs ${isAnySql || isMongo ? "font-mono text-[13px]" : ""}`}>
+              <>
+                <div
+                  style={{ width: `${explorerWidth}px`, flexShrink: 0 }}
+                  className={`flex flex-col border-r bg-editor-panel text-xs ${isAnySql || isMongo ? "font-mono text-[13px]" : ""}`}
+                >
                 <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                   <span>Explorer</span>
                   <div className="flex items-center gap-1 normal-case">
@@ -3829,7 +3947,14 @@ export function TicketIDE({
                   </div>
                 </div>
               </div>
-            )}
+              <div
+                role="separator"
+                onMouseDown={startExplorerResize}
+                className="w-1 cursor-col-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
+                title="Drag to resize explorer"
+              />
+            </>
+          )}
 
             <div className="flex flex-1 min-w-0 flex-col">
               {/* Tabs row */}
@@ -3877,6 +4002,17 @@ export function TicketIDE({
                       </select>
                     </label>
                   )}
+                  <button
+                    title="Quick Open File (Ctrl+P)"
+                    onClick={() => setQuickSwitcherOpen(true)}
+                    className="flex items-center gap-1.5 rounded border border-border bg-background px-2 py-0.5 font-medium hover:bg-accent text-foreground transition-colors"
+                  >
+                    <Search className="h-3 w-3 text-muted-foreground" />
+                    <span>Find File</span>
+                    <kbd className="hidden sm:inline-block rounded bg-muted px-1 py-0.2 text-[9px] font-mono text-muted-foreground border">
+                      Ctrl+P
+                    </kbd>
+                  </button>
                   {isJava && <CompileBadge state={compileState} />}
                   {!isEvaluationMode && (
                     <button
@@ -3933,8 +4069,17 @@ export function TicketIDE({
                 )}
               </div>
 
-              {/* Bottom panel */}
-              <div className="border-t bg-editor-panel">
+              {/* Bottom panel (resizable) */}
+              <div
+                role="separator"
+                onMouseDown={startBottomResize}
+                className="h-1 cursor-row-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
+                title="Drag to resize console / terminal height"
+              />
+              <div
+                style={{ height: `${bottomHeight}px`, flexShrink: 0 }}
+                className="border-t bg-editor-panel flex flex-col min-h-0"
+              >
                 <div className="flex items-center border-b text-xs overflow-x-auto">
                   {[
                     { k: "terminal", label: "Terminal", icon: TerminalIcon },
@@ -3958,7 +4103,7 @@ export function TicketIDE({
                     </div>
                   )}
                 </div>
-                <div className={`h-60 max-h-[45vh] min-h-[14rem] ${bottomTab === "terminal" ? "p-0 overflow-hidden flex flex-col" : "overflow-auto scrollbar-thin p-3 text-xs"}`}>
+                <div className={`flex-1 min-h-0 ${bottomTab === "terminal" ? "p-0 overflow-hidden flex flex-col" : "overflow-auto scrollbar-thin p-3 text-xs"}`}>
                   {bottomTab === "output" && (
                     <ExecutionOutputView
                       output={output}
@@ -4204,6 +4349,88 @@ export function TicketIDE({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Quick Open File Switcher Modal (Ctrl+P / Command+P) */}
+      <Dialog open={quickSwitcherOpen} onOpenChange={setQuickSwitcherOpen}>
+        <DialogContent className="max-w-lg p-0 overflow-hidden border border-border shadow-2xl bg-card">
+          <div className="flex items-center gap-2 border-b px-4 py-3 bg-muted/30">
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+            <input
+              type="text"
+              autoFocus
+              value={quickSearchQuery}
+              onChange={(e) => setQuickSearchQuery(e.target.value)}
+              placeholder="Search files by name (e.g. tests.py, views.py, main.py)..."
+              className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const filtered = fileList.filter((f) =>
+                    f.toLowerCase().includes(quickSearchQuery.toLowerCase())
+                  );
+                  if (filtered.length > 0) {
+                    openFile(filtered[0]);
+                    setQuickSwitcherOpen(false);
+                    setQuickSearchQuery("");
+                  }
+                }
+              }}
+            />
+            <kbd className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground border">
+              ESC
+            </kbd>
+          </div>
+          <div className="max-h-72 overflow-y-auto p-2">
+            {(() => {
+              const matches = fileList.filter((f) =>
+                f.toLowerCase().includes(quickSearchQuery.toLowerCase())
+              );
+              if (matches.length === 0) {
+                return (
+                  <div className="p-4 text-center text-xs text-muted-foreground">
+                    No files found matching "{quickSearchQuery}"
+                  </div>
+                );
+              }
+              return matches.map((f) => {
+                const parts = f.split("/");
+                const fileName = parts.pop() || f;
+                const dirPath = parts.join("/");
+                const isCurrent = activeFile === f;
+                return (
+                  <button
+                    key={f}
+                    onClick={() => {
+                      openFile(f);
+                      setQuickSwitcherOpen(false);
+                      setQuickSearchQuery("");
+                    }}
+                    className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs transition-colors ${
+                      isCurrent
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "text-foreground hover:bg-accent"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileCode2 className="h-3.5 w-3.5 shrink-0 text-info" />
+                      <span className="font-mono text-sm">{fileName}</span>
+                      {dirPath && (
+                        <span className="text-[11px] text-muted-foreground truncate">
+                          ({dirPath})
+                        </span>
+                      )}
+                    </div>
+                    {isCurrent && (
+                      <span className="text-[10px] text-primary shrink-0 uppercase tracking-wide">
+                        Active
+                      </span>
+                    )}
+                  </button>
+                );
+              });
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Modals */}
       {isExamplesPanelOpen && (
         <ExamplesPanel
@@ -7377,38 +7604,146 @@ function UiDiffView({ result }: { result: any }) {
 }
 
 
-export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: { ticket: any, onLoadIntoEditor?: (code: string, language: string) => void, isPreview?: boolean }) {
-  // In preview mode, use ticket.solutions directly without API reveal
-  const previewSols: any[] = isPreview
-    ? (Array.isArray(ticket?.solutions) ? ticket.solutions.map((s: any) => ({
-        approach: s.approach || 'optimal',
-        language: s.language || 'python',
-        code: s.code || '',
-        title: s.title || 'Solution',
-        complexity_analysis: s.complexity_analysis || '',
-      })) : [])
-    : [];
+export function getSolutionsFromTicket(ticket: any): any[] {
+  if (!ticket) return [];
+
+  const results: any[] = [];
+  const langMap: Record<string, string> = {
+    py: "python", js: "javascript", ts: "typescript", jsx: "javascript", tsx: "typescript",
+    html: "html", css: "css", json: "json", sql: "sql", cpp: "cpp", c: "c", java: "java",
+    go: "go", rs: "rust", sh: "bash"
+  };
+
+  // 1. ticket.solution_files (Array of { path, code })
+  if (Array.isArray(ticket.solution_files) && ticket.solution_files.length > 0) {
+    ticket.solution_files.forEach((sf: any, idx: number) => {
+      const filePath = typeof sf === "string" ? sf : (sf.path || sf.file || `file_${idx + 1}`);
+      const code = typeof sf === "string" ? "" : (sf.code || sf.content || "");
+      const ext = filePath.split(".").pop()?.toLowerCase() || "txt";
+      const language = sf.language || langMap[ext] || "python";
+      results.push({
+        approach: filePath,
+        title: filePath,
+        filePath,
+        language,
+        code,
+        complexity_analysis: sf.complexity_analysis || "",
+      });
+    });
+  }
+  // 2. ticket.solution (Dict or String)
+  else if (ticket.solution) {
+    if (typeof ticket.solution === "object" && !Array.isArray(ticket.solution)) {
+      Object.entries(ticket.solution).forEach(([filePath, code]: [string, any]) => {
+        if (typeof code === "string") {
+          const ext = filePath.split(".").pop()?.toLowerCase() || "txt";
+          const language = langMap[ext] || "python";
+          results.push({
+            approach: filePath,
+            title: filePath,
+            filePath,
+            language,
+            code,
+            complexity_analysis: "",
+          });
+        }
+      });
+    } else if (typeof ticket.solution === "string" && ticket.solution.trim()) {
+      results.push({
+        approach: "solution",
+        title: "Solution",
+        filePath: ticket.target_file || ticket.targeted_file || "",
+        language: "python",
+        code: ticket.solution,
+        complexity_analysis: "",
+      });
+    }
+  }
+
+  // 3. ticket.solutions (DSA-style array)
+  if (results.length === 0 && Array.isArray(ticket.solutions) && ticket.solutions.length > 0) {
+    ticket.solutions.forEach((s: any) => {
+      results.push({
+        approach: s.approach || "optimal",
+        title: s.title || s.approach || "Solution",
+        filePath: s.filePath || s.file_path || "",
+        language: s.language || "python",
+        code: s.code || "",
+        complexity_analysis: s.complexity_analysis || "",
+      });
+    });
+  }
+
+  // 4. ticket.tasks with solutions
+  if (results.length === 0 && Array.isArray(ticket.tasks)) {
+    ticket.tasks.forEach((task: any, idx: number) => {
+      if (task.solution) {
+        const title = task.title ? `Task ${idx + 1}: ${task.title}` : `Task ${idx + 1}`;
+        results.push({
+          approach: `task_${idx + 1}`,
+          title,
+          filePath: task.filePath || task.target_file || "",
+          language: "python",
+          code: typeof task.solution === "string" ? task.solution : JSON.stringify(task.solution, null, 2),
+          complexity_analysis: "",
+        });
+      }
+    });
+  }
+
+  return results;
+}
+
+export function SolutionPanel({
+  ticket,
+  onLoadIntoEditor,
+  onLoadAllIntoEditor,
+  isPreview = false,
+}: {
+  ticket: any;
+  onLoadIntoEditor?: (code: string, language: string, filePath?: string) => void;
+  onLoadAllIntoEditor?: (fileMap: Record<string, string>) => void;
+  isPreview?: boolean;
+}) {
+  const previewSols: any[] = isPreview ? getSolutionsFromTicket(ticket) : [];
 
   const [revealedSolution, setRevealedSolution] = useState(isPreview);
   const [fetchedSolutions, setFetchedSolutions] = useState<any[]>(isPreview ? previewSols : []);
   const [loading, setLoading] = useState(false);
-  const [selectedApproach, setSelectedApproach] = useState<string>(previewSols[0]?.approach || 'optimal');
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(previewSols[0]?.language || '');
+  const [selectedApproach, setSelectedApproach] = useState<string>(previewSols[0]?.approach || "optimal");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(previewSols[0]?.language || "");
   const [showWarningDialog, setShowWarningDialog] = useState(false);
+
+  useEffect(() => {
+    if (isPreview) {
+      const sols = getSolutionsFromTicket(ticket);
+      setFetchedSolutions(sols);
+      setRevealedSolution(true);
+      if (sols.length > 0) {
+        setSelectedApproach(sols[0].approach || "optimal");
+        setSelectedLanguage(sols[0].language || "python");
+      }
+    }
+  }, [ticket, isPreview]);
 
   const handleRevealSolution = async () => {
     setLoading(true);
     try {
       const { default: api } = await import("@/utils/RestApiAuthUtil");
       const data = await api.post(`/lab/submissions/reveal-solution/`, { ticket_id: ticket.id });
-      const sols = data?.solutions || [];
+      let sols: any[] = [];
+      if (Array.isArray(data?.solutions)) {
+        sols = data.solutions;
+      } else if (data) {
+        sols = getSolutionsFromTicket({ ...ticket, solution: data });
+      }
       setFetchedSolutions(sols);
-      
-      const firstApproach = sols.length > 0 ? (sols[0].approach || 'optimal') : '';
+
+      const firstApproach = sols.length > 0 ? (sols[0].approach || "optimal") : "";
       setSelectedApproach(firstApproach);
-      const firstLangForApproach = sols.find((s: any) => (s.approach || 'optimal') === firstApproach)?.language || '';
+      const firstLangForApproach = sols.find((s: any) => (s.approach || "optimal") === firstApproach)?.language || "python";
       setSelectedLanguage(firstLangForApproach);
-      
+
       setRevealedSolution(true);
     } catch (err) {
       console.error("Failed to reveal solution", err);
@@ -7417,8 +7752,10 @@ export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: {
     }
   };
 
+  const effectiveSolutions = isPreview ? (fetchedSolutions.length > 0 ? fetchedSolutions : previewSols) : fetchedSolutions;
+
   // Preview mode with no solutions on the ticket
-  if (isPreview && previewSols.length === 0) {
+  if (isPreview && effectiveSolutions.length === 0) {
     return (
       <div className="text-center py-8 w-full border rounded-md mt-4 border-editor-border bg-editor-panel">
         <Key className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
@@ -7438,8 +7775,8 @@ export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: {
         <p className="text-xs text-muted-foreground max-w-[250px] mx-auto mb-4">
           Viewing the solution will set your score for this ticket to 0.
         </p>
-        <button 
-          onClick={() => setShowWarningDialog(true)} 
+        <button
+          onClick={() => setShowWarningDialog(true)}
           disabled={loading}
           className="inline-flex items-center justify-center rounded-md text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white h-8 px-4 py-2 disabled:opacity-50"
         >
@@ -7462,23 +7799,33 @@ export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: {
     );
   }
 
-  if (fetchedSolutions.length === 0) {
+  if (effectiveSolutions.length === 0) {
     return <div className="text-sm text-muted-foreground mt-4">No predefined solutions available for this question.</div>;
   }
 
-  const approaches = Array.from(new Set(fetchedSolutions.map((s: any) => s.approach || 'optimal')));
+  const approaches = Array.from(new Set(effectiveSolutions.map((s: any) => s.approach || "optimal")));
 
   const getApproachLabel = (a: string) => {
-    return a.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    if (!a) return "Solution";
+    if (a.includes("/") || a.includes(".")) return a;
+    return a.split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
   };
 
-  const solutionsForApproach = fetchedSolutions.filter((s: any) => (s.approach || 'optimal') === selectedApproach);
+  const solutionsForApproach = effectiveSolutions.filter((s: any) => (s.approach || "optimal") === selectedApproach);
 
   if (solutionsForApproach.length > 0 && !solutionsForApproach.find((s: any) => s.language === selectedLanguage)) {
     setSelectedLanguage(solutionsForApproach[0].language);
   }
 
-  const sol = solutionsForApproach.find((s: any) => s.language === selectedLanguage);
+  const sol = solutionsForApproach.find((s: any) => s.language === selectedLanguage) || solutionsForApproach[0];
+
+  const fileMap: Record<string, string> = {};
+  effectiveSolutions.forEach((s: any) => {
+    if (s.filePath && s.code) {
+      fileMap[s.filePath] = s.code;
+    }
+  });
+  const hasMultipleFiles = Object.keys(fileMap).length > 1;
 
   return (
     <div className="w-full space-y-4 text-xs">
@@ -7486,7 +7833,11 @@ export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: {
         {approaches.map((approach: any) => (
           <button
             key={approach}
-            onClick={() => setSelectedApproach(approach)}
+            onClick={() => {
+              setSelectedApproach(approach);
+              const langForApp = effectiveSolutions.find((s: any) => (s.approach || "optimal") === approach)?.language;
+              if (langForApp) setSelectedLanguage(langForApp);
+            }}
             className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors ${
               selectedApproach === approach
                 ? "border-primary text-foreground"
@@ -7498,43 +7849,60 @@ export function SolutionPanel({ ticket, onLoadIntoEditor, isPreview = false }: {
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {solutionsForApproach.map((s: any) => (
-          <button
-            key={s.language}
-            onClick={() => setSelectedLanguage(s.language)}
-            className={`px-3 py-1.5 rounded-full font-medium transition-colors border ${
-              selectedLanguage === s.language
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-editor-bg text-muted-foreground border-border hover:border-muted-foreground/30"
-            }`}
-          >
-            {s.language.toUpperCase()}
-          </button>
-        ))}
-      </div>
+      {solutionsForApproach.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {solutionsForApproach.map((s: any) => (
+            <button
+              key={s.language}
+              onClick={() => setSelectedLanguage(s.language)}
+              className={`px-3 py-1.5 rounded-full font-medium transition-colors border ${
+                selectedLanguage === s.language
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-editor-bg text-muted-foreground border-border hover:border-muted-foreground/30"
+              }`}
+            >
+              {s.language.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      )}
 
       {sol && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-muted-foreground">{sol.title}</span>
-            {onLoadIntoEditor && (
-              <button
-                onClick={() => onLoadIntoEditor(sol.code, sol.language)}
-                className="inline-flex h-7 items-center justify-center rounded px-3 text-[11px] font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
-              >
-                <Download className="w-3 h-3 mr-1.5" />
-                Load into Editor
-              </button>
-            )}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="font-semibold text-muted-foreground font-mono text-[12px] truncate max-w-[280px]" title={sol.filePath || sol.title}>
+              {sol.filePath || sol.title}
+            </span>
+            <div className="flex items-center gap-2">
+              {hasMultipleFiles && onLoadAllIntoEditor && (
+                <button
+                  onClick={() => onLoadAllIntoEditor(fileMap)}
+                  className="inline-flex h-7 items-center justify-center rounded px-2.5 text-[11px] font-medium border border-border bg-background hover:bg-accent text-foreground transition-colors"
+                  title="Load all solution files into the editor"
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  Load All Files
+                </button>
+              )}
+              {onLoadIntoEditor && (
+                <button
+                  onClick={() => onLoadIntoEditor(sol.code, sol.language, sol.filePath)}
+                  className="inline-flex h-7 items-center justify-center rounded px-3 text-[11px] font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
+                  title={`Load ${sol.filePath || "this solution"} into editor`}
+                >
+                  <Download className="w-3 h-3 mr-1.5" />
+                  Load into Editor
+                </button>
+              )}
+            </div>
           </div>
-          
+
           <div className="rounded-lg border border-border overflow-hidden bg-editor-bg">
             <div className="p-3 overflow-auto max-h-80 custom-scrollbar">
               <pre className="font-mono text-[11px] text-foreground whitespace-pre-wrap"><code>{sol.code}</code></pre>
             </div>
           </div>
-          
+
           {sol.complexity_analysis && (
             <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900/30 dark:bg-amber-950/20 px-4 py-3">
               <p className="font-bold text-amber-700 dark:text-amber-400 mb-1.5">Complexity Analysis</p>

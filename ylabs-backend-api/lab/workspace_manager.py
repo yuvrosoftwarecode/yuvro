@@ -33,8 +33,10 @@ def provision_lab_starter_repo(lab_uuid, repo_url):
         target_path = os.path.join(lab_dir, repo_name)
         
         if os.path.exists(target_path):
-            logger.info(f"Starter repo already exists at {target_path}")
-            return target_path
+            if any(item for item in os.listdir(target_path) if item != '.git'):
+                logger.info(f"Starter repo already exists at {target_path}")
+                return target_path
+            shutil.rmtree(target_path, ignore_errors=True)
             
         auth_url = inject_token_into_url(repo_url, getattr(settings, 'GITHUB_SYSTEM_PAT', ''))
         
@@ -107,8 +109,10 @@ def provision_evaluation_lab_starter_repo(evaluation_uuid, lab_uuid, repo_url, b
         target_path = os.path.join(lab_dir, repo_name)
         
         if os.path.exists(target_path):
-            logger.info(f"Starter repo already exists at {target_path}")
-            return target_path
+            if any(item for item in os.listdir(target_path) if item != '.git'):
+                logger.info(f"Starter repo already exists at {target_path}")
+                return target_path
+            shutil.rmtree(target_path, ignore_errors=True)
             
         auth_url = inject_token_into_url(repo_url, getattr(settings, 'GITHUB_SYSTEM_PAT', ''))
         
@@ -198,9 +202,9 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
                 logger.info(f"Copying contents of {starter_repo_path} to {user_dir}")
                 os.makedirs(user_dir, exist_ok=True)
                 if starter_repo_path and os.path.exists(starter_repo_path):
-                    ignore = shutil.ignore_patterns('.git', 'yuvro_scoring_rules')
+                    ignore = shutil.ignore_patterns('.git', 'yuvro_scoring_rules', 'problem.md', 'solution.md')
                     for item in os.listdir(starter_repo_path):
-                        if item in ['.git', 'yuvro_scoring_rules']:
+                        if item in ['.git', 'yuvro_scoring_rules', 'problem.md', 'solution.md']:
                             continue
                         src = os.path.join(starter_repo_path, item)
                         dst = os.path.join(user_dir, item)
@@ -209,15 +213,16 @@ def provision_evaluation_user_repo(evaluation_uuid, lab_uuid, user_uuid, starter
                         else:
                             shutil.copy2(src, dst)
 
-                from skill_evaluation.models import LabQuestionBank, LabQuestionBankTask
-                from skill_evaluation.utils import is_database_lab
-
-                tasks = list(LabQuestionBankTask.objects.filter(lab_question_bank_id=lab_uuid).order_by('order_index'))
+                tasks = []
                 lab = None
                 try:
-                    lab = LabQuestionBank.objects.get(id=lab_uuid)
+                    from skill_evaluation.models import LabQuestionBank, LabQuestionBankTask
+                    tasks = list(LabQuestionBankTask.objects.filter(lab_question_bank_id=lab_uuid).order_by('order_index'))
+                    lab = LabQuestionBank.objects.filter(id=lab_uuid).first()
                 except Exception:
                     pass
+
+                from skill_evaluation.utils import is_database_lab
 
                 if is_database_lab(lab, tasks):
                     num_tasks = len(tasks)

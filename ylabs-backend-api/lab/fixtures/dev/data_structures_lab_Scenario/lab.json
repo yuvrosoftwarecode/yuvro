@@ -5,7 +5,8 @@
       "type": "ALGO",
       "description": "",
       "difficulty": "ADVANCED",
-      "icon": "Algorithm"
+      "icon": "Algorithm",
+      "status": "active"
     }
   ]
 }

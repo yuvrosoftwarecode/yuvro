@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Insurance Claim Validation & Duplicate Claim Prevention",
+      "type": "BACKEND",
+      "description": "An insurance claim submission system processes claims against existing insurance policies. Three critical bugs have been reported in the claim submission API: accepting claims against inactive or expired policies, permitting duplicate claims for the same policy and incident date, and failing to validate claim amounts against positive limits and policy coverage caps.\n\nCandidates must identify and fix all three bugs in `insurance/views.py` while ensuring legitimate claims are processed successfully.",
+      "difficulty": "MEDIUM",
+      "domain": "INSURANCE",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 30,
+      "marks": 10,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/evaluation_django",
+      "git_repo_starter_branch": "Insurance-Claim-Validation-&-Duplicate-Claim-Prevention",
+      "startup_command": "python manage.py migrate && python manage.py runserver 0.0.0.0:8010",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Validate Policy Eligibility",
+          "description": "### Scenario\nAn insurance claim can only be filed against an active, valid policy whose coverage dates encompass the date of the incident.\n\n### Existing Problem\nThe `POST /api/insurance/claims/` endpoint in `insurance/views.py` does not check `policy.is_active` or verify that `incident_date` falls within the policy's effective coverage window (`policy.start_date <= incident_date <= policy.end_date`). As a result, claims against inactive policies or with incident dates before start date or after end date are accepted and stored.\n\n### Goal\n- Verify that the policy is active (`policy.is_active`). Reject inactive policies with `400 Bad Request` (or `403 Forbidden`).\n- Require a valid `incident_date`.\n- Enforce `policy.start_date <= incident_date <= policy.end_date`. Reject dates outside coverage with `400 Bad Request`.\n- Ensure no claim record is created in the database when validation fails.\n\n### Scoring Criteria (4 Marks)\n- **4 marks**: Policy eligibility and coverage dates are correctly validated and ineligible requests are rejected without creating database records.",
+          "difficulty": "MEDIUM",
+          "marks": 4,
+          "duration_minutes": 10,
+          "order_index": 0,
+          "scoring_rules": {
+            "logic_score": 40,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Prevent Duplicate Claims",
+          "description": "### Scenario\nPolicyholders or automated systems might accidentally submit the same claim multiple times, leading to duplicate claims for the same incident.\n\n### Existing Problem\nThe `POST /api/insurance/claims/` endpoint does not check if an active claim already exists for the specified policy and incident date. Submitting multiple requests for the same policy and incident date creates duplicate records.\n\n### Goal\n- Query existing claims and detect whether a claim for the given `(policy, incident_date)` already exists.\n- If a duplicate claim exists, reject the request with `409 Conflict` (or `400 Bad Request`) without creating a duplicate record.\n- Ensure legitimate separate incidents are allowed: claims on the same policy with different incident dates, or claims on different policies with the same incident date, must succeed with `201 Created`.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Duplicate claims for the same policy and incident date are prevented while allowing legitimate separate incidents.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 1,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        },
+        {
+          "title": "Validate Claim Amount",
+          "description": "### Scenario\nClaim payouts are constrained by positive valuation and the policy's maximum coverage limit.\n\n### Existing Problem\nThe `POST /api/insurance/claims/` endpoint allows missing, non-numeric, zero, negative claim amounts, or amounts that exceed `policy.coverage_limit` to create claims in the database.\n\n### Goal\n- Validate that `claim_amount` is provided and is a valid numeric value.\n- Assert that `claim_amount > 0`. Reject zero or negative claim amounts with `400 Bad Request`.\n- Assert that `claim_amount <= policy.coverage_limit`. Reject claim amounts exceeding coverage limits with `400 Bad Request`.\n- Allow valid claim amounts within `(0, policy.coverage_limit]` to create claims with `201 Created`.\n- Ensure no claim record is created in the database when validation fails.\n\n### Scoring Criteria (3 Marks)\n- **3 marks**: Claim amounts are strictly validated against positive values and policy coverage limits.",
+          "difficulty": "MEDIUM",
+          "marks": 3,
+          "duration_minutes": 10,
+          "order_index": 2,
+          "scoring_rules": {
+            "logic_score": 30,
+            "clean_code": 0,
+            "visual_accuracy": 0,
+            "system_query": "N/A",
+            "expected_result": "N/A"
+          },
+          "expected_output": []
+        }
+      ]
+    }
+  ]
+}

@@ -62,6 +62,7 @@ interface CatalogLab {
   isReal?: boolean;
   color: string;
   hoursLeft?: number;
+  status?: "active" | "inactive" | "draft" | "upcoming";
 }
 
 type Category = "Backend" | "Frontend" | "Database" | "DevOps" | "QA" | "Security";
@@ -406,9 +407,11 @@ function Hub() {
     setLabsLoading(true);
     loadLabs()
       .then((fetched) => {
-        const valid = (fetched || []).filter(
-          (lab: any) => (lab.title || lab.name || "").trim().toLowerCase() !== "mongo lab"
-        );
+        const valid = (fetched || []).filter((lab: any) => {
+          if ((lab.title || lab.name || "").trim().toLowerCase() === "mongo lab") return false;
+          const status = lab.status || (lab.is_active === false ? "inactive" : "active");
+          return status === "active" || status === "upcoming";
+        });
         setRealLabs(valid);
         const counts = valid.map((lab: any) => [lab.id, lab.total_tickets ?? 0] as const);
         setLabTicketCounts(Object.fromEntries(counts));
@@ -510,6 +513,7 @@ function Hub() {
       completed: realLabCompleted(lab.id),
       isReal: true,
       color: "prog",
+      status: lab.status || (lab.is_active === false ? "inactive" : "active"),
     }));
 
     const realNames = new Set(realLabs.map((l) => l.title.toLowerCase()));
@@ -524,6 +528,7 @@ function Hub() {
         total: 24,
         completed: 0,
         isReal: false,
+        status: "upcoming" as const,
       },
       {
         id: "systemdesign",
@@ -535,6 +540,7 @@ function Hub() {
         total: 16,
         completed: 0,
         isReal: false,
+        status: "upcoming" as const,
       },
     ];
 
@@ -1067,6 +1073,11 @@ const isDsaLab = (name?: string, id?: string) => {
   );
 };
 
+const isUpcomingLab = (lab: CatalogLab) => {
+  if (lab.status) return lab.status === "upcoming";
+  return !isDsaLab(lab.name, lab.id);
+};
+
 function FeaturedCard({
   lab,
   isEnrolled,
@@ -1078,7 +1089,7 @@ function FeaturedCard({
   isLoading: boolean;
   onToggle: () => void;
 }) {
-  const isDsa = isDsaLab(lab.name, lab.id);
+  const isUpcoming = isUpcomingLab(lab);
   return (
     <div className="group relative overflow-hidden rounded-xl border bg-gradient-to-br from-card via-card to-accent/20 p-5 transition hover:border-primary/50">
       <div
@@ -1089,7 +1100,7 @@ function FeaturedCard({
         <span className="inline-flex items-center gap-1 rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
           <Star className="h-3 w-3" /> Featured
         </span>
-        {!isDsa && (
+        {isUpcoming && (
           <span className="inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-400">
             Upcoming
           </span>
@@ -1107,21 +1118,32 @@ function FeaturedCard({
         <span className="text-muted-foreground">{lab.total} tickets</span>
       </div>
       <div className="mt-4 flex gap-2">
-        <Link
-          to="/student/lab/$slug"
-          params={{ slug: lab.id }}
-          className="flex-1 inline-flex items-center justify-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-accent"
-        >
-          View
-        </Link>
+        {isUpcoming ? (
+          <button
+            type="button"
+            disabled
+            title="This lab is upcoming and not yet available to open"
+            className="flex-1 inline-flex items-center justify-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground cursor-not-allowed opacity-60"
+          >
+            Upcoming
+          </button>
+        ) : (
+          <Link
+            to="/student/lab/$slug"
+            params={{ slug: lab.id }}
+            className="flex-1 inline-flex items-center justify-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-accent"
+          >
+            View
+          </Link>
+        )}
         <button
           onClick={onToggle}
-          disabled={isLoading || !isDsa}
-          title={!isDsa ? "Enrollment disabled for upcoming lab" : undefined}
+          disabled={isLoading || isUpcoming}
+          title={isUpcoming ? "Enrollment disabled for upcoming lab" : undefined}
           className={`flex-1 inline-flex items-center justify-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition ${
             isEnrolled
               ? "border border-success/40 bg-success/10 text-success"
-              : !isDsa
+              : isUpcoming
               ? "border border-border bg-muted/60 text-muted-foreground cursor-not-allowed opacity-60"
               : "bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60"
           }`}
@@ -1154,7 +1176,7 @@ function CatalogCard({
   isLoading: boolean;
   onToggle: () => void;
 }) {
-  const isDsa = isDsaLab(lab.name, lab.id);
+  const isUpcoming = isUpcomingLab(lab);
   return (
     <div className="rounded-xl border bg-card p-4 transition hover:border-primary/40">
       <div className="flex items-start justify-between gap-3 flex-1">
@@ -1167,7 +1189,7 @@ function CatalogCard({
             </div>
           </div>
         </div>
-        {!isDsa && (
+        {isUpcoming && (
           <span className="shrink-0 inline-flex items-center rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold text-purple-600 dark:text-purple-400">
             Upcoming
           </span>
@@ -1179,21 +1201,32 @@ function CatalogCard({
           <span className="text-muted-foreground">{lab.total} tickets</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <Link
-            to="/student/lab/$slug"
-            params={{ slug: lab.id }}
-            className="rounded-md border border-border px-2 py-1 hover:bg-accent"
-          >
-            View
-          </Link>
+          {isUpcoming ? (
+            <button
+              type="button"
+              disabled
+              title="This lab is upcoming and not yet available to open"
+              className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground cursor-not-allowed opacity-60"
+            >
+              Upcoming
+            </button>
+          ) : (
+            <Link
+              to="/student/lab/$slug"
+              params={{ slug: lab.id }}
+              className="rounded-md border border-border px-2 py-1 hover:bg-accent"
+            >
+              View
+            </Link>
+          )}
           <button
             onClick={onToggle}
-            disabled={isLoading || !isDsa}
-            title={!isDsa ? "Enrollment disabled for upcoming lab" : undefined}
+            disabled={isLoading || isUpcoming}
+            title={isUpcoming ? "Enrollment disabled for upcoming lab" : undefined}
             className={`inline-flex items-center gap-1 rounded-md px-2 py-1 font-medium transition ${
               isEnrolled
                 ? "border border-success/40 bg-success/10 text-success"
-                : !isDsa
+                : isUpcoming
                 ? "border border-border bg-muted/60 text-muted-foreground cursor-not-allowed opacity-60"
                 : "bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60"
             }`}

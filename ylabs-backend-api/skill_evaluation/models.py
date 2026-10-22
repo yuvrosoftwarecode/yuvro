@@ -210,6 +210,11 @@ class LabQuestionBank(QuestionBank):
         default=True,
         help_text="Whether recruiters can select individual tasks from this lab question"
     )
+    solution = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Reference working solution files { 'relative/path': 'solution code' }"
+    )
 
     def __str__(self):
         return self.title

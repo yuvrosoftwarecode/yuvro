@@ -1186,6 +1186,49 @@ function LabPreview({ l }: { l: any }) {
           </div>
         </div>
       )}
+
+      {/* Reference Solutions */}
+      {(() => {
+        let solFiles: { path: string; code: string }[] = [];
+        if (Array.isArray(l.solution_files) && l.solution_files.length > 0) {
+          solFiles = l.solution_files.map((sf: any, idx: number) => ({
+            path: typeof sf === "string" ? sf : (sf.path || sf.file || `file_${idx + 1}`),
+            code: typeof sf === "string" ? "" : (sf.code || sf.content || ""),
+          }));
+        } else if (l.solution && typeof l.solution === "object" && !Array.isArray(l.solution)) {
+          solFiles = Object.entries(l.solution).map(([path, code]) => ({
+            path,
+            code: typeof code === "string" ? code : JSON.stringify(code, null, 2),
+          }));
+        } else if (typeof l.solution === "string" && l.solution.trim()) {
+          solFiles = [{ path: "solution.py", code: l.solution }];
+        }
+
+        if (solFiles.length === 0) return null;
+
+        return (
+          <div className="border-t border-neutral-200 dark:border-white/5 pt-4">
+            <div className="text-neutral-700 dark:text-neutral-400 font-semibold mb-3 flex items-center justify-between">
+              <span>Reference Solution</span>
+              <span className="text-[11px] text-neutral-500 font-normal">
+                {solFiles.length} file{solFiles.length > 1 ? "s" : ""}
+              </span>
+            </div>
+            <div className="space-y-3">
+              {solFiles.map((sf, idx) => (
+                <div key={idx} className="rounded border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-black/30 p-2.5 text-[11px]">
+                  <div className="font-mono font-medium text-neutral-800 dark:text-neutral-200 mb-1.5 truncate">
+                    {sf.path}
+                  </div>
+                  <pre className="font-mono text-[10px] text-neutral-700 dark:text-neutral-300 max-h-40 overflow-auto whitespace-pre p-2 bg-neutral-200/50 dark:bg-black/40 rounded custom-scrollbar">
+                    <code>{sf.code}</code>
+                  </pre>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -2887,13 +2930,7 @@ function PublishScreen({
 }) {
   const [isPublishing, setIsPublishing] = useState(false);
   const [type, setType] = useState<"email" | "link" | "csv">("email");
-  const [recipients, setRecipients] = useState<Array<{name: string, email: string}>>(() => {
-    const emails = ev.invite?.emails;
-    if (Array.isArray(emails)) {
-      return emails.map((e: any) => typeof e === 'string' ? { name: '', email: e } : e);
-    }
-    return [];
-  });
+  const [recipients, setRecipients] = useState<Array<{name: string, email: string}>>([]);
   const [nameInput, setNameInput] = useState("");
   const [emailsInput, setEmailsInput] = useState("");
   const [subject, setSubject] = useState(`Invitation: ${ev.title}`);

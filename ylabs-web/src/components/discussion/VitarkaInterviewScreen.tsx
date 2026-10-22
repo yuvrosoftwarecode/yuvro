@@ -46,6 +46,9 @@ export const VitarkaInterviewScreen = forwardRef<
     interview_session_id?: string;
     submission_id?: string;
   } | null>(null);
+  const [micVolume, setMicVolume] = useState<number>(0);
+  const [manualText, setManualText] = useState("");
+  const [showInactivityModal, setShowInactivityModal] = useState(false);
 
   // Code editor states
   const [showCodeEditor, setShowCodeEditor] = useState(false);
@@ -111,6 +114,8 @@ export const VitarkaInterviewScreen = forwardRef<
   const isFinishedRef = useRef(false);
   const isSubmittingRef = useRef(false);
   const processingRef = useRef(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const animFrameRef = useRef<number | null>(null);
 
   useImperativeHandle(ref, () => ({
     cancelEnd: () => {
@@ -147,9 +152,47 @@ export const VitarkaInterviewScreen = forwardRef<
   const requestPermissions = async () => {
     onSessionStart?.("started");
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
       setMediaStream(stream);
       setHasPermissions(true);
+
+      // Start audio level visualizer
+      try {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContextClass) {
+          const audioCtx = new AudioContextClass();
+          audioContextRef.current = audioCtx;
+          const analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 256;
+          const source = audioCtx.createMediaStreamSource(stream);
+          source.connect(analyser);
+
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          const updateLevel = () => {
+            if (isUnmountedRef.current || isFinishedRef.current) return;
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+              sum += dataArray[i];
+            }
+            const avg = sum / dataArray.length;
+            const normalized = Math.min(100, Math.round((avg / 128) * 100));
+            setMicVolume(normalized);
+            animFrameRef.current = requestAnimationFrame(updateLevel);
+          };
+          updateLevel();
+        }
+      } catch (audioErr) {
+        console.warn("Could not start audio visualizer:", audioErr);
+      }
+
       startInterview();
     } catch (e) {
       console.error("Permissions denied:", e);
@@ -164,21 +207,26 @@ export const VitarkaInterviewScreen = forwardRef<
     }
     return () => {
       mediaStream?.getTracks().forEach((t) => t.stop());
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+        audioContextRef.current.close().catch(() => null);
+      }
     };
   }, [mediaStream]);
 
   const resetInactivityTimer = () => {
     if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     if (isFinishedRef.current) return;
+    // Extended timeout to 40 seconds to give candidates time to think and formulate answers
     inactivityTimerRef.current = setTimeout(() => {
       handleInactivityTimeout();
-    }, 15000);
+    }, 40000);
   };
 
   const INACTIVITY_PHRASES = [
-    "Are you there?",
-    "Are you still with me?",
-    "I'm listening, are you still there?",
+    "Take your time. Whenever you're ready, feel free to speak or type your answer below.",
+    "I'm listening. Take a moment if needed, or you can submit your answer in the text box.",
+    "Whenever you are ready, please share your thoughts on the question.",
   ];
 
   const handleInactivityTimeout = () => {
@@ -186,34 +234,24 @@ export const VitarkaInterviewScreen = forwardRef<
       isFinishedRef.current ||
       processingRef.current ||
       interviewStateRef.current !== "listening" ||
-      currentUserAnswerRef.current.replace(/ \[interim\].*$/, "").trim().length > 0
+      currentUserAnswerRef.current.replace(/ \[interim\].*$/, "").trim().length > 0 ||
+      manualText.trim().length > 0
     ) {
-      return;
-    }
-
-    if (isWaitingForConfirmationRef.current) {
-      const promptText = "Okay, thanks for your time. I am ending the interview.";
-      setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
-      setCurrentUserAnswer("");
-      speakText(promptText, () => {
-        handleEndConfirm();
-      });
       return;
     }
 
     inactivityAttemptsRef.current += 1;
 
-    if (inactivityAttemptsRef.current > 3) {
-      isWaitingForConfirmationRef.current = true;
-      const promptText = "I haven't received a response. Would you like to continue the interview?";
+    // After 3 gentle reminders, display an inactivity prompt banner rather than abruptly killing the interview
+    if (inactivityAttemptsRef.current >= 3) {
+      setShowInactivityModal(true);
+      const promptText = "I haven't heard a response in a while. Would you like to continue the interview, or submit your current progress?";
       setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
-      setCurrentUserAnswer("");
       speakText(promptText);
       return;
     }
 
-    const promptText =
-      INACTIVITY_PHRASES[inactivityAttemptsRef.current % INACTIVITY_PHRASES.length];
+    const promptText = INACTIVITY_PHRASES[(inactivityAttemptsRef.current - 1) % INACTIVITY_PHRASES.length];
     setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
     setCurrentUserAnswer("");
     speakText(promptText);
@@ -498,6 +536,15 @@ export const VitarkaInterviewScreen = forwardRef<
     }
   };
 
+  const handleManualSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!manualText.trim() || processingRef.current || isFinishedRef.current) return;
+    const textToSend = manualText.trim();
+    setManualText("");
+    currentUserAnswerRef.current = textToSend;
+    handleAutoSubmit();
+  };
+
   const handleEndRequest = () => {
     if (isSubmittingRef.current) return;
     try {
@@ -557,31 +604,54 @@ export const VitarkaInterviewScreen = forwardRef<
   }
 
   return (
-    <div className="mx-auto flex h-[85vh] max-w-7xl flex-col gap-6 px-8 py-6 lg:flex-row">
+    <div className="mx-auto flex h-[85vh] max-w-7xl flex-col gap-6 px-8 py-6 lg:flex-row relative">
       <div className="flex flex-1 flex-col gap-4 overflow-hidden">
         <div className="flex items-center justify-between rounded-t-2xl border-b border-neutral-800 bg-[#0b0b0c] px-6 py-4">
           <h2 className="font-serif text-xl font-medium text-white">Vitarka AI Discussion</h2>
-          <div className="flex items-center gap-3">
-            <span className="flex h-2.5 w-2.5 items-center justify-center">
-              <span
-                className={`absolute inline-flex h-2.5 w-2.5 animate-ping rounded-full opacity-75 ${interviewState === "listening" ? "bg-emerald-400" : "bg-neutral-500"}`}
-              ></span>
-              <span
-                className={`relative inline-flex h-2.5 w-2.5 rounded-full ${interviewState === "listening" ? "bg-emerald-500" : "bg-neutral-500"}`}
-              ></span>
-            </span>
-            <span className="text-[13px] font-medium text-neutral-400 uppercase tracking-wider">
-              {interviewState === "thinking"
-                ? "AI is thinking..."
-                : interviewState === "speaking"
-                  ? "AI is speaking..."
-                  : "Listening..."}
-            </span>
+          <div className="flex items-center gap-4">
+            {/* Live Microphone Audio Level Indicator */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-800/80 border border-neutral-700/60" title={`Microphone Input Level: ${micVolume}%`}>
+              <span className={`text-[11px] font-medium ${micVolume > 5 ? "text-emerald-400" : "text-neutral-400"}`}>
+                Mic
+              </span>
+              <div className="flex items-end gap-0.5 h-3 w-8">
+                {[15, 35, 60, 85].map((threshold, i) => (
+                  <span
+                    key={i}
+                    className={`w-1.5 rounded-xs transition-all duration-75 ${
+                      micVolume >= threshold
+                        ? threshold > 60
+                          ? "bg-amber-400 h-full"
+                          : "bg-emerald-400 h-full"
+                        : "bg-neutral-600 h-1"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="flex h-2.5 w-2.5 items-center justify-center">
+                <span
+                  className={`absolute inline-flex h-2.5 w-2.5 animate-ping rounded-full opacity-75 ${interviewState === "listening" ? "bg-emerald-400" : "bg-neutral-500"}`}
+                ></span>
+                <span
+                  className={`relative inline-flex h-2.5 w-2.5 rounded-full ${interviewState === "listening" ? "bg-emerald-500" : "bg-neutral-500"}`}
+                ></span>
+              </span>
+              <span className="text-[13px] font-medium text-neutral-400 uppercase tracking-wider">
+                {interviewState === "thinking"
+                  ? "AI is thinking..."
+                  : interviewState === "speaking"
+                    ? "AI is speaking..."
+                    : "Listening..."}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto rounded-b-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-6">
+        <div className="flex-1 overflow-y-auto rounded-b-2xl border border-neutral-200 bg-white p-6 shadow-sm flex flex-col justify-between">
+          <div className="flex flex-col gap-6 overflow-y-auto">
             {conversation.map((msg, idx) => (
               <div
                 key={idx}
@@ -604,6 +674,25 @@ export const VitarkaInterviewScreen = forwardRef<
             )}
             <div ref={conversationEndRef} />
           </div>
+
+          {/* Text Input Fallback if microphone speech recognition fails */}
+          <form onSubmit={handleManualSubmit} className="mt-4 pt-3 border-t border-neutral-100 flex items-center gap-2">
+            <input
+              type="text"
+              value={manualText}
+              onChange={(e) => setManualText(e.target.value)}
+              placeholder="Or type your response here if microphone recognition has issues..."
+              disabled={interviewState !== "listening" || processingRef.current}
+              className="flex-1 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-[14px] text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-neutral-900 focus:outline-none transition disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={!manualText.trim() || interviewState !== "listening" || processingRef.current}
+              className="rounded-xl bg-neutral-900 px-4 py-2.5 text-[13px] font-medium text-white hover:bg-neutral-800 disabled:opacity-40 transition"
+            >
+              Send Answer
+            </button>
+          </form>
         </div>
 
         {/* Code Editor for Coding Questions */}
@@ -662,16 +751,13 @@ export const VitarkaInterviewScreen = forwardRef<
           </h3>
           <ul className="flex flex-col gap-3 text-[13px] text-neutral-600 leading-relaxed">
             <li className="flex gap-2">
-              <span className="text-neutral-900">1.</span> Speak naturally. The AI is listening when
-              the dot is green.
+              <span className="text-neutral-900">1.</span> Speak naturally. The green dot and top mic indicator show when your voice is detected.
             </li>
             <li className="flex gap-2">
-              <span className="text-neutral-900">2.</span> Pause when you're done. Your answer will
-              be automatically submitted after 2 seconds of silence.
+              <span className="text-neutral-900">2.</span> Pause when you're done. Your answer will be submitted automatically after 2 seconds of silence.
             </li>
             <li className="flex gap-2">
-              <span className="text-neutral-900">3.</span> The AI will respond and ask follow-up
-              questions sequentially.
+              <span className="text-neutral-900">3.</span> If your microphone is not recognized, you can use the text box at the bottom to type your answer.
             </li>
             {showCodeEditor && (
               <li className="flex gap-2 text-emerald-600 font-medium">
@@ -682,6 +768,41 @@ export const VitarkaInterviewScreen = forwardRef<
           </ul>
         </div>
       </div>
+
+      {/* Inactivity Prompt Modal */}
+      {showInactivityModal && (
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="max-w-md w-full bg-white rounded-2xl p-6 shadow-2xl border border-neutral-200 animate-in fade-in zoom-in-95">
+            <h3 className="text-lg font-serif font-medium text-neutral-900">Are you still there?</h3>
+            <p className="mt-2 text-[14px] text-neutral-600 leading-relaxed">
+              We haven't received a response in a while. Would you like to continue the discussion, or end it now?
+            </p>
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowInactivityModal(false);
+                  handleEndConfirm();
+                }}
+                className="rounded-lg px-4 py-2 text-[13px] font-medium text-rose-600 hover:bg-rose-50 transition"
+              >
+                End Interview
+              </button>
+              <button
+                onClick={() => {
+                  setShowInactivityModal(false);
+                  inactivityAttemptsRef.current = 0;
+                  setInterviewState("listening");
+                  resetInactivityTimer();
+                  try { recognitionRef.current?.start(); } catch (e) {}
+                }}
+                className="rounded-lg bg-neutral-900 px-5 py-2 text-[13px] font-medium text-white hover:bg-neutral-800 transition"
+              >
+                Continue Discussion
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 });

@@ -21,6 +21,14 @@ export const questionBankService = {
     return restApiAuthUtil.delete(`/skill_evaluation/lab-questions/${id}/`);
   },
 
+  async verifyLabQuestion(data: any): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/lab-questions/verify/`, data);
+  },
+
+  async exportFixture(id: string): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/lab-questions/${id}/export-fixture/`);
+  },
+
   async getKnowledgeQuestions(): Promise<any[]> {
     const data: any = await restApiAuthUtil.get(`/skill_evaluation/knowledge-questions/`);
     return Array.isArray(data) ? data : data?.results || [];
