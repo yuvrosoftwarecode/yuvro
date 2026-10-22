@@ -1,0 +1,204 @@
+{
+  "title": "Sprint 1 — Project Setup & Authentication",
+  "description": "Initialize the Django REST API project, configure Django REST Framework with SQLite, and build secure token-based user registration, login, and logout API endpoints.",
+  "order_index": 1,
+  "lab_title": "Django ToDo Lab",
+  "xp_pool": 300,
+  "tickets": [
+    {
+      "title": "TODO-001: Initialize Django REST API Project",
+      "ticket_slug": "TODO-001",
+      "description": "### Overview\nSet up the backend development environment for the Django ToDo REST API. Initialize a new Django project named `todoproject` and create a dedicated API application named `tasks`. Install and configure Django REST Framework (DRF) within `INSTALLED_APPS`, configure the default DRF settings and SQLite database in `todoproject/settings.py`, apply initial database migrations, and establish a root API health-check endpoint (`GET /api/health/`) that returns a JSON status response.\n\n### Dependencies\n- None (First ticket in the project).\n\n### Acceptance Criteria\n- [ ] Django project named `todoproject` and application named `tasks` are initialized.\n- [ ] `rest_framework` and `tasks` are added to `INSTALLED_APPS` in `todoproject/settings.py`.\n- [ ] SQLite database is configured in `DATABASES` and default migrations are applied cleanly via `python manage.py migrate`.\n- [ ] Default `REST_FRAMEWORK` settings are defined (including default renderers and parsers for JSON).\n- [ ] A health check endpoint `GET /api/health/` responds with HTTP 200 OK and JSON payload `{\"status\": \"ok\", \"message\": \"Django ToDo API is running\"}`.\n- [ ] The development server starts without warnings or errors via `python manage.py runserver`.\n\n### Expected Deliverables\n- `manage.py`\n- `todoproject/settings.py`\n- `todoproject/urls.py`\n- `tasks/apps.py`\n- `tasks/views.py` with health check endpoint\n- Initial database file `db.sqlite3`\n\n### Evaluation Criteria\n- Verification that DRF is registered in `INSTALLED_APPS`.\n- `GET /api/health/` returns HTTP 200 with `application/json` content type.\n- Database migrations execute without errors.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Understand Django REST Framework project architecture.",
+        "Configure settings.py for DRF, SQLite, and JSON rendering.",
+        "Execute initial database migrations.",
+        "Build a basic RESTful API endpoint using DRF APIView or @api_view."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — Project and App Setup",
+          "task_slug": "task-todo-001-1",
+          "description": "Initialize the Django project `todoproject` and create the `tasks` app. Register `'rest_framework'` and `'tasks'` in `INSTALLED_APPS` inside `todoproject/settings.py`.",
+          "points": 35,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Database and DRF Configuration",
+          "task_slug": "task-todo-001-2",
+          "description": "Configure SQLite in `DATABASES`. Add `REST_FRAMEWORK` dictionary to `settings.py` with default JSON renderers and parsers. Run `python manage.py migrate`.",
+          "points": 35,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        },
+        {
+          "title": "Task 3 — Health Check API Endpoint",
+          "task_slug": "task-todo-001-3",
+          "description": "Implement a `health_check` endpoint using DRF `@api_view(['GET'])` returning `Response({'status': 'ok', 'message': 'Django ToDo API is running'}, status=status.HTTP_200_OK)`. Map it to `/api/health/`.",
+          "points": 30,
+          "method": "Automated API Test & Code Review",
+          "order_index": 3
+        }
+      ],
+      "common_mistakes": [
+        "Forgetting to add 'rest_framework' to INSTALLED_APPS.",
+        "Returning a plain Django HttpResponse or string instead of a DRF Response object with JSON data.",
+        "Skipping database migrations before running the server."
+      ],
+      "hints": [
+        "Use `from rest_framework.decorators import api_view` and `from rest_framework.response import Response`.",
+        "Map `/api/health/` in `todoproject/urls.py` using `path('api/health/', health_check_view, name='health-check')`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_endpoints": [
+          "GET /api/health/"
+        ],
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py"
+      },
+      "solution": {
+        "settings_py": "INSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'rest_framework',\n    'rest_framework.authtoken',\n    'tasks',\n]\nREST_FRAMEWORK = {\n    'DEFAULT_AUTHENTICATION_CLASSES': [\n        'rest_framework.authentication.TokenAuthentication',\n    ],\n}",
+        "views_py": "from rest_framework.decorators import api_view\nfrom rest_framework.response import Response\nfrom rest_framework import status\n\n@api_view(['GET'])\ndef health_check(request):\n    return Response({'status': 'ok', 'message': 'Django ToDo API is running'}, status=status.HTTP_200_OK)"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py"
+    },
+    {
+      "title": "TODO-002: Implement User Registration API",
+      "ticket_slug": "TODO-002",
+      "description": "### Overview\nBuild a public REST API endpoint that allows new users to register an account by submitting JSON payloads. Create a DRF `Serializer` that validates incoming registration fields: `username`, `email`, and `password`. The serializer must ensure the username is unique, validate email format, enforce password strength, and create the user using `User.objects.create_user()` to ensure the password is securely hashed. The API response must return the created user details with HTTP 201 Created and must NEVER expose the raw password or password hash.\n\n### Dependencies\n- `TODO-001`: Initialize Django REST API Project.\n\n### Acceptance Criteria\n- [ ] Endpoint `POST /api/auth/register/` is configured and accepts JSON requests.\n- [ ] Accepts JSON body containing `username`, `email`, and `password`.\n- [ ] Serializer validates that `username` and `password` are present and non-empty.\n- [ ] Duplicate usernames return HTTP 400 Bad Request with descriptive validation error messages.\n- [ ] Invalid email formats return HTTP 400 Bad Request.\n- [ ] Passwords are saved using `create_user()` with PBKDF2/Argon2 hashing; passwords are never stored in plain text.\n- [ ] Successful registration returns HTTP 201 Created with JSON body containing user ID, username, and email (e.g. `{\"id\": 1, \"username\": \"student1\", \"email\": \"student1@example.com\"}`).\n- [ ] The response payload strictly excludes password, password hash, and secret attributes.\n\n### Expected Deliverables\n- `tasks/serializers.py` containing `UserRegistrationSerializer`.\n- `tasks/views.py` containing `RegisterAPIView` or registration view.\n- Route `POST /api/auth/register/` registered in URL patterns.\n\n### Evaluation Criteria\n- `POST /api/auth/register/` with valid payload returns HTTP 201 Created.\n- Verification of user record in `auth_user` table with hashed password.\n- Duplicate registration returns HTTP 400 with `{ \"username\": [ ... ] }` error structure.\n- Response body inspected to confirm password is absent.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Create DRF Serializers for incoming request payload validation.",
+        "Implement secure user creation using Django's User.objects.create_user.",
+        "Enforce write-only serializer fields to prevent sensitive data leakage.",
+        "Return standard REST HTTP status codes (201 Created, 400 Bad Request)."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — User Registration Serializer",
+          "task_slug": "task-todo-002-1",
+          "description": "Create `tasks/serializers.py` and define `UserRegistrationSerializer`. Declare `password` with `write_only=True`. Validate username uniqueness and email format. Implement `create(self, validated_data)` using `User.objects.create_user()`.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Registration API View and URL Routing",
+          "task_slug": "task-todo-002-2",
+          "description": "Create `RegisterView(generics.CreateAPIView)` or `@api_view(['POST'])` in `tasks/views.py`. Wire endpoint to `/api/auth/register/`. Return HTTP 201 on success or HTTP 400 with serializer errors.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        }
+      ],
+      "common_mistakes": [
+        "Using User.objects.create() instead of create_user(), which stores passwords in plain text.",
+        "Returning the password field in the response payload instead of marking it write_only=True.",
+        "Returning HTTP 200 OK instead of the REST standard HTTP 201 Created for resource creation."
+      ],
+      "hints": [
+        "In your serializer, specify `extra_kwargs = {'password': {'write_only': True}}`.",
+        "Import `from django.contrib.auth.models import User`.",
+        "Test registration with curl or Postman using `Content-Type: application/json`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_endpoints": [
+          "POST /api/auth/register/"
+        ],
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py"
+      },
+      "solution": {
+        "serializers_py": "from rest_framework import serializers\nfrom django.contrib.auth.models import User\n\nclass UserRegistrationSerializer(serializers.ModelSerializer):\n    password = serializers.CharField(write_only=True, required=True, min_length=6)\n    email = serializers.EmailField(required=True)\n\n    class Meta:\n        model = User\n        fields = ['id', 'username', 'email', 'password']\n\n    def validate_username(self, value):\n        if User.objects.filter(username=value).exists():\n            raise serializers.ValidationError('A user with that username already exists.')\n        return value\n\n    def create(self, validated_data):\n        return User.objects.create_user(**validated_data)",
+        "views_py": "from rest_framework import generics, permissions\nfrom .serializers import UserRegistrationSerializer\n\nclass RegisterView(generics.CreateAPIView):\n    serializer_class = UserRegistrationSerializer\n    permission_classes = [permissions.AllowAny]"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py"
+    },
+    {
+      "title": "TODO-003: Implement Login and Logout APIs",
+      "ticket_slug": "TODO-003",
+      "description": "### Overview\nImplement REST authentication endpoints for login and logout using Django REST Framework. Add `'rest_framework.authtoken'` to `INSTALLED_APPS` and run migrations to create token tables. Build `POST /api/auth/login/` to authenticate username and password credentials; upon success, generate or retrieve a token and return `{\"token\": \"...\", \"user_id\": 1, \"username\": \"...\"}` with HTTP 200 OK. Build `POST /api/auth/logout/` requiring an authenticated token in the `Authorization: Token <token>` header; this endpoint deletes the token from the database and returns HTTP 200 OK with `{\"message\": \"Successfully logged out\"}`.\n\n### Dependencies\n- `TODO-002`: Implement User Registration API.\n\n### Acceptance Criteria\n- [ ] `rest_framework.authtoken` is enabled and migrated in SQLite.\n- [ ] `POST /api/auth/login/` accepts JSON with `username` and `password`.\n- [ ] Valid credentials return HTTP 200 OK with auth token string, user ID, and username.\n- [ ] Invalid credentials return HTTP 400 Bad Request or HTTP 401 Unauthorized with error message `{\"error\": \"Invalid username or password\"}`.\n- [ ] `POST /api/auth/logout/` requires valid token authentication (`Authorization: Token <key>`).\n- [ ] Logout deletes the authentication token record from the database so it can no longer be used.\n- [ ] Unauthenticated requests to logout endpoint return HTTP 401 Unauthorized.\n- [ ] Successful logout returns HTTP 200 OK with `{\"message\": \"Successfully logged out\"}`.\n\n### Expected Deliverables\n- `todoproject/settings.py` updated with `rest_framework.authtoken`.\n- `tasks/views.py` containing `LoginAPIView` and `LogoutAPIView`.\n- Routes mapped in `todoproject/urls.py` (`POST /api/auth/login/` and `POST /api/auth/logout/`).\n\n### Evaluation Criteria\n- Token verification: Valid login produces a 40-character DRF Token.\n- Token invalidation: Calling logout deletes the token; subsequent requests with the old token return HTTP 401 Unauthorized.\n- Invalid login attempts return appropriate error status codes.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Configure and use DRF TokenAuthentication (rest_framework.authtoken).",
+        "Authenticate credentials using django.contrib.auth.authenticate.",
+        "Issue and invalidate REST API tokens upon login and logout.",
+        "Protect endpoints requiring Authorization: Token <key> headers."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — Enable Token Authentication",
+          "task_slug": "task-todo-003-1",
+          "description": "Add `'rest_framework.authtoken'` to `INSTALLED_APPS` in `settings.py` and run `python manage.py migrate`. Set `DEFAULT_AUTHENTICATION_CLASSES` to include `'rest_framework.authentication.TokenAuthentication'`.",
+          "points": 30,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Login API Endpoint",
+          "task_slug": "task-todo-003-2",
+          "description": "Create `LoginView` handling `POST /api/auth/login/`. Authenticate credentials using `authenticate(username=..., password=...)`. On success, retrieve or create token with `Token.objects.get_or_create(user=user)` and return token, user_id, and username with HTTP 200. On failure, return HTTP 400/401.",
+          "points": 40,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        },
+        {
+          "title": "Task 3 — Logout API Endpoint",
+          "task_slug": "task-todo-003-3",
+          "description": "Create `LogoutView` handling `POST /api/auth/logout/`. Set `permission_classes = [IsAuthenticated]`. Delete the requesting user's token using `request.user.auth_token.delete()`. Return `{'message': 'Successfully logged out'}` with HTTP 200.",
+          "points": 30,
+          "method": "Automated API Test & Code Review",
+          "order_index": 3
+        }
+      ],
+      "common_mistakes": [
+        "Forgetting to run migrations after adding 'rest_framework.authtoken', causing database table missing errors.",
+        "Not deleting the token on logout, allowing expired credentials to remain active.",
+        "Using GET instead of POST for login and logout operations."
+      ],
+      "hints": [
+        "Import `from rest_framework.authtoken.models import Token` and `from django.contrib.auth import authenticate`.",
+        "Authenticated requests must send headers in format: `Authorization: Token <token_key>`.",
+        "Use `request.user.auth_token.delete()` to invalidate the active token."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_endpoints": [
+          "POST /api/auth/login/",
+          "POST /api/auth/logout/"
+        ],
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py"
+      },
+      "solution": {
+        "views_py": "from rest_framework.views import APIView\nfrom rest_framework.response import Response\nfrom rest_framework import status, permissions\nfrom rest_framework.authtoken.models import Token\nfrom django.contrib.auth import authenticate\n\nclass LoginView(APIView):\n    permission_classes = [permissions.AllowAny]\n\n    def post(self, request):\n        username = request.data.get('username')\n        password = request.data.get('password')\n        user = authenticate(username=username, password=password)\n        if user:\n            token, _ = Token.objects.get_or_create(user=user)\n            return Response({'token': token.key, 'user_id': user.id, 'username': user.username}, status=status.HTTP_200_OK)\n        return Response({'error': 'Invalid username or password'}, status=status.HTTP_400_BAD_REQUEST)\n\nclass LogoutView(APIView):\n    permission_classes = [permissions.IsAuthenticated]\n\n    def post(self, request):\n        request.user.auth_token.delete()\n        return Response({'message': 'Successfully logged out'}, status=status.HTTP_200_OK)"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py"
+    }
+  ]
+}

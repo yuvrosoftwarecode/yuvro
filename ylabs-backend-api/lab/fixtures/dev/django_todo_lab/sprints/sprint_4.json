@@ -1,0 +1,185 @@
+{
+  "title": "Sprint 4 — Permissions, Error Handling & Automated Testing",
+  "description": "Enforce custom DRF object-level permission classes, author automated API test suites using APITestCase, standardize error handling, and author complete REST API documentation.",
+  "order_index": 4,
+  "lab_title": "Django ToDo Lab",
+  "xp_pool": 300,
+  "tickets": [
+    {
+      "title": "TODO-010: Enforce Authentication and Object-Level Permissions",
+      "ticket_slug": "TODO-010",
+      "description": "### Overview\nConduct a comprehensive security audit of all API endpoints and implement a reusable custom DRF permission class named `IsOwner`. In `tasks/permissions.py`, create `IsOwner(permissions.BasePermission)` and implement `has_object_permission(self, request, view, obj)` to ensure that `obj.owner == request.user`. Apply `[IsAuthenticated, IsOwner]` across all task views. Verify that public authentication endpoints (`/api/auth/register/`, `/api/auth/login/`) remain accessible with `[AllowAny]`, while all task endpoints strictly reject unauthorized requests with HTTP 401 Unauthorized or HTTP 403 Forbidden / 404 Not Found.\n\n### Dependencies\n- `TODO-007`: Implement Update Task API.\n- `TODO-008`: Implement Delete Task API.\n- `TODO-009`: Implement Task Completion Status API.\n\n### Acceptance Criteria\n- [ ] Custom permission class `IsOwner` is created in `tasks/permissions.py` inheriting from `rest_framework.permissions.BasePermission`.\n- [ ] `has_object_permission` returns `True` only when `obj.owner == request.user`.\n- [ ] All task endpoints (`/api/tasks/`, `/api/tasks/<pk>/`, `/api/tasks/<pk>/status/`) require authentication (`IsAuthenticated`).\n- [ ] Detail endpoints enforce `IsOwner` so users cannot read, update, delete, or toggle tasks belonging to another user.\n- [ ] Cross-user access attempts return HTTP 403 Forbidden or HTTP 404 Not Found.\n- [ ] Public authentication endpoints (`/api/auth/register/`, `/api/auth/login/`) explicitly allow unauthenticated access (`[AllowAny]`).\n- [ ] Missing, malformed, or invalid tokens consistently return HTTP 401 Unauthorized.\n\n### Expected Deliverables\n- `tasks/permissions.py` containing `IsOwner` class.\n- Updated `tasks/views.py` with consistent permission classes.\n\n### Evaluation Criteria\n- Security test: User A with a valid token attempting to access User B's task receives 403 or 404.\n- Unauthenticated request to `/api/tasks/` receives 401.\n- Public endpoints remain accessible without tokens.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Create custom object-level permission classes in Django REST Framework.",
+        "Implement has_object_permission to inspect model instances against request.user.",
+        "Differentiate between view-level permissions (IsAuthenticated) and object-level permissions (IsOwner).",
+        "Maintain consistent authentication challenges across RESTful APIs."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — Implement Custom IsOwner Permission Class",
+          "task_slug": "task-todo-010-1",
+          "description": "Create `tasks/permissions.py` and implement `class IsOwner(permissions.BasePermission)`. Implement `has_object_permission(self, request, view, obj)` returning `obj.owner == request.user`.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Audit and Apply Permissions to All Endpoints",
+          "task_slug": "task-todo-010-2",
+          "description": "Audit all API views in `tasks/views.py`. Set `permission_classes = [permissions.AllowAny]` on Register and Login. Set `permission_classes = [permissions.IsAuthenticated, IsOwner]` on all task views.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        }
+      ],
+      "common_mistakes": [
+        "Implementing has_permission instead of has_object_permission, which doesn't receive the model instance.",
+        "Locking down the registration or login endpoints by applying IsAuthenticated globally without overriding it with AllowAny.",
+        "Relying solely on frontend validation rather than server-side permission checks."
+      ],
+      "hints": [
+        "In `tasks/permissions.py`:\n```python\nfrom rest_framework import permissions\nclass IsOwner(permissions.BasePermission):\n    def has_object_permission(self, request, view, obj):\n        return obj.owner == request.user\n```",
+        "Remember that `has_object_permission` is only invoked when `self.get_object()` is called in detail views."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_classes": [
+          "IsOwner"
+        ],
+        "test_command": "python yuvro_scoring_rules/sprint_4/ticket_1/main_test.py"
+      },
+      "solution": {
+        "permissions_py": "from rest_framework import permissions\n\nclass IsOwner(permissions.BasePermission):\n    \"\"\"Custom permission to only allow owners of an object to access or edit it.\"\"\"\n\n    def has_object_permission(self, request, view, obj):\n        return obj.owner == request.user",
+        "views_py": "class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):\n    serializer_class = TaskSerializer\n    permission_classes = [permissions.IsAuthenticated, IsOwner]\n\n    def get_queryset(self):\n        return Task.objects.filter(owner=self.request.user)"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_4/ticket_1/main_test.py"
+    },
+    {
+      "title": "TODO-011: Implement Automated API Tests",
+      "ticket_slug": "TODO-011",
+      "description": "### Overview\nAuthor a comprehensive automated test suite for the entire REST API using Django REST Framework's testing utilities (`rest_framework.test.APITestCase` and `APIClient`). In `tasks/tests.py`, write unit and integration test cases covering: (1) User registration with valid and invalid payloads; (2) User login, token generation, and logout token invalidation; (3) Task CRUD operations (create, list, retrieve, update, delete, status toggle); (4) Input validation errors (missing title, non-boolean status); (5) Unauthenticated access rejections; and (6) Cross-user isolation and ownership permission enforcement. All tests must execute cleanly via `python manage.py test`.\n\n### Dependencies\n- `TODO-010`: Enforce Authentication and Object-Level Permissions.\n\n### Acceptance Criteria\n- [ ] `tasks/tests.py` uses `APITestCase` and DRF's `APIClient`.\n- [ ] Authentication tests verify successful registration (201), duplicate registration rejection (400), valid login with token receipt (200), invalid login (400/401), and logout (200).\n- [ ] Task CRUD tests verify creation with token (201), listing only user's tasks (200), single task retrieval (200), full update (200), partial update (200), deletion (204), and status update (200).\n- [ ] Validation tests verify missing required fields return HTTP 400 Bad Request.\n- [ ] Security tests verify unauthenticated requests to `/api/tasks/` return HTTP 401 Unauthorized.\n- [ ] Cross-user security tests verify that User A cannot view, update, delete, or toggle User B's task (returns 404 or 403).\n- [ ] All tests run and pass with 0 failures or errors via `python manage.py test`.\n\n### Expected Deliverables\n- `tasks/tests.py` containing test classes (`AuthAPITests`, `TaskCRUDAPITests`, `TaskSecurityAPITests`).\n\n### Evaluation Criteria\n- Running `python manage.py test` exits with code 0.\n- Minimum of 10 automated test methods covering all API endpoints and status codes.\n- Complete isolation between tests with independent fixtures and clean teardowns.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Write robust API tests using rest_framework.test.APITestCase.",
+        "Simulate token-authenticated API requests with client.credentials(HTTP_AUTHORIZATION=...).",
+        "Assert JSON response payloads, status codes, and database states.",
+        "Test boundary conditions, invalid inputs, and security permissions."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — Authentication API Tests",
+          "task_slug": "task-todo-011-1",
+          "description": "In `tasks/tests.py`, implement `AuthAPITests` testing registration success (201), duplicate username (400), valid login (200 with token), invalid login (400/401), and logout (200). Assert token deletion.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Task CRUD and Security API Tests",
+          "task_slug": "task-todo-011-2",
+          "description": "Implement `TaskAPITests` testing task creation, list filtering by user, detail retrieval, PUT/PATCH updates, DELETE (204), PATCH status, unauthenticated 401 checks, and cross-user 404/403 access attempts.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        }
+      ],
+      "common_mistakes": [
+        "Using standard Django TestCase/Client instead of DRF's APITestCase/APIClient, losing native JSON request helpers.",
+        "Not setting client.credentials(HTTP_AUTHORIZATION='Token ' + token.key) before issuing authenticated requests.",
+        "Testing only happy paths while neglecting 400, 401, 403, and 404 status assertions."
+      ],
+      "hints": [
+        "Use `self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)` to authenticate the client.",
+        "Use `self.client.post('/api/tasks/', {'title': 'Buy Milk'}, format='json')`.",
+        "Assert status codes with `self.assertEqual(response.status_code, status.HTTP_201_CREATED)`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "test_command": "python yuvro_scoring_rules/sprint_4/ticket_2/main_test.py"
+      },
+      "solution": {
+        "tests_py": "from rest_framework.test import APITestCase\nfrom rest_framework import status\nfrom django.contrib.auth.models import User\nfrom rest_framework.authtoken.models import Token\nfrom tasks.models import Task\n\nclass TaskSecurityAPITests(APITestCase):\n    def setUp(self):\n        self.user1 = User.objects.create_user('user1', 'u1@test.com', 'pass123')\n        self.user2 = User.objects.create_user('user2', 'u2@test.com', 'pass123')\n        self.token1 = Token.objects.create(user=self.user1)\n        self.token2 = Token.objects.create(user=self.user2)\n        self.task1 = Task.objects.create(owner=self.user1, title='User1 Task')\n\n    def test_unauthenticated_request_rejected(self):\n        response = self.client.get('/api/tasks/')\n        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)\n\n    def test_user_cannot_access_other_task(self):\n        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token2.key)\n        response = self.client.get(f'/api/tasks/{self.task1.id}/')\n        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_4/ticket_2/main_test.py"
+    },
+    {
+      "title": "TODO-012: Standardize API Responses and Documentation",
+      "ticket_slug": "TODO-012",
+      "description": "### Overview\nFinalize the REST API project by ensuring consistent error and success response structures and authoring comprehensive API documentation. Create a detailed `README.md` and/or `docs/api_documentation.md` describing all endpoints, HTTP methods, authentication headers, request body schemas with sample JSON payloads, successful response examples with status codes, and standard error formats (400, 401, 403, 404). Include setup instructions detailing virtual environment configuration, dependency installation, migration execution, server launch, and automated test running. Absolutely no frontend or HTML templates should be introduced.\n\n### Dependencies\n- `TODO-011`: Implement Automated API Tests.\n\n### Acceptance Criteria\n- [ ] `README.md` is authored with complete technical documentation for the REST API.\n- [ ] All 7 API endpoints are fully documented: `GET /api/health/`, `POST /api/auth/register/`, `POST /api/auth/login/`, `POST /api/auth/logout/`, `GET & POST /api/tasks/`, `GET, PUT, PATCH, DELETE /api/tasks/<int:pk>/`, and `PATCH /api/tasks/<int:pk>/status/`.\n- [ ] Each endpoint includes HTTP method, URL path, required headers (e.g. `Authorization: Token <key>`), request JSON schema/example, and response JSON example with HTTP status codes.\n- [ ] Standard error formats (400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found) are clearly specified with sample payloads.\n- [ ] Setup documentation includes: Python virtual environment creation, `pip install -r requirements.txt`, database migrations (`python manage.py migrate`), running the server (`python manage.py runserver`), and running automated tests (`python manage.py test`).\n- [ ] Contains sample `curl` commands or Postman instructions for testing endpoints.\n- [ ] No frontend, HTML templates, CSS, or JavaScript files are added.\n\n### Expected Deliverables\n- `README.md` (or `docs/api_documentation.md`) containing complete API reference and developer setup instructions.\n- `requirements.txt` listing `django`, `djangorestframework`, etc.\n\n### Evaluation Criteria\n- Documentation accuracy: All endpoints, methods, parameters, and responses in docs match actual API implementation.\n- Cleanliness check: Zero frontend assets, templates, or HTML views exist in the repository.\n- Reproducibility: A new developer can set up and run tests solely using the documentation.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Document RESTful APIs with endpoint specifications and curl/Postman examples.",
+        "Establish standardized error response formats across an API.",
+        "Produce professional developer setup guides for backend microservices.",
+        "Maintain clean architectural boundaries without frontend coupling."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — API Reference and curl/Postman Documentation",
+          "task_slug": "task-todo-012-1",
+          "description": "Author the API reference section in `README.md`. Detail each endpoint's HTTP method, path, headers, request JSON, response JSON, and status codes. Provide curl examples for authentication and task management.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Setup, Test Instructions and requirements.txt",
+          "task_slug": "task-todo-012-2",
+          "description": "Document environment setup: venv, `pip install -r requirements.txt`, `python manage.py migrate`, and `python manage.py test`. Generate `requirements.txt` containing Django and djangorestframework.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        }
+      ],
+      "common_mistakes": [
+        "Introducing HTML templates or static CSS files in a backend-only lab.",
+        "Documenting endpoints that don't match the actual URL routing or response keys.",
+        "Failing to document the Authorization header format ('Authorization: Token <key>')."
+      ],
+      "hints": [
+        "Structure the documentation into clear sections: Project Overview, Quick Start, Authentication Guide, API Reference, and Running Tests.",
+        "Show explicit JSON blocks for both Success (200/201) and Error (400/401/404) responses.",
+        "Ensure `requirements.txt` specifies compatible versions of Django and djangorestframework."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_files": [
+          "README.md",
+          "requirements.txt"
+        ],
+        "test_command": "python yuvro_scoring_rules/sprint_4/ticket_3/main_test.py"
+      },
+      "solution": {
+        "readme_md": "# Django ToDo REST API\n\nA backend-only REST API built with Django, Django REST Framework, and SQLite.\n\n## Quick Start\n```bash\npython -m venv venv && source venv/bin/activate\npip install -r requirements.txt\npython manage.py migrate\npython manage.py runserver\n```\n\n## Running Tests\n```bash\npython manage.py test\n```\n\n## API Endpoints\n- `POST /api/auth/register/` - Register user\n- `POST /api/auth/login/` - Login & obtain token\n- `POST /api/auth/logout/` - Invalidate token\n- `GET /api/tasks/` - List user tasks\n- `POST /api/tasks/` - Create task\n- `GET /api/tasks/<id>/` - Retrieve task\n- `PUT/PATCH /api/tasks/<id>/` - Update task\n- `DELETE /api/tasks/<id>/` - Delete task\n- `PATCH /api/tasks/<id>/status/` - Update completion status"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python",
+        "Markdown"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_4/ticket_3/main_test.py"
+    }
+  ]
+}

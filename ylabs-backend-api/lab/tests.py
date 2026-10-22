@@ -70,6 +70,7 @@ class LabModelsTest(TestCase):
         self.assertTrue(lab.is_active)
         self.assertEqual(sprint.lab, lab)
         self.assertEqual(ticket.sprint, sprint)
+        self.assertEqual(ticket.test_command, "")
         self.assertEqual(enrollment.lab, lab)
         self.assertEqual(submission.lab_sprint_ticket, ticket)
 
@@ -139,4 +140,25 @@ class LabModelsTest(TestCase):
             evaluate_and_score_submission(submission1)
             self.assertEqual(submission1.yuvro_points, 0)
             # Status remains what it was (or backlog if not changed by score)
+
+    def test_ticket_with_test_command(self):
+        lab = Lab.objects.create(
+            title="Command Test Lab",
+            type="Backend",
+            difficulty="EASY",
+            created_by=self.admin_user,
+        )
+        sprint = LabSprint.objects.create(
+            title="Sprint 1",
+            lab=lab,
+            created_by=self.admin_user,
+        )
+        ticket = LabSprintTicket.objects.create(
+            sprint=sprint,
+            ticket_slug="ticket-with-command",
+            title="Ticket with test command",
+            test_command="python yuvro_scoring_rules/main_test.py",
+            created_by=self.admin_user,
+        )
+        self.assertEqual(ticket.test_command, "python yuvro_scoring_rules/main_test.py")
 
