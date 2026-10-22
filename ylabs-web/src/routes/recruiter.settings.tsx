@@ -1,10 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
-import { Check, Github, Sliders } from "lucide-react";
+import { Check } from "lucide-react";
 import { TIMEZONES, EXPIRY_OPTIONS, DURATION_OPTIONS } from "@/lib/recruiter";
-
-import { GithubSettingsTab } from "@/components/recruiter/GithubSettingsTab";
 
 export const Route = createFileRoute("/recruiter/settings")({
   head: () => ({
@@ -15,7 +13,7 @@ export const Route = createFileRoute("/recruiter/settings")({
 
 function SettingsPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<"general" | "github">("general");
+  const nav = useNavigate();
   const [name, setName] = useState(user?.name ?? "Recruiter");
   const [email, setEmail] = useState(user?.email ?? "recruiter@yuvro.com");
   const [org, setOrg] = useState("Yuvro Talent Co.");
@@ -31,7 +29,8 @@ function SettingsPage() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("tab") === "github" || params.get("installation_id")) {
-        setActiveTab("github");
+        nav({ to: `/recruiter/github${window.location.search}` as any });
+        return;
       }
 
       try {
@@ -48,7 +47,7 @@ function SettingsPage() {
         }
       } catch {}
     }
-  }, []);
+  }, [nav]);
 
   const save = () => {
     if (typeof window !== "undefined") {
@@ -63,111 +62,74 @@ function SettingsPage() {
 
   return (
     <div className="p-10">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-[28px] font-semibold tracking-tight text-neutral-900 dark:text-white">Settings</h1>
-          <p className="mt-1 text-[13px] text-neutral-500">
-            Manage your recruiter profile, evaluation workspace, and GitHub repository integrations.
-          </p>
-        </div>
-
-        {/* Tab switcher */}
-        <div className="flex items-center gap-1.5 self-start sm:self-auto bg-neutral-100 dark:bg-black/30 p-1 rounded-xl border border-neutral-200 dark:border-white/5">
-          <button
-            onClick={() => setActiveTab("general")}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition ${
-              activeTab === "general"
-                ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-sm font-semibold"
-                : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-            }`}
-          >
-            <Sliders className="h-3.5 w-3.5" />
-            <span>General</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("github")}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition ${
-              activeTab === "github"
-                ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-sm font-semibold"
-                : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-            }`}
-          >
-            <Github className="h-3.5 w-3.5" />
-            <span>GitHub & Repositories</span>
-          </button>
-        </div>
+      <div>
+        <h1 className="text-[28px] font-semibold tracking-tight text-neutral-900 dark:text-white">Settings</h1>
+        <p className="mt-1 text-[13px] text-neutral-500">
+          Manage your recruiter profile and preferences.
+        </p>
       </div>
 
-      {activeTab === "general" ? (
-        <>
-          <div className="mt-8 grid gap-6 lg:grid-cols-3">
-            <Card title="Profile" desc="How teammates see you.">
-              <FieldRow label="Full name">
-                <Input value={name} onChange={setName} />
-              </FieldRow>
-              <FieldRow label="Work email">
-                <Input value={email} onChange={setEmail} />
-              </FieldRow>
-              <FieldRow label="Organization">
-                <Input value={org} onChange={setOrg} />
-              </FieldRow>
-            </Card>
+      <div className="mt-8 grid gap-6 lg:grid-cols-3">
+        <Card title="Profile" desc="How teammates see you.">
+          <FieldRow label="Full name">
+            <Input value={name} onChange={setName} />
+          </FieldRow>
+          <FieldRow label="Work email">
+            <Input value={email} onChange={setEmail} />
+          </FieldRow>
+          <FieldRow label="Organization">
+            <Input value={org} onChange={setOrg} />
+          </FieldRow>
+        </Card>
 
-            <Card title="Notifications" desc="What we send to your inbox.">
-              <Toggle
-                label="Candidate completes evaluation"
-                checked={notif.candidate}
-                onChange={(v) => setNotif({ ...notif, candidate: v })}
-              />
-              <Toggle
-                label="Weekly evaluation report"
-                checked={notif.weekly}
-                onChange={(v) => setNotif({ ...notif, weekly: v })}
-              />
-              <Toggle
-                label="Vitarka AI insights digest"
-                checked={notif.ai}
-                onChange={(v) => setNotif({ ...notif, ai: v })}
-              />
-            </Card>
+        <Card title="Notifications" desc="What we send to your inbox.">
+          <Toggle
+            label="Candidate completes evaluation"
+            checked={notif.candidate}
+            onChange={(v) => setNotif({ ...notif, candidate: v })}
+          />
+          <Toggle
+            label="Weekly evaluation report"
+            checked={notif.weekly}
+            onChange={(v) => setNotif({ ...notif, weekly: v })}
+          />
+          <Toggle
+            label="Vitarka AI insights digest"
+            checked={notif.ai}
+            onChange={(v) => setNotif({ ...notif, ai: v })}
+          />
+        </Card>
 
-            <Card title="Workspace" desc="Recruiter workspace prefs.">
-              <FieldRow label="Default duration">
-                <Select value={duration} onChange={setDuration} options={DURATION_OPTIONS} />
-              </FieldRow>
-              <FieldRow label="Default expiry">
-                <Select value={expiry} onChange={setExpiry} options={EXPIRY_OPTIONS} />
-              </FieldRow>
-              <FieldRow label="Time zone">
-                <Select value={timezone} onChange={setTimezone} options={TIMEZONES} />
-              </FieldRow>
-            </Card>
-          </div>
+        <Card title="Workspace" desc="Recruiter workspace prefs.">
+          <FieldRow label="Default duration">
+            <Select value={duration} onChange={setDuration} options={DURATION_OPTIONS} />
+          </FieldRow>
+          <FieldRow label="Default expiry">
+            <Select value={expiry} onChange={setExpiry} options={EXPIRY_OPTIONS} />
+          </FieldRow>
+          <FieldRow label="Time zone">
+            <Select value={timezone} onChange={setTimezone} options={TIMEZONES} />
+          </FieldRow>
+        </Card>
+      </div>
 
-          <div className="mt-8 flex items-center gap-3">
-            <button
-              onClick={save}
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-2.5 text-[13px] font-medium text-black transition hover:brightness-110 shadow-sm"
-            >
-              {saved ? (
-                <>
-                  <Check className="h-4 w-4" /> Saved
-                </>
-              ) : (
-                "Save changes"
-              )}
-            </button>
-            <button className="rounded-lg border border-neutral-200 dark:border-white/10 px-5 py-2.5 text-[13px] text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition">
-              Cancel
-            </button>
-          </div>
-        </>
-      ) : (
-        <div className="mt-8">
-          <GithubSettingsTab />
-        </div>
-      )}
+      <div className="mt-8 flex items-center gap-3">
+        <button
+          onClick={save}
+          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-2.5 text-[13px] font-medium text-black transition hover:brightness-110 shadow-sm"
+        >
+          {saved ? (
+            <>
+              <Check className="h-4 w-4" /> Saved
+            </>
+          ) : (
+            "Save changes"
+          )}
+        </button>
+        <button className="rounded-lg border border-neutral-200 dark:border-white/10 px-5 py-2.5 text-[13px] text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition">
+          Cancel
+        </button>
+      </div>
     </div>
   );
 }
