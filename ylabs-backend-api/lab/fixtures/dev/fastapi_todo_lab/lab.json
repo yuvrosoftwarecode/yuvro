@@ -1,0 +1,25 @@
+{
+  "labs": [
+    {
+      "title": "FastAPI Todo REST API Lab",
+      "type": "BACKEND",
+      "description": "Master modern Python asynchronous backend development by building a production-ready Todo management REST API from scratch with FastAPI, Pydantic, and SQLAlchemy with SQLite. Implement declarative database modeling, JWT token authentication, route security with dependency injection, user-isolated task CRUD endpoints, and query parameter filtering.",
+      "difficulty": "EASY",
+      "icon": "Zap",
+      "prerequisites": "Basic Python programming and understanding of HTTP methods.",
+      "skills": [
+        "Python",
+        "FastAPI",
+        "Pydantic",
+        "SQLAlchemy",
+        "REST API",
+        "SQLite",
+        "JWT Authentication",
+        "Dependency Injection",
+        "Data Validation"
+      ],
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/lab_todo_fastapi",
+      "status": "active"
+    }
+  ]
+}

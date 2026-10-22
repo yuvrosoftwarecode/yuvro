@@ -1,0 +1,153 @@
+{
+  "title": "Sprint 4: Advanced Task Operations & Filtering",
+  "description": "Implement full and partial task updates, task deletion, and dynamic task status filtering using query parameters.",
+  "order_index": 4,
+  "tickets": [
+    {
+      "title": "Ticket 1 - Full and Partial Task Updates",
+      "ticket_slug": "fastapi-todo-41",
+      "description": "Implement `PUT /api/tasks/{task_id}` and `PATCH /api/tasks/{task_id}` to update an existing task.\n\n### Specifications\n1. Protect endpoint with `Depends(get_current_user)`.\n2. Accept `TaskUpdate` payload.\n3. Verify task exists and belongs to `current_user`. If not, return `404 Not Found`.\n4. Update only provided fields (`title`, `description`, `is_completed`).\n5. If `title` is provided, validate it is not empty (raise 400 if empty).\n6. Commit changes and return `200 OK` with updated `TaskResponse`.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Support both PUT and PATCH HTTP methods for resource modification.",
+        "Perform selective partial updates on database records.",
+        "Enforce resource ownership on write operations."
+      ],
+      "tasks": [
+        {
+          "title": "Implement PUT and PATCH /api/tasks/{task_id} updating title, desc, and status",
+          "points": 40
+        },
+        {
+          "title": "Support partial updates without overwriting unprovided fields",
+          "points": 30
+        },
+        {
+          "title": "Enforce ownership check rejecting unauthorized modifications with 404/403",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Overwriting description with None when only title is passed.",
+        "Allowing another user to modify someone else's task."
+      ],
+      "hints": [
+        "Check `if task_in.title is not None:` before updating.",
+        "Decorator syntax: `@router.put('/{task_id}')` and `@router.patch('/{task_id}')`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routers/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_4/ticket_1/main_test.py"
+      },
+      "solution": {
+        "app/routers/tasks.py": "from fastapi import APIRouter, Depends, HTTPException, status, Query\nfrom typing import Optional, List\nfrom sqlalchemy.orm import Session\nfrom app.database import get_db\nfrom app.models import User, Task\nfrom app.schemas import TaskCreate, TaskUpdate, TaskResponse\nfrom app.dependencies import get_current_user\n\nrouter = APIRouter()\n\n@router.post(\"\", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)\ndef create_task(task_in: TaskCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    if not task_in.title.strip():\n        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=\"Title cannot be empty\")\n    task = Task(\n        user_id=current_user.id,\n        title=task_in.title.strip(),\n        description=task_in.description,\n    )\n    db.add(task)\n    db.commit()\n    db.refresh(task)\n    return task\n\n@router.get(\"\", response_model=List[TaskResponse])\ndef list_tasks(completed: Optional[bool] = Query(None), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    query = db.query(Task).filter(Task.user_id == current_user.id)\n    if completed is not None:\n        query = query.filter(Task.is_completed == completed)\n    return query.order_by(Task.created_at.desc()).all()\n\n@router.get(\"/{task_id}\", response_model=TaskResponse)\ndef get_task(task_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    task = db.query(Task).filter(Task.id == task_id).first()\n    if not task or task.user_id != current_user.id:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Task not found\")\n    return task\n\n@router.put(\"/{task_id}\", response_model=TaskResponse)\n@router.patch(\"/{task_id}\", response_model=TaskResponse)\ndef update_task(task_id: int, task_in: TaskUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    task = db.query(Task).filter(Task.id == task_id).first()\n    if not task or task.user_id != current_user.id:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Task not found\")\n    \n    if task_in.title is not None:\n        title = task_in.title.strip()\n        if not title:\n            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=\"Title cannot be empty\")\n        task.title = title\n    if task_in.description is not None:\n        task.description = task_in.description\n    if task_in.is_completed is not None:\n        task.is_completed = task_in.is_completed\n\n    db.commit()\n    db.refresh(task)\n    return task\n\n@router.delete(\"/{task_id}\")\ndef delete_task(task_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    task = db.query(Task).filter(Task.id == task_id).first()\n    if not task or task.user_id != current_user.id:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Task not found\")\n    db.delete(task)\n    db.commit()\n    return {\"message\": \"Task deleted successfully\"}\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_4/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - Delete Task API",
+      "ticket_slug": "fastapi-todo-42",
+      "description": "Implement `DELETE /api/tasks/{task_id}` to delete a task.\n\n### Specifications\n1. Protect endpoint with `Depends(get_current_user)`.\n2. Query task by `task_id`.\n3. Enforce ownership check: if task not found or belongs to another user, return `404 Not Found`.\n4. Delete task from database and commit.\n5. Return `200 OK` with `{\"message\": \"Task deleted successfully\"}` (or 204 No Content).",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Implement REST resource deletion with HTTP DELETE.",
+        "Ensure unauthorized users cannot delete others' data.",
+        "Verify database record removal."
+      ],
+      "tasks": [
+        {
+          "title": "Implement DELETE /api/tasks/{task_id} deleting task from DB with HTTP 200",
+          "points": 50
+        },
+        {
+          "title": "Enforce ownership check preventing unauthorized task deletion",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Deleting task without checking `task.user_id == current_user.id`.",
+        "Forgetting `db.commit()` so deleted task persists."
+      ],
+      "hints": [
+        "Use `db.delete(task)` followed by `db.commit()`.",
+        "Raise 404 if `not task or task.user_id != current_user.id`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routers/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_4/ticket_2/main_test.py"
+      },
+      "solution": {
+        "app/routers/tasks.py": "from fastapi import APIRouter, Depends, HTTPException, status, Query\nfrom typing import Optional, List\nfrom sqlalchemy.orm import Session\nfrom app.database import get_db\nfrom app.models import User, Task\nfrom app.schemas import TaskCreate, TaskUpdate, TaskResponse\nfrom app.dependencies import get_current_user\n\nrouter = APIRouter()\n\n@router.post(\"\", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)\ndef create_task(task_in: TaskCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    if not task_in.title.strip():\n        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=\"Title cannot be empty\")\n    task = Task(\n        user_id=current_user.id,\n        title=task_in.title.strip(),\n        description=task_in.description,\n    )\n    db.add(task)\n    db.commit()\n    db.refresh(task)\n    return task\n\n@router.get(\"\", response_model=List[TaskResponse])\ndef list_tasks(completed: Optional[bool] = Query(None), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    query = db.query(Task).filter(Task.user_id == current_user.id)\n    if completed is not None:\n        query = query.filter(Task.is_completed == completed)\n    return query.order_by(Task.created_at.desc()).all()\n\n@router.get(\"/{task_id}\", response_model=TaskResponse)\ndef get_task(task_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    task = db.query(Task).filter(Task.id == task_id).first()\n    if not task or task.user_id != current_user.id:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Task not found\")\n    return task\n\n@router.put(\"/{task_id}\", response_model=TaskResponse)\n@router.patch(\"/{task_id}\", response_model=TaskResponse)\ndef update_task(task_id: int, task_in: TaskUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    task = db.query(Task).filter(Task.id == task_id).first()\n    if not task or task.user_id != current_user.id:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Task not found\")\n    \n    if task_in.title is not None:\n        title = task_in.title.strip()\n        if not title:\n            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=\"Title cannot be empty\")\n        task.title = title\n    if task_in.description is not None:\n        task.description = task_in.description\n    if task_in.is_completed is not None:\n        task.is_completed = task_in.is_completed\n\n    db.commit()\n    db.refresh(task)\n    return task\n\n@router.delete(\"/{task_id}\")\ndef delete_task(task_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    task = db.query(Task).filter(Task.id == task_id).first()\n    if not task or task.user_id != current_user.id:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Task not found\")\n    db.delete(task)\n    db.commit()\n    return {\"message\": \"Task deleted successfully\"}\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_4/ticket_2/main_test.py"
+    },
+    {
+      "title": "Ticket 3 - Query Parameter Task Status Filtering",
+      "ticket_slug": "fastapi-todo-43",
+      "description": "Enhance `GET /api/tasks` to support filtering by completion status using optional query parameter `?completed=true|false`.\n\n### Specifications\n1. Add `completed: Optional[bool] = Query(None)` to `GET /api/tasks`.\n2. If `completed=True`, filter tasks where `is_completed == True`.\n3. If `completed=False`, filter tasks where `is_completed == False`.\n4. If `completed is None`, return all tasks for the current user.\n5. All returned tasks must strictly belong to `current_user`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Parse optional URL query parameters with FastAPI Query.",
+        "Apply dynamic SQLAlchemy query filtering based on criteria.",
+        "Combine user authorization with custom filter parameters."
+      ],
+      "tasks": [
+        {
+          "title": "Support ?completed=true query parameter returning only completed tasks",
+          "points": 40
+        },
+        {
+          "title": "Support ?completed=false query parameter returning only pending tasks",
+          "points": 40
+        },
+        {
+          "title": "Return all user tasks when completed query parameter is omitted",
+          "points": 20
+        }
+      ],
+      "common_mistakes": [
+        "Overriding user filter (`Task.user_id == current_user.id`) when filtering by status.",
+        "Treating boolean True/False as strings manually instead of using FastAPI's automatic query parsing."
+      ],
+      "hints": [
+        "Use `completed: Optional[bool] = Query(None)`.",
+        "If `completed is not None: query = query.filter(Task.is_completed == completed)`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routers/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_4/ticket_3/main_test.py"
+      },
+      "solution": {
+        "app/routers/tasks.py": "from fastapi import APIRouter, Depends, HTTPException, status, Query\nfrom typing import Optional, List\nfrom sqlalchemy.orm import Session\nfrom app.database import get_db\nfrom app.models import User, Task\nfrom app.schemas import TaskCreate, TaskUpdate, TaskResponse\nfrom app.dependencies import get_current_user\n\nrouter = APIRouter()\n\n@router.post(\"\", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)\ndef create_task(task_in: TaskCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    if not task_in.title.strip():\n        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=\"Title cannot be empty\")\n    task = Task(\n        user_id=current_user.id,\n        title=task_in.title.strip(),\n        description=task_in.description,\n    )\n    db.add(task)\n    db.commit()\n    db.refresh(task)\n    return task\n\n@router.get(\"\", response_model=List[TaskResponse])\ndef list_tasks(completed: Optional[bool] = Query(None), current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    query = db.query(Task).filter(Task.user_id == current_user.id)\n    if completed is not None:\n        query = query.filter(Task.is_completed == completed)\n    return query.order_by(Task.created_at.desc()).all()\n\n@router.get(\"/{task_id}\", response_model=TaskResponse)\ndef get_task(task_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    task = db.query(Task).filter(Task.id == task_id).first()\n    if not task or task.user_id != current_user.id:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Task not found\")\n    return task\n\n@router.put(\"/{task_id}\", response_model=TaskResponse)\n@router.patch(\"/{task_id}\", response_model=TaskResponse)\ndef update_task(task_id: int, task_in: TaskUpdate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    task = db.query(Task).filter(Task.id == task_id).first()\n    if not task or task.user_id != current_user.id:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Task not found\")\n    \n    if task_in.title is not None:\n        title = task_in.title.strip()\n        if not title:\n            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=\"Title cannot be empty\")\n        task.title = title\n    if task_in.description is not None:\n        task.description = task_in.description\n    if task_in.is_completed is not None:\n        task.is_completed = task_in.is_completed\n\n    db.commit()\n    db.refresh(task)\n    return task\n\n@router.delete(\"/{task_id}\")\ndef delete_task(task_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):\n    task = db.query(Task).filter(Task.id == task_id).first()\n    if not task or task.user_id != current_user.id:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Task not found\")\n    db.delete(task)\n    db.commit()\n    return {\"message\": \"Task deleted successfully\"}\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_4/ticket_3/main_test.py"
+    }
+  ]
+}

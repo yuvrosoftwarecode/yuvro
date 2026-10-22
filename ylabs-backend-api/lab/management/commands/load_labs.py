@@ -151,6 +151,14 @@ class Command(BaseCommand):
             )
             self.stdout.write(f"  {'✓ Created' if created else '→ Exists'}: {lab.title}")
 
+            if lab.git_repo_starter_url:
+                try:
+                    from lab.workspace_manager import provision_lab_starter_repo
+                    provision_lab_starter_repo(lab.id, lab.git_repo_starter_url)
+                    self.stdout.write(f"  ✓ Provisioned starter repo: {lab.git_repo_starter_url}")
+                except Exception as e:
+                    self.stdout.write(self.style.WARNING(f"  ⚠ Failed to provision starter repo: {e}"))
+
             for sprint_data in lab_data.get("sprints", []):
                 sprint, created = LabSprint.objects.update_or_create(
                     lab=lab,

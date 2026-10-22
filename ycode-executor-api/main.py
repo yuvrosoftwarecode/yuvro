@@ -1746,7 +1746,7 @@ def _build_tree(base: Path, rel: Path | None = None) -> dict:
     children = []
     try:
         for child in sorted(current.iterdir(), key=lambda p: (p.is_file(), p.name)):
-            if child.name in [".bash_history", ".git", "problem.md", "solution.md"]:
+            if child.name in [".bash_history", ".git", "problem.md", "solution.md", "yuvro_scoring_rules", "__pycache__"]:
                 continue
             child_rel = child.relative_to(base)
             children.append(_build_tree(base, child_rel))

@@ -1476,7 +1476,7 @@ export function TicketIDE({
       try {
         const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
           if (!node) return acc;
-          if (node.name === ".bash_history" || !node.name) return acc;
+          if (node.name === ".bash_history" || node.name === "yuvro_scoring_rules" || node.name === "__pycache__" || !node.name) return acc;
           if (node.type === "file") {
             if (node.path && node.path.trim()) acc[node.path] = "";
           } else node.children?.forEach(c => flatten(c, acc));
@@ -6349,6 +6349,7 @@ function buildTree(paths: readonly string[]): TreeNode {
   const root: TreeNode = { name: "", path: "", isFile: false, children: [] };
   for (const full of paths) {
     if (!full || !full.trim()) continue;
+    if (full.startsWith("yuvro_scoring_rules") || full.includes("/yuvro_scoring_rules") || full.startsWith("__pycache__") || full.includes("/__pycache__")) continue;
     const parts = full.split("/");
     let cursor = root;
     for (let i = 0; i < parts.length; i++) {

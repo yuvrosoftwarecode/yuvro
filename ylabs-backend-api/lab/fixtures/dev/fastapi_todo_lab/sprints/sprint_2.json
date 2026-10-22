@@ -1,0 +1,154 @@
+{
+  "title": "Sprint 2: Pydantic Schemas, Authentication & Security",
+  "description": "Implement robust data schemas with Pydantic for request validation and response filtering. Build registration, login with JWT issuance, and dependency-based Bearer token authentication.",
+  "order_index": 2,
+  "tickets": [
+    {
+      "title": "Ticket 1 - Define Pydantic Request & Response Data Schemas",
+      "ticket_slug": "fastapi-todo-21",
+      "description": "Define data transfer models in `app/schemas.py` using Pydantic.\n\n### Specifications\n- `UserCreate`: `username` (min 3 chars), `email` (valid format), `password` (min 6 chars).\n- `UserResponse`: `id`, `username`, `email`, `created_at` (Config: `from_attributes = True`). Must NOT include `password_hash`.\n- `UserLogin`: `email`, `password`.\n- `Token`: `access_token` (str), `token_type` (str).\n- `TaskCreate`: `title` (min 1 char), `description` (optional).\n- `TaskUpdate`: `title`, `description`, `is_completed` (all optional).\n- `TaskResponse`: `id`, `user_id`, `title`, `description`, `is_completed`, `created_at`, `updated_at` (Config: `from_attributes = True`).",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Define Pydantic models for input validation and serialization.",
+        "Use Field validation constraints and custom validators.",
+        "Configure ORM serialization with from_attributes = True."
+      ],
+      "tasks": [
+        {
+          "title": "Define UserCreate and UserResponse schemas excluding password_hash",
+          "points": 35
+        },
+        {
+          "title": "Define TaskCreate, TaskUpdate, and TaskResponse schemas",
+          "points": 35
+        },
+        {
+          "title": "Define Token schema with access_token and token_type",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Exposing password_hash in UserResponse.",
+        "Forgetting from_attributes = True in response schemas."
+      ],
+      "hints": [
+        "Use `class Config: from_attributes = True` for ORM models.",
+        "Add email validation ensuring @ and . are present."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/schemas.py",
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_1/main_test.py"
+      },
+      "solution": {
+        "app/schemas.py": "from datetime import datetime\nfrom typing import Optional, List\nfrom pydantic import BaseModel, Field, field_validator\n\nclass UserCreate(BaseModel):\n    username: str = Field(..., min_length=3, max_length=80)\n    email: str = Field(..., min_length=5, max_length=120)\n    password: str = Field(..., min_length=6)\n\n    @field_validator(\"email\", mode=\"before\")\n    def validate_email(cls, v):\n        if not isinstance(v, str) or \"@\" not in v or \".\" not in v:\n            raise ValueError(\"Invalid email format\")\n        return v.lower().strip()\n\nclass UserResponse(BaseModel):\n    id: int\n    username: str\n    email: str\n    created_at: Optional[datetime] = None\n\n    class Config:\n        from_attributes = True\n\nclass UserLogin(BaseModel):\n    email: str\n    password: str\n\nclass Token(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    user: Optional[UserResponse] = None\n\nclass TaskCreate(BaseModel):\n    title: str = Field(..., min_length=1, max_length=200)\n    description: Optional[str] = None\n\nclass TaskUpdate(BaseModel):\n    title: Optional[str] = Field(None, min_length=1, max_length=200)\n    description: Optional[str] = None\n    is_completed: Optional[bool] = None\n\nclass TaskResponse(BaseModel):\n    id: int\n    user_id: int\n    title: str\n    description: Optional[str] = None\n    is_completed: bool\n    created_at: Optional[datetime] = None\n    updated_at: Optional[datetime] = None\n\n    class Config:\n        from_attributes = True\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - User Registration & Login with JWT Generation",
+      "ticket_slug": "fastapi-todo-22",
+      "description": "Implement authentication endpoints in `app/routers/auth.py`.\n\n### Endpoints\n1. `POST /api/auth/register`:\n   - Accepts `UserCreate`.\n   - Checks if username or email already exists. If yes, return `409 Conflict` (or 400).\n   - Hashes password and persists user.\n   - Returns `201 Created` with `UserResponse`.\n2. `POST /api/auth/login`:\n   - Accepts `UserLogin`.\n   - Verifies email and password. If invalid, return `401 Unauthorized`.\n   - Generates JWT access token with payload `{\"user_id\": user.id}`.\n   - Returns `200 OK` with `Token` (`access_token`, `token_type: 'bearer'`).",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Implement registration with unique constraint verification.",
+        "Authenticate credentials against stored password hashes.",
+        "Generate cryptographically signed JWT access tokens."
+      ],
+      "tasks": [
+        {
+          "title": "Implement POST /api/auth/register with duplicate handling",
+          "points": 40
+        },
+        {
+          "title": "Implement POST /api/auth/login generating signed JWT token",
+          "points": 35
+        },
+        {
+          "title": "Reject invalid credentials with HTTP 401 Unauthorized",
+          "points": 25
+        }
+      ],
+      "common_mistakes": [
+        "Returning plain 200 instead of 201 Created on registration.",
+        "Returning specific errors (e.g. 'Password incorrect') leaking user existence."
+      ],
+      "hints": [
+        "Use `status_code=status.HTTP_201_CREATED` on registration.",
+        "Call `create_access_token({'user_id': user.id})`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routers/auth.py",
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_2/main_test.py"
+      },
+      "solution": {
+        "app/routers/auth.py": "from fastapi import APIRouter, Depends, HTTPException, status\nfrom sqlalchemy.orm import Session\nfrom app.database import get_db\nfrom app.models import User\nfrom app.schemas import UserCreate, UserResponse, UserLogin, Token\nfrom app.utils.security import hash_password, verify_password, create_access_token\nfrom app.dependencies import get_current_user\n\nrouter = APIRouter()\n\n@router.post(\"/register\", response_model=UserResponse, status_code=status.HTTP_201_CREATED)\ndef register(user_in: UserCreate, db: Session = Depends(get_db)):\n    if db.query(User).filter((User.username == user_in.username) | (User.email == user_in.email)).first():\n        raise HTTPException(\n            status_code=status.HTTP_409_CONFLICT,\n            detail=\"Username or email already registered\",\n        )\n    user = User(\n        username=user_in.username,\n        email=user_in.email,\n        password_hash=hash_password(user_in.password),\n    )\n    db.add(user)\n    db.commit()\n    db.refresh(user)\n    return user\n\n@router.post(\"/login\", response_model=Token)\ndef login(login_data: UserLogin, db: Session = Depends(get_db)):\n    user = db.query(User).filter(User.email == login_data.email).first()\n    if not user or not verify_password(login_data.password, user.password_hash):\n        raise HTTPException(\n            status_code=status.HTTP_401_UNAUTHORIZED,\n            detail=\"Invalid email or password\",\n        )\n    token = create_access_token({\"user_id\": user.id})\n    return {\"access_token\": token, \"token_type\": \"bearer\", \"user\": user}\n\n@router.get(\"/me\", response_model=UserResponse)\ndef get_me(current_user: User = Depends(get_current_user)):\n    return current_user\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_2/main_test.py"
+    },
+    {
+      "title": "Ticket 3 - Bearer Token Dependency & Current User Profile",
+      "ticket_slug": "fastapi-todo-23",
+      "description": "Implement authentication dependency `get_current_user` in `app/dependencies.py` and current user profile endpoint `GET /api/auth/me`.\n\n### Specifications\n1. In `app/dependencies.py`, implement `get_current_user` using `fastapi.security.HTTPBearer`.\n2. Extract Bearer token from header, decode JWT payload, and extract `user_id`.\n3. Query `User` from database. If missing, invalid, or expired, raise `HTTPException(status_code=401)`.\n4. In `app/routers/auth.py`, implement `GET /api/auth/me` protected by `Depends(get_current_user)` returning the user profile.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Create reusable authentication dependencies in FastAPI.",
+        "Validate Bearer authentication headers and JWT signatures.",
+        "Inject authenticated user context into route handlers."
+      ],
+      "tasks": [
+        {
+          "title": "Implement get_current_user dependency validating Bearer token",
+          "points": 50
+        },
+        {
+          "title": "Implement GET /api/auth/me returning authenticated user profile",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Not handling ExpiredSignatureError separately.",
+        "Allowing unauthenticated access when token is missing."
+      ],
+      "hints": [
+        "Use `security = HTTPBearer()` and `credentials: HTTPAuthorizationCredentials = Depends(security)`.",
+        "Decode with `decode_access_token(credentials.credentials)`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/dependencies.py",
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_3/main_test.py"
+      },
+      "solution": {
+        "app/dependencies.py": "from fastapi import Depends, HTTPException, status\nfrom fastapi.security import HTTPBearer, HTTPAuthorizationCredentials\nimport jwt\nfrom sqlalchemy.orm import Session\nfrom app.database import get_db\nfrom app.models import User\nfrom app.utils.security import decode_access_token\n\nsecurity = HTTPBearer()\n\ndef get_current_user(\n    credentials: HTTPAuthorizationCredentials = Depends(security),\n    db: Session = Depends(get_db)\n) -> User:\n    token = credentials.credentials\n    try:\n        payload = decode_access_token(token)\n        user_id: int = payload.get(\"user_id\")\n        if user_id is None:\n            raise HTTPException(\n                status_code=status.HTTP_401_UNAUTHORIZED,\n                detail=\"Invalid authentication token\",\n            )\n    except jwt.ExpiredSignatureError:\n        raise HTTPException(\n            status_code=status.HTTP_401_UNAUTHORIZED,\n            detail=\"Token has expired\",\n        )\n    except Exception:\n        raise HTTPException(\n            status_code=status.HTTP_401_UNAUTHORIZED,\n            detail=\"Invalid authentication credentials\",\n        )\n\n    user = db.query(User).filter(User.id == user_id).first()\n    if user is None:\n        raise HTTPException(\n            status_code=status.HTTP_401_UNAUTHORIZED,\n            detail=\"User not found\",\n        )\n    return user\n",
+        "app/routers/auth.py": "from fastapi import APIRouter, Depends, HTTPException, status\nfrom sqlalchemy.orm import Session\nfrom app.database import get_db\nfrom app.models import User\nfrom app.schemas import UserCreate, UserResponse, UserLogin, Token\nfrom app.utils.security import hash_password, verify_password, create_access_token\nfrom app.dependencies import get_current_user\n\nrouter = APIRouter()\n\n@router.post(\"/register\", response_model=UserResponse, status_code=status.HTTP_201_CREATED)\ndef register(user_in: UserCreate, db: Session = Depends(get_db)):\n    if db.query(User).filter((User.username == user_in.username) | (User.email == user_in.email)).first():\n        raise HTTPException(\n            status_code=status.HTTP_409_CONFLICT,\n            detail=\"Username or email already registered\",\n        )\n    user = User(\n        username=user_in.username,\n        email=user_in.email,\n        password_hash=hash_password(user_in.password),\n    )\n    db.add(user)\n    db.commit()\n    db.refresh(user)\n    return user\n\n@router.post(\"/login\", response_model=Token)\ndef login(login_data: UserLogin, db: Session = Depends(get_db)):\n    user = db.query(User).filter(User.email == login_data.email).first()\n    if not user or not verify_password(login_data.password, user.password_hash):\n        raise HTTPException(\n            status_code=status.HTTP_401_UNAUTHORIZED,\n            detail=\"Invalid email or password\",\n        )\n    token = create_access_token({\"user_id\": user.id})\n    return {\"access_token\": token, \"token_type\": \"bearer\", \"user\": user}\n\n@router.get(\"/me\", response_model=UserResponse)\ndef get_me(current_user: User = Depends(get_current_user)):\n    return current_user\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_3/main_test.py"
+    }
+  ]
+}
