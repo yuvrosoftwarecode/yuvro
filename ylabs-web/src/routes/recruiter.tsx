@@ -9,6 +9,7 @@ import {
   Sparkles,
   Sun,
   Moon,
+  Github,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/hooks/use-theme";
@@ -90,6 +91,8 @@ function RecruiterLayout() {
     { to: "/recruiter/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
     { to: "/recruiter/evaluations", label: "Evaluations", icon: ClipboardList },
     { to: "/recruiter/questions", label: "Question Bank", icon: Database },
+    { to: "/recruiter/github", label: "GitHub & Repositories", icon: Github },
+    { to: "/recruiter/settings", label: "Settings", icon: Settings },
   ];
   const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname.startsWith(to);
