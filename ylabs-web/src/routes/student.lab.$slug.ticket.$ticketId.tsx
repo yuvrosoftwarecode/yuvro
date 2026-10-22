@@ -3643,14 +3643,41 @@ export function TicketIDE({
                     ticket={ticket}
                     isPreview={isRecruiterPreview}
                     initialSolutionRevealed={initialSolutionRevealed}
-                    onLoadIntoEditor={(code, language, filePath) => {
-                      const targetFile = filePath || ticket.starter_path || ticket.starterPath || activeFile || "solution.py";
+                    onLoadIntoEditor={(code, language, targetFilePath) => {
+                      const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
+                      const ext = langMap[language?.toLowerCase() || ""] || "py";
+                      const targetFile = targetFilePath || ticket.starter_path || ticket.starterPath || activeFile || `solution.${ext}`;
                       setFiles(prev => ({ ...prev, [targetFile]: code }));
+                      setDirty(prev => ({ ...prev, [targetFile]: true }));
+                      setOpenTabs(prev => prev.includes(targetFile) ? prev : [...prev, targetFile]);
                       setActiveFile(targetFile);
                       if (isReal) {
-                        wsWriteFile(effectiveUserId, labId, sprintId, targetFile, code, evaluationId).catch(console.error);
+                        wsWriteFile(effectiveUserId, labId, sprintId, targetFile, code, evaluationId)
+                          .catch(() => showToast(`⚠️ Could not write ${targetFile}`));
                       }
-                      showToast(`Loaded solution into ${targetFile}`);
+                      showToast(`Loaded ${targetFile} into editor`);
+                    }}
+                    onLoadAllIntoEditor={(fileMap) => {
+                      setFiles(prev => ({ ...prev, ...fileMap }));
+                      setDirty(prev => {
+                        const next = { ...prev };
+                        Object.keys(fileMap).forEach(k => { next[k] = true; });
+                        return next;
+                      });
+                      const fileKeys = Object.keys(fileMap);
+                      setOpenTabs(prev => {
+                        const set = new Set(prev);
+                        fileKeys.forEach(k => set.add(k));
+                        return Array.from(set);
+                      });
+                      if (fileKeys.length > 0) {
+                        setActiveFile(fileKeys[0]);
+                      }
+                      if (isReal) {
+                        Promise.all(fileKeys.map(k => wsWriteFile(effectiveUserId, labId, sprintId, k, fileMap[k], evaluationId)))
+                          .catch(() => showToast(`⚠️ Could not write all files`));
+                      }
+                      showToast(`Loaded ${fileKeys.length} solution file(s) into editor`);
                     }}
                   />
                 )}
@@ -7599,117 +7626,189 @@ function UiDiffView({ result }: { result: any }) {
 }
 
 
-export function normalizeSolutions(raw: any, starterPath?: string): any[] {
-  if (!raw) return [];
+export function getSolutionsFromTicket(ticket: any): any[] {
+  if (!ticket) return [];
 
-  // Case 1: Already an array
-  if (Array.isArray(raw)) {
-    return raw.map((s: any, idx: number) => ({
-      id: s.id || `sol-${idx}`,
-      approach: s.approach || "optimal",
-      language: s.language || "python",
-      code: s.code || "",
-      title: s.title || s.file_path || (s.language ? s.language.toUpperCase() : `Solution ${idx + 1}`),
-      file_path: s.file_path || starterPath || "",
-      complexity_analysis: s.complexity_analysis || "",
-    }));
+  const results: any[] = [];
+  const langMap: Record<string, string> = {
+    py: "python", js: "javascript", ts: "typescript", jsx: "javascript", tsx: "typescript",
+    html: "html", css: "css", json: "json", sql: "sql", cpp: "cpp", c: "c", java: "java",
+    go: "go", rs: "rust", sh: "bash"
+  };
+
+  // 1. ticket.solution_files (Array of { path, code } or strings)
+  if (Array.isArray(ticket.solution_files) && ticket.solution_files.length > 0) {
+    ticket.solution_files.forEach((sf: any, idx: number) => {
+      const filePath = typeof sf === "string" ? sf : (sf.path || sf.file || sf.filePath || sf.file_path || `file_${idx + 1}`);
+      const code = typeof sf === "string" ? "" : (sf.code || sf.content || "");
+      const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "txt";
+      const language = sf.language || langMap[ext] || "python";
+      results.push({
+        id: sf.id || `sol-${idx}`,
+        approach: sf.approach || filePath,
+        title: sf.title || filePath,
+        filePath,
+        file_path: filePath,
+        language,
+        code,
+        complexity_analysis: sf.complexity_analysis || "",
+      });
+    });
   }
-
-  // Case 2: Object with solutions array { solutions: [...] }
-  if (raw && typeof raw === "object" && Array.isArray(raw.solutions)) {
-    return normalizeSolutions(raw.solutions, starterPath);
-  }
-
-  // Case 3: Object mapping file paths to code strings: { "app/__init__.py": "...", "config.py": "..." }
-  if (raw && typeof raw === "object") {
-    const extToLang: Record<string, string> = {
-      py: "python", js: "javascript", jsx: "javascript", ts: "typescript", tsx: "typescript",
-      sql: "sql", sh: "bash", bash: "bash", java: "java", cpp: "cpp", c: "c", html: "html",
-      css: "css", json: "json"
-    };
-
-    const result: any[] = [];
-    const entries = Object.entries(raw);
-
-    for (let idx = 0; idx < entries.length; idx++) {
-      const [key, val] = entries[idx];
-      if (typeof val === "string") {
-        const ext = key.includes(".") ? key.split(".").pop()?.toLowerCase() || "" : "";
-        const lang = extToLang[ext] || "python";
-        result.push({
-          id: `sol-${idx}`,
-          approach: "optimal",
-          language: lang,
-          code: val,
-          title: key.includes("/") || key.includes(".") ? key : (starterPath || "Solution"),
-          file_path: key.includes(".") ? key : (starterPath || ""),
-          complexity_analysis: "",
+  // 2. ticket.solution (Dict or String)
+  else if (ticket.solution) {
+    if (typeof ticket.solution === "object" && !Array.isArray(ticket.solution)) {
+      // Check if ticket.solution is { solutions: [...] }
+      if (Array.isArray(ticket.solution.solutions)) {
+        ticket.solution.solutions.forEach((s: any, idx: number) => {
+          const filePath = s.filePath || s.file_path || ticket.target_file || ticket.starter_path || "";
+          const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "txt";
+          const language = s.language || langMap[ext] || "python";
+          results.push({
+            id: s.id || `sol-${idx}`,
+            approach: s.approach || "optimal",
+            title: s.title || (filePath ? filePath : (s.language ? s.language.toUpperCase() : `Solution ${idx + 1}`)),
+            filePath,
+            file_path: filePath,
+            language,
+            code: s.code || "",
+            complexity_analysis: s.complexity_analysis || "",
+          });
         });
-      } else if (typeof val === "object" && val !== null && (val as any).code) {
-        const item: any = val;
-        result.push({
-          id: item.id || `sol-${idx}`,
-          approach: item.approach || "optimal",
-          language: item.language || "python",
-          code: item.code || "",
-          title: item.title || key,
-          file_path: item.file_path || (key.includes(".") ? key : starterPath || ""),
-          complexity_analysis: item.complexity_analysis || "",
+      } else {
+        Object.entries(ticket.solution).forEach(([filePath, code]: [string, any], idx: number) => {
+          if (typeof code === "string") {
+            const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "txt";
+            const language = langMap[ext] || "python";
+            results.push({
+              id: `sol-${idx}`,
+              approach: filePath,
+              title: filePath,
+              filePath,
+              file_path: filePath,
+              language,
+              code,
+              complexity_analysis: "",
+            });
+          } else if (typeof code === "object" && code !== null && (code as any).code) {
+            const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "txt";
+            const language = (code as any).language || langMap[ext] || "python";
+            results.push({
+              id: (code as any).id || `sol-${idx}`,
+              approach: (code as any).approach || filePath,
+              title: (code as any).title || filePath,
+              filePath: (code as any).filePath || (code as any).file_path || filePath,
+              file_path: (code as any).filePath || (code as any).file_path || filePath,
+              language,
+              code: (code as any).code || "",
+              complexity_analysis: (code as any).complexity_analysis || "",
+            });
+          }
         });
       }
+    } else if (typeof ticket.solution === "string" && ticket.solution.trim()) {
+      const filePath = ticket.target_file || ticket.targeted_file || ticket.starter_path || "";
+      const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "py";
+      results.push({
+        id: "sol-0",
+        approach: "solution",
+        title: filePath || "Solution",
+        filePath,
+        file_path: filePath,
+        language: langMap[ext] || "python",
+        code: ticket.solution,
+        complexity_analysis: "",
+      });
     }
-    return result;
   }
 
-  // Case 4: Plain string
-  if (typeof raw === "string" && raw.trim()) {
-    return [{
-      id: "sol-0",
-      approach: "optimal",
-      language: "python",
-      code: raw,
-      title: starterPath || "Solution",
-      file_path: starterPath || "",
-      complexity_analysis: "",
-    }];
+  // 3. ticket.solutions (DSA-style array)
+  if (results.length === 0 && Array.isArray(ticket.solutions) && ticket.solutions.length > 0) {
+    ticket.solutions.forEach((s: any, idx: number) => {
+      const filePath = s.filePath || s.file_path || ticket.target_file || ticket.starter_path || "";
+      const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "txt";
+      const language = s.language || langMap[ext] || "python";
+      results.push({
+        id: s.id || `sol-${idx}`,
+        approach: s.approach || "optimal",
+        title: s.title || s.approach || (filePath ? filePath : (s.language ? s.language.toUpperCase() : `Solution ${idx + 1}`)),
+        filePath,
+        file_path: filePath,
+        language,
+        code: s.code || "",
+        complexity_analysis: s.complexity_analysis || "",
+      });
+    });
   }
 
-  return [];
+  // 4. ticket.tasks with solutions
+  if (results.length === 0 && Array.isArray(ticket.tasks)) {
+    ticket.tasks.forEach((task: any, idx: number) => {
+      if (task.solution) {
+        const title = task.title ? `Task ${idx + 1}: ${task.title}` : `Task ${idx + 1}`;
+        const filePath = task.filePath || task.file_path || task.target_file || "";
+        const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "py";
+        results.push({
+          id: task.id || `task-${idx + 1}`,
+          approach: `task_${idx + 1}`,
+          title,
+          filePath,
+          file_path: filePath,
+          language: langMap[ext] || "python",
+          code: typeof task.solution === "string" ? task.solution : JSON.stringify(task.solution, null, 2),
+          complexity_analysis: "",
+        });
+      }
+    });
+  }
+
+  return results;
 }
 
-export function SolutionPanel({ 
-  ticket, 
-  onLoadIntoEditor, 
+export function normalizeSolutions(raw: any, starterPath?: string): any[] {
+  if (!raw) return [];
+  return getSolutionsFromTicket({ solution: raw, starter_path: starterPath });
+}
+
+export function SolutionPanel({
+  ticket,
+  onLoadIntoEditor,
+  onLoadAllIntoEditor,
   isPreview = false,
-  initialSolutionRevealed = false
-}: { 
-  ticket: any, 
-  onLoadIntoEditor?: (code: string, language: string, filePath?: string) => void, 
-  isPreview?: boolean,
-  initialSolutionRevealed?: boolean
+  initialSolutionRevealed = false,
+}: {
+  ticket: any;
+  onLoadIntoEditor?: (code: string, language: string, filePath?: string) => void;
+  onLoadAllIntoEditor?: (fileMap: Record<string, string>) => void;
+  isPreview?: boolean;
+  initialSolutionRevealed?: boolean;
 }) {
-  const normalizedSols = useMemo(() => {
-    return normalizeSolutions(ticket?.solutions || ticket?.solution, ticket?.starter_path);
+  const previewSols: any[] = useMemo(() => {
+    return getSolutionsFromTicket(ticket);
   }, [ticket]);
 
   const [revealedSolution, setRevealedSolution] = useState(isPreview || initialSolutionRevealed);
   const [fetchedSolutions, setFetchedSolutions] = useState<any[]>(
-    (isPreview || initialSolutionRevealed) ? normalizedSols : []
+    (isPreview || initialSolutionRevealed) ? previewSols : []
   );
   const [loading, setLoading] = useState(false);
-  const [selectedApproach, setSelectedApproach] = useState<string>("optimal");
-  const [selectedId, setSelectedId] = useState<string>("");
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
+  const [selectedApproach, setSelectedApproach] = useState<string>(previewSols[0]?.approach || "optimal");
+  const [selectedId, setSelectedId] = useState<string>(previewSols[0]?.id || "");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(previewSols[0]?.language || "");
   const [showWarningDialog, setShowWarningDialog] = useState(false);
 
   useEffect(() => {
-    if (initialSolutionRevealed || isPreview) {
+    if (isPreview || initialSolutionRevealed) {
+      const sols = getSolutionsFromTicket(ticket);
       setRevealedSolution(true);
-      if (normalizedSols.length > 0 && fetchedSolutions.length === 0) {
-        setFetchedSolutions(normalizedSols);
+      if (sols.length > 0 && fetchedSolutions.length === 0) {
+        setFetchedSolutions(sols);
+        setSelectedApproach(sols[0].approach || "optimal");
+        setSelectedId(sols[0].id || "");
+        setSelectedLanguage(sols[0].language || "python");
       }
     }
-  }, [initialSolutionRevealed, isPreview, normalizedSols, fetchedSolutions.length]);
+  }, [ticket, isPreview, initialSolutionRevealed, fetchedSolutions.length]);
 
   useEffect(() => {
     if (fetchedSolutions.length > 0) {
@@ -7728,25 +7827,44 @@ export function SolutionPanel({
     try {
       const { default: api } = await import("@/utils/RestApiAuthUtil");
       const data: any = await api.post(`/lab/submissions/reveal-solution/`, { ticket_id: ticket.id });
-      const raw = data?.solutions || data?.solution || data || (ticket as any)?.solution;
-      const sols = normalizeSolutions(raw, (ticket as any)?.starter_path);
-      const finalSols = sols.length > 0 ? sols : normalizedSols;
-      setFetchedSolutions(finalSols);
-      
-      if (finalSols.length > 0) {
-        const firstApproach = finalSols[0].approach || "optimal";
+      let sols: any[] = [];
+      if (Array.isArray(data?.solutions) && data.solutions.length > 0) {
+        sols = data.solutions.map((s: any, idx: number) => {
+          const filePath = s.filePath || s.file_path || "";
+          return {
+            ...s,
+            id: s.id || `sol-${idx}`,
+            filePath,
+            file_path: filePath,
+            approach: (s.approach && s.approach !== "optimal") ? s.approach : (filePath || s.title || s.approach || `solution_${idx + 1}`),
+          };
+        });
+      } else if (data?.solution || data?.raw_solution) {
+        sols = getSolutionsFromTicket({ ...ticket, solution: data.solution || data.raw_solution });
+      } else if (data) {
+        sols = getSolutionsFromTicket({ ...ticket, solution: data });
+      }
+
+      if (sols.length === 0) {
+        sols = getSolutionsFromTicket(ticket);
+      }
+      setFetchedSolutions(sols);
+
+      if (sols.length > 0) {
+        const firstApproach = sols[0].approach || "optimal";
         setSelectedApproach(firstApproach);
-        const match = finalSols.find((s: any) => (s.approach || "optimal") === firstApproach);
+        const match = sols.find((s: any) => (s.approach || "optimal") === firstApproach);
         if (match) {
           setSelectedId(match.id);
-          setSelectedLanguage(match.language);
+          setSelectedLanguage(match.language || "python");
         }
       }
       setRevealedSolution(true);
     } catch (err) {
       console.error("Failed to reveal solution", err);
-      if (normalizedSols.length > 0) {
-        setFetchedSolutions(normalizedSols);
+      const fallback = getSolutionsFromTicket(ticket);
+      if (fallback.length > 0) {
+        setFetchedSolutions(fallback);
         setRevealedSolution(true);
       }
     } finally {
@@ -7754,8 +7872,10 @@ export function SolutionPanel({
     }
   };
 
+  const effectiveSolutions = isPreview ? (fetchedSolutions.length > 0 ? fetchedSolutions : previewSols) : fetchedSolutions;
+
   // Preview mode with no solutions on the ticket
-  if (isPreview && normalizedSols.length === 0) {
+  if (isPreview && effectiveSolutions.length === 0) {
     return (
       <div className="text-center py-8 w-full border rounded-md mt-4 border-editor-border bg-editor-panel">
         <Key className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
@@ -7775,8 +7895,8 @@ export function SolutionPanel({
         <p className="text-xs text-muted-foreground max-w-[250px] mx-auto mb-4">
           Viewing the solution will set your score for this ticket to 0.
         </p>
-        <button 
-          onClick={() => setShowWarningDialog(true)} 
+        <button
+          onClick={() => setShowWarningDialog(true)}
           disabled={loading}
           className="inline-flex items-center justify-center rounded-md text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white h-8 px-4 py-2 disabled:opacity-50"
         >
@@ -7799,21 +7919,37 @@ export function SolutionPanel({
     );
   }
 
-  if (fetchedSolutions.length === 0) {
+  if (effectiveSolutions.length === 0) {
     return <div className="text-sm text-muted-foreground mt-4">No predefined solutions available for this question.</div>;
   }
 
-  const approaches = Array.from(new Set(fetchedSolutions.map((s: any) => s.approach || 'optimal')));
+  const approaches = Array.from(new Set(effectiveSolutions.map((s: any) => s.approach || "optimal")));
 
   const getApproachLabel = (a: string) => {
-    return a.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    if (!a) return "Solution";
+    if (a.includes("/") || a.includes(".")) return a;
+    return a.split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
   };
 
-  const solutionsForApproach = fetchedSolutions.filter((s: any) => (s.approach || 'optimal') === selectedApproach);
+  const solutionsForApproach = effectiveSolutions.filter((s: any) => (s.approach || "optimal") === selectedApproach);
 
-  const sol = solutionsForApproach.find((s: any) => s.id === selectedId) ||
+  if (solutionsForApproach.length > 0 && !solutionsForApproach.find((s: any) => (selectedId && s.id === selectedId) || s.language === selectedLanguage)) {
+    setSelectedId(solutionsForApproach[0].id || "");
+    setSelectedLanguage(solutionsForApproach[0].language || "python");
+  }
+
+  const sol = solutionsForApproach.find((s: any) => (selectedId && s.id === selectedId)) ||
               solutionsForApproach.find((s: any) => s.language === selectedLanguage) ||
               solutionsForApproach[0];
+
+  const fileMap: Record<string, string> = {};
+  effectiveSolutions.forEach((s: any) => {
+    const fPath = s.filePath || s.file_path;
+    if (fPath && s.code) {
+      fileMap[fPath] = s.code;
+    }
+  });
+  const hasMultipleFiles = Object.keys(fileMap).length > 1;
 
   return (
     <div className="w-full space-y-4 text-xs">
@@ -7824,10 +7960,10 @@ export function SolutionPanel({
               key={approach}
               onClick={() => {
                 setSelectedApproach(approach);
-                const nextMatch = fetchedSolutions.find((s: any) => (s.approach || 'optimal') === approach);
+                const nextMatch = effectiveSolutions.find((s: any) => (s.approach || "optimal") === approach);
                 if (nextMatch) {
-                  setSelectedId(nextMatch.id);
-                  setSelectedLanguage(nextMatch.language);
+                  setSelectedId(nextMatch.id || "");
+                  setSelectedLanguage(nextMatch.language || "python");
                 }
               }}
               className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors ${
@@ -7846,18 +7982,18 @@ export function SolutionPanel({
         <div className="flex flex-wrap gap-2">
           {solutionsForApproach.map((s: any) => (
             <button
-              key={s.id}
+              key={s.id || s.filePath || s.file_path || s.language}
               onClick={() => {
-                setSelectedId(s.id);
-                setSelectedLanguage(s.language);
+                if (s.id) setSelectedId(s.id);
+                if (s.language) setSelectedLanguage(s.language);
               }}
               className={`px-3 py-1.5 rounded-full font-medium transition-colors border ${
-                (sol && sol.id === s.id)
+                (sol && (sol.id === s.id || (sol.filePath && sol.filePath === s.filePath) || sol.language === s.language))
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-editor-bg text-muted-foreground border-border hover:border-muted-foreground/30"
               }`}
             >
-              {s.title || s.language?.toUpperCase() || "SOLUTION"}
+              {s.title || (s.filePath || s.file_path) || s.language?.toUpperCase() || "SOLUTION"}
             </button>
           ))}
         </div>
@@ -7865,25 +8001,40 @@ export function SolutionPanel({
 
       {sol && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-muted-foreground">{sol.title || sol.file_path || "Solution"}</span>
-            {onLoadIntoEditor && (
-              <button
-                onClick={() => onLoadIntoEditor(sol.code, sol.language, sol.file_path)}
-                className="inline-flex h-7 items-center justify-center rounded px-3 text-[11px] font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
-              >
-                <Download className="w-3 h-3 mr-1.5" />
-                Load into Editor
-              </button>
-            )}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="font-semibold text-muted-foreground font-mono text-[12px] truncate max-w-[280px]" title={sol.filePath || sol.file_path || sol.title}>
+              {sol.filePath || sol.file_path || sol.title}
+            </span>
+            <div className="flex items-center gap-2">
+              {hasMultipleFiles && onLoadAllIntoEditor && (
+                <button
+                  onClick={() => onLoadAllIntoEditor(fileMap)}
+                  className="inline-flex h-7 items-center justify-center rounded px-2.5 text-[11px] font-medium border border-border bg-background hover:bg-accent text-foreground transition-colors"
+                  title="Load all solution files into the editor"
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  Load All Files
+                </button>
+              )}
+              {onLoadIntoEditor && (
+                <button
+                  onClick={() => onLoadIntoEditor(sol.code, sol.language, sol.filePath || sol.file_path)}
+                  className="inline-flex h-7 items-center justify-center rounded px-3 text-[11px] font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
+                  title={`Load ${sol.filePath || sol.file_path || "this solution"} into editor`}
+                >
+                  <Download className="w-3 h-3 mr-1.5" />
+                  Load into Editor
+                </button>
+              )}
+            </div>
           </div>
-          
+
           <div className="rounded-lg border border-border overflow-hidden bg-editor-bg">
             <div className="p-3 overflow-auto max-h-80 custom-scrollbar">
               <pre className="font-mono text-[11px] text-foreground whitespace-pre-wrap"><code>{sol.code}</code></pre>
             </div>
           </div>
-          
+
           {sol.complexity_analysis && (
             <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900/30 dark:bg-amber-950/20 px-4 py-3">
               <p className="font-bold text-amber-700 dark:text-amber-400 mb-1.5">Complexity Analysis</p>
