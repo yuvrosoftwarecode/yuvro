@@ -10,7 +10,7 @@ export const Route = createFileRoute("/recruiter/github")({
 
 function RecruiterGithubPage() {
   return (
-    <div className="p-10">
+    <div className="p-6 sm:p-8 lg:p-10 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-[28px] font-semibold tracking-tight text-neutral-900 dark:text-white">
           GitHub & Repositories

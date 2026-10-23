@@ -273,11 +273,14 @@ class GithubAppInstallationsView(APIView):
                 manage_url = f"https://github.com/organizations/{inst.account_login}/settings/installations/{inst.installation_id}"
             else:
                 manage_url = f"https://github.com/settings/installations/{inst.installation_id}"
+            avatar_url = f"https://avatars.githubusercontent.com/u/{inst.account_id}?v=4" if inst.account_id else f"https://github.com/{inst.account_login}.png"
             data.append({
                 "id": inst.id,
                 "installation_id": inst.installation_id,
+                "account_id": inst.account_id,
                 "account_login": inst.account_login,
                 "account_type": inst.account_type,
+                "avatar_url": avatar_url,
                 "manage_url": manage_url,
                 "connected_at": grant.created_at,
             })

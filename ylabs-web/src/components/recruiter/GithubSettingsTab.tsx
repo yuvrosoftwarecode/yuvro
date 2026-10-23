@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { Link } from "@tanstack/react-router";
 import restApiAuthUtil from "../../utils/RestApiAuthUtil";
 import {
   Github,
@@ -14,7 +15,14 @@ import {
   ShieldCheck,
   Building2,
   User,
-  Plus
+  Plus,
+  ArrowRight,
+  FolderGit2,
+  Terminal,
+  Check,
+  HelpCircle,
+  ChevronDown,
+  X
 } from "lucide-react";
 
 interface Installation {
@@ -22,6 +30,8 @@ interface Installation {
   installation_id: string;
   account_login: string;
   account_type: string;
+  account_id?: string;
+  avatar_url?: string;
   manage_url: string;
   connected_at?: string;
 }
@@ -53,7 +63,15 @@ export function GithubSettingsTab() {
   
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [avatarFailed, setAvatarFailed] = useState<Record<string, boolean>>({});
   const callbackHandled = useRef(false);
+
+  // Auto-dismiss success notification
+  useEffect(() => {
+    if (!successMsg) return;
+    const timer = setTimeout(() => setSuccessMsg(""), 4500);
+    return () => clearTimeout(timer);
+  }, [successMsg]);
 
   // Handle OAuth/Installation callback if redirected from GitHub
   useEffect(() => {
@@ -65,7 +83,7 @@ export function GithubSettingsTab() {
     if (installation_id && state) {
       if (!callbackHandled.current) {
         callbackHandled.current = true;
-        window.history.replaceState({}, document.title, window.location.pathname + "?tab=github");
+        window.history.replaceState({}, document.title, window.location.pathname);
         handleCallback(installation_id, setup_action, state);
       }
     } else {
@@ -197,6 +215,47 @@ export function GithubSettingsTab() {
   const privateCount = useMemo(() => repos.filter((r) => r.private).length, [repos]);
   const publicCount = useMemo(() => repos.filter((r) => !r.private).length, [repos]);
 
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      q: "Who can install the GitHub App for an organization?",
+      a: "Any GitHub user can install the app on their personal account. For GitHub organizations, an organization owner or member with app installation permissions can approve the install. If you don't have admin rights, GitHub allows you to submit an installation request directly to your org owner for 1-click approval."
+    },
+    {
+      q: "Can I grant access to only specific starter repositories?",
+      a: "Yes. During installation on GitHub, choose 'Only select repositories' and select the exact starter code projects you want to use for assessments. You can add or remove repositories at any time by clicking 'Add / Remove Repositories'."
+    },
+    {
+      q: "Do candidates get direct access to our GitHub repository?",
+      a: "No. Candidates never see your GitHub tokens, credentials, or private repository URLs. Yuvro provisions an isolated, sandboxed clone inside an ephemeral browser workspace container."
+    },
+    {
+      q: "What happens when a candidate commits or submits their solution?",
+      a: "Candidate code changes and test runs are evaluated independently in their sandbox environment and packaged directly into Yuvro's evaluation scorecard. They are never committed or pushed back to your GitHub repository."
+    },
+    {
+      q: "Can I connect multiple GitHub accounts or organizations?",
+      a: "Yes. You can connect multiple GitHub organizations or personal accounts and switch between them when assigning starter templates to questions in Question Bank."
+    }
+  ];
+
+  const getLanguageColor = (lang?: string) => {
+    if (!lang) return "bg-neutral-400";
+    const l = lang.toLowerCase();
+    if (l.includes("type")) return "bg-blue-500";
+    if (l.includes("java") && !l.includes("script")) return "bg-orange-500";
+    if (l.includes("script")) return "bg-amber-400";
+    if (l.includes("py")) return "bg-emerald-500";
+    if (l.includes("html") || l.includes("css")) return "bg-rose-500";
+    if (l.includes("go")) return "bg-cyan-500";
+    if (l.includes("rust")) return "bg-amber-600";
+    if (l.includes("c#") || l.includes("c++") || l.includes("c")) return "bg-violet-500";
+    if (l.includes("ruby")) return "bg-red-500";
+    if (l.includes("php")) return "bg-indigo-500";
+    return "bg-emerald-500";
+  };
+
   if (loadingInst) {
     return (
       <div className="flex flex-col items-center justify-center p-16 text-neutral-400">
@@ -210,229 +269,540 @@ export function GithubSettingsTab() {
     <div className="space-y-6">
       {/* Alert Banners */}
       {errorMsg && (
-        <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-[13px] text-red-400">
-          <AlertCircle className="h-5 w-5 shrink-0 text-red-400" />
-          <span>{errorMsg}</span>
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-[13px] text-red-500 dark:text-red-400 shadow-sm animate-in fade-in duration-200">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 shrink-0 text-red-500" />
+            <span>{errorMsg}</span>
+          </div>
+          <button onClick={() => setErrorMsg("")} className="text-red-400 hover:text-red-600 transition">
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
       {successMsg && (
-        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-[13px] text-emerald-400">
-          <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
-          <span>{successMsg}</span>
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-[13px] text-emerald-600 dark:text-emerald-400 shadow-sm animate-in fade-in duration-200">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />
+            <span className="font-medium">{successMsg}</span>
+          </div>
+          <button onClick={() => setSuccessMsg("")} className="text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 transition">
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
 
       {/* Case 1: No Installations Connected */}
       {installations.length === 0 ? (
-        <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#121214] p-8 text-center max-w-2xl mx-auto shadow-sm">
-          <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white">
-            <Github className="h-8 w-8" />
-          </div>
-          <h2 className="mt-5 text-xl font-semibold text-neutral-900 dark:text-white">
-            Connect Your GitHub Account
-          </h2>
-          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 max-w-md mx-auto leading-relaxed">
-            Link your GitHub organization or personal profile to select authorized repositories as starter code for candidate technical evaluations.
-          </p>
+        <div className="space-y-8">
+          {/* Main Hero Card */}
+          <div className="relative overflow-hidden rounded-3xl border border-neutral-200/80 dark:border-white/10 bg-gradient-to-b from-neutral-50/70 via-white to-white dark:from-[#151518] dark:via-[#111113] dark:to-[#0d0d0e] p-7 sm:p-10 shadow-sm">
+            {/* Ambient background accents */}
+            <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl dark:bg-emerald-500/5" />
+            <div className="pointer-events-none absolute -left-20 -bottom-20 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl dark:bg-cyan-500/5" />
 
-          <div className="mt-6 grid gap-3 text-left max-w-md mx-auto bg-neutral-50 dark:bg-black/30 p-4 rounded-xl border border-neutral-200 dark:border-white/5 text-[13px] text-neutral-700 dark:text-neutral-300">
-            <div className="flex items-center gap-2.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-              <span>Read-only access to contents & metadata only</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-              <span>No personal access tokens (PAT) or secrets needed</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-              <span>Granular repo permissions (choose all or specific repos)</span>
+            <div className="relative grid gap-8 lg:grid-cols-12 lg:items-center">
+              {/* Left 7 cols: Value Proposition & CTA */}
+              <div className="lg:col-span-7">
+                <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white leading-tight">
+                  Evaluate engineering candidates using your real-world repositories
+                </h2>
+
+                <p className="mt-3 text-sm sm:text-[15px] text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-xl">
+                  Connect your GitHub organization or personal profile to authorize starter repositories. When creating evaluation challenges, link your private codebases with 1-click—candidates receive an ephemeral, browser-based coding workspace without compromising your code or credentials.
+                </p>
+
+                {/* Primary Action Button */}
+                <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                  <button
+                    onClick={handleConnect}
+                    disabled={connectLoading}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-neutral-900 dark:bg-white px-4 py-2.5 text-xs font-semibold text-white dark:text-neutral-900 transition hover:bg-neutral-800 dark:hover:bg-neutral-100 shadow-sm hover:shadow disabled:opacity-50"
+                  >
+                    {connectLoading ? (
+                      <>
+                        <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                        <span>Redirecting to GitHub...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Github className="h-3.5 w-3.5" />
+                        <span>Connect GitHub Account</span>
+                        <ArrowRight className="h-3.5 w-3.5 ml-0.5" />
+                      </>
+                    )}
+                  </button>
+
+                  <span className="text-[11px] text-neutral-500">
+                    Takes ~30 seconds • Select all or specific repositories
+                  </span>
+                </div>
+
+                {/* Trust Highlights */}
+                <div className="mt-7 pt-6 border-t border-neutral-200/70 dark:border-white/5 flex flex-wrap items-center gap-y-2 gap-x-6 text-[12px] text-neutral-600 dark:text-neutral-400">
+                  <div className="flex items-center gap-1.5">
+                    <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <span>Strictly Read-Only Access</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <span>Revoke Anytime</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right 5 cols: Live Product Preview Mockup */}
+              <div className="lg:col-span-5">
+                <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#18181b] p-5 shadow-lg">
+                  {/* Mock Window Top Bar */}
+                  <div className="flex items-center justify-between pb-3 border-b border-neutral-100 dark:border-white/5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+                    </div>
+                    <span className="text-[11px] font-mono text-neutral-400">yuvro-labs-github-app</span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-500">
+                      <ShieldCheck className="h-3 w-3" /> Ready
+                    </span>
+                  </div>
+
+                  {/* Mock Authorized Repo Card */}
+                  <div className="mt-4 p-3.5 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50/70 dark:bg-white/[0.02]">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FolderGit2 className="h-4 w-4 text-neutral-700 dark:text-neutral-300" />
+                        <span className="text-[13px] font-semibold text-neutral-900 dark:text-white font-mono">
+                          your-org/payments-starter
+                        </span>
+                      </div>
+                      <span className="inline-flex items-center gap-1 rounded bg-neutral-200/80 dark:bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-neutral-700 dark:text-neutral-300">
+                        <Lock className="h-2.5 w-2.5" /> Private
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-[11px] text-neutral-500 leading-snug">
+                      Full-stack Spring Boot & React evaluation starter template for Senior Backend Engineers.
+                    </p>
+                    <div className="mt-3 flex items-center gap-3 text-[11px] text-neutral-500 font-mono">
+                      <span className="flex items-center gap-1">
+                        <GitBranch className="h-3 w-3 text-neutral-400" /> main
+                      </span>
+                      <span>TypeScript / Java</span>
+                    </div>
+                  </div>
+
+                  {/* Mock Candidate Sandbox Box */}
+                  <div className="mt-3 rounded-xl bg-neutral-950 p-3.5 text-left font-mono text-[11px] text-neutral-300 shadow-inner">
+                    <div className="flex items-center justify-between text-[10px] pb-2 border-b border-white/10 text-neutral-500">
+                      <div className="flex items-center gap-1.5">
+                        <Terminal className="h-3 w-3 text-emerald-400" />
+                        <span>Candidate Evaluation Sandbox Boot</span>
+                      </div>
+                    </div>
+                    <div className="mt-2 space-y-1 text-[11px]">
+                      <p className="text-neutral-400">
+                        $ yuvro-sandbox init --repo <span className="text-emerald-400">payments-starter</span>
+                      </p>
+                      <p className="text-neutral-500">Cloning template via ephemeral token...</p>
+                      <p className="text-emerald-400">✓ Isolated workspace active (1.2s)</p>
+                      <p className="text-neutral-500">Candidate IDE connected (0 secrets exposed)</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="mt-8">
+          {/* How It Works - 3 Step Process */}
+          <div>
+            <div className="mb-5">
+              <h3 className="text-base sm:text-lg font-semibold text-neutral-900 dark:text-white">
+                How GitHub App Integration Works
+              </h3>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                From installation to candidate evaluation in three seamless steps.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {/* Step 1 */}
+              <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#121214] p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+                    <Github className="h-5 w-5" />
+                  </div>
+                  <span className="text-xs font-mono font-semibold text-neutral-400">STEP 01</span>
+                </div>
+                <h4 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  Connect Organization or Account
+                </h4>
+                <p className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                  Authorize the Yuvro Labs GitHub App with one click. Organization owners can install it across the entire company or personal profile.
+                </p>
+              </div>
+
+              {/* Step 2 */}
+              <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#121214] p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                    <FolderGit2 className="h-5 w-5" />
+                  </div>
+                  <span className="text-xs font-mono font-semibold text-neutral-400">STEP 02</span>
+                </div>
+                <h4 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  Select Authorized Repositories
+                </h4>
+                <p className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                  Choose &quot;Only select repositories&quot; to pick specific starter code templates, or grant access to all repositories. Update allowed repos anytime.
+                </p>
+              </div>
+
+              {/* Step 3 */}
+              <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#121214] p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
+                    <Terminal className="h-5 w-5" />
+                  </div>
+                  <span className="text-xs font-mono font-semibold text-neutral-400">STEP 03</span>
+                </div>
+                <h4 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  Attach to Lab Evaluations
+                </h4>
+                <p className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                  In Question Bank, select your repo with 1 click. Candidates get an isolated browser IDE with real git branches ready without seeing your repo URL.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive FAQ Section */}
+          <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#121214] p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <HelpCircle className="h-5 w-5 text-neutral-400" />
+              <h3 className="text-base font-semibold text-neutral-900 dark:text-white">
+                Frequently Asked Questions
+              </h3>
+            </div>
+
+            <div className="divide-y divide-neutral-200 dark:divide-white/5">
+              {faqs.map((faq, idx) => {
+                const isOpen = openFaq === idx;
+                return (
+                  <div key={idx} className="py-3.5 first:pt-1 last:pb-1">
+                    <button
+                      onClick={() => setOpenFaq(isOpen ? null : idx)}
+                      className="flex w-full items-center justify-between gap-4 text-left font-medium text-[13px] text-neutral-900 dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300 transition"
+                    >
+                      <span>{faq.q}</span>
+                      <ChevronDown
+                        className={`h-4 w-4 shrink-0 text-neutral-400 transition-transform duration-200 ${
+                          isOpen ? "rotate-180 text-neutral-900 dark:text-white" : ""
+                        }`}
+                      />
+                    </button>
+                    {isOpen && (
+                      <p className="mt-2 text-[12px] text-neutral-600 dark:text-neutral-400 leading-relaxed pr-6">
+                        {faq.a}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bottom Quick Connect Banner */}
+          <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-neutral-50/80 dark:bg-white/[0.02] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h4 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                Ready to connect your engineering repositories?
+              </h4>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Takes under a minute. You will be redirected to GitHub to select your authorized repositories.
+              </p>
+            </div>
+
             <button
               onClick={handleConnect}
               disabled={connectLoading}
-              className="inline-flex items-center gap-2 rounded-xl bg-neutral-900 dark:bg-white px-6 py-3 text-sm font-medium text-white dark:text-black transition hover:bg-neutral-800 dark:hover:bg-neutral-200 shadow-md disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-neutral-900 dark:bg-white px-5 py-2.5 text-xs font-semibold text-white dark:text-neutral-900 transition hover:bg-neutral-800 dark:hover:bg-neutral-100 shadow-sm disabled:opacity-50 shrink-0"
             >
               <Github className="h-4 w-4" />
-              {connectLoading ? "Redirecting to GitHub..." : "Connect GitHub"}
+              <span>Connect GitHub</span>
             </button>
           </div>
         </div>
       ) : (
         /* Case 2: One or more Installations Connected */
-        <div className="space-y-6">
-          {/* Top Account Card */}
-          <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#121214] p-6 shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-black shadow-sm shrink-0">
-                  <Github className="h-6 w-6" />
+        <div className="space-y-4">
+          {/* Top Account Header Card */}
+          <div className="rounded-2xl border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#121214] p-4 sm:p-5 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              {/* Account Identity */}
+              <div className="flex items-center gap-3.5">
+                <div className="relative shrink-0">
+                  {currentInstallation?.account_login && !avatarFailed[currentInstallation.account_login] ? (
+                    <img
+                      src={
+                        currentInstallation.avatar_url ||
+                        `https://github.com/${currentInstallation.account_login}.png?size=96`
+                      }
+                      alt={currentInstallation.account_login}
+                      onError={() => {
+                        setAvatarFailed((prev) => ({
+                          ...prev,
+                          [currentInstallation.account_login]: true,
+                        }));
+                      }}
+                      className="h-10 w-10 rounded-xl object-cover border border-neutral-200/80 dark:border-white/10 shadow-xs bg-neutral-100 dark:bg-white/5"
+                    />
+                  ) : (
+                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-sm">
+                      <Github className="h-5 w-5" />
+                    </div>
+                  )}
+                  {/* Subtle GitHub badge in corner */}
+                  <div className="absolute -bottom-1 -right-1 grid h-4 w-4 place-items-center rounded-full bg-neutral-900 text-white dark:bg-neutral-800 dark:text-white border border-white dark:border-[#121214] shadow-2xs">
+                    <Github className="h-2.5 w-2.5" />
+                  </div>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2.5 flex-wrap">
-                    <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
-                      {currentInstallation?.account_login}
-                    </h2>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-500 border border-emerald-500/20">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <a
+                      href={`https://github.com/${currentInstallation?.account_login}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group flex items-center gap-1 text-[15px] font-semibold tracking-tight text-neutral-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+                    >
+                      <span>{currentInstallation?.account_login}</span>
+                      <ExternalLink className="h-3 w-3 text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </a>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       Connected
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-md bg-neutral-100 dark:bg-white/5 px-2 py-0.5 text-[11px] text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-white/5">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 dark:bg-white/5 px-2 py-0.5 text-[10px] font-medium text-neutral-600 dark:text-neutral-400 border border-neutral-200/60 dark:border-white/5">
                       {currentInstallation?.account_type === "Organization" ? (
-                        <Building2 className="h-3 w-3" />
+                        <Building2 className="h-2.5 w-2.5" />
                       ) : (
-                        <User className="h-3 w-3" />
+                        <User className="h-2.5 w-2.5" />
                       )}
-                      {currentInstallation?.account_type}
+                      {currentInstallation?.account_type || "User"}
                     </span>
                   </div>
-                  <p className="mt-1 text-[12px] text-neutral-500">
-                    Installation ID: <span className="font-mono text-neutral-700 dark:text-neutral-300">{currentInstallation?.installation_id}</span>
+
+                  <p className="mt-0.5 text-[11px] text-neutral-500 flex items-center gap-1.5">
+                    <span>Installation ID:</span>
+                    <span className="font-mono text-neutral-600 dark:text-neutral-400">
+                      {currentInstallation?.installation_id}
+                    </span>
                   </p>
                 </div>
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Toolbar */}
               <div className="flex items-center gap-2 flex-wrap">
                 {currentInstallation?.manage_url && (
                   <a
                     href={currentInstallation.manage_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-4 py-2 text-[13px] font-medium text-emerald-600 dark:text-emerald-400 transition hover:bg-emerald-500/20 shadow-sm"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-3 py-1.5 text-xs font-medium transition hover:bg-neutral-800 dark:hover:bg-neutral-100 shadow-xs"
                   >
-                    <Plus className="h-4 w-4" />
-                    <span>Add / Remove Repositories</span>
-                    <ExternalLink className="h-3.5 w-3.5 opacity-70" />
+                    <span>Manage on GitHub</span>
+                    <ExternalLink className="h-3 w-3 opacity-70" />
                   </a>
                 )}
 
                 <button
                   onClick={() => selectedInstId && fetchRepos(selectedInstId)}
                   disabled={loadingRepos}
-                  title="Reload repository list from GitHub"
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/5 px-3.5 py-2 text-[13px] font-medium text-neutral-700 dark:text-neutral-300 transition hover:bg-neutral-100 dark:hover:bg-white/10 disabled:opacity-50"
+                  title="Reload repositories from GitHub API"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/5 px-2.5 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 transition hover:bg-neutral-50 dark:hover:bg-white/10 disabled:opacity-50"
                 >
-                  <RefreshCw className={`h-4 w-4 ${loadingRepos ? "animate-spin" : ""}`} />
-                  <span className="hidden sm:inline">Sync</span>
-                </button>
-
-                <button
-                  onClick={() => selectedInstId && handleDisconnect(selectedInstId)}
-                  disabled={disconnectLoading}
-                  title="Disconnect this GitHub connection"
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/5 px-3.5 py-2 text-[13px] font-medium text-red-600 dark:text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Disconnect</span>
+                  <RefreshCw className={`h-3 w-3 ${loadingRepos ? "animate-spin" : ""}`} />
+                  <span>Sync</span>
                 </button>
 
                 <button
                   onClick={handleConnect}
                   disabled={connectLoading}
                   title="Connect another GitHub account or organization"
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/5 px-3 py-2 text-[13px] font-medium text-neutral-700 dark:text-neutral-300 transition hover:bg-neutral-100 dark:hover:bg-white/10"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/5 px-2.5 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 transition hover:bg-neutral-50 dark:hover:bg-white/10"
                 >
-                  <Plus className="h-4 w-4" />
-                  <span className="hidden md:inline">Connect Another Account</span>
+                  <Plus className="h-3 w-3" />
+                  <span className="hidden sm:inline">Add Account</span>
+                </button>
+
+                <button
+                  onClick={() => selectedInstId && handleDisconnect(selectedInstId)}
+                  disabled={disconnectLoading}
+                  title="Disconnect this GitHub installation"
+                  className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-neutral-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition disabled:opacity-50"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Disconnect</span>
                 </button>
               </div>
             </div>
 
-            {/* If user has multiple installations connected, allow switching */}
+            {/* If user has multiple installations connected */}
             {installations.length > 1 && (
-              <div className="mt-5 pt-4 border-t border-neutral-100 dark:border-white/5 flex items-center gap-2">
-                <span className="text-[12px] text-neutral-500">Switch Account:</span>
+              <div className="mt-3.5 pt-3 border-t border-neutral-100 dark:border-white/5 flex items-center gap-2">
+                <span className="text-[11px] text-neutral-500 font-medium">Switch:</span>
                 <div className="flex gap-1.5 flex-wrap">
-                  {installations.map((inst) => (
-                    <button
-                      key={inst.id}
-                      onClick={() => setSelectedInstId(inst.installation_id)}
-                      className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
-                        inst.installation_id === selectedInstId
-                          ? "bg-neutral-900 text-white dark:bg-white dark:text-black font-semibold"
-                          : "bg-neutral-100 dark:bg-white/5 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-white/10"
-                      }`}
-                    >
-                      {inst.account_login}
-                    </button>
-                  ))}
+                  {installations.map((inst) => {
+                    const isSelected = inst.installation_id === selectedInstId;
+                    const instAvatar =
+                      inst.avatar_url || `https://github.com/${inst.account_login}.png?size=48`;
+                    return (
+                      <button
+                        key={inst.id}
+                        onClick={() => setSelectedInstId(inst.installation_id)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
+                          isSelected
+                            ? "bg-neutral-900 text-white dark:bg-white dark:text-black font-semibold shadow-xs"
+                            : "bg-neutral-100 dark:bg-white/5 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-white/10"
+                        }`}
+                      >
+                        <img
+                          src={instAvatar}
+                          alt=""
+                          className="h-3.5 w-3.5 rounded-full object-cover shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = "none";
+                          }}
+                        />
+                        <span>{inst.account_login}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Repositories Section */}
-          <div className="rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#121214] p-6 shadow-sm">
-            {/* Header and Search/Filter Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-neutral-100 dark:border-white/5">
+          {/* Quick Metrics Bar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="rounded-xl border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#121214] p-3.5 shadow-sm">
+              <div className="flex items-center gap-1.5 text-neutral-500 text-[11px]">
+                <FolderGit2 className="h-3.5 w-3.5" />
+                <span>Total Repositories</span>
+              </div>
+              <div className="mt-1.5 text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+                {repos.length}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#121214] p-3.5 shadow-sm">
+              <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 text-[11px]">
+                <Lock className="h-3.5 w-3.5" />
+                <span>Private Repositories</span>
+              </div>
+              <div className="mt-1.5 text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+                {privateCount}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#121214] p-3.5 shadow-sm">
+              <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-[11px]">
+                <Globe className="h-3.5 w-3.5" />
+                <span>Public Repositories</span>
+              </div>
+              <div className="mt-1.5 text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+                {publicCount}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#121214] p-3.5 shadow-sm">
+              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-[11px]">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                <span>Evaluation Status</span>
+              </div>
+              <div className="mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Ready for Labs
+              </div>
+            </div>
+          </div>
+
+          {/* Main Repositories Section */}
+          <div className="rounded-2xl border border-neutral-200/80 dark:border-white/10 bg-white dark:bg-[#121214] p-5 sm:p-6 shadow-sm">
+            {/* Header + Filter Pills */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-100 dark:border-white/5">
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-semibold text-neutral-900 dark:text-white">
+                  <h3 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white">
                     Authorized Repositories
                   </h3>
-                  <span className="rounded-full bg-neutral-100 dark:bg-white/10 px-2.5 py-0.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                  <span className="rounded-full bg-neutral-100 dark:bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">
                     {filteredRepos.length}
                   </span>
                 </div>
-                <p className="mt-1 text-[12px] text-neutral-500">
-                  Repositories accessible for coding evaluation questions. To grant or remove access, click &quot;Add / Remove Repositories&quot;.
+                <p className="mt-0.5 text-xs text-neutral-500">
+                  Select any repository below when creating questions in Question Bank to use as starter code.
                 </p>
               </div>
 
               {/* Filter pills */}
-              <div className="flex items-center gap-1.5 self-start sm:self-auto bg-neutral-100 dark:bg-black/30 p-1 rounded-xl border border-neutral-200 dark:border-white/5">
+              <div className="flex items-center gap-1 self-start sm:self-auto bg-neutral-100/80 dark:bg-black/40 p-0.5 rounded-lg border border-neutral-200/60 dark:border-white/5 text-[11px]">
                 <button
                   onClick={() => setVisibilityFilter("ALL")}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
                     visibilityFilter === "ALL"
-                      ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-sm font-semibold"
-                      : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                      ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-xs font-semibold"
+                      : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
                   }`}
                 >
                   All ({repos.length})
                 </button>
                 <button
                   onClick={() => setVisibilityFilter("PRIVATE")}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
                     visibilityFilter === "PRIVATE"
-                      ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-sm font-semibold"
-                      : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                      ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-xs font-semibold"
+                      : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
                   }`}
                 >
-                  Private ({privateCount})
+                  <Lock className="h-2.5 w-2.5" />
+                  <span>Private ({privateCount})</span>
                 </button>
                 <button
                   onClick={() => setVisibilityFilter("PUBLIC")}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
                     visibilityFilter === "PUBLIC"
-                      ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-sm font-semibold"
-                      : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                      ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-xs font-semibold"
+                      : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
                   }`}
                 >
-                  Public ({publicCount})
+                  <Globe className="h-2.5 w-2.5" />
+                  <span>Public ({publicCount})</span>
                 </button>
               </div>
             </div>
 
-            {/* Search Input */}
+            {/* Search Input Bar */}
             <div className="pt-4">
               <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-400" />
                 <input
                   type="text"
-                  placeholder="Filter repositories by name or language..."
+                  placeholder="Search repositories by name, language, or description..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/20 pl-10 pr-4 py-2.5 text-[13px] text-neutral-900 dark:text-white placeholder:text-neutral-400 outline-none transition focus:border-emerald-500/60"
+                  className="w-full rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50/50 dark:bg-black/20 pl-9 pr-8 py-2 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 outline-none transition focus:border-neutral-400 dark:focus:border-white/20 focus:bg-white dark:focus:bg-black/40"
                 />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-white text-xs"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </div>
             </div>
 
-            {/* Repositories List */}
+            {/* Repositories Grid */}
             <div className="mt-5">
               {loadingRepos ? (
                 <div className="flex flex-col items-center justify-center p-12 text-neutral-400">
@@ -440,17 +810,17 @@ export function GithubSettingsTab() {
                   <p className="text-xs">Fetching repositories from GitHub API...</p>
                 </div>
               ) : filteredRepos.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-neutral-200 dark:border-white/10 p-12 text-center">
-                  <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-neutral-100 dark:bg-white/5 text-neutral-400">
-                    <Search className="h-5 w-5" />
+                <div className="rounded-xl border border-dashed border-neutral-200 dark:border-white/10 p-10 text-center">
+                  <div className="mx-auto grid h-10 w-10 place-items-center rounded-lg bg-neutral-100 dark:bg-white/5 text-neutral-400">
+                    <Search className="h-4 w-4" />
                   </div>
                   {repos.length === 0 ? (
                     <>
-                      <h4 className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">
+                      <h4 className="mt-2.5 text-xs font-semibold text-neutral-900 dark:text-white">
                         No repositories authorized yet
                       </h4>
-                      <p className="mt-1 text-xs text-neutral-500 max-w-sm mx-auto">
-                        Your GitHub App is connected to {currentInstallation?.account_login}, but no repositories were granted yet.
+                      <p className="mt-1 text-[11px] text-neutral-500 max-w-sm mx-auto">
+                        Your GitHub App is connected, but you haven&apos;t granted access to any repositories yet.
                       </p>
                       {currentInstallation?.manage_url && (
                         <div className="mt-4">
@@ -458,9 +828,8 @@ export function GithubSettingsTab() {
                             href={currentInstallation.manage_url}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-4 py-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 transition hover:bg-emerald-500/20"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-3 py-1.5 text-xs font-medium transition hover:opacity-90 shadow-xs"
                           >
-                            <Plus className="h-3.5 w-3.5" />
                             <span>Select Repositories on GitHub</span>
                             <ExternalLink className="h-3 w-3" />
                           </a>
@@ -469,10 +838,10 @@ export function GithubSettingsTab() {
                     </>
                   ) : (
                     <>
-                      <h4 className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">
-                        No repositories match your filter
+                      <h4 className="mt-2.5 text-xs font-semibold text-neutral-900 dark:text-white">
+                        No repositories match &quot;{searchQuery}&quot;
                       </h4>
-                      <p className="mt-1 text-xs text-neutral-500">
+                      <p className="mt-1 text-[11px] text-neutral-500">
                         Try searching for a different keyword or resetting your visibility filter.
                       </p>
                       <button
@@ -480,7 +849,7 @@ export function GithubSettingsTab() {
                           setSearchQuery("");
                           setVisibilityFilter("ALL");
                         }}
-                        className="mt-3 text-xs text-emerald-500 hover:underline"
+                        className="mt-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
                       >
                         Reset filters
                       </button>
@@ -492,71 +861,97 @@ export function GithubSettingsTab() {
                   {filteredRepos.map((repo) => (
                     <div
                       key={repo.id}
-                      className="group flex flex-col justify-between rounded-xl border border-neutral-200 dark:border-white/5 bg-neutral-50/50 dark:bg-white/[0.02] p-4 transition hover:border-neutral-300 dark:hover:border-white/15 hover:shadow-sm"
+                      className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-neutral-200/80 dark:border-white/5 bg-white dark:bg-gradient-to-b dark:from-white/[0.03] dark:to-white/[0.01] p-4 transition hover:border-neutral-300 dark:hover:border-white/20 hover:shadow-sm"
                     >
+                      <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-emerald-500/5 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+
                       <div>
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            {repo.private ? (
-                              <Lock className="h-3.5 w-3.5 shrink-0 text-amber-500" />
-                            ) : (
-                              <Globe className="h-3.5 w-3.5 shrink-0 text-blue-500" />
-                            )}
+                        {/* Card Top: Icon, Title, Visibility Badge */}
+                        <div className="flex items-start justify-between gap-2.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="grid h-7 w-7 place-items-center rounded-lg bg-neutral-100 dark:bg-white/5 border border-neutral-200/60 dark:border-white/5 text-neutral-700 dark:text-neutral-300 shrink-0">
+                              <FolderGit2 className="h-3.5 w-3.5" />
+                            </div>
                             <h4
                               title={repo.name}
-                              className="font-medium text-[13px] text-neutral-900 dark:text-white truncate"
+                              className="font-medium text-[13px] text-neutral-900 dark:text-white truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition"
                             >
                               {repo.name}
                             </h4>
                           </div>
 
                           <span
-                            className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium border ${
+                            className={`shrink-0 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium border ${
                               repo.private
-                                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                                : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
+                                : "bg-neutral-100 dark:bg-white/5 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-white/10"
                             }`}
                           >
-                            {repo.private ? "Private" : "Public"}
+                            {repo.private ? (
+                              <>
+                                <Lock className="h-2 w-2" />
+                                <span>Private</span>
+                              </>
+                            ) : (
+                              <>
+                                <Globe className="h-2 w-2" />
+                                <span>Public</span>
+                              </>
+                            )}
                           </span>
                         </div>
 
+                        {/* Description */}
                         {repo.description ? (
-                          <p className="mt-2 text-[12px] text-neutral-500 line-clamp-2 leading-relaxed">
+                          <p className="mt-2 text-[11px] text-neutral-500 line-clamp-2 leading-relaxed min-h-[32px]">
                             {repo.description}
                           </p>
                         ) : (
-                          <p className="mt-2 text-[12px] text-neutral-400 italic">
+                          <p className="mt-2 text-[11px] text-neutral-400 dark:text-neutral-500 min-h-[32px]">
                             No description provided
                           </p>
                         )}
-                      </div>
 
-                      <div className="mt-4 pt-3 border-t border-neutral-200/60 dark:border-white/5 flex items-center justify-between text-[11px] text-neutral-500">
-                        <div className="flex items-center gap-3">
-                          <span className="flex items-center gap-1">
-                            <GitBranch className="h-3 w-3" />
-                            {repo.default_branch || "main"}
+                        {/* Badges / Tech Row */}
+                        <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
+                          <span className="inline-flex items-center gap-1 rounded bg-neutral-100 dark:bg-white/5 px-1.5 py-0.5 text-[10px] font-mono text-neutral-600 dark:text-neutral-400 border border-neutral-200/60 dark:border-white/5">
+                            <GitBranch className="h-2.5 w-2.5 text-neutral-400" />
+                            <span>{repo.default_branch || "main"}</span>
                           </span>
+
                           {repo.language && (
-                            <span className="flex items-center gap-1">
-                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                              {repo.language}
+                            <span className="inline-flex items-center gap-1 rounded bg-neutral-100 dark:bg-white/5 px-1.5 py-0.5 text-[10px] text-neutral-600 dark:text-neutral-400 border border-neutral-200/60 dark:border-white/5">
+                              <span className={`h-1.5 w-1.5 rounded-full ${getLanguageColor(repo.language)}`} />
+                              <span>{repo.language}</span>
                             </span>
                           )}
                         </div>
+                      </div>
 
-                        {repo.html_url && (
+                      {/* Card Footer: View on GitHub + Use in Question Bank */}
+                      <div className="mt-3.5 pt-2.5 border-t border-neutral-100 dark:border-white/5 flex items-center justify-between text-[11px]">
+                        {repo.html_url ? (
                           <a
                             href={repo.html_url}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition"
+                            className="inline-flex items-center gap-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition"
                           >
-                            <span>Open</span>
-                            <ExternalLink className="h-3 w-3" />
+                            <span>GitHub</span>
+                            <ExternalLink className="h-3 w-3 opacity-60" />
                           </a>
+                        ) : (
+                          <span className="text-neutral-400">GitHub</span>
                         )}
+
+                        <Link
+                          to="/recruiter/questions"
+                          search={{ repo: repo.name } as any}
+                          className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium hover:underline transition"
+                        >
+                          <span>Use in Lab</span>
+                          <ArrowRight className="h-3 w-3" />
+                        </Link>
                       </div>
                     </div>
                   ))}
@@ -564,23 +959,29 @@ export function GithubSettingsTab() {
               )}
             </div>
 
-            {/* Bottom Info Help */}
+            {/* Bottom Config Banner */}
             {repos.length > 0 && currentInstallation?.manage_url && (
-              <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl bg-neutral-100/70 dark:bg-white/[0.03] p-4 text-[12px] text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-white/5">
-                <div className="flex items-center gap-2">
+              <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl bg-neutral-50/80 dark:bg-white/[0.02] p-3.5 sm:p-4 border border-neutral-200/70 dark:border-white/5 text-xs">
+                <div className="flex items-center gap-2.5">
                   <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-                  <span>
-                    Need to grant access to another private repository or revoke an existing one?
-                  </span>
+                  <div>
+                    <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                      Need to update authorized repositories?
+                    </span>
+                    <span className="text-neutral-500 ml-1 hidden md:inline">
+                      Add private repositories or revoke access directly on GitHub.
+                    </span>
+                  </div>
                 </div>
+
                 <a
                   href={currentInstallation.manage_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400 hover:underline shrink-0"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/5 px-2.5 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 transition hover:bg-neutral-50 dark:hover:bg-white/10 shadow-2xs shrink-0"
                 >
-                  <span>Configure permissions on GitHub</span>
-                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span>Configure on GitHub</span>
+                  <ExternalLink className="h-3 w-3" />
                 </a>
               </div>
             )}
