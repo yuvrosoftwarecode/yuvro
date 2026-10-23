@@ -110,3 +110,20 @@ class GithubAppClient:
                 
         return repos
 
+    def delete_installation(self, installation_id):
+        app_jwt = self._generate_jwt()
+        
+        url = f"https://api.github.com/app/installations/{installation_id}"
+        headers = {
+            "Authorization": f"Bearer {app_jwt}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+        
+        response = requests.delete(url, headers=headers)
+        if response.status_code in (204, 404):
+            logger.info(f"Successfully uninstalled GitHub App installation {installation_id} on GitHub.")
+            return True
+        else:
+            logger.error(f"Failed to delete installation {installation_id} on GitHub: {response.text}")
+            raise Exception(f"Failed to uninstall GitHub App on GitHub: {response.text}")
+

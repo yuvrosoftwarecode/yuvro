@@ -289,11 +289,21 @@ class GithubAppInstallationsView(APIView):
     def delete(self, request, installation_id):
         try:
             grant = GithubAppInstallationGrant.objects.get(recruiter=request.user, installation__installation_id=installation_id)
+            inst = grant.installation
             grant.delete()
             # If no more grants exist, mark the installation inactive
-            if not GithubAppInstallationGrant.objects.filter(installation=grant.installation).exists():
-                grant.installation.is_active = False
-                grant.installation.save()
+            if not GithubAppInstallationGrant.objects.filter(installation=inst).exists():
+                inst.is_active = False
+                inst.save()
+            
+            # Uninstall the app directly from user's GitHub account via GitHub App API
+            try:
+                client = GithubAppClient()
+                client.delete_installation(installation_id)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(f"Could not uninstall app {installation_id} on GitHub: {e}")
+
             return Response(status=status.HTTP_204_NO_CONTENT)
         except GithubAppInstallationGrant.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

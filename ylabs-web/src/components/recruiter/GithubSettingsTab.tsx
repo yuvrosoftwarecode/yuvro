@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import restApiAuthUtil from "../../utils/RestApiAuthUtil";
 import {
   Github,
@@ -11,7 +12,6 @@ import {
   Trash2,
   Search,
   CheckCircle2,
-  AlertCircle,
   ShieldCheck,
   Building2,
   User,
@@ -60,18 +60,21 @@ export function GithubSettingsTab() {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [visibilityFilter, setVisibilityFilter] = useState<"ALL" | "PRIVATE" | "PUBLIC">("ALL");
-  
-  const [errorMsg, setErrorMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
   const [avatarFailed, setAvatarFailed] = useState<Record<string, boolean>>({});
+  const [disconnectTarget, setDisconnectTarget] = useState<Installation | null>(null);
   const callbackHandled = useRef(false);
 
-  // Auto-dismiss success notification
+  // Close disconnect modal on Escape
   useEffect(() => {
-    if (!successMsg) return;
-    const timer = setTimeout(() => setSuccessMsg(""), 4500);
-    return () => clearTimeout(timer);
-  }, [successMsg]);
+    if (!disconnectTarget) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !disconnectLoading) {
+        setDisconnectTarget(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [disconnectTarget, disconnectLoading]);
 
   // Handle OAuth/Installation callback if redirected from GitHub
   useEffect(() => {
@@ -98,11 +101,11 @@ export function GithubSettingsTab() {
         setup_action,
         state
       });
-      setSuccessMsg("GitHub App connected successfully!");
+      toast.success("GitHub App connected successfully!");
       fetchInstallations();
     } catch (err: any) {
       console.error("Callback failed", err);
-      setErrorMsg(err?.response?.data?.error || "Failed to verify GitHub App installation.");
+      toast.error(err?.response?.data?.error || "Failed to verify GitHub App installation.");
       fetchInstallations();
     }
   };
@@ -125,7 +128,7 @@ export function GithubSettingsTab() {
       }
     } catch (err) {
       console.error("Failed to fetch installations", err);
-      setErrorMsg("Failed to load GitHub installations.");
+      toast.error("Failed to load GitHub installations.");
     } finally {
       setLoadingInst(false);
     }
@@ -142,13 +145,12 @@ export function GithubSettingsTab() {
 
   const fetchRepos = async (instId: string) => {
     setLoadingRepos(true);
-    setErrorMsg("");
     try {
       const data: any = await restApiAuthUtil.get(`/recruiter/github-app/installations/${instId}/repositories/`);
       setRepos(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch repos", err);
-      setErrorMsg("Failed to load repositories from GitHub.");
+      toast.error("Failed to load repositories from GitHub.");
     } finally {
       setLoadingRepos(false);
     }
@@ -156,37 +158,34 @@ export function GithubSettingsTab() {
 
   const handleConnect = async () => {
     setConnectLoading(true);
-    setErrorMsg("");
     try {
       const data: any = await restApiAuthUtil.get("/recruiter/github-app/install/");
       if (data?.url) {
         window.location.href = data.url;
       } else {
-        setErrorMsg("Failed to generate GitHub authorization URL.");
+        toast.error("Failed to generate GitHub authorization URL.");
         setConnectLoading(false);
       }
     } catch (err) {
       console.error("Failed to get install URL", err);
-      setErrorMsg("Failed to start GitHub connection flow. Please check server settings.");
+      toast.error("Failed to start GitHub connection flow. Please check server settings.");
       setConnectLoading(false);
     }
   };
 
-  const handleDisconnect = async (instId: string) => {
+  const handleConfirmDisconnect = async (instId: string) => {
     const target = installations.find((i) => i.installation_id === instId);
     const confirmName = target ? target.account_login : "this account";
-    if (!window.confirm(`Are you sure you want to disconnect ${confirmName}? Evaluation questions using its repositories may no longer clone.`)) {
-      return;
-    }
 
     setDisconnectLoading(true);
     try {
       await restApiAuthUtil.delete(`/recruiter/github-app/installations/${instId}/`);
-      setSuccessMsg(`Disconnected ${confirmName}.`);
+      toast.success(`Disconnected ${confirmName}`);
+      setDisconnectTarget(null);
       await fetchInstallations();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to disconnect", err);
-      setErrorMsg("Failed to disconnect GitHub App installation.");
+      toast.error(err?.response?.data?.error || "Failed to disconnect GitHub App installation.");
     } finally {
       setDisconnectLoading(false);
     }
@@ -267,30 +266,6 @@ export function GithubSettingsTab() {
 
   return (
     <div className="space-y-6">
-      {/* Alert Banners */}
-      {errorMsg && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-[13px] text-red-500 dark:text-red-400 shadow-sm animate-in fade-in duration-200">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 shrink-0 text-red-500" />
-            <span>{errorMsg}</span>
-          </div>
-          <button onClick={() => setErrorMsg("")} className="text-red-400 hover:text-red-600 transition">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-      {successMsg && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-[13px] text-emerald-600 dark:text-emerald-400 shadow-sm animate-in fade-in duration-200">
-          <div className="flex items-center gap-3">
-            <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />
-            <span className="font-medium">{successMsg}</span>
-          </div>
-          <button onClick={() => setSuccessMsg("")} className="text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 transition">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-
       {/* Case 1: No Installations Connected */}
       {installations.length === 0 ? (
         <div className="space-y-8">
@@ -634,7 +609,7 @@ export function GithubSettingsTab() {
                 </button>
 
                 <button
-                  onClick={() => selectedInstId && handleDisconnect(selectedInstId)}
+                  onClick={() => currentInstallation && setDisconnectTarget(currentInstallation)}
                   disabled={disconnectLoading}
                   title="Disconnect this GitHub installation"
                   className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-neutral-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition disabled:opacity-50"
@@ -985,6 +960,78 @@ export function GithubSettingsTab() {
                 </a>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* In-App Confirmation Modal for Disconnecting GitHub Account */}
+      {disconnectTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          {/* Backdrop click to dismiss */}
+          <div
+            className="fixed inset-0"
+            onClick={() => !disconnectLoading && setDisconnectTarget(null)}
+          />
+
+          <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#151518] p-6 shadow-2xl space-y-4 z-10 animate-in zoom-in-95 duration-150">
+            <div className="flex items-start gap-3.5">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 shrink-0">
+                <Trash2 className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-base font-semibold text-neutral-900 dark:text-white">
+                  Disconnect GitHub Account?
+                </h3>
+                <p className="mt-1 text-xs text-neutral-500">
+                  Are you sure you want to disconnect{" "}
+                  <span className="font-semibold text-neutral-800 dark:text-neutral-200 font-mono">
+                    {disconnectTarget.account_login}
+                  </span>
+                  ?
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-neutral-50 dark:bg-white/[0.03] p-3.5 border border-neutral-200/70 dark:border-white/5 text-[12px] text-neutral-600 dark:text-neutral-400 space-y-1.5">
+              <p className="font-medium text-neutral-800 dark:text-neutral-200">
+                What will happen:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-neutral-500 text-[11px] leading-relaxed">
+                <li>Access to all authorized starter repositories will be removed.</li>
+                <li>Candidate evaluation labs linked to these repositories will no longer clone.</li>
+                <li>You can reconnect this account at any time with one click.</li>
+              </ul>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                disabled={disconnectLoading}
+                onClick={() => setDisconnectTarget(null)}
+                className="rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300 transition hover:bg-neutral-50 dark:hover:bg-white/10 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={disconnectLoading}
+                onClick={() => handleConfirmDisconnect(disconnectTarget.installation_id)}
+                style={{ color: "#ffffff" }}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 hover:bg-red-700 px-3.5 py-1.5 text-xs font-semibold !text-white transition shadow-xs disabled:opacity-50 cursor-pointer"
+              >
+                {disconnectLoading ? (
+                  <>
+                    <RefreshCw className="h-3 w-3 animate-spin text-white" style={{ color: "#ffffff" }} />
+                    <span className="!text-white" style={{ color: "#ffffff" }}>Disconnecting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-3 w-3 text-white" style={{ color: "#ffffff" }} />
+                    <span className="!text-white" style={{ color: "#ffffff" }}>Disconnect Account</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
