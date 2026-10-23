@@ -19,6 +19,7 @@ class MockInterviewSerializer(serializers.ModelSerializer):
             "required_skills",
             "optional_skills",
             "publish_status",
+            "products",
             "participants_count",
             "user_progress",
             "my_submissions",
@@ -216,13 +217,39 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
         return None
 
     def get_transcript(self, obj):
-        if obj.chat_session:
+        if obj.chat_session and obj.chat_session.messages.exists():
             return [{
                 "id": str(m.id),
                 "message_type": m.message_type,
                 "content": m.content,
                 "created_at": m.created_at.isoformat() if hasattr(m.created_at, 'isoformat') else str(m.created_at)
             } for m in obj.chat_session.messages.all().order_by('created_at')]
+        
+        # Fallback to session_state turns if chat_session messages are empty
+        if obj.session_state and isinstance(obj.session_state, dict):
+            questions = {q.get("id"): q for q in obj.session_state.get("questions", [])}
+            answers = obj.session_state.get("answers", [])
+            transcript = []
+            
+            for q in obj.session_state.get("questions", []):
+                transcript.append({
+                    "id": q.get("id"),
+                    "message_type": "assistant",
+                    "content": q.get("prompt", ""),
+                    "created_at": q.get("created_at", "")
+                })
+                # Find matching answer
+                for a in answers:
+                    if a.get("question_id") == q.get("id"):
+                        transcript.append({
+                            "id": a.get("id"),
+                            "message_type": "user",
+                            "content": a.get("transcript") or a.get("text", ""),
+                            "created_at": a.get("created_at", "")
+                        })
+            if transcript:
+                return transcript
+
         return []
 
     def get_actual_duration_display(self, obj):

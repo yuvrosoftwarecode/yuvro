@@ -85,6 +85,11 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerOrInstructorOrAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
 
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [permissions.AllowAny()]
+        return super().get_permissions()
+
     search_fields = ["title", "description"]
     ordering_fields = ["created_at", "updated_at"]
 
@@ -94,10 +99,13 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         publish_status_param = self.request.query_params.get("publish_status")
+        product_param = self.request.query_params.get("product")
 
         q = Q()
         if publish_status_param:
             q &= Q(publish_status=publish_status_param)
+        if product_param:
+            q &= Q(products__contains=[product_param])
 
         if q:
             qs = qs.filter(q)
@@ -380,6 +388,10 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
             interview_session = InterviewSession.objects.filter(id=interview_session_id).first()
             if not interview_session:
+                sub = MockInterviewSubmission.objects.filter(id=interview_session_id).first()
+                if sub and sub.chat_session and hasattr(sub.chat_session, 'interview_session'):
+                    interview_session = sub.chat_session.interview_session
+            if not interview_session:
                 return Response({"error": "Session not found"}, status=status.HTTP_404_NOT_FOUND)
                 
             chat_session = interview_session.chat_session
@@ -598,9 +610,11 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
         serializer = MockInterviewSubmissionSerializer(qs, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
     def my_interviews(self, request):
         user = request.user
+        if not user or not user.is_authenticated:
+            return Response([])
         qs = MockInterviewSubmission.objects.filter(user=user).order_by('-created_at')
         
         serializer = MockInterviewSubmissionSerializer(qs, many=True)

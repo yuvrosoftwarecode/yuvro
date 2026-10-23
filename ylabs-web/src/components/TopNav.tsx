@@ -15,6 +15,7 @@ import {
   ChevronDown,
   MoreHorizontal,
   Rocket,
+  Mic,
   X,
 } from "lucide-react";
 
@@ -28,6 +29,7 @@ import YuvroLogo from "@/assets/YuvroLogo.png";
 
 const primaryLinks = [
   { to: "/student/dashboard", label: "Simulation Lab", icon: LayoutDashboard },
+  { to: "/mock-interviews", label: "Vitarka Mock Interviews", icon: Mic },
   // { to: "/student/hackathons", label: "Hackathons", icon: Rocket },
 ];
 
@@ -100,7 +102,9 @@ export function TopNav({
         <nav className="hidden md:flex items-center gap-1 text-sm">
           {primaryLinks.map((link) => {
             const Icon = link.icon;
-            const active = activePath.startsWith(link.to);
+            const active =
+              activePath.startsWith(link.to) ||
+              (link.to === "/mock-interviews" && activePath.startsWith("/mock-interview"));
             return (
               <Link
                 key={link.to}

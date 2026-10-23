@@ -69,6 +69,10 @@ class MockInterview(BaseModel):
         max_length=20, choices=PUBLISH_STATUS_CHOICES, default=PUBLISH_STATUS_DRAFT
     )
 
+    products = models.JSONField(
+        default=list, blank=True, help_text="Associated products e.g. ['ycode', 'ylabs', 'ycampus']"
+    )
+
 
     class Meta:
         ordering = ["-created_at"]
