@@ -179,6 +179,11 @@ class LabSprintTicket(BaseTimestampedAdminModel):
     hints = models.JSONField(default=list, blank=True)
     scoring_rules = models.JSONField(default=dict, blank=True)
     solution = models.JSONField(default=dict, blank=True)
+    test_command = models.TextField(
+        blank=True,
+        default="",
+        help_text="Command to run scoring tests (e.g., 'python yuvro_scoring_rules/main_test.py')"
+    )
     yuvro_points = models.PositiveIntegerField(default=5)
     minutes_max = models.PositiveIntegerField(default=30)
     accepted_programming_languages = models.JSONField(default=list, blank=True)
