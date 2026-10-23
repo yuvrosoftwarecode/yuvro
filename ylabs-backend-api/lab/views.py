@@ -367,7 +367,47 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
         submission.solution_revealed = True
         submission.save(update_fields=['yuvro_points', 'solution_revealed'])
 
-        return Response(ticket.solution)
+        raw_solution = ticket.solution or {}
+        solutions_list = []
+
+        if isinstance(raw_solution, dict) and isinstance(raw_solution.get("solutions"), list):
+            solutions_list = raw_solution.get("solutions")
+        elif isinstance(raw_solution, list):
+            solutions_list = raw_solution
+        elif isinstance(raw_solution, dict):
+            lang_map = {
+                'py': 'python', 'js': 'javascript', 'jsx': 'javascript',
+                'ts': 'typescript', 'tsx': 'typescript', 'sql': 'sql',
+                'sh': 'bash', 'java': 'java', 'cpp': 'cpp', 'c': 'c',
+                'html': 'html', 'css': 'css', 'json': 'json'
+            }
+            for file_path, code in raw_solution.items():
+                if file_path == "solutions" and isinstance(code, list):
+                    solutions_list.extend(code)
+                elif isinstance(code, str):
+                    ext = file_path.split('.')[-1].lower() if '.' in file_path else ''
+                    lang = lang_map.get(ext, 'python')
+                    solutions_list.append({
+                        "title": file_path if '.' in file_path else "Official Solution",
+                        "file_path": file_path if '.' in file_path else "",
+                        "language": lang,
+                        "code": code,
+                        "approach": "optimal"
+                    })
+        elif isinstance(raw_solution, str) and raw_solution.strip():
+            solutions_list.append({
+                "title": "Official Solution",
+                "file_path": "",
+                "language": "python",
+                "code": raw_solution,
+                "approach": "optimal"
+            })
+
+        return Response({
+            "solutions": solutions_list,
+            "solution": raw_solution,
+            "raw_solution": raw_solution
+        })
 
     @action(detail=False, methods=['post'], url_path="reveal-hint")
     def reveal_hint(self, request):

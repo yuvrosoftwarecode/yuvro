@@ -1,0 +1,155 @@
+{
+  "title": "Sprint 2 \u2014 User Authentication & JWT Flow",
+  "description": "Implement user registration, credential verification, login, and JWT access token issuance.",
+  "order_index": 2,
+  "lab_title": "Flask Todo REST API Lab",
+  "tickets": [
+    {
+      "title": "Ticket 1 - User Registration API",
+      "ticket_slug": "flask-todo-21",
+      "description": "Build the `POST /api/auth/register` endpoint to allow new users to create accounts.\n\n### Request Body\n```json\n{\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"securepassword123\"\n}\n```\n\n### Requirements\n1. Validate that `username`, `email`, and `password` are provided and non-empty. Return `400 Bad Request` if missing.\n2. Validate that `username` and `email` are not already taken. Return `409 Conflict` with `{\"error\": \"User or email already exists\"}` if duplicate.\n3. Create the user, securely hashing the password.\n4. Return `201 Created` with `{\"message\": \"User registered successfully\", \"user\": {...}}` omitting the password hash.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Validate incoming JSON request payloads.",
+        "Handle uniqueness checks and HTTP 409 Conflict status.",
+        "Store passwords securely using hashing algorithms."
+      ],
+      "tasks": [
+        {
+          "title": "Validate required fields (`username`, `email`, `password`) in request JSON.",
+          "points": 30
+        },
+        {
+          "title": "Check for existing user/email and return HTTP 409 on duplicate.",
+          "points": 30
+        },
+        {
+          "title": "Save user to database and return HTTP 201 with serialized user data.",
+          "points": 40
+        }
+      ],
+      "common_mistakes": [
+        "Returning HTTP 200 instead of HTTP 201 Created on new resource creation.",
+        "Returning the `password_hash` in the registration response."
+      ],
+      "hints": [
+        "Use `User.query.filter((User.username == username) | (User.email == email)).first()` to check for duplicates.",
+        "Remember to call `db.session.add(user)` and `db.session.commit()`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routes/auth.py",
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_1/main_test.py"
+      },
+      "solution": {
+        "app/routes/auth.py": "from flask import Blueprint, request, jsonify\nfrom app import db\nfrom app.models import User\n\nauth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')\n\n@auth_bp.route('/register', methods=['POST'])\ndef register():\n    data = request.get_json() or {}\n    username = data.get('username', '').strip()\n    email = data.get('email', '').strip().lower()\n    password = data.get('password', '')\n\n    if not username or not email or not password:\n        return jsonify({'error': 'username, email, and password are required'}), 400\n\n    if User.query.filter((User.username == username) | (User.email == email)).first():\n        return jsonify({'error': 'User or email already exists'}), 409\n\n    user = User(username=username, email=email)\n    user.set_password(password)\n    db.session.add(user)\n    db.session.commit()\n\n    return jsonify({\n        'message': 'User registered successfully',\n        'user': user.to_dict()\n    }), 201\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - User Login & JWT Token Generation",
+      "ticket_slug": "flask-todo-22",
+      "description": "Build the `POST /api/auth/login` endpoint that authenticates a user and returns a signed JSON Web Token (JWT).\n\n### Request Body\n```json\n{\n  \"email\": \"john@example.com\",\n  \"password\": \"securepassword123\"\n}\n```\n\n### Requirements\n1. Validate that `email` (or username) and `password` are present. Return `400 Bad Request` if missing.\n2. Query the user by email. If not found or if `user.check_password(password)` is false, return `401 Unauthorized` with `{\"error\": \"Invalid credentials\"}`.\n3. Generate a JWT token containing `user_id` and an expiration timestamp (`exp`).\n4. Return `200 OK` with `{\"token\": \"<jwt_token>\", \"user\": {...}}`.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Authenticate credentials against hashed passwords.",
+        "Generate and sign JWT access tokens with PyJWT.",
+        "Implement proper HTTP 401 Unauthorized handling."
+      ],
+      "tasks": [
+        {
+          "title": "Validate credentials against the database using password verification.",
+          "points": 40
+        },
+        {
+          "title": "Generate JWT token with user ID and expiration claims.",
+          "points": 40
+        },
+        {
+          "title": "Return HTTP 200 with JWT token and user profile.",
+          "points": 20
+        }
+      ],
+      "common_mistakes": [
+        "Distinguishing between 'User not found' and 'Invalid password' in error messages (security risk). Always use generic 'Invalid credentials'.",
+        "Omitting expiration claim in the JWT payload."
+      ],
+      "hints": [
+        "Use `jwt.encode({'user_id': user.id, 'exp': ...}, secret_key, algorithm='HS256')`.",
+        "Ensure `check_password()` handles non-matching passwords safely without throwing unhandled exceptions."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routes/auth.py",
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_2/main_test.py"
+      },
+      "solution": {
+        "app/routes/auth.py": "import jwt\nfrom datetime import datetime, timedelta\nfrom flask import Blueprint, request, jsonify, current_app\nfrom app import db\nfrom app.models import User\n\nauth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')\n\n@auth_bp.route('/register', methods=['POST'])\ndef register():\n    data = request.get_json() or {}\n    username = data.get('username', '').strip()\n    email = data.get('email', '').strip().lower()\n    password = data.get('password', '')\n\n    if not username or not email or not password:\n        return jsonify({'error': 'username, email, and password are required'}), 400\n\n    if User.query.filter((User.username == username) | (User.email == email)).first():\n        return jsonify({'error': 'User or email already exists'}), 409\n\n    user = User(username=username, email=email)\n    user.set_password(password)\n    db.session.add(user)\n    db.session.commit()\n\n    return jsonify({\n        'message': 'User registered successfully',\n        'user': user.to_dict()\n    }), 201\n\n@auth_bp.route('/login', methods=['POST'])\ndef login():\n    data = request.get_json() or {}\n    email = data.get('email', '').strip().lower()\n    password = data.get('password', '')\n\n    if not email or not password:\n        return jsonify({'error': 'Email and password are required'}), 400\n\n    user = User.query.filter_by(email=email).first()\n    if not user or not user.check_password(password):\n        return jsonify({'error': 'Invalid credentials'}), 401\n\n    token_payload = {\n        'user_id': user.id,\n        'exp': datetime.utcnow() + timedelta(days=1)\n    }\n    token = jwt.encode(token_payload, current_app.config['SECRET_KEY'], algorithm='HS256')\n\n    return jsonify({\n        'token': token,\n        'user': user.to_dict()\n    }), 200\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_2/main_test.py"
+    },
+    {
+      "title": "Ticket 3 - Token Verification & Current User Profile",
+      "ticket_slug": "flask-todo-23",
+      "description": "Implement authentication middleware / decorator `token_required` and build `GET /api/auth/me` to retrieve the current logged-in user.\n\n### Requirements\n1. Implement `@token_required` decorator in `app/utils/auth_helpers.py`.\n2. Extract token from the `Authorization: Bearer <token>` header.\n3. Return `401 Unauthorized` if header is missing, token is malformed, or token has expired.\n4. Decode token, lookup user from database, and pass `current_user` to the decorated route.\n5. Implement `GET /api/auth/me` returning `{\"user\": current_user.to_dict()}`.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Create custom Python decorators for route authorization.",
+        "Parse HTTP Authorization Bearer headers.",
+        "Decode and validate cryptographic tokens."
+      ],
+      "tasks": [
+        {
+          "title": "Implement `@token_required` decorator extracting Bearer token.",
+          "points": 50
+        },
+        {
+          "title": "Implement `GET /api/auth/me` endpoint protected by `@token_required`.",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Forgetting to check if `Authorization` header starts with `Bearer `.",
+        "Not catching `jwt.ExpiredSignatureError` and `jwt.InvalidTokenError`."
+      ],
+      "hints": [
+        "Use `functools.wraps` when creating decorators to preserve original function attributes.",
+        "Split the header by space: `parts = auth_header.split(' ')`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/utils/auth_helpers.py",
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_3/main_test.py"
+      },
+      "solution": {
+        "app/utils/auth_helpers.py": "from functools import wraps\nfrom flask import request, jsonify, current_app\nimport jwt\nfrom app.models import User\n\ndef token_required(f):\n    @wraps(f)\n    def decorated(*args, **kwargs):\n        auth_header = request.headers.get('Authorization')\n        if not auth_header or not auth_header.startswith('Bearer '):\n            return jsonify({'error': 'Authorization token is missing or invalid'}), 401\n        parts = auth_header.split(' ')\n        if len(parts) < 2:\n            return jsonify({'error': 'Authorization token is missing or invalid'}), 401\n        token = parts[1]\n        try:\n            payload = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])\n            current_user = User.query.get(payload['user_id'])\n            if not current_user:\n                return jsonify({'error': 'User not found'}), 401\n        except jwt.ExpiredSignatureError:\n            return jsonify({'error': 'Token has expired'}), 401\n        except Exception:\n            return jsonify({'error': 'Invalid token'}), 401\n        return f(current_user, *args, **kwargs)\n    return decorated\n",
+        "app/routes/auth.py": "import jwt\nfrom datetime import datetime, timedelta\nfrom flask import Blueprint, request, jsonify, current_app\nfrom app import db\nfrom app.models import User\nfrom app.utils.auth_helpers import token_required\n\nauth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')\n\n@auth_bp.route('/register', methods=['POST'])\ndef register():\n    data = request.get_json() or {}\n    username = data.get('username', '').strip()\n    email = data.get('email', '').strip().lower()\n    password = data.get('password', '')\n\n    if not username or not email or not password:\n        return jsonify({'error': 'username, email, and password are required'}), 400\n\n    if User.query.filter((User.username == username) | (User.email == email)).first():\n        return jsonify({'error': 'User or email already exists'}), 409\n\n    user = User(username=username, email=email)\n    user.set_password(password)\n    db.session.add(user)\n    db.session.commit()\n\n    return jsonify({\n        'message': 'User registered successfully',\n        'user': user.to_dict()\n    }), 201\n\n@auth_bp.route('/login', methods=['POST'])\ndef login():\n    data = request.get_json() or {}\n    email = data.get('email', '').strip().lower()\n    password = data.get('password', '')\n\n    if not email or not password:\n        return jsonify({'error': 'Email and password are required'}), 400\n\n    user = User.query.filter_by(email=email).first()\n    if not user or not user.check_password(password):\n        return jsonify({'error': 'Invalid credentials'}), 401\n\n    token_payload = {\n        'user_id': user.id,\n        'exp': datetime.utcnow() + timedelta(days=1)\n    }\n    token = jwt.encode(token_payload, current_app.config['SECRET_KEY'], algorithm='HS256')\n\n    return jsonify({\n        'token': token,\n        'user': user.to_dict()\n    }), 200\n\n@auth_bp.route('/me', methods=['GET'])\n@token_required\ndef get_me(current_user):\n    return jsonify({'user': current_user.to_dict()}), 200\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_3/main_test.py"
+    }
+  ]
+}
