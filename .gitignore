@@ -77,6 +77,10 @@ lovable_project_reference/*
 # Uploads
 uploads/
 
-#Workspaces
+# Workspaces
 workspaces/
 patch_views.py
+
+# Private Keys & Certificates
+*.pem
+*.key

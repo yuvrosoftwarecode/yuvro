@@ -31,6 +31,7 @@ import { Route as StudentCertificatesRouteImport } from './routes/student.certif
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
 import { Route as RecruiterSettingsRouteImport } from './routes/recruiter.settings'
 import { Route as RecruiterQuestionsRouteImport } from './routes/recruiter.questions'
+import { Route as RecruiterGithubRouteImport } from './routes/recruiter.github'
 import { Route as RecruiterDashboardRouteImport } from './routes/recruiter.dashboard'
 import { Route as RecruiterBillingRouteImport } from './routes/recruiter.billing'
 import { Route as GithubCallbackRouteImport } from './routes/github.callback'
@@ -178,6 +179,11 @@ const RecruiterSettingsRoute = RecruiterSettingsRouteImport.update({
 const RecruiterQuestionsRoute = RecruiterQuestionsRouteImport.update({
   id: '/questions',
   path: '/questions',
+  getParentRoute: () => RecruiterRoute,
+} as any)
+const RecruiterGithubRoute = RecruiterGithubRouteImport.update({
+  id: '/github',
+  path: '/github',
   getParentRoute: () => RecruiterRoute,
 } as any)
 const RecruiterDashboardRoute = RecruiterDashboardRouteImport.update({
@@ -410,6 +416,7 @@ export interface FileRoutesByFullPath {
   '/github/callback': typeof GithubCallbackRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
+  '/recruiter/github': typeof RecruiterGithubRoute
   '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -468,6 +475,7 @@ export interface FileRoutesByTo {
   '/github/callback': typeof GithubCallbackRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
+  '/recruiter/github': typeof RecruiterGithubRoute
   '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -531,6 +539,7 @@ export interface FileRoutesById {
   '/github/callback': typeof GithubCallbackRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
+  '/recruiter/github': typeof RecruiterGithubRoute
   '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -595,6 +604,7 @@ export interface FileRouteTypes {
     | '/github/callback'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
+    | '/recruiter/github'
     | '/recruiter/questions'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -653,6 +663,7 @@ export interface FileRouteTypes {
     | '/github/callback'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
+    | '/recruiter/github'
     | '/recruiter/questions'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -715,6 +726,7 @@ export interface FileRouteTypes {
     | '/github/callback'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
+    | '/recruiter/github'
     | '/recruiter/questions'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -925,6 +937,13 @@ declare module '@tanstack/react-router' {
       path: '/questions'
       fullPath: '/recruiter/questions'
       preLoaderRoute: typeof RecruiterQuestionsRouteImport
+      parentRoute: typeof RecruiterRoute
+    }
+    '/recruiter/github': {
+      id: '/recruiter/github'
+      path: '/github'
+      fullPath: '/recruiter/github'
+      preLoaderRoute: typeof RecruiterGithubRouteImport
       parentRoute: typeof RecruiterRoute
     }
     '/recruiter/dashboard': {
@@ -1321,6 +1340,7 @@ const RecruiterEvaluationsIdRouteWithChildren =
 interface RecruiterRouteChildren {
   RecruiterBillingRoute: typeof RecruiterBillingRoute
   RecruiterDashboardRoute: typeof RecruiterDashboardRoute
+  RecruiterGithubRoute: typeof RecruiterGithubRoute
   RecruiterQuestionsRoute: typeof RecruiterQuestionsRoute
   RecruiterSettingsRoute: typeof RecruiterSettingsRoute
   RecruiterIndexRoute: typeof RecruiterIndexRoute
@@ -1331,6 +1351,7 @@ interface RecruiterRouteChildren {
 const RecruiterRouteChildren: RecruiterRouteChildren = {
   RecruiterBillingRoute: RecruiterBillingRoute,
   RecruiterDashboardRoute: RecruiterDashboardRoute,
+  RecruiterGithubRoute: RecruiterGithubRoute,
   RecruiterQuestionsRoute: RecruiterQuestionsRoute,
   RecruiterSettingsRoute: RecruiterSettingsRoute,
   RecruiterIndexRoute: RecruiterIndexRoute,

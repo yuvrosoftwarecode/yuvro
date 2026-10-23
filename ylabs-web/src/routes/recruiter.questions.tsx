@@ -26,6 +26,7 @@ import { ycodeApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { CreateQuestionForm } from "@/components/evaluation/CreateQuestionForm";
 import LoadingSkeleton from "@/components/common/LoadingSkeleton";
+import { GithubAppIntegration } from "@/components/recruiter/GithubAppIntegration";
 
 export const Route = createFileRoute("/recruiter/questions")({
   head: () => ({
@@ -77,6 +78,9 @@ const DEFAULT_LAB_FORM = {
   duration_minutes: 30,
   git_repo_starter_url: "",
   git_repo_starter_branch: "main",
+  repo_source_type: "ADMIN_SYSTEM",
+  github_app_installation: null,
+  github_repo_id: "",
   startup_command: "",
   test_command: "",
   connection_url: "",
@@ -658,6 +662,9 @@ function RecruiterQuestionBankPage() {
       duration_minutes: q.duration_minutes || 30,
       git_repo_starter_url: q.git_repo_starter_url || "",
       git_repo_starter_branch: q.git_repo_starter_branch || "main",
+      repo_source_type: q.repo_source_type || "ADMIN_SYSTEM",
+      github_app_installation: q.github_app_installation || null,
+      github_repo_id: q.github_repo_id || "",
       startup_command: q.startup_command || "",
       test_command: q.test_command || "",
       programming_languages: q.programming_languages || [],
@@ -1424,6 +1431,28 @@ function RecruiterQuestionBankPage() {
               </label>
             </div>
 
+            {/* GitHub App Repository Selection */}
+            <GithubAppIntegration
+              value={{
+                github_repo_id: labFormData.github_repo_id,
+                git_repo_starter_url: labFormData.git_repo_starter_url,
+                repo_source_type: labFormData.repo_source_type,
+                github_app_installation: labFormData.github_app_installation,
+              }}
+              onChange={(val: any) => {
+                setLabFormData({
+                  ...labFormData,
+                  ...val,
+                });
+              }}
+              onBranchChange={(branch: string) => {
+                setLabFormData((prev: any) => ({
+                  ...prev,
+                  git_repo_starter_branch: branch,
+                }));
+              }}
+            />
+
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-2">
                 <label className="text-[11px] uppercase tracking-widest text-neutral-500">
@@ -1431,7 +1460,13 @@ function RecruiterQuestionBankPage() {
                 </label>
                 <input
                   value={labFormData.git_repo_starter_url}
-                  onChange={(e) => setLabFormData({ ...labFormData, git_repo_starter_url: e.target.value })}
+                  onChange={(e) =>
+                    setLabFormData({
+                      ...labFormData,
+                      git_repo_starter_url: e.target.value,
+                      repo_source_type: labFormData.github_repo_id ? labFormData.repo_source_type : "ADMIN_SYSTEM",
+                    })
+                  }
                   placeholder="https://github.com/..."
                   className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
                 />
