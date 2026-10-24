@@ -1467,7 +1467,7 @@ function InterviewScreen() {
                   to="/mock-interviews"
                   className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 transition shadow-sm"
                 >
-                  Back to Mock Interviews <ChevronRight className="h-3.5 w-3.5" />
+                  Back to Mock Interview <ChevronRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             </>

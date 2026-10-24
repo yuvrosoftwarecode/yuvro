@@ -29,7 +29,7 @@ import YuvroLogo from "@/assets/YuvroLogo.png";
 
 const primaryLinks = [
   { to: "/student/dashboard", label: "Simulation Lab", icon: LayoutDashboard },
-  { to: "/mock-interviews", label: "Vitarka Mock Interviews", icon: Mic },
+  { to: "/mock-interviews", label: "Mock Interview", icon: Mic },
   // { to: "/student/hackathons", label: "Hackathons", icon: Rocket },
 ];
 

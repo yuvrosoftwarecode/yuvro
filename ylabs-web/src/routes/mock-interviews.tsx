@@ -28,7 +28,7 @@ import {
 export const Route = createFileRoute("/mock-interviews")({
   head: () => ({
     meta: [
-      { title: "Vitarka Mock Interviews | Yuvro" },
+      { title: "Vitarka Mock Interview | Yuvro" },
       { name: "description", content: "Practice AI-led tech mock interviews with Vitarka." },
     ],
   }),
@@ -190,7 +190,7 @@ function MockHub() {
                 <Sparkles className="h-3 w-3" /> Welcome back, {displayName}
               </span>
               <h1 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight truncate">
-                Vitarka <span className="text-primary">Mock Interviews</span>
+                Vitarka <span className="text-primary">Mock Interview</span>
               </h1>
               <p className="mt-2 text-sm text-muted-foreground max-w-xl hidden sm:block">
                 AI-led technical interviews powered by the Vitarka Dynamic Engine, offering adaptive real-time questions, skill evaluation, and actionable feedback.
@@ -327,7 +327,7 @@ function MockHub() {
               <div className="mb-4 flex items-end justify-between gap-3 flex-wrap">
                 <div>
                   <h2 className="text-xl font-semibold flex items-center gap-2">
-                    All mock interviews
+                    All Mock Interview
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {filtered.length} of {interviews.length} live backend interviews
