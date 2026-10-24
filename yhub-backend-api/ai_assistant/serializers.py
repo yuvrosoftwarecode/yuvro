@@ -220,6 +220,7 @@ class ChatResponseSerializer(serializers.Serializer):
     message_id = serializers.UUIDField()
     response = serializers.CharField()
     tokens_used = serializers.IntegerField(required=False)
+    credits_used = serializers.IntegerField(required=False, allow_null=True)
     response_time_ms = serializers.IntegerField(required=False)
     metadata = serializers.JSONField(required=False, default=dict)
 

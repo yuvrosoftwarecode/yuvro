@@ -24,6 +24,7 @@ import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
 import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { TopNav } from "@/components/TopNav";
 import useAIChat from "@/components/common/ai-buddy/useAIChat";
+import { WalletBalanceBadge } from "@/components/credits/WalletBalanceBadge";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { evaluationService } from "@/services/evaluationService";
@@ -8362,6 +8363,7 @@ Do NOT output extra code blocks for file names or extra boilerplate. The code wi
         </div>
 
         <div className="flex items-center gap-2">
+          <WalletBalanceBadge />
           <button
             onClick={() => {
               if (!showHistory) fetchHistory();

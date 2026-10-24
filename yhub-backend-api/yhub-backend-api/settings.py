@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "ai_assistant",
     "mockinterviews",
     "payment",
+    "ai_credits",
 ]
 
 MIDDLEWARE = [
@@ -227,3 +228,10 @@ if STORAGE_BACKEND == "s3":
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
+
+# ── AI Credits Configuration ─────────────────────────────────────
+AI_CREDITS_ENABLED = config("AI_CREDITS_ENABLED", default=False, cast=bool)
+AI_CREDITS_DEFAULT_RESERVATION = config("AI_CREDITS_DEFAULT_RESERVATION", default=4096, cast=int)
+AI_CREDITS_MAX_RESERVATION = config("AI_CREDITS_MAX_RESERVATION", default=16384, cast=int)
+AI_CREDITS_RESERVATION_EXPIRY_SECONDS = config("AI_CREDITS_RESERVATION_EXPIRY_SECONDS", default=300, cast=int)
+
