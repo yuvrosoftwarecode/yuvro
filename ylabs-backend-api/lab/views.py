@@ -365,6 +365,7 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
 
         submission.yuvro_points = 0
         submission.solution_revealed = True
+        submission.save(update_fields=['yuvro_points', 'solution_revealed'])
         raw_solution = ticket.solution or {}
         solutions_list = []
 
@@ -385,20 +386,26 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
                 elif isinstance(code, str):
                     ext = file_path.split('.')[-1].lower() if '.' in file_path else ''
                     lang = lang_map.get(ext, 'python')
+                    is_file = '.' in file_path or '/' in file_path
                     solutions_list.append({
-                        "title": file_path if '.' in file_path else "Official Solution",
-                        "file_path": file_path if '.' in file_path else "",
+                        "title": file_path if is_file else "Official Solution",
+                        "file_path": file_path if is_file else "",
+                        "filePath": file_path if is_file else "",
                         "language": lang,
                         "code": code,
-                        "approach": "optimal"
+                        "approach": file_path if is_file else "solution"
                     })
         elif isinstance(raw_solution, str) and raw_solution.strip():
+            starter_path = ""
+            if isinstance(ticket.scoring_rules, dict):
+                starter_path = ticket.scoring_rules.get("starter_path") or ""
             solutions_list.append({
-                "title": "Official Solution",
-                "file_path": "",
+                "title": starter_path or "Official Solution",
+                "file_path": starter_path,
+                "filePath": starter_path,
                 "language": "python",
                 "code": raw_solution,
-                "approach": "optimal"
+                "approach": starter_path if starter_path else "solution"
             })
 
         return Response({

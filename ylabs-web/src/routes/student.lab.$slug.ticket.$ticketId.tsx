@@ -917,7 +917,9 @@ export function StudentTicketView({
             tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "bash",
             status: "Not Started",
             startup_command: t.startup_command,
-            test_command: t.test_command,
+            starter_path: t.starter_path || t.scoring_rules?.starter_path || "",
+            starterPath: t.starter_path || t.scoring_rules?.starter_path || "",
+            test_command: t.test_command || t.scoring_rules?.test_command || "",
             connection_url: t.connection_url || t.uri || "",
             uri: t.connection_url || t.uri || "",
             databases: t.databases || [],
@@ -2239,18 +2241,23 @@ export function TicketIDE({
   async function handleRun() {
     if (isReal) {
       const filesToSave = getFilesToSave();
-      Promise.all(
-        Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
-      ).catch(console.error);
+      try {
+        await Promise.all(
+          Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
+        );
+      } catch (err) {
+        console.error("Error saving files before test run:", err);
+      }
     }
     setRunning(true);
     const src = files[activeFile] ?? "";
     const file = activeFile;
 
-    if (ticket.test_command && ticket.test_command.trim()) {
+    const effectiveTestCommand = (ticket.test_command || ticket.scoring_rules?.test_command || "").trim();
+    if (effectiveTestCommand) {
       try {
         const { runTestCommand } = await import("@/services/workspaceService");
-        const res = await runTestCommand(effectiveUserId, labId, sprintId, ticket.test_command.trim(), evaluationId);
+        const res = await runTestCommand(effectiveUserId, labId, sprintId, effectiveTestCommand, evaluationId);
 
         let outText = res.stdout || "";
         if (res.stderr && res.stderr.trim()) {
@@ -2383,6 +2390,13 @@ export function TicketIDE({
       else if (file.endsWith(".java")) extLang = "java";
 
       const execLang = selectedLanguage || extLang;
+
+      const hasAlgorithmicTests = (ticket.tasks || []).some((tc: any) => tc.input !== undefined || tc.expected_output !== undefined) || (customTestCases && customTestCases.length > 0);
+      if (!hasAlgorithmicTests && isReal) {
+        setRunning(false);
+        showToast("No test command or test cases configured for this ticket.");
+        return;
+      }
 
       try {
         const res = await codeExecutorService.executeCode({
@@ -3018,7 +3032,9 @@ export function TicketIDE({
       // Build solution_output JSON from the last execution result so the
       // recruiter report can show per-task pass/fail breakdown accurately.
       let solutionOutput = JSON.stringify({ tasks: {}, total_score: computedScore, max_possible_score: 100, percentage: computedScore });
-      if (lastExecutionResult) {
+      if (taskExecutionData && typeof taskExecutionData === "object") {
+        solutionOutput = JSON.stringify(taskExecutionData);
+      } else if (lastExecutionResult) {
         const tasksMap: Record<string, any> = {};
         (ticket.tasks || []).forEach((tMeta: any, idx: number) => {
           const tr = lastExecutionResult.test_results?.results?.[idx];
@@ -3623,8 +3639,9 @@ export function TicketIDE({
                     isPreview={isRecruiterPreview}
                     onLoadIntoEditor={(code, language, targetFilePath) => {
                       const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
-                      const ext = langMap[language.toLowerCase()] || "txt";
-                      const targetFile = targetFilePath || `solution.${ext}`;
+                      const ext = langMap[language?.toLowerCase()] || "py";
+                      const fallbackFile = (ticket as any).starter_path || (ticket as any).starterPath || ticket.scoring_rules?.starter_path || ticket.target_file || ticket.targeted_file || activeFile || `solution.${ext}`;
+                      const targetFile = targetFilePath || fallbackFile;
                       setFiles(prev => ({ ...prev, [targetFile]: code }));
                       setDirty(prev => ({ ...prev, [targetFile]: true }));
                       setOpenTabs(prev => prev.includes(targetFile) ? prev : [...prev, targetFile]);
@@ -7643,6 +7660,7 @@ export function getSolutionsFromTicket(ticket: any): any[] {
             approach: filePath,
             title: filePath,
             filePath,
+            file_path: filePath,
             language,
             code,
             complexity_analysis: "",
@@ -7650,10 +7668,12 @@ export function getSolutionsFromTicket(ticket: any): any[] {
         }
       });
     } else if (typeof ticket.solution === "string" && ticket.solution.trim()) {
+      const targetFile = ticket.starter_path || ticket.starterPath || ticket.scoring_rules?.starter_path || ticket.target_file || ticket.targeted_file || "";
       results.push({
-        approach: "solution",
-        title: "Solution",
-        filePath: ticket.target_file || ticket.targeted_file || "",
+        approach: targetFile || "solution",
+        title: targetFile || "Solution",
+        filePath: targetFile,
+        file_path: targetFile,
         language: "python",
         code: ticket.solution,
         complexity_analysis: "",
@@ -7664,10 +7684,13 @@ export function getSolutionsFromTicket(ticket: any): any[] {
   // 3. ticket.solutions (DSA-style array)
   if (results.length === 0 && Array.isArray(ticket.solutions) && ticket.solutions.length > 0) {
     ticket.solutions.forEach((s: any) => {
+      const filePath = s.filePath || s.file_path || "";
+      const isFile = filePath && (filePath.includes(".") || filePath.includes("/"));
       results.push({
-        approach: s.approach || "optimal",
+        approach: isFile && (s.approach === "optimal" || !s.approach) ? filePath : (s.approach || "optimal"),
         title: s.title || s.approach || "Solution",
-        filePath: s.filePath || s.file_path || "",
+        filePath: filePath,
+        file_path: filePath,
         language: s.language || "python",
         code: s.code || "",
         complexity_analysis: s.complexity_analysis || "",
@@ -7706,7 +7729,19 @@ export function SolutionPanel({
   onLoadAllIntoEditor?: (fileMap: Record<string, string>) => void;
   isPreview?: boolean;
 }) {
-  const previewSols: any[] = isPreview ? getSolutionsFromTicket(ticket) : [];
+  const normalizeSolutionItem = (s: any) => {
+    const filePath = s.filePath || s.file_path || (s.title && s.title.includes(".") ? s.title : "");
+    const isFile = filePath && (filePath.includes(".") || filePath.includes("/"));
+    return {
+      ...s,
+      filePath: filePath || s.filePath || "",
+      file_path: filePath || s.file_path || "",
+      title: s.title || filePath || "Solution",
+      approach: isFile && (s.approach === "optimal" || !s.approach) ? filePath : (s.approach || "optimal"),
+    };
+  };
+
+  const previewSols: any[] = isPreview ? getSolutionsFromTicket(ticket).map(normalizeSolutionItem) : [];
 
   const [revealedSolution, setRevealedSolution] = useState(isPreview);
   const [fetchedSolutions, setFetchedSolutions] = useState<any[]>(isPreview ? previewSols : []);
@@ -7717,7 +7752,7 @@ export function SolutionPanel({
 
   useEffect(() => {
     if (isPreview) {
-      const sols = getSolutionsFromTicket(ticket);
+      const sols = getSolutionsFromTicket(ticket).map(normalizeSolutionItem);
       setFetchedSolutions(sols);
       setRevealedSolution(true);
       if (sols.length > 0) {
@@ -7738,11 +7773,13 @@ export function SolutionPanel({
       } else if (data) {
         sols = getSolutionsFromTicket({ ...ticket, solution: data });
       }
-      setFetchedSolutions(sols);
 
-      const firstApproach = sols.length > 0 ? (sols[0].approach || "optimal") : "";
+      const normalizedSols = sols.map(normalizeSolutionItem);
+      setFetchedSolutions(normalizedSols);
+
+      const firstApproach = normalizedSols.length > 0 ? (normalizedSols[0].approach || "optimal") : "";
       setSelectedApproach(firstApproach);
-      const firstLangForApproach = sols.find((s: any) => (s.approach || "optimal") === firstApproach)?.language || "python";
+      const firstLangForApproach = normalizedSols.find((s: any) => (s.approach || "optimal") === firstApproach)?.language || "python";
       setSelectedLanguage(firstLangForApproach);
 
       setRevealedSolution(true);
@@ -7753,7 +7790,8 @@ export function SolutionPanel({
     }
   };
 
-  const effectiveSolutions = isPreview ? (fetchedSolutions.length > 0 ? fetchedSolutions : previewSols) : fetchedSolutions;
+  const rawSolutions = isPreview ? (fetchedSolutions.length > 0 ? fetchedSolutions : previewSols) : fetchedSolutions;
+  const effectiveSolutions = rawSolutions.map(normalizeSolutionItem);
 
   // Preview mode with no solutions on the ticket
   if (isPreview && effectiveSolutions.length === 0) {
@@ -7822,47 +7860,53 @@ export function SolutionPanel({
 
   const fileMap: Record<string, string> = {};
   effectiveSolutions.forEach((s: any) => {
-    if (s.filePath && s.code) {
-      fileMap[s.filePath] = s.code;
+    const p = s.filePath || s.file_path || (s.title && s.title.includes(".") ? s.title : "");
+    if (p && s.code) {
+      fileMap[p] = s.code;
     }
   });
   const hasMultipleFiles = Object.keys(fileMap).length > 1;
 
+  const distinctLanguages = Array.from(new Set(solutionsForApproach.map((s: any) => s.language).filter(Boolean)));
+  const currentFilePath = sol?.filePath || sol?.file_path || (sol?.title && sol.title.includes(".") ? sol.title : "");
+
   return (
     <div className="w-full space-y-4 text-xs">
-      <div className="flex border-b border-border overflow-x-auto hide-scrollbar">
-        {approaches.map((approach: any) => (
-          <button
-            key={approach}
-            onClick={() => {
-              setSelectedApproach(approach);
-              const langForApp = effectiveSolutions.find((s: any) => (s.approach || "optimal") === approach)?.language;
-              if (langForApp) setSelectedLanguage(langForApp);
-            }}
-            className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors ${
-              selectedApproach === approach
-                ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {getApproachLabel(approach)}
-          </button>
-        ))}
-      </div>
-
-      {solutionsForApproach.length > 1 && (
-        <div className="flex flex-wrap gap-2">
-          {solutionsForApproach.map((s: any) => (
+      {approaches.length > 1 && (
+        <div className="flex border-b border-border overflow-x-auto hide-scrollbar">
+          {approaches.map((approach: any) => (
             <button
-              key={s.language}
-              onClick={() => setSelectedLanguage(s.language)}
+              key={approach}
+              onClick={() => {
+                setSelectedApproach(approach);
+                const solForApp = effectiveSolutions.find((s: any) => (s.approach || "optimal") === approach);
+                if (solForApp?.language) setSelectedLanguage(solForApp.language);
+              }}
+              className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors ${
+                selectedApproach === approach
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {getApproachLabel(approach)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {distinctLanguages.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {distinctLanguages.map((lang: string) => (
+            <button
+              key={lang}
+              onClick={() => setSelectedLanguage(lang)}
               className={`px-3 py-1.5 rounded-full font-medium transition-colors border ${
-                selectedLanguage === s.language
+                selectedLanguage === lang
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-editor-bg text-muted-foreground border-border hover:border-muted-foreground/30"
               }`}
             >
-              {s.language.toUpperCase()}
+              {lang.toUpperCase()}
             </button>
           ))}
         </div>
@@ -7871,8 +7915,8 @@ export function SolutionPanel({
       {sol && (
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <span className="font-semibold text-muted-foreground font-mono text-[12px] truncate max-w-[280px]" title={sol.filePath || sol.title}>
-              {sol.filePath || sol.title}
+            <span className="font-semibold text-muted-foreground font-mono text-[12px] truncate max-w-[280px]" title={currentFilePath || sol.title}>
+              {currentFilePath || sol.title}
             </span>
             <div className="flex items-center gap-2">
               {hasMultipleFiles && onLoadAllIntoEditor && (
@@ -7887,9 +7931,9 @@ export function SolutionPanel({
               )}
               {onLoadIntoEditor && (
                 <button
-                  onClick={() => onLoadIntoEditor(sol.code, sol.language, sol.filePath)}
+                  onClick={() => onLoadIntoEditor(sol.code, sol.language, currentFilePath)}
                   className="inline-flex h-7 items-center justify-center rounded px-3 text-[11px] font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
-                  title={`Load ${sol.filePath || "this solution"} into editor`}
+                  title={`Load ${currentFilePath || "this solution"} into editor`}
                 >
                   <Download className="w-3 h-3 mr-1.5" />
                   Load into Editor
