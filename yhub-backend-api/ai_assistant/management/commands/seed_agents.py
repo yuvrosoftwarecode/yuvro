@@ -48,11 +48,20 @@ class Command(BaseCommand):
                 "temperature": 0.7,
             },
             {
+                "name": "DeepSeek Flash",
+                "provider": "deepseek",
+                "model_name": "deepseek-flash",
+                "description": "DeepSeek V4.1 Flash - Fast and economical real-time conversational model for live AI interviews",
+                "is_active": True,
+                "max_tokens": 1024,
+                "temperature": 0.6,
+            },
+            {
                 "name": "Gemini 2.5 Flash",
                 "provider": "gemini",
                 "model_name": "gemini-2.5-flash",
                 "description": "Google's latest Gemini 2.5 Flash model with high performance",
-                "is_active": True,
+                "is_active": False,
                 "max_tokens": 4096,
                 "temperature": 0.7,
             },
@@ -61,7 +70,7 @@ class Command(BaseCommand):
                 "provider": "cohere",
                 "model_name": "command-nightly",
                 "description": "Language model by Cohere for text generation",
-                # Disabled for now; Gemini is the active provider.
+                # Disabled for now; DeepSeek is the active provider.
                 "is_active": False,
                 "max_tokens": 4096,
                 "temperature": 0.7,
@@ -69,7 +78,7 @@ class Command(BaseCommand):
         ]
 
         for agent_data in agents_data:
-            agent, created = AIAgent.objects.get_or_create(
+            agent, created = AIAgent.objects.update_or_create(
                 provider=agent_data["provider"],
                 model_name=agent_data["model_name"],
                 defaults={

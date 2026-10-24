@@ -284,6 +284,7 @@ export const VitarkaInterviewScreen = forwardRef<
       const res = await yhubApiAuthUtil.post<any>(
         `/mock-interviews/${mockInterviewId}/start_interview/`,
         {
+          source: "evaluation",
           sequential: true,
           force: true,
           candidate_context: candidateContext,
@@ -427,6 +428,7 @@ export const VitarkaInterviewScreen = forwardRef<
       const res = await yhubApiAuthUtil.post<any>(
         `/mock-interviews/${mockInterviewId}/get_next_question/`,
         {
+          source: "evaluation",
           interview_session_id: sessionId,
           user_answer: cleanAnswer,
           status: "normal",

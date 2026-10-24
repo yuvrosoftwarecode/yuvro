@@ -3,10 +3,14 @@ import logging
 import re
 from typing import Any
 
-from assessment.ai_interview.config import settings
-from assessment.ai_interview.llm_client import get_llm_client
-from assessment.ai_interview.prompts import ADAPTIVE_QUESTION_PROMPT, INTERVIEW_GENERATION_PROMPT
-from assessment.ai_interview.json_parser import parse_json_response
+from mockinterviews.ai_interview.config import settings
+from mockinterviews.ai_interview.llm_client import get_llm_client
+from mockinterviews.ai_interview.prompts import (
+    ADAPTIVE_QUESTION_PROMPT,
+    INTERVIEW_GENERATION_PROMPT,
+    FIRST_TECHNICAL_QUESTION_PROMPT,
+)
+from mockinterviews.ai_interview.json_parser import parse_json_response
 
 logger = logging.getLogger(__name__)
 
@@ -83,13 +87,13 @@ async def generate_questions(
 
 async def get_next_question(
     session: dict[str, Any],
-    num_total_questions: int = 5,
+    num_total_questions: int | None = None,
 ) -> dict | None:
     """Generate the next adaptive question based on performance so far.
 
     Args:
         session: The full session dict (submission state_data).
-        num_total_questions: Total questions planned for this interview.
+        num_total_questions: Optional total questions (None for continuous adaptive interview).
 
     Returns:
         Next question dict, or None if interview is complete.
@@ -104,34 +108,150 @@ async def get_next_question(
         logger.info("Starting adaptive interview with self-introduction question")
         return build_self_intro_question()
 
-    if questions_asked >= num_total_questions:
-        logger.info("Interview complete: %d/%d questions asked", questions_asked, num_total_questions)
-        return None
+    client = get_llm_client()
+    summary = _build_analysis_summary(analysis)
+    all_topics = _get_all_topics(analysis)
+    difficulty = session.get("difficulty", "medium")
 
+    # =========================================================================
+    # CASE 1: Turn immediately after self-introduction -> Opening Technical Question
+    # =========================================================================
+    last_q_obj = questions[-1] if questions else {}
+    is_after_intro = (
+        questions_asked == 1 or
+        (isinstance(last_q_obj, dict) and last_q_obj.get("topic") == SELF_INTRO_TOPIC)
+    )
+
+    if is_after_intro:
+        intro_answer = ""
+        intro_ans_obj = answers.get("1")
+        if isinstance(intro_ans_obj, dict):
+            intro_answer = intro_ans_obj.get("answer", "")
+        if not intro_answer and answers:
+            first_ans = list(answers.values())[0]
+            if isinstance(first_ans, dict):
+                intro_answer = first_ans.get("answer", "")
+
+        intro_details = session.get("intro_details", {})
+        candidate_name = ""
+        if isinstance(intro_details, dict):
+            candidate_name = intro_details.get("name") or ""
+        if not candidate_name:
+            candidate_name = analysis.get("candidate_name") or ""
+        if not candidate_name or candidate_name.lower() in ["there", "none", "null"]:
+            candidate_name = "there"
+
+        candidate_name = candidate_name.strip().title()
+        domain = analysis.get("domain", "Software Development")
+        skills_str = ", ".join(all_topics[:6]) or domain
+
+        prompt = FIRST_TECHNICAL_QUESTION_PROMPT.format(
+            analysis_summary=summary,
+            candidate_intro=intro_answer or "Candidate introduced themselves.",
+            candidate_name=candidate_name,
+            domain=domain,
+            skills=skills_str,
+            difficulty=difficulty,
+        )
+
+        logger.info("Generating opening technical question for candidate: %s", candidate_name)
+
+        for attempt in range(1, settings.MAX_QUESTION_GENERATION_ATTEMPTS + 1):
+            try:
+                response = await client.generate(
+                    prompt=prompt,
+                    system_prompt="You are a friendly technical interviewer. Return only valid JSON.",
+                    max_tokens=settings.MAX_OUTPUT_TOKENS_ADAPTIVE,
+                )
+                question = parse_json_response(response)
+                if isinstance(question, list) and question:
+                    question = question[0]
+                question = _normalize_question(
+                    question=question,
+                    question_id=2,
+                    default_difficulty=difficulty,
+                )
+                if question and not _is_duplicate_question(question, questions):
+                    return question
+            except Exception as e:
+                logger.warning("Attempt %d to generate opening technical question failed: %s", attempt, e)
+
+        return _build_fallback_question(
+            question_id=2,
+            topics=all_topics,
+            difficulty=difficulty,
+            existing_questions=questions,
+        )
+
+    # =========================================================================
+    # CASE 2: Adaptive Technical Question Progression (Questions 3+)
+    # =========================================================================
     scores = [_coerce_score(a.get("score", 5)) for a in answers.values() if isinstance(a, dict)]
     avg_score = sum(scores) / len(scores) if scores else 5.0
 
-    topics_covered = list({q.get("topic", "") for q in questions})
-    all_topics = _get_all_topics(analysis)
+    topics_covered = list({q.get("topic", "") for q in questions if isinstance(q, dict)})
     topics_remaining = [t for t in all_topics if t not in topics_covered] or all_topics
 
     trend = _compute_trend(scores)
 
-    client = get_llm_client()
-    summary = _build_analysis_summary(analysis)
+    # Extract conversational context from the most recent turn
+    last_question = "Previous technical question"
+    last_answer = "Candidate response recorded."
+    last_score = "5"
+    last_feedback = "None"
+    last_follow_up = "None"
+
+    if questions:
+        last_q_obj = questions[-1]
+        if isinstance(last_q_obj, dict):
+            last_q_text = last_q_obj.get("question", "")
+            if last_q_text:
+                last_question = f'"{last_q_text}"'
+            last_q_id = str(last_q_obj.get("id"))
+            last_answer_obj = answers.get(last_q_id)
+            if not last_answer_obj and answers:
+                last_key = list(answers.keys())[-1]
+                last_answer_obj = answers[last_key]
+
+            if isinstance(last_answer_obj, dict):
+                ans_text = last_answer_obj.get("answer", "")
+                if ans_text:
+                    last_answer = f'"{ans_text}"'
+                s_val = last_answer_obj.get("score")
+                if s_val is not None:
+                    last_score = str(s_val)
+                f_val = last_answer_obj.get("feedback")
+                if f_val:
+                    last_feedback = str(f_val)
+                fu_val = last_answer_obj.get("follow_up_suggestion")
+                if fu_val:
+                    last_follow_up = str(fu_val)
+
     avoid_questions = [q.get("question", "") for q in questions if isinstance(q, dict)]
     next_id = questions_asked + 1
+    dialogue_history = _format_dialogue_history(questions, answers)
+
+    intro_details = session.get("intro_details", {})
+    candidate_name = ""
+    if isinstance(intro_details, dict):
+        candidate_name = intro_details.get("name") or ""
+    if not candidate_name:
+        candidate_name = analysis.get("candidate_name") or ""
+    if not candidate_name or candidate_name.lower() in ["there", "none", "null"]:
+        candidate_name = "there"
+    candidate_name = candidate_name.strip().title()
 
     logger.info(
-        "Adaptive question %d/%d: avg_score=%.1f, trend=%s",
+        "Adaptive question %d: avg_score=%.1f, trend=%s, last_score=%s",
         next_id,
-        num_total_questions,
         avg_score,
         trend,
+        last_score,
     )
 
     for attempt in range(1, settings.MAX_QUESTION_GENERATION_ATTEMPTS + 1):
         prompt = ADAPTIVE_QUESTION_PROMPT.format(
+            candidate_name=candidate_name,
             analysis_summary=summary,
             questions_asked=questions_asked,
             avg_score=f"{avg_score:.1f}",
@@ -139,13 +259,17 @@ async def get_next_question(
             topics_remaining=", ".join(topics_remaining),
             trend=trend,
             base_difficulty=session.get("difficulty", "medium"),
+            dialogue_history=dialogue_history,
+            last_answer=last_answer,
             previous_questions=_format_previous_questions(avoid_questions),
+            last_feedback=last_feedback,
+            follow_up_suggestion=last_follow_up,
             next_id=next_id,
         )
 
         response = await client.generate(
             prompt=prompt,
-            system_prompt="You are an adaptive technical interviewer. Return only valid JSON.",
+            system_prompt="You are an empathetic Principal Software Engineer conducting an authentic technical interview. Always warmly acknowledge the candidate's response before asking the next question, never ignore what they said, and vary your acknowledgements naturally. Return only valid JSON.",
             max_tokens=settings.MAX_OUTPUT_TOKENS_ADAPTIVE,
         )
 
@@ -348,10 +472,10 @@ def _build_fallback_question(
     """Create a deterministic unique question when the model repeats itself."""
     clean_topics = [topic for topic in topics if topic and topic != SELF_INTRO_TOPIC] or ["the role"]
     templates = [
-        "Can you describe a project where you used {topic} and explain the key trade-offs you made?",
-        "What are the most important considerations when applying {topic} in a production environment?",
-        "How would you troubleshoot a challenging issue related to {topic}?",
-        "Can you compare two approaches for solving a problem involving {topic}?",
+        "Can you explain the core concepts of {topic} and when you would use it in your code?",
+        "What are the main advantages and common use cases of {topic}?",
+        "Could you give a simple example of how {topic} works in a program?",
+        "How would you explain the fundamentals of {topic} to another developer?",
     ]
 
     for topic in clean_topics:
@@ -427,3 +551,34 @@ def _format_previous_questions(questions: list[str]) -> str:
     if not questions:
         return "- none"
     return "\n".join(f"- {question}" for question in questions if question.strip())
+
+
+def _format_dialogue_history(
+    questions: list[dict],
+    answers: dict[str, Any],
+    max_turns: int = 6,
+) -> str:
+    """Format recent dialogue turns chronologically for the LLM prompt."""
+    turns = []
+    for q in questions:
+        if not isinstance(q, dict):
+            continue
+        q_id = str(q.get("id"))
+        q_text = (q.get("question") or "").strip()
+        ans_obj = answers.get(q_id)
+        ans_text = ""
+        if isinstance(ans_obj, dict):
+            ans_text = (ans_obj.get("answer") or "").strip()
+        elif isinstance(ans_obj, str):
+            ans_text = ans_obj.strip()
+
+        if q_text:
+            turn_str = f"Interviewer: {q_text}"
+            if ans_text:
+                turn_str += f"\nCandidate: {ans_text}"
+            turns.append(turn_str)
+
+    if not turns:
+        return "No prior dialogue turns."
+    recent = turns[-max_turns:] if len(turns) > max_turns else turns
+    return "\n\n".join(recent)

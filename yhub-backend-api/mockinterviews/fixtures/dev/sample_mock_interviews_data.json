@@ -2841,7 +2841,6 @@
       "interview_mode": "custom",
       "products": [
         "ycode",
-        "ylabs",
         "ycampus"
       ]
     },
@@ -2852,9 +2851,7 @@
       "max_duration": 30,
       "interview_mode": "automatic",
       "products": [
-        "ycode",
-        "ylabs",
-        "ycampus"
+        "ylabs"
       ],
       "required_skills": [
         "Python",
@@ -5718,7 +5715,6 @@
       "interview_mode": "custom",
       "products": [
         "ycode",
-        "ylabs",
         "ycampus"
       ]
     },
@@ -8569,7 +8565,6 @@
       "interview_mode": "custom",
       "products": [
         "ycode",
-        "ylabs",
         "ycampus"
       ]
     }

@@ -4,7 +4,7 @@ from typing import Any
 import hashlib
 import os
 
-from assessment.ai_interview.config import settings
+from mockinterviews.ai_interview.config import settings
 
 logger = logging.getLogger(__name__)
 

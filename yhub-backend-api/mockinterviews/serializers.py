@@ -35,17 +35,30 @@ class MockInterviewSerializer(serializers.ModelSerializer):
         return obj.mock_interview_submissions.count()
 
     def get_predefined_tree(self, obj):
-        """Recursively fetch the question tree."""
-        def _serialize_node(node):
-            return {
-                "id": node.id,
-                "text": node.text,
-                "level": node.level,
-                "follow_ups": [_serialize_node(f) for f in node.follow_ups.all().order_by('created_at')]
+        """Build question tree in-memory to eliminate N+1 queries."""
+        all_questions = list(obj.predefined_questions.all().order_by('created_at', 'id'))
+        if not all_questions:
+            return []
+
+        nodes_by_id = {
+            q.id: {
+                "id": q.id,
+                "text": q.text,
+                "level": q.level,
+                "follow_ups": []
             }
-        
-        roots = PredefinedInterviewQuestion.objects.filter(mock_interview=obj, parent__isnull=True).order_by('created_at')
-        return [_serialize_node(root) for root in roots]
+            for q in all_questions
+        }
+
+        tree = []
+        for q in all_questions:
+            node = nodes_by_id[q.id]
+            if q.parent_id and q.parent_id in nodes_by_id:
+                nodes_by_id[q.parent_id]["follow_ups"].append(node)
+            else:
+                tree.append(node)
+
+        return tree
 
     def create(self, validated_data):
         predefined_tree = self.initial_data.get('predefined_tree', [])
@@ -103,8 +116,15 @@ class MockInterviewSerializer(serializers.ModelSerializer):
         if not request or not request.user.is_authenticated:
             return []
         
+        view = self.context.get('view')
+        if view and getattr(view, 'action', None) == 'list':
+            submissions = obj.mock_interview_submissions.filter(user=request.user).values(
+                'id', 'status', 'marks', 'started_at', 'completed_at', 'created_at'
+            )[:5]
+            return list(submissions)
+
         submissions = obj.mock_interview_submissions.filter(user=request.user).order_by('-created_at')
-        return MockInterviewSubmissionSerializer(submissions, many=True).data
+        return MockInterviewSubmissionSerializer(submissions, many=True, context=self.context).data
 
 
 class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
@@ -217,6 +237,10 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
         return None
 
     def get_transcript(self, obj):
+        view = self.context.get('view')
+        if view and getattr(view, 'action', None) in ['list', 'my_interviews']:
+            return []
+
         if obj.chat_session and obj.chat_session.messages.exists():
             return [{
                 "id": str(m.id),

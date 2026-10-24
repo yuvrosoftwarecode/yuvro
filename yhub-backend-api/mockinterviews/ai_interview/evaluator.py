@@ -3,10 +3,10 @@ import logging
 import re
 from typing import Any
 
-from assessment.ai_interview.config import settings
-from assessment.ai_interview.llm_client import get_llm_client
-from assessment.ai_interview.prompts import EVALUATION_PROMPT
-from assessment.ai_interview.json_parser import parse_json_response
+from mockinterviews.ai_interview.config import settings
+from mockinterviews.ai_interview.llm_client import get_llm_client
+from mockinterviews.ai_interview.prompts import EVALUATION_PROMPT
+from mockinterviews.ai_interview.json_parser import parse_json_response
 
 logger = logging.getLogger(__name__)
 

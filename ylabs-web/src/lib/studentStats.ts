@@ -6,6 +6,28 @@ export interface StudentStats {
   rank: number;
 }
 
+let inFlightStudentStats: Promise<StudentStats> | null = null;
+let cachedStudentStats: { data: StudentStats; timestamp: number } | null = null;
+const STATS_CACHE_TTL = 10000;
+
 export async function loadStudentStats(): Promise<StudentStats> {
-  return await restApiAuthUtil.get<StudentStats>("/lab/stats/");
+  const now = Date.now();
+  if (cachedStudentStats && now - cachedStudentStats.timestamp < STATS_CACHE_TTL) {
+    return cachedStudentStats.data;
+  }
+  if (inFlightStudentStats) {
+    return inFlightStudentStats;
+  }
+
+  inFlightStudentStats = restApiAuthUtil
+    .get<StudentStats>("/lab/stats/")
+    .then((data) => {
+      cachedStudentStats = { data, timestamp: Date.now() };
+      return data;
+    })
+    .finally(() => {
+      inFlightStudentStats = null;
+    });
+
+  return inFlightStudentStats;
 }

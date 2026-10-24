@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { ProgressRing } from "@/components/ProgressRing";
 import { DiffBadge } from "@/components/Badges";
@@ -64,21 +64,41 @@ function MockHub() {
   const [cats, setCats] = useState<Category[]>([]);
   const [diffs, setDiffs] = useState<Diff[]>([]);
   const [roles, setRoles] = useState<string[]>([]);
+  const fetchStartedRef = useRef(false);
 
   useEffect(() => {
+    if (fetchStartedRef.current) return;
+    fetchStartedRef.current = true;
     let mounted = true;
 
-    Promise.all([fetchBackendMockInterviews(), fetchUserInterviewSubmissions()])
+    Promise.all([
+      fetchBackendMockInterviews("ylabs"),
+      fetchUserInterviewSubmissions("ylabs"),
+    ])
       .then(([interviewData, userSubmissions]) => {
         if (!mounted) return;
-        setInterviews(interviewData);
-        setSubmissions(userSubmissions);
+        // Strictly guarantee only interviews having "ylabs" in products are displayed
+        const ylabsOnly = (interviewData || []).filter((i) => {
+          const prods = (i.products || []).map((p) => String(p).toLowerCase().trim());
+          return prods.includes("ylabs");
+        });
+        setInterviews(ylabsOnly);
 
-        const validIds = new Set(interviewData.map((d) => d.slug));
+        // Filter submissions to only those belonging to ylabs mock interviews
+        const ylabsIds = new Set(ylabsOnly.map((d) => String(d.backendId || d.slug)));
+        const ylabsTitles = new Set(ylabsOnly.map((d) => d.name.toLowerCase().trim()));
+        const validSubmissions = (userSubmissions || []).filter((s: any) => {
+          const interviewId = String(s.mock_interview || s.mock_interview_id || "");
+          const title = String(s.mock_interview_title || "").toLowerCase().trim();
+          return ylabsIds.has(interviewId) || ylabsTitles.has(title);
+        });
+        setSubmissions(validSubmissions);
+
+        const validIds = new Set(ylabsOnly.map((d) => d.slug));
         const stored = loadEnrolled().filter((id) => validIds.has(id));
 
-        if (stored.length === 0 && interviewData.length > 0) {
-          const initial = [interviewData[0].slug];
+        if (stored.length === 0 && ylabsOnly.length > 0) {
+          const initial = [ylabsOnly[0].slug];
           setEnrolled(initial);
           try {
             localStorage.setItem(ENROLLED_KEY, JSON.stringify(initial));

@@ -82,6 +82,39 @@ const SpeechRecognitionClass =
       (window as any).msSpeechRecognition
     : null;
 
+// Persistent consistent voice cache so AI voice never changes between questions
+let globalConsistentVoice: SpeechSynthesisVoice | null = null;
+
+function getConsistentVoice(): SpeechSynthesisVoice | null {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
+  if (globalConsistentVoice) return globalConsistentVoice;
+
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) return null;
+
+  const voice =
+    voices.find((v) => v.lang.startsWith("en") && v.name.includes("Google US English")) ||
+    voices.find((v) => v.lang.startsWith("en") && v.name.includes("Google")) ||
+    voices.find((v) => v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Samantha"))) ||
+    voices.find((v) => v.lang.startsWith("en") && !v.name.includes("Fred") && !v.name.includes("Zarvox")) ||
+    voices.find((v) => v.lang.startsWith("en")) ||
+    voices[0];
+
+  if (voice) {
+    globalConsistentVoice = voice;
+  }
+  return globalConsistentVoice;
+}
+
+if (typeof window !== "undefined" && "speechSynthesis" in window) {
+  try {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => {
+      getConsistentVoice();
+    };
+  } catch {}
+}
+
 function isRepeatRequest(text: string): boolean {
   const lower = text.toLowerCase().trim();
   const keywords = [
@@ -209,6 +242,18 @@ function InterviewScreen() {
   const currentPromptRef = useRef(currentPrompt);
   const synthUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const synthTimeoutRef = useRef<any>(null);
+  const selectedVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
+
+  useEffect(() => {
+    const updateVoice = () => {
+      const v = getConsistentVoice();
+      if (v) selectedVoiceRef.current = v;
+    };
+    updateVoice();
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = updateVoice;
+    }
+  }, []);
 
   useEffect(() => {
     micRef.current = mic;
@@ -226,11 +271,22 @@ function InterviewScreen() {
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       if (fourSecSilenceTimerRef.current) clearTimeout(fourSecSilenceTimerRef.current);
       if (synthTimeoutRef.current) clearTimeout(synthTimeoutRef.current);
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch {}
+        recognitionRef.current = null;
+      }
       if (cameraStreamRef.current) {
         cameraStreamRef.current.getTracks().forEach((t) => t.stop());
+        cameraStreamRef.current = null;
       }
       if (micStreamRef.current) {
         micStreamRef.current.getTracks().forEach((t) => t.stop());
+        micStreamRef.current = null;
       }
     };
   }, []);
@@ -238,6 +294,7 @@ function InterviewScreen() {
   // 1. HARDWARE ACCESS: AUDIO & VIDEO ISOLATION
   const requestAudioAccess = useCallback(async () => {
     if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) return false;
+    if (phaseRef.current === "done") return false;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -247,6 +304,10 @@ function InterviewScreen() {
         },
         video: false,
       });
+      if (phaseRef.current === "done") {
+        stream.getTracks().forEach((t) => t.stop());
+        return false;
+      }
       micStreamRef.current = stream;
 
       try {
@@ -260,7 +321,7 @@ function InterviewScreen() {
           const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
           const pollMic = () => {
-            if (!micStreamRef.current || !isMountedRef.current) {
+            if (!micStreamRef.current || !isMountedRef.current || phaseRef.current === "done") {
               ctx.close().catch(() => {});
               return;
             }
@@ -291,14 +352,41 @@ function InterviewScreen() {
     }
   }, []);
 
-  // Initialize camera and audio devices
+  // Initialize microphone device
   useEffect(() => {
-    requestAudioAccess();
+    if (phase === "done") {
+      if (micStreamRef.current) {
+        micStreamRef.current.getTracks().forEach((track) => track.stop());
+        micStreamRef.current = null;
+      }
+      return;
+    }
+    if (mic) {
+      requestAudioAccess();
+    } else if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((track) => track.stop());
+      micStreamRef.current = null;
+    }
+  }, [phase, mic, requestAudioAccess]);
+
+  // Initialize camera device
+  useEffect(() => {
+    if (phase === "done") {
+      if (cameraStreamRef.current) {
+        cameraStreamRef.current.getTracks().forEach((track) => track.stop());
+        cameraStreamRef.current = null;
+      }
+      return;
+    }
 
     if (cam && navigator.mediaDevices?.getUserMedia) {
       navigator.mediaDevices
         .getUserMedia({ video: { width: 640, height: 480 }, audio: false })
         .then((vStream) => {
+          if (phaseRef.current === "done") {
+            vStream.getTracks().forEach((t) => t.stop());
+            return;
+          }
           cameraStreamRef.current = vStream;
           if (lobbyVideoRef.current) {
             lobbyVideoRef.current.srcObject = vStream;
@@ -320,39 +408,43 @@ function InterviewScreen() {
         cameraStreamRef.current = null;
       }
     };
-  }, [cam, requestAudioAccess]);
+  }, [phase, cam]);
 
   // Ensure live video stream attaches when entering live interview screen
   useEffect(() => {
-    if (phase === "live" && cam) {
-      const attachLiveVideo = async () => {
-        if (cameraStreamRef.current && cameraStreamRef.current.active) {
-          if (videoRef.current) {
-            videoRef.current.srcObject = cameraStreamRef.current;
-            try {
-              await videoRef.current.play();
-            } catch {}
-          }
-        } else if (navigator.mediaDevices?.getUserMedia) {
+    if (phase !== "live" || !cam) return;
+
+    const attachLiveVideo = async () => {
+      if (cameraStreamRef.current && cameraStreamRef.current.active) {
+        if (videoRef.current) {
+          videoRef.current.srcObject = cameraStreamRef.current;
           try {
-            const vStream = await navigator.mediaDevices.getUserMedia({
-              video: { width: 640, height: 480 },
-              audio: false,
-            });
-            cameraStreamRef.current = vStream;
-            if (videoRef.current) {
-              videoRef.current.srcObject = vStream;
-              await videoRef.current.play();
-            }
-          } catch {
-            setCam(false);
-          }
+            await videoRef.current.play();
+          } catch {}
         }
-      };
-      // Short timeout to guarantee video element is mounted in DOM
-      const timer = setTimeout(attachLiveVideo, 100);
-      return () => clearTimeout(timer);
-    }
+      } else if (navigator.mediaDevices?.getUserMedia) {
+        try {
+          const vStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 640, height: 480 },
+            audio: false,
+          });
+          if (phaseRef.current === "done") {
+            vStream.getTracks().forEach((t) => t.stop());
+            return;
+          }
+          cameraStreamRef.current = vStream;
+          if (videoRef.current) {
+            videoRef.current.srcObject = vStream;
+            await videoRef.current.play();
+          }
+        } catch {
+          setCam(false);
+        }
+      }
+    };
+    // Short timeout to guarantee video element is mounted in DOM
+    const timer = setTimeout(attachLiveVideo, 100);
+    return () => clearTimeout(timer);
   }, [phase, cam]);
 
   // Forward declarations for mutual references
@@ -481,31 +573,34 @@ function InterviewScreen() {
           finalSpeechRef.current = (finalSpeechRef.current + " " + newFinalText).trim();
         }
 
-        // Full speech synchronously captured in ref
+        // Full speech synchronously captured in ref and state
         const completeSpeech = (finalSpeechRef.current + " " + currentInterim).trim();
         fullTextRef.current = completeSpeech;
+        setInterimText(completeSpeech);
         setUserSpeaking(true);
 
         // VAD / End-of-Speech Detection:
-        // Automatically schedule submission 1.8s after candidate finishes speaking
+        // Automatically schedule submission 2.2s after candidate finishes speaking a real utterance
         const wordCount = completeSpeech.split(/\s+/).filter(Boolean).length;
-        if (wordCount >= 2 || completeSpeech.length >= 5) {
+        if (wordCount >= 3 && completeSpeech.length >= 12) {
           if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
           setIsAutoSubmitting(true);
 
           silenceTimerRef.current = setTimeout(() => {
             setIsAutoSubmitting(false);
             const textToSubmit = fullTextRef.current.trim();
+            const words = textToSubmit.split(/\s+/).filter(Boolean).length;
             if (
               isMountedRef.current &&
               phaseRef.current === "live" &&
               !submittingRef.current &&
               !aiSpeakingRef.current &&
-              textToSubmit.length >= 3
+              words >= 3 &&
+              textToSubmit.length >= 12
             ) {
               submitAnswerRef.current();
             }
-          }, 1800);
+          }, 2200);
         }
       };
 
@@ -522,13 +617,19 @@ function InterviewScreen() {
         setUserSpeaking(false);
 
         const textToSubmit = fullTextRef.current.trim();
-        // If candidate already answered and stopped speaking long enough for speech engine to close:
-        if (textToSubmit.length >= 3 && !submittingRef.current && !aiSpeakingRef.current) {
+        const words = textToSubmit.split(/\s+/).filter(Boolean).length;
+
+        // If candidate already answered a substantive sentence and auto-submit was pending:
+        if (
+          words >= 3 &&
+          textToSubmit.length >= 12 &&
+          silenceTimerRef.current &&
+          !submittingRef.current &&
+          !aiSpeakingRef.current
+        ) {
           setIsAutoSubmitting(false);
-          if (silenceTimerRef.current) {
-            clearTimeout(silenceTimerRef.current);
-            silenceTimerRef.current = null;
-          }
+          clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = null;
           submitAnswerRef.current();
           return;
         }
@@ -546,7 +647,7 @@ function InterviewScreen() {
             ) {
               startRecognition();
             }
-          }, 350);
+          }, 400);
         }
       };
 
@@ -567,6 +668,15 @@ function InterviewScreen() {
         clearTimeout(fourSecSilenceTimerRef.current);
         fourSecSilenceTimerRef.current = null;
       }
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      }
+      setIsAutoSubmitting(false);
+      setUserSpeaking(false);
+      finalSpeechRef.current = "";
+      fullTextRef.current = "";
+      setInterimText("");
       setAiSpeaking(true);
 
       if (!sound || typeof window === "undefined" || !("speechSynthesis" in window)) {
@@ -590,34 +700,32 @@ function InterviewScreen() {
         utterance.rate = 1.0;
         utterance.pitch = 1.0;
 
-        try {
-          const voices = window.speechSynthesis.getVoices();
-          const naturalVoice =
-            voices.find(
-              (v) =>
-                v.lang.startsWith("en") &&
-                (v.name.includes("Google") ||
-                  v.name.includes("Natural") ||
-                  v.name.includes("Samantha") ||
-                  v.name.includes("David") ||
-                  v.name.includes("Jenny"))
-            ) || voices.find((v) => v.lang.startsWith("en"));
-          if (naturalVoice) utterance.voice = naturalVoice;
-        } catch {}
+        const voice = selectedVoiceRef.current || getConsistentVoice();
+        if (voice) {
+          selectedVoiceRef.current = voice;
+          utterance.voice = voice;
+          utterance.lang = voice.lang || "en-US";
+        }
 
         const handleSpeechFinished = () => {
           setAiSpeaking(false);
           synthUtteranceRef.current = null;
           if (synthTimeoutRef.current) clearTimeout(synthTimeoutRef.current);
 
-          // Resume listening automatically and trigger 4-second silence countdown
+          finalSpeechRef.current = "";
+          fullTextRef.current = "";
+          setInterimText("");
+          setUserSpeaking(false);
+          setIsAutoSubmitting(false);
+
+          // Resume listening automatically and trigger 4-second silence countdown after slight pause
           setTimeout(() => {
             if (isMountedRef.current && micRef.current && phaseRef.current === "live" && !submittingRef.current) {
               startRecognition();
               start4SecSilenceTimer();
               if (onEndCallback) onEndCallback();
             }
-          }, 400);
+          }, 450);
         };
 
         utterance.onend = handleSpeechFinished;
@@ -798,16 +906,13 @@ function InterviewScreen() {
           nextAiPrompt = currentQuestion.followUps[fIdx];
         } else if (idx < questions.length - 1) {
           nextAiPrompt = questions[idx + 1].text;
-          setIdx((prev) => prev + 1);
         } else {
           isFinished = true;
         }
       }
 
       if (nextAiPrompt) {
-        if (idx < questions.length - 1) {
-          setIdx((prev) => prev + 1);
-        }
+        setIdx((prev) => prev + 1);
         setCurrentPrompt(nextAiPrompt);
       }
     }
@@ -841,10 +946,82 @@ function InterviewScreen() {
   submitAnswerRef.current = submit;
 
   const finishInterview = useCallback(async (explicitSubId?: string) => {
+    // 1. Immediately cut off any active AI speech
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
+    if (synthTimeoutRef.current) {
+      clearTimeout(synthTimeoutRef.current);
+      synthTimeoutRef.current = null;
+    }
+    synthUtteranceRef.current = null;
+    aiSpeakingRef.current = false;
+    setAiSpeaking(false);
+
+    // 2. Terminate speech recognition & cancel all pending auto-submit/silence timers
     stopRecognition();
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+      } catch {}
+      recognitionRef.current = null;
+    }
+    isListeningRef.current = false;
+    setIsListening(false);
+
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+    if (fourSecSilenceTimerRef.current) {
+      clearTimeout(fourSecSilenceTimerRef.current);
+      fourSecSilenceTimerRef.current = null;
+    }
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
+    silenceReminderGivenRef.current = false;
+    setUserSpeaking(false);
+    setIsAutoSubmitting(false);
+
+    // 3. Lock submission state to block any pending in-flight audio turns
+    submittingRef.current = true;
+    setSubmitting(false);
+    finalSpeechRef.current = "";
+    fullTextRef.current = "";
+    setDraft("");
+    setInterimText("");
+
+    // 4. Fully terminate and release hardware media streams (camera & microphone)
+    if (cameraStreamRef.current) {
+      cameraStreamRef.current.getTracks().forEach((track) => {
+        try {
+          track.stop();
+        } catch {}
+      });
+      cameraStreamRef.current = null;
+    }
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((track) => {
+        try {
+          track.stop();
+        } catch {}
+      });
+      micStreamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    if (lobbyVideoRef.current) {
+      lobbyVideoRef.current.srcObject = null;
+    }
+    setCam(false);
+    setMic(false);
+    micRef.current = false;
+
+    // 5. Transition to "done" phase and fetch report
+    phaseRef.current = "done";
     setPhase("done");
     setReportLoading(true);
 
@@ -887,6 +1064,7 @@ function InterviewScreen() {
     silenceReminderGivenRef.current = false;
 
     // Connect to backend to initialize submission & session
+    let promptText = INTRO_PROMPT;
     if (iv.backendId) {
       try {
         const res = await startBackendInterview(iv.backendId, {
@@ -896,6 +1074,9 @@ function InterviewScreen() {
         if (res) {
           if (res.submission_id) setSubmissionId(res.submission_id);
           setSessionId(res.interview_session_id || res.submission_id || null);
+          if (res.first_question) {
+            promptText = res.first_question;
+          }
         }
       } catch (e) {
         console.warn("Backend session creation warning:", e);
@@ -905,11 +1086,12 @@ function InterviewScreen() {
     setSubmitting(false);
     submittingRef.current = false;
 
-    // Display ONLY the introduction greeting
-    setLog([{ who: "ai", text: INTRO_PROMPT }]);
+    // Display and speak the introduction greeting with consistent voice
+    setCurrentPrompt(promptText);
+    setLog([{ who: "ai", text: promptText }]);
 
     // AI speaks intro aloud; once AI finishes speaking, candidate voice input activates
-    speakText(INTRO_PROMPT);
+    speakText(promptText);
   };
 
   // Timer countdown
@@ -1594,10 +1776,10 @@ function InterviewScreen() {
           <div className="border-b px-5 py-3">
             <div className="flex items-center justify-between text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">
               <span>
-                {stage === "intro" ? "Step 1: Introduction" : `Question ${idx + 1} of ${questions.length}`}
+                {stage === "intro" ? "Step 1: Introduction" : `Question ${idx + 1}`}
               </span>
               <span className="truncate max-w-[200px]">
-                {stage === "intro" ? "Candidate Background" : currentQ.skill}
+                {stage === "intro" ? "Candidate Background" : currentQ?.skill || iv.name}
               </span>
             </div>
             <div className="mt-2 h-1 rounded-full bg-muted">
@@ -1606,8 +1788,8 @@ function InterviewScreen() {
                 style={{
                   width:
                     stage === "intro"
-                      ? "10%"
-                      : `${Math.min(100, Math.round(((idx + 1) / questions.length) * 100))}%`,
+                      ? "5%"
+                      : `${Math.min(100, Math.max(5, Math.round((((iv.minutes || 30) * 60 - left) / ((iv.minutes || 30) * 60)) * 100)))}%`,
                 }}
               />
             </div>
@@ -1696,7 +1878,7 @@ function InterviewScreen() {
                 ) : null}
               </div>
 
-              {draft && (
+              {(draft || interimText) && (
                 <button
                   onClick={() => {
                     setDraft("");
@@ -1711,10 +1893,17 @@ function InterviewScreen() {
                   }}
                   className="text-[11px] text-muted-foreground hover:text-destructive flex items-center gap-1"
                 >
-                  <Trash2 className="h-3 w-3" /> Clear text
+                  <Trash2 className="h-3 w-3" /> Clear speech / text
                 </button>
               )}
             </div>
+
+            {interimText && (
+              <div className="flex items-start gap-2 rounded-xl bg-primary/10 border border-primary/20 px-3.5 py-2 text-xs text-foreground">
+                <Mic className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5 animate-pulse" />
+                <span className="italic leading-relaxed font-mono">"{interimText}"</span>
+              </div>
+            )}
 
             <textarea
               value={draft}

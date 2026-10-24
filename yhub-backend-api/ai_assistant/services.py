@@ -375,12 +375,76 @@ class CohereService(BaseAIService):
             raise AIServiceError(f"Cohere API error: {str(e)}")
 
 
+class DeepSeekService(BaseAIService):
+    """DeepSeek chat completion service using OpenAI-compatible API."""
+
+    def __init__(self, api_key: str, model_name: str = "deepseek-flash"):
+        super().__init__(api_key, model_name)
+        try:
+            from openai import AsyncOpenAI
+            self.client = AsyncOpenAI(
+                api_key=api_key,
+                base_url="https://api.deepseek.com",
+                timeout=20.0,
+                max_retries=1,
+            )
+        except ImportError:
+            raise AIServiceError(
+                "OpenAI library not installed. Run: pip install openai"
+            )
+
+    async def generate_response(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.6,
+        max_tokens: int = 1024,
+        stream: bool = False,
+        **kwargs,
+    ) -> Dict[str, Any]:
+        start_time = time.time()
+        messages = _apply_page_content_grounding(messages, kwargs)
+
+        try:
+            extra = kwargs.pop("extra_body", {})
+            if "thinking" not in extra:
+                extra["thinking"] = {"type": "disabled"}
+
+            response = await self.client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                extra_body=extra,
+                **kwargs,
+            )
+
+            end_time = time.time()
+            response_time_ms = int((end_time - start_time) * 1000)
+
+            return {
+                "response": response.choices[0].message.content,
+                "tokens_used": response.usage.total_tokens if response.usage else None,
+                "response_time_ms": response_time_ms,
+                "metadata": {
+                    "model": response.model,
+                    "finish_reason": response.choices[0].finish_reason,
+                    "prompt_tokens": response.usage.prompt_tokens if response.usage else None,
+                    "completion_tokens": response.usage.completion_tokens if response.usage else None,
+                },
+            }
+        except Exception as e:
+            logger.error(f"DeepSeek API error: {str(e)}")
+            raise AIServiceError(f"DeepSeek API error: {str(e)}")
+
+
 class AIServiceFactory:
 
 
     _services = {
+        "deepseek": DeepSeekService,
         "gemini": GeminiService,
         "anthropic": AnthropicService,
+        "openai": OpenAIService,
     }
 
     @classmethod
@@ -409,11 +473,43 @@ class InterviewReportGenerator:
 
 
     def __init__(self):
+        try:
+            from ai_assistant.models import AIAgent
+            active_agent = AIAgent.objects.filter(is_active=True).first()
+            if active_agent:
+                if active_agent.provider == "deepseek":
+                    deepseek_key = config("DEEPSEEK_API_KEY", default=None)
+                    if deepseek_key:
+                        self.service = DeepSeekService(deepseek_key, model_name=active_agent.model_name or "deepseek-flash")
+                        return
+                elif active_agent.provider == "gemini":
+                    gemini_key = config("GEMINI_API_KEY", default=None)
+                    if gemini_key:
+                        self.service = GeminiService(gemini_key, model_name=active_agent.model_name or "gemini-2.5-flash")
+                        return
+                elif active_agent.provider == "anthropic":
+                    anthropic_key = config("ANTHROPIC_API_KEY", default=None)
+                    if anthropic_key:
+                        self.service = AnthropicService(anthropic_key, model_name=active_agent.model_name or "claude-sonnet-4-5-20250929")
+                        return
+                elif active_agent.provider == "openai":
+                    openai_key = config("OPENAI_API_KEY", default=None)
+                    if openai_key:
+                        self.service = OpenAIService(openai_key, model_name=active_agent.model_name or "gpt-4o-mini")
+                        return
+        except Exception:
+            pass
+
         self.api_key = config("ANTHROPIC_API_KEY", default=None)
-        if not self.api_key:
-            raise AIServiceError("ANTHROPIC_API_KEY not found needed for report generation.")
-        model_name = config("ANTHROPIC_REPORT_MODEL", default="claude-sonnet-4-5-20250929")
-        self.service = AnthropicService(self.api_key, model_name=model_name)
+        if self.api_key:
+            model_name = config("ANTHROPIC_REPORT_MODEL", default="claude-sonnet-4-5-20250929")
+            self.service = AnthropicService(self.api_key, model_name=model_name)
+        else:
+            gemini_key = config("GEMINI_API_KEY", default=None)
+            if gemini_key:
+                self.service = GeminiService(gemini_key, model_name="gemini-2.5-flash")
+            else:
+                raise AIServiceError("Neither ANTHROPIC_API_KEY nor GEMINI_API_KEY found needed for report generation.")
 
     async def generate_report(self, conversation_text: str, resume_content: str = None) -> Dict[str, Any]:
 
@@ -470,24 +566,26 @@ class InterviewReportGenerator:
                 max_tokens=4000
             )
 
-            response_text = response["response"]
-            
-            response_text = response_text.replace("```json", "").replace("```", "").strip()
-            
-            try:
-                return json.loads(response_text)
-            except json.JSONDecodeError:
-                start_idx = response_text.find('{')
-                end_idx = response_text.rfind('}') + 1
-                if start_idx != -1 and end_idx != 0:
-                    response_text = response_text[start_idx:end_idx]
-                    return json.loads(response_text)
-                else:
-                    raise
+            response_text = response.get("response", "") if isinstance(response, dict) else str(response)
 
-        except json.JSONDecodeError:
-            logger.error("Failed to parse AI report JSON")
-            raise AIServiceError("Failed to generate valid report format")
+            from mockinterviews.ai_interview.json_parser import parse_json_response
+            try:
+                parsed = parse_json_response(response_text)
+                if isinstance(parsed, dict):
+                    return parsed
+            except Exception as pe:
+                logger.warning(f"parse_json_response could not parse report directly: {pe}")
+
+            # Fallback direct extraction with regex cleanups
+            start_idx = response_text.find('{')
+            end_idx = response_text.rfind('}') + 1
+            if start_idx != -1 and end_idx != 0:
+                candidate = response_text[start_idx:end_idx]
+                candidate = re.sub(r",\s*([}\]])", r"\1", candidate)
+                return json.loads(candidate, strict=False)
+
+            raise AIServiceError("Failed to extract valid report JSON structure from model response")
+
         except Exception as e:
             logger.error(f"Report generation error: {str(e)}")
             raise e

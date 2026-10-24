@@ -39,6 +39,7 @@ export interface StartInterviewResponse {
   first_question_id?: string;
   interview_type?: string;
   interview_mode?: string;
+  num_questions?: number;
   progress?: {
     completed_count: number;
     is_master: boolean;
@@ -187,23 +188,78 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   };
 }
 
-export async function fetchBackendMockInterviews(): Promise<Interview[]> {
-  try {
-    const res = await yhubApiAuthUtil.get<any>("/mock-interviews/");
-    const rawList: BackendMockInterview[] = Array.isArray(res)
-      ? res
-      : res?.results && Array.isArray(res.results)
-      ? res.results
-      : [];
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
 
-    if (rawList.length > 0) {
-      return rawList.map(mapBackendToInterview);
+const CACHE_TTL_MS = 10000;
+const inFlightInterviews = new Map<string, Promise<Interview[]>>();
+const interviewCache = new Map<string, CacheEntry<Interview[]>>();
+
+const inFlightSubmissions = new Map<string, Promise<any[]>>();
+const submissionCache = new Map<string, CacheEntry<any[]>>();
+
+export function clearMockInterviewCache() {
+  interviewCache.clear();
+  inFlightInterviews.clear();
+  submissionCache.clear();
+  inFlightSubmissions.clear();
+}
+
+export async function fetchBackendMockInterviews(
+  product: string = "ylabs",
+  forceRefresh = false
+): Promise<Interview[]> {
+  const cacheKey = (product || "all").toLowerCase().trim();
+  const now = Date.now();
+
+  if (!forceRefresh) {
+    const cached = interviewCache.get(cacheKey);
+    if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+      return cached.data;
     }
-  } catch (err) {
-    console.error("Failed to load real mock interviews from backend:", err);
+    const inFlight = inFlightInterviews.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
   }
 
-  return [];
+  const promise = (async () => {
+    try {
+      const url = product
+        ? `/mock-interviews/?product=${encodeURIComponent(product)}`
+        : "/mock-interviews/";
+      const res = await yhubApiAuthUtil.get<any>(url);
+      const rawList: BackendMockInterview[] = Array.isArray(res)
+        ? res
+        : res?.results && Array.isArray(res.results)
+        ? res.results
+        : [];
+
+      // Filter: strictly display only mock interviews that have the specified product (e.g. ylabs)
+      const filteredList = product
+        ? rawList.filter((item) => {
+            const products = Array.isArray(item.products)
+              ? item.products.map((p) => String(p).toLowerCase().trim())
+              : [];
+            return products.includes(product.toLowerCase().trim());
+          })
+        : rawList;
+
+      const mapped = filteredList.map(mapBackendToInterview);
+      interviewCache.set(cacheKey, { data: mapped, timestamp: Date.now() });
+      return mapped;
+    } catch (err) {
+      console.error("Failed to load real mock interviews from backend:", err);
+      return [];
+    } finally {
+      inFlightInterviews.delete(cacheKey);
+    }
+  })();
+
+  inFlightInterviews.set(cacheKey, promise);
+  return promise;
 }
 
 export async function fetchMockInterviewBySlugOrId(slugOrId: string): Promise<Interview | null> {
@@ -214,7 +270,7 @@ export async function fetchMockInterviewBySlugOrId(slugOrId: string): Promise<In
     }
   } catch {
     try {
-      const all = await fetchBackendMockInterviews();
+      const all = await fetchBackendMockInterviews("ylabs");
       const match = all.find(
         (i) => i.slug === slugOrId || i.backendId === slugOrId || slugifyTitle(i.name) === slugOrId
       );
@@ -225,13 +281,42 @@ export async function fetchMockInterviewBySlugOrId(slugOrId: string): Promise<In
   return null;
 }
 
-export async function fetchUserInterviewSubmissions(): Promise<any[]> {
-  try {
-    const res = await yhubApiAuthUtil.get<any[]>("/mock-interviews/my_interviews/");
-    return Array.isArray(res) ? res : [];
-  } catch {
-    return [];
+export async function fetchUserInterviewSubmissions(
+  product: string = "ylabs",
+  forceRefresh = false
+): Promise<any[]> {
+  const cacheKey = (product || "all").toLowerCase().trim();
+  const now = Date.now();
+
+  if (!forceRefresh) {
+    const cached = submissionCache.get(cacheKey);
+    if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+      return cached.data;
+    }
+    const inFlight = inFlightSubmissions.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
   }
+
+  const promise = (async () => {
+    try {
+      const url = product
+        ? `/mock-interviews/my_interviews/?product=${encodeURIComponent(product)}`
+        : "/mock-interviews/my_interviews/";
+      const res = await yhubApiAuthUtil.get<any[]>(url);
+      const data = Array.isArray(res) ? res : [];
+      submissionCache.set(cacheKey, { data, timestamp: Date.now() });
+      return data;
+    } catch {
+      return [];
+    } finally {
+      inFlightSubmissions.delete(cacheKey);
+    }
+  })();
+
+  inFlightSubmissions.set(cacheKey, promise);
+  return promise;
 }
 
 export async function startBackendInterview(
@@ -240,6 +325,7 @@ export async function startBackendInterview(
 ): Promise<StartInterviewResponse | null> {
   try {
     const payload = {
+      source: "student",
       experience_level: options?.experience_level || "Beginner",
       selected_duration: options?.duration || 30,
       force: true,
@@ -266,7 +352,10 @@ export async function submitBackendAnswer(
   try {
     const res = await yhubApiAuthUtil.post<NextQuestionResponse>(
       `/mock-interviews/${interviewId}/get_next_question/`,
-      payload
+      {
+        source: "student",
+        ...payload,
+      }
     );
     return res;
   } catch (err) {
@@ -279,7 +368,7 @@ export async function generateBackendReport(submissionId: string): Promise<any |
   try {
     const res = await yhubApiAuthUtil.post<any>(
       `/mock-interview-submissions/${submissionId}/generate_report/`,
-      {}
+      { source: "student" }
     );
     return res;
   } catch (err) {
