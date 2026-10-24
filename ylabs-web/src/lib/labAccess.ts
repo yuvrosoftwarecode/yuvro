@@ -48,6 +48,10 @@ const TIER_MAP: Record<string, LabTier> = {
   datastructures: "freemium",
   pydjango: "freemium",
   pyflask: "freemium",
+  nodejs_todo_lab: "freemium",
+  nodejs: "freemium",
+  express: "freemium",
+  node: "freemium",
 
   postgres: "premium",
   javaspring: "premium",
@@ -63,7 +67,7 @@ export function getLabTier(slug: string, name?: string): LabTier {
     const n = name.toLowerCase();
     if (n.includes("linux") || n.includes("git") || n === "python") return "free";
     if (n.includes("java") && !n.includes("spring")) return "freemium";
-    if (n.includes("ui") || n.includes("sql") || n.includes("data") || n.includes("django"))
+    if (n.includes("ui") || n.includes("sql") || n.includes("data") || n.includes("django") || n.includes("flask") || n.includes("node") || n.includes("express"))
       return "freemium";
     if (
       n.includes("spring") ||

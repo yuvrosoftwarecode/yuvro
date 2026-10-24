@@ -1,0 +1,163 @@
+{
+  "title": "Sprint 1 — Project Foundation & Database Models",
+  "description": "Set up the Express application factory and implement relational database models for Users and Tasks.",
+  "order_index": 1,
+  "lab_title": "Node.js & Express Todo REST API Lab",
+  "tickets": [
+    {
+      "title": "Ticket 1 - Initialize Express Application & Health Check",
+      "ticket_slug": "node-todo-11",
+      "description": "Initialize the Express application using the application factory pattern (`createApp`). Configure the SQLite database connection and establish a baseline health check endpoint.\n\n### Requirements\n1. In `src/app.js`, implement and export `createApp(customConfig)`.\n2. Configure SQLite database path pointing to `todo.db` in `src/config.js`.\n3. Register a health check route `GET /api/health` that returns JSON `{\"status\": \"healthy\"}` with HTTP 200 OK.\n4. Ensure the application runs from `src/server.js` on `http://127.0.0.1:5000`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Understand the Express application factory pattern.",
+        "Learn how to configure database connection settings in Node.js.",
+        "Implement and verify basic JSON endpoints and HTTP status codes."
+      ],
+      "tasks": [
+        {
+          "title": "Create Express app factory `createApp()` in `src/app.js`.",
+          "points": 30
+        },
+        {
+          "title": "Configure SQLite database path in `src/config.js`.",
+          "points": 30
+        },
+        {
+          "title": "Implement `GET /api/health` returning `{\"status\": \"healthy\"}` with HTTP 200.",
+          "points": 40
+        }
+      ],
+      "common_mistakes": [
+        "Returning plain text or HTML instead of JSON.",
+        "Hardcoding configuration inside routes instead of using config module."
+      ],
+      "hints": [
+        "Use `res.status(200).json({ status: 'healthy' })` to return JSON responses.",
+        "Ensure `initDatabase(dbPath)` is called inside `createApp()`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/app.js",
+        "test_command": "node yuvro_scoring_rules/sprint_1/ticket_1/main_test.js",
+        "expected_endpoint": "/api/health",
+        "expected_response": {
+          "status": "healthy"
+        }
+      },
+      "solution": {
+        "src/config.js": "const path = require('path');\nrequire('dotenv').config();\n\nconst config = {\n  PORT: process.env.PORT || 5000,\n  JWT_SECRET: process.env.JWT_SECRET || 'yuvro-dev-secret-key-987654321',\n  DB_PATH: process.env.DB_PATH || path.resolve(__dirname, '../todo.db'),\n  JWT_EXPIRES_IN: '1d'\n};\n\nmodule.exports = config;\n",
+        "src/app.js": "const express = require('express');\nconst config = require('./config');\nconst { initDatabase } = require('./db');\n\nfunction createApp(customConfig = {}) {\n  const app = express();\n  const dbPath = customConfig.DB_PATH || config.DB_PATH;\n\n  initDatabase(dbPath);\n\n  app.use(express.json());\n\n  app.get('/api/health', (req, res) => {\n    res.status(200).json({ status: 'healthy' });\n  });\n\n  return app;\n}\n\nmodule.exports = { createApp };\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 1,
+      "test_command": "node yuvro_scoring_rules/sprint_1/ticket_1/main_test.js"
+    },
+    {
+      "title": "Ticket 2 - Design and Implement User Model",
+      "ticket_slug": "node-todo-12",
+      "description": "Create the `User` model in `src/models/user.js` for SQLite. Ensure passwords are never stored in plain text by implementing password hashing helpers with `bcryptjs`.\n\n### Model Specifications: `users` Table\n- `id`: Integer, primary key, auto-incrementing.\n- `username`: String (TEXT), unique, non-nullable.\n- `email`: String (TEXT), unique, non-nullable.\n- `password_hash`: String (TEXT), non-nullable.\n- `created_at`: DateTime (TEXT), defaults to current timestamp.\n\n### Helper Methods\n- `hashPassword(password)`: Hashes the plain password using `bcryptjs.hashSync`.\n- `comparePassword(password, hash)`: Verifies password against `password_hash` using `bcryptjs.compareSync`.\n- `toDict(user)`: Serializes user info excluding `password_hash`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Understand relational data modeling with SQLite in Node.js.",
+        "Implement secure password hashing using bcrypt.",
+        "Prevent accidental exposure of password hashes in serialization."
+      ],
+      "tasks": [
+        {
+          "title": "Define `User` model with `id`, `username`, `email`, and `password_hash`.",
+          "points": 40
+        },
+        {
+          "title": "Implement `hashPassword` and `comparePassword` methods.",
+          "points": 30
+        },
+        {
+          "title": "Implement `toDict` serializer omitting sensitive fields.",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Storing plain text passwords in the database.",
+        "Including `password_hash` in the `toDict()` output object."
+      ],
+      "hints": [
+        "Use `bcrypt.hashSync(password, 10)` to hash passwords securely.",
+        "Set `UNIQUE NOT NULL` constraints on username and email columns."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/models/user.js",
+        "test_command": "node yuvro_scoring_rules/sprint_1/ticket_2/main_test.js"
+      },
+      "solution": {
+        "src/models/user.js": "const bcrypt = require('bcryptjs');\nconst { getDatabase } = require('../db');\n\nclass User {\n  static hashPassword(password) {\n    const salt = bcrypt.genSaltSync(10);\n    return bcrypt.hashSync(password, salt);\n  }\n\n  static comparePassword(password, hash) {\n    if (!password || !hash) return false;\n    return bcrypt.compareSync(password, hash);\n  }\n\n  static toDict(user) {\n    if (!user) return null;\n    return {\n      id: user.id,\n      username: user.username,\n      email: user.email,\n      created_at: user.created_at || null\n    };\n  }\n\n  static create({ username, email, password }, db = getDatabase()) {\n    const passwordHash = this.hashPassword(password);\n    const stmt = db.prepare(`\n      INSERT INTO users (username, email, password_hash)\n      VALUES (?, ?, ?)\n    `);\n    const result = stmt.run(username, email, passwordHash);\n    const id = result.lastInsertRowid;\n    return this.findById(id, db);\n  }\n\n  static findById(id, db = getDatabase()) {\n    const stmt = db.prepare('SELECT * FROM users WHERE id = ?');\n    return stmt.get(id);\n  }\n\n  static findByEmail(email, db = getDatabase()) {\n    const stmt = db.prepare('SELECT * FROM users WHERE LOWER(email) = LOWER(?)');\n    return stmt.get(email);\n  }\n\n  static findByUsername(username, db = getDatabase()) {\n    const stmt = db.prepare('SELECT * FROM users WHERE username = ?');\n    return stmt.get(username);\n  }\n\n  static findByEmailOrUsername(email, username, db = getDatabase()) {\n    const stmt = db.prepare('SELECT * FROM users WHERE LOWER(email) = LOWER(?) OR username = ?');\n    return stmt.get(email, username);\n  }\n}\n\nmodule.exports = User;\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 2,
+      "test_command": "node yuvro_scoring_rules/sprint_1/ticket_2/main_test.js"
+    },
+    {
+      "title": "Ticket 3 - Design Task Model with User Relationship",
+      "ticket_slug": "node-todo-13",
+      "description": "Implement the `Task` model in `src/models/task.js` and link it to the `User` model via a foreign key relationship.\n\n### Model Specifications: `tasks` Table\n- `id`: Integer, primary key, auto-incrementing.\n- `user_id`: Integer, foreign key referencing `users.id`, non-nullable.\n- `title`: String (TEXT), non-nullable.\n- `description`: Text (TEXT), nullable.\n- `is_completed`: Boolean/Integer (0 or 1), default `0`, non-nullable.\n- `created_at`: DateTime (TEXT), defaults to current timestamp.\n- `updated_at`: DateTime (TEXT), defaults to current timestamp, updates on modification.\n\n### Helper Methods\n- `toDict(task)`: Returns an object representation of the task (`id`, `user_id`, `title`, `description`, `is_completed`, `created_at`, `updated_at`).",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Implement one-to-many relationships in SQLite.",
+        "Configure foreign key constraints and cascade rules.",
+        "Handle timestamp tracking on create and update."
+      ],
+      "tasks": [
+        {
+          "title": "Define `Task` model with foreign key pointing to `users.id`.",
+          "points": 50
+        },
+        {
+          "title": "Configure relationship and cascade delete between `User` and `Task`.",
+          "points": 30
+        },
+        {
+          "title": "Implement `toDict()` serialization method.",
+          "points": 20
+        }
+      ],
+      "common_mistakes": [
+        "Missing foreign key constraint on `user_id`.",
+        "Forgetting to set `is_completed` default value to `false` (0)."
+      ],
+      "hints": [
+        "Use `FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE` in table creation.",
+        "Cast `is_completed` to boolean using `Boolean(task.is_completed)` in `toDict()`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/models/task.js",
+        "test_command": "node yuvro_scoring_rules/sprint_1/ticket_3/main_test.js"
+      },
+      "solution": {
+        "src/models/task.js": "const { getDatabase } = require('../db');\n\nclass Task {\n  static toDict(task) {\n    if (!task) return null;\n    return {\n      id: Number(task.id),\n      user_id: Number(task.user_id),\n      title: task.title,\n      description: task.description || '',\n      is_completed: Boolean(task.is_completed),\n      created_at: task.created_at || null,\n      updated_at: task.updated_at || null\n    };\n  }\n\n  static create({ user_id, title, description = '' }, db = getDatabase()) {\n    const stmt = db.prepare(`\n      INSERT INTO tasks (user_id, title, description, is_completed)\n      VALUES (?, ?, ?, 0)\n    `);\n    const result = stmt.run(user_id, title, description);\n    const id = result.lastInsertRowid;\n    return this.findById(id, user_id, db);\n  }\n\n  static findById(id, userId, db = getDatabase()) {\n    const stmt = db.prepare('SELECT * FROM tasks WHERE id = ? AND user_id = ?');\n    const row = stmt.get(id, userId);\n    return row ? this.toDict(row) : null;\n  }\n\n  static findByUser(userId, filter = {}, db = getDatabase()) {\n    let query = 'SELECT * FROM tasks WHERE user_id = ?';\n    const params = [userId];\n\n    if (filter.completed !== undefined && filter.completed !== null) {\n      query += ' AND is_completed = ?';\n      params.push(filter.completed ? 1 : 0);\n    }\n\n    query += ' ORDER BY created_at DESC, id DESC';\n    const stmt = db.prepare(query);\n    const rows = stmt.all(...params);\n    return rows.map((r) => this.toDict(r));\n  }\n\n  static update(id, userId, fields = {}, db = getDatabase()) {\n    const existing = this.findById(id, userId, db);\n    if (!existing) return null;\n\n    const updates = [];\n    const params = [];\n\n    if (fields.title !== undefined) {\n      updates.push('title = ?');\n      params.push(fields.title);\n    }\n    if (fields.description !== undefined) {\n      updates.push('description = ?');\n      params.push(fields.description);\n    }\n    if (fields.is_completed !== undefined) {\n      updates.push('is_completed = ?');\n      params.push(fields.is_completed ? 1 : 0);\n    }\n\n    updates.push(\"updated_at = datetime('now')\");\n\n    const query = `UPDATE tasks SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`;\n    params.push(id, userId);\n\n    db.prepare(query).run(...params);\n    return this.findById(id, userId, db);\n  }\n\n  static delete(id, userId, db = getDatabase()) {\n    const existing = this.findById(id, userId, db);\n    if (!existing) return false;\n\n    const stmt = db.prepare('DELETE FROM tasks WHERE id = ? AND user_id = ?');\n    stmt.run(id, userId);\n    return true;\n  }\n}\n\nmodule.exports = Task;\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 3,
+      "test_command": "node yuvro_scoring_rules/sprint_1/ticket_3/main_test.js"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "title": "Sprint 4 — Task Updates, Deletions, and Filtering",
+  "description": "Implement task modifications, completion toggles, deletions, and status query parameter filtering in Express.",
+  "order_index": 4,
+  "lab_title": "Node.js & Express Todo REST API Lab",
+  "tickets": [
+    {
+      "title": "Ticket 1 - Update Task & Status Toggle API",
+      "ticket_slug": "node-todo-41",
+      "description": "Build `PUT` and `PATCH /api/tasks/:id` in `src/routes/tasks.js` to allow updating a task's title, description, or completion status (`is_completed`).\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Request Body (Partial or Full)\n```json\n{\n  \"title\": \"Updated Title\",\n  \"is_completed\": true\n}\n```\n\n### Requirements\n1. Protect endpoint with `authenticateToken` middleware.\n2. Verify the task belongs to `req.user.id`. Return `404 Not Found` if missing or unauthorized.\n3. Update fields if provided in request body. If `title` is provided, validate it is not empty (HTTP 400).\n4. Update `task.updated_at` to current timestamp.\n5. Commit to database and return `200 OK` with `{\"message\": \"Task updated successfully\", \"task\": {...}}`.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Support partial and full REST resource updates in Express.",
+        "Validate input fields during updates.",
+        "Update timestamp columns on record changes."
+      ],
+      "tasks": [
+        {
+          "title": "Verify task ownership before modifying.",
+          "points": 30
+        },
+        {
+          "title": "Update `title`, `description`, and `is_completed` fields safely.",
+          "points": 40
+        },
+        {
+          "title": "Return HTTP 200 with updated task payload.",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Allowing empty string titles to overwrite valid titles.",
+        "Not validating ownership before applying updates."
+      ],
+      "hints": [
+        "Check `if ('title' in req.body)` and validate `req.body.title.trim()`.",
+        "Set `updates.is_completed = Boolean(req.body.is_completed)` when present."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/routes/tasks.js",
+        "test_command": "node yuvro_scoring_rules/sprint_4/ticket_1/main_test.js"
+      },
+      "solution": {
+        "src/routes/tasks.js": "const express = require('express');\nconst Task = require('../models/task');\nconst authenticateToken = require('../middleware/auth');\n\nconst router = express.Router();\n\nrouter.use(authenticateToken);\n\nrouter.post('/', (req, res) => {\n  const { title, description } = req.body || {};\n  const cleanTitle = (title || '').trim();\n  if (!cleanTitle) return res.status(400).json({ error: 'Title is required' });\n  const task = Task.create({ user_id: req.user.id, title: cleanTitle, description: description || '' });\n  return res.status(201).json({ message: 'Task created successfully', task });\n});\n\nrouter.get('/', (req, res) => {\n  const tasks = Task.findByUser(req.user.id);\n  return res.status(200).json({ tasks });\n});\n\nrouter.get('/:id', (req, res) => {\n  const taskId = parseInt(req.params.id, 10);\n  if (isNaN(taskId)) return res.status(404).json({ error: 'Task not found' });\n  const task = Task.findById(taskId, req.user.id);\n  if (!task) return res.status(404).json({ error: 'Task not found' });\n  return res.status(200).json({ task });\n});\n\nconst updateHandler = (req, res) => {\n  const taskId = parseInt(req.params.id, 10);\n  if (isNaN(taskId)) return res.status(404).json({ error: 'Task not found' });\n  const existing = Task.findById(taskId, req.user.id);\n  if (!existing) return res.status(404).json({ error: 'Task not found' });\n\n  const updates = {};\n  if ('title' in req.body) {\n    const cleanTitle = String(req.body.title || '').trim();\n    if (!cleanTitle) return res.status(400).json({ error: 'Title cannot be empty' });\n    updates.title = cleanTitle;\n  }\n  if ('description' in req.body) updates.description = req.body.description;\n  if ('is_completed' in req.body) updates.is_completed = Boolean(req.body.is_completed);\n\n  const task = Task.update(taskId, req.user.id, updates);\n  return res.status(200).json({ message: 'Task updated successfully', task });\n};\n\nrouter.put('/:id', updateHandler);\nrouter.patch('/:id', updateHandler);\n\nmodule.exports = router;\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 1,
+      "test_command": "node yuvro_scoring_rules/sprint_4/ticket_1/main_test.js"
+    },
+    {
+      "title": "Ticket 2 - Delete Task API",
+      "ticket_slug": "node-todo-42",
+      "description": "Build `DELETE /api/tasks/:id` to allow users to permanently delete a task.\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Requirements\n1. Protect endpoint with `authenticateToken` middleware.\n2. Verify the task belongs to `req.user.id`. Return `404 Not Found` if missing or unauthorized.\n3. Delete the task record from the database.\n4. Return `200 OK` with `{\"message\": \"Task deleted successfully\"}`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Implement resource deletion in REST APIs using Express.",
+        "Enforce horizontal authorization on DELETE requests.",
+        "Handle database deletion operations in SQLite."
+      ],
+      "tasks": [
+        {
+          "title": "Enforce ownership authorization on task deletion.",
+          "points": 50
+        },
+        {
+          "title": "Delete task from database and return HTTP 200.",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Deleting another user's task without ownership validation.",
+        "Returning success even when the task does not exist."
+      ],
+      "hints": [
+        "Check `Task.findById(taskId, req.user.id)` before deleting.",
+        "Return `res.status(200).json({ message: 'Task deleted successfully' })`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/routes/tasks.js",
+        "test_command": "node yuvro_scoring_rules/sprint_4/ticket_2/main_test.js"
+      },
+      "solution": {
+        "src/routes/tasks.js": "const express = require('express');\nconst Task = require('../models/task');\nconst authenticateToken = require('../middleware/auth');\n\nconst router = express.Router();\n\nrouter.use(authenticateToken);\n\nrouter.post('/', (req, res) => {\n  const { title, description } = req.body || {};\n  const cleanTitle = (title || '').trim();\n  if (!cleanTitle) return res.status(400).json({ error: 'Title is required' });\n  const task = Task.create({ user_id: req.user.id, title: cleanTitle, description: description || '' });\n  return res.status(201).json({ message: 'Task created successfully', task });\n});\n\nrouter.get('/', (req, res) => {\n  const tasks = Task.findByUser(req.user.id);\n  return res.status(200).json({ tasks });\n});\n\nrouter.get('/:id', (req, res) => {\n  const taskId = parseInt(req.params.id, 10);\n  if (isNaN(taskId)) return res.status(404).json({ error: 'Task not found' });\n  const task = Task.findById(taskId, req.user.id);\n  if (!task) return res.status(404).json({ error: 'Task not found' });\n  return res.status(200).json({ task });\n});\n\nconst updateHandler = (req, res) => {\n  const taskId = parseInt(req.params.id, 10);\n  if (isNaN(taskId)) return res.status(404).json({ error: 'Task not found' });\n  const existing = Task.findById(taskId, req.user.id);\n  if (!existing) return res.status(404).json({ error: 'Task not found' });\n\n  const updates = {};\n  if ('title' in req.body) {\n    const cleanTitle = String(req.body.title || '').trim();\n    if (!cleanTitle) return res.status(400).json({ error: 'Title cannot be empty' });\n    updates.title = cleanTitle;\n  }\n  if ('description' in req.body) updates.description = req.body.description;\n  if ('is_completed' in req.body) updates.is_completed = Boolean(req.body.is_completed);\n\n  const task = Task.update(taskId, req.user.id, updates);\n  return res.status(200).json({ message: 'Task updated successfully', task });\n};\n\nrouter.put('/:id', updateHandler);\nrouter.patch('/:id', updateHandler);\n\nrouter.delete('/:id', (req, res) => {\n  const taskId = parseInt(req.params.id, 10);\n  if (isNaN(taskId)) return res.status(404).json({ error: 'Task not found' });\n  const deleted = Task.delete(taskId, req.user.id);\n  if (!deleted) return res.status(404).json({ error: 'Task not found' });\n  return res.status(200).json({ message: 'Task deleted successfully' });\n});\n\nmodule.exports = router;\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 2,
+      "test_command": "node yuvro_scoring_rules/sprint_4/ticket_2/main_test.js"
+    },
+    {
+      "title": "Ticket 3 - Task Filtering by Status Query Parameter",
+      "ticket_slug": "node-todo-43",
+      "description": "Enhance `GET /api/tasks` to support query parameter filtering by completion status: `?completed=true` or `?completed=false`.\n\n### Requirements\n1. If `?completed=true` is passed in URL query string, return only tasks where `is_completed === true`.\n2. If `?completed=false` is passed, return only tasks where `is_completed === false`.\n3. If `completed` parameter is omitted or empty, return all tasks for the current user as before.\n4. All tasks must still strictly belong to `req.user.id`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Read and parse URL query parameters using `req.query` in Express.",
+        "Apply dynamic SQL filtering based on request criteria.",
+        "Combine user authorization with custom query filtering conditions."
+      ],
+      "tasks": [
+        {
+          "title": "Parse `completed` query parameter from `req.query`.",
+          "points": 40
+        },
+        {
+          "title": "Apply dynamic filtering on database query based on parameter value.",
+          "points": 40
+        },
+        {
+          "title": "Return filtered tasks list with HTTP 200.",
+          "points": 20
+        }
+      ],
+      "common_mistakes": [
+        "Treating string `'false'` as boolean truthy in JavaScript (`Boolean('false') === true`). Compare string values: `val === 'true'`.",
+        "Overriding user ownership filter when applying status filter."
+      ],
+      "hints": [
+        "Read parameter: `const { completed } = req.query;`",
+        "If `completed !== undefined`, test `const isComp = completed === 'true' || completed === '1';`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/routes/tasks.js",
+        "test_command": "node yuvro_scoring_rules/sprint_4/ticket_3/main_test.js"
+      },
+      "solution": {
+        "src/routes/tasks.js": "const express = require('express');\nconst Task = require('../models/task');\nconst authenticateToken = require('../middleware/auth');\n\nconst router = express.Router();\n\nrouter.use(authenticateToken);\n\nrouter.post('/', (req, res) => {\n  const { title, description } = req.body || {};\n  const cleanTitle = (title || '').trim();\n  if (!cleanTitle) return res.status(400).json({ error: 'Title is required' });\n  const task = Task.create({ user_id: req.user.id, title: cleanTitle, description: description || '' });\n  return res.status(201).json({ message: 'Task created successfully', task });\n});\n\nrouter.get('/', (req, res) => {\n  const { completed } = req.query;\n  const filter = {};\n  if (completed !== undefined && completed !== null && completed !== '') {\n    const val = String(completed).toLowerCase();\n    filter.completed = (val === 'true' || val === '1' || val === 'yes');\n  }\n  const tasks = Task.findByUser(req.user.id, filter);\n  return res.status(200).json({ tasks });\n});\n\nrouter.get('/:id', (req, res) => {\n  const taskId = parseInt(req.params.id, 10);\n  if (isNaN(taskId)) return res.status(404).json({ error: 'Task not found' });\n  const task = Task.findById(taskId, req.user.id);\n  if (!task) return res.status(404).json({ error: 'Task not found' });\n  return res.status(200).json({ task });\n});\n\nconst updateHandler = (req, res) => {\n  const taskId = parseInt(req.params.id, 10);\n  if (isNaN(taskId)) return res.status(404).json({ error: 'Task not found' });\n  const existing = Task.findById(taskId, req.user.id);\n  if (!existing) return res.status(404).json({ error: 'Task not found' });\n\n  const updates = {};\n  if ('title' in req.body) {\n    const cleanTitle = String(req.body.title || '').trim();\n    if (!cleanTitle) return res.status(400).json({ error: 'Title cannot be empty' });\n    updates.title = cleanTitle;\n  }\n  if ('description' in req.body) updates.description = req.body.description;\n  if ('is_completed' in req.body) updates.is_completed = Boolean(req.body.is_completed);\n\n  const task = Task.update(taskId, req.user.id, updates);\n  return res.status(200).json({ message: 'Task updated successfully', task });\n};\n\nrouter.put('/:id', updateHandler);\nrouter.patch('/:id', updateHandler);\n\nrouter.delete('/:id', (req, res) => {\n  const taskId = parseInt(req.params.id, 10);\n  if (isNaN(taskId)) return res.status(404).json({ error: 'Task not found' });\n  const deleted = Task.delete(taskId, req.user.id);\n  if (!deleted) return res.status(404).json({ error: 'Task not found' });\n  return res.status(200).json({ message: 'Task deleted successfully' });\n});\n\nmodule.exports = router;\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 3,
+      "test_command": "node yuvro_scoring_rules/sprint_4/ticket_3/main_test.js"
+    }
+  ]
+}
