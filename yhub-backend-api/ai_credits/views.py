@@ -33,7 +33,7 @@ class UserWalletView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        wallet, _ = WalletService.get_or_create_wallet(request.user)
+        wallet, _ = WalletService.get_or_create_wallet(request.user, grant_signup_bonus=True)
         serializer = CreditWalletSerializer(wallet)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

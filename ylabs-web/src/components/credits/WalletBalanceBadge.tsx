@@ -58,7 +58,11 @@ export const WalletBalanceBadge: React.FC<WalletBalanceBadgeProps> = ({ classNam
   }
 
   const hasDeficit = (wallet?.uncollected_deficit ?? 0) > 0;
-  const isFlagged = wallet?.reconciliation_status && wallet.reconciliation_status !== "ok";
+  const isFlagged =
+    wallet?.reconciliation_status === "deficit_pending_reconciliation" ||
+    (Boolean(wallet?.reconciliation_status) &&
+      wallet?.reconciliation_status !== "settled" &&
+      wallet?.reconciliation_status !== "ok");
   const availableCredits = wallet?.total_available ?? 0;
 
   return (

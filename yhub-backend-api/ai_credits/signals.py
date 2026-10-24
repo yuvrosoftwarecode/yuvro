@@ -10,10 +10,9 @@ logger = logging.getLogger(__name__)
 def initialize_user_credit_wallet(sender, instance, created, **kwargs):
     """
     Automatically creates a CreditWallet and awards the 50,000 welcome bonus credits
-    whenever a new User is registered across any flow (Password, OTP, Google OAuth),
-    when the AI_CREDITS_ENABLED feature flag is active.
+    whenever a new User is registered across any flow (Password, OTP, Google OAuth).
     """
-    if created and getattr(settings, "AI_CREDITS_ENABLED", False):
+    if created:
         try:
             from .wallet_service import WalletService
             WalletService.get_or_create_wallet(instance, grant_signup_bonus=True)
