@@ -1606,7 +1606,6 @@ export function TicketIDE({
   useEffect(() => {
     if (!isReal || !wsLoaded || !activeFile) return;
     if (loadedFiles.current.has(activeFile)) return;
-    if (files[activeFile] && files[activeFile] !== "") { loadedFiles.current.add(activeFile); return; }
     fetchFile(effectiveUserId, labId, sprintId, activeFile, evaluationId)
       .then(content => {
         let cleanContent = content;
@@ -1826,7 +1825,7 @@ export function TicketIDE({
                 [submissionsStatusField]: "in_progress",
               });
             }
-            if (sub.solution) {
+            if (!isReal && sub.solution) {
               try {
                 const parsed = JSON.parse(sub.solution);
                 if (typeof parsed === "object" && parsed !== null) {
@@ -3295,6 +3294,9 @@ export function TicketIDE({
         ) {
           return false;
         }
+        if (isReal) {
+          return loadedFiles.current.has(p) || Boolean(dirty[p]);
+        }
         return content !== "" || loadedFiles.current.has(p);
       })
     );
@@ -3404,6 +3406,16 @@ export function TicketIDE({
         try {
           const { deleteWorkspaceFile } = await import("@/services/workspaceService");
           await deleteWorkspaceFile(effectiveUserId, labId, sprintId, "", evaluationId);
+          if (submissionId) {
+            const { default: api } = await import("@/utils/RestApiAuthUtil");
+            await api.patch(`${submissionsEndpoint}${submissionId}/`, {
+              solution: "",
+              solution_revealed: false,
+              solution_output: "",
+              yuvro_points: 0,
+              [submissionsStatusField]: "backlog",
+            }).catch(console.error);
+          }
           setTicketScore(null);
           setEvalResult({});
           window.location.reload();
@@ -3665,6 +3677,7 @@ export function TicketIDE({
                       const targetFile = targetFilePath || fallbackFile;
                       setFiles(prev => ({ ...prev, [targetFile]: code }));
                       setDirty(prev => ({ ...prev, [targetFile]: true }));
+                      loadedFiles.current.add(targetFile);
                       setOpenTabs(prev => prev.includes(targetFile) ? prev : [...prev, targetFile]);
                       setActiveFile(targetFile);
                       if (isReal) {
@@ -3681,6 +3694,7 @@ export function TicketIDE({
                         return next;
                       });
                       const fileKeys = Object.keys(fileMap);
+                      fileKeys.forEach(k => loadedFiles.current.add(k));
                       setOpenTabs(prev => {
                         const set = new Set(prev);
                         fileKeys.forEach(k => set.add(k));
