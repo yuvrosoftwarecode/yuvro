@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { Check } from "lucide-react";
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/recruiter/settings")({
 
 function SettingsPage() {
   const { user } = useAuth();
+  const nav = useNavigate();
   const [name, setName] = useState(user?.name ?? "Recruiter");
   const [email, setEmail] = useState(user?.email ?? "recruiter@yuvro.com");
   const [org, setOrg] = useState("Yuvro Talent Co.");
@@ -26,6 +27,12 @@ function SettingsPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("tab") === "github" || params.get("installation_id")) {
+        nav({ to: `/recruiter/github${window.location.search}` as any });
+        return;
+      }
+
       try {
         const stored = localStorage.getItem("pl-recruiter-settings");
         if (stored) {
@@ -40,7 +47,7 @@ function SettingsPage() {
         }
       } catch {}
     }
-  }, []);
+  }, [nav]);
 
   const save = () => {
     if (typeof window !== "undefined") {
@@ -55,12 +62,14 @@ function SettingsPage() {
 
   return (
     <div className="p-10">
-      <h1 className="text-[28px] font-semibold tracking-tight">Settings</h1>
-      <p className="mt-1 text-[13px] text-neutral-400">
-        Manage your recruiter profile and preferences.
-      </p>
+      <div>
+        <h1 className="text-[28px] font-semibold tracking-tight text-neutral-900 dark:text-white">Settings</h1>
+        <p className="mt-1 text-[13px] text-neutral-500">
+          Manage your recruiter profile and preferences.
+        </p>
+      </div>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-3">
+      <div className="mt-8 grid gap-6 lg:grid-cols-3">
         <Card title="Profile" desc="How teammates see you.">
           <FieldRow label="Full name">
             <Input value={name} onChange={setName} />
@@ -72,6 +81,7 @@ function SettingsPage() {
             <Input value={org} onChange={setOrg} />
           </FieldRow>
         </Card>
+
         <Card title="Notifications" desc="What we send to your inbox.">
           <Toggle
             label="Candidate completes evaluation"
@@ -89,6 +99,7 @@ function SettingsPage() {
             onChange={(v) => setNotif({ ...notif, ai: v })}
           />
         </Card>
+
         <Card title="Workspace" desc="Recruiter workspace prefs.">
           <FieldRow label="Default duration">
             <Select value={duration} onChange={setDuration} options={DURATION_OPTIONS} />
@@ -105,7 +116,7 @@ function SettingsPage() {
       <div className="mt-8 flex items-center gap-3">
         <button
           onClick={save}
-          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-2.5 text-[13px] font-medium text-black transition hover:brightness-110"
+          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-2.5 text-[13px] font-medium text-black transition hover:brightness-110 shadow-sm"
         >
           {saved ? (
             <>
@@ -115,7 +126,7 @@ function SettingsPage() {
             "Save changes"
           )}
         </button>
-        <button className="rounded-lg border border-white/10 px-5 py-2.5 text-[13px] text-neutral-300 hover:bg-white/5">
+        <button className="rounded-lg border border-neutral-200 dark:border-white/10 px-5 py-2.5 text-[13px] text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition">
           Cancel
         </button>
       </div>

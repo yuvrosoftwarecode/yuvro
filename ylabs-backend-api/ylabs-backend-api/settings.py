@@ -223,5 +223,19 @@ SPECTACULAR_SETTINGS = {
 
 AUTH_USER_MODEL = "authentication.User"
 
+# GITHUB_SYSTEM_PAT: Personal Access Token used for admin-managed starter repositories.
 GITHUB_SYSTEM_PAT = config("GITHUB_SYSTEM_PAT", default="")
+
+# GITHUB_APP_NAME: The slug name of the GitHub App used for install redirects.
+GITHUB_APP_NAME = config("GITHUB_APP_NAME", default="yuvro-labs-app")
+
+# GITHUB_APP_ID: The App ID of the GitHub App used for recruiter-managed repositories.
+GITHUB_APP_ID = config("GITHUB_APP_ID", default="")
+
+# GITHUB_APP_PRIVATE_KEY_PATH: Absolute path to the .pem private key file for the GitHub App.
+GITHUB_APP_PRIVATE_KEY_PATH = config("GITHUB_APP_PRIVATE_KEY_PATH", default="")
+
+# GITHUB_APP_PRIVATE_KEY: Raw PEM or Base64-encoded string (alternative to file path for cloud/containers)
+GITHUB_APP_PRIVATE_KEY = config("GITHUB_APP_PRIVATE_KEY", default="")
+
 WORKSPACES_ROOT = Path("/workspaces")

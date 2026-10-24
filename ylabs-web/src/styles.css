@@ -563,6 +563,10 @@
 .recruiter-theme .bg-black.text-white,
 .recruiter-theme .bg-black .text-white,
 .recruiter-theme .bg-\[\#111217\] .text-white,
+.recruiter-theme .bg-red-600,
+.recruiter-theme .bg-red-600 *,
+.recruiter-theme .bg-red-700,
+.recruiter-theme .bg-red-700 *,
 .recruiter-theme [style*="background"].text-white {
   color: #ffffff !important;
 }

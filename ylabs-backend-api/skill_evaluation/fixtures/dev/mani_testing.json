@@ -1,0 +1,27 @@
+{
+  "lab_questions": [
+    {
+      "title": "mani testing",
+      "type": "BACKEND",
+      "description": "asdf",
+      "difficulty": "EASY",
+      "domain": "ERP",
+      "experience": "FRESHER",
+      "duration_minutes": 30,
+      "marks": 10,
+      "scenario": "FEATURE_DEVELOPMENT",
+      "git_repo_starter_url": "https://github.com/CloudVexTechnologies/cyberclubsicet",
+      "git_repo_starter_branch": "main",
+      "startup_command": "",
+      "test_command": "",
+      "connection_url": "",
+      "programming_languages": [],
+      "databases": [],
+      "backend_frameworks": [],
+      "frontend_frameworks": [],
+      "tasks": [],
+      "allow_task_selection": true,
+      "solution": {}
+    }
+  ]
+}

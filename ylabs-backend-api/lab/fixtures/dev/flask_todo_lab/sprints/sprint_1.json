@@ -1,0 +1,163 @@
+{
+  "title": "Sprint 1 \u2014 Project Foundation & Database Models",
+  "description": "Set up the Flask application factory and implement relational SQLAlchemy database models for Users and Tasks.",
+  "order_index": 1,
+  "lab_title": "Flask Todo REST API Lab",
+  "tickets": [
+    {
+      "title": "Ticket 1 - Initialize Flask Application & Health Check",
+      "ticket_slug": "flask-todo-11",
+      "description": "Initialize the Flask application using the application factory pattern (`create_app`). Configure the SQLite database connection and establish a baseline health check endpoint.\n\n### Requirements\n1. In `app/__init__.py`, implement `create_app(test_config=None)`.\n2. Configure `SQLALCHEMY_DATABASE_URI` pointing to `sqlite:///todo.db` (or test config if provided).\n3. Register a health check route `GET /api/health` that returns JSON `{\"status\": \"healthy\"}` with HTTP 200 OK.\n4. Ensure the application runs from `run.py` on `http://127.0.0.1:5000`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Understand the Flask application factory pattern.",
+        "Learn how to configure database connection strings in Flask.",
+        "Implement and verify basic JSON endpoints and HTTP status codes."
+      ],
+      "tasks": [
+        {
+          "title": "Create Flask app factory `create_app()` in `app/__init__.py`.",
+          "points": 30
+        },
+        {
+          "title": "Configure SQLite database URI `sqlite:///todo.db` in `config.py`.",
+          "points": 30
+        },
+        {
+          "title": "Implement `GET /api/health` returning `{\"status\": \"healthy\"}` with HTTP 200.",
+          "points": 40
+        }
+      ],
+      "common_mistakes": [
+        "Returning plain text or HTML instead of JSON.",
+        "Hardcoding configuration inside routes instead of using Flask config."
+      ],
+      "hints": [
+        "Use `flask.jsonify()` to return JSON responses.",
+        "Ensure `db.init_app(app)` is called inside `create_app()`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/__init__.py",
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py",
+        "expected_endpoint": "/api/health",
+        "expected_response": {
+          "status": "healthy"
+        }
+      },
+      "solution": {
+        "config.py": "import os\n\nclass Config:\n    SECRET_KEY = os.environ.get('SECRET_KEY', 'yuvro-dev-secret-key-987654321')\n    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')\n    SQLALCHEMY_TRACK_MODIFICATIONS = False\n    JWT_ACCESS_TOKEN_EXPIRES_DAYS = 1\n\nclass TestConfig(Config):\n    TESTING = True\n    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'\n    SECRET_KEY = 'test-secret-key-32-bytes-long-super-secure'\n",
+        "app/__init__.py": "from flask import Flask, jsonify\nfrom flask_sqlalchemy import SQLAlchemy\nfrom config import Config\n\ndb = SQLAlchemy()\n\ndef create_app(test_config=None):\n    app = Flask(__name__)\n    if test_config:\n        if isinstance(test_config, dict):\n            app.config.update(test_config)\n        else:\n            app.config.from_object(test_config)\n    else:\n        app.config.from_object(Config)\n\n    db.init_app(app)\n\n    @app.route('/api/health', methods=['GET'])\n    def health_check():\n        return jsonify({'status': 'healthy'}), 200\n\n    return app\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - Design and Implement User Model",
+      "ticket_slug": "flask-todo-12",
+      "description": "Create the `User` model in `app/models.py` using Flask-SQLAlchemy. Ensure passwords are never stored in plain text by implementing password hashing helpers.\n\n### Model Specifications: `users` Table\n- `id`: Integer, primary key, auto-incrementing.\n- `username`: String (max 80), unique, non-nullable.\n- `email`: String (max 120), unique, non-nullable.\n- `password_hash`: String (max 255), non-nullable.\n- `created_at`: DateTime, defaults to `datetime.utcnow`.\n\n### Helper Methods\n- `set_password(password)`: Hashes the plain password using `werkzeug.security.generate_password_hash`.\n- `check_password(password)`: Verifies password against `password_hash` using `werkzeug.security.check_password_hash`.\n- `to_dict()`: Serializes user info excluding `password_hash`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Understand relational ORM modeling using Flask-SQLAlchemy.",
+        "Implement secure password hashing using Werkzeug.",
+        "Prevent accidental exposure of password hashes in serialization."
+      ],
+      "tasks": [
+        {
+          "title": "Define `User` model with `id`, `username`, `email`, and `password_hash`.",
+          "points": 40
+        },
+        {
+          "title": "Implement `set_password` and `check_password` methods.",
+          "points": 30
+        },
+        {
+          "title": "Implement `to_dict` serializer omitting sensitive fields.",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Storing plain text passwords in the database.",
+        "Including `password_hash` in the `to_dict()` output dictionary."
+      ],
+      "hints": [
+        "Import `generate_password_hash` and `check_password_hash` from `werkzeug.security`.",
+        "Set `nullable=False` and `unique=True` on username and email columns."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/models.py",
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py"
+      },
+      "solution": {
+        "app/models.py": "from datetime import datetime\nfrom werkzeug.security import generate_password_hash, check_password_hash\nfrom app import db\n\nclass User(db.Model):\n    __tablename__ = 'users'\n\n    id = db.Column(db.Integer, primary_key=True)\n    username = db.Column(db.String(80), unique=True, nullable=False)\n    email = db.Column(db.String(120), unique=True, nullable=False)\n    password_hash = db.Column(db.String(255), nullable=False)\n    created_at = db.Column(db.DateTime, default=datetime.utcnow)\n\n    def set_password(self, password):\n        self.password_hash = generate_password_hash(password)\n\n    def check_password(self, password):\n        return check_password_hash(self.password_hash, password)\n\n    def to_dict(self):\n        return {\n            'id': self.id,\n            'username': self.username,\n            'email': self.email,\n            'created_at': self.created_at.isoformat() if self.created_at else None\n        }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py"
+    },
+    {
+      "title": "Ticket 3 - Design Task Model with User Relationship",
+      "ticket_slug": "flask-todo-13",
+      "description": "Implement the `Task` model in `app/models.py` and link it to the `User` model via a foreign key relationship.\n\n### Model Specifications: `tasks` Table\n- `id`: Integer, primary key, auto-incrementing.\n- `user_id`: Integer, foreign key referencing `users.id`, non-nullable.\n- `title`: String (max 200), non-nullable.\n- `description`: Text, nullable.\n- `is_completed`: Boolean, default `False`, non-nullable.\n- `created_at`: DateTime, defaults to `datetime.utcnow`.\n- `updated_at`: DateTime, defaults to `datetime.utcnow`, updates on modification.\n\n### Helper Methods\n- `to_dict()`: Returns a dictionary representation of the task (`id`, `user_id`, `title`, `description`, `is_completed`, `created_at`, `updated_at`).",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Implement one-to-many relationships in SQLAlchemy.",
+        "Configure foreign key constraints and cascade rules.",
+        "Handle timestamp tracking on create and update."
+      ],
+      "tasks": [
+        {
+          "title": "Define `Task` model with foreign key pointing to `users.id`.",
+          "points": 50
+        },
+        {
+          "title": "Configure relationship and cascade delete between `User` and `Task`.",
+          "points": 30
+        },
+        {
+          "title": "Implement `to_dict()` serialization method.",
+          "points": 20
+        }
+      ],
+      "common_mistakes": [
+        "Missing foreign key constraint on `user_id`.",
+        "Forgetting to set `is_completed` default value to `False`."
+      ],
+      "hints": [
+        "Use `db.ForeignKey('users.id', ondelete='CASCADE')` for the foreign key column.",
+        "Use `default=datetime.utcnow` and `onupdate=datetime.utcnow`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/models.py",
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py"
+      },
+      "solution": {
+        "app/models.py": "from datetime import datetime\nfrom werkzeug.security import generate_password_hash, check_password_hash\nfrom app import db\n\nclass User(db.Model):\n    __tablename__ = 'users'\n\n    id = db.Column(db.Integer, primary_key=True)\n    username = db.Column(db.String(80), unique=True, nullable=False)\n    email = db.Column(db.String(120), unique=True, nullable=False)\n    password_hash = db.Column(db.String(255), nullable=False)\n    created_at = db.Column(db.DateTime, default=datetime.utcnow)\n\n    tasks = db.relationship('Task', backref='owner', lazy=True, cascade='all, delete-orphan')\n\n    def set_password(self, password):\n        self.password_hash = generate_password_hash(password)\n\n    def check_password(self, password):\n        return check_password_hash(self.password_hash, password)\n\n    def to_dict(self):\n        return {\n            'id': self.id,\n            'username': self.username,\n            'email': self.email,\n            'created_at': self.created_at.isoformat() if self.created_at else None\n        }\n\nclass Task(db.Model):\n    __tablename__ = 'tasks'\n\n    id = db.Column(db.Integer, primary_key=True)\n    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)\n    title = db.Column(db.String(200), nullable=False)\n    description = db.Column(db.Text, nullable=True)\n    is_completed = db.Column(db.Boolean, default=False, nullable=False)\n    created_at = db.Column(db.DateTime, default=datetime.utcnow)\n    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)\n\n    def to_dict(self):\n        return {\n            'id': self.id,\n            'user_id': self.user_id,\n            'title': self.title,\n            'description': self.description,\n            'is_completed': self.is_completed,\n            'created_at': self.created_at.isoformat() if self.created_at else None,\n            'updated_at': self.updated_at.isoformat() if self.updated_at else None\n        }\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py"
+    }
+  ]
+}

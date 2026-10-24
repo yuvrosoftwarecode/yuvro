@@ -368,7 +368,6 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
         submission.save(update_fields=['yuvro_points', 'solution_revealed'])
         raw_solution = ticket.solution or {}
         solutions_list = []
-
         if isinstance(raw_solution, dict) and isinstance(raw_solution.get("solutions"), list):
             solutions_list = raw_solution.get("solutions")
         elif isinstance(raw_solution, list):

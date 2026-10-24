@@ -46,3 +46,8 @@ numpy>=1.24.0
 # Uncomment to enable face verification with deepface detection:
 # deepface>=0.0.89
 
+# Flask Evaluation Frameworks
+flask>=3.0.0
+flask-sqlalchemy>=3.1.0
+pyjwt>=2.8.0
+

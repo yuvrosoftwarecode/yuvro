@@ -17,6 +17,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["roles"] = user.roles
         token["resume_file"] = user.resume_file
         token["is_guest_user"] = getattr(user, 'is_guest_user', False)
+        token["is_staff"] = getattr(user, 'is_staff', False)
+        token["is_superuser"] = getattr(user, 'is_superuser', False)
 
         return token
 

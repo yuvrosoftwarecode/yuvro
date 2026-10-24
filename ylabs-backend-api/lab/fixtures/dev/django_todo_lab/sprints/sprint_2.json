@@ -1,0 +1,192 @@
+{
+  "title": "Sprint 2 — Task Model & Create/Read APIs",
+  "description": "Design the Task database model and ModelSerializer, run migrations, and implement authenticated REST endpoints to create, list, and retrieve tasks.",
+  "order_index": 2,
+  "lab_title": "Django ToDo Lab",
+  "xp_pool": 300,
+  "tickets": [
+    {
+      "title": "TODO-004: Create Task Model and Serializer",
+      "ticket_slug": "TODO-004",
+      "description": "### Overview\nDesign the core task data entity and its corresponding Django REST Framework serializer. In `tasks/models.py`, declare the `Task` model containing fields for title, optional description, boolean completion status, automated timestamps, and a foreign key relation linking each task to its `owner` (Django's `User` model with `CASCADE` deletion). In `tasks/serializers.py`, implement `TaskSerializer` extending `serializers.ModelSerializer`. Mark `owner`, `created_at`, and `updated_at` as read-only fields so clients cannot tamper with task ownership during API payloads.\n\n### Dependencies\n- `TODO-001`: Initialize Django REST API Project.\n\n### Acceptance Criteria\n- [ ] `Task` model is declared in `tasks/models.py` with fields: `title` (CharField, max_length=200), `description` (TextField, blank=True), `is_completed` (BooleanField, default=False), `created_at` (DateTimeField, auto_now_add=True), `updated_at` (DateTimeField, auto_now=True), and `owner` (ForeignKey to `User`, on_delete=models.CASCADE, related_name='tasks').\n- [ ] Database migrations are created via `makemigrations` and applied to SQLite via `migrate` without errors.\n- [ ] `TaskSerializer` is created in `tasks/serializers.py` with `model = Task` and `fields = ['id', 'title', 'description', 'is_completed', 'created_at', 'updated_at', 'owner']`.\n- [ ] `owner` is designated as a read-only field (e.g. `serializers.ReadOnlyField(source='owner.username')` or in `read_only_fields`).\n- [ ] Serializer validates that `title` is non-empty and does not allow client payloads to override `owner` or timestamp values.\n\n### Expected Deliverables\n- `tasks/models.py` with `Task` model.\n- `tasks/migrations/0001_initial.py` (or initial task migration).\n- `tasks/serializers.py` with `TaskSerializer`.\n\n### Evaluation Criteria\n- Migration inspection confirms table schema and foreign key constraints.\n- Serializer testing confirms `owner`, `id`, `created_at`, and `updated_at` are read-only.\n- Input validation correctly flags missing or blank `title`.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Design relational database models in Django ORM with ForeignKey relations.",
+        "Implement DRF ModelSerializers for JSON serialization and deserialization.",
+        "Configure read-only fields to prevent client data spoofing.",
+        "Generate and apply schema migrations for REST APIs."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — Define Task Model and Run Migrations",
+          "task_slug": "task-todo-004-1",
+          "description": "In `tasks/models.py`, declare `class Task(models.Model)` with `title`, `description`, `is_completed`, `created_at`, `updated_at`, and `owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')`. Run `makemigrations` and `migrate`.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Implement TaskSerializer with Read-Only Controls",
+          "task_slug": "task-todo-004-2",
+          "description": "In `tasks/serializers.py`, implement `class TaskSerializer(serializers.ModelSerializer)`. Include all model fields and set `read_only_fields = ['id', 'created_at', 'updated_at', 'owner']`. Expose `owner = serializers.ReadOnlyField(source='owner.username')`.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        }
+      ],
+      "common_mistakes": [
+        "Making 'owner' writable in the serializer, allowing malicious users to forge task ownership.",
+        "Forgetting on_delete=models.CASCADE on the ForeignKey field.",
+        "Omitting read_only_fields for timestamps and primary key."
+      ],
+      "hints": [
+        "Use `owner = serializers.ReadOnlyField(source='owner.username')` to represent the owner as a username string in responses.",
+        "Set `ordering = ['-created_at']` in `class Meta` of `Task` model.",
+        "Verify migrations by running `python manage.py showmigrations tasks`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_models": [
+          "Task"
+        ],
+        "required_serializers": [
+          "TaskSerializer"
+        ],
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_1/main_test.py"
+      },
+      "solution": {
+        "models_py": "from django.db import models\nfrom django.contrib.auth.models import User\n\nclass Task(models.Model):\n    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')\n    title = models.CharField(max_length=200)\n    description = models.TextField(blank=True)\n    is_completed = models.BooleanField(default=False)\n    created_at = models.DateTimeField(auto_now_add=True)\n    updated_at = models.DateTimeField(auto_now=True)\n\n    class Meta:\n        ordering = ['-created_at']\n\n    def __str__(self):\n        return self.title",
+        "serializers_py": "from rest_framework import serializers\nfrom .models import Task\n\nclass TaskSerializer(serializers.ModelSerializer):\n    owner = serializers.ReadOnlyField(source='owner.username')\n\n    class Meta:\n        model = Task\n        fields = ['id', 'title', 'description', 'is_completed', 'created_at', 'updated_at', 'owner']\n        read_only_fields = ['id', 'created_at', 'updated_at', 'owner']"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_1/main_test.py"
+    },
+    {
+      "title": "TODO-005: Implement Create Task API",
+      "ticket_slug": "TODO-005",
+      "description": "### Overview\nBuild the authenticated REST API endpoint for task creation. Clients issue a `POST /api/tasks/` request with a JSON payload containing `title` and optional `description`. In the view logic (using DRF's `ListCreateAPIView`, `ModelViewSet`, or custom `APIView`), enforce `permission_classes = [IsAuthenticated]`. When saving the validated serializer instance, override `perform_create(self, serializer)` to automatically associate the authenticated user: `serializer.save(owner=self.request.user)`. Unauthenticated requests must be rejected with HTTP 401 Unauthorized.\n\n### Dependencies\n- `TODO-004`: Create Task Model and Serializer.\n- `TODO-003`: Implement Login and Logout APIs.\n\n### Acceptance Criteria\n- [ ] Endpoint `POST /api/tasks/` accepts JSON payloads.\n- [ ] Request must include a valid authentication token in the `Authorization` header (`Authorization: Token <key>`).\n- [ ] Unauthenticated requests return HTTP 401 Unauthorized with `{\"detail\": \"Authentication credentials were not provided.\"}`.\n- [ ] Required field `title` is validated; missing or whitespace-only title returns HTTP 400 Bad Request.\n- [ ] On successful creation, the task is saved to SQLite with `owner` set to `request.user`.\n- [ ] The API responds with HTTP 201 Created and the serialized task JSON object including `id`, `title`, `description`, `is_completed` (default `false`), `created_at`, `updated_at`, and `owner`.\n\n### Expected Deliverables\n- `tasks/views.py` containing task creation view logic.\n- URL pattern for `POST /api/tasks/` registered in `todoproject/urls.py` or `tasks/urls.py`.\n\n### Evaluation Criteria\n- `POST /api/tasks/` without auth token returns HTTP 401.\n- `POST /api/tasks/` with valid token and payload returns HTTP 201 Created.\n- Database inspection verifies `task.owner_id == request.user.id`.\n- Submitting `{\"description\": \"test\"}` (missing title) returns HTTP 400.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Implement authenticated write operations using DRF permission classes (IsAuthenticated).",
+        "Override perform_create to inject request.user into model instances.",
+        "Handle JSON input validation and return HTTP 400 Bad Request on errors.",
+        "Return HTTP 201 Created with location and complete serialized resource data."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — Task Creation View",
+          "task_slug": "task-todo-005-1",
+          "description": "Implement `TaskListCreateView(generics.ListCreateAPIView)` or `TaskViewSet(viewsets.ModelViewSet)`. Set `permission_classes = [permissions.IsAuthenticated]` and `serializer_class = TaskSerializer`. Override `perform_create(self, serializer)` with `serializer.save(owner=self.request.user)`.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Route Wiring and Validation",
+          "task_slug": "task-todo-005-2",
+          "description": "Map `POST /api/tasks/` in URL routing. Test task creation using Postman/curl with `Authorization: Token <token>` and JSON body `{\"title\": \"Complete lab\", \"description\": \"Finish all 12 tickets\"}`.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        }
+      ],
+      "common_mistakes": [
+        "Reading 'owner' from request.data instead of injecting request.user via perform_create.",
+        "Missing IsAuthenticated permission class, allowing anonymous users to create tasks with null owner.",
+        "Returning HTTP 200 instead of HTTP 201 Created upon successful resource creation."
+      ],
+      "hints": [
+        "In generic class-based views, override: `def perform_create(self, serializer): serializer.save(owner=self.request.user)`.",
+        "Remember to pass `Authorization: Token <your_token>` in header during API testing.",
+        "DRF will automatically validate `max_length=200` and `blank=False` based on the model field definitions."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_endpoints": [
+          "POST /api/tasks/"
+        ],
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_2/main_test.py"
+      },
+      "solution": {
+        "views_py": "from rest_framework import generics, permissions\nfrom .models import Task\nfrom .serializers import TaskSerializer\n\nclass TaskListCreateView(generics.ListCreateAPIView):\n    serializer_class = TaskSerializer\n    permission_classes = [permissions.IsAuthenticated]\n\n    def get_queryset(self):\n        return Task.objects.filter(owner=self.request.user)\n\n    def perform_create(self, serializer):\n        serializer.save(owner=self.request.user)"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_2/main_test.py"
+    },
+    {
+      "title": "TODO-006: Implement List and Retrieve Task APIs",
+      "ticket_slug": "TODO-006",
+      "description": "### Overview\nImplement read operations for tasks: listing a user's task collection (`GET /api/tasks/`) and retrieving a specific task by its primary key (`GET /api/tasks/<int:pk>/`). Both endpoints require authentication and must enforce strict user isolation: a student must ONLY see tasks they created. If a user has no tasks, `GET /api/tasks/` returns an empty JSON list `[]` with HTTP 200 OK. If a user attempts to retrieve a task ID that does not exist or belongs to another student, the API must return HTTP 404 Not Found.\n\n### Dependencies\n- `TODO-005`: Implement Create Task API.\n\n### Acceptance Criteria\n- [ ] `GET /api/tasks/` returns a JSON array of all tasks owned by the authenticated user with HTTP 200 OK.\n- [ ] `GET /api/tasks/` strictly filters by `owner=request.user`; tasks belonging to other users are never included in the array.\n- [ ] If the authenticated user has zero tasks, `GET /api/tasks/` returns HTTP 200 OK with payload `[]`.\n- [ ] `GET /api/tasks/<int:pk>/` retrieves an individual task by ID and returns HTTP 200 OK with the serialized task object.\n- [ ] Attempting to retrieve a task owned by another user returns HTTP 404 Not Found.\n- [ ] Requesting a non-existent task ID returns HTTP 404 Not Found.\n- [ ] Unauthenticated requests to either endpoint return HTTP 401 Unauthorized.\n\n### Expected Deliverables\n- `tasks/views.py` implementing list and retrieve logic (`get_queryset()` filtered by `owner=self.request.user`).\n- URL routes for `GET /api/tasks/` and `GET /api/tasks/<int:pk>/`.\n\n### Evaluation Criteria\n- User isolation check: User A creating a task cannot see it appear in User B's `GET /api/tasks/` list.\n- `GET /api/tasks/<pk>/` with cross-user ID returns HTTP 404.\n- Unauthenticated request returns HTTP 401.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Implement collection and member GET endpoints in Django REST Framework.",
+        "Filter querysets dynamically by request.user in get_queryset().",
+        "Maintain data privacy and multi-user isolation in RESTful APIs.",
+        "Return appropriate HTTP status codes (200 OK, 401 Unauthorized, 404 Not Found)."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — Task Collection Listing Endpoint",
+          "task_slug": "task-todo-006-1",
+          "description": "In `tasks/views.py`, ensure `get_queryset(self)` filters `Task.objects.filter(owner=self.request.user)`. Wire `GET /api/tasks/` returning HTTP 200 OK with task array.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Task Detail Retrieve Endpoint",
+          "task_slug": "task-todo-006-2",
+          "description": "Implement `TaskDetailView(generics.RetrieveUpdateDestroyAPIView)` or `RetrieveAPIView` mapped to `/api/tasks/<int:pk>/`. Ensure `get_queryset(self)` scopes to `owner=self.request.user` so other users' tasks return HTTP 404.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        }
+      ],
+      "common_mistakes": [
+        "Returning Task.objects.all() in get_queryset(), leaking private tasks across different users.",
+        "Returning HTTP 404 when a user has no tasks, instead of returning an empty array [] with HTTP 200 OK.",
+        "Hardcoding user filter without checking request.user.is_authenticated."
+      ],
+      "hints": [
+        "Always override `def get_queryset(self): return Task.objects.filter(owner=self.request.user)`.",
+        "DRF's `generics.RetrieveAPIView` or `RetrieveUpdateDestroyAPIView` handles single object lookup and automatic 404 responses.",
+        "Test with two different user tokens to verify that neither can access the other's tasks."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_endpoints": [
+          "GET /api/tasks/",
+          "GET /api/tasks/<int:pk>/"
+        ],
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_3/main_test.py"
+      },
+      "solution": {
+        "views_py": "class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):\n    serializer_class = TaskSerializer\n    permission_classes = [permissions.IsAuthenticated]\n\n    def get_queryset(self):\n        return Task.objects.filter(owner=self.request.user)",
+        "urls_py": "urlpatterns = [\n    path('api/tasks/', TaskListCreateView.as_view(), name='task-list-create'),\n    path('api/tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),\n]"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_3/main_test.py"
+    }
+  ]
+}

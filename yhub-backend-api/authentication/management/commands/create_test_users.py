@@ -71,17 +71,26 @@ class Command(BaseCommand):
                 'is_staff': True,
                 'is_superuser': True,
                 'is_active': True,
-                'roles': {'ycode': 'admin', 'ylabs': 'admin'}
+                'roles': {'ycode': 'admin', 'ylabs': 'admin', 'marketplace': 'recruiter_account_manager'}
             }
         )
         if admin_created:
             admin_user.set_unusable_password()
             admin_user.save()
+        else:
+            if not isinstance(admin_user.roles, dict):
+                admin_user.roles = {}
+            if admin_user.roles.get('marketplace') != 'recruiter_account_manager':
+                admin_user.roles['marketplace'] = 'recruiter_account_manager'
+                admin_user.save(update_fields=['roles'])
 
         # Generate JWT for sync
         token_serializer = CustomTokenObtainPairSerializer()
         token_data = token_serializer.get_token(admin_user)
         token_data["products"] = ["ycode", "ylabs", "marketplace"]
+        token_data["is_staff"] = True
+        token_data["is_superuser"] = True
+        token_data["roles"] = admin_user.roles
         access_token = str(token_data.access_token)
         headers = {'Authorization': f'Bearer {access_token}', 'Content-Type': 'application/json'}
 
