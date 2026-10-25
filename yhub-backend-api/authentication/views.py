@@ -113,6 +113,12 @@ def google_login_view(request):
             "is_active": True,
         },
     )
+    if created:
+        try:
+            from ai_credits.wallet_service import WalletService
+            WalletService.get_or_create_wallet(user, grant_signup_bonus=True)
+        except Exception as e:
+            logger.error(f"Failed to award signup bonus to Google user {user.id}: {e}", exc_info=True)
     
     update_fields = []
     product = request.query_params.get("product") or request.data.get("product")
@@ -151,6 +157,13 @@ class UserRegistrationView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+
+        # Automatically initialize credit wallet and grant welcome signup bonus
+        try:
+            from ai_credits.wallet_service import WalletService
+            WalletService.get_or_create_wallet(user, grant_signup_bonus=True)
+        except Exception as e:
+            logger.error(f"Failed to award signup bonus to new user {user.id}: {e}", exc_info=True)
 
         token_serializer = CustomTokenObtainPairSerializer()
         refresh = token_serializer.get_token(user)
@@ -298,6 +311,11 @@ def public_verify_otp(request):
             user.is_guest_user = True
             user.roles = {"ycode": "student", "ylabs": "student"}
             user.save()
+            try:
+                from ai_credits.wallet_service import WalletService
+                WalletService.get_or_create_wallet(user, grant_signup_bonus=True)
+            except Exception as e:
+                logger.error(f"Failed to award signup bonus to OTP user {user.id}: {e}", exc_info=True)
         else:
             if first_name or last_name:
                 user.first_name = first_name or user.first_name

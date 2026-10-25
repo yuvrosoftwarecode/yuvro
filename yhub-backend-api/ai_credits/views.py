@@ -1,4 +1,5 @@
 import logging
+from django.conf import settings
 from rest_framework import generics, permissions, status, views
 from rest_framework.response import Response
 
@@ -33,7 +34,7 @@ class UserWalletView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        wallet, _ = WalletService.get_or_create_wallet(request.user, grant_signup_bonus=True)
+        wallet, _ = WalletService.get_or_create_wallet(request.user)
         serializer = CreditWalletSerializer(wallet)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
