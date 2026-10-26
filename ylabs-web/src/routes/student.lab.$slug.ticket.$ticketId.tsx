@@ -930,8 +930,8 @@ export function StudentTicketView({
             backend_frameworks: t.backend_frameworks || [],
             programming_languages: t.programming_languages || t.accepted_programming_languages || [],
             sprint_id: t.sprint ?? null,
-            sprintOrder: t.sprint_order !== undefined ? t.sprint_order + 1 : 1,
-            ticketOrder: t.order_index !== undefined ? t.order_index + 1 : 1,
+            sprintOrder: t.sprint_order !== undefined && t.sprint_order !== null ? (t.sprint_order === 0 ? 1 : t.sprint_order) : 1,
+            ticketOrder: t.order_index !== undefined && t.order_index !== null ? (t.order_index === 0 ? 1 : t.order_index) : 1,
             tasks: Array.isArray(t.tasks) ? t.tasks.map((task: any) => {
               if (typeof task === "object" && task.title && !task.task_slug) {
                 const slugMatch = task.title.match(/Task (\d+\.\d+\.\d+)/i);
@@ -3236,7 +3236,14 @@ export function TicketIDE({
     setIsCommitting(true);
     try {
       const formattedMessage = `feat(S${sprintNo}-T${ticketNo}) : ${commitMessage}`;
-      const cmd = `git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" && git push`;
+      const gitName = user?.github_username || user?.username || "Student";
+      const gitEmail = user?.github_username
+        ? `${user.github_username}@users.noreply.github.com`
+        : (user?.email || `${gitName}@users.noreply.github.com`);
+
+      const safeName = gitName.replace(/"/g, '\\"');
+      const safeEmail = gitEmail.replace(/"/g, '\\"');
+      const cmd = `git config user.name "${safeName}" && git config user.email "${safeEmail}" && git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" --author="${safeName} <${safeEmail}>" && git push`;
       
       const { runCommand } = await import("@/services/workspaceService");
       const res = await runCommand(userId, labId, sprintId, cmd, evaluationId);
@@ -4271,7 +4278,7 @@ export function TicketIDE({
                 </div>
                 <div className="flex-1 overflow-hidden p-0 min-w-0 min-h-0 flex flex-col">
                   {sidePanel === "preview"
-                    ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} previewPort={previewPort} /></div>
+                    ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} previewPort={previewPort} ticket={ticket} isEvaluationMode={isEvaluationMode} effectiveUserId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={evaluationId} isMysql={isMysql} isPostgres={isPostgres} isSql={isSql} /></div>
                     : <SideMentor
                         chatTitle={`${labTitle} - Sprint ${sprintNo} - Ticket ${ticketNo}`}
                         persistenceKey={`ticket-${ticket.id}`}
@@ -5320,7 +5327,39 @@ function PreviewView() {
   );
 }
 
-function SidePreview({ device, kit, files, activeFile, startupCommand, previewPort: directPreviewPort }: { device: "Mobile" | "Tablet" | "Desktop"; kit: Kit; files: Record<string, string>; activeFile: string; startupCommand?: string; previewPort?: number }) {
+function SidePreview({
+  device,
+  kit,
+  files,
+  activeFile,
+  startupCommand,
+  previewPort: directPreviewPort,
+  ticket,
+  isEvaluationMode,
+  effectiveUserId,
+  labId,
+  sprintId,
+  evaluationId,
+  isMysql,
+  isPostgres,
+  isSql,
+}: {
+  device: "Mobile" | "Tablet" | "Desktop";
+  kit: Kit;
+  files: Record<string, string>;
+  activeFile: string;
+  startupCommand?: string;
+  previewPort?: number;
+  ticket?: any;
+  isEvaluationMode?: boolean;
+  effectiveUserId?: string;
+  labId?: string;
+  sprintId?: string;
+  evaluationId?: string;
+  isMysql?: boolean;
+  isPostgres?: boolean;
+  isSql?: boolean;
+}) {
   const w = device === "Mobile" ? 375 : device === "Tablet" ? 768 : "100%";
 
   // Extract port from startup command or direct previewPort
@@ -5328,13 +5367,17 @@ function SidePreview({ device, kit, files, activeFile, startupCommand, previewPo
     ? parseInt(startupCommand.match(/(\d{4,5})\s*$/)?.[1] ?? "8000", 10)
     : 8000);
 
+  const isMysqlActive = Boolean(isMysql || kit.name === "mysql");
+  const isPostgresActive = Boolean(isPostgres || kit.name === "postgresql");
+  const isSqlActive = Boolean(isSql || kit.name === "sql");
+
   // If startup_command exists, show web preview (for Django, Flask, Node, etc.)
   const body = startupCommand ? <WebPreview port={previewPort} /> :
     kit.name === "django" ? <DjangoTodoApp /> :
       kit.name === "ui" ? <UiPreview files={files} fullHeight /> :
-        isMysql || kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
-          isPostgres || kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
-            isSql || kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
+        isMysqlActive ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" configuredUri={ticket?.connection_url || ticket?.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+          isPostgresActive ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" configuredUri={ticket?.connection_url || ticket?.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+            isSqlActive ? <SqlResultsView query={files[activeFile] ?? ""} /> :
               kit.name === "mongo" ? <MongoResultsView query={files[activeFile] ?? ""} /> :
                 kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                   (
@@ -5884,17 +5927,19 @@ function ProblemPanel({
   return (
     <>
       <div>
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-          {ticket.id} · {ticket.tag}
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+          {ticket.tag}
         </div>
         <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
         {isAlgo && isReal ? (
           <div className="mt-3 text-sm text-muted-foreground leading-relaxed DS-Markdown"
                dangerouslySetInnerHTML={{ __html: parseDPMarkdown(ticket.description) }} />
         ) : (
-          <p className="mt-2 text-muted-foreground">
-            {isReal ? ticket.description : "📋 Create a program demonstrating Java variables and data types."}
-          </p>
+          <div className="mt-3 text-sm text-muted-foreground leading-relaxed prose prose-sm dark:prose-invert max-w-none [&>h3]:text-foreground [&>h3]:font-semibold [&>h3]:text-base [&>h3]:mt-4 [&>h3]:mb-2 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-3 [&>ol]:list-decimal [&>ol]:pl-5 [&>ol]:mb-3 [&_code]:bg-accent/50 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono [&_li]:my-0.5">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {isReal ? (ticket.description || "") : "📋 Create a program demonstrating Java variables and data types."}
+            </ReactMarkdown>
+          </div>
         )}
       </div>
 
