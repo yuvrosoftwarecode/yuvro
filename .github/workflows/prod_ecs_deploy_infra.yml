@@ -13,12 +13,6 @@ on:
           - apply
           - plan & apply
           - destroy
-  workflow_call:
-    inputs:
-      action:
-        description: 'Action to perform'
-        required: true
-        type: string
 
 jobs:
   deploy-infra-ecs:
