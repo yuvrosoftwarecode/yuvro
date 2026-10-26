@@ -48,9 +48,12 @@ const TIER_MAP: Record<string, LabTier> = {
   datastructures: "freemium",
   pydjango: "freemium",
   pyflask: "freemium",
+  flask_todo_lab: "freemium",
+  nodejs_todo_lab: "freemium",
+  java_spring_todo_lab: "freemium",
 
   postgres: "premium",
-  javaspring: "premium",
+  javaspring: "freemium",
   systemdesign: "premium",
   cybersecurity: "premium",
   qa: "premium",

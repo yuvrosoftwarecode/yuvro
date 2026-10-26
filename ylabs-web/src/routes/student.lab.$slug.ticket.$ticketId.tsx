@@ -732,6 +732,111 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
   const t = (tag || "").toLowerCase();
   const s = (slug || "").toLowerCase();
 
+  if (
+    tag === "Java Spring Todo" ||
+    tag === "Spring Todo" ||
+    tag === "Java Spring Boot" ||
+    tag === "Java Spring" ||
+    s.includes("java_spring_todo") ||
+    s.includes("java_todo") ||
+    s.includes("spring_todo") ||
+    t === "spring" ||
+    t === "springboot" ||
+    ((t === "java") && (s.includes("todo") || tag?.toLowerCase()?.includes("todo")))
+  ) {
+    return {
+      name: "java",
+      rootLabel: "todo-app",
+      primary: "src/main/java/com/yuvro/todo/TodoApplication.java",
+      runtime: "Java 21 · Spring Boot",
+      fileList: [
+        "src/main/java/com/yuvro/todo/TodoApplication.java",
+        "src/main/java/com/yuvro/todo/config/SecurityConfig.java",
+        "src/main/java/com/yuvro/todo/config/JwtFilter.java",
+        "src/main/java/com/yuvro/todo/config/JwtUtil.java",
+        "src/main/java/com/yuvro/todo/controller/HealthController.java",
+        "src/main/java/com/yuvro/todo/controller/AuthController.java",
+        "src/main/java/com/yuvro/todo/controller/TaskController.java",
+        "src/main/java/com/yuvro/todo/entity/User.java",
+        "src/main/java/com/yuvro/todo/entity/Task.java",
+        "src/main/java/com/yuvro/todo/repository/UserRepository.java",
+        "src/main/java/com/yuvro/todo/repository/TaskRepository.java",
+        "src/main/resources/application.properties",
+        "pom.xml",
+        "README.md",
+      ],
+      files: {
+        "src/main/java/com/yuvro/todo/TodoApplication.java": `package com.yuvro.todo;\n\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\n\n@SpringBootApplication\npublic class TodoApplication {\n    public static void main(String[] args) {\n        SpringApplication.run(TodoApplication.class, args);\n    }\n}\n`,
+        "src/main/resources/application.properties": `server.port=5000\nspring.datasource.url=jdbc:sqlite:todo.db\nspring.datasource.driver-class-name=org.sqlite.JDBC\nspring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect\nspring.jpa.hibernate.ddl-auto=update\njwt.secret=yuvro-dev-secret-key-987654321-spring-boot-todo-app-key\njwt.expiration=86400000\n`,
+        "pom.xml": `<?xml version="1.0" encoding="UTF-8"?>\n<project xmlns="http://maven.apache.org/POM/4.0.0"\n         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">\n    <modelVersion>4.0.0</modelVersion>\n    <parent>\n        <groupId>org.springframework.boot</groupId>\n        <artifactId>spring-boot-starter-parent</artifactId>\n        <version>3.2.5</version>\n        <relativePath/>\n    </parent>\n    <groupId>com.yuvro</groupId>\n    <artifactId>todo-app</artifactId>\n    <version>1.0.0</version>\n    <name>todo-app</name>\n    <description>Java Spring Boot Todo REST API</description>\n    <properties>\n        <java.version>21</java.version>\n    </properties>\n    <dependencies>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-web</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-data-jpa</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-security</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.xerial</groupId>\n            <artifactId>sqlite-jdbc</artifactId>\n            <version>3.45.3.0</version>\n        </dependency>\n        <dependency>\n            <groupId>org.hibernate.orm</groupId>\n            <artifactId>hibernate-community-dialects</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-api</artifactId>\n            <version>0.12.5</version>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-impl</artifactId>\n            <version>0.12.5</version>\n            <scope>runtime</scope>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-jackson</artifactId>\n            <version>0.12.5</version>\n            <scope>runtime</scope>\n        </dependency>\n    </dependencies>\n</project>\n`,
+        "README.md": `# Java Spring Boot Todo REST API Lab\n`,
+      },
+    };
+  }
+  if (
+    tag === "Node.js Todo" ||
+    tag === "Node Todo" ||
+    tag === "Express Todo" ||
+    s.includes("nodejs_todo") ||
+    s.includes("node_todo") ||
+    t === "express" ||
+    t === "node" ||
+    t === "nodejs" ||
+    ((t === "javascript" || t === "js") && (s.includes("todo") || tag?.toLowerCase()?.includes("todo")))
+  ) {
+    return {
+      name: "js",
+      rootLabel: "todo-app",
+      primary: "src/app.js",
+      runtime: "Node.js 20 · Express",
+      fileList: [
+        "src/app.js",
+        "src/config.js",
+        "src/db.js",
+        "src/server.js",
+        "src/middleware/auth.js",
+        "src/models/task.js",
+        "src/models/user.js",
+        "src/routes/auth.js",
+        "src/routes/tasks.js",
+        "package.json",
+        "README.md",
+      ],
+      files: {
+        "src/app.js": `const express = require('express');\nconst config = require('./config');\nconst { initDatabase } = require('./db');\n\nfunction createApp(customConfig = {}) {\n  const app = express();\n  const dbPath = customConfig.DB_PATH || config.DB_PATH;\n\n  // TODO: Initialize database and setup routes\n  return app;\n}\n\nmodule.exports = { createApp };\n`,
+        "src/config.js": `const path = require('path');\nrequire('dotenv').config();\n\nconst config = {\n  PORT: process.env.PORT || 5000,\n  JWT_SECRET: process.env.JWT_SECRET || 'yuvro-dev-secret-key-987654321',\n  DB_PATH: process.env.DB_PATH || path.resolve(__dirname, '../todo.db'),\n  JWT_EXPIRES_IN: '1d'\n};\n\nmodule.exports = config;\n`,
+        "package.json": `{\n  "name": "todo-app",\n  "version": "1.0.0",\n  "main": "src/server.js",\n  "scripts": {\n    "start": "node src/server.js"\n  },\n  "dependencies": {\n    "bcryptjs": "^2.4.3",\n    "dotenv": "^16.4.5",\n    "express": "^4.19.2",\n    "jsonwebtoken": "^9.0.2",\n    "sqlite3": "^5.1.7"\n  }\n}\n`,
+        "README.md": `# Node.js & Express Todo REST API Lab\n`,
+      },
+    };
+  }
+  if (
+    tag === "Flask Todo" ||
+    t === "flask" ||
+    s.includes("flask_todo") ||
+    s.includes("flask")
+  ) {
+    return {
+      name: "python",
+      rootLabel: "todo-app",
+      primary: "app/__init__.py",
+      runtime: "Python 3.12 · Flask",
+      fileList: [
+        "app/__init__.py",
+        "app/models.py",
+        "config.py",
+        "run.py",
+        "requirements.txt",
+        "README.md",
+      ],
+      files: {
+        "app/__init__.py": `from flask import Flask, jsonify\nfrom flask_sqlalchemy import SQLAlchemy\nfrom config import Config\n\ndb = SQLAlchemy()\n\ndef create_app(test_config=None):\n    app = Flask(__name__)\n    return app\n`,
+        "config.py": `import os\n\nclass Config:\n    SECRET_KEY = os.environ.get('SECRET_KEY', 'yuvro-dev-secret-key-987654321')\n    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')\n`,
+        "requirements.txt": `Flask>=3.0.0\nFlask-SQLAlchemy>=3.1.1\n`,
+        "README.md": `# Flask Todo App\n`,
+      },
+    };
+  }
   if (tag === "Django Todo" || t === "django") {
     return {
       name: "django",
@@ -1374,7 +1479,7 @@ export function TicketIDE({
   const starters: Record<string, string> = useMemo(() => {
     if (initialFiles) return initialFiles;
     if (isReal && slug !== "knowledge") {
-      const s: Record<string, string> = {};
+      const s: Record<string, string> = { ...kit.files };
       if (defaultPrimaryFile) {
         s[defaultPrimaryFile] = defaultStarterCode;
       }
@@ -2260,9 +2365,13 @@ export function TicketIDE({
   async function handleRun() {
     if (isReal) {
       const filesToSave = getFilesToSave();
-      Promise.all(
-        Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
-      ).catch(console.error);
+      try {
+        await Promise.all(
+          Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
+        );
+      } catch (err) {
+        console.error("Failed to save files before running tests:", err);
+      }
     }
     setRunning(true);
     const src = files[activeFile] ?? "";
@@ -3758,7 +3867,7 @@ export function TicketIDE({
                 </div>
                 <div className="flex-1 overflow-auto px-1 pb-2 min-h-0">
                   <FileTree
-                    rootLabel={isReal ? ticket.title || "Project" : kit.rootLabel}
+                    rootLabel={isAlgo ? (ticket.title || kit.rootLabel || "Project") : (kit.rootLabel || "todo-app")}
                     paths={fileList}
                     activeFile={activeFile}
                     dirty={dirty}
