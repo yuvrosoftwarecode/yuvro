@@ -163,26 +163,46 @@ class AnthropicService(BaseAIService):
             create_params = {
                 "model": self.model_name,
                 "max_tokens": max_tokens,
-                "temperature": temperature,
                 "messages": anthropic_messages,
                 **kwargs,
             }
+            if temperature is not None:
+                create_params["temperature"] = temperature
             if system_message:
                 create_params["system"] = system_message
 
-            if stream:
+            try:
+                if stream:
+                    response = await self.client.messages.create(
+                        stream=True,
+                        **create_params,
+                    )
+                    return {
+                        "stream": response,
+                        "metadata": {"model": self.model_name},
+                    }
+
                 response = await self.client.messages.create(
-                    stream=True,
                     **create_params,
                 )
-                return {
-                    "stream": response,
-                    "metadata": {"model": self.model_name},
-                }
-
-            response = await self.client.messages.create(
-                **create_params,
-            )
+            except TypeError as te:
+                if "unexpected keyword argument 'temperature'" in str(te) and "temperature" in create_params:
+                    logger.warning("Anthropic client does not accept 'temperature', retrying without it.")
+                    create_params.pop("temperature", None)
+                    if stream:
+                        response = await self.client.messages.create(
+                            stream=True,
+                            **create_params,
+                        )
+                        return {
+                            "stream": response,
+                            "metadata": {"model": self.model_name},
+                        }
+                    response = await self.client.messages.create(
+                        **create_params,
+                    )
+                else:
+                    raise
 
             end_time = time.time()
             response_time_ms = int((end_time - start_time) * 1000)
@@ -200,6 +220,52 @@ class AnthropicService(BaseAIService):
                 },
             }
         except Exception as e:
+            err_str = str(e).lower()
+            if ("404" in err_str or "not_found" in err_str or "not found" in err_str) and not kwargs.get("_is_fallback"):
+                fallback_models = [
+                    "claude-3-5-sonnet-20241022",
+                    "claude-3-5-haiku-20241022",
+                    "claude-3-haiku-20240307",
+                ]
+                for fallback_model in fallback_models:
+                    if fallback_model == self.model_name:
+                        continue
+                    logger.warning(
+                        f"Anthropic model {self.model_name} failed with 404. Attempting fallback to {fallback_model}."
+                    )
+                    try:
+                        fallback_params = dict(create_params)
+                        fallback_params["model"] = fallback_model
+                        fallback_params.pop("temperature", None)
+                        if stream:
+                            response = await self.client.messages.create(
+                                stream=True,
+                                **fallback_params,
+                            )
+                            return {
+                                "stream": response,
+                                "metadata": {"model": fallback_model},
+                            }
+                        response = await self.client.messages.create(
+                            **fallback_params,
+                        )
+                        end_time = time.time()
+                        response_time_ms = int((end_time - start_time) * 1000)
+                        return {
+                            "response": response.content[0].text,
+                            "tokens_used": response.usage.input_tokens + response.usage.output_tokens,
+                            "response_time_ms": response_time_ms,
+                            "metadata": {
+                                "model": fallback_model,
+                                "stop_reason": response.stop_reason,
+                                "input_tokens": response.usage.input_tokens,
+                                "output_tokens": response.usage.output_tokens,
+                            },
+                        }
+                    except Exception as fb_err:
+                        logger.warning(f"Fallback to {fallback_model} failed: {fb_err}")
+                        continue
+
             logger.error(f"Anthropic API error: {str(e)}")
             raise AIServiceError(f"Anthropic API error: {str(e)}")
 

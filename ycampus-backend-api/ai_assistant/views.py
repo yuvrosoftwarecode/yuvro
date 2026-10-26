@@ -1,9 +1,10 @@
 import asyncio
 import logging
+import queue
 import threading
 import traceback
 from django.shortcuts import get_object_or_404
-from django.db import transaction
+from django.db import transaction, close_old_connections
 from django.utils import timezone
 from rest_framework import viewsets, permissions, status, serializers
 from rest_framework.decorators import action
@@ -39,6 +40,55 @@ from .services import AIServiceFactory, AIServiceError, InterviewReportGenerator
 logger = logging.getLogger(__name__)
 
 
+def sync_stream_adapter(async_generator_func, *args, **kwargs):
+    """
+    Consumes an async generator on a dedicated background thread with its own event loop
+    and yields chunks synchronously for Django WSGI StreamingHttpResponse.
+    """
+    q = queue.Queue(maxsize=100)
+    SENTINEL = object()
+
+    def runner():
+        close_old_connections()
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            async def run():
+                try:
+                    async for chunk in async_generator_func(*args, **kwargs):
+                        q.put(chunk)
+                except Exception as exc:
+                    logger.exception(f"Error in async stream runner: {exc}")
+                    q.put(exc)
+                finally:
+                    q.put(SENTINEL)
+
+            loop.run_until_complete(run())
+        except Exception as exc:
+            logger.exception(f"Fatal error in stream event loop: {exc}")
+            q.put(exc)
+            q.put(SENTINEL)
+        finally:
+            try:
+                loop.close()
+            except Exception:
+                pass
+            close_old_connections()
+
+    thread = threading.Thread(target=runner, daemon=True)
+    thread.start()
+
+    while True:
+        item = q.get()
+        if item is SENTINEL:
+            break
+        if isinstance(item, Exception):
+            import json
+            yield f"data: {json.dumps({'error': str(item)})}\n\n"
+            break
+        yield item
+
+
 class AIChatMixin:
     """
     Mixin for shared AI chat logic between ChatSessionViewSet and ChatViewSet.
@@ -64,6 +114,8 @@ class AIChatMixin:
         async def stream_generator():
             full_response_text = ""
             tokens_used = 0
+            response_data = {}
+            active_agent = ai_agent
             
             # Check if we should bypass AI for predefined mock interview (0 latency mode)
             context = chat_session.context or {}
@@ -100,7 +152,7 @@ class AIChatMixin:
             if not is_predefined:
                 # Original AI Service logic
                 ai_service = AIServiceFactory.create_service(
-                    ai_agent.provider, ai_agent.model_name
+                    active_agent.provider, active_agent.model_name
                 )
             
             try:
@@ -112,14 +164,40 @@ class AIChatMixin:
                     target_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
                     user_name = await sync_to_async(lambda: target_user.profile.full_name if (target_user and hasattr(target_user, 'profile') and target_user.profile.full_name) else (target_user.first_name if target_user else "User"))()
 
-                    response_data = await ai_service.generate_response(
-                        messages=messages,
-                        temperature=temperature,
-                        max_tokens=max_tokens,
-                        page_content=page_content,
-                        user_name=user_name,
-                        stream=True,
-                    )
+                    try:
+                        response_data = await ai_service.generate_response(
+                            messages=messages,
+                            temperature=temperature,
+                            max_tokens=max_tokens,
+                            page_content=page_content,
+                            user_name=user_name,
+                            stream=True,
+                        )
+                    except Exception as primary_err:
+                        if active_agent and active_agent.provider != "gemini":
+                            logger.warning(
+                                f"Primary AI agent ({active_agent.provider}/{active_agent.model_name}) failed: {primary_err}. Attempting fallback to Gemini."
+                            )
+                            gemini_agent = await sync_to_async(
+                                lambda: AIAgent.objects.filter(provider="gemini", is_active=True).first()
+                            )()
+                            if gemini_agent:
+                                active_agent = gemini_agent
+                                ai_service = AIServiceFactory.create_service(
+                                    gemini_agent.provider, gemini_agent.model_name
+                                )
+                                response_data = await ai_service.generate_response(
+                                    messages=messages,
+                                    temperature=temperature,
+                                    max_tokens=max_tokens,
+                                    page_content=page_content,
+                                    user_name=user_name,
+                                    stream=True,
+                                )
+                            else:
+                                raise primary_err
+                        else:
+                            raise primary_err
                 
                     if "stream" in response_data:
                         stream = response_data["stream"]
@@ -177,7 +255,7 @@ class AIChatMixin:
                     )
                     
                     await sync_to_async(self._update_usage_stats)(
-                        final_user, ai_agent, tokens_used
+                        final_user, active_agent, tokens_used
                     )
                     
                     chat_session.updated_at = timezone.now()
@@ -193,12 +271,12 @@ class AIChatMixin:
                 elif full_response_text and final_user:
                     # Just update usage stats for quick_chat
                     await sync_to_async(self._update_usage_stats)(
-                        final_user, ai_agent, tokens_used
+                        final_user, active_agent, tokens_used
                     )
                     yield f"data: {json.dumps({'done': True})}\n\n"
 
         response = StreamingHttpResponse(
-            stream_generator(), content_type="text/event-stream"
+            sync_stream_adapter(stream_generator), content_type="text/event-stream"
         )
         response["Cache-Control"] = "no-cache"
         response["X-Accel-Buffering"] = "no"  # Disable nginx buffering
