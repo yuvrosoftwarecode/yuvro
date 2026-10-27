@@ -2107,6 +2107,93 @@ def evaluate_task(body: EvaluateRequest):
     except Exception as e:
         return {"passed": False, "reason": f"Error during task evaluation: {e}"}
 
+async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
+    """
+    Fetch the student's GitHub integration from yhub-backend-api and configure
+    the workspace git remote so that `git push` goes to their GitHub repo with credentials.
+    Silently skips if not configured or on any error.
+    """
+    if not user_id:
+        return
+
+    yhub_url = os.environ.get("YHUB_INTERNAL_URL", os.environ.get("YHUB_BACKEND_URL", "http://yhub-backend:8000"))
+    internal_secret = os.environ.get("INTERNAL_API_SECRET", "dev-secret-key")
+
+    try:
+        import httpx
+        token = ""
+        username = ""
+
+        # Try yhub internal token endpoint (container network first, then host / localhost fallback)
+        token_urls = [
+            f"{yhub_url}/api/auth/internal/github-token/{user_id}/",
+            f"http://host.docker.internal:8003/api/auth/internal/github-token/{user_id}/",
+            f"http://localhost:8003/api/auth/internal/github-token/{user_id}/",
+        ]
+        
+        async with httpx.AsyncClient(timeout=4) as client:
+            for t_url in token_urls:
+                try:
+                    resp = await client.get(t_url, headers={"X-Internal-Secret": internal_secret})
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        token = data.get("access_token", "")
+                        username = data.get("github_username", "")
+                        if token:
+                            break
+                except Exception:
+                    continue
+
+        if not token:
+            return
+
+        # Ensure git is initialised in the workspace
+        await asyncio.create_subprocess_exec(
+            "git", "init",
+            cwd=str(ws_dir),
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.DEVNULL,
+        )
+
+        # Check existing remote origin
+        proc = await asyncio.create_subprocess_exec(
+            "git", "remote", "get-url", "origin",
+            cwd=str(ws_dir),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL,
+        )
+        stdout, _ = await proc.communicate()
+        existing_url = stdout.decode().strip()
+
+        if existing_url and "github.com" in existing_url:
+            clean_url = _re.sub(r"https://[^@]+@github\.com/", "https://github.com/", existing_url)
+            remote_url = clean_url.replace("https://github.com/", f"https://{token}@github.com/")
+            if remote_url != existing_url:
+                await asyncio.create_subprocess_exec(
+                    "git", "remote", "set-url", "origin", remote_url,
+                    cwd=str(ws_dir),
+                    stdout=asyncio.subprocess.DEVNULL,
+                    stderr=asyncio.subprocess.DEVNULL,
+                )
+        
+        # Configure git author
+        if username:
+            await asyncio.create_subprocess_exec(
+                "git", "config", "user.name", username,
+                cwd=str(ws_dir),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+            await asyncio.create_subprocess_exec(
+                "git", "config", "user.email", f"{username}@users.noreply.github.com",
+                cwd=str(ws_dir),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+    except Exception:
+        pass
+
+
 class RunCommandRequest(BaseModel):
     user_id: str
     lab_id: str
@@ -2118,6 +2205,9 @@ class RunCommandRequest(BaseModel):
 async def run_command_endpoint(body: RunCommandRequest):
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, body.evaluation_id)
     ws.mkdir(parents=True, exist_ok=True)
+    
+    if "git" in body.command:
+        await _setup_github_remote(ws, body.user_id)
     
     try:
         proc = await asyncio.create_subprocess_shell(
@@ -2806,66 +2896,6 @@ def ui_validate(body: UiValidateRequest):
         "user_img_b64":      base64.b64encode(user_img_bytes).decode(),
         "diff_img_b64":      diff_b64,
     }
-
-
-async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
-    """
-    Fetch the student's GitHub integration from ylabs-backend-api and configure
-    the workspace git remote so that `git push` goes to their GitHub repo.
-    Silently skips if not configured or on any error.
-    """
-    backend_url = os.environ.get("YLABS_BACKEND_URL", "http://localhost:8002")
-    try:
-        import httpx
-        async with httpx.AsyncClient(timeout=5) as client:
-            resp = await client.get(
-                f"{backend_url}/api/lab/github-integration/",
-                headers={"X-Internal-User-Id": user_id},
-            )
-            if resp.status_code != 200:
-                return
-            data = resp.json()
-            if not data.get("connected"):
-                return
-            username = data.get("github_username", "")
-            repo = data.get("github_repo", "")
-            pat = data.get("pat", "")  # returned only in internal calls
-            if not (username and repo and pat):
-                return
-
-            remote_url = f"https://{pat}@github.com/{username}/{repo}.git"
-
-            # Ensure git is initialised in the workspace
-            await asyncio.create_subprocess_exec(
-                "git", "init",
-                cwd=str(ws_dir),
-                stdout=asyncio.subprocess.DEVNULL,
-                stderr=asyncio.subprocess.DEVNULL,
-            )
-
-            # Set or update the origin remote
-            await asyncio.create_subprocess_exec(
-                "git", "remote", "set-url", "origin", remote_url,
-                cwd=str(ws_dir),
-                stdout=asyncio.subprocess.DEVNULL,
-                stderr=asyncio.subprocess.DEVNULL,
-            )
-            
-            # Configure git author
-            await asyncio.create_subprocess_exec(
-                "git", "config", "user.name", username,
-                cwd=str(ws_dir),
-                stdout=asyncio.subprocess.DEVNULL,
-                stderr=asyncio.subprocess.DEVNULL,
-            )
-            await asyncio.create_subprocess_exec(
-                "git", "config", "user.email", f"{username}@users.noreply.github.com",
-                cwd=str(ws_dir),
-                stdout=asyncio.subprocess.DEVNULL,
-                stderr=asyncio.subprocess.DEVNULL,
-            )
-    except Exception:
-        pass  # Always fail silently — terminal should still open
 
 
 # ─── WebSocket PTY Terminal ────────────────────────────────────────────────────

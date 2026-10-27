@@ -886,7 +886,7 @@ function LabDashboard() {
   };
 
   if (ticketMatch || reportMatch) {
-    if (isUpcoming) {
+    if (!isLoading && realLab && realLab.status === "upcoming") {
       navigate({ to: "/student/dashboard" });
       return null;
     }
