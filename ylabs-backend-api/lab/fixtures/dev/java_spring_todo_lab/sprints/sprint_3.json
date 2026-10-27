@@ -1,156 +1,156 @@
 {
-  "title": "Sprint 3 — Task CRUD Operations & User Isolation",
-  "description": "Implement task creation, listing, and single retrieval while enforcing strict per-user data ownership.",
-  "order_index": 3,
-  "tickets": [
-    {
-      "title": "Ticket 1 - Create New Task API",
-      "ticket_slug": "java-spring-todo-31",
-      "description": "Implement `POST /api/tasks` allowing an authenticated user to create a task.\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Request Body\n```json\n{\n  \"title\": \"Complete Java Spring Boot Lab\",\n  \"description\": \"Finish all 4 sprints with passing tests\"\n}\n```\n\n### Requirements\n1. Protect endpoint with Spring Security authentication (extract current `User`).\n2. Validate that `title` is non-empty. Return `400 Bad Request` if title is missing.\n3. Create new `Task` entity associated with `currentUser`.\n4. Persist task to database and return `201 Created` with `{\"message\": \"Task created successfully\", \"task\": {...}}`.",
-      "difficulty": "EASY",
-      "learning_objectives": [
-        "Associate created JPA entities with authenticated users.",
-        "Implement payload validation for required fields in Spring Boot.",
-        "Return proper HTTP 201 Created responses with serialized entity maps."
-      ],
-      "tasks": [
+    "title": "Sprint 3 \u2014 Task CRUD Operations & User Isolation",
+    "description": "Implement task creation, listing, and single retrieval while enforcing strict per-user data ownership.",
+    "order_index": 3,
+    "tickets": [
         {
-          "title": "Require authentication on `POST /api/tasks`.",
-          "points": 30
+            "title": "Ticket 1 - Create New Task API",
+            "ticket_slug": "java-spring-todo-31",
+            "description": "Implement `POST /api/tasks` allowing an authenticated user to create a task.\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Request Body\n```json\n{\n  \"title\": \"Complete Java Spring Boot Lab\",\n  \"description\": \"Finish all 4 sprints with passing tests\"\n}\n```\n\n### Requirements\n1. Protect endpoint with Spring Security authentication (extract current `User`).\n2. Validate that `title` is non-empty. Return `400 Bad Request` if title is missing.\n3. Create new `Task` entity associated with `currentUser`.\n4. Persist task to database and return `201 Created` with `{\"message\": \"Task created successfully\", \"task\": {...}}`.",
+            "difficulty": "EASY",
+            "learning_objectives": [
+                "Associate created JPA entities with authenticated users.",
+                "Implement payload validation for required fields in Spring Boot.",
+                "Return proper HTTP 201 Created responses with serialized entity maps."
+            ],
+            "tasks": [
+                {
+                    "title": "Require authentication on `POST /api/tasks`.",
+                    "points": 30
+                },
+                {
+                    "title": "Validate non-empty title in request payload.",
+                    "points": 30
+                },
+                {
+                    "title": "Persist task to database with `user_id` set to current user.",
+                    "points": 40
+                }
+            ],
+            "common_mistakes": [
+                "Allowing the client to pass arbitrary `user_id` in the request body instead of taking it from the JWT authentication.",
+                "Allowing empty string titles to be saved."
+            ],
+            "hints": [
+                "Extract current user from `Authentication` using `(User) authentication.getPrincipal()`.",
+                "Instantiate `new Task(currentUser, title, description)` and call `taskRepository.save(task)`."
+            ],
+            "scoring_rules": {
+                "logic_score": 100,
+                "clean_code": 0,
+                "visual_accuracy": 0,
+                "starter_path": "src/main/java/com/yuvro/todo/controller/TaskController.java",
+                "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
+            },
+            "solution": {
+                "src/main/java/com/yuvro/todo/controller/TaskController.java": "package com.yuvro.todo.controller;\n\nimport com.yuvro.todo.entity.Task;\nimport com.yuvro.todo.entity.User;\nimport com.yuvro.todo.repository.TaskRepository;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.security.core.Authentication;\nimport org.springframework.web.bind.annotation.*;\n\nimport java.util.*;\n\n@RestController\n@RequestMapping(\"/api/tasks\")\npublic class TaskController {\n\n    private final TaskRepository taskRepository;\n\n    public TaskController(TaskRepository taskRepository) {\n        this.taskRepository = taskRepository;\n    }\n\n    private User getAuthenticatedUser(Authentication authentication) {\n        if (authentication != null && authentication.getPrincipal() instanceof User user) {\n            return user;\n        }\n        return null;\n    }\n\n    @PostMapping\n    public ResponseEntity<Map<String, Object>> createTask(\n            Authentication authentication,\n            @RequestBody(required = false) Map<String, Object> body) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        if (body == null || !body.containsKey(\"title\")) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String title = body.get(\"title\") != null ? body.get(\"title\").toString().trim() : \"\";\n        if (title.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String description = body.get(\"description\") != null ? body.get(\"description\").toString() : \"\";\n\n        Task task = new Task(currentUser, title, description);\n        task = taskRepository.save(task);\n\n        Map<String, Object> response = new HashMap<>();\n        response.put(\"message\", \"Task created successfully\");\n        response.put(\"task\", task.toDict());\n        return ResponseEntity.status(HttpStatus.CREATED).body(response);\n    }\n}\n",
+                "src/main/java/com/yuvro/todo/repository/TaskRepository.java": "package com.yuvro.todo.repository;\n\nimport com.yuvro.todo.entity.Task;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.stereotype.Repository;\n\n@Repository\npublic interface TaskRepository extends JpaRepository<Task, Long> {\n}\n"
+            },
+            "yuvro_points": 100,
+            "minutes_max": 25,
+            "accepted_programming_languages": [
+                "Java"
+            ],
+            "order_index": 1,
+            "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
         },
         {
-          "title": "Validate non-empty title in request payload.",
-          "points": 30
+            "title": "Ticket 2 - List Authenticated User Tasks",
+            "ticket_slug": "java-spring-todo-32",
+            "description": "Implement `GET /api/tasks` returning all tasks belonging to the authenticated user.\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Requirements\n1. Protect endpoint with Spring Security authentication.\n2. Query only tasks where `user.id == currentUser.getId()` ordered by creation date descending.\n3. Return `200 OK` with JSON `{\"tasks\": [...]}` containing an array of serialized task objects.",
+            "difficulty": "EASY",
+            "learning_objectives": [
+                "Filter JPA repository queries by authenticated user identifier.",
+                "Serialize collections of Spring Boot entities into JSON arrays.",
+                "Ensure data isolation between multiple users."
+            ],
+            "tasks": [
+                {
+                    "title": "Query tasks filtered by `currentUser.getId()`.",
+                    "points": 50
+                },
+                {
+                    "title": "Return JSON list of tasks with HTTP 200.",
+                    "points": 50
+                }
+            ],
+            "common_mistakes": [
+                "Querying all tasks (`taskRepository.findAll()`) instead of filtering by `userId`.",
+                "Returning un-serialized entity objects causing lazy-loading / circular reference errors."
+            ],
+            "hints": [
+                "Use `taskRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId())`.",
+                "Map tasks to dictionary: `tasks.stream().map(Task::toDict).collect(Collectors.toList())`."
+            ],
+            "scoring_rules": {
+                "logic_score": 100,
+                "clean_code": 0,
+                "visual_accuracy": 0,
+                "starter_path": "src/main/java/com/yuvro/todo/controller/TaskController.java",
+                "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
+            },
+            "solution": {
+                "src/main/java/com/yuvro/todo/controller/TaskController.java": "package com.yuvro.todo.controller;\n\nimport com.yuvro.todo.entity.Task;\nimport com.yuvro.todo.entity.User;\nimport com.yuvro.todo.repository.TaskRepository;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.security.core.Authentication;\nimport org.springframework.web.bind.annotation.*;\n\nimport java.util.*;\nimport java.util.stream.Collectors;\n\n@RestController\n@RequestMapping(\"/api/tasks\")\npublic class TaskController {\n\n    private final TaskRepository taskRepository;\n\n    public TaskController(TaskRepository taskRepository) {\n        this.taskRepository = taskRepository;\n    }\n\n    private User getAuthenticatedUser(Authentication authentication) {\n        if (authentication != null && authentication.getPrincipal() instanceof User user) {\n            return user;\n        }\n        return null;\n    }\n\n    @PostMapping\n    public ResponseEntity<Map<String, Object>> createTask(\n            Authentication authentication,\n            @RequestBody(required = false) Map<String, Object> body) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        if (body == null || !body.containsKey(\"title\")) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String title = body.get(\"title\") != null ? body.get(\"title\").toString().trim() : \"\";\n        if (title.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String description = body.get(\"description\") != null ? body.get(\"description\").toString() : \"\";\n\n        Task task = new Task(currentUser, title, description);\n        task = taskRepository.save(task);\n\n        Map<String, Object> response = new HashMap<>();\n        response.put(\"message\", \"Task created successfully\");\n        response.put(\"task\", task.toDict());\n        return ResponseEntity.status(HttpStatus.CREATED).body(response);\n    }\n\n    @GetMapping\n    public ResponseEntity<Map<String, Object>> listTasks(Authentication authentication) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        List<Task> tasks = taskRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId());\n        List<Map<String, Object>> taskDicts = tasks.stream()\n                .map(Task::toDict)\n                .collect(Collectors.toList());\n\n        return ResponseEntity.ok(Collections.singletonMap(\"tasks\", taskDicts));\n    }\n}\n",
+                "src/main/java/com/yuvro/todo/repository/TaskRepository.java": "package com.yuvro.todo.repository;\n\nimport com.yuvro.todo.entity.Task;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.Query;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Repository;\n\nimport java.util.List;\n\n@Repository\npublic interface TaskRepository extends JpaRepository<Task, Long> {\n    @Query(\"SELECT t FROM Task t WHERE t.user.id = :userId ORDER BY t.createdAt DESC\")\n    List<Task> findByUserIdOrderByCreatedAtDesc(@Param(\"userId\") Long userId);\n}\n"
+            },
+            "yuvro_points": 100,
+            "minutes_max": 20,
+            "accepted_programming_languages": [
+                "Java"
+            ],
+            "order_index": 2,
+            "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
         },
         {
-          "title": "Persist task to database with `user_id` set to current user.",
-          "points": 40
+            "title": "Ticket 3 - Retrieve Task by ID with Ownership Authorization",
+            "ticket_slug": "java-spring-todo-33",
+            "description": "Implement `GET /api/tasks/{id}` to retrieve the details of a specific task.\n\n### Requirements\n1. Protect endpoint with Spring Security authentication.\n2. Find task by `id`. If no task exists or if it belongs to another user, return `404 Not Found` with `{\"error\": \"Task not found\"}`.\n3. If the task belongs to `currentUser`, return `200 OK` with `{\"task\": task.toDict()}`.",
+            "difficulty": "MEDIUM",
+            "learning_objectives": [
+                "Implement single-resource REST endpoints with `@PathVariable`.",
+                "Enforce horizontal authorization / access control checks.",
+                "Prevent indirect object reference (IDOR) vulnerabilities."
+            ],
+            "tasks": [
+                {
+                    "title": "Retrieve task by primary key from URL parameter.",
+                    "points": 40
+                },
+                {
+                    "title": "Enforce ownership check: verify `task.user.id == currentUser.getId()`.",
+                    "points": 40
+                },
+                {
+                    "title": "Return HTTP 404 on missing or unauthorized task access.",
+                    "points": 20
+                }
+            ],
+            "common_mistakes": [
+                "Returning tasks of other users without checking `userId` (IDOR security flaw).",
+                "Throwing unhandled NoSuchElementException when non-existent IDs are queried."
+            ],
+            "hints": [
+                "Query using `taskRepository.findByIdAndUserId(id, currentUser.getId())` for atomic lookup and authorization.",
+                "If `taskOpt.isEmpty()`, return `ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap(\"error\", \"Task not found\"))`."
+            ],
+            "scoring_rules": {
+                "logic_score": 100,
+                "clean_code": 0,
+                "visual_accuracy": 0,
+                "starter_path": "src/main/java/com/yuvro/todo/controller/TaskController.java",
+                "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
+            },
+            "solution": {
+                "src/main/java/com/yuvro/todo/controller/TaskController.java": "package com.yuvro.todo.controller;\n\nimport com.yuvro.todo.entity.Task;\nimport com.yuvro.todo.entity.User;\nimport com.yuvro.todo.repository.TaskRepository;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.security.core.Authentication;\nimport org.springframework.web.bind.annotation.*;\n\nimport java.util.*;\nimport java.util.stream.Collectors;\n\n@RestController\n@RequestMapping(\"/api/tasks\")\npublic class TaskController {\n\n    private final TaskRepository taskRepository;\n\n    public TaskController(TaskRepository taskRepository) {\n        this.taskRepository = taskRepository;\n    }\n\n    private User getAuthenticatedUser(Authentication authentication) {\n        if (authentication != null && authentication.getPrincipal() instanceof User user) {\n            return user;\n        }\n        return null;\n    }\n\n    @PostMapping\n    public ResponseEntity<Map<String, Object>> createTask(\n            Authentication authentication,\n            @RequestBody(required = false) Map<String, Object> body) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        if (body == null || !body.containsKey(\"title\")) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String title = body.get(\"title\") != null ? body.get(\"title\").toString().trim() : \"\";\n        if (title.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String description = body.get(\"description\") != null ? body.get(\"description\").toString() : \"\";\n\n        Task task = new Task(currentUser, title, description);\n        task = taskRepository.save(task);\n\n        Map<String, Object> response = new HashMap<>();\n        response.put(\"message\", \"Task created successfully\");\n        response.put(\"task\", task.toDict());\n        return ResponseEntity.status(HttpStatus.CREATED).body(response);\n    }\n\n    @GetMapping\n    public ResponseEntity<Map<String, Object>> listTasks(Authentication authentication) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        List<Task> tasks = taskRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId());\n        List<Map<String, Object>> taskDicts = tasks.stream()\n                .map(Task::toDict)\n                .collect(Collectors.toList());\n\n        return ResponseEntity.ok(Collections.singletonMap(\"tasks\", taskDicts));\n    }\n\n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Map<String, Object>> getTask(\n            Authentication authentication,\n            @PathVariable Long id) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        Optional<Task> taskOpt = taskRepository.findByIdAndUserId(id, currentUser.getId());\n        if (taskOpt.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.NOT_FOUND)\n                    .body(Collections.singletonMap(\"error\", \"Task not found\"));\n        }\n\n        return ResponseEntity.ok(Collections.singletonMap(\"task\", taskOpt.get().toDict()));\n    }\n}\n",
+                "src/main/java/com/yuvro/todo/repository/TaskRepository.java": "package com.yuvro.todo.repository;\n\nimport com.yuvro.todo.entity.Task;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.Query;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Repository;\n\nimport java.util.List;\nimport java.util.Optional;\n\n@Repository\npublic interface TaskRepository extends JpaRepository<Task, Long> {\n    @Query(\"SELECT t FROM Task t WHERE t.user.id = :userId ORDER BY t.createdAt DESC\")\n    List<Task> findByUserIdOrderByCreatedAtDesc(@Param(\"userId\") Long userId);\n\n    @Query(\"SELECT t FROM Task t WHERE t.id = :id AND t.user.id = :userId\")\n    Optional<Task> findByIdAndUserId(@Param(\"id\") Long id, @Param(\"userId\") Long userId);\n}\n"
+            },
+            "yuvro_points": 100,
+            "minutes_max": 25,
+            "accepted_programming_languages": [
+                "Java"
+            ],
+            "order_index": 3,
+            "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
         }
-      ],
-      "common_mistakes": [
-        "Allowing the client to pass arbitrary `user_id` in the request body instead of taking it from the JWT authentication.",
-        "Allowing empty string titles to be saved."
-      ],
-      "hints": [
-        "Extract current user from `Authentication` using `(User) authentication.getPrincipal()`.",
-        "Instantiate `new Task(currentUser, title, description)` and call `taskRepository.save(task)`."
-      ],
-      "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0,
-        "starter_path": "src/main/java/com/yuvro/todo/controller/TaskController.java",
-        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
-      },
-      "solution": {
-        "src/main/java/com/yuvro/todo/controller/TaskController.java": "package com.yuvro.todo.controller;\n\nimport com.yuvro.todo.entity.Task;\nimport com.yuvro.todo.entity.User;\nimport com.yuvro.todo.repository.TaskRepository;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.security.core.Authentication;\nimport org.springframework.web.bind.annotation.*;\n\nimport java.util.*;\nimport java.util.stream.Collectors;\n\n@RestController\n@RequestMapping(\"/api/tasks\")\npublic class TaskController {\n\n    private final TaskRepository taskRepository;\n\n    public TaskController(TaskRepository taskRepository) {\n        this.taskRepository = taskRepository;\n    }\n\n    private User getAuthenticatedUser(Authentication authentication) {\n        if (authentication != null && authentication.getPrincipal() instanceof User user) {\n            return user;\n        }\n        return null;\n    }\n\n    @PostMapping\n    public ResponseEntity<Map<String, Object>> createTask(\n            Authentication authentication,\n            @RequestBody(required = false) Map<String, Object> body) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        if (body == null || !body.containsKey(\"title\")) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String title = body.get(\"title\") != null ? body.get(\"title\").toString().trim() : \"\";\n        if (title.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String description = body.get(\"description\") != null ? body.get(\"description\").toString() : \"\";\n\n        Task task = new Task(currentUser, title, description);\n        task = taskRepository.save(task);\n\n        Map<String, Object> response = new HashMap<>();\n        response.put(\"message\", \"Task created successfully\");\n        response.put(\"task\", task.toDict());\n        return ResponseEntity.status(HttpStatus.CREATED).body(response);\n    }\n\n    @GetMapping\n    public ResponseEntity<Map<String, Object>> listTasks(\n            Authentication authentication,\n            @RequestParam(required = false) String completed) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        List<Task> tasks;\n        if (completed != null && !completed.trim().isEmpty()) {\n            String c = completed.trim().toLowerCase();\n            boolean isComp = c.equals(\"true\") || c.equals(\"1\") || c.equals(\"yes\");\n            tasks = taskRepository.findByUserIdAndIsCompletedOrderByCreatedAtDesc(currentUser.getId(), isComp);\n        } else {\n            tasks = taskRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId());\n        }\n\n        List<Map<String, Object>> taskDicts = tasks.stream()\n                .map(Task::toDict)\n                .collect(Collectors.toList());\n\n        return ResponseEntity.ok(Collections.singletonMap(\"tasks\", taskDicts));\n    }\n\n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Map<String, Object>> getTask(\n            Authentication authentication,\n            @PathVariable Long id) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        Optional<Task> taskOpt = taskRepository.findByIdAndUserId(id, currentUser.getId());\n        if (taskOpt.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.NOT_FOUND)\n                    .body(Collections.singletonMap(\"error\", \"Task not found\"));\n        }\n\n        return ResponseEntity.ok(Collections.singletonMap(\"task\", taskOpt.get().toDict()));\n    }\n\n    @RequestMapping(value = \"/{id}\", method = {RequestMethod.PUT, RequestMethod.PATCH})\n    public ResponseEntity<Map<String, Object>> updateTask(\n            Authentication authentication,\n            @PathVariable Long id,\n            @RequestBody(required = false) Map<String, Object> body) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        Optional<Task> taskOpt = taskRepository.findByIdAndUserId(id, currentUser.getId());\n        if (taskOpt.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.NOT_FOUND)\n                    .body(Collections.singletonMap(\"error\", \"Task not found\"));\n        }\n\n        Task task = taskOpt.get();\n        if (body != null) {\n            if (body.containsKey(\"title\")) {\n                String title = body.get(\"title\") != null ? body.get(\"title\").toString().trim() : \"\";\n                if (title.isEmpty()) {\n                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                            .body(Collections.singletonMap(\"error\", \"Title cannot be empty\"));\n                }\n                task.setTitle(title);\n            }\n\n            if (body.containsKey(\"description\")) {\n                task.setDescription(body.get(\"description\") != null ? body.get(\"description\").toString() : null);\n            }\n\n            if (body.containsKey(\"is_completed\")) {\n                Object comp = body.get(\"is_completed\");\n                if (comp instanceof Boolean b) {\n                    task.setIsCompleted(b);\n                } else if (comp != null) {\n                    task.setIsCompleted(Boolean.parseBoolean(comp.toString()));\n                }\n            }\n        }\n\n        task = taskRepository.save(task);\n\n        Map<String, Object> response = new HashMap<>();\n        response.put(\"message\", \"Task updated successfully\");\n        response.put(\"task\", task.toDict());\n        return ResponseEntity.ok(response);\n    }\n\n    @DeleteMapping(\"/{id}\")\n    public ResponseEntity<Map<String, Object>> deleteTask(\n            Authentication authentication,\n            @PathVariable Long id) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        Optional<Task> taskOpt = taskRepository.findByIdAndUserId(id, currentUser.getId());\n        if (taskOpt.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.NOT_FOUND)\n                    .body(Collections.singletonMap(\"error\", \"Task not found\"));\n        }\n\n        taskRepository.delete(taskOpt.get());\n        return ResponseEntity.ok(Collections.singletonMap(\"message\", \"Task deleted successfully\"));\n    }\n}",
-        "src/main/java/com/yuvro/todo/repository/TaskRepository.java": "package com.yuvro.todo.repository;\n\nimport com.yuvro.todo.entity.Task;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.Query;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Repository;\n\nimport java.util.List;\nimport java.util.Optional;\n\n@Repository\npublic interface TaskRepository extends JpaRepository<Task, Long> {\n    @Query(\"SELECT t FROM Task t WHERE t.user.id = :userId ORDER BY t.createdAt DESC\")\n    List<Task> findByUserIdOrderByCreatedAtDesc(@Param(\"userId\") Long userId);\n\n    @Query(\"SELECT t FROM Task t WHERE t.user.id = :userId AND t.isCompleted = :isCompleted ORDER BY t.createdAt DESC\")\n    List<Task> findByUserIdAndIsCompletedOrderByCreatedAtDesc(@Param(\"userId\") Long userId, @Param(\"isCompleted\") Boolean isCompleted);\n\n    @Query(\"SELECT t FROM Task t WHERE t.id = :id AND t.user.id = :userId\")\n    Optional<Task> findByIdAndUserId(@Param(\"id\") Long id, @Param(\"userId\") Long userId);\n}"
-      },
-      "yuvro_points": 100,
-      "minutes_max": 25,
-      "accepted_programming_languages": [
-        "Java"
-      ],
-      "order_index": 1,
-      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
-    },
-    {
-      "title": "Ticket 2 - List Authenticated User Tasks",
-      "ticket_slug": "java-spring-todo-32",
-      "description": "Implement `GET /api/tasks` returning all tasks belonging to the authenticated user.\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Requirements\n1. Protect endpoint with Spring Security authentication.\n2. Query only tasks where `user.id == currentUser.getId()` ordered by creation date descending.\n3. Return `200 OK` with JSON `{\"tasks\": [...]}` containing an array of serialized task objects.",
-      "difficulty": "EASY",
-      "learning_objectives": [
-        "Filter JPA repository queries by authenticated user identifier.",
-        "Serialize collections of Spring Boot entities into JSON arrays.",
-        "Ensure data isolation between multiple users."
-      ],
-      "tasks": [
-        {
-          "title": "Query tasks filtered by `currentUser.getId()`.",
-          "points": 50
-        },
-        {
-          "title": "Return JSON list of tasks with HTTP 200.",
-          "points": 50
-        }
-      ],
-      "common_mistakes": [
-        "Querying all tasks (`taskRepository.findAll()`) instead of filtering by `userId`.",
-        "Returning un-serialized entity objects causing lazy-loading / circular reference errors."
-      ],
-      "hints": [
-        "Use `taskRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId())`.",
-        "Map tasks to dictionary: `tasks.stream().map(Task::toDict).collect(Collectors.toList())`."
-      ],
-      "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0,
-        "starter_path": "src/main/java/com/yuvro/todo/controller/TaskController.java",
-        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
-      },
-      "solution": {
-        "src/main/java/com/yuvro/todo/controller/TaskController.java": "package com.yuvro.todo.controller;\n\nimport com.yuvro.todo.entity.Task;\nimport com.yuvro.todo.entity.User;\nimport com.yuvro.todo.repository.TaskRepository;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.security.core.Authentication;\nimport org.springframework.web.bind.annotation.*;\n\nimport java.util.*;\nimport java.util.stream.Collectors;\n\n@RestController\n@RequestMapping(\"/api/tasks\")\npublic class TaskController {\n\n    private final TaskRepository taskRepository;\n\n    public TaskController(TaskRepository taskRepository) {\n        this.taskRepository = taskRepository;\n    }\n\n    private User getAuthenticatedUser(Authentication authentication) {\n        if (authentication != null && authentication.getPrincipal() instanceof User user) {\n            return user;\n        }\n        return null;\n    }\n\n    @PostMapping\n    public ResponseEntity<Map<String, Object>> createTask(\n            Authentication authentication,\n            @RequestBody(required = false) Map<String, Object> body) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        if (body == null || !body.containsKey(\"title\")) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String title = body.get(\"title\") != null ? body.get(\"title\").toString().trim() : \"\";\n        if (title.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String description = body.get(\"description\") != null ? body.get(\"description\").toString() : \"\";\n\n        Task task = new Task(currentUser, title, description);\n        task = taskRepository.save(task);\n\n        Map<String, Object> response = new HashMap<>();\n        response.put(\"message\", \"Task created successfully\");\n        response.put(\"task\", task.toDict());\n        return ResponseEntity.status(HttpStatus.CREATED).body(response);\n    }\n\n    @GetMapping\n    public ResponseEntity<Map<String, Object>> listTasks(\n            Authentication authentication,\n            @RequestParam(required = false) String completed) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        List<Task> tasks;\n        if (completed != null && !completed.trim().isEmpty()) {\n            String c = completed.trim().toLowerCase();\n            boolean isComp = c.equals(\"true\") || c.equals(\"1\") || c.equals(\"yes\");\n            tasks = taskRepository.findByUserIdAndIsCompletedOrderByCreatedAtDesc(currentUser.getId(), isComp);\n        } else {\n            tasks = taskRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId());\n        }\n\n        List<Map<String, Object>> taskDicts = tasks.stream()\n                .map(Task::toDict)\n                .collect(Collectors.toList());\n\n        return ResponseEntity.ok(Collections.singletonMap(\"tasks\", taskDicts));\n    }\n\n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Map<String, Object>> getTask(\n            Authentication authentication,\n            @PathVariable Long id) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        Optional<Task> taskOpt = taskRepository.findByIdAndUserId(id, currentUser.getId());\n        if (taskOpt.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.NOT_FOUND)\n                    .body(Collections.singletonMap(\"error\", \"Task not found\"));\n        }\n\n        return ResponseEntity.ok(Collections.singletonMap(\"task\", taskOpt.get().toDict()));\n    }\n\n    @RequestMapping(value = \"/{id}\", method = {RequestMethod.PUT, RequestMethod.PATCH})\n    public ResponseEntity<Map<String, Object>> updateTask(\n            Authentication authentication,\n            @PathVariable Long id,\n            @RequestBody(required = false) Map<String, Object> body) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        Optional<Task> taskOpt = taskRepository.findByIdAndUserId(id, currentUser.getId());\n        if (taskOpt.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.NOT_FOUND)\n                    .body(Collections.singletonMap(\"error\", \"Task not found\"));\n        }\n\n        Task task = taskOpt.get();\n        if (body != null) {\n            if (body.containsKey(\"title\")) {\n                String title = body.get(\"title\") != null ? body.get(\"title\").toString().trim() : \"\";\n                if (title.isEmpty()) {\n                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                            .body(Collections.singletonMap(\"error\", \"Title cannot be empty\"));\n                }\n                task.setTitle(title);\n            }\n\n            if (body.containsKey(\"description\")) {\n                task.setDescription(body.get(\"description\") != null ? body.get(\"description\").toString() : null);\n            }\n\n            if (body.containsKey(\"is_completed\")) {\n                Object comp = body.get(\"is_completed\");\n                if (comp instanceof Boolean b) {\n                    task.setIsCompleted(b);\n                } else if (comp != null) {\n                    task.setIsCompleted(Boolean.parseBoolean(comp.toString()));\n                }\n            }\n        }\n\n        task = taskRepository.save(task);\n\n        Map<String, Object> response = new HashMap<>();\n        response.put(\"message\", \"Task updated successfully\");\n        response.put(\"task\", task.toDict());\n        return ResponseEntity.ok(response);\n    }\n\n    @DeleteMapping(\"/{id}\")\n    public ResponseEntity<Map<String, Object>> deleteTask(\n            Authentication authentication,\n            @PathVariable Long id) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        Optional<Task> taskOpt = taskRepository.findByIdAndUserId(id, currentUser.getId());\n        if (taskOpt.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.NOT_FOUND)\n                    .body(Collections.singletonMap(\"error\", \"Task not found\"));\n        }\n\n        taskRepository.delete(taskOpt.get());\n        return ResponseEntity.ok(Collections.singletonMap(\"message\", \"Task deleted successfully\"));\n    }\n}",
-        "src/main/java/com/yuvro/todo/repository/TaskRepository.java": "package com.yuvro.todo.repository;\n\nimport com.yuvro.todo.entity.Task;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.Query;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Repository;\n\nimport java.util.List;\nimport java.util.Optional;\n\n@Repository\npublic interface TaskRepository extends JpaRepository<Task, Long> {\n    @Query(\"SELECT t FROM Task t WHERE t.user.id = :userId ORDER BY t.createdAt DESC\")\n    List<Task> findByUserIdOrderByCreatedAtDesc(@Param(\"userId\") Long userId);\n\n    @Query(\"SELECT t FROM Task t WHERE t.user.id = :userId AND t.isCompleted = :isCompleted ORDER BY t.createdAt DESC\")\n    List<Task> findByUserIdAndIsCompletedOrderByCreatedAtDesc(@Param(\"userId\") Long userId, @Param(\"isCompleted\") Boolean isCompleted);\n\n    @Query(\"SELECT t FROM Task t WHERE t.id = :id AND t.user.id = :userId\")\n    Optional<Task> findByIdAndUserId(@Param(\"id\") Long id, @Param(\"userId\") Long userId);\n}"
-      },
-      "yuvro_points": 100,
-      "minutes_max": 20,
-      "accepted_programming_languages": [
-        "Java"
-      ],
-      "order_index": 2,
-      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
-    },
-    {
-      "title": "Ticket 3 - Retrieve Task by ID with Ownership Authorization",
-      "ticket_slug": "java-spring-todo-33",
-      "description": "Implement `GET /api/tasks/{id}` to retrieve the details of a specific task.\n\n### Requirements\n1. Protect endpoint with Spring Security authentication.\n2. Find task by `id`. If no task exists or if it belongs to another user, return `404 Not Found` with `{\"error\": \"Task not found\"}`.\n3. If the task belongs to `currentUser`, return `200 OK` with `{\"task\": task.toDict()}`.",
-      "difficulty": "MEDIUM",
-      "learning_objectives": [
-        "Implement single-resource REST endpoints with `@PathVariable`.",
-        "Enforce horizontal authorization / access control checks.",
-        "Prevent indirect object reference (IDOR) vulnerabilities."
-      ],
-      "tasks": [
-        {
-          "title": "Retrieve task by primary key from URL parameter.",
-          "points": 40
-        },
-        {
-          "title": "Enforce ownership check: verify `task.user.id == currentUser.getId()`.",
-          "points": 40
-        },
-        {
-          "title": "Return HTTP 404 on missing or unauthorized task access.",
-          "points": 20
-        }
-      ],
-      "common_mistakes": [
-        "Returning tasks of other users without checking `userId` (IDOR security flaw).",
-        "Throwing unhandled NoSuchElementException when non-existent IDs are queried."
-      ],
-      "hints": [
-        "Query using `taskRepository.findByIdAndUserId(id, currentUser.getId())` for atomic lookup and authorization.",
-        "If `taskOpt.isEmpty()`, return `ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap(\"error\", \"Task not found\"))`."
-      ],
-      "scoring_rules": {
-        "logic_score": 100,
-        "clean_code": 0,
-        "visual_accuracy": 0,
-        "starter_path": "src/main/java/com/yuvro/todo/controller/TaskController.java",
-        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
-      },
-      "solution": {
-        "src/main/java/com/yuvro/todo/controller/TaskController.java": "package com.yuvro.todo.controller;\n\nimport com.yuvro.todo.entity.Task;\nimport com.yuvro.todo.entity.User;\nimport com.yuvro.todo.repository.TaskRepository;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.security.core.Authentication;\nimport org.springframework.web.bind.annotation.*;\n\nimport java.util.*;\nimport java.util.stream.Collectors;\n\n@RestController\n@RequestMapping(\"/api/tasks\")\npublic class TaskController {\n\n    private final TaskRepository taskRepository;\n\n    public TaskController(TaskRepository taskRepository) {\n        this.taskRepository = taskRepository;\n    }\n\n    private User getAuthenticatedUser(Authentication authentication) {\n        if (authentication != null && authentication.getPrincipal() instanceof User user) {\n            return user;\n        }\n        return null;\n    }\n\n    @PostMapping\n    public ResponseEntity<Map<String, Object>> createTask(\n            Authentication authentication,\n            @RequestBody(required = false) Map<String, Object> body) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        if (body == null || !body.containsKey(\"title\")) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String title = body.get(\"title\") != null ? body.get(\"title\").toString().trim() : \"\";\n        if (title.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                    .body(Collections.singletonMap(\"error\", \"Title is required\"));\n        }\n\n        String description = body.get(\"description\") != null ? body.get(\"description\").toString() : \"\";\n\n        Task task = new Task(currentUser, title, description);\n        task = taskRepository.save(task);\n\n        Map<String, Object> response = new HashMap<>();\n        response.put(\"message\", \"Task created successfully\");\n        response.put(\"task\", task.toDict());\n        return ResponseEntity.status(HttpStatus.CREATED).body(response);\n    }\n\n    @GetMapping\n    public ResponseEntity<Map<String, Object>> listTasks(\n            Authentication authentication,\n            @RequestParam(required = false) String completed) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        List<Task> tasks;\n        if (completed != null && !completed.trim().isEmpty()) {\n            String c = completed.trim().toLowerCase();\n            boolean isComp = c.equals(\"true\") || c.equals(\"1\") || c.equals(\"yes\");\n            tasks = taskRepository.findByUserIdAndIsCompletedOrderByCreatedAtDesc(currentUser.getId(), isComp);\n        } else {\n            tasks = taskRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId());\n        }\n\n        List<Map<String, Object>> taskDicts = tasks.stream()\n                .map(Task::toDict)\n                .collect(Collectors.toList());\n\n        return ResponseEntity.ok(Collections.singletonMap(\"tasks\", taskDicts));\n    }\n\n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Map<String, Object>> getTask(\n            Authentication authentication,\n            @PathVariable Long id) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        Optional<Task> taskOpt = taskRepository.findByIdAndUserId(id, currentUser.getId());\n        if (taskOpt.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.NOT_FOUND)\n                    .body(Collections.singletonMap(\"error\", \"Task not found\"));\n        }\n\n        return ResponseEntity.ok(Collections.singletonMap(\"task\", taskOpt.get().toDict()));\n    }\n\n    @RequestMapping(value = \"/{id}\", method = {RequestMethod.PUT, RequestMethod.PATCH})\n    public ResponseEntity<Map<String, Object>> updateTask(\n            Authentication authentication,\n            @PathVariable Long id,\n            @RequestBody(required = false) Map<String, Object> body) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        Optional<Task> taskOpt = taskRepository.findByIdAndUserId(id, currentUser.getId());\n        if (taskOpt.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.NOT_FOUND)\n                    .body(Collections.singletonMap(\"error\", \"Task not found\"));\n        }\n\n        Task task = taskOpt.get();\n        if (body != null) {\n            if (body.containsKey(\"title\")) {\n                String title = body.get(\"title\") != null ? body.get(\"title\").toString().trim() : \"\";\n                if (title.isEmpty()) {\n                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)\n                            .body(Collections.singletonMap(\"error\", \"Title cannot be empty\"));\n                }\n                task.setTitle(title);\n            }\n\n            if (body.containsKey(\"description\")) {\n                task.setDescription(body.get(\"description\") != null ? body.get(\"description\").toString() : null);\n            }\n\n            if (body.containsKey(\"is_completed\")) {\n                Object comp = body.get(\"is_completed\");\n                if (comp instanceof Boolean b) {\n                    task.setIsCompleted(b);\n                } else if (comp != null) {\n                    task.setIsCompleted(Boolean.parseBoolean(comp.toString()));\n                }\n            }\n        }\n\n        task = taskRepository.save(task);\n\n        Map<String, Object> response = new HashMap<>();\n        response.put(\"message\", \"Task updated successfully\");\n        response.put(\"task\", task.toDict());\n        return ResponseEntity.ok(response);\n    }\n\n    @DeleteMapping(\"/{id}\")\n    public ResponseEntity<Map<String, Object>> deleteTask(\n            Authentication authentication,\n            @PathVariable Long id) {\n        User currentUser = getAuthenticatedUser(authentication);\n        if (currentUser == null) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)\n                    .body(Collections.singletonMap(\"error\", \"Authorization token is missing or invalid\"));\n        }\n\n        Optional<Task> taskOpt = taskRepository.findByIdAndUserId(id, currentUser.getId());\n        if (taskOpt.isEmpty()) {\n            return ResponseEntity.status(HttpStatus.NOT_FOUND)\n                    .body(Collections.singletonMap(\"error\", \"Task not found\"));\n        }\n\n        taskRepository.delete(taskOpt.get());\n        return ResponseEntity.ok(Collections.singletonMap(\"message\", \"Task deleted successfully\"));\n    }\n}",
-        "src/main/java/com/yuvro/todo/repository/TaskRepository.java": "package com.yuvro.todo.repository;\n\nimport com.yuvro.todo.entity.Task;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.Query;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Repository;\n\nimport java.util.List;\nimport java.util.Optional;\n\n@Repository\npublic interface TaskRepository extends JpaRepository<Task, Long> {\n    @Query(\"SELECT t FROM Task t WHERE t.user.id = :userId ORDER BY t.createdAt DESC\")\n    List<Task> findByUserIdOrderByCreatedAtDesc(@Param(\"userId\") Long userId);\n\n    @Query(\"SELECT t FROM Task t WHERE t.user.id = :userId AND t.isCompleted = :isCompleted ORDER BY t.createdAt DESC\")\n    List<Task> findByUserIdAndIsCompletedOrderByCreatedAtDesc(@Param(\"userId\") Long userId, @Param(\"isCompleted\") Boolean isCompleted);\n\n    @Query(\"SELECT t FROM Task t WHERE t.id = :id AND t.user.id = :userId\")\n    Optional<Task> findByIdAndUserId(@Param(\"id\") Long id, @Param(\"userId\") Long userId);\n}"
-      },
-      "yuvro_points": 100,
-      "minutes_max": 25,
-      "accepted_programming_languages": [
-        "Java"
-      ],
-      "order_index": 3,
-      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
-    }
-  ]
+    ]
 }

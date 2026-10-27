@@ -1,166 +1,166 @@
 {
-    "title":  "Sprint 1 — Project Foundation \u0026 Database Models",
-    "description":  "Set up the Spring Boot application and implement relational JPA database entities for Users and Tasks.",
-    "order_index":  1,
-    "tickets":  [
-                    {
-                        "learning_objectives":  [
-                                                    "Understand Spring Boot application entrypoint and auto-configuration.",
-                                                    "Learn how to configure database connection strings in application.properties.",
-                                                    "Implement and verify basic REST controller JSON endpoints."
-                                                ],
-                        "hints":  [
-                                      "Annotate HealthController with @RestController and @RequestMapping(/api/health).",
-                                      "Return ResponseEntity.ok(Collections.singletonMap(\"status\", \"healthy\"))."
-                                  ],
-                        "yuvro_points":  100,
-                        "order_index":  1,
-                        "test_command":  "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py",
-                        "title":  "Ticket 1 - Initialize Spring Boot Application \u0026 Health Check",
-                        "scoring_rules":  {
-                                              "expected_response":  {
-                                                                        "status":  "healthy"
-                                                                    },
-                                              "starter_path":  "src/main/java/com/yuvro/todo/TodoApplication.java",
-                                              "test_command":  "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py",
-                                              "visual_accuracy":  0,
-                                              "expected_endpoint":  "/api/health",
-                                              "clean_code":  0,
-                                              "logic_score":  100
-                                          },
-                        "solution":  {
-                                         "src/main/java/com/yuvro/todo/TodoApplication.java":  "package com.yuvro.todo;\r\n\r\nimport org.springframework.boot.SpringApplication;\r\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\r\n\r\n@SpringBootApplication\r\npublic class TodoApplication {\r\n    public static void main(String[] args) {\r\n        SpringApplication.run(TodoApplication.class, args);\r\n    }\r\n}",
-                                         "src/main/resources/application.properties":  "server.port=5000\r\nspring.datasource.url=jdbc:sqlite:todo.db\r\nspring.datasource.driver-class-name=org.sqlite.JDBC\r\nspring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect\r\nspring.jpa.hibernate.ddl-auto=update\r\nspring.jpa.show-sql=false\r\n\r\njwt.secret=yuvro-dev-secret-key-987654321-spring-boot-todo-app-key-256-bits-long-enough\r\njwt.expiration=86400000",
-                                         "src/main/java/com/yuvro/todo/controller/HealthController.java":  "package com.yuvro.todo.controller;\r\n\r\nimport org.springframework.http.ResponseEntity;\r\nimport org.springframework.web.bind.annotation.GetMapping;\r\nimport org.springframework.web.bind.annotation.RequestMapping;\r\nimport org.springframework.web.bind.annotation.RestController;\r\n\r\nimport java.util.Collections;\r\nimport java.util.Map;\r\n\r\n@RestController\r\n@RequestMapping(\"/api/health\")\r\npublic class HealthController {\r\n\r\n    @GetMapping\r\n    public ResponseEntity\u003cMap\u003cString, String\u003e\u003e healthCheck() {\r\n        return ResponseEntity.ok(Collections.singletonMap(\"status\", \"healthy\"));\r\n    }\r\n}"
-                                     },
-                        "description":  "Initialize the Spring Boot application using @SpringBootApplication in TodoApplication.java. Configure the SQLite database connection and establish a baseline health check endpoint.\n\n### Requirements\n1. In TodoApplication.java, implement public static void main(String[] args) invoking SpringApplication.run(TodoApplication.class, args).\n2. In \u0007pplication.properties, configure spring.datasource.url=jdbc:sqlite:todo.db with SQLite driver and dialect.\n3. Register a health check route GET /api/health that returns JSON {\"status\": \"healthy\"} with HTTP 200 OK.\n4. Ensure the application runs on port 5000.",
-                        "ticket_slug":  "java-spring-todo-11",
-                        "difficulty":  "EASY",
-                        "common_mistakes":  [
-                                                "Returning plain text or HTML instead of ResponseEntity or JSON Map.",
-                                                "Hardcoding configuration inside controllers instead of application.properties."
-                                            ],
-                        "accepted_programming_languages":  [
-                                                               "Java"
-                                                           ],
-                        "minutes_max":  25,
-                        "tasks":  [
-                                      {
-                                          "points":  30,
-                                          "title":  "Create Spring Boot main entrypoint in TodoApplication.java."
-                                      },
-                                      {
-                                          "points":  30,
-                                          "title":  "Configure SQLite database in \u0007pplication.properties."
-                                      },
-                                      {
-                                          "points":  40,
-                                          "title":  "Implement GET /api/health returning {\"status\": \"healthy\"} with HTTP 200."
-                                      }
-                                  ]
-                    },
-                    {
-                        "learning_objectives":  [
-                                                    "Understand relational ORM modeling using Jakarta Persistence API (JPA).",
-                                                    "Implement secure password hashing using BCryptPasswordEncoder.",
-                                                    "Prevent accidental exposure of password hashes in serialization."
-                                                ],
-                        "hints":  [
-                                      "Use @Entity and @Table(name = \"users\").",
-                                      "Set \nullable = false and unique = true on username and email @Column."
-                                  ],
-                        "yuvro_points":  100,
-                        "order_index":  2,
-                        "test_command":  "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py",
-                        "title":  "Ticket 2 - Design and Implement User Entity",
-                        "scoring_rules":  {
-                                              "clean_code":  0,
-                                              "logic_score":  100,
-                                              "visual_accuracy":  0,
-                                              "starter_path":  "src/main/java/com/yuvro/todo/entity/User.java",
-                                              "test_command":  "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py"
-                                          },
-                        "solution":  {
-                                         "src/main/java/com/yuvro/todo/entity/User.java":  "package com.yuvro.todo.entity;\r\n\r\nimport com.fasterxml.jackson.annotation.JsonIgnore;\r\nimport jakarta.persistence.*;\r\nimport java.time.LocalDateTime;\r\nimport java.time.format.DateTimeFormatter;\r\nimport java.util.ArrayList;\r\nimport java.util.HashMap;\r\nimport java.util.List;\r\nimport java.util.Map;\r\n\r\n@Entity\r\n@Table(name = \"users\")\r\npublic class User {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @Column(unique = true, nullable = false, length = 80)\r\n    private String username;\r\n\r\n    @Column(unique = true, nullable = false, length = 120)\r\n    private String email;\r\n\r\n    @Column(name = \"password_hash\", nullable = false, length = 255)\r\n    private String passwordHash;\r\n\r\n    @Column(name = \"created_at\")\r\n    private LocalDateTime createdAt;\r\n\r\n    @JsonIgnore\r\n    @OneToMany(mappedBy = \"user\", cascade = CascadeType.ALL, orphanRemoval = true)\r\n    private List\u003cTask\u003e tasks = new ArrayList\u003c\u003e();\r\n\r\n    public User() {\r\n    }\r\n\r\n    public User(String username, String email, String passwordHash) {\r\n        this.username = username;\r\n        this.email = email;\r\n        this.passwordHash = passwordHash;\r\n        this.createdAt = LocalDateTime.now();\r\n    }\r\n\r\n    @PrePersist\r\n    public void prePersist() {\r\n        if (this.createdAt == null) {\r\n            this.createdAt = LocalDateTime.now();\r\n        }\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public String getUsername() {\r\n        return username;\r\n    }\r\n\r\n    public void setUsername(String username) {\r\n        this.username = username;\r\n    }\r\n\r\n    public String getEmail() {\r\n        return email;\r\n    }\r\n\r\n    public void setEmail(String email) {\r\n        this.email = email;\r\n    }\r\n\r\n    public String getPasswordHash() {\r\n        return passwordHash;\r\n    }\r\n\r\n    public void setPasswordHash(String passwordHash) {\r\n        this.passwordHash = passwordHash;\r\n    }\r\n\r\n    public LocalDateTime getCreatedAt() {\r\n        return createdAt;\r\n    }\r\n\r\n    public void setCreatedAt(LocalDateTime createdAt) {\r\n        this.createdAt = createdAt;\r\n    }\r\n\r\n    public List\u003cTask\u003e getTasks() {\r\n        return tasks;\r\n    }\r\n\r\n    public void setTasks(List\u003cTask\u003e tasks) {\r\n        this.tasks = tasks;\r\n    }\r\n\r\n    public Map\u003cString, Object\u003e toDict() {\r\n        Map\u003cString, Object\u003e map = new HashMap\u003c\u003e();\r\n        map.put(\"id\", this.id);\r\n        map.put(\"username\", this.username);\r\n        map.put(\"email\", this.email);\r\n        map.put(\"created_at\", this.createdAt != null ? this.createdAt.format(DateTimeFormatter.ISO_DATE_TIME) : null);\r\n        return map;\r\n    }\r\n}",
-                                         "src/main/java/com/yuvro/todo/config/SecurityConfig.java":  "package com.yuvro.todo.config;\r\n\r\nimport jakarta.servlet.http.HttpServletResponse;\r\nimport org.springframework.context.annotation.Bean;\r\nimport org.springframework.context.annotation.Configuration;\r\nimport org.springframework.http.HttpMethod;\r\nimport org.springframework.security.authentication.AuthenticationManager;\r\nimport org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;\r\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\r\nimport org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;\r\nimport org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;\r\nimport org.springframework.security.config.http.SessionCreationPolicy;\r\nimport org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;\r\nimport org.springframework.security.crypto.password.PasswordEncoder;\r\nimport org.springframework.security.web.SecurityFilterChain;\r\nimport org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;\r\n\r\n@Configuration\r\n@EnableWebSecurity\r\npublic class SecurityConfig {\r\n\r\n    private final JwtFilter jwtFilter;\r\n\r\n    public SecurityConfig(JwtFilter jwtFilter) {\r\n        this.jwtFilter = jwtFilter;\r\n    }\r\n\r\n    @Bean\r\n    public PasswordEncoder passwordEncoder() {\r\n        return new BCryptPasswordEncoder();\r\n    }\r\n\r\n    @Bean\r\n    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {\r\n        return config.getAuthenticationManager();\r\n    }\r\n\r\n    @Bean\r\n    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {\r\n        http\r\n            .csrf(AbstractHttpConfigurer::disable)\r\n            .cors(AbstractHttpConfigurer::disable)\r\n            .sessionManagement(session -\u003e session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))\r\n            .exceptionHandling(exceptions -\u003e exceptions\r\n                .authenticationEntryPoint((request, response, authException) -\u003e {\r\n                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);\r\n                    response.setContentType(\"application/json\");\r\n                    response.getWriter().write(\"{\\\"error\\\":\\\"Authorization token is missing or invalid\\\"}\");\r\n                })\r\n            )\r\n            .authorizeHttpRequests(auth -\u003e auth\r\n                .requestMatchers(\"/api/health\").permitAll()\r\n                .requestMatchers(HttpMethod.POST, \"/api/auth/register\", \"/api/auth/login\").permitAll()\r\n                .anyRequest().authenticated()\r\n            )\r\n            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);\r\n\r\n        return http.build();\r\n    }\r\n}"
-                                     },
-                        "description":  "Create the User JPA entity in src/main/java/com/yuvro/todo/entity/User.java. Ensure passwords are never stored in plain text by integrating password encryption.\n\n### Entity Specifications: users Table\n- id: Long, primary key, @GeneratedValue(strategy = GenerationType.IDENTITY).\n- username: String (max 80), unique, non-nullable.\n- email: String (max 120), unique, non-nullable.\n- password_hash: String (max 255), non-nullable.\n- created_at: LocalDateTime.\n\n### Helper Methods\n- \toDict(): Returns a Map representation of user info excluding password_hash.",
-                        "ticket_slug":  "java-spring-todo-12",
-                        "difficulty":  "EASY",
-                        "common_mistakes":  [
-                                                "Storing plain text passwords in the database.",
-                                                "Including password_hash in the \toDict() output map."
-                                            ],
-                        "accepted_programming_languages":  [
-                                                               "Java"
-                                                           ],
-                        "minutes_max":  30,
-                        "tasks":  [
-                                      {
-                                          "points":  40,
-                                          "title":  "Define User entity with id, username, email, and password_hash."
-                                      },
-                                      {
-                                          "points":  30,
-                                          "title":  "Implement password hashing helper and BCryptPasswordEncoder bean."
-                                      },
-                                      {
-                                          "points":  30,
-                                          "title":  "Implement \toDict serializer omitting sensitive fields."
-                                      }
-                                  ]
-                    },
-                    {
-                        "learning_objectives":  [
-                                                    "Implement one-to-many relationships in JPA with @ManyToOne and @OneToMany.",
-                                                    "Configure foreign key constraints and cascade rules.",
-                                                    "Handle timestamp tracking with @PrePersist and @PreUpdate."
-                                                ],
-                        "hints":  [
-                                      "Use @OneToMany(mappedBy = \"user\", cascade = CascadeType.ALL, orphanRemoval = true) on User.",
-                                      "Implement getUserId() returning user != null ? user.getId() : null."
-                                  ],
-                        "yuvro_points":  100,
-                        "order_index":  3,
-                        "test_command":  "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py",
-                        "title":  "Ticket 3 - Design Task Entity with User Relationship",
-                        "scoring_rules":  {
-                                              "clean_code":  0,
-                                              "logic_score":  100,
-                                              "visual_accuracy":  0,
-                                              "starter_path":  "src/main/java/com/yuvro/todo/entity/Task.java",
-                                              "test_command":  "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py"
-                                          },
-                        "solution":  {
-                                         "src/main/java/com/yuvro/todo/entity/Task.java":  "package com.yuvro.todo.entity;\r\n\r\nimport jakarta.persistence.*;\r\nimport java.time.LocalDateTime;\r\nimport java.time.format.DateTimeFormatter;\r\nimport java.util.HashMap;\r\nimport java.util.Map;\r\n\r\n@Entity\r\n@Table(name = \"tasks\")\r\npublic class Task {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @ManyToOne(fetch = FetchType.LAZY)\r\n    @JoinColumn(name = \"user_id\", nullable = false)\r\n    private User user;\r\n\r\n    @Column(nullable = false, length = 200)\r\n    private String title;\r\n\r\n    @Column(columnDefinition = \"TEXT\")\r\n    private String description;\r\n\r\n    @Column(name = \"is_completed\", nullable = false)\r\n    private Boolean isCompleted = false;\r\n\r\n    @Column(name = \"created_at\")\r\n    private LocalDateTime createdAt;\r\n\r\n    @Column(name = \"updated_at\")\r\n    private LocalDateTime updatedAt;\r\n\r\n    public Task() {\r\n    }\r\n\r\n    public Task(User user, String title, String description) {\r\n        this.user = user;\r\n        this.title = title;\r\n        this.description = description;\r\n        this.isCompleted = false;\r\n        this.createdAt = LocalDateTime.now();\r\n        this.updatedAt = LocalDateTime.now();\r\n    }\r\n\r\n    @PrePersist\r\n    public void prePersist() {\r\n        if (this.isCompleted == null) {\r\n            this.isCompleted = false;\r\n        }\r\n        if (this.createdAt == null) {\r\n            this.createdAt = LocalDateTime.now();\r\n        }\r\n        if (this.updatedAt == null) {\r\n            this.updatedAt = LocalDateTime.now();\r\n        }\r\n    }\r\n\r\n    @PreUpdate\r\n    public void preUpdate() {\r\n        this.updatedAt = LocalDateTime.now();\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public User getUser() {\r\n        return user;\r\n    }\r\n\r\n    public void setUser(User user) {\r\n        this.user = user;\r\n    }\r\n\r\n    public Long getUserId() {\r\n        return this.user != null ? this.user.getId() : null;\r\n    }\r\n\r\n    public String getTitle() {\r\n        return title;\r\n    }\r\n\r\n    public void setTitle(String title) {\r\n        this.title = title;\r\n    }\r\n\r\n    public String getDescription() {\r\n        return description;\r\n    }\r\n\r\n    public void setDescription(String description) {\r\n        this.description = description;\r\n    }\r\n\r\n    public Boolean getIsCompleted() {\r\n        return isCompleted;\r\n    }\r\n\r\n    public void setIsCompleted(Boolean isCompleted) {\r\n        this.isCompleted = isCompleted;\r\n    }\r\n\r\n    public LocalDateTime getCreatedAt() {\r\n        return createdAt;\r\n    }\r\n\r\n    public void setCreatedAt(LocalDateTime createdAt) {\r\n        this.createdAt = createdAt;\r\n    }\r\n\r\n    public LocalDateTime getUpdatedAt() {\r\n        return updatedAt;\r\n    }\r\n\r\n    public void setUpdatedAt(LocalDateTime updatedAt) {\r\n        this.updatedAt = updatedAt;\r\n    }\r\n\r\n    public Map\u003cString, Object\u003e toDict() {\r\n        Map\u003cString, Object\u003e map = new HashMap\u003c\u003e();\r\n        map.put(\"id\", this.id);\r\n        map.put(\"user_id\", getUserId());\r\n        map.put(\"title\", this.title);\r\n        map.put(\"description\", this.description);\r\n        map.put(\"is_completed\", this.isCompleted != null ? this.isCompleted : false);\r\n        map.put(\"created_at\", this.createdAt != null ? this.createdAt.format(DateTimeFormatter.ISO_DATE_TIME) : null);\r\n        map.put(\"updated_at\", this.updatedAt != null ? this.updatedAt.format(DateTimeFormatter.ISO_DATE_TIME) : null);\r\n        return map;\r\n    }\r\n}",
-                                         "src/main/java/com/yuvro/todo/entity/User.java":  "package com.yuvro.todo.entity;\r\n\r\nimport com.fasterxml.jackson.annotation.JsonIgnore;\r\nimport jakarta.persistence.*;\r\nimport java.time.LocalDateTime;\r\nimport java.time.format.DateTimeFormatter;\r\nimport java.util.ArrayList;\r\nimport java.util.HashMap;\r\nimport java.util.List;\r\nimport java.util.Map;\r\n\r\n@Entity\r\n@Table(name = \"users\")\r\npublic class User {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @Column(unique = true, nullable = false, length = 80)\r\n    private String username;\r\n\r\n    @Column(unique = true, nullable = false, length = 120)\r\n    private String email;\r\n\r\n    @Column(name = \"password_hash\", nullable = false, length = 255)\r\n    private String passwordHash;\r\n\r\n    @Column(name = \"created_at\")\r\n    private LocalDateTime createdAt;\r\n\r\n    @JsonIgnore\r\n    @OneToMany(mappedBy = \"user\", cascade = CascadeType.ALL, orphanRemoval = true)\r\n    private List\u003cTask\u003e tasks = new ArrayList\u003c\u003e();\r\n\r\n    public User() {\r\n    }\r\n\r\n    public User(String username, String email, String passwordHash) {\r\n        this.username = username;\r\n        this.email = email;\r\n        this.passwordHash = passwordHash;\r\n        this.createdAt = LocalDateTime.now();\r\n    }\r\n\r\n    @PrePersist\r\n    public void prePersist() {\r\n        if (this.createdAt == null) {\r\n            this.createdAt = LocalDateTime.now();\r\n        }\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public String getUsername() {\r\n        return username;\r\n    }\r\n\r\n    public void setUsername(String username) {\r\n        this.username = username;\r\n    }\r\n\r\n    public String getEmail() {\r\n        return email;\r\n    }\r\n\r\n    public void setEmail(String email) {\r\n        this.email = email;\r\n    }\r\n\r\n    public String getPasswordHash() {\r\n        return passwordHash;\r\n    }\r\n\r\n    public void setPasswordHash(String passwordHash) {\r\n        this.passwordHash = passwordHash;\r\n    }\r\n\r\n    public LocalDateTime getCreatedAt() {\r\n        return createdAt;\r\n    }\r\n\r\n    public void setCreatedAt(LocalDateTime createdAt) {\r\n        this.createdAt = createdAt;\r\n    }\r\n\r\n    public List\u003cTask\u003e getTasks() {\r\n        return tasks;\r\n    }\r\n\r\n    public void setTasks(List\u003cTask\u003e tasks) {\r\n        this.tasks = tasks;\r\n    }\r\n\r\n    public Map\u003cString, Object\u003e toDict() {\r\n        Map\u003cString, Object\u003e map = new HashMap\u003c\u003e();\r\n        map.put(\"id\", this.id);\r\n        map.put(\"username\", this.username);\r\n        map.put(\"email\", this.email);\r\n        map.put(\"created_at\", this.createdAt != null ? this.createdAt.format(DateTimeFormatter.ISO_DATE_TIME) : null);\r\n        return map;\r\n    }\r\n}"
-                                     },
-                        "description":  "Implement the Task entity in src/main/java/com/yuvro/todo/entity/Task.java and link it to the User entity via a foreign key relationship.\n\n### Entity Specifications: \tasks Table\n- id: Long, primary key, auto-incrementing.\n- user: User, @ManyToOne(fetch = FetchType.LAZY) with @JoinColumn(name = \"user_id\", nullable = false).\n- \title: String (max 200), non-nullable.\n- description: String (TEXT), nullable.\n- is_completed: Boolean, default \false, non-nullable.\n- created_at: LocalDateTime.\n- updated_at: LocalDateTime.\n\n### Helper Methods\n- \toDict(): Returns a Map representation of the task (id, user_id, \title, description, is_completed, created_at, updated_at).",
-                        "ticket_slug":  "java-spring-todo-13",
-                        "difficulty":  "EASY",
-                        "common_mistakes":  [
-                                                "Missing @ManyToOne or @JoinColumn(name = \"user_id\").",
-                                                "Forgetting to set is_completed default value to \false."
-                                            ],
-                        "accepted_programming_languages":  [
-                                                               "Java"
-                                                           ],
-                        "minutes_max":  25,
-                        "tasks":  [
-                                      {
-                                          "points":  50,
-                                          "title":  "Define Task entity with foreign key pointing to users.id."
-                                      },
-                                      {
-                                          "points":  30,
-                                          "title":  "Configure relationship and cascade delete between User and Task."
-                                      },
-                                      {
-                                          "points":  20,
-                                          "title":  "Implement \toDict() serialization method."
-                                      }
-                                  ]
-                    }
-                ],
-    "lab_title":  "Java Spring Boot Todo REST API Lab"
+    "title": "Sprint 1 \u2014 Project Foundation & Database Models",
+    "description": "Set up the Spring Boot application and implement relational JPA database entities for Users and Tasks.",
+    "order_index": 1,
+    "tickets": [
+        {
+            "learning_objectives": [
+                "Understand Spring Boot application entrypoint and auto-configuration.",
+                "Learn how to configure database connection strings in application.properties.",
+                "Implement and verify basic REST controller JSON endpoints."
+            ],
+            "hints": [
+                "Annotate HealthController with @RestController and @RequestMapping(/api/health).",
+                "Return ResponseEntity.ok(Collections.singletonMap(\"status\", \"healthy\"))."
+            ],
+            "yuvro_points": 100,
+            "order_index": 1,
+            "test_command": "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py",
+            "title": "Ticket 1 - Initialize Spring Boot Application & Health Check",
+            "scoring_rules": {
+                "expected_response": {
+                    "status": "healthy"
+                },
+                "starter_path": "src/main/java/com/yuvro/todo/TodoApplication.java",
+                "test_command": "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py",
+                "visual_accuracy": 0,
+                "expected_endpoint": "/api/health",
+                "clean_code": 0,
+                "logic_score": 100
+            },
+            "solution": {
+                "src/main/java/com/yuvro/todo/TodoApplication.java": "package com.yuvro.todo;\r\n\r\nimport org.springframework.boot.SpringApplication;\r\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\r\n\r\n@SpringBootApplication\r\npublic class TodoApplication {\r\n    public static void main(String[] args) {\r\n        SpringApplication.run(TodoApplication.class, args);\r\n    }\r\n}",
+                "src/main/resources/application.properties": "server.port=5000\r\nspring.datasource.url=jdbc:sqlite:todo.db\r\nspring.datasource.driver-class-name=org.sqlite.JDBC\r\nspring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect\r\nspring.jpa.hibernate.ddl-auto=update\r\nspring.jpa.show-sql=false\r\n\r\njwt.secret=yuvro-dev-secret-key-987654321-spring-boot-todo-app-key-256-bits-long-enough\r\njwt.expiration=86400000",
+                "src/main/java/com/yuvro/todo/controller/HealthController.java": "package com.yuvro.todo.controller;\r\n\r\nimport org.springframework.http.ResponseEntity;\r\nimport org.springframework.web.bind.annotation.GetMapping;\r\nimport org.springframework.web.bind.annotation.RequestMapping;\r\nimport org.springframework.web.bind.annotation.RestController;\r\n\r\nimport java.util.Collections;\r\nimport java.util.Map;\r\n\r\n@RestController\r\n@RequestMapping(\"/api/health\")\r\npublic class HealthController {\r\n\r\n    @GetMapping\r\n    public ResponseEntity<Map<String, String>> healthCheck() {\r\n        return ResponseEntity.ok(Collections.singletonMap(\"status\", \"healthy\"));\r\n    }\r\n}"
+            },
+            "description": "Initialize the Spring Boot application using @SpringBootApplication in TodoApplication.java. Configure the SQLite database connection and establish a baseline health check endpoint.\n\n### Requirements\n1. In TodoApplication.java, implement public static void main(String[] args) invoking SpringApplication.run(TodoApplication.class, args).\n2. In \u0007pplication.properties, configure spring.datasource.url=jdbc:sqlite:todo.db with SQLite driver and dialect.\n3. Register a health check route GET /api/health that returns JSON {\"status\": \"healthy\"} with HTTP 200 OK.\n4. Ensure the application runs on port 5000.",
+            "ticket_slug": "java-spring-todo-11",
+            "difficulty": "EASY",
+            "common_mistakes": [
+                "Returning plain text or HTML instead of ResponseEntity or JSON Map.",
+                "Hardcoding configuration inside controllers instead of application.properties."
+            ],
+            "accepted_programming_languages": [
+                "Java"
+            ],
+            "minutes_max": 25,
+            "tasks": [
+                {
+                    "points": 30,
+                    "title": "Create Spring Boot main entrypoint in TodoApplication.java."
+                },
+                {
+                    "points": 30,
+                    "title": "Configure SQLite database in \u0007pplication.properties."
+                },
+                {
+                    "points": 40,
+                    "title": "Implement GET /api/health returning {\"status\": \"healthy\"} with HTTP 200."
+                }
+            ]
+        },
+        {
+            "learning_objectives": [
+                "Understand relational ORM modeling using Jakarta Persistence API (JPA).",
+                "Implement secure password hashing using BCryptPasswordEncoder.",
+                "Prevent accidental exposure of password hashes in serialization."
+            ],
+            "hints": [
+                "Use @Entity and @Table(name = \"users\").",
+                "Set \nullable = false and unique = true on username and email @Column."
+            ],
+            "yuvro_points": 100,
+            "order_index": 2,
+            "test_command": "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py",
+            "title": "Ticket 2 - Design and Implement User Entity",
+            "scoring_rules": {
+                "clean_code": 0,
+                "logic_score": 100,
+                "visual_accuracy": 0,
+                "starter_path": "src/main/java/com/yuvro/todo/entity/User.java",
+                "test_command": "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py"
+            },
+            "solution": {
+                "src/main/java/com/yuvro/todo/entity/User.java": "package com.yuvro.todo.entity;\n\nimport jakarta.persistence.*;\nimport java.time.LocalDateTime;\nimport java.time.format.DateTimeFormatter;\nimport java.util.HashMap;\nimport java.util.Map;\n\n@Entity\n@Table(name = \"users\")\npublic class User {\n\n    @Id\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n\n    @Column(unique = true, nullable = false, length = 80)\n    private String username;\n\n    @Column(unique = true, nullable = false, length = 120)\n    private String email;\n\n    @Column(name = \"password_hash\", nullable = false, length = 255)\n    private String passwordHash;\n\n    @Column(name = \"created_at\")\n    private LocalDateTime createdAt;\n\n    public User() {\n    }\n\n    public User(String username, String email, String passwordHash) {\n        this.username = username;\n        this.email = email;\n        this.passwordHash = passwordHash;\n        this.createdAt = LocalDateTime.now();\n    }\n\n    @PrePersist\n    public void prePersist() {\n        if (this.createdAt == null) {\n            this.createdAt = LocalDateTime.now();\n        }\n    }\n\n    public Long getId() {\n        return id;\n    }\n\n    public void setId(Long id) {\n        this.id = id;\n    }\n\n    public String getUsername() {\n        return username;\n    }\n\n    public void setUsername(String username) {\n        this.username = username;\n    }\n\n    public String getEmail() {\n        return email;\n    }\n\n    public void setEmail(String email) {\n        this.email = email;\n    }\n\n    public String getPasswordHash() {\n        return passwordHash;\n    }\n\n    public void setPasswordHash(String passwordHash) {\n        this.passwordHash = passwordHash;\n    }\n\n    public LocalDateTime getCreatedAt() {\n        return createdAt;\n    }\n\n    public void setCreatedAt(LocalDateTime createdAt) {\n        this.createdAt = createdAt;\n    }\n\n    public Map<String, Object> toDict() {\n        Map<String, Object> map = new HashMap<>();\n        map.put(\"id\", this.id);\n        map.put(\"username\", this.username);\n        map.put(\"email\", this.email);\n        map.put(\"created_at\", this.createdAt != null ? this.createdAt.format(DateTimeFormatter.ISO_DATE_TIME) : null);\n        return map;\n    }\n}\n",
+                "src/main/java/com/yuvro/todo/config/SecurityConfig.java": "package com.yuvro.todo.config;\r\n\r\nimport jakarta.servlet.http.HttpServletResponse;\r\nimport org.springframework.context.annotation.Bean;\r\nimport org.springframework.context.annotation.Configuration;\r\nimport org.springframework.http.HttpMethod;\r\nimport org.springframework.security.authentication.AuthenticationManager;\r\nimport org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;\r\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\r\nimport org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;\r\nimport org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;\r\nimport org.springframework.security.config.http.SessionCreationPolicy;\r\nimport org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;\r\nimport org.springframework.security.crypto.password.PasswordEncoder;\r\nimport org.springframework.security.web.SecurityFilterChain;\r\nimport org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;\r\n\r\n@Configuration\r\n@EnableWebSecurity\r\npublic class SecurityConfig {\r\n\r\n    private final JwtFilter jwtFilter;\r\n\r\n    public SecurityConfig(JwtFilter jwtFilter) {\r\n        this.jwtFilter = jwtFilter;\r\n    }\r\n\r\n    @Bean\r\n    public PasswordEncoder passwordEncoder() {\r\n        return new BCryptPasswordEncoder();\r\n    }\r\n\r\n    @Bean\r\n    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {\r\n        return config.getAuthenticationManager();\r\n    }\r\n\r\n    @Bean\r\n    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {\r\n        http\r\n            .csrf(AbstractHttpConfigurer::disable)\r\n            .cors(AbstractHttpConfigurer::disable)\r\n            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))\r\n            .exceptionHandling(exceptions -> exceptions\r\n                .authenticationEntryPoint((request, response, authException) -> {\r\n                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);\r\n                    response.setContentType(\"application/json\");\r\n                    response.getWriter().write(\"{\\\"error\\\":\\\"Authorization token is missing or invalid\\\"}\");\r\n                })\r\n            )\r\n            .authorizeHttpRequests(auth -> auth\r\n                .requestMatchers(\"/api/health\").permitAll()\r\n                .requestMatchers(HttpMethod.POST, \"/api/auth/register\", \"/api/auth/login\").permitAll()\r\n                .anyRequest().authenticated()\r\n            )\r\n            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);\r\n\r\n        return http.build();\r\n    }\r\n}"
+            },
+            "description": "Create the User JPA entity in src/main/java/com/yuvro/todo/entity/User.java. Ensure passwords are never stored in plain text by integrating password encryption.\n\n### Entity Specifications: users Table\n- id: Long, primary key, @GeneratedValue(strategy = GenerationType.IDENTITY).\n- username: String (max 80), unique, non-nullable.\n- email: String (max 120), unique, non-nullable.\n- password_hash: String (max 255), non-nullable.\n- created_at: LocalDateTime.\n\n### Helper Methods\n- \toDict(): Returns a Map representation of user info excluding password_hash.",
+            "ticket_slug": "java-spring-todo-12",
+            "difficulty": "EASY",
+            "common_mistakes": [
+                "Storing plain text passwords in the database.",
+                "Including password_hash in the \toDict() output map."
+            ],
+            "accepted_programming_languages": [
+                "Java"
+            ],
+            "minutes_max": 30,
+            "tasks": [
+                {
+                    "points": 40,
+                    "title": "Define User entity with id, username, email, and password_hash."
+                },
+                {
+                    "points": 30,
+                    "title": "Implement password hashing helper and BCryptPasswordEncoder bean."
+                },
+                {
+                    "points": 30,
+                    "title": "Implement \toDict serializer omitting sensitive fields."
+                }
+            ]
+        },
+        {
+            "learning_objectives": [
+                "Implement one-to-many relationships in JPA with @ManyToOne and @OneToMany.",
+                "Configure foreign key constraints and cascade rules.",
+                "Handle timestamp tracking with @PrePersist and @PreUpdate."
+            ],
+            "hints": [
+                "Use @OneToMany(mappedBy = \"user\", cascade = CascadeType.ALL, orphanRemoval = true) on User.",
+                "Implement getUserId() returning user != null ? user.getId() : null."
+            ],
+            "yuvro_points": 100,
+            "order_index": 3,
+            "test_command": "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py",
+            "title": "Ticket 3 - Design Task Entity with User Relationship",
+            "scoring_rules": {
+                "clean_code": 0,
+                "logic_score": 100,
+                "visual_accuracy": 0,
+                "starter_path": "src/main/java/com/yuvro/todo/entity/Task.java",
+                "test_command": "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py"
+            },
+            "solution": {
+                "src/main/java/com/yuvro/todo/entity/Task.java": "package com.yuvro.todo.entity;\r\n\r\nimport jakarta.persistence.*;\r\nimport java.time.LocalDateTime;\r\nimport java.time.format.DateTimeFormatter;\r\nimport java.util.HashMap;\r\nimport java.util.Map;\r\n\r\n@Entity\r\n@Table(name = \"tasks\")\r\npublic class Task {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @ManyToOne(fetch = FetchType.LAZY)\r\n    @JoinColumn(name = \"user_id\", nullable = false)\r\n    private User user;\r\n\r\n    @Column(nullable = false, length = 200)\r\n    private String title;\r\n\r\n    @Column(columnDefinition = \"TEXT\")\r\n    private String description;\r\n\r\n    @Column(name = \"is_completed\", nullable = false)\r\n    private Boolean isCompleted = false;\r\n\r\n    @Column(name = \"created_at\")\r\n    private LocalDateTime createdAt;\r\n\r\n    @Column(name = \"updated_at\")\r\n    private LocalDateTime updatedAt;\r\n\r\n    public Task() {\r\n    }\r\n\r\n    public Task(User user, String title, String description) {\r\n        this.user = user;\r\n        this.title = title;\r\n        this.description = description;\r\n        this.isCompleted = false;\r\n        this.createdAt = LocalDateTime.now();\r\n        this.updatedAt = LocalDateTime.now();\r\n    }\r\n\r\n    @PrePersist\r\n    public void prePersist() {\r\n        if (this.isCompleted == null) {\r\n            this.isCompleted = false;\r\n        }\r\n        if (this.createdAt == null) {\r\n            this.createdAt = LocalDateTime.now();\r\n        }\r\n        if (this.updatedAt == null) {\r\n            this.updatedAt = LocalDateTime.now();\r\n        }\r\n    }\r\n\r\n    @PreUpdate\r\n    public void preUpdate() {\r\n        this.updatedAt = LocalDateTime.now();\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public User getUser() {\r\n        return user;\r\n    }\r\n\r\n    public void setUser(User user) {\r\n        this.user = user;\r\n    }\r\n\r\n    public Long getUserId() {\r\n        return this.user != null ? this.user.getId() : null;\r\n    }\r\n\r\n    public String getTitle() {\r\n        return title;\r\n    }\r\n\r\n    public void setTitle(String title) {\r\n        this.title = title;\r\n    }\r\n\r\n    public String getDescription() {\r\n        return description;\r\n    }\r\n\r\n    public void setDescription(String description) {\r\n        this.description = description;\r\n    }\r\n\r\n    public Boolean getIsCompleted() {\r\n        return isCompleted;\r\n    }\r\n\r\n    public void setIsCompleted(Boolean isCompleted) {\r\n        this.isCompleted = isCompleted;\r\n    }\r\n\r\n    public LocalDateTime getCreatedAt() {\r\n        return createdAt;\r\n    }\r\n\r\n    public void setCreatedAt(LocalDateTime createdAt) {\r\n        this.createdAt = createdAt;\r\n    }\r\n\r\n    public LocalDateTime getUpdatedAt() {\r\n        return updatedAt;\r\n    }\r\n\r\n    public void setUpdatedAt(LocalDateTime updatedAt) {\r\n        this.updatedAt = updatedAt;\r\n    }\r\n\r\n    public Map<String, Object> toDict() {\r\n        Map<String, Object> map = new HashMap<>();\r\n        map.put(\"id\", this.id);\r\n        map.put(\"user_id\", getUserId());\r\n        map.put(\"title\", this.title);\r\n        map.put(\"description\", this.description);\r\n        map.put(\"is_completed\", this.isCompleted != null ? this.isCompleted : false);\r\n        map.put(\"created_at\", this.createdAt != null ? this.createdAt.format(DateTimeFormatter.ISO_DATE_TIME) : null);\r\n        map.put(\"updated_at\", this.updatedAt != null ? this.updatedAt.format(DateTimeFormatter.ISO_DATE_TIME) : null);\r\n        return map;\r\n    }\r\n}",
+                "src/main/java/com/yuvro/todo/entity/User.java": "package com.yuvro.todo.entity;\r\n\r\nimport com.fasterxml.jackson.annotation.JsonIgnore;\r\nimport jakarta.persistence.*;\r\nimport java.time.LocalDateTime;\r\nimport java.time.format.DateTimeFormatter;\r\nimport java.util.ArrayList;\r\nimport java.util.HashMap;\r\nimport java.util.List;\r\nimport java.util.Map;\r\n\r\n@Entity\r\n@Table(name = \"users\")\r\npublic class User {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @Column(unique = true, nullable = false, length = 80)\r\n    private String username;\r\n\r\n    @Column(unique = true, nullable = false, length = 120)\r\n    private String email;\r\n\r\n    @Column(name = \"password_hash\", nullable = false, length = 255)\r\n    private String passwordHash;\r\n\r\n    @Column(name = \"created_at\")\r\n    private LocalDateTime createdAt;\r\n\r\n    @JsonIgnore\r\n    @OneToMany(mappedBy = \"user\", cascade = CascadeType.ALL, orphanRemoval = true)\r\n    private List<Task> tasks = new ArrayList<>();\r\n\r\n    public User() {\r\n    }\r\n\r\n    public User(String username, String email, String passwordHash) {\r\n        this.username = username;\r\n        this.email = email;\r\n        this.passwordHash = passwordHash;\r\n        this.createdAt = LocalDateTime.now();\r\n    }\r\n\r\n    @PrePersist\r\n    public void prePersist() {\r\n        if (this.createdAt == null) {\r\n            this.createdAt = LocalDateTime.now();\r\n        }\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public String getUsername() {\r\n        return username;\r\n    }\r\n\r\n    public void setUsername(String username) {\r\n        this.username = username;\r\n    }\r\n\r\n    public String getEmail() {\r\n        return email;\r\n    }\r\n\r\n    public void setEmail(String email) {\r\n        this.email = email;\r\n    }\r\n\r\n    public String getPasswordHash() {\r\n        return passwordHash;\r\n    }\r\n\r\n    public void setPasswordHash(String passwordHash) {\r\n        this.passwordHash = passwordHash;\r\n    }\r\n\r\n    public LocalDateTime getCreatedAt() {\r\n        return createdAt;\r\n    }\r\n\r\n    public void setCreatedAt(LocalDateTime createdAt) {\r\n        this.createdAt = createdAt;\r\n    }\r\n\r\n    public List<Task> getTasks() {\r\n        return tasks;\r\n    }\r\n\r\n    public void setTasks(List<Task> tasks) {\r\n        this.tasks = tasks;\r\n    }\r\n\r\n    public Map<String, Object> toDict() {\r\n        Map<String, Object> map = new HashMap<>();\r\n        map.put(\"id\", this.id);\r\n        map.put(\"username\", this.username);\r\n        map.put(\"email\", this.email);\r\n        map.put(\"created_at\", this.createdAt != null ? this.createdAt.format(DateTimeFormatter.ISO_DATE_TIME) : null);\r\n        return map;\r\n    }\r\n}"
+            },
+            "description": "Implement the Task entity in src/main/java/com/yuvro/todo/entity/Task.java and link it to the User entity via a foreign key relationship.\n\n### Entity Specifications: \tasks Table\n- id: Long, primary key, auto-incrementing.\n- user: User, @ManyToOne(fetch = FetchType.LAZY) with @JoinColumn(name = \"user_id\", nullable = false).\n- \title: String (max 200), non-nullable.\n- description: String (TEXT), nullable.\n- is_completed: Boolean, default \false, non-nullable.\n- created_at: LocalDateTime.\n- updated_at: LocalDateTime.\n\n### Helper Methods\n- \toDict(): Returns a Map representation of the task (id, user_id, \title, description, is_completed, created_at, updated_at).",
+            "ticket_slug": "java-spring-todo-13",
+            "difficulty": "EASY",
+            "common_mistakes": [
+                "Missing @ManyToOne or @JoinColumn(name = \"user_id\").",
+                "Forgetting to set is_completed default value to \false."
+            ],
+            "accepted_programming_languages": [
+                "Java"
+            ],
+            "minutes_max": 25,
+            "tasks": [
+                {
+                    "points": 50,
+                    "title": "Define Task entity with foreign key pointing to users.id."
+                },
+                {
+                    "points": 30,
+                    "title": "Configure relationship and cascade delete between User and Task."
+                },
+                {
+                    "points": 20,
+                    "title": "Implement \toDict() serialization method."
+                }
+            ]
+        }
+    ],
+    "lab_title": "Java Spring Boot Todo REST API Lab"
 }
