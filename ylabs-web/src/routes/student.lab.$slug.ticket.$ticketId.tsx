@@ -766,8 +766,8 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
         "README.md",
       ],
       files: {
-        "src/main/java/com/yuvro/todo/TodoApplication.java": `package com.yuvro.todo;\n\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\n\n@SpringBootApplication\npublic class TodoApplication {\n    public static void main(String[] args) {\n        SpringApplication.run(TodoApplication.class, args);\n    }\n}\n`,
-        "src/main/resources/application.properties": `server.port=5000\nspring.datasource.url=jdbc:sqlite:todo.db\nspring.datasource.driver-class-name=org.sqlite.JDBC\nspring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect\nspring.jpa.hibernate.ddl-auto=update\njwt.secret=yuvro-dev-secret-key-987654321-spring-boot-todo-app-key\njwt.expiration=86400000\n`,
+        "src/main/java/com/yuvro/todo/TodoApplication.java": `package com.yuvro.todo;\n\n// TODO: Ticket 1 - Add @SpringBootApplication and implement main method\npublic class TodoApplication {\n    public static void main(String[] args) {\n        // TODO: Launch application with SpringApplication.run\n    }\n}\n`,
+        "src/main/resources/application.properties": `# Server configuration\nserver.port=5000\n\n# TODO: Ticket 1 - Configure SQLite database connection\n# spring.datasource.url=jdbc:sqlite:todo.db\n`,
         "pom.xml": `<?xml version="1.0" encoding="UTF-8"?>\n<project xmlns="http://maven.apache.org/POM/4.0.0"\n         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">\n    <modelVersion>4.0.0</modelVersion>\n    <parent>\n        <groupId>org.springframework.boot</groupId>\n        <artifactId>spring-boot-starter-parent</artifactId>\n        <version>3.2.5</version>\n        <relativePath/>\n    </parent>\n    <groupId>com.yuvro</groupId>\n    <artifactId>todo-app</artifactId>\n    <version>1.0.0</version>\n    <name>todo-app</name>\n    <description>Java Spring Boot Todo REST API</description>\n    <properties>\n        <java.version>21</java.version>\n    </properties>\n    <dependencies>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-web</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-data-jpa</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-security</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.xerial</groupId>\n            <artifactId>sqlite-jdbc</artifactId>\n            <version>3.45.3.0</version>\n        </dependency>\n        <dependency>\n            <groupId>org.hibernate.orm</groupId>\n            <artifactId>hibernate-community-dialects</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-api</artifactId>\n            <version>0.12.5</version>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-impl</artifactId>\n            <version>0.12.5</version>\n            <scope>runtime</scope>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-jackson</artifactId>\n            <version>0.12.5</version>\n            <scope>runtime</scope>\n        </dependency>\n    </dependencies>\n</project>\n`,
         "README.md": `# Java Spring Boot Todo REST API Lab\n`,
       },
@@ -1469,6 +1469,12 @@ export function TicketIDE({
     if (isSql || isMysql || isPostgres || fileExt === "sql") return "-- Write your query here\n";
     if (isBash || fileExt === "sh") return "#!/usr/bin/env bash\n\n# Write your solution here\n";
     if (isReal && slug !== "knowledge") {
+      if (defaultPrimaryFile && kit.files && kit.files[defaultPrimaryFile]) {
+        return kit.files[defaultPrimaryFile];
+      }
+      if (kit.primary && kit.files && kit.files[kit.primary]) {
+        return kit.files[kit.primary];
+      }
       return startersByLang[effectiveLang] || "# Write your solution here\n";
     }
     return kit.files[kit.primary] || startersByLang[effectiveLang] || "# Write your solution here\n";
