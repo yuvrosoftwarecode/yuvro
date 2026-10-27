@@ -1,8 +1,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent } from "@tanstack/react-router";
+import {
+  Outlet,
+  Link,
+  createRootRouteWithContext,
+  useRouter,
+  HeadContent,
+} from "@tanstack/react-router";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { AuthProvider } from "@/lib/auth";
+import { CreditWalletProvider } from "@/context/CreditWalletContext";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -83,9 +90,11 @@ function RootComponent() {
   const app = (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <HeadContent />
-        <Outlet />
-        <Toaster position="top-right" />
+        <CreditWalletProvider>
+          <HeadContent />
+          <Outlet />
+          <Toaster position="top-right" />
+        </CreditWalletProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

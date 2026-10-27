@@ -24,6 +24,10 @@ psycopg2-binary
 pymysql
 pymongo
 dnspython
+sqlalchemy>=2.0.0
+pyjwt>=2.8.0
+cryptography
+
 
 # UI-DIFF (pixel/image comparison for UI testing)
 # Used in: services/code_executor.py -> ui-diff comparison

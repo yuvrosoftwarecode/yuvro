@@ -24,6 +24,7 @@ import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
 import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { TopNav } from "@/components/TopNav";
 import useAIChat from "@/components/common/ai-buddy/useAIChat";
+import { WalletBalanceBadge } from "@/components/credits/WalletBalanceBadge";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { evaluationService } from "@/services/evaluationService";
@@ -1021,9 +1022,10 @@ export function StudentTicketView({
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "bash",
             status: "Not Started",
-            startup_command: t.startup_command || t.scoring_rules?.startup_command,
-            test_command: t.test_command || t.scoring_rules?.test_command,
-            starter_path: t.starter_path || t.starterPath || t.scoring_rules?.starter_path || t.scoring_rules?.starterPath,
+            startup_command: t.startup_command || t.scoring_rules?.startup_command || "",
+            test_command: t.test_command || t.scoring_rules?.test_command || "",
+            starter_path: t.starter_path || t.starterPath || t.scoring_rules?.starter_path || t.scoring_rules?.starterPath || "",
+            starterPath: t.starter_path || t.starterPath || t.scoring_rules?.starter_path || t.scoring_rules?.starterPath || "",
             connection_url: t.connection_url || t.uri || "",
             uri: t.connection_url || t.uri || "",
             databases: t.databases || [],
@@ -1033,8 +1035,8 @@ export function StudentTicketView({
             backend_frameworks: t.backend_frameworks || [],
             programming_languages: t.programming_languages || t.accepted_programming_languages || [],
             sprint_id: t.sprint ?? null,
-            sprintOrder: t.sprint_order !== undefined ? t.sprint_order + 1 : 1,
-            ticketOrder: t.order_index !== undefined ? t.order_index + 1 : 1,
+            sprintOrder: t.sprint_order !== undefined && t.sprint_order !== null ? (t.sprint_order === 0 ? 1 : t.sprint_order) : 1,
+            ticketOrder: t.order_index !== undefined && t.order_index !== null ? (t.order_index === 0 ? 1 : t.order_index) : 1,
             tasks: Array.isArray(t.tasks) ? t.tasks.map((task: any) => {
               if (typeof task === "object" && task.title && !task.task_slug) {
                 const slugMatch = task.title.match(/Task (\d+\.\d+\.\d+)/i);
@@ -1604,7 +1606,7 @@ export function TicketIDE({
       try {
         const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
           if (!node) return acc;
-          if (node.name === ".bash_history" || !node.name) return acc;
+          if (node.name === ".bash_history" || node.name === "yuvro_scoring_rules" || node.name === "__pycache__" || !node.name) return acc;
           if (node.type === "file") {
             if (node.path && node.path.trim()) acc[node.path] = "";
           } else node.children?.forEach(c => flatten(c, acc));
@@ -1716,7 +1718,6 @@ export function TicketIDE({
   useEffect(() => {
     if (!isReal || !wsLoaded || !activeFile) return;
     if (loadedFiles.current.has(activeFile)) return;
-    if (files[activeFile] && files[activeFile] !== "") { loadedFiles.current.add(activeFile); return; }
     fetchFile(effectiveUserId, labId, sprintId, activeFile, evaluationId)
       .then(content => {
         let cleanContent = content;
@@ -1936,7 +1937,7 @@ export function TicketIDE({
                 [submissionsStatusField]: "in_progress",
               });
             }
-            if (sub.solution) {
+            if (!isReal && sub.solution) {
               try {
                 const parsed = JSON.parse(sub.solution);
                 if (typeof parsed === "object" && parsed !== null) {
@@ -2383,10 +2384,11 @@ export function TicketIDE({
     const src = files[activeFile] ?? "";
     const file = activeFile;
 
-    if (ticket.test_command && ticket.test_command.trim()) {
+    const effectiveTestCommand = (ticket.test_command || ticket.scoring_rules?.test_command || "").trim();
+    if (effectiveTestCommand) {
       try {
         const { runTestCommand } = await import("@/services/workspaceService");
-        const res = await runTestCommand(effectiveUserId, labId, sprintId, ticket.test_command.trim(), evaluationId);
+        const res = await runTestCommand(effectiveUserId, labId, sprintId, effectiveTestCommand, evaluationId);
 
         let outText = res.stdout || "";
         if (res.stderr && res.stderr.trim()) {
@@ -2519,6 +2521,13 @@ export function TicketIDE({
       else if (file.endsWith(".java")) extLang = "java";
 
       const execLang = selectedLanguage || extLang;
+
+      const hasAlgorithmicTests = (ticket.tasks || []).some((tc: any) => tc.input !== undefined || tc.expected_output !== undefined) || (customTestCases && customTestCases.length > 0);
+      if (!hasAlgorithmicTests && isReal) {
+        setRunning(false);
+        showToast("No test command or test cases configured for this ticket.");
+        return;
+      }
 
       try {
         const res = await codeExecutorService.executeCode({
@@ -3154,7 +3163,9 @@ export function TicketIDE({
       // Build solution_output JSON from the last execution result so the
       // recruiter report can show per-task pass/fail breakdown accurately.
       let solutionOutput = JSON.stringify({ tasks: {}, total_score: computedScore, max_possible_score: 100, percentage: computedScore });
-      if (lastExecutionResult) {
+      if (taskExecutionData && typeof taskExecutionData === "object") {
+        solutionOutput = JSON.stringify(taskExecutionData);
+      } else if (lastExecutionResult) {
         const tasksMap: Record<string, any> = {};
         (ticket.tasks || []).forEach((tMeta: any, idx: number) => {
           const tr = lastExecutionResult.test_results?.results?.[idx];
@@ -3336,7 +3347,14 @@ export function TicketIDE({
     setIsCommitting(true);
     try {
       const formattedMessage = `feat(S${sprintNo}-T${ticketNo}) : ${commitMessage}`;
-      const cmd = `git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" && git push`;
+      const gitName = user?.github_username || user?.username || "Student";
+      const gitEmail = user?.github_username
+        ? `${user.github_username}@users.noreply.github.com`
+        : (user?.email || `${gitName}@users.noreply.github.com`);
+
+      const safeName = gitName.replace(/"/g, '\\"');
+      const safeEmail = gitEmail.replace(/"/g, '\\"');
+      const cmd = `git config user.name "${safeName}" && git config user.email "${safeEmail}" && git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" --author="${safeName} <${safeEmail}>" && git push`;
       
       const { runCommand } = await import("@/services/workspaceService");
       const res = await runCommand(userId, labId, sprintId, cmd, evaluationId);
@@ -3394,6 +3412,9 @@ export function TicketIDE({
           p.includes("node_modules")
         ) {
           return false;
+        }
+        if (isReal) {
+          return loadedFiles.current.has(p) || Boolean(dirty[p]);
         }
         return content !== "" || loadedFiles.current.has(p);
       })
@@ -3504,6 +3525,16 @@ export function TicketIDE({
         try {
           const { deleteWorkspaceFile } = await import("@/services/workspaceService");
           await deleteWorkspaceFile(effectiveUserId, labId, sprintId, "", evaluationId);
+          if (submissionId) {
+            const { default: api } = await import("@/utils/RestApiAuthUtil");
+            await api.patch(`${submissionsEndpoint}${submissionId}/`, {
+              solution: "",
+              solution_revealed: false,
+              solution_output: "",
+              yuvro_points: 0,
+              [submissionsStatusField]: "backlog",
+            }).catch(console.error);
+          }
           setTicketScore(null);
           setEvalResult({});
           window.location.reload();
@@ -3761,9 +3792,11 @@ export function TicketIDE({
                     onLoadIntoEditor={(code, language, targetFilePath) => {
                       const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
                       const ext = langMap[language?.toLowerCase() || ""] || "py";
-                      const targetFile = targetFilePath || ticket.starter_path || ticket.starterPath || activeFile || `solution.${ext}`;
+                      const fallbackFile = (ticket as any).starter_path || (ticket as any).starterPath || ticket.scoring_rules?.starter_path || ticket.target_file || ticket.targeted_file || activeFile || `solution.${ext}`;
+                      const targetFile = targetFilePath || fallbackFile;
                       setFiles(prev => ({ ...prev, [targetFile]: code }));
                       setDirty(prev => ({ ...prev, [targetFile]: true }));
+                      loadedFiles.current.add(targetFile);
                       setOpenTabs(prev => prev.includes(targetFile) ? prev : [...prev, targetFile]);
                       setActiveFile(targetFile);
                       if (isReal) {
@@ -3780,6 +3813,7 @@ export function TicketIDE({
                         return next;
                       });
                       const fileKeys = Object.keys(fileMap);
+                      fileKeys.forEach(k => loadedFiles.current.add(k));
                       setOpenTabs(prev => {
                         const set = new Set(prev);
                         fileKeys.forEach(k => set.add(k));
@@ -4355,7 +4389,7 @@ export function TicketIDE({
                 </div>
                 <div className="flex-1 overflow-hidden p-0 min-w-0 min-h-0 flex flex-col">
                   {sidePanel === "preview"
-                    ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} previewPort={previewPort} /></div>
+                    ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} previewPort={previewPort} ticket={ticket} isEvaluationMode={isEvaluationMode} effectiveUserId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={evaluationId} isMysql={isMysql} isPostgres={isPostgres} isSql={isSql} /></div>
                     : <SideMentor
                         chatTitle={`${labTitle} - Sprint ${sprintNo} - Ticket ${ticketNo}`}
                         persistenceKey={`ticket-${ticket.id}`}
@@ -5404,7 +5438,39 @@ function PreviewView() {
   );
 }
 
-function SidePreview({ device, kit, files, activeFile, startupCommand, previewPort: directPreviewPort }: { device: "Mobile" | "Tablet" | "Desktop"; kit: Kit; files: Record<string, string>; activeFile: string; startupCommand?: string; previewPort?: number }) {
+function SidePreview({
+  device,
+  kit,
+  files,
+  activeFile,
+  startupCommand,
+  previewPort: directPreviewPort,
+  ticket,
+  isEvaluationMode,
+  effectiveUserId,
+  labId,
+  sprintId,
+  evaluationId,
+  isMysql,
+  isPostgres,
+  isSql,
+}: {
+  device: "Mobile" | "Tablet" | "Desktop";
+  kit: Kit;
+  files: Record<string, string>;
+  activeFile: string;
+  startupCommand?: string;
+  previewPort?: number;
+  ticket?: any;
+  isEvaluationMode?: boolean;
+  effectiveUserId?: string;
+  labId?: string;
+  sprintId?: string;
+  evaluationId?: string;
+  isMysql?: boolean;
+  isPostgres?: boolean;
+  isSql?: boolean;
+}) {
   const w = device === "Mobile" ? 375 : device === "Tablet" ? 768 : "100%";
 
   // Extract port from startup command or direct previewPort
@@ -5412,13 +5478,17 @@ function SidePreview({ device, kit, files, activeFile, startupCommand, previewPo
     ? parseInt(startupCommand.match(/(\d{4,5})\s*$/)?.[1] ?? "8000", 10)
     : 8000);
 
+  const isMysqlActive = Boolean(isMysql || kit.name === "mysql");
+  const isPostgresActive = Boolean(isPostgres || kit.name === "postgresql");
+  const isSqlActive = Boolean(isSql || kit.name === "sql");
+
   // If startup_command exists, show web preview (for Django, Flask, Node, etc.)
   const body = startupCommand ? <WebPreview port={previewPort} /> :
     kit.name === "django" ? <DjangoTodoApp /> :
       kit.name === "ui" ? <UiPreview files={files} fullHeight /> :
-        isMysql || kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
-          isPostgres || kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
-            isSql || kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
+        isMysqlActive ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" configuredUri={ticket?.connection_url || ticket?.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+          isPostgresActive ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" configuredUri={ticket?.connection_url || ticket?.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+            isSqlActive ? <SqlResultsView query={files[activeFile] ?? ""} /> :
               kit.name === "mongo" ? <MongoResultsView query={files[activeFile] ?? ""} /> :
                 kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                   (
@@ -5968,17 +6038,19 @@ function ProblemPanel({
   return (
     <>
       <div>
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-          {ticket.id} · {ticket.tag}
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+          {ticket.tag}
         </div>
         <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
         {isAlgo && isReal ? (
           <div className="mt-3 text-sm text-muted-foreground leading-relaxed DS-Markdown"
                dangerouslySetInnerHTML={{ __html: parseDPMarkdown(ticket.description) }} />
         ) : (
-          <p className="mt-2 text-muted-foreground">
-            {isReal ? ticket.description : "📋 Create a program demonstrating Java variables and data types."}
-          </p>
+          <div className="mt-3 text-sm text-muted-foreground leading-relaxed prose prose-sm dark:prose-invert max-w-none [&>h3]:text-foreground [&>h3]:font-semibold [&>h3]:text-base [&>h3]:mt-4 [&>h3]:mb-2 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-3 [&>ol]:list-decimal [&>ol]:pl-5 [&>ol]:mb-3 [&_code]:bg-accent/50 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono [&_li]:my-0.5">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {isReal ? (ticket.description || "") : "📋 Create a program demonstrating Java variables and data types."}
+            </ReactMarkdown>
+          </div>
         )}
       </div>
 
@@ -6486,6 +6558,7 @@ function buildTree(paths: readonly string[]): TreeNode {
   const root: TreeNode = { name: "", path: "", isFile: false, children: [] };
   for (const full of paths) {
     if (!full || !full.trim()) continue;
+    if (full.startsWith("yuvro_scoring_rules") || full.includes("/yuvro_scoring_rules") || full.startsWith("__pycache__") || full.includes("/__pycache__")) continue;
     const parts = full.split("/");
     let cursor = root;
     for (let i = 0; i < parts.length; i++) {
@@ -7822,14 +7895,14 @@ export function getSolutionsFromTicket(ticket: any): any[] {
         });
       }
     } else if (typeof ticket.solution === "string" && ticket.solution.trim()) {
-      const filePath = ticket.target_file || ticket.targeted_file || ticket.starter_path || "";
-      const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "py";
+      const targetFile = ticket.target_file || ticket.targeted_file || ticket.starter_path || ticket.starterPath || ticket.scoring_rules?.starter_path || "";
+      const ext = targetFile.includes(".") ? targetFile.split(".").pop()?.toLowerCase() || "txt" : "py";
       results.push({
         id: "sol-0",
-        approach: "solution",
-        title: filePath || "Solution",
-        filePath,
-        file_path: filePath,
+        approach: targetFile || "solution",
+        title: targetFile || "Solution",
+        filePath: targetFile,
+        file_path: targetFile,
         language: langMap[ext] || "python",
         code: ticket.solution,
         complexity_analysis: "",
@@ -7843,9 +7916,10 @@ export function getSolutionsFromTicket(ticket: any): any[] {
       const filePath = s.filePath || s.file_path || ticket.target_file || ticket.starter_path || "";
       const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "txt";
       const language = s.language || langMap[ext] || "python";
+      const isFile = filePath && (filePath.includes(".") || filePath.includes("/"));
       results.push({
         id: s.id || `sol-${idx}`,
-        approach: s.approach || "optimal",
+        approach: isFile && (s.approach === "optimal" || !s.approach) ? filePath : (s.approach || "optimal"),
         title: s.title || s.approach || (filePath ? filePath : (s.language ? s.language.toUpperCase() : `Solution ${idx + 1}`)),
         filePath,
         file_path: filePath,
@@ -7898,8 +7972,20 @@ export function SolutionPanel({
   isPreview?: boolean;
   initialSolutionRevealed?: boolean;
 }) {
+  const normalizeSolutionItem = (s: any) => {
+    const filePath = s.filePath || s.file_path || (s.title && s.title.includes(".") ? s.title : "");
+    const isFile = filePath && (filePath.includes(".") || filePath.includes("/"));
+    return {
+      ...s,
+      filePath: filePath || s.filePath || "",
+      file_path: filePath || s.file_path || "",
+      title: s.title || filePath || "Solution",
+      approach: isFile && (s.approach === "optimal" || !s.approach) ? filePath : (s.approach || "optimal"),
+    };
+  };
+
   const previewSols: any[] = useMemo(() => {
-    return getSolutionsFromTicket(ticket);
+    return getSolutionsFromTicket(ticket).map(normalizeSolutionItem);
   }, [ticket]);
 
   const [revealedSolution, setRevealedSolution] = useState(isPreview || initialSolutionRevealed);
@@ -7914,7 +8000,7 @@ export function SolutionPanel({
 
   useEffect(() => {
     if (isPreview || initialSolutionRevealed) {
-      const sols = getSolutionsFromTicket(ticket);
+      const sols = getSolutionsFromTicket(ticket).map(normalizeSolutionItem);
       setRevealedSolution(true);
       if (sols.length > 0 && fetchedSolutions.length === 0) {
         setFetchedSolutions(sols);
@@ -7959,18 +8045,19 @@ export function SolutionPanel({
       } else if (data) {
         sols = getSolutionsFromTicket({ ...ticket, solution: data });
       }
-
-      if (sols.length === 0) {
-        sols = getSolutionsFromTicket(ticket);
+      let effectiveSols = sols;
+      if (effectiveSols.length === 0) {
+        effectiveSols = getSolutionsFromTicket(ticket);
       }
-      setFetchedSolutions(sols);
+      const normalizedSols = effectiveSols.map(normalizeSolutionItem);
+      setFetchedSolutions(normalizedSols);
 
-      if (sols.length > 0) {
-        const firstApproach = sols[0].approach || "optimal";
+      if (normalizedSols.length > 0) {
+        const firstApproach = normalizedSols[0].approach || "optimal";
         setSelectedApproach(firstApproach);
-        const match = sols.find((s: any) => (s.approach || "optimal") === firstApproach);
+        const match = normalizedSols.find((s: any) => (s.approach || "optimal") === firstApproach);
         if (match) {
-          setSelectedId(match.id);
+          setSelectedId(match.id || "");
           setSelectedLanguage(match.language || "python");
         }
       }
@@ -7987,7 +8074,8 @@ export function SolutionPanel({
     }
   };
 
-  const effectiveSolutions = isPreview ? (fetchedSolutions.length > 0 ? fetchedSolutions : previewSols) : fetchedSolutions;
+  const rawSolutions = isPreview ? (fetchedSolutions.length > 0 ? fetchedSolutions : previewSols) : fetchedSolutions;
+  const effectiveSolutions = rawSolutions.map(normalizeSolutionItem);
 
   // Preview mode with no solutions on the ticket
   if (isPreview && effectiveSolutions.length === 0) {
@@ -8059,12 +8147,15 @@ export function SolutionPanel({
 
   const fileMap: Record<string, string> = {};
   effectiveSolutions.forEach((s: any) => {
-    const fPath = s.filePath || s.file_path;
-    if (fPath && s.code) {
-      fileMap[fPath] = s.code;
+    const p = s.filePath || s.file_path || (s.title && s.title.includes(".") ? s.title : "");
+    if (p && s.code) {
+      fileMap[p] = s.code;
     }
   });
   const hasMultipleFiles = Object.keys(fileMap).length > 1;
+
+  const distinctLanguages = Array.from(new Set(solutionsForApproach.map((s: any) => s.language).filter(Boolean)));
+  const currentFilePath = sol?.filePath || sol?.file_path || (sol?.title && sol.title.includes(".") ? sol.title : "");
 
   return (
     <div className="w-full space-y-4 text-xs">
@@ -8117,8 +8208,8 @@ export function SolutionPanel({
       {sol && (
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <span className="font-semibold text-muted-foreground font-mono text-[12px] truncate max-w-[280px]" title={sol.filePath || sol.file_path || sol.title}>
-              {sol.filePath || sol.file_path || sol.title}
+            <span className="font-semibold text-muted-foreground font-mono text-[12px] truncate max-w-[280px]" title={currentFilePath || sol.title}>
+              {currentFilePath || sol.title}
             </span>
             <div className="flex items-center gap-2">
               {hasMultipleFiles && onLoadAllIntoEditor && (
@@ -8133,9 +8224,9 @@ export function SolutionPanel({
               )}
               {onLoadIntoEditor && (
                 <button
-                  onClick={() => onLoadIntoEditor(sol.code, sol.language, sol.filePath || sol.file_path)}
+                  onClick={() => onLoadIntoEditor(sol.code, sol.language, currentFilePath)}
                   className="inline-flex h-7 items-center justify-center rounded px-3 text-[11px] font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
-                  title={`Load ${sol.filePath || sol.file_path || "this solution"} into editor`}
+                  title={`Load ${currentFilePath || "this solution"} into editor`}
                 >
                   <Download className="w-3 h-3 mr-1.5" />
                   Load into Editor
@@ -8477,6 +8568,7 @@ Do NOT output extra code blocks for file names or extra boilerplate. The code wi
         </div>
 
         <div className="flex items-center gap-2">
+          <WalletBalanceBadge />
           <button
             onClick={() => {
               if (!showHistory) fetchHistory();

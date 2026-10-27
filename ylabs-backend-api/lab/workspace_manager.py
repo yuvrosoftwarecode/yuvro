@@ -86,14 +86,19 @@ def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_
         
         subprocess.run(["git", "-c", "safe.directory=*", "add", "."], cwd=user_dir, check=True, capture_output=True)
         
-        git_email = f"{github_username}@users.noreply.github.com" if github_username else "bot@yuvro.ai"
-        git_name = github_username if github_username else "Yuvro Bot"
+        git_email = f"{github_username}@users.noreply.github.com" if github_username else "student@yuvro.ai"
+        git_name = github_username if github_username else "Student"
         
         subprocess.run(["git", "-c", "safe.directory=*", "config", "user.email", git_email], cwd=user_dir, check=True)
         subprocess.run(["git", "-c", "safe.directory=*", "config", "user.name", git_name], cwd=user_dir, check=True)
         subprocess.run(["git", "-c", "safe.directory=*", "commit", "--allow-empty", "-m", "Initial commit for lab workspace"], cwd=user_dir, check=True, capture_output=True)
         
-        subprocess.run(["git", "-c", "safe.directory=*", "remote", "add", "origin", user_github_repo_url], cwd=user_dir, check=True)
+        if access_token and "github.com" in user_github_repo_url and "@" not in user_github_repo_url:
+            auth_repo_url = user_github_repo_url.replace("https://github.com/", f"https://{access_token}@github.com/")
+        else:
+            auth_repo_url = user_github_repo_url
+            
+        subprocess.run(["git", "-c", "safe.directory=*", "remote", "add", "origin", auth_repo_url], cwd=user_dir, check=True)
         
         subprocess.run(["git", "-c", "safe.directory=*", "branch", "-M", "main"], cwd=user_dir, check=True)
         run_git_with_token(["git", "-c", "safe.directory=*", "push", "-f", "-u", "origin", "main"], access_token, cwd=user_dir)

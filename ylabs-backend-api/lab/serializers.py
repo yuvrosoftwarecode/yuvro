@@ -31,11 +31,17 @@ class LabSprintSerializer(serializers.ModelSerializer):
 
 class LabSprintTicketSerializer(serializers.ModelSerializer):
     sprint_order = serializers.IntegerField(source='sprint.order_index', read_only=True)
+    test_command = serializers.SerializerMethodField()
 
     class Meta:
         model = LabSprintTicket
         fields = '__all__'
         read_only_fields = ('created_by', 'created_at', 'updated_at')
+
+    def get_test_command(self, obj):
+        if isinstance(obj.scoring_rules, dict):
+            return obj.scoring_rules.get('test_command') or ''
+        return ''
 
 class UserLabEnrollmentSerializer(serializers.ModelSerializer):
     lab_details = serializers.SerializerMethodField()

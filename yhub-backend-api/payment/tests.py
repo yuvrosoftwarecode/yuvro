@@ -29,7 +29,7 @@ class MockGateway:
                 "order_id": "order_razorpay_123",
                 "status": "created",
                 "session_id": None,
-                "amount": payment["amount"],
+                "amount": float(payment["amount"]),
                 "currency": payment["currency"],
             }
         return {
@@ -37,7 +37,7 @@ class MockGateway:
             "payment_id": "pi_stripe_123",
             "status": "requires_payment_method",
             "client_secret": "cs_test_123",
-            "amount": payment["amount"],
+            "amount": float(payment["amount"]),
             "currency": payment["currency"],
         }
 
@@ -51,7 +51,7 @@ class MockGateway:
         return {"status": "cancelled", "id": payment["payment_id"]}
 
     def create_refund(self, payment, amount):
-        return {"id": "rf_test_123", "amount": amount, "status": "refunded"}
+        return {"id": "rf_test_123", "amount": float(amount), "status": "refunded"}
 
     def verify_webhook(self, request):
         return True

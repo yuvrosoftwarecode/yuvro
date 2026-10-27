@@ -1,0 +1,159 @@
+{
+  "title": "Sprint 1: Architecture, SQLite Configuration & Data Models",
+  "description": "Establish the foundational architecture of the FastAPI application. Configure the SQLite database with SQLAlchemy ORM, implement the health check endpoint, and design the User and Task relational models.",
+  "order_index": 1,
+  "tickets": [
+    {
+      "title": "Ticket 1 - FastAPI Application Setup & Health Check API",
+      "ticket_slug": "fastapi-todo-11",
+      "description": "Set up the core FastAPI application in `main.py` and SQLite database configuration in `app/database.py`.\n\n### Specifications\n1. In `app/database.py`, initialize SQLAlchemy `engine` for SQLite (`sqlite:///./todo.db`), `SessionLocal`, declarative `Base`, and `get_db()` dependency generator.\n2. In `main.py`, instantiate `FastAPI(title=\"FastAPI Todo REST API\")` and add `CORSMiddleware`.\n3. Create all tables on startup via `Base.metadata.create_all(bind=engine)`.\n4. Implement `GET /api/health` returning `{\"status\": \"healthy\", \"service\": \"fastapi-todo-api\"}` with HTTP 200.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Initialize and configure FastAPI applications.",
+        "Set up SQLAlchemy ORM with SQLite database engine.",
+        "Implement health check endpoint for monitoring."
+      ],
+      "tasks": [
+        {
+          "title": "Initialize FastAPI app instance with CORS middleware in main.py",
+          "points": 30
+        },
+        {
+          "title": "Configure SQLite engine, SessionLocal, Base, and get_db in app/database.py",
+          "points": 30
+        },
+        {
+          "title": "Implement GET /api/health returning status healthy",
+          "points": 40
+        }
+      ],
+      "common_mistakes": [
+        "Forgetting check_same_thread=False for SQLite in multithreaded environments.",
+        "Not exporting app instance in main.py."
+      ],
+      "hints": [
+        "Use `create_engine('sqlite:///./todo.db', connect_args={'check_same_thread': False})`.",
+        "Use `@app.get('/api/health')` returning a dictionary."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "main.py",
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py"
+      },
+      "solution": {
+        "main.py": "from fastapi import FastAPI\nfrom fastapi.middleware.cors import CORSMiddleware\nfrom app.database import engine, Base\nfrom app.routers import auth, tasks\n\nif engine is not None and Base is not None:\n    Base.metadata.create_all(bind=engine)\n\napp = FastAPI(\n    title=\"FastAPI Todo REST API\",\n    description=\"A production-grade Todo REST API built with FastAPI, SQLAlchemy, and SQLite.\",\n    version=\"1.0.0\",\n)\n\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"*\"],\n    allow_credentials=True,\n    allow_methods=[\"*\"],\n    allow_headers=[\"*\"],\n)\n\n@app.get(\"/api/health\", tags=[\"Health\"])\ndef health_check():\n    return {\"status\": \"healthy\", \"service\": \"fastapi-todo-api\"}\n\napp.include_router(auth.router, prefix=\"/api/auth\", tags=[\"Authentication\"])\napp.include_router(tasks.router, prefix=\"/api/tasks\", tags=[\"Tasks\"])\n",
+        "app/database.py": "from sqlalchemy import create_engine\nfrom sqlalchemy.orm import declarative_base, sessionmaker\n\nDATABASE_URL = \"sqlite:///./todo.db\"\n\nengine = create_engine(\n    DATABASE_URL, connect_args={\"check_same_thread\": False}\n)\nSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)\n\nBase = declarative_base()\n\ndef get_db():\n    db = SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - User Model & Secure Password Hashing",
+      "ticket_slug": "fastapi-todo-12",
+      "description": "Create the `User` model in `app/models.py` using SQLAlchemy Declarative Base. Implement password hashing and verification in `app/utils/security.py`.\n\n### Model Specifications: `users` Table\n- `id`: Integer, primary key, indexed.\n- `username`: String (max 80), unique, non-nullable, indexed.\n- `email`: String (max 120), unique, non-nullable, indexed.\n- `password_hash`: String (max 255), non-nullable.\n- `created_at`: DateTime, defaults to `datetime.utcnow`.\n\n### Security Helpers (`app/utils/security.py`)\n- `hash_password(password: str) -> str`: Hashes plain text password securely.\n- `verify_password(plain_password: str, hashed_password: str) -> bool`: Verifies plain text against stored hash.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Create SQLAlchemy ORM models with Column, Integer, and String.",
+        "Enforce unique and non-nullable column constraints.",
+        "Implement secure password hashing using standard PBKDF2/cryptography."
+      ],
+      "tasks": [
+        {
+          "title": "Define User model with id, username, email, and password_hash",
+          "points": 40
+        },
+        {
+          "title": "Configure unique constraints and indexes on username and email",
+          "points": 30
+        },
+        {
+          "title": "Implement hash_password and verify_password helpers in app/utils/security.py",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Storing plain text passwords in the database.",
+        "Omitting unique constraint on email or username."
+      ],
+      "hints": [
+        "Inherit `User` from `Base` defined in `app.database`.",
+        "Use `hashlib.pbkdf2_hmac` with a random salt for secure password hashing."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/models.py",
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py"
+      },
+      "solution": {
+        "app/models.py": "from datetime import datetime\nfrom sqlalchemy import Column, Integer, String, DateTime\nfrom app.database import Base\n\nclass User(Base):\n    __tablename__ = \"users\"\n\n    id = Column(Integer, primary_key=True, index=True)\n    username = Column(String(80), unique=True, nullable=False, index=True)\n    email = Column(String(120), unique=True, nullable=False, index=True)\n    password_hash = Column(String(255), nullable=False)\n    created_at = Column(DateTime, default=datetime.utcnow)\n\n# TODO [Sprint 1, Ticket 3]: Implement the Task model below\n",
+        "app/utils/security.py": "import hashlib\nimport secrets\nfrom datetime import datetime, timedelta\nfrom typing import Optional\nimport jwt\n\nSECRET_KEY = \"fastapi-insecure-secret-key-change-in-production\"\nALGORITHM = \"HS256\"\nACCESS_TOKEN_EXPIRE_MINUTES = 1440\n\ndef hash_password(password: str) -> str:\n    salt = secrets.token_hex(16)\n    pw_hash = hashlib.pbkdf2_hmac(\n        \"sha256\", password.encode(\"utf-8\"), salt.encode(\"utf-8\"), 100000\n    ).hex()\n    return f\"{salt}${pw_hash}\"\n\ndef verify_password(plain_password: str, hashed_password: str) -> bool:\n    if not hashed_password or \"$\" not in hashed_password:\n        return False\n    try:\n        salt, stored_hash = hashed_password.split(\"$\", 1)\n        new_hash = hashlib.pbkdf2_hmac(\n            \"sha256\", plain_password.encode(\"utf-8\"), salt.encode(\"utf-8\"), 100000\n        ).hex()\n        return secrets.compare_digest(stored_hash, new_hash)\n    except Exception:\n        return False\n\ndef create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:\n    # TODO [Sprint 2, Ticket 2]: Implement JWT token creation\n    raise NotImplementedError(\"Implement create_access_token\")\n\ndef decode_access_token(token: str) -> dict:\n    # TODO [Sprint 2, Ticket 3]: Implement JWT token decoding\n    raise NotImplementedError(\"Implement decode_access_token\")\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py"
+    },
+    {
+      "title": "Ticket 3 - Task Model with User Relationship & Cascade Deletion",
+      "ticket_slug": "fastapi-todo-13",
+      "description": "Implement the `Task` model in `app/models.py` and configure the one-to-many relationship with `User`.\n\n### Model Specifications: `tasks` Table\n- `id`: Integer, primary key, indexed.\n- `user_id`: Integer, ForeignKey referencing `users.id` with `ondelete='CASCADE'`, non-nullable.\n- `title`: String (max 200), non-nullable.\n- `description`: Text, nullable.\n- `is_completed`: Boolean, default `False`, non-nullable.\n- `created_at`: DateTime, defaults to `datetime.utcnow`.\n- `updated_at`: DateTime, defaults to `datetime.utcnow`, updates on modification.\n\n### Relationship\n- `User.tasks`: One-to-many relationship linking to `Task`, with cascade delete orphan rule.\n- `Task.owner`: Back-populates to `User`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Model relational foreign keys in SQLAlchemy.",
+        "Configure bidirectional relationships with back_populates.",
+        "Set up cascade delete rules to ensure database integrity."
+      ],
+      "tasks": [
+        {
+          "title": "Define Task model with foreign key pointing to users.id",
+          "points": 40
+        },
+        {
+          "title": "Configure is_completed default value False and timestamp fields",
+          "points": 30
+        },
+        {
+          "title": "Configure relationship and cascade delete between User and Task",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Missing ForeignKey('users.id') constraint on user_id.",
+        "Not setting default=False on is_completed."
+      ],
+      "hints": [
+        "Use `ForeignKey('users.id', ondelete='CASCADE')`.",
+        "In User model: `tasks = relationship('Task', back_populates='owner', cascade='all, delete-orphan')`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/models.py",
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py"
+      },
+      "solution": {
+        "app/models.py": "from datetime import datetime\nfrom sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey\nfrom sqlalchemy.orm import relationship\nfrom app.database import Base\n\nclass User(Base):\n    __tablename__ = \"users\"\n\n    id = Column(Integer, primary_key=True, index=True)\n    username = Column(String(80), unique=True, nullable=False, index=True)\n    email = Column(String(120), unique=True, nullable=False, index=True)\n    password_hash = Column(String(255), nullable=False)\n    created_at = Column(DateTime, default=datetime.utcnow)\n\n    tasks = relationship(\"Task\", back_populates=\"owner\", cascade=\"all, delete-orphan\")\n\nclass Task(Base):\n    __tablename__ = \"tasks\"\n\n    id = Column(Integer, primary_key=True, index=True)\n    user_id = Column(Integer, ForeignKey(\"users.id\", ondelete=\"CASCADE\"), nullable=False)\n    title = Column(String(200), nullable=False)\n    description = Column(Text, nullable=True)\n    is_completed = Column(Boolean, default=False, nullable=False)\n    created_at = Column(DateTime, default=datetime.utcnow)\n    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)\n\n    owner = relationship(\"User\", back_populates=\"tasks\")\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py"
+    }
+  ]
+}
