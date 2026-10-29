@@ -477,34 +477,11 @@ function LabDashboard() {
               return labId === targetId || labIdAlt === targetId;
             });
 
-            let localEnrolled = false;
-            try {
-              const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
-              const saved = localStorage.getItem(userMockKey);
-              if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.map(String).includes(String(realLab.id))) {
-                  localEnrolled = true;
-                }
-              }
-            } catch {}
-
-            setIsEnrolled(apiEnrolled || localEnrolled);
+            setIsEnrolled(apiEnrolled);
           })
           .catch(() => {
             if (!active) return;
-            let localEnrolled = false;
-            try {
-              const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
-              const saved = localStorage.getItem(userMockKey);
-              if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.map(String).includes(String(realLab.id))) {
-                  localEnrolled = true;
-                }
-              }
-            } catch {}
-            setIsEnrolled(localEnrolled);
+            setIsEnrolled(false);
           });
       });
     }
@@ -687,6 +664,8 @@ function LabDashboard() {
 
   const isUpcoming = realLab ? realLab.status === "upcoming" : !isDsaLab(lab.name, slug);
   const isDsa = !isUpcoming;
+  const hasGithub = Boolean(user && (user as any).github_connected);
+  const isReady = Boolean(isEnrolled && hasGithub);
 
   const handleStartLabPrompt = () => {
     if (isUpcoming) {
@@ -696,6 +675,18 @@ function LabDashboard() {
     setEnrollRepoName(`yuvro_${lab.name?.toLowerCase().replace(/\s+/g, "_") || "lab"}`);
     setEnrollModalOpen(true);
   };
+
+  useEffect(() => {
+    if (realLab && hasGithub && typeof window !== "undefined") {
+      const resumeLab = sessionStorage.getItem("ylabs_resume_start_lab");
+      if (resumeLab && (resumeLab === "true" || resumeLab === String(realLab.id))) {
+        sessionStorage.removeItem("ylabs_resume_start_lab");
+        if (!isEnrolled) {
+          handleStartLabPrompt();
+        }
+      }
+    }
+  }, [realLab, hasGithub, isEnrolled]);
 
   useEffect(() => {
     if (!isDsa && activeSprint) {
@@ -708,7 +699,7 @@ function LabDashboard() {
       toast.info("This lab is upcoming and cannot be opened yet.");
       return;
     }
-    if (realLab && isEnrolled === false) {
+    if (realLab && (!isReady || isEnrolled === false)) {
       handleStartLabPrompt();
       return;
     }
@@ -839,7 +830,7 @@ function LabDashboard() {
       toast.info("This lab is upcoming. Sprint tickets are for preview only.");
       return;
     }
-    if (realLab && isEnrolled === false) {
+    if (realLab && (!isReady || isEnrolled === false)) {
       e.preventDefault();
       handleStartLabPrompt();
     }
@@ -889,6 +880,27 @@ function LabDashboard() {
     if (!isLoading && realLab && realLab.status === "upcoming") {
       navigate({ to: "/student/dashboard" });
       return null;
+    }
+    if (!isLoading && realLab && isEnrolled !== null && (!isReady || isEnrolled === false)) {
+      return (
+        <div className="min-h-screen bg-background">
+          <TopNav />
+          <div className="flex h-[calc(100vh-64px)] flex-col items-center justify-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Preparing workspace repository...</p>
+          </div>
+          <StartLabModal
+            isOpen={true}
+            onClose={() => {
+              navigate({ to: "/student/lab/$slug", params: { slug } });
+            }}
+            labName={lab.name}
+            defaultRepoName={enrollRepoName || `yuvro_${lab.name?.toLowerCase().replace(/\s+/g, "_") || "lab"}`}
+            onConfirm={confirmEnroll}
+            isLoading={enrollLoading}
+          />
+        </div>
+      );
     }
     return <Outlet />;
   }
