@@ -2243,6 +2243,13 @@ async def run_test_command_endpoint(body: RunTestCommandRequest):
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id or "0", body.evaluation_id)
     ws.mkdir(parents=True, exist_ok=True)
 
+    user_files = [
+        f for f in ws.iterdir()
+        if f.name not in (".bash_history", ".git") and (f.is_file() or (f.is_dir() and any(f.rglob("*"))))
+    ]
+    if not user_files or _is_workspace_incomplete(ws, body.lab_id, body.evaluation_id):
+        _seed_from_starter_repo(ws, body.lab_id, body.evaluation_id)
+
     starter_scoring_rules = None
     if body.evaluation_id:
         lab_starter_dir = WORKSPACES_ROOT / "evaluation" / body.evaluation_id / "labs" / body.lab_id

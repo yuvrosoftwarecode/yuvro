@@ -29,6 +29,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         g++ \
         default-jre-headless \
         default-jdk-headless \
+        maven \
         curl \
         git \
         libxrender1 \
