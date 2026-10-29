@@ -18,6 +18,7 @@ import {
   Trash2,
   Edit2,
   FileText,
+  Linkedin,
 } from "lucide-react";
 import { useClickOutside } from "@/hooks/use-click-outside";
 
@@ -50,6 +51,13 @@ function Profile() {
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [disconnectInput, setDisconnectInput] = useState("");
   const [disconnecting, setDisconnecting] = useState(false);
+
+  /* ── LinkedIn integration ──────────────────────────────── */
+  const linkedinConnected = user?.linkedin_connected ?? false;
+  const linkedinName = user?.linkedin_name ?? "";
+  const [showLinkedInDisconnectModal, setShowLinkedInDisconnectModal] = useState(false);
+  const [disconnectLinkedInInput, setDisconnectLinkedInInput] = useState("");
+  const [disconnectingLinkedIn, setDisconnectingLinkedIn] = useState(false);
 
   /* ── Image upload states ───────────────────────────────── */
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
@@ -182,6 +190,40 @@ function Profile() {
       alert("Failed to disconnect GitHub account.");
     } finally {
       setDisconnecting(false);
+    }
+  };
+
+  /* ── LinkedIn connect / disconnect ─────────────────────── */
+  const connectLinkedIn = async () => {
+    try {
+      sessionStorage.setItem("linkedin_oauth_redirect", window.location.pathname);
+      const { yhubApiAuthUtil } = await import("@/utils/RestApiAuthUtil");
+      const data = await yhubApiAuthUtil.get<{ authorization_url: string }>(
+        "/auth/linkedin/connect/",
+      );
+      if (data.authorization_url) window.location.href = data.authorization_url;
+    } catch (e) {
+      console.error("Failed to fetch linkedin connect url", e);
+      alert("Failed to initiate LinkedIn connection.");
+    }
+  };
+  const initiateLinkedInDisconnect = () => {
+    setDisconnectLinkedInInput("");
+    setShowLinkedInDisconnectModal(true);
+  };
+  const confirmLinkedInDisconnect = async () => {
+    setDisconnectingLinkedIn(true);
+    try {
+      const { yhubApiAuthUtil } = await import("@/utils/RestApiAuthUtil");
+      await yhubApiAuthUtil.delete("/auth/linkedin/connect/");
+      const updatedUser = await authService.getCurrentUser();
+      updateUser(updatedUser);
+      setShowLinkedInDisconnectModal(false);
+    } catch (e) {
+      console.error("Failed to disconnect linkedin", e);
+      alert("Failed to disconnect LinkedIn account.");
+    } finally {
+      setDisconnectingLinkedIn(false);
     }
   };
 
@@ -647,6 +689,35 @@ function Profile() {
               </button>
             )}
           </div>
+
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-background/40 p-3 mt-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="grid h-9 w-9 place-items-center rounded-md bg-[#0A66C2]/10 text-[#0A66C2]">
+                <Linkedin className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-medium">LinkedIn</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {linkedinConnected ? `Connected as ${linkedinName || "LinkedIn Member"}` : "Not connected"}
+                </div>
+              </div>
+            </div>
+            {linkedinConnected ? (
+              <button
+                onClick={initiateLinkedInDisconnect}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-accent"
+              >
+                <Unlink className="h-3.5 w-3.5" /> Disconnect
+              </button>
+            ) : (
+              <button
+                onClick={connectLinkedIn}
+                className="inline-flex items-center gap-1.5 rounded-md bg-[#0A66C2] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#0A66C2]/90"
+              >
+                <LinkIcon className="h-3.5 w-3.5" /> Connect
+              </button>
+            )}
+          </div>
         </section>
       </main>
 
@@ -681,6 +752,36 @@ function Profile() {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm font-medium hover:bg-destructive/90 transition-colors disabled:opacity-50"
               >
                 {disconnecting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Disconnect"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── LinkedIn Disconnect Modal ───────────────────────── */}
+      {showLinkedInDisconnectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
+            <h2 className="text-lg font-semibold mb-2">Disconnect LinkedIn</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Are you sure you want to disconnect your LinkedIn account (
+              <strong className="text-foreground">{linkedinName || "Connected profile"}</strong>)?
+              You won't be able to publish milestones to LinkedIn with 1-click until you reconnect.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowLinkedInDisconnectModal(false)}
+                className="px-4 py-2 rounded-md text-sm font-medium hover:bg-accent transition-colors"
+                disabled={disconnectingLinkedIn}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLinkedInDisconnect}
+                disabled={disconnectingLinkedIn}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm font-medium hover:bg-destructive/90 transition-colors disabled:opacity-50"
+              >
+                {disconnectingLinkedIn ? <Loader2 className="h-4 w-4 animate-spin" /> : "Disconnect"}
               </button>
             </div>
           </div>
