@@ -1767,28 +1767,45 @@ def _build_tree(base: Path, rel: Path | None = None) -> dict:
     return {"name": name, "path": str(rel or ""), "type": "directory", "children": children}
 
 
-def _seed_from_starter_repo(ws: Path, lab_id: str, evaluation_id: Optional[str] = None) -> bool:
-    """If ws is empty, copy starter files from canonical starter repo clone if available."""
-    try:
-        starter_src = None
-        candidate_dirs = []
-        if evaluation_id:
-            candidate_dirs.append(WORKSPACES_ROOT / "evaluation" / str(evaluation_id) / "labs" / str(lab_id))
-        candidate_dirs.append(WORKSPACES_ROOT / "labs" / str(lab_id))
+def _find_starter_repo(lab_id: str, evaluation_id: Optional[str] = None) -> Optional[Path]:
+    candidate_dirs = []
+    if evaluation_id:
+        candidate_dirs.append(WORKSPACES_ROOT / "evaluation" / str(evaluation_id) / "labs" / str(lab_id))
+    candidate_dirs.append(WORKSPACES_ROOT / "labs" / str(lab_id))
 
-        for candidate in candidate_dirs:
-            if not candidate.exists():
-                continue
-            if (candidate / ".git").exists() or any(f.is_file() for f in candidate.iterdir() if f.name not in (".git", "users")):
-                starter_src = candidate
-                break
-            for child in sorted(candidate.iterdir()):
-                if child.is_dir() and child.name not in (".git", "users") and any(child.iterdir()):
-                    starter_src = child
-                    break
-            if starter_src:
-                break
-        
+    for candidate in candidate_dirs:
+        if not candidate.exists():
+            continue
+        if (candidate / ".git").exists() or any(f.is_file() for f in candidate.iterdir() if f.name not in (".git", "users")):
+            return candidate
+        for child in sorted(candidate.iterdir()):
+            if child.is_dir() and child.name not in (".git", "users") and any(child.iterdir()):
+                return child
+    return None
+
+
+def _is_workspace_incomplete(ws: Path, lab_id: str, evaluation_id: Optional[str] = None) -> bool:
+    """Check if the workspace was partially seeded (e.g. single fallback file) while a full starter repo is available."""
+    try:
+        starter_src = _find_starter_repo(lab_id, evaluation_id)
+        if not starter_src or not starter_src.exists():
+            return False
+
+        ignored_names = {'.git', 'yuvro_scoring_rules', 'problem.md', 'solution.md', 'users'}
+        expected_items = [item.name for item in starter_src.iterdir() if item.name not in ignored_names]
+        if not expected_items:
+            return False
+
+        missing = [name for name in expected_items if not (ws / name).exists()]
+        return len(missing) > 0
+    except Exception:
+        return False
+
+
+def _seed_from_starter_repo(ws: Path, lab_id: str, evaluation_id: Optional[str] = None) -> bool:
+    """If starter repo is available, copy starter files to ws."""
+    try:
+        starter_src = _find_starter_repo(lab_id, evaluation_id)
         if starter_src and starter_src.exists():
             ignore = shutil.ignore_patterns('.git', 'yuvro_scoring_rules', 'problem.md', 'solution.md')
             for item in starter_src.iterdir():
@@ -1800,7 +1817,8 @@ def _seed_from_starter_repo(ws: Path, lab_id: str, evaluation_id: Optional[str] 
                 else:
                     shutil.copy2(str(item), str(dst))
             try:
-                subprocess.run(["git", "init"], cwd=str(ws), check=True, capture_output=True)
+                if not (ws / ".git").exists():
+                    subprocess.run(["git", "init"], cwd=str(ws), check=True, capture_output=True)
                 subprocess.run(["git", "-c", "safe.directory=*", "add", "."], cwd=str(ws), check=True, capture_output=True)
                 subprocess.run(["git", "-c", "safe.directory=*", "config", "user.email", "bot@yuvro.ai"], cwd=str(ws), check=True)
                 subprocess.run(["git", "-c", "safe.directory=*", "config", "user.name", "Yuvro Bot"], cwd=str(ws), check=True)
@@ -1861,14 +1879,14 @@ async def get_file_tree(
                     fpath.write_text(content)
                 seeded = True
     else:
-        # Workspace already exists — check if it is empty (only .bash_history or .git)
+        # Workspace already exists — check if it is empty or incomplete
         user_files = [
             f for f in ws.iterdir()
             if f.name not in (".bash_history", ".git") and (f.is_file() or (f.is_dir() and any(f.rglob("*"))))
         ]
-        if not user_files:
+        if not user_files or _is_workspace_incomplete(ws, lab_id, evaluation_id):
             seeded = _seed_from_starter_repo(ws, lab_id, evaluation_id)
-            if not seeded:
+            if not seeded and not user_files:
                 seed_files = {}
                 if starters is not None:
                     try:

@@ -1,0 +1,154 @@
+{
+  "title": "Sprint 3 — Task CRUD Operations & User Isolation",
+  "description": "Implement task creation, listing, and single retrieval in Express while enforcing strict per-user data ownership.",
+  "order_index": 3,
+  "lab_title": "Node.js & Express Todo REST API Lab",
+  "tickets": [
+    {
+      "title": "Ticket 1 - Create New Task API",
+      "ticket_slug": "node-todo-31",
+      "description": "Implement `POST /api/tasks` in `src/routes/tasks.js` allowing an authenticated user to create a task.\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Request Body\n```json\n{\n  \"title\": \"Complete Node.js Lab\",\n  \"description\": \"Finish all 4 sprints with passing tests\"\n}\n```\n\n### Requirements\n1. Protect endpoint with `authenticateToken` middleware.\n2. Validate that `title` is non-empty. Return `400 Bad Request` if title is missing.\n3. Create new task associated with `req.user.id`.\n4. Return `201 Created` with `{\"message\": \"Task created successfully\", \"task\": {...}}`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Associate created entities with authenticated users in Express.",
+        "Implement payload validation for required fields.",
+        "Return proper HTTP 201 Created responses."
+      ],
+      "tasks": [
+        {
+          "title": "Require authentication on `POST /api/tasks`.",
+          "points": 30
+        },
+        {
+          "title": "Validate non-empty title in request payload.",
+          "points": 30
+        },
+        {
+          "title": "Persist task to database with `user_id` set to current user.",
+          "points": 40
+        }
+      ],
+      "common_mistakes": [
+        "Allowing the client to pass arbitrary `user_id` in the request body instead of taking it from the authenticated user token (`req.user.id`).",
+        "Allowing empty string titles."
+      ],
+      "hints": [
+        "Always use `req.user.id` to set `user_id` on the new `Task` record.",
+        "Check `if (!title || !title.trim())` return HTTP 400."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/routes/tasks.js",
+        "test_command": "node yuvro_scoring_rules/sprint_3/ticket_1/main_test.js"
+      },
+      "solution": {
+        "src/routes/tasks.js": "const express = require('express');\nconst Task = require('../models/task');\nconst authenticateToken = require('../middleware/auth');\n\nconst router = express.Router();\n\nrouter.use(authenticateToken);\n\nrouter.post('/', (req, res) => {\n  const { title, description } = req.body || {};\n  const cleanTitle = (title || '').trim();\n\n  if (!cleanTitle) {\n    return res.status(400).json({ error: 'Title is required' });\n  }\n\n  const task = Task.create({\n    user_id: req.user.id,\n    title: cleanTitle,\n    description: description || ''\n  });\n\n  return res.status(201).json({\n    message: 'Task created successfully',\n    task\n  });\n});\n\nmodule.exports = router;\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 1,
+      "test_command": "node yuvro_scoring_rules/sprint_3/ticket_1/main_test.js"
+    },
+    {
+      "title": "Ticket 2 - List Authenticated User Tasks",
+      "ticket_slug": "node-todo-32",
+      "description": "Implement `GET /api/tasks` returning all tasks belonging to the authenticated user.\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Requirements\n1. Protect endpoint with `authenticateToken` middleware.\n2. Query only tasks where `user_id === req.user.id`.\n3. Return `200 OK` with JSON `{\"tasks\": [...]}` containing an array of serialized task objects.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Filter queries by authenticated user identifier in SQL.",
+        "Serialize collections of task records into JSON arrays.",
+        "Ensure strict data isolation between multiple users."
+      ],
+      "tasks": [
+        {
+          "title": "Query tasks filtered by `req.user.id`.",
+          "points": 50
+        },
+        {
+          "title": "Return JSON list of tasks with HTTP 200.",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Querying all tasks (`SELECT * FROM tasks`) instead of filtering by `user_id`.",
+        "Leaking other users' data in task listings."
+      ],
+      "hints": [
+        "Use `Task.findByUser(req.user.id)` to fetch tasks owned by caller.",
+        "Return `res.status(200).json({ tasks })`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/routes/tasks.js",
+        "test_command": "node yuvro_scoring_rules/sprint_3/ticket_2/main_test.js"
+      },
+      "solution": {
+        "src/routes/tasks.js": "const express = require('express');\nconst Task = require('../models/task');\nconst authenticateToken = require('../middleware/auth');\n\nconst router = express.Router();\n\nrouter.use(authenticateToken);\n\nrouter.post('/', (req, res) => {\n  const { title, description } = req.body || {};\n  const cleanTitle = (title || '').trim();\n\n  if (!cleanTitle) {\n    return res.status(400).json({ error: 'Title is required' });\n  }\n\n  const task = Task.create({\n    user_id: req.user.id,\n    title: cleanTitle,\n    description: description || ''\n  });\n\n  return res.status(201).json({\n    message: 'Task created successfully',\n    task\n  });\n});\n\nrouter.get('/', (req, res) => {\n  const tasks = Task.findByUser(req.user.id);\n  return res.status(200).json({ tasks });\n});\n\nmodule.exports = router;\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 2,
+      "test_command": "node yuvro_scoring_rules/sprint_3/ticket_2/main_test.js"
+    },
+    {
+      "title": "Ticket 3 - Retrieve Task by ID with Ownership Authorization",
+      "ticket_slug": "node-todo-33",
+      "description": "Implement `GET /api/tasks/:id` to retrieve the details of a specific task.\n\n### Requirements\n1. Protect endpoint with `authenticateToken` middleware.\n2. Find task by `id`. If no task exists, return `404 Not Found`.\n3. **Ownership Check**: If the task belongs to a different user, return `404 Not Found` with `{\"error\": \"Task not found\"}` to prevent resource enumeration.\n4. If the task belongs to `req.user`, return `200 OK` with `{\"task\": task}`.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Implement single-resource REST endpoints with URL route parameters.",
+        "Enforce horizontal authorization / access control checks.",
+        "Prevent indirect object reference (IDOR) vulnerabilities."
+      ],
+      "tasks": [
+        {
+          "title": "Retrieve task by primary key from URL parameter.",
+          "points": 40
+        },
+        {
+          "title": "Enforce ownership check: verify `task.user_id === req.user.id`.",
+          "points": 40
+        },
+        {
+          "title": "Return HTTP 404 on missing or unauthorized task access.",
+          "points": 20
+        }
+      ],
+      "common_mistakes": [
+        "Returning tasks of other users without checking `user_id` (IDOR security flaw).",
+        "Crashing with 500 when non-existent or non-numeric IDs are queried."
+      ],
+      "hints": [
+        "Use `Task.findById(taskId, req.user.id)` for atomic lookup and authorization.",
+        "If `!task`, return `res.status(404).json({ error: 'Task not found' })`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/routes/tasks.js",
+        "test_command": "node yuvro_scoring_rules/sprint_3/ticket_3/main_test.js"
+      },
+      "solution": {
+        "src/routes/tasks.js": "const express = require('express');\nconst Task = require('../models/task');\nconst authenticateToken = require('../middleware/auth');\n\nconst router = express.Router();\n\nrouter.use(authenticateToken);\n\nrouter.post('/', (req, res) => {\n  const { title, description } = req.body || {};\n  const cleanTitle = (title || '').trim();\n\n  if (!cleanTitle) {\n    return res.status(400).json({ error: 'Title is required' });\n  }\n\n  const task = Task.create({\n    user_id: req.user.id,\n    title: cleanTitle,\n    description: description || ''\n  });\n\n  return res.status(201).json({\n    message: 'Task created successfully',\n    task\n  });\n});\n\nrouter.get('/', (req, res) => {\n  const tasks = Task.findByUser(req.user.id);\n  return res.status(200).json({ tasks });\n});\n\nrouter.get('/:id', (req, res) => {\n  const taskId = parseInt(req.params.id, 10);\n  if (isNaN(taskId)) {\n    return res.status(404).json({ error: 'Task not found' });\n  }\n\n  const task = Task.findById(taskId, req.user.id);\n  if (!task) {\n    return res.status(404).json({ error: 'Task not found' });\n  }\n\n  return res.status(200).json({ task });\n});\n\nmodule.exports = router;\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 3,
+      "test_command": "node yuvro_scoring_rules/sprint_3/ticket_3/main_test.js"
+    }
+  ]
+}
