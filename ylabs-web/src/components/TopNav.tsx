@@ -24,6 +24,7 @@ import { useAuth } from "@/lib/auth";
 import { useEffect, useRef, useState } from "react";
 import { DeployInfo } from "@/components/common/DeployInfo";
 import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
+import { WalletBalanceBadge } from "@/components/credits/WalletBalanceBadge";
 import YuvroLogo from "@/assets/YuvroLogo.png";
 
 const primaryLinks = [
@@ -166,6 +167,7 @@ export function TopNav({
             <Zap className="h-4 w-4" />
             {(stats?.total_yp ?? 0).toLocaleString()} YP
           </span>
+          <WalletBalanceBadge />
           {/* <span className="rounded-full bg-accent px-2 py-0.5 text-xs">Lv {me.level}</span> */}
 
           {user && !(user as any).github_connected && (
