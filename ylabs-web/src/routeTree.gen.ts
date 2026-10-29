@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SystemDesignStudioRouteImport } from './routes/system-design-studio'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as RecruiterSignupRouteImport } from './routes/recruiter-signup'
 import { Route as RecruiterLoginRouteImport } from './routes/recruiter-login'
@@ -71,6 +72,11 @@ import { Route as StudentCollaborationSprintIdReportIndividualRouteImport } from
 import { Route as AdminUsersIdLabsSlugReportRouteImport } from './routes/admin.users.$id.labs.$slug.report'
 import { Route as AdminStudentReportUserIdLabIdTicketTicketIdReviewRouteImport } from './routes/admin.student-report.$userId.$labId.ticket.$ticketId.review'
 
+const SystemDesignStudioRoute = SystemDesignStudioRouteImport.update({
+  id: '/system-design-studio',
+  path: '/system-design-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
@@ -404,6 +410,7 @@ export interface FileRoutesByFullPath {
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
+  '/system-design-studio': typeof SystemDesignStudioRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
@@ -464,6 +471,7 @@ export interface FileRoutesByTo {
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
+  '/system-design-studio': typeof SystemDesignStudioRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
@@ -527,6 +535,7 @@ export interface FileRoutesById {
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
+  '/system-design-studio': typeof SystemDesignStudioRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
@@ -592,6 +601,7 @@ export interface FileRouteTypes {
     | '/recruiter-login'
     | '/recruiter-signup'
     | '/student'
+    | '/system-design-studio'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
@@ -652,6 +662,7 @@ export interface FileRouteTypes {
     | '/recruiter-login'
     | '/recruiter-signup'
     | '/student'
+    | '/system-design-studio'
     | '/admin/questions'
     | '/admin/recruiters'
     | '/evaluation/complete'
@@ -714,6 +725,7 @@ export interface FileRouteTypes {
     | '/recruiter-login'
     | '/recruiter-signup'
     | '/student'
+    | '/system-design-studio'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
@@ -778,6 +790,7 @@ export interface RootRouteChildren {
   RecruiterLoginRoute: typeof RecruiterLoginRoute
   RecruiterSignupRoute: typeof RecruiterSignupRoute
   StudentRoute: typeof StudentRouteWithChildren
+  SystemDesignStudioRoute: typeof SystemDesignStudioRoute
   GithubCallbackRoute: typeof GithubCallbackRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
   SharedReportTokenRoute: typeof SharedReportTokenRoute
@@ -785,6 +798,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/system-design-studio': {
+      id: '/system-design-studio'
+      path: '/system-design-studio'
+      fullPath: '/system-design-studio'
+      preLoaderRoute: typeof SystemDesignStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/student': {
       id: '/student'
       path: '/student'
@@ -1455,6 +1475,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecruiterLoginRoute: RecruiterLoginRoute,
   RecruiterSignupRoute: RecruiterSignupRoute,
   StudentRoute: StudentRouteWithChildren,
+  SystemDesignStudioRoute: SystemDesignStudioRoute,
   GithubCallbackRoute: GithubCallbackRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
   SharedReportTokenRoute: SharedReportTokenRoute,

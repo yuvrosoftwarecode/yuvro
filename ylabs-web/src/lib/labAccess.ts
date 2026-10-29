@@ -58,6 +58,9 @@ const TIER_MAP: Record<string, LabTier> = {
   postgres: "premium",
   javaspring: "freemium",
   systemdesign: "premium",
+  "system-design-lab": "free",
+  "systemdesign-url-shortener": "premium",
+  "systemdesign-bookmysystem": "premium",
   cybersecurity: "premium",
   qa: "premium",
 };

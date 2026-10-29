@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { createFileRoute, Outlet, useMatch } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { getLab, type AdminLab } from "@/lib/adminLabs";
 import { loadSprints, type LabSprint } from "@/lib/labSprints";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 import { LabReportView } from "@/components/shared/LabReportView";
 
 export const Route = createFileRoute("/admin/student-report/$userId/$labId")({
-  component: AdminStudentReportPage,
+  component: AdminStudentReportRoute,
 });
 
-function AdminStudentReportPage() {
+function AdminStudentReportRoute() {
+  const location = useLocation();
+  const isReview = location.pathname.includes("/review");
+
+  if (isReview) {
+    return <Outlet />;
+  }
+
+  return <AdminStudentReportContent />;
+}
+
+function AdminStudentReportContent() {
   const { userId, labId } = Route.useParams();
-  const reviewMatch = useMatch({ from: '/admin/student-report/$userId/$labId/ticket/$ticketId/review', shouldThrow: false });
   const [realLab, setRealLab] = useState<AdminLab | null>(null);
   const [realSprints, setRealSprints] = useState<LabSprint[]>([]);
   const [statusOverrides, setStatusOverrides] = useState<
@@ -65,8 +75,6 @@ function AdminStudentReportPage() {
       active = false;
     };
   }, [userId, labId]);
-
-  if (reviewMatch) return <Outlet />;
 
   return (
     <LabReportView

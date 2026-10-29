@@ -6,7 +6,9 @@ from .models import (
     LabSprintTicket,
     UserLabEnrollment,
     UserLabSprintTicketSubmission,
+    SystemDesign,
 )
+from .system_design_utils import normalize_system_design
 
 class LabSerializer(serializers.ModelSerializer):
     total_tickets = serializers.IntegerField(read_only=True, required=False)
@@ -42,6 +44,11 @@ class LabSprintTicketSerializer(serializers.ModelSerializer):
         if isinstance(obj.scoring_rules, dict):
             return obj.scoring_rules.get('test_command') or ''
         return ''
+
+    def validate_system_design(self, value):
+        if value:
+            return normalize_system_design(value)
+        return value
 
 class UserLabEnrollmentSerializer(serializers.ModelSerializer):
     lab_details = serializers.SerializerMethodField()
@@ -81,3 +88,25 @@ class UserLabSprintTicketSubmissionSerializer(serializers.ModelSerializer):
         model = UserLabSprintTicketSubmission
         fields = '__all__'
         read_only_fields = ('user',)
+
+    def validate_system_design(self, value):
+        if value:
+            return normalize_system_design(value)
+        return value
+
+
+class SystemDesignSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+    lab_title = serializers.CharField(source='lab.title', read_only=True)
+    ticket_title = serializers.CharField(source='ticket.title', read_only=True)
+
+    class Meta:
+        model = SystemDesign
+        fields = '__all__'
+        read_only_fields = ('user', 'created_at', 'updated_at')
+
+    def validate_design(self, value):
+        if value:
+            return normalize_system_design(value)
+        return value
+

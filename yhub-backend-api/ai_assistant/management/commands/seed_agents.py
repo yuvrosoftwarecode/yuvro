@@ -80,6 +80,15 @@ class Command(BaseCommand):
                 "temperature": 0.7,
             },
             {
+                "name": "DeepSeek Chat (V3 / Flash)",
+                "provider": "deepseek",
+                "model_name": "deepseek-chat",
+                "description": "High-performance DeepSeek model with superior architectural reasoning",
+                "is_active": True,
+                "max_tokens": 4096,
+                "temperature": 0.2,
+            },
+            {
                 "name": "Cohere Command",
                 "provider": "cohere",
                 "model_name": "command-nightly",

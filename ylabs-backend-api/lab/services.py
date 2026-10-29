@@ -65,5 +65,7 @@ def evaluate_and_score_submission(submission):
         submission.ticket_status = TicketProgressStatus.DONE
     elif total_points > 0:
         submission.ticket_status = TicketProgressStatus.IN_REVIEW
+    elif final_score_pct < 0.7 and submission.ticket_status == TicketProgressStatus.DONE:
+        submission.ticket_status = TicketProgressStatus.IN_PROGRESS
         
     return total_points
