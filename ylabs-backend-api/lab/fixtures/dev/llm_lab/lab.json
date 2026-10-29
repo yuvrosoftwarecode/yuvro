@@ -1,0 +1,27 @@
+{
+  "labs": [
+    {
+      "title": "LLM Lab",
+      "previous_titles": [
+        "Build a (Tiny) LLM from Scratch",
+        "MicroGPT: Generative Transformer Engine from First Principles"
+      ],
+      "type": "AI",
+      "description": "Master large language model architectures from first principles using pure Python and NumPy. Build a complete generative Transformer engine covering token embeddings, probability distributions, multi-head attention, residual normalization layers, and autoregressive text generation.",
+      "difficulty": "MEDIUM",
+      "icon": "Brain",
+      "prerequisites": "Basic Python programming (functions, loops, lists, dictionaries) and elementary arithmetic. Zero prior machine learning experience required.",
+      "skills": [
+        "Transformers",
+        "Attention Mechanism",
+        "Tokenization",
+        "NumPy",
+        "Text Generation",
+        "Linear Algebra",
+        "Deep Learning"
+      ],
+      "git_repo_starter_url": "https://github.com/MrinalGupta7890/LLM-Lab",
+      "status": "active"
+    }
+  ]
+}

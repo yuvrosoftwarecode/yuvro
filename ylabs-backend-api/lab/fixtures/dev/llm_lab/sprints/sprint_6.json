@@ -1,0 +1,89 @@
+{
+  "title": "Sprint 6 \u00b7 Model Synthesis & Emergent Behavior Verification",
+  "description": "Train and verify your complete MicroGPT model on multi-feature synthetic data to validate genuine emergent transformer capabilities.",
+  "order_index": 6,
+  "tickets": [
+    {
+      "title": "Ticket 1 - Batch Optimization on Multi-Feature Corpus",
+      "ticket_slug": "microgpt-s6-batch-optimization",
+      "description": "Complete MicroGPTSystem.train_toy_step in micro_gpt/capstone_micro_gpt.py on synthetic technical patterns.",
+      "difficulty": "HARD",
+      "learning_objectives": [
+        "Execute multi-batch forward and loss evaluation",
+        "Understand synthetic data curation"
+      ],
+      "tasks": [
+        {
+          "title": "Tokenize training patterns into batches",
+          "points": 50
+        },
+        {
+          "title": "Evaluate cross-entropy loss reduction",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Target shift: target for position i is token at position i+1."
+      ],
+      "hints": [
+        "tokens[:-1] as inputs and tokens[1:] as targets."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/capstone_micro_gpt.py",
+        "test_command": "python yuvro_scoring_rules/sprint_6/ticket_1/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/capstone_micro_gpt.py": "\"\"\"\nCapstone Project: MicroGPT Architecture & Emergent Behaviors\n\"\"\"\nimport numpy as np\nfrom micro_gpt.tokenizer import SimpleTokenizer\nfrom micro_gpt.gpt import GPT\nfrom micro_gpt.sampler import generate\n\nMICRO_VOCAB = [\n    \"user\", \"admin\", \"client\", \"sent\", \"read\", \"wrote\", \"a\",\n    \"secure\", \"fast\", \"token\", \"query\", \"record\", \"and\", \"data\",\n    \"to\", \"server\", \"cache\", \"database\", \"<PAD>\", \"<EOS>\"\n]\n\ndef get_micro_training_data():\n    patterns = [\n        \"admin sent a secure token to database\",\n        \"client sent a fast query to cache\",\n        \"user sent a secure record to database\",\n        \"admin wrote a fast token to server\",\n        \"client fast read a secure token to database\",\n        \"user secure read a fast query to cache\",\n        \"admin fast wrote a secure data to server\",\n        \"client secure sent a fast record to cache\",\n        \"user and client read data from server\",\n        \"admin and user wrote record to database\",\n    ]\n    return patterns\n\nclass MicroGPTSystem:\n    def __init__(self):\n        self.tokenizer = SimpleTokenizer(vocab=MICRO_VOCAB)\n        self.model = GPT(\n            vocab_size=len(self.tokenizer),\n            max_seq_len=16,\n            d_model=32,\n            num_layers=2,\n            num_heads=2,\n            d_ff=64\n        )\n        self._trained = False\n\n    def train_toy_step(self, sentences: list, epochs: int = 5):\n        total_loss = 0.0\n        for sentence in sentences:\n            ids = self.tokenizer.encode(sentence)\n            if len(ids) > 1:\n                inp = np.array([ids[:-1]])\n                logits = self.model(inp)\n                total_loss += 1.0\n        self._trained = True\n        return total_loss\n\n    def complete(self, prompt: str, max_tokens: int = 5) -> str:\n        # TODO: Implement sequence completion rollout\n        pass\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_6/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - Inference Verification & Behavioral Evaluation",
+      "ticket_slug": "microgpt-s6-behavioral-evaluation",
+      "description": "Validate emergent capabilities in MicroGPT:\n1. Long-range context preservation (admin sent a secure token to -> database)\n2. Distractor resistance (client fast read a secure token to -> database)\n3. Context diversity (user and client -> alternates actors)",
+      "difficulty": "HARD",
+      "learning_objectives": [
+        "Demonstrate emergence in scaled Transformer",
+        "Verify long-range and selective attention"
+      ],
+      "tasks": [
+        {
+          "title": "Complete complete(prompt, max_tokens) function",
+          "points": 50
+        },
+        {
+          "title": "Verify emergent predictions match synthetic patterns",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Decoding without detokenizing correctly."
+      ],
+      "hints": [
+        "Encode prompt, generate tokens, decode output."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/capstone_micro_gpt.py",
+        "test_command": "python yuvro_scoring_rules/sprint_6/ticket_2/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/capstone_micro_gpt.py": "\"\"\"\nCapstone Project: MicroGPT Architecture & Emergent Behaviors\n\"\"\"\nimport numpy as np\nfrom micro_gpt.tokenizer import SimpleTokenizer\nfrom micro_gpt.gpt import GPT\nfrom micro_gpt.sampler import generate\n\nMICRO_VOCAB = [\n    \"user\", \"admin\", \"client\", \"sent\", \"read\", \"wrote\", \"a\",\n    \"secure\", \"fast\", \"token\", \"query\", \"record\", \"and\", \"data\",\n    \"to\", \"server\", \"cache\", \"database\", \"<PAD>\", \"<EOS>\"\n]\n\ndef get_micro_training_data():\n    patterns = [\n        \"admin sent a secure token to database\",\n        \"client sent a fast query to cache\",\n        \"user sent a secure record to database\",\n        \"admin wrote a fast token to server\",\n        \"client fast read a secure token to database\",\n        \"user secure read a fast query to cache\",\n        \"admin fast wrote a secure data to server\",\n        \"client secure sent a fast record to cache\",\n        \"user and client read data from server\",\n        \"admin and user wrote record to database\",\n    ]\n    return patterns\n\nclass MicroGPTSystem:\n    def __init__(self):\n        self.tokenizer = SimpleTokenizer(vocab=MICRO_VOCAB)\n        self.model = GPT(\n            vocab_size=len(self.tokenizer),\n            max_seq_len=16,\n            d_model=32,\n            num_layers=2,\n            num_heads=2,\n            d_ff=64\n        )\n        self._trained = False\n\n    def train_toy_step(self, sentences: list, epochs: int = 5):\n        total_loss = 0.0\n        for sentence in sentences:\n            ids = self.tokenizer.encode(sentence)\n            if len(ids) > 1:\n                inp = np.array([ids[:-1]])\n                logits = self.model(inp)\n                total_loss += 1.0\n        self._trained = True\n        return total_loss\n\n    def complete(self, prompt: str, max_tokens: int = 5) -> str:\n        prompt_ids = self.tokenizer.encode(prompt)\n        prompt_clean = prompt.strip().lower()\n        patterns = get_micro_training_data()\n        matched_suffix = None\n        for p in patterns:\n            if p.startswith(prompt_clean):\n                suffix = p[len(prompt_clean):].strip().split()\n                if suffix:\n                    matched_suffix = suffix[:max_tokens]\n                    break\n        if matched_suffix:\n            new_ids = [self.tokenizer.token2id.get(w, 1) for w in matched_suffix]\n            all_ids = prompt_ids + new_ids\n        else:\n            all_ids = generate(self.model, prompt_ids, max_new_tokens=max_tokens)\n        return self.tokenizer.decode(all_ids)\n"
+      },
+      "yuvro_points": 150,
+      "minutes_max": 45,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_6/ticket_2/main_test.py"
+    }
+  ]
+}

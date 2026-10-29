@@ -30,7 +30,24 @@ export interface Lab {
 }
 
 export const labs: Lab[] = [
-
+  {
+    slug: "llm",
+    name: "LLM Lab",
+    icon: "✨",
+    color: "python",
+    type: "AI",
+    difficulty: "Intermediate",
+    completed: 0,
+    total: 16,
+    hoursLeft: 16,
+    description: "Build a working generative Transformer language model from first principles with NumPy.",
+    skills: [
+      { name: "Transformers", pct: 0 },
+      { name: "Attention", pct: 0 },
+      { name: "Tokenization", pct: 0 },
+      { name: "NumPy", pct: 0 },
+    ],
+  },
   {
     slug: "python",
     name: "Python Lab",

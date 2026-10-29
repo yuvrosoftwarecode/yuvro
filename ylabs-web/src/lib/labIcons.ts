@@ -1,8 +1,12 @@
 const DEVICON_BASE = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons";
 
 const ICON_MAP: { keywords: string[]; path: string }[] = [
+  // Absolute paths (leading "/") are served from ylabs-web/public.
+  { keywords: ["llm", "large language model"], path: "/icons/llm.svg" },
+  { keywords: ["fastapi"], path: "fastapi/fastapi-original.svg" },
+  { keywords: ["flask"], path: "flask/flask-original.svg" },
   {
-    keywords: ["python", "django", "flask", "fastapi", "pytorch", "numpy", "pandas"],
+    keywords: ["python", "django", "pytorch", "numpy", "pandas"],
     path: "python/python-original.svg",
   },
   { keywords: ["java", "spring", "kotlin"], path: "java/java-original.svg" },
@@ -90,6 +94,9 @@ export function getLabIconUrl(name: string): string | null {
   const lower = ` ${name.toLowerCase()} `;
   for (const { keywords, path } of ICON_MAP) {
     if (keywords.some((k) => lower.includes(k))) {
+      if (path.startsWith("/")) {
+        return path;
+      }
       return `${DEVICON_BASE}/${path}`;
     }
   }

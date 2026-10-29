@@ -1,7 +1,10 @@
 {
   "labs": [
     {
-      "title": "Flask Todo REST API Lab",
+      "title": "Flask Todo Lab",
+      "previous_titles": [
+        "Flask Todo REST API Lab"
+      ],
       "type": "BACKEND",
       "description": "Master backend REST API development with Python and Flask. Build a production-ready Todo management API from scratch featuring SQLite database modeling with Flask-SQLAlchemy, secure JWT authentication with password hashing, and user-isolated task CRUD endpoints without any UI.",
       "difficulty": "EASY",

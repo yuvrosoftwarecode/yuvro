@@ -2388,7 +2388,44 @@ export function TicketIDE({
             showToast(`Score: ${passedScore} / ${maxScore}`);
           }
         } else {
-          showToast(res.exit_code === 0 ? "Tests ran successfully" : "Execution completed with errors");
+          const ticketTasks: any[] = Array.isArray(ticket?.tasks) && ticket.tasks.length > 0 ? ticket.tasks : [];
+          if (ticketTasks.length > 0 && res.exit_code !== 0) {
+            const newEvalResult: Record<string, { passed: boolean; reason: string }> = {};
+            const nextTests: TestResult[] = [];
+            const rawError = (res.stderr?.trim() || res.stdout?.trim() || `Execution exited with code ${res.exit_code}`).slice(0, 300);
+            let totalPossibleScore = 0;
+
+            ticketTasks.forEach((tMeta, idx) => {
+              const taskKey = tMeta.id || tMeta.task_slug || `task-${idx}`;
+              const taskLabel = formatTaskTitle(tMeta.title, idx, tMeta?.original_index);
+              const taskMax = Number(tMeta.marks ?? tMeta.points ?? 10);
+              totalPossibleScore += taskMax;
+
+              newEvalResult[taskKey] = {
+                passed: false,
+                reason: rawError,
+              };
+
+              nextTests.push({
+                name: `${taskLabel} (0 pts)`,
+                pass: false,
+                time: "—",
+                expected: "Task completed successfully",
+                got: rawError,
+              });
+            });
+
+            setEvalResult(prev => ({ ...prev, ...newEvalResult }));
+            if (nextTests.length > 0) {
+              setTests(nextTests);
+              setTestsRan(true);
+            }
+            const maxScore = totalPossibleScore > 0 ? totalPossibleScore : Number(ticket?.marks ?? ticket?.points ?? 10);
+            setTicketScore({ passed: 0, total: maxScore });
+            showToast(`Score: 0 / ${maxScore} (0/${ticketTasks.length} passed)`);
+          } else {
+            showToast(res.exit_code === 0 ? "Tests ran successfully" : "Execution completed with errors");
+          }
         }
         setBottomTab("preview");
       } catch (err: any) {
