@@ -34,7 +34,7 @@
         "test_command": "python yuvro_scoring_rules/sprint_2/ticket_1/main_test.py"
       },
       "solution": {
-        "micro_gpt/activations.py": "import numpy as np\n\ndef softmax(x: np.ndarray, temperature: float = 1.0, axis: int = -1) -> np.ndarray:\n    \"\"\"\n    Compute numerically stable softmax with optional temperature scaling.\n    \"\"\"\n    scaled = x / float(temperature)\n    shifted = scaled - np.max(scaled, axis=axis, keepdims=True)\n    exp_shifted = np.exp(shifted)\n    return exp_shifted / np.sum(exp_shifted, axis=axis, keepdims=True)\n\ndef gelu(x: np.ndarray) -> np.ndarray:\n    \"\"\"\n    Gaussian Error Linear Unit (GELU) activation function using the tanh approximation.\n    \"\"\"\n    # TODO: Implement GELU activation\n    pass\n"
+        "micro_gpt/activations.py": "import numpy as np\n\ndef softmax(x: np.ndarray, temperature: float = 1.0, axis: int = -1) -> np.ndarray:\n    \"\"\"\n    Compute numerically stable softmax with optional temperature scaling.\n    \"\"\"\n    shifted = x - np.max(x, axis=axis, keepdims=True)\n    exp_shifted = np.exp(shifted)\n    return exp_shifted / np.sum(exp_shifted, axis=axis, keepdims=True)\n\ndef gelu(x: np.ndarray) -> np.ndarray:\n    \"\"\"\n    Gaussian Error Linear Unit (GELU) activation function using the tanh approximation.\n    \"\"\"\n    # TODO: Implement GELU activation\n    pass\n"
       },
       "yuvro_points": 50,
       "minutes_max": 25,
