@@ -9,14 +9,55 @@ export function parseSolutionPatch(patchStr: string | any) {
     
     try {
         if (typeof patchStr === 'string' && patchStr.trim().startsWith('{')) {
-            const parsed = JSON.parse(patchStr) as Record<string, string>;
+            const parsed = JSON.parse(patchStr) as Record<string, any>;
+
+            // Check if this is a System Design structure
+            if (parsed && (parsed.nodes || parsed.seq || parsed.schema || parsed.apis)) {
+                const sysFiles: Record<string, string> = {};
+                if (parsed.nodes || parsed.edges) {
+                    sysFiles["architecture.json"] = JSON.stringify({ nodes: parsed.nodes || [], edges: parsed.edges || [] }, null, 2);
+                }
+                if (parsed.seq) {
+                    sysFiles["sequence.mmd"] = String(parsed.seq);
+                }
+                if (parsed.schema) {
+                    sysFiles["schema.dbml"] = String(parsed.schema);
+                }
+                if (parsed.apis) {
+                    sysFiles["endpoints.json"] = JSON.stringify(parsed.apis, null, 2);
+                }
+                if (parsed.notes) {
+                    const notesStr = typeof parsed.notes === "object"
+                        ? Object.entries(parsed.notes)
+                            .filter(([_, v]) => Boolean(v && String(v).trim()))
+                            .map(([k, v]) => `## ${k.toUpperCase()} Notes\n\n${v}`)
+                            .join("\n\n---\n\n")
+                        : String(parsed.notes);
+                    if (notesStr) {
+                        sysFiles["notes.md"] = notesStr;
+                    }
+                }
+                sysFiles["system-design.json"] = JSON.stringify(parsed, null, 2);
+
+                const d: Record<string, any[]> = {};
+                const sd: Record<string, any[]> = {};
+                for (const k of Object.keys(sysFiles)) {
+                    d[k] = [{ type: 'add', text: sysFiles[k] }];
+                    sd[k] = [{ left: null, right: d[k][0] }];
+                }
+                return { submittedFiles: sysFiles, fileDiffs: d, splitDiffs: sd };
+            }
+
+            const cleanFiles: Record<string, string> = {};
             const d: Record<string, any[]> = {};
             const sd: Record<string, any[]> = {};
             for (const k of Object.keys(parsed)) {
-                d[k] = [{ type: 'add', text: parsed[k] }];
+                const val = typeof parsed[k] === "string" ? parsed[k] : JSON.stringify(parsed[k], null, 2);
+                cleanFiles[k] = val;
+                d[k] = [{ type: 'add', text: val }];
                 sd[k] = [{ left: null, right: d[k][0] }];
             }
-            return { submittedFiles: parsed, fileDiffs: d, splitDiffs: sd };
+            return { submittedFiles: cleanFiles, fileDiffs: d, splitDiffs: sd };
         }
     } catch {
         // ignore

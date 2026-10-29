@@ -96,12 +96,19 @@ function Review() {
     } catch (e) {}
   }
 
-  const earnedXp = submission?.yuvro_points ?? 0;
-  
-  const isEvaluated = submission?.ticket_status === "done" || submission?.ticket_status === "in_review";
-  const percentage = isEvaluated
-    ? (maxXp > 0 ? Math.round((earnedXp / maxXp) * 100) : 0)
-    : testPercentage;
+  const earnedXp =
+    submission?.yuvro_points && submission.yuvro_points > 0
+      ? submission.yuvro_points
+      : testPercentage > 0 && maxXp > 0
+        ? Math.round(maxXp * (testPercentage / 100))
+        : (submission?.yuvro_points ?? 0);
+
+  const percentage =
+    earnedXp > 0 && maxXp > 0
+      ? Math.round((earnedXp / maxXp) * 100)
+      : testPercentage;
+
+  const isPassed = percentage >= 70;
 
   const grade =
     percentage >= 90
@@ -134,7 +141,7 @@ function Review() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      <Confetti />
+      {isPassed && <Confetti />}
       <TopNav />
       <main className="mx-auto max-w-[1200px] px-4 py-8 space-y-6 relative">
         {from === "report" && (
@@ -148,17 +155,31 @@ function Review() {
           </Link>
         )}
         {/* Header */}
-        <div className="rounded-2xl border bg-gradient-to-br from-success/10 via-card to-background p-6 sm:p-8 relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 h-56 w-56 rounded-full bg-success/20 blur-3xl" />
+        <div className={`rounded-2xl border p-6 sm:p-8 relative overflow-hidden ${
+          isPassed
+            ? "bg-gradient-to-br from-success/10 via-card to-background border-success/30"
+            : "bg-gradient-to-br from-destructive/10 via-card to-background border-destructive/30"
+        }`}>
+          <div className={`absolute -top-10 -right-10 h-56 w-56 rounded-full blur-3xl ${
+            isPassed ? "bg-success/20" : "bg-destructive/20"
+          }`} />
           <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-primary/20 blur-3xl" />
           <div className="relative flex flex-wrap items-center gap-6">
-            <div className="grid h-20 w-20 place-items-center rounded-full bg-success/20 border border-success/40">
-              <CheckCircle2 className="h-10 w-10 text-success" />
+            <div className={`grid h-20 w-20 place-items-center rounded-full border ${
+              isPassed
+                ? "bg-success/20 border-success/40"
+                : "bg-destructive/20 border-destructive/40"
+            }`}>
+              {isPassed ? (
+                <CheckCircle2 className="h-10 w-10 text-success" />
+              ) : (
+                <XCircle className="h-10 w-10 text-destructive" />
+              )}
             </div>
             <div className="min-w-0">
               <div className="text-xs uppercase tracking-wide text-muted-foreground">
                 {ticket?.id} · {lab?.name} ·{" "}
-                {submission?.ticket_status === "done" ? "✅ Completed" : "🔄 In Review"}
+                {isPassed ? "✅ Completed" : "❌ Unresolved (Needs Revision)"}
               </div>
               <h1 className="text-2xl sm:text-3xl font-semibold mt-0.5">{ticket?.title}</h1>
               <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted-foreground">
@@ -173,19 +194,25 @@ function Review() {
             </div>
             <div className="ml-auto flex items-center gap-6">
               <div className="text-center">
-                <div className="text-6xl sm:text-7xl font-semibold leading-none bg-gradient-to-br from-success to-primary bg-clip-text text-transparent">
+                <div className={`text-6xl sm:text-7xl font-semibold leading-none bg-clip-text text-transparent ${
+                  isPassed
+                    ? "bg-gradient-to-br from-success to-primary"
+                    : "bg-gradient-to-br from-destructive to-warning"
+                }`}>
                   {grade}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">Performance grade</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-semibold text-success">
+                <div className={`text-4xl font-semibold ${isPassed ? "text-success" : "text-destructive"}`}>
                   {earnedXp} <span className="text-2xl text-muted-foreground">/ {maxXp}</span>
                 </div>
                 <div className="text-xs text-muted-foreground">Actual YP earned</div>
               </div>
               <div className="text-center">
-                <div className="text-4xl font-semibold text-primary">{percentage}%</div>
+                <div className={`text-4xl font-semibold ${isPassed ? "text-primary" : "text-warning"}`}>
+                  {percentage}%
+                </div>
                 <div className="text-xs text-muted-foreground">Calculated percentage</div>
               </div>
             </div>
@@ -195,18 +222,18 @@ function Review() {
         {/* Performance summary */}
         <div className="rounded-2xl border bg-card p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Trophy className="h-5 w-5 text-warning" />
-            <h2 className="text-lg font-semibold">🎉 Review Results</h2>
+            <Trophy className={`h-5 w-5 ${isPassed ? "text-warning" : "text-muted-foreground"}`} />
+            <h2 className="text-lg font-semibold">
+              {isPassed ? "🎉 Review Results" : "📊 Review Results"}
+            </h2>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat
-              icon={CheckCircle2}
+              icon={isPassed ? CheckCircle2 : XCircle}
               label="Resolution"
-              value={submission?.ticket_status === "done" ? "Resolved" : percentage + "%"}
+              value={isPassed ? "Resolved" : "Unresolved"}
               sub="Status"
-              tone={
-                percentage >= 75 || submission?.ticket_status === "done" ? "success" : "warning"
-              }
+              tone={isPassed ? "success" : "warning"}
               pct={percentage}
             />
             <Stat

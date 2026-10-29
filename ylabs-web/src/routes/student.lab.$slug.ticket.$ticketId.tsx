@@ -2,10 +2,13 @@ import {
   createFileRoute,
   Link,
   Outlet,
-  useMatch,
+  useLocation,
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
+import { getSystemDesignLab } from "@/lib/systemDesign";
+import { SystemDesignStudio } from "@/routes/system-design-studio";
+import { getLab } from "@/lib/adminLabs";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { EditorView } from "@codemirror/view";
 import { useTheme } from "@/hooks/use-theme";
@@ -97,8 +100,20 @@ export type StudentPreviewOverride = {
 };
 
 function TicketEditorRoute() {
+  const location = useLocation();
+  const isReview = location.pathname.endsWith("/review");
+
+  if (isReview) {
+    return <Outlet />;
+  }
+
+  return <TicketEditorContent />;
+}
+
+function TicketEditorContent() {
   const { slug, ticketId } = useParams({ from: "/student/lab/$slug/ticket/$ticketId" });
   const [previewOverride, setPreviewOverride] = useState<StudentPreviewOverride | null>(null);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -110,6 +125,7 @@ function TicketEditorRoute() {
       /* ignore */
     }
   }, [ticketId]);
+
   return <StudentTicketView slug={slug} ticketId={ticketId} previewOverride={previewOverride} />;
 }
 
@@ -867,7 +883,51 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
 type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string };
 type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff" | "testcases";
 
-export function StudentTicketView({
+export function StudentTicketView(props: {
+  slug: string;
+  ticketId: string;
+  previewOverride?: StudentPreviewOverride | null;
+}) {
+  const [labType, setLabType] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (getSystemDesignLab(props.slug)) {
+      setLabType("SYSTEM_DESIGN");
+      return;
+    }
+    let active = true;
+    getLab(props.slug)
+      .then((lab) => {
+        if (active && lab?.type) {
+          setLabType(lab.type);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [props.slug]);
+
+  if (
+    getSystemDesignLab(props.slug) ||
+    labType === "SYSTEM_DESIGN" ||
+    props.slug.toLowerCase().includes("system-design") ||
+    props.slug.toLowerCase().includes("systemdesign")
+  ) {
+    return (
+      <SystemDesignStudio
+        key={`${props.slug}:${props.ticketId}`}
+        slug={props.slug}
+        ticketId={props.ticketId}
+        taskOverride={props.previewOverride ?? undefined}
+      />
+    );
+  }
+
+  return <CodeTicketView {...props} />;
+}
+
+function CodeTicketView({
   slug,
   ticketId,
   previewOverride,
@@ -876,11 +936,6 @@ export function StudentTicketView({
   ticketId: string;
   previewOverride?: StudentPreviewOverride | null;
 }) {
-  const reviewMatch = useMatch({
-    from: "/student/lab/$slug/ticket/$ticketId/review",
-    shouldThrow: false,
-  });
-
   const [resolvedTicket, setResolvedTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -960,14 +1015,31 @@ export function StudentTicketView({
     };
   }, [ticketId]);
 
-  if (reviewMatch) return <Outlet />;
-
   if (loading || !resolvedTicket) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background text-muted-foreground">
         <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-primary" />
         <span className="text-sm">Loading ticket…</span>
       </div>
+    );
+  }
+
+  if (
+    resolvedTicket &&
+    (resolvedTicket.type === "SYSTEM_DESIGN" ||
+      resolvedTicket.ticket_type === "SYSTEM_DESIGN" ||
+      resolvedTicket.tag === "System Design")
+  ) {
+    return (
+      <SystemDesignStudio
+        key={`${slug}:${ticketId}`}
+        slug={slug}
+        ticketId={ticketId}
+        taskOverride={{
+          title: previewOverride?.title ?? resolvedTicket.title,
+          description: previewOverride?.description ?? resolvedTicket.description,
+        }}
+      />
     );
   }
 
@@ -1150,10 +1222,6 @@ export function TicketIDE({
   initialFiles?: Record<string, string>;
 }) {
   const navigate = useNavigate();
-  const reviewMatch = useMatch({
-    from: "/student/lab/$slug/ticket/$ticketId/review",
-    shouldThrow: false,
-  });
   const isDsaLabMatch = (str?: string) => {
     if (!str) return false;
     const s = str.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
@@ -3433,8 +3501,6 @@ export function TicketIDE({
       },
     });
   };
-
-  if (reviewMatch) return <Outlet />;
 
   if (!wsLoaded) {
     return (

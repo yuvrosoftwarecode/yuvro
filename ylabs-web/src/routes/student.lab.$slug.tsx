@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useMatch, useParams, useNavigate } from 
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { labs, tickets, leaderboard } from "@/lib/dummy";
+import { getSystemDesignLab, SYSTEM_DESIGN_SPRINTS } from "@/lib/systemDesign";
 import {
   Search,
   Filter,
@@ -361,19 +362,21 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
     },
   ];
   const groups =
-    slug === "python"
-      ? pythonGroups
-      : slug === "ui"
-        ? uiGroups
-        : slug === "sql"
-          ? sqlGroups
-          : slug === "mongo"
-            ? mongoGroups
-            : slug === "programming"
-              ? progGroups
-              : slug === "datastructures"
-                ? dsGroups
-                : javaGroups;
+    getSystemDesignLab(slug)
+      ? SYSTEM_DESIGN_SPRINTS.map((g) => ({ ...g, range: "Self-paced" }))
+      : slug === "python"
+        ? pythonGroups
+        : slug === "ui"
+          ? uiGroups
+          : slug === "sql"
+            ? sqlGroups
+            : slug === "mongo"
+              ? mongoGroups
+              : slug === "programming"
+                ? progGroups
+                : slug === "datastructures"
+                  ? dsGroups
+                  : javaGroups;
   return groups.map((g) => {
     const ts = allTickets.filter((t) => g.tags.includes(t.tag));
     const completed = ts.filter((t) => t.status === "done").length;
@@ -602,7 +605,11 @@ function LabDashboard() {
     return labs.find((l) => l.slug === slug) ?? labs[0];
   }, [realLab, realSprints, slug, statusOverrides]);
 
-  const activeDummySprints = useMemo(() => buildSprints(slug, tickets), [slug]);
+  const dummyTickets = useMemo(
+    () => (getSystemDesignLab(slug) ? tickets.filter((t) => t.id.startsWith("SD-")) : tickets),
+    [slug],
+  );
+  const activeDummySprints = useMemo(() => buildSprints(slug, dummyTickets), [slug, dummyTickets]);
 
   const sprints = useMemo(() => {
     if (realLab) {
@@ -619,7 +626,7 @@ function LabDashboard() {
   }, [realLab, realSprints, activeDummySprints]);
 
   const allTickets = useMemo(() => {
-    let baseData = tickets;
+    let baseData = dummyTickets;
     if (realLab) {
       baseData = realSprints
         .flatMap((s) => s.tasks)

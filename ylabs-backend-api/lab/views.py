@@ -1,3 +1,4 @@
+import json
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -6,7 +7,7 @@ from authentication.permissions import IsAdminUser
 from .models import (
     Lab, LabStatus, LabSprint, LabSprintTicket,
     UserLabEnrollment, UserLabSprintTicketSubmission,
-    TicketProgressStatus, UserLabActivity
+    TicketProgressStatus, UserLabActivity, SystemDesign, LabType
 )
 from .serializers import (
     LabSerializer,
@@ -14,6 +15,12 @@ from .serializers import (
     LabSprintTicketSerializer,
     UserLabEnrollmentSerializer,
     UserLabSprintTicketSubmissionSerializer,
+    SystemDesignSerializer,
+)
+from .system_design_utils import (
+    normalize_system_design,
+    evaluate_system_design,
+    evaluate_system_design_with_ai,
 )
 from rest_framework.decorators import api_view, permission_classes, action
 from django.utils import timezone
@@ -199,6 +206,143 @@ class LabSprintTicketViewSet(viewsets.ModelViewSet):
             
         return Response(stats)
 
+    @action(detail=True, methods=['get', 'post'], url_path='system-design')
+    def system_design(self, request, pk=None):
+        ticket = self.get_object()
+        user = request.user
+
+        submission = UserLabSprintTicketSubmission.objects.filter(
+            user=user,
+            lab_sprint_ticket=ticket,
+        ).first()
+
+        if request.method == 'GET':
+            template_design = ticket.system_design if ticket.system_design else normalize_system_design({})
+            user_design = submission.system_design if (submission and submission.system_design) else None
+            return Response({
+                "ticket_id": str(ticket.id),
+                "ticket_title": ticket.title,
+                "template_design": template_design,
+                "user_design": user_design,
+                "status": submission.ticket_status if submission else TicketProgressStatus.BACKLOG,
+                "solution_revealed": submission.solution_revealed if submission else False,
+                "yuvro_points": submission.yuvro_points if submission else 0,
+                "solution_output": submission.solution_output if submission else "",
+            })
+
+        # POST: save, evaluate, or submit design
+        raw_design = request.data.get("design") if "design" in request.data else request.data
+        clean_design = normalize_system_design(raw_design)
+
+        # Check for Run / Evaluate action
+        is_evaluate = (
+            request.data.get("action") == "evaluate"
+            or request.data.get("run") is True
+        )
+        if is_evaluate:
+            eval_result = evaluate_system_design_with_ai(ticket, clean_design, user=user)
+            eval_output_str = json.dumps(eval_result)
+            if not submission:
+                submission = UserLabSprintTicketSubmission.objects.create(
+                    user=user,
+                    lab_sprint_ticket=ticket,
+                    ticket_status=TicketProgressStatus.IN_PROGRESS,
+                    system_design=clean_design,
+                    solution=json.dumps(clean_design),
+                    solution_output=eval_output_str,
+                    yuvro_points=0,
+                )
+            else:
+                submission.system_design = clean_design
+                submission.solution = json.dumps(clean_design)
+                submission.solution_output = eval_output_str
+                if submission.ticket_status == TicketProgressStatus.BACKLOG:
+                    submission.ticket_status = TicketProgressStatus.IN_PROGRESS
+                submission.save()
+
+            return Response({
+                "status": "success",
+                "evaluation": eval_result,
+                "ticket_status": submission.ticket_status,
+                "solution_output": submission.solution_output,
+            })
+
+        is_submit = (
+            request.data.get("is_submitted") is True
+            or request.data.get("submit") is True
+            or request.data.get("status") in ["done", "in_review"]
+        )
+
+        # Handle solution_output
+        solution_output_raw = request.data.get("solution_output")
+        if solution_output_raw:
+            submission_output_str = json.dumps(solution_output_raw) if isinstance(solution_output_raw, dict) else str(solution_output_raw)
+            try:
+                parsed_eval = solution_output_raw if isinstance(solution_output_raw, dict) else json.loads(submission_output_str)
+                eval_percentage = parsed_eval.get("percentage", parsed_eval.get("total_score", 0))
+            except Exception:
+                eval_percentage = 0
+        else:
+            eval_result = evaluate_system_design_with_ai(ticket, clean_design, user=user)
+            submission_output_str = json.dumps(eval_result)
+            eval_percentage = eval_result.get("percentage", eval_result.get("overall_score", 0))
+
+        is_passed = (float(eval_percentage) >= 70.0) if is_submit else False
+        new_status = TicketProgressStatus.DONE if is_passed else TicketProgressStatus.IN_PROGRESS
+
+        if not submission:
+            submission = UserLabSprintTicketSubmission.objects.create(
+                user=user,
+                lab_sprint_ticket=ticket,
+                ticket_status=new_status,
+                system_design=clean_design,
+                solution=json.dumps(clean_design),
+                solution_output=submission_output_str,
+                yuvro_points=0,
+            )
+        else:
+            submission.system_design = clean_design
+            submission.solution = json.dumps(clean_design)
+            submission.solution_output = submission_output_str
+            if is_submit:
+                submission.ticket_status = new_status
+            elif submission.ticket_status == TicketProgressStatus.BACKLOG:
+                submission.ticket_status = TicketProgressStatus.IN_PROGRESS
+            submission.save()
+
+        if is_submit:
+            if not submission.minutes_solved:
+                submission.minutes_solved = 1
+            evaluate_and_score_submission(submission)
+            submission.ticket_status = TicketProgressStatus.DONE if is_passed else TicketProgressStatus.IN_PROGRESS
+            submission.save()
+            UserLabActivity.objects.get_or_create(
+                user=user,
+                date=timezone.now().date()
+            )
+
+        # Sync to SystemDesign model for centralized storage
+        SystemDesign.objects.update_or_create(
+            user=user,
+            ticket=ticket,
+            defaults={
+                "title": f"{ticket.title} - {user.email}",
+                "lab": ticket.sprint.lab if ticket.sprint else None,
+                "design": clean_design,
+                "is_submitted": is_submit,
+            }
+        )
+
+        return Response({
+            "status": "success",
+            "message": "System design submitted successfully" if is_submit else "System design saved successfully",
+            "ticket_status": submission.ticket_status,
+            "yuvro_points": submission.yuvro_points,
+            "design": clean_design,
+            "solution_output": submission.solution_output,
+        })
+
+
 class UserLabEnrollmentViewSet(viewsets.ModelViewSet):
     serializer_class = UserLabEnrollmentSerializer
     permission_classes = [IsAuthenticated]
@@ -293,7 +437,11 @@ class UserLabSprintTicketSubmissionViewSet(viewsets.ModelViewSet):
         
         user_dir = None
         # If the user is submitting (status changed to in_review or done), extract diff
-        if self.request.method == 'PATCH' and self.request.data.get('ticket_status') in ['in_review', 'done']:
+        is_system_design = (
+            getattr(submission.lab_sprint_ticket.sprint.lab, 'type', None) == LabType.SYSTEM_DESIGN
+            or bool(submission.system_design)
+        )
+        if not is_system_design and self.request.method == 'PATCH' and self.request.data.get('ticket_status') in ['in_review', 'done']:
             lab_uuid = submission.lab_sprint_ticket.sprint.lab_id
             user_uuid = submission.user_id
             user_dir = os.path.join(settings.WORKSPACES_ROOT, "labs", str(lab_uuid), "users", str(user_uuid))
@@ -505,3 +653,51 @@ def student_stats_view(request):
         'total_yp': total_yp,
         'rank': rank
     })
+
+
+class SystemDesignViewSet(viewsets.ModelViewSet):
+    serializer_class = SystemDesignSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = SystemDesign.objects.all()
+        if not (user.is_staff or getattr(user, 'role', '') == 'admin'):
+            qs = qs.filter(user=user)
+        ticket_id = self.request.query_params.get("ticket")
+        if ticket_id:
+            qs = qs.filter(ticket_id=ticket_id)
+        lab_id = self.request.query_params.get("lab")
+        if lab_id:
+            qs = qs.filter(lab_id=lab_id)
+        is_template = self.request.query_params.get("is_template")
+        if is_template is not None:
+            qs = qs.filter(is_template=is_template.lower() in ["true", "1"])
+        return qs
+
+    def perform_create(self, serializer):
+        design = serializer.save(user=self.request.user)
+        if design.ticket:
+            UserLabSprintTicketSubmission.objects.update_or_create(
+                user=self.request.user,
+                lab_sprint_ticket=design.ticket,
+                defaults={
+                    "system_design": design.design,
+                    "solution": json.dumps(design.design),
+                    "ticket_status": TicketProgressStatus.DONE if design.is_submitted else TicketProgressStatus.IN_PROGRESS,
+                }
+            )
+
+    def perform_update(self, serializer):
+        design = serializer.save()
+        if design.ticket:
+            UserLabSprintTicketSubmission.objects.update_or_create(
+                user=self.request.user,
+                lab_sprint_ticket=design.ticket,
+                defaults={
+                    "system_design": design.design,
+                    "solution": json.dumps(design.design),
+                    "ticket_status": TicketProgressStatus.DONE if design.is_submitted else TicketProgressStatus.IN_PROGRESS,
+                }
+            )
+

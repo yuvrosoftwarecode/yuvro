@@ -184,6 +184,7 @@ class Command(BaseCommand):
                             "hints": ticket_data.get("hints", []),
                             "scoring_rules": ticket_data.get("scoring_rules", {}),
                             "solution": ticket_data.get("solution", {}),
+                            "system_design": ticket_data.get("system_design", {}),
                             "test_command": ticket_data.get("test_command", ""),
                             "yuvro_points": ticket_data.get("yuvro_points", 5),
                             "minutes_max": ticket_data.get("minutes_max", 30),

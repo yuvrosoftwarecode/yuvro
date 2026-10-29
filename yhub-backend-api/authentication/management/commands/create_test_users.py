@@ -35,19 +35,19 @@ class Command(BaseCommand):
         parser.add_argument(
             '--ycode-url',
             type=str,
-            default=config('YCODE_BACKEND_URL', default='http://host.docker.internal:8001'),
+            default=config('YCODE_BACKEND_URL', default='http://ycode-backend:8000'),
             help='Base URL of YCode API.',
         )
         parser.add_argument(
             '--ylabs-url',
             type=str,
-            default=config('YLABS_BACKEND_URL', default='http://host.docker.internal:8002'),
+            default=config('YLABS_BACKEND_URL', default='http://ylabs-backend:8000'),
             help='Base URL of YLabs API.',
         )
         parser.add_argument(
             '--ymarketplace-url',
             type=str,
-            default=config('YMARKETPLACE_BACKEND_URL', default='http://host.docker.internal:8004'),
+            default=config('YMARKETPLACE_BACKEND_URL', default='http://ymarketplace-backend:8004'),
             help='Base URL of YMarketplace API.',
         )
 
@@ -71,9 +71,14 @@ class Command(BaseCommand):
                 'is_staff': True,
                 'is_superuser': True,
                 'is_active': True,
-                'roles': {'ycode': 'admin', 'ylabs': 'admin', 'marketplace': 'recruiter_account_manager'}
+                'roles': {
+                    'ycode': 'admin',
+                    'ylabs': 'admin',
+                    'marketplace': 'recruiter_account_manager',
+                }
             }
         )
+
         if admin_created:
             admin_user.set_unusable_password()
             admin_user.save()
@@ -153,21 +158,28 @@ class Command(BaseCommand):
                         "is_active": user.is_active
                     }
                     
+                    def _format_err(r):
+                        try:
+                            return str(r.json())
+                        except Exception:
+                            t = r.text.strip().replace("\n", " ")
+                            return (t[:120] + "...") if len(t) > 120 else t
+
                     try:
                         resp = requests.post(f"{ycode_url}/api/auth/sync-shadow-user/", json=payload, headers=headers)
                         if resp.status_code in (200, 201):
                             msg += f", {user.username} synced to ycode"
                         else:
-                            msg += f", failed to sync {user.username} to ycode"
+                            msg += f", failed to sync {user.username} to ycode (status: {resp.status_code}, error: {_format_err(resp)})"
                     except requests.RequestException as e:
-                        msg += f", failed to sync {user.username} to ycode"
+                        msg += f", failed to sync {user.username} to ycode (exception: {str(e)})"
 
                     try:
                         resp = requests.post(f"{ylabs_url}/api/auth/sync-shadow-user/", json=payload, headers=headers)
                         if resp.status_code in (200, 201):
                             msg += f", {user.username} synced to ylab"
                         else:
-                            msg += f", failed to sync {user.username} to ylab (status: {resp.status_code}, error: {resp.text})"
+                            msg += f", failed to sync {user.username} to ylab (status: {resp.status_code}, error: {_format_err(resp)})"
                     except requests.RequestException as e:
                         msg += f", failed to sync {user.username} to ylab (exception: {str(e)})"
 
@@ -176,7 +188,7 @@ class Command(BaseCommand):
                         if resp.status_code in (200, 201):
                             msg += f", {user.username} synced to ymarketplace"
                         else:
-                            msg += f", failed to sync {user.username} to ymarketplace (status: {resp.status_code}, error: {resp.text})"
+                            msg += f", failed to sync {user.username} to ymarketplace (status: {resp.status_code}, error: {_format_err(resp)})"
                     except requests.RequestException as e:
                         msg += f", failed to sync {user.username} to ymarketplace (exception: {str(e)})"
 

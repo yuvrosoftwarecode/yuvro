@@ -441,12 +441,70 @@ class CohereService(BaseAIService):
             raise AIServiceError(f"Cohere API error: {str(e)}")
 
 
-class AIServiceFactory:
+class DeepSeekService(BaseAIService):
+    """DeepSeek chat-completion service via OpenAI-compatible endpoint."""
 
+    def __init__(self, api_key: str, model_name: str = "deepseek-chat", base_url: str = None):
+        super().__init__(api_key, model_name)
+        try:
+            import openai
+
+            self.base_url = base_url or config("DEEPSEEK_BASE_URL", default="https://api.deepseek.com")
+            self.client = openai.OpenAI(api_key=api_key, base_url=self.base_url)
+        except ImportError:
+            raise AIServiceError(
+                "OpenAI library not installed. Run: pip install openai"
+            )
+
+    async def generate_response(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.2,
+        max_tokens: int = 4096,
+        stream: bool = False,
+        **kwargs,
+    ) -> Dict[str, Any]:
+        start_time = time.time()
+        messages = _apply_page_content_grounding(messages, kwargs)
+
+        try:
+            import asyncio
+
+            response = await asyncio.to_thread(
+                self.client.chat.completions.create,
+                model=self.model_name,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                **kwargs,
+            )
+
+            end_time = time.time()
+            response_time_ms = int((end_time - start_time) * 1000)
+
+            return {
+                "response": response.choices[0].message.content,
+                "tokens_used": response.usage.total_tokens if response.usage else None,
+                "response_time_ms": response_time_ms,
+                "metadata": {
+                    "model": response.model,
+                    "finish_reason": response.choices[0].finish_reason,
+                    "prompt_tokens": response.usage.prompt_tokens if response.usage else None,
+                    "completion_tokens": response.usage.completion_tokens if response.usage else None,
+                },
+            }
+        except Exception as e:
+            logger.error(f"DeepSeek API error: {str(e)}")
+            raise AIServiceError(f"DeepSeek API error: {str(e)}")
+
+
+class AIServiceFactory:
 
     _services = {
         "gemini": GeminiService,
         "anthropic": AnthropicService,
+        "openai": OpenAIService,
+        "deepseek": DeepSeekService,
     }
 
     @classmethod

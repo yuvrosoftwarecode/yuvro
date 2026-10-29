@@ -14,6 +14,7 @@ import {
 import { saveSprints, type LabSprint } from "@/lib/labSprints";
 import { SprintBuilder } from "@/components/admin/SprintBuilder";
 import { LabIcon } from "@/components/LabIcon";
+import { AVAILABLE_LAB_ICONS } from "@/lib/labIcons";
 
 export const Route = createFileRoute("/admin/labs/new")({ component: LabBuilder });
 
@@ -27,7 +28,7 @@ function LabBuilder() {
   const [form, setForm] = useState({
     title: "",
     slug: "",
-    icon: "🧪",
+    icon: "",
     type: "BACKEND" as LabType,
     difficulty: "MEDIUM" as LabDifficulty,
     description: "",
@@ -75,7 +76,7 @@ function LabBuilder() {
       const created = await createLab({
         title: form.title.trim(),
         slug: form.slug.trim(),
-        icon: form.icon || "🧪",
+        icon: form.icon.trim(),
         type: (form.type as string).toUpperCase() as LabType,
         description: form.description.trim(),
         prerequisites: form.prerequisites,
@@ -162,12 +163,22 @@ function LabBuilder() {
                     className="w-full bg-transparent border border-border rounded-md px-3 py-2"
                   />
                 </Field>
-                <Field label="Icon preview">
-                  <div className="flex items-center gap-3 px-3 py-2 rounded-md border border-border bg-muted/20">
-                    <LabIcon name={form.title} icon={form.icon} size="h-8 w-8" />
-                    <span className="text-xs text-muted-foreground">
-                      Auto-resolved from lab title
-                    </span>
+                <Field label="Icon">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center h-10 w-10 rounded-md border border-border bg-muted/20 shrink-0">
+                      <LabIcon name={form.title} icon={form.icon} size="h-6 w-6" />
+                    </div>
+                    <select
+                      value={form.icon || ""}
+                      onChange={(e) => set("icon", e.target.value)}
+                      className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-xs"
+                    >
+                      {AVAILABLE_LAB_ICONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </Field>
                 <Field label="Type">
