@@ -1,0 +1,24 @@
+{
+  "labs": [
+    {
+      "title": "Node.js & Express Todo REST API Lab",
+      "type": "BACKEND",
+      "description": "Master backend REST API development with JavaScript, Node.js, and Express. Build a production-ready Todo management API from scratch featuring SQLite database modeling, secure JWT authentication with bcrypt password hashing, and user-isolated task CRUD endpoints without any UI.",
+      "difficulty": "EASY",
+      "icon": "Boxes",
+      "prerequisites": "Basic JavaScript programming and understanding of HTTP methods.",
+      "skills": [
+        "JavaScript",
+        "Node.js",
+        "Express",
+        "REST API",
+        "SQLite",
+        "JWT Authentication",
+        "Password Hashing",
+        "Data Validation"
+      ],
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/lab_todo_nodejs",
+      "status": "active"
+    }
+  ]
+}

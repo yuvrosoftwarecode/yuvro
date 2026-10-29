@@ -38,6 +38,7 @@ export function StartLabModal({
     try {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("github_oauth_redirect", window.location.pathname + window.location.search);
+        sessionStorage.setItem("ylabs_resume_start_lab", "true");
       }
       const { yhubApiAuthUtil } = await import("@/utils/RestApiAuthUtil");
       const data = await yhubApiAuthUtil.get<{ authorization_url: string }>("/auth/github/connect/");

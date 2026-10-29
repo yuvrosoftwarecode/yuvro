@@ -848,6 +848,70 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       files: { ...DJANGO_STARTERS },
     };
   }
+  if (
+    tag === "Node.js Todo" ||
+    tag === "Node Todo" ||
+    tag === "Express Todo" ||
+    s.includes("nodejs_todo") ||
+    s.includes("node_todo") ||
+    t === "express" ||
+    t === "node" ||
+    t === "nodejs" ||
+    ((t === "javascript" || t === "js") && (s.includes("todo") || tag?.toLowerCase()?.includes("todo")))
+  ) {
+    return {
+      name: "js",
+      rootLabel: "todo-app",
+      primary: "src/app.js",
+      runtime: "Node.js 20 · Express",
+      fileList: [
+        "src/app.js",
+        "src/config.js",
+        "src/db.js",
+        "src/server.js",
+        "src/middleware/auth.js",
+        "src/models/task.js",
+        "src/models/user.js",
+        "src/routes/auth.js",
+        "src/routes/tasks.js",
+        "package.json",
+        "README.md",
+      ],
+      files: {
+        "src/app.js": `const express = require('express');\nconst config = require('./config');\nconst { initDatabase } = require('./db');\n\nfunction createApp(customConfig = {}) {\n  const app = express();\n  const dbPath = customConfig.DB_PATH || config.DB_PATH;\n\n  // TODO: Initialize database and setup routes\n  return app;\n}\n\nmodule.exports = { createApp };\n`,
+        "src/config.js": `const path = require('path');\nrequire('dotenv').config();\n\nconst config = {\n  PORT: process.env.PORT || 5000,\n  JWT_SECRET: process.env.JWT_SECRET || 'yuvro-dev-secret-key-987654321',\n  DB_PATH: process.env.DB_PATH || path.resolve(__dirname, '../todo.db'),\n  JWT_EXPIRES_IN: '1d'\n};\n\nmodule.exports = config;\n`,
+        "package.json": `{\n  "name": "todo-app",\n  "version": "1.0.0",\n  "main": "src/server.js",\n  "scripts": {\n    "start": "node src/server.js"\n  },\n  "dependencies": {\n    "bcryptjs": "^2.4.3",\n    "dotenv": "^16.4.5",\n    "express": "^4.19.2",\n    "jsonwebtoken": "^9.0.2",\n    "sqlite3": "^5.1.7"\n  }\n}\n`,
+        "README.md": `# Node.js & Express Todo REST API Lab\n`,
+      },
+    };
+  }
+  if (
+    tag === "Flask Todo" ||
+    t === "flask" ||
+    s.includes("flask_todo") ||
+    s.includes("flask")
+  ) {
+    return {
+      name: "python",
+      rootLabel: "todo-app",
+      primary: "app/__init__.py",
+      runtime: "Python 3.12 · Flask",
+      fileList: [
+        "app/__init__.py",
+        "app/models.py",
+        "config.py",
+        "run.py",
+        "requirements.txt",
+        "README.md",
+      ],
+      files: {
+        "app/__init__.py": `from flask import Flask, jsonify\nfrom flask_sqlalchemy import SQLAlchemy\nfrom config import Config\n\ndb = SQLAlchemy()\n\ndef create_app(test_config=None):\n    app = Flask(__name__)\n    return app\n`,
+        "config.py": `import os\n\nclass Config:\n    SECRET_KEY = os.environ.get('SECRET_KEY', 'yuvro-dev-secret-key-987654321')\n    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')\n`,
+        "requirements.txt": `Flask>=3.0.0\nFlask-SQLAlchemy>=3.1.1\n`,
+        "README.md": `# Flask Todo App\n`,
+      },
+    };
+  }
   if (t === "mysql" || s.includes("mysql")) return MYSQL_KIT_DEFAULT;
   if (t === "postgresql" || t === "postgres" || s.includes("postgresql") || s.includes("postgres")) return POSTGRES_KIT_DEFAULT;
   if (t.includes("mongo") || s.includes("mongo")) return MONGO_KIT_DEFAULT;
@@ -869,7 +933,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
   )
     return LINUX_KIT_DEFAULT;
 
-  if (tag === "javascript" || tag === "js" || tag === "typescript" || tag === "ts" || tag === "node" || tag === "nodejs") {
+  if (t === "javascript" || t === "js" || t === "typescript" || t === "ts" || t === "node" || t === "nodejs") {
     return {
       name: "js",
       rootLabel: "project",
@@ -882,7 +946,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "python" || tag === "py") {
+  if (t === "python" || t === "py") {
     return {
       name: "python",
       rootLabel: "project",
@@ -895,7 +959,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "c") {
+  if (t === "c") {
     return {
       name: "c",
       rootLabel: "project",
@@ -908,7 +972,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "cpp" || tag === "c++") {
+  if (t === "cpp" || t === "c++") {
     return {
       name: "cpp",
       rootLabel: "project",
@@ -921,7 +985,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "java") {
+  if (t === "java") {
     return {
       name: "java",
       rootLabel: "java-101",

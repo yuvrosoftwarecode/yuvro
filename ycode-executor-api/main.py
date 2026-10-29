@@ -1879,7 +1879,7 @@ async def get_file_tree(
                     fpath.write_text(content)
                 seeded = True
     else:
-        # Workspace already exists — check if it is empty (only .bash_history or .git)
+        # Workspace already exists — check if it is empty or incomplete
         user_files = [
             f for f in ws.iterdir()
             if f.name not in (".bash_history", ".git") and (f.is_file() or (f.is_dir() and any(f.rglob("*"))))

@@ -1,0 +1,155 @@
+{
+  "title": "Sprint 2 — User Authentication & JWT Flow",
+  "description": "Implement user registration, credential verification, login, and JWT access token issuance in Express.",
+  "order_index": 2,
+  "lab_title": "Node.js & Express Todo REST API Lab",
+  "tickets": [
+    {
+      "title": "Ticket 1 - User Registration API",
+      "ticket_slug": "node-todo-21",
+      "description": "Build the `POST /api/auth/register` endpoint in `src/routes/auth.js` to allow new users to create accounts.\n\n### Request Body\n```json\n{\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"securepassword123\"\n}\n```\n\n### Requirements\n1. Validate that `username`, `email`, and `password` are provided and non-empty. Return `400 Bad Request` if missing.\n2. Validate that `username` and `email` are not already taken. Return `409 Conflict` with `{\"error\": \"User or email already exists\"}` if duplicate.\n3. Create the user, securely hashing the password with `bcryptjs`.\n4. Return `201 Created` with `{\"message\": \"User registered successfully\", \"user\": {...}}` omitting the password hash.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Validate incoming JSON request payloads in Express.",
+        "Handle uniqueness checks and HTTP 409 Conflict status.",
+        "Store passwords securely using bcrypt hashing algorithms."
+      ],
+      "tasks": [
+        {
+          "title": "Validate required fields (`username`, `email`, `password`) in request body.",
+          "points": 30
+        },
+        {
+          "title": "Check for existing user/email and return HTTP 409 on duplicate.",
+          "points": 30
+        },
+        {
+          "title": "Save user to database and return HTTP 201 with serialized user data.",
+          "points": 40
+        }
+      ],
+      "common_mistakes": [
+        "Returning HTTP 200 instead of HTTP 201 Created on new resource creation.",
+        "Returning the `password_hash` in the registration response."
+      ],
+      "hints": [
+        "Use `User.findByEmailOrUsername(email, username)` to verify if user already exists.",
+        "Use `res.status(201).json({ message: 'User registered successfully', user: User.toDict(user) })`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/routes/auth.js",
+        "test_command": "node yuvro_scoring_rules/sprint_2/ticket_1/main_test.js"
+      },
+      "solution": {
+        "src/routes/auth.js": "const express = require('express');\nconst User = require('../models/user');\n\nconst router = express.Router();\n\nrouter.post('/register', (req, res) => {\n  const { username, email, password } = req.body || {};\n  const cleanUsername = (username || '').trim();\n  const cleanEmail = (email || '').trim().toLowerCase();\n  const cleanPassword = password || '';\n\n  if (!cleanUsername || !cleanEmail || !cleanPassword) {\n    return res.status(400).json({ error: 'username, email, and password are required' });\n  }\n\n  const existing = User.findByEmailOrUsername(cleanEmail, cleanUsername);\n  if (existing) {\n    return res.status(409).json({ error: 'User or email already exists' });\n  }\n\n  const user = User.create({\n    username: cleanUsername,\n    email: cleanEmail,\n    password: cleanPassword\n  });\n\n  return res.status(201).json({\n    message: 'User registered successfully',\n    user: User.toDict(user)\n  });\n});\n\nmodule.exports = router;\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 1,
+      "test_command": "node yuvro_scoring_rules/sprint_2/ticket_1/main_test.js"
+    },
+    {
+      "title": "Ticket 2 - User Login & JWT Token Generation",
+      "ticket_slug": "node-todo-22",
+      "description": "Build the `POST /api/auth/login` endpoint that authenticates a user and returns a signed JSON Web Token (JWT).\n\n### Request Body\n```json\n{\n  \"email\": \"john@example.com\",\n  \"password\": \"securepassword123\"\n}\n```\n\n### Requirements\n1. Validate that `email` and `password` are present. Return `400 Bad Request` if missing.\n2. Query the user by email. If not found or if password verification fails, return `401 Unauthorized` with `{\"error\": \"Invalid credentials\"}`.\n3. Generate a JWT token containing `user_id` and an expiration timestamp (`1d`).\n4. Return `200 OK` with `{\"token\": \"<jwt_token>\", \"user\": {...}}`.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Authenticate credentials against hashed passwords using bcrypt.",
+        "Generate and sign JWT access tokens with jsonwebtoken.",
+        "Implement proper HTTP 401 Unauthorized handling."
+      ],
+      "tasks": [
+        {
+          "title": "Validate credentials against the database using password verification.",
+          "points": 40
+        },
+        {
+          "title": "Generate JWT token with user ID and expiration claims.",
+          "points": 40
+        },
+        {
+          "title": "Return HTTP 200 with JWT token and user profile.",
+          "points": 20
+        }
+      ],
+      "common_mistakes": [
+        "Distinguishing between 'User not found' and 'Invalid password' in error messages (security risk). Always use generic 'Invalid credentials'.",
+        "Omitting expiration claim in the JWT payload."
+      ],
+      "hints": [
+        "Use `jwt.sign({ user_id: user.id }, config.JWT_SECRET, { expiresIn: '1d' })`.",
+        "Ensure `User.comparePassword(password, user.password_hash)` handles non-matching passwords safely without throwing unhandled exceptions."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/routes/auth.js",
+        "test_command": "node yuvro_scoring_rules/sprint_2/ticket_2/main_test.js"
+      },
+      "solution": {
+        "src/routes/auth.js": "const express = require('express');\nconst jwt = require('jsonwebtoken');\nconst config = require('../config');\nconst User = require('../models/user');\n\nconst router = express.Router();\n\nrouter.post('/register', (req, res) => {\n  const { username, email, password } = req.body || {};\n  const cleanUsername = (username || '').trim();\n  const cleanEmail = (email || '').trim().toLowerCase();\n  const cleanPassword = password || '';\n\n  if (!cleanUsername || !cleanEmail || !cleanPassword) {\n    return res.status(400).json({ error: 'username, email, and password are required' });\n  }\n\n  const existing = User.findByEmailOrUsername(cleanEmail, cleanUsername);\n  if (existing) {\n    return res.status(409).json({ error: 'User or email already exists' });\n  }\n\n  const user = User.create({\n    username: cleanUsername,\n    email: cleanEmail,\n    password: cleanPassword\n  });\n\n  return res.status(201).json({\n    message: 'User registered successfully',\n    user: User.toDict(user)\n  });\n});\n\nrouter.post('/login', (req, res) => {\n  const { email, password } = req.body || {};\n  const cleanEmail = (email || '').trim().toLowerCase();\n  const cleanPassword = password || '';\n\n  if (!cleanEmail || !cleanPassword) {\n    return res.status(400).json({ error: 'Email and password are required' });\n  }\n\n  const user = User.findByEmail(cleanEmail);\n  if (!user || !User.comparePassword(cleanPassword, user.password_hash)) {\n    return res.status(401).json({ error: 'Invalid credentials' });\n  }\n\n  const token = jwt.sign(\n    { user_id: user.id },\n    config.JWT_SECRET,\n    { expiresIn: config.JWT_EXPIRES_IN || '1d' }\n  );\n\n  return res.status(200).json({\n    token,\n    user: User.toDict(user)\n  });\n});\n\nmodule.exports = router;\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 2,
+      "test_command": "node yuvro_scoring_rules/sprint_2/ticket_2/main_test.js"
+    },
+    {
+      "title": "Ticket 3 - Token Verification & Current User Profile",
+      "ticket_slug": "node-todo-23",
+      "description": "Implement authentication middleware `authenticateToken` in `src/middleware/auth.js` and build `GET /api/auth/me` to retrieve the current logged-in user.\n\n### Requirements\n1. Implement `authenticateToken` middleware in `src/middleware/auth.js`.\n2. Extract token from the `Authorization: Bearer <token>` header.\n3. Return `401 Unauthorized` if header is missing, token is malformed, or token has expired.\n4. Decode token, lookup user from database, and attach `req.user` for downstream routes.\n5. Implement `GET /api/auth/me` protected by the middleware returning `{\"user\": req.user}` with HTTP 200.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Create custom Express middleware for route authorization.",
+        "Parse HTTP Authorization Bearer headers.",
+        "Decode and validate cryptographic JWT tokens with jsonwebtoken."
+      ],
+      "tasks": [
+        {
+          "title": "Implement `authenticateToken` middleware extracting Bearer token.",
+          "points": 50
+        },
+        {
+          "title": "Implement `GET /api/auth/me` endpoint protected by `authenticateToken`.",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Forgetting to check if `Authorization` header starts with `Bearer `.",
+        "Not catching `jwt.verify` exceptions properly."
+      ],
+      "hints": [
+        "Split the header by space: `const parts = authHeader.split(' '); const token = parts[1];`.",
+        "Attach user to request: `req.user = User.toDict(user); next();`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "src/middleware/auth.js",
+        "test_command": "node yuvro_scoring_rules/sprint_2/ticket_3/main_test.js"
+      },
+      "solution": {
+        "src/middleware/auth.js": "const jwt = require('jsonwebtoken');\nconst config = require('../config');\nconst User = require('../models/user');\n\nfunction authenticateToken(req, res, next) {\n  const authHeader = req.headers['authorization'] || req.headers['Authorization'];\n  if (!authHeader || !authHeader.startsWith('Bearer ')) {\n    return res.status(401).json({ error: 'Authorization token is missing or invalid' });\n  }\n\n  const token = authHeader.split(' ')[1];\n  if (!token) {\n    return res.status(401).json({ error: 'Authorization token is missing or invalid' });\n  }\n\n  try {\n    const decoded = jwt.verify(token, config.JWT_SECRET);\n    const userId = decoded.user_id || decoded.id;\n    const user = User.findById(userId);\n\n    if (!user) {\n      return res.status(401).json({ error: 'User not found' });\n    }\n\n    req.user = User.toDict(user);\n    next();\n  } catch (err) {\n    if (err.name === 'TokenExpiredError') {\n      return res.status(401).json({ error: 'Token has expired' });\n    }\n    return res.status(401).json({ error: 'Invalid token' });\n  }\n}\n\nmodule.exports = authenticateToken;\n",
+        "src/routes/auth.js": "const express = require('express');\nconst jwt = require('jsonwebtoken');\nconst config = require('../config');\nconst User = require('../models/user');\nconst authenticateToken = require('../middleware/auth');\n\nconst router = express.Router();\n\nrouter.post('/register', (req, res) => {\n  const { username, email, password } = req.body || {};\n  const cleanUsername = (username || '').trim();\n  const cleanEmail = (email || '').trim().toLowerCase();\n  const cleanPassword = password || '';\n\n  if (!cleanUsername || !cleanEmail || !cleanPassword) {\n    return res.status(400).json({ error: 'username, email, and password are required' });\n  }\n\n  const existing = User.findByEmailOrUsername(cleanEmail, cleanUsername);\n  if (existing) {\n    return res.status(409).json({ error: 'User or email already exists' });\n  }\n\n  const user = User.create({\n    username: cleanUsername,\n    email: cleanEmail,\n    password: cleanPassword\n  });\n\n  return res.status(201).json({\n    message: 'User registered successfully',\n    user: User.toDict(user)\n  });\n});\n\nrouter.post('/login', (req, res) => {\n  const { email, password } = req.body || {};\n  const cleanEmail = (email || '').trim().toLowerCase();\n  const cleanPassword = password || '';\n\n  if (!cleanEmail || !cleanPassword) {\n    return res.status(400).json({ error: 'Email and password are required' });\n  }\n\n  const user = User.findByEmail(cleanEmail);\n  if (!user || !User.comparePassword(cleanPassword, user.password_hash)) {\n    return res.status(401).json({ error: 'Invalid credentials' });\n  }\n\n  const token = jwt.sign(\n    { user_id: user.id },\n    config.JWT_SECRET,\n    { expiresIn: config.JWT_EXPIRES_IN || '1d' }\n  );\n\n  return res.status(200).json({\n    token,\n    user: User.toDict(user)\n  });\n});\n\nrouter.get('/me', authenticateToken, (req, res) => {\n  return res.status(200).json({\n    user: req.user\n  });\n});\n\nmodule.exports = router;\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "JavaScript"
+      ],
+      "order_index": 3,
+      "test_command": "node yuvro_scoring_rules/sprint_2/ticket_3/main_test.js"
+    }
+  ]
+}
