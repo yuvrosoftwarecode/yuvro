@@ -145,17 +145,6 @@ class Command(BaseCommand):
             if "id" in lab_data:
                 defaults["id"] = lab_data["id"]
 
-            # Renamed labs: if no lab exists under the new title yet, rename the
-            # row stored under a previous title so we don't create a duplicate.
-            if not Lab.objects.filter(title=lab_data["title"]).exists():
-                for old_title in lab_data.get("previous_titles", []):
-                    old_lab = Lab.objects.filter(title=old_title).first()
-                    if old_lab:
-                        old_lab.title = lab_data["title"]
-                        old_lab.save()
-                        self.stdout.write(f"  ↻ Renamed: {old_title} -> {lab_data['title']}")
-                        break
-
             lab, created = Lab.objects.update_or_create(
                 title=lab_data["title"],
                 defaults=defaults,
