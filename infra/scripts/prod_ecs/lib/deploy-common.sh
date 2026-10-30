@@ -515,6 +515,11 @@ setup_build_args() {
     export YMARKETPLACE_VITE_BACKEND_API_BASE_URL="$ymarketplace_backend_url"
     export YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL="$yhub_backend_url"
     
+    # Internal frontend container ports (80 in dev deployment with Nginx)
+    export YCODE_FRONTEND_CONTAINER_PORT="80"
+    export YCAMPUS_FRONTEND_CONTAINER_PORT="80"
+    export YLABS_FRONTEND_CONTAINER_PORT="80"
+
     # Google OAuth IDs (from variables set by caller or read from .env)
     export VITE_GOOGLE_CLIENT_ID="${vite_google:-}"
     export YCAMPUS_VITE_GOOGLE_CLIENT_ID="${ycampus_google:-}"
