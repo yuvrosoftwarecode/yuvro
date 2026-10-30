@@ -60,6 +60,8 @@ services:
     volumes:
       - ./ycampus-web:/app
       - /app/node_modules
+    ports:
+      - "${YCAMPUS_FRONTEND_PORT:-3001}:${YCAMPUS_FRONTEND_CONTAINER_PORT:-3000}"
     stdin_open: true
     tty: true
     depends_on:

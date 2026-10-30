@@ -29,7 +29,7 @@ services:
       - ./ycode-web/.env.local
       - path: ./ycode-web/.env.local-secrets
         required: false
-    ports:
+    ports: !override
       - "3000:3000"
     volumes:
       - ./ycode-web:/app
@@ -59,7 +59,7 @@ services:
       - ./ycampus-web/.env.local
       - path: ./ycampus-web/.env.local-secrets
         required: false
-    ports:
+    ports: !override
       - "3001:3000"
     volumes:
       - ./ycampus-web:/app
@@ -89,7 +89,7 @@ services:
       - ./ylabs-web/.env.local
       - path: ./ylabs-web/.env.local-secrets
         required: false
-    ports:
+    ports: !override
       - "3002:3000"
     volumes:
       - ./ylabs-web:/app

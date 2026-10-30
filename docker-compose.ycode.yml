@@ -61,6 +61,8 @@ services:
     volumes:
       - ./ycode-web:/app
       - /app/node_modules
+    ports:
+      - "${YCODE_FRONTEND_PORT:-3000}:${YCODE_FRONTEND_CONTAINER_PORT:-3000}"
     stdin_open: true
     tty: true
     depends_on:
