@@ -8,14 +8,15 @@ def parse_json_response(text: str) -> dict | list:
       - Clean JSON
       - ```json ... ``` fenced blocks
       - Trailing commas (common LLM mistake)
+      - Unescaped control characters/newlines (strict=False)
       - Leading/trailing commentary
       - Both object and array responses
     """
     text = text.strip()
 
     try:
-        return json.loads(text)
-    except json.JSONDecodeError:
+        return json.loads(text, strict=False)
+    except (json.JSONDecodeError, ValueError):
         pass
 
     if "```" in text:
@@ -25,9 +26,13 @@ def parse_json_response(text: str) -> dict | list:
             if cleaned.lower().startswith("json"):
                 cleaned = cleaned[4:].strip()
             try:
-                return json.loads(cleaned)
-            except json.JSONDecodeError:
-                continue
+                return json.loads(cleaned, strict=False)
+            except (json.JSONDecodeError, ValueError):
+                fixed = re.sub(r",\s*([}\]])", r"\1", cleaned)
+                try:
+                    return json.loads(fixed, strict=False)
+                except (json.JSONDecodeError, ValueError):
+                    pass
 
     first_obj = text.find("{")
     first_arr = text.find("[")
@@ -37,12 +42,12 @@ def parse_json_response(text: str) -> dict | list:
         if last_arr > first_arr:
             candidate = text[first_arr : last_arr + 1]
             try:
-                return json.loads(candidate)
-            except json.JSONDecodeError:
+                return json.loads(candidate, strict=False)
+            except (json.JSONDecodeError, ValueError):
                 fixed = re.sub(r",\s*([}\]])", r"\1", candidate)
                 try:
-                    return json.loads(fixed)
-                except json.JSONDecodeError:
+                    return json.loads(fixed, strict=False)
+                except (json.JSONDecodeError, ValueError):
                     pass
 
     if first_obj != -1:
@@ -50,12 +55,12 @@ def parse_json_response(text: str) -> dict | list:
         if last_obj > first_obj:
             candidate = text[first_obj : last_obj + 1]
             try:
-                return json.loads(candidate)
-            except json.JSONDecodeError:
+                return json.loads(candidate, strict=False)
+            except (json.JSONDecodeError, ValueError):
                 fixed = re.sub(r",\s*([}\]])", r"\1", candidate)
                 try:
-                    return json.loads(fixed)
-                except json.JSONDecodeError:
+                    return json.loads(fixed, strict=False)
+                except (json.JSONDecodeError, ValueError):
                     pass
 
     raise ValueError(f"Could not parse JSON from LLM response: {text[:300]}")

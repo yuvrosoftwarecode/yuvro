@@ -1,7 +1,7 @@
 from decouple import config
 
 class Settings:
-    LLM_PROVIDER: str = config("LLM_PROVIDER", default="openai")
+    LLM_PROVIDER: str = config("LLM_PROVIDER", default="deepseek")
     OPENAI_API_KEY: str = config("OPENAI_API_KEY", default="")
     OPENAI_MODEL: str = config("OPENAI_MODEL", default="gpt-4o-mini")
     OPENAI_BASE_URL: str = config("OPENAI_BASE_URL", default="https://api.openai.com/v1")
@@ -13,6 +13,10 @@ class Settings:
     GEMINI_API_KEY: str = config("GEMINI_API_KEY", default="")
     GEMINI_MODEL: str = config("GEMINI_MODEL", default="gemini-2.5-flash")
 
+    DEEPSEEK_API_KEY: str = config("DEEPSEEK_API_KEY", default="")
+    DEEPSEEK_MODEL: str = config("DEEPSEEK_MODEL", default="deepseek-flash")
+    DEEPSEEK_BASE_URL: str = config("DEEPSEEK_BASE_URL", default="https://api.deepseek.com")
+
     MAX_RESUME_CHARS: int = 3000
     MAX_JD_CHARS: int = 1500
     MAX_ANSWER_CHARS: int = 12000
@@ -21,7 +25,7 @@ class Settings:
     MAX_OUTPUT_TOKENS_JD: int = 2048
     MAX_OUTPUT_TOKENS_RESUME: int = 4096
     MAX_OUTPUT_TOKENS_QUESTIONS: int = 4096
-    MAX_OUTPUT_TOKENS_ADAPTIVE: int = 1024
+    MAX_OUTPUT_TOKENS_ADAPTIVE: int = 300
     MAX_OUTPUT_TOKENS_EVAL: int = 2048
     MAX_OUTPUT_TOKENS_CODE: int = 1024
     MAX_OUTPUT_TOKENS_HINT: int = 1024

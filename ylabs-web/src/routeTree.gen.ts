@@ -15,6 +15,7 @@ import { Route as RecruiterSignupRouteImport } from './routes/recruiter-signup'
 import { Route as RecruiterLoginRouteImport } from './routes/recruiter-login'
 import { Route as RecruiterRouteImport } from './routes/recruiter'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MockInterviewsRouteImport } from './routes/mock-interviews'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as EvaluationRouteImport } from './routes/evaluation'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -35,6 +36,7 @@ import { Route as RecruiterQuestionsRouteImport } from './routes/recruiter.quest
 import { Route as RecruiterGithubRouteImport } from './routes/recruiter.github'
 import { Route as RecruiterDashboardRouteImport } from './routes/recruiter.dashboard'
 import { Route as RecruiterBillingRouteImport } from './routes/recruiter.billing'
+import { Route as MockInterviewSlugRouteImport } from './routes/mock-interview.$slug'
 import { Route as GithubCallbackRouteImport } from './routes/github.callback'
 import { Route as EvaluationWorkspaceRouteImport } from './routes/evaluation.workspace'
 import { Route as EvaluationSystemCheckRouteImport } from './routes/evaluation.system-check'
@@ -100,6 +102,11 @@ const RecruiterRoute = RecruiterRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MockInterviewsRoute = MockInterviewsRouteImport.update({
+  id: '/mock-interviews',
+  path: '/mock-interviews',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -201,6 +208,11 @@ const RecruiterBillingRoute = RecruiterBillingRouteImport.update({
   id: '/billing',
   path: '/billing',
   getParentRoute: () => RecruiterRoute,
+} as any)
+const MockInterviewSlugRoute = MockInterviewSlugRouteImport.update({
+  id: '/mock-interview/$slug',
+  path: '/mock-interview/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const GithubCallbackRoute = GithubCallbackRouteImport.update({
   id: '/github/callback',
@@ -405,6 +417,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/mock-interviews': typeof MockInterviewsRoute
   '/pricing': typeof PricingRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
@@ -421,6 +434,7 @@ export interface FileRoutesByFullPath {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
@@ -467,6 +481,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/mock-interviews': typeof MockInterviewsRoute
   '/pricing': typeof PricingRoute
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
@@ -481,6 +496,7 @@ export interface FileRoutesByTo {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
@@ -530,6 +546,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/mock-interviews': typeof MockInterviewsRoute
   '/pricing': typeof PricingRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
@@ -546,6 +563,7 @@ export interface FileRoutesById {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
@@ -596,6 +614,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/evaluation'
     | '/forgot-password'
+    | '/mock-interviews'
     | '/pricing'
     | '/recruiter'
     | '/recruiter-login'
@@ -612,6 +631,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/github'
@@ -658,6 +678,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/forgot-password'
+    | '/mock-interviews'
     | '/pricing'
     | '/recruiter-login'
     | '/recruiter-signup'
@@ -672,6 +693,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/github'
@@ -720,6 +742,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/evaluation'
     | '/forgot-password'
+    | '/mock-interviews'
     | '/pricing'
     | '/recruiter'
     | '/recruiter-login'
@@ -736,6 +759,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/github'
@@ -785,6 +809,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   EvaluationRoute: typeof EvaluationRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  MockInterviewsRoute: typeof MockInterviewsRoute
   PricingRoute: typeof PricingRoute
   RecruiterRoute: typeof RecruiterRouteWithChildren
   RecruiterLoginRoute: typeof RecruiterLoginRoute
@@ -792,6 +817,7 @@ export interface RootRouteChildren {
   StudentRoute: typeof StudentRouteWithChildren
   SystemDesignStudioRoute: typeof SystemDesignStudioRoute
   GithubCallbackRoute: typeof GithubCallbackRoute
+  MockInterviewSlugRoute: typeof MockInterviewSlugRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
   SharedReportTokenRoute: typeof SharedReportTokenRoute
 }
@@ -838,6 +864,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mock-interviews': {
+      id: '/mock-interviews'
+      path: '/mock-interviews'
+      fullPath: '/mock-interviews'
+      preLoaderRoute: typeof MockInterviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -979,6 +1012,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/recruiter/billing'
       preLoaderRoute: typeof RecruiterBillingRouteImport
       parentRoute: typeof RecruiterRoute
+    }
+    '/mock-interview/$slug': {
+      id: '/mock-interview/$slug'
+      path: '/mock-interview/$slug'
+      fullPath: '/mock-interview/$slug'
+      preLoaderRoute: typeof MockInterviewSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/github/callback': {
       id: '/github/callback'
@@ -1470,6 +1510,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   EvaluationRoute: EvaluationRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  MockInterviewsRoute: MockInterviewsRoute,
   PricingRoute: PricingRoute,
   RecruiterRoute: RecruiterRouteWithChildren,
   RecruiterLoginRoute: RecruiterLoginRoute,
@@ -1477,6 +1518,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudentRoute: StudentRouteWithChildren,
   SystemDesignStudioRoute: SystemDesignStudioRoute,
   GithubCallbackRoute: GithubCallbackRoute,
+  MockInterviewSlugRoute: MockInterviewSlugRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
   SharedReportTokenRoute: SharedReportTokenRoute,
 }

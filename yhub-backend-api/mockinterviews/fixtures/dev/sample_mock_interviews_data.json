@@ -1,7 +1,7 @@
 {
   "mock_interviews": [
     {
-      "title": "Python Development",
+      "title": "Python Development (Predefined)",
       "description": "Comprehensive assessment of Python programming skills, including language internals, asynchronous programming, web frameworks, and data processing.",
       "instructions": "Python syntax, decorators, generators, multi-threading vs multi-processing.",
       "max_duration": 30,
@@ -2837,9 +2837,69 @@
             }
           ]
         }
+      ],
+      "interview_mode": "custom",
+      "products": [
+        "ycode",
+        "ycampus"
       ]
     },
-     {
+    {
+      "title": "Python Development (Automatic)",
+      "description": "Adaptive AI-powered dynamic Python technical interview. Evaluates core language features, asynchronous patterns, OOP architecture, and backend engineering in real-time.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs"
+      ],
+      "required_skills": [
+        "Python",
+        "OOP Design",
+        "AsyncIO",
+        "Data Structures",
+        "APIs & Web Frameworks"
+      ],
+      "optional_skills": [
+        "FastAPI",
+        "Django",
+        "Pytest",
+        "Pandas",
+        "SQLAlchemy"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
+    },
+    {
+      "title": "Data Structures & Algorithms (Automatic)",
+      "description": "Comprehensive adaptive technical interview assessing problem-solving abilities, core data structures, algorithm design, and computational complexity analysis in real-time.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine assesses your algorithmic thinking, data structure selection, edge-case handling, and time/space complexity optimization.",
+      "max_duration": 45,
+      "interview_mode": "automatic",
+      "products": [
+        "ycode",
+        "ylabs",
+        "ycampus"
+      ],
+      "required_skills": [
+        "Data Structures",
+        "Algorithms",
+        "Time & Space Complexity",
+        "Arrays & Strings",
+        "Trees & Graphs"
+      ],
+      "optional_skills": [
+        "Dynamic Programming",
+        "Recursion & Backtracking",
+        "Binary Search",
+        "Two Pointers & Sliding Window",
+        "Heaps & Priority Queues",
+        "Greedy Algorithms"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
+    },
+    {
       "title": "Frontend Development",
       "description": "Comprehensive assessment of frontend development skills, including HTML, CSS, JavaScript, React, browser behavior, performance optimization, and frontend architecture.",
       "instructions": "HTML semantics, CSS layouts, JavaScript fundamentals and advanced concepts, React hooks and state management, performance optimization, and frontend security.",
@@ -5680,6 +5740,11 @@
             }
           ]
         }
+      ],
+      "interview_mode": "custom",
+      "products": [
+        "ycode",
+        "ycampus"
       ]
     },
     {
@@ -8525,6 +8590,11 @@
             }
           ]
         }
+      ],
+      "interview_mode": "custom",
+      "products": [
+        "ycode",
+        "ycampus"
       ]
     }
   ]

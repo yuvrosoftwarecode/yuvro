@@ -3,12 +3,12 @@ import io
 import json
 import logging
 
-from assessment.ai_interview.config import settings
-from assessment.ai_interview.llm_client import get_llm_client
-from assessment.ai_interview.prompts import RESUME_EXTRACTION_PROMPT
-from assessment.ai_interview.jd_parser import parse_jd
-from assessment.ai_interview.skill_extractor import extract_skills
-from assessment.ai_interview.json_parser import parse_json_response
+from mockinterviews.ai_interview.config import settings
+from mockinterviews.ai_interview.llm_client import get_llm_client
+from mockinterviews.ai_interview.prompts import RESUME_EXTRACTION_PROMPT
+from mockinterviews.ai_interview.jd_parser import parse_jd
+from mockinterviews.ai_interview.skill_extractor import extract_skills
+from mockinterviews.ai_interview.json_parser import parse_json_response
 
 logger = logging.getLogger(__name__)
 

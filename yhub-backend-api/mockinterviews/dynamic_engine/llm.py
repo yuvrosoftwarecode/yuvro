@@ -171,7 +171,7 @@ class OpenAIInterviewLLM:
             extra_directives += (
                 " CRITICAL TOPIC PIVOT: The candidate explicitly requested to skip, move to the next topic, or stated they do not know. "
                 "You MUST acknowledge this politely ('Understood, let\\'s move on.', 'No problem at all, let\\'s look at something else.') "
-                "and immediately pivot to a fresh topic (such as general architecture, system design, or engineering principles), "
+                "and immediately pivot to an accessible, foundational concept in another topic, "
                 "and NEVER probe or repeat the previous file, code snippet, or question."
             )
         elif last_quality == "repeat_requested":

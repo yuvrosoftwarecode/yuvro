@@ -86,6 +86,8 @@ class Command(BaseCommand):
                 "publish_status": mock_interview_data.get(
                     "publish_status", "draft"
                 ),
+                "interview_mode": mock_interview_data.get("interview_mode", "automatic"),
+                "products": mock_interview_data.get("products", ["ylabs", "ycode", "ycampus"]),
                 "created_by": default_user,
             }
 

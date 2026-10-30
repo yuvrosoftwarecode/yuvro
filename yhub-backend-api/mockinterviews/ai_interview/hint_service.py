@@ -1,10 +1,10 @@
 import logging
 from asgiref.sync import sync_to_async
 
-from assessment.ai_interview.config import settings
-from assessment.ai_interview.llm_client import get_llm_client
-from assessment.ai_interview.prompts import HINT_PROMPT
-from assessment.ai_interview.json_parser import parse_json_response
+from mockinterviews.ai_interview.config import settings
+from mockinterviews.ai_interview.llm_client import get_llm_client
+from mockinterviews.ai_interview.prompts import HINT_PROMPT
+from mockinterviews.ai_interview.json_parser import parse_json_response
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ async def generate_hint(
     Returns:
         Dict with hint, hint_level, hints_remaining.
     """
-    from assessment.models import MockInterviewSubmission
+    from mockinterviews.models import MockInterviewSubmission
     submission = await sync_to_async(MockInterviewSubmission.objects.get)(id=session_id)
     state = submission.state_data or {}
 

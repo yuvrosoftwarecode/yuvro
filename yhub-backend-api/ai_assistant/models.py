@@ -13,6 +13,7 @@ class AIAgent(models.Model):
         ("openai", "OpenAI"),
         ("anthropic", "Anthropic"),
         ("gemini", "Google Gemini"),
+        ("deepseek", "DeepSeek"),
         ("cohere", "Cohere"),
         ("huggingface", "Hugging Face"),
         ("deepseek", "DeepSeek"),
