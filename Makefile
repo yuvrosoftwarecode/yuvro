@@ -295,7 +295,6 @@ install: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
 		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_INFRA_TYPE=ec2, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
-		bash infra/scripts/dev_ec2/deploy-common-apps.sh $(DEPLOY_BRANCH) && \
 		bash infra/scripts/dev_ec2/deploy-ycode.sh $(DEPLOY_BRANCH) && \
 		bash infra/scripts/dev_ec2/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
 		bash infra/scripts/dev_ec2/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
@@ -378,7 +377,6 @@ run: _validate-deploy
 	@if [ "$(DEPLOY_ENV)" = "dev" ] && [ "$(DEPLOY_INFRA_TYPE)" = "ec2" ]; then \
 		echo "🚀 Deploying ALL services to AWS EC2 [DEPLOY_ENV=$(DEPLOY_ENV), DEPLOY_INFRA_TYPE=ec2, BRANCH=$(DEPLOY_BRANCH)]..."; \
 		echo ""; \
-		bash infra/scripts/dev_ec2/deploy-common-apps.sh $(DEPLOY_BRANCH) && \
 		bash infra/scripts/dev_ec2/deploy-ycode.sh $(DEPLOY_BRANCH) && \
 		bash infra/scripts/dev_ec2/deploy-ycampus.sh $(DEPLOY_BRANCH) && \
 		bash infra/scripts/dev_ec2/deploy-ylabs.sh $(DEPLOY_BRANCH) && \
@@ -1108,7 +1106,7 @@ load-fixtures-ycampus:
 setup-fixtures-data:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Loading fixtures on EC2 for all apps..."; \
-		bash infra/scripts/runFixtures.sh; \
+		bash infra/scripts/utils/runFixtures.sh; \
 	else \
 		$(MAKE) -f Makefile.yhub load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 		$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
@@ -1119,7 +1117,7 @@ setup-fixtures-data:
 setup-fixtures-data-ycode:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Loading fixtures for YCode on EC2..."; \
-		bash infra/scripts/runFixtures.sh ycode; \
+		bash infra/scripts/utils/runFixtures.sh ycode; \
 	else \
 		$(MAKE) -f Makefile.ycode load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
@@ -1127,7 +1125,7 @@ setup-fixtures-data-ycode:
 setup-fixtures-data-ycampus:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Loading fixtures for YCampus on EC2..."; \
-		bash infra/scripts/runFixtures.sh ycampus; \
+		bash infra/scripts/utils/runFixtures.sh ycampus; \
 	else \
 		$(MAKE) -f Makefile.ycampus load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
@@ -1135,7 +1133,7 @@ setup-fixtures-data-ycampus:
 setup-fixtures-data-yhub:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Loading fixtures for YHub on EC2..."; \
-		bash infra/scripts/runFixtures.sh yhub; \
+		bash infra/scripts/utils/runFixtures.sh yhub; \
 	else \
 		$(MAKE) -f Makefile.yhub load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
@@ -1143,7 +1141,7 @@ setup-fixtures-data-yhub:
 setup-fixtures-data-ylabs:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Loading fixtures for YLabs on EC2..."; \
-		bash infra/scripts/runFixtures.sh ylabs; \
+		bash infra/scripts/utils/runFixtures.sh ylabs; \
 	else \
 		$(MAKE) -f Makefile.ylabs load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
@@ -1151,7 +1149,7 @@ setup-fixtures-data-ylabs:
 setup-fixtures-data-ymarketplace:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Loading fixtures for YMarketplace on EC2..."; \
-		bash infra/scripts/runFixtures.sh ymarketplace; \
+		bash infra/scripts/utils/runFixtures.sh ymarketplace; \
 	else \
 		$(MAKE) -f Makefile.ymarketplace load-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
@@ -1159,7 +1157,7 @@ setup-fixtures-data-ymarketplace:
 reload-fixtures-data:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Reloading fixtures with clear on EC2 for all apps..."; \
-		bash infra/scripts/runFixtures.sh all --clear; \
+		bash infra/scripts/utils/runFixtures.sh all --clear; \
 	else \
 		$(MAKE) -f Makefile.yhub reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 		$(MAKE) -f Makefile.ycode reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
@@ -1173,7 +1171,7 @@ clear-fixtures-data: reload-fixtures-data
 reload-fixtures-data-ycode:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Reloading fixtures with clear for YCode on EC2..."; \
-		bash infra/scripts/runFixtures.sh ycode --clear; \
+		bash infra/scripts/utils/runFixtures.sh ycode --clear; \
 	else \
 		$(MAKE) -f Makefile.ycode reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
@@ -1183,7 +1181,7 @@ clear-fixtures-data-ycode: reload-fixtures-data-ycode
 reload-fixtures-data-ycampus:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Reloading fixtures with clear for YCampus on EC2..."; \
-		bash infra/scripts/runFixtures.sh ycampus --clear; \
+		bash infra/scripts/utils/runFixtures.sh ycampus --clear; \
 	else \
 		$(MAKE) -f Makefile.ycampus reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
@@ -1193,7 +1191,7 @@ clear-fixtures-data-ycampus: reload-fixtures-data-ycampus
 reload-fixtures-data-yhub:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Reloading fixtures with clear for YHub on EC2..."; \
-		bash infra/scripts/runFixtures.sh yhub --clear; \
+		bash infra/scripts/utils/runFixtures.sh yhub --clear; \
 	else \
 		$(MAKE) -f Makefile.yhub reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
@@ -1203,7 +1201,7 @@ clear-fixtures-data-yhub: reload-fixtures-data-yhub
 reload-fixtures-data-ylabs:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Reloading fixtures with clear for YLabs on EC2..."; \
-		bash infra/scripts/runFixtures.sh ylabs --clear; \
+		bash infra/scripts/utils/runFixtures.sh ylabs --clear; \
 	else \
 		$(MAKE) -f Makefile.ylabs reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi
@@ -1213,7 +1211,7 @@ clear-fixtures-data-ylabs: reload-fixtures-data-ylabs
 reload-fixtures-data-ymarketplace:
 	@if [ "$(DEPLOY_ENV)" = "dev" ]; then \
 		echo "Reloading fixtures with clear for YMarketplace on EC2..."; \
-		bash infra/scripts/runFixtures.sh ymarketplace --clear; \
+		bash infra/scripts/utils/runFixtures.sh ymarketplace --clear; \
 	else \
 		$(MAKE) -f Makefile.ymarketplace reload-fixtures-data DEPLOY_ENV=$(DEPLOY_ENV); \
 	fi

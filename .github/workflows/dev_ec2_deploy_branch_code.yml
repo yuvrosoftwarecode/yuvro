@@ -64,21 +64,22 @@ jobs:
         DEPLOY_APP: ${{ inputs.deploy_app }}
         SSH_KEY_PATH: /home/runner/.ssh/yuvro-dev.pem
       run: |
+        set -euo pipefail
         echo "🚀 Deploying $DEPLOY_APP to dev [branch=$DEPLOY_BRANCH]..."
         
         # Deploy applications (not infrastructure)
         if [ "$DEPLOY_APP" = "all" ]; then
           echo "Deploying all services..."
-          bash infra/scripts/deploy-ycode.sh $DEPLOY_BRANCH && \
-          bash infra/scripts/deploy-ycampus.sh $DEPLOY_BRANCH && \
-          bash infra/scripts/deploy-ylabs.sh $DEPLOY_BRANCH && \
-          bash infra/scripts/deploy-yhub.sh $DEPLOY_BRANCH && \
-          bash infra/scripts/deploy-ymarketplace.sh $DEPLOY_BRANCH && \
-          bash infra/scripts/deploy-code-executor.sh $DEPLOY_BRANCH
+          bash infra/scripts/dev_ec2/deploy-ycode.sh "$DEPLOY_BRANCH"
+          bash infra/scripts/dev_ec2/deploy-ycampus.sh "$DEPLOY_BRANCH"
+          bash infra/scripts/dev_ec2/deploy-ylabs.sh "$DEPLOY_BRANCH"
+          bash infra/scripts/dev_ec2/deploy-yhub.sh "$DEPLOY_BRANCH"
+          bash infra/scripts/dev_ec2/deploy-ymarketplace.sh "$DEPLOY_BRANCH"
+          bash infra/scripts/dev_ec2/deploy-code-executor.sh "$DEPLOY_BRANCH"
         elif [ "$DEPLOY_APP" = "code-executor" ]; then
-          bash infra/scripts/deploy-code-executor.sh $DEPLOY_BRANCH
+          bash infra/scripts/dev_ec2/deploy-code-executor.sh "$DEPLOY_BRANCH"
         else
-          bash infra/scripts/deploy-$DEPLOY_APP.sh $DEPLOY_BRANCH
+          bash infra/scripts/dev_ec2/deploy-"$DEPLOY_APP".sh "$DEPLOY_BRANCH"
         fi
         
         echo "✅ Deployment of $DEPLOY_APP from branch '$DEPLOY_BRANCH' complete!"
