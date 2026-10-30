@@ -15,11 +15,26 @@ def get_repo_name_from_url(repo_url):
         path = path[:-4]
     return path.split('/')[-1]
 
-def inject_token_into_url(url, token):
+import tempfile
+
+def run_git_with_token(cmd, token, cwd=None):
     if not token:
-        return url
-    parsed = urlparse(url)
-    return f"{parsed.scheme}://oauth2:{token}@{parsed.netloc}{parsed.path}"
+        return subprocess.run(cmd, cwd=cwd, check=True, capture_output=True)
+
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+        f.write("#!/bin/sh\n")
+        f.write(f"echo '{token}'\n")
+        askpass_path = f.name
+        
+    os.chmod(askpass_path, 0o700)
+    try:
+        env = os.environ.copy()
+        env['GIT_ASKPASS'] = askpass_path
+        env['GIT_TERMINAL_PROMPT'] = '0'
+        return subprocess.run(cmd, cwd=cwd, check=True, capture_output=True, env=env)
+    finally:
+        if os.path.exists(askpass_path):
+            os.remove(askpass_path)
 
 def provision_lab_starter_repo(lab_uuid, repo_url):
    
@@ -38,14 +53,9 @@ def provision_lab_starter_repo(lab_uuid, repo_url):
                 return target_path
             shutil.rmtree(target_path, ignore_errors=True)
             
-        auth_url = inject_token_into_url(repo_url, getattr(settings, 'GITHUB_SYSTEM_PAT', ''))
-        
+        token = getattr(settings, 'GITHUB_SYSTEM_PAT', '')
         logger.info(f"Cloning {repo_url} into {target_path}")
-        subprocess.run(
-            ["git", "clone", auth_url, target_path],
-            check=True,
-            capture_output=True
-        )
+        run_git_with_token(["git", "clone", repo_url, target_path], token)
         return target_path
     except subprocess.CalledProcessError as e:
         logger.error(f"Failed to clone repo: {e.stderr.decode()}")
@@ -76,18 +86,22 @@ def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_
         
         subprocess.run(["git", "-c", "safe.directory=*", "add", "."], cwd=user_dir, check=True, capture_output=True)
         
-        git_email = f"{github_username}@users.noreply.github.com" if github_username else "bot@yuvro.ai"
-        git_name = github_username if github_username else "Yuvro Bot"
+        git_email = f"{github_username}@users.noreply.github.com" if github_username else "student@yuvro.ai"
+        git_name = github_username if github_username else "Student"
         
         subprocess.run(["git", "-c", "safe.directory=*", "config", "user.email", git_email], cwd=user_dir, check=True)
         subprocess.run(["git", "-c", "safe.directory=*", "config", "user.name", git_name], cwd=user_dir, check=True)
         subprocess.run(["git", "-c", "safe.directory=*", "commit", "--allow-empty", "-m", "Initial commit for lab workspace"], cwd=user_dir, check=True, capture_output=True)
         
-        auth_url = inject_token_into_url(user_github_repo_url, access_token)
-        subprocess.run(["git", "-c", "safe.directory=*", "remote", "add", "origin", auth_url], cwd=user_dir, check=True)
+        if access_token and "github.com" in user_github_repo_url and "@" not in user_github_repo_url:
+            auth_repo_url = user_github_repo_url.replace("https://github.com/", f"https://{access_token}@github.com/")
+        else:
+            auth_repo_url = user_github_repo_url
+            
+        subprocess.run(["git", "-c", "safe.directory=*", "remote", "add", "origin", auth_repo_url], cwd=user_dir, check=True)
         
         subprocess.run(["git", "-c", "safe.directory=*", "branch", "-M", "main"], cwd=user_dir, check=True)
-        subprocess.run(["git", "-c", "safe.directory=*", "push", "-f", "-u", "origin", "main"], cwd=user_dir, check=True, capture_output=True)
+        run_git_with_token(["git", "-c", "safe.directory=*", "push", "-f", "-u", "origin", "main"], access_token, cwd=user_dir)
         
         logger.info(f"Successfully provisioned user repo at {user_dir}")
         return user_dir
@@ -114,19 +128,29 @@ def provision_evaluation_lab_starter_repo(evaluation_uuid, lab_uuid, repo_url, b
                 return target_path
             shutil.rmtree(target_path, ignore_errors=True)
             
-        auth_url = inject_token_into_url(repo_url, getattr(settings, 'GITHUB_SYSTEM_PAT', ''))
+        # Determine credential provider
+        token = getattr(settings, 'GITHUB_SYSTEM_PAT', '')
+        from skill_evaluation.models import LabQuestionBank, RepoSourceType
+        lab_obj = LabQuestionBank.objects.filter(id=lab_uuid).first()
+        
+        if lab_obj and lab_obj.repo_source_type == RepoSourceType.RECRUITER_GITHUB_APP:
+            if not lab_obj.github_app_installation:
+                raise Exception(f"Lab {lab_uuid} is configured for Recruiter GitHub App but no installation is linked.")
+            try:
+                from recruiter.github_app_client import GithubAppClient
+                client = GithubAppClient()
+                token = client.get_installation_access_token(lab_obj.github_app_installation.installation_id)
+            except Exception as e:
+                logger.error(f"Failed to fetch GitHub App token for installation {lab_obj.github_app_installation.installation_id}: {e}")
+                raise Exception(f"GitHub App authorization failed. Cannot clone recruiter repository.")
         
         clone_cmd = ["git", "clone"]
         if branch and str(branch).strip():
             clone_cmd.extend(["--branch", str(branch).strip(), "--single-branch"])
-        clone_cmd.extend([auth_url, target_path])
+        clone_cmd.extend([repo_url, target_path])
 
         logger.info(f"Cloning {repo_url} (branch: {branch}) into {target_path}")
-        subprocess.run(
-            clone_cmd,
-            check=True,
-            capture_output=True
-        )
+        run_git_with_token(clone_cmd, token)
         return target_path
     except subprocess.CalledProcessError as e:
         logger.error(f"Failed to clone repo: {e.stderr.decode()}")

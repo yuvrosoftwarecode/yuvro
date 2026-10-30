@@ -563,6 +563,10 @@
 .recruiter-theme .bg-black.text-white,
 .recruiter-theme .bg-black .text-white,
 .recruiter-theme .bg-\[\#111217\] .text-white,
+.recruiter-theme .bg-red-600,
+.recruiter-theme .bg-red-600 *,
+.recruiter-theme .bg-red-700,
+.recruiter-theme .bg-red-700 *,
 .recruiter-theme [style*="background"].text-white {
   color: #ffffff !important;
 }
@@ -808,3 +812,7 @@
 .dark .eval-theme .text-emerald-600 {
   color: #34d399 !important;
 }
+
+.sd-flow { animation: sd-dash 1.2s linear infinite; }
+@keyframes sd-dash { to { stroke-dashoffset: -20; } }
+@media (prefers-reduced-motion: reduce) { .sd-flow { animation: none; } }

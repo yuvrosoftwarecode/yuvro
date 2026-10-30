@@ -6,6 +6,7 @@ import { DiffBadge } from "@/components/Badges";
 import { ArrowRight, Sparkles, Flame, Zap, Trophy, Check, Plus, Star, Search, Github, Lock, Loader2, Network, Briefcase, Boxes } from "lucide-react";
 import { TIER_META } from "@/lib/labAccess";
 import { getLabIconUrl } from "@/lib/labIcons";
+import { LabIcon as SharedLabIcon } from "@/components/LabIcon";
 import { useAuth } from "@/lib/auth";
 import { loadLabs } from "@/lib/adminLabs";
 import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/student/dashboard")({
   component: Hub,
 });
 
-const FEATURED_SLUGS = ["javaspring", "systemdesign", "cybersecurity", "pydjango", "postgres", "datastructures", "qa"];
+const FEATURED_SLUGS = ["javaspring", "systemdesign", "systemdesign-url-shortener", "systemdesign-bookmysystem", "cybersecurity", "pydjango", "postgres", "datastructures", "qa"];
 
 type Category = "Backend" | "Frontend" | "Database" | "DevOps" | "QA" | "AI" | "Security" | "Design";
 const CATEGORIES: Category[] = ["Backend", "Frontend", "Database", "DevOps", "QA", "Security", "Design"];
@@ -25,12 +26,20 @@ const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"] as const;
 const LAB_CATEGORY: Record<string, Category> = {
   java: "Backend",
   javaspring: "Backend",
+  java_spring_todo_lab: "Backend",
   python: "Backend",
   pydjango: "Backend",
   pyflask: "Backend",
+  flask_todo_lab: "Backend",
+  nodejs: "Backend",
+  express: "Backend",
+  node: "Backend",
+  nodejs_todo_lab: "Backend",
   programming: "Backend",
   datastructures: "Backend",
-  systemdesign: "Backend",
+  systemdesign: "Design",
+  "systemdesign-url-shortener": "Design",
+  "systemdesign-bookmysystem": "Design",
   ui: "Frontend",
   react: "Frontend",
   sql: "Database",
@@ -46,10 +55,16 @@ const LAB_CATEGORY: Record<string, Category> = {
 
 const LAB_LANGUAGES: Record<string, string[]> = {
   java: ["Java"],
-  javaspring: ["Java"],
+  javaspring: ["Java", "Spring Boot"],
+  java_spring_todo_lab: ["Java", "Spring Boot"],
   python: ["Python"],
   pydjango: ["Python"],
   pyflask: ["Python"],
+  flask_todo_lab: ["Python", "Flask"],
+  nodejs: ["JavaScript", "Node.js"],
+  express: ["JavaScript", "Node.js"],
+  node: ["JavaScript", "Node.js"],
+  nodejs_todo_lab: ["JavaScript", "Node.js"],
   programming: ["Python", "JavaScript"],
   datastructures: ["Python", "Java", "C++"],
   systemdesign: [],
@@ -87,6 +102,7 @@ const getLabCategory = (id: string, name: string): Category => {
     (k) => id.toLowerCase().includes(k) || name.toLowerCase().includes(k),
   );
   if (match) return LAB_CATEGORY[match];
+  if (name.toLowerCase().includes("system") || name.toLowerCase().includes("design")) return "Design";
   if (name.toLowerCase().includes("data") || name.toLowerCase().includes("sql")) return "Database";
   if (name.toLowerCase().includes("react") || name.toLowerCase().includes("ui")) return "Frontend";
   return "Backend";
@@ -833,28 +849,7 @@ function CheckRow({
 }
 
 function LabIcon({ lab, sizeClass = "h-8 w-8" }: { lab: CatalogLab; sizeClass?: string }) {
-  const [imgErr, setImgErr] = useState(false);
-  const devIconUrl = getLabIconUrl(lab.name);
-  if (devIconUrl && !imgErr) {
-    return (
-      <img
-        src={devIconUrl}
-        alt={lab.name}
-        className={`${sizeClass} object-contain`}
-        onError={() => setImgErr(true)}
-      />
-    );
-  }
-  if (lab.name.toLowerCase().includes("data structure") && lab.name.toLowerCase().includes("scenario")) {
-    return <Boxes className={`${sizeClass} text-primary`} />;
-  }
-  if (lab.name.toLowerCase().includes("data structure")) {
-    return <Network className={`${sizeClass} text-primary`} />;
-  }
-  if (lab.name === "Portfolio Lab" || lab.name.toLowerCase().includes("portfolio")) {
-    return <Briefcase className={`${sizeClass} text-warning`} />;
-  }
-  return <span className="text-inherit">{lab.icon || "💻"}</span>;
+  return <SharedLabIcon name={lab.name} icon={lab.icon} size={sizeClass} />;
 }
 
 const isDsaLab = (name?: string, id?: string) => {

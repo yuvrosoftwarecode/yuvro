@@ -1,0 +1,389 @@
+{
+  "title": "Sprint 1 — HLD: High-Level Architecture",
+  "description": "Learn to identify system components, connect services in proper request flows, and evaluate architectural trade-offs using the interactive canvas.",
+  "order_index": 1,
+  "lab_title": "System Design Lab",
+  "tickets": [
+    {
+      "title": "Design a URL Shortener",
+      "ticket_slug": "sd-11",
+      "description": "### Scenario\nDesign a high-throughput, low-latency URL shortener service (like TinyURL or Bitly) that converts long URLs into compact aliases and seamlessly redirects visitors.\n\n### Primary Tab\n**HLD · Architecture**\n\n### Requirements\n1. Add the core components: Web Client, Load Balancer, URL Service, and Relational Database (PostgreSQL).\n2. Model the request routing through the Load Balancer to horizontally scaled stateless service instances.\n3. Add an in-memory cache layer (Redis) to accelerate high-frequency redirect queries.\n4. Connect components and clearly label read (redirect) and write (creation) paths.\n\n### Constraints\n- High read-to-write ratio (100:1).\n- Redirect latency should be under 20ms at p99.\n- Stateless app servers behind the load balancer.\n\n### Acceptance Criteria\n- The architecture clearly separates the URL generation path from the redirect path.\n- Includes caching with Redis to offload reads from PostgreSQL.",
+      "difficulty": "EASY",
+      "primary_tab": "HLD",
+      "tasks": [
+        "Add Web Client, Load Balancer, URL Service, and PostgreSQL components to the HLD canvas.",
+        "Connect the components in the correct client-server request flow.",
+        "Add Redis for frequently accessed short URLs to minimize database lookups.",
+        "Label read and write connections between components."
+      ],
+      "learning_objectives": [
+        "Understand the client-load balancer-service-database topology.",
+        "Learn how cache-aside patterns reduce read pressure on persistent databases.",
+        "Differentiate between read-heavy redirect flows and write-heavy URL creation flows."
+      ],
+      "common_mistakes": [
+        "Routing database queries directly from the load balancer without passing through the application service.",
+        "Placing the cache in the direct write path without database synchronization.",
+        "Omitting a load balancer for multiple service instances."
+      ],
+      "hints": [
+        "Start by placing the Web Client on the far left, connecting to a Load Balancer.",
+        "Split URL Service instances or route paths so one handles write requests and another handles redirects.",
+        "Connect Redis adjacent to the URL Service for sub-millisecond lookup on redirect requests."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "HLD"
+      },
+      "system_design": {
+        "nodes": [
+          { "id": "n1", "kind": "web client", "label": "Web Client", "icon": "🖥️", "x": 40, "y": 160 },
+          { "id": "n2", "kind": "load balancer", "label": "Load Balancer", "icon": "⚖️", "x": 260, "y": 160 },
+          { "id": "n3", "kind": "url service", "label": "URL Write Service", "icon": "⚙️", "x": 480, "y": 80 },
+          { "id": "n4", "kind": "url service", "label": "URL Redirect Service", "icon": "⚙️", "x": 480, "y": 250 },
+          { "id": "n5", "kind": "redis", "label": "Redis Cache", "icon": "⚡", "x": 720, "y": 80 },
+          { "id": "n6", "kind": "postgresql", "label": "PostgreSQL DB", "icon": "🐘", "x": 720, "y": 250 }
+        ],
+        "edges": [
+          { "id": "e1", "from": "n1", "to": "n2", "label": "HTTPS Request" },
+          { "id": "e2", "from": "n2", "to": "n3", "label": "POST /api/v1/urls" },
+          { "id": "e3", "from": "n2", "to": "n4", "label": "GET /{code}" },
+          { "id": "e4", "from": "n4", "to": "n5", "label": "Cache lookup" },
+          { "id": "e5", "from": "n4", "to": "n6", "label": "Cache miss fallback" },
+          { "id": "e6", "from": "n3", "to": "n6", "label": "Write new URL" },
+          { "id": "e7", "from": "n3", "to": "n5", "label": "Populate cache" }
+        ],
+        "seq": "sequenceDiagram\n  autonumber\n  actor U as User\n  participant L as Load Balancer\n  participant S as URL Service\n  participant R as Redis\n  participant D as PostgreSQL\n  U->>L: GET /{short_code}\n  L->>S: Forward redirect request\n  S->>R: Check cache for short_code\n  alt Cache hit\n    R-->>S: Return long_url\n  else Cache miss\n    S->>D: SELECT original_url WHERE short_code = ?\n    D-->>S: Return record\n    S->>R: Cache mapping (TTL 7d)\n  end\n  S-->>U: 301 Moved Permanently (Location: long_url)",
+        "schema": "Table urls {\n  id bigint [pk, increment]\n  short_code varchar(10) [unique, not null]\n  original_url text [not null]\n  created_at timestamp [default: `now()`]\n  click_count bigint [default: 0]\n}",
+        "apis": [
+          {
+            "id": "a1",
+            "method": "POST",
+            "path": "/api/v1/urls",
+            "summary": "Create short URL",
+            "request": "{\n  \"original_url\": \"https://example.com/long/path\"\n}",
+            "status": "201 Created",
+            "response": "{\n  \"short_code\": \"abc123z\",\n  \"short_url\": \"https://yu.vr/abc123z\"\n}"
+          },
+          {
+            "id": "a2",
+            "method": "GET",
+            "path": "/{short_code}",
+            "summary": "Redirect visitor",
+            "request": "",
+            "status": "301 Moved Permanently",
+            "response": "{\n  \"Location\": \"https://example.com/long/path\"\n}"
+          }
+        ],
+        "notes": {
+          "hld": "## URL Shortener Architecture\n- Separates write traffic (link generation) from read traffic (redirections).\n- Uses Redis for Cache-Aside; ~80% of redirects hit memory cache, protecting PostgreSQL.\n- Horizontal scaling with a Layer 7 Load Balancer.",
+          "sequence": "Redirection flow checks Redis cache before querying PostgreSQL.",
+          "schema": "Indexed on `short_code` for O(1) B-tree lookup.",
+          "api": "POST creates short URL, GET redirects with HTTP 301 status."
+        }
+      },
+      "solution": {
+        "explanation": "A standard URL Shortener separates creation from redirection. Placing Redis ahead of PostgreSQL guarantees high read performance, while the load balancer distributes incoming HTTP traffic.",
+        "approach": "Cache-Aside pattern with horizontally scalable stateless API nodes."
+      },
+      "yuvro_points": 50,
+      "minutes_max": 25,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 1
+    },
+    {
+      "title": "Design an E-commerce Backend",
+      "ticket_slug": "sd-12",
+      "description": "### Scenario\nDesign the core high-level architecture for an e-commerce platform where shoppers can browse product catalogs and securely place shopping orders.\n\n### Primary Tab\n**HLD · Architecture**\n\n### Requirements\n1. Add Client, API Gateway, Product Service, Order Service, and data store components.\n2. Decouple browse traffic from transactional order processing.\n3. Connect each service to its respective database (Catalog DB vs. Order DB).\n4. Establish the API Gateway as the unified entrance for authentication and request routing.\n\n### Constraints\n- Product browsing is 95% reads; order placement requires strict ACID consistency.\n- Cart and catalog queries must remain responsive even during checkout spikes.\n\n### Acceptance Criteria\n- Decoupled microservices architecture for Product and Order domains.\n- Clear, traceable request paths from the API Gateway to data stores.",
+      "difficulty": "EASY",
+      "primary_tab": "HLD",
+      "tasks": [
+        "Add Client, API Gateway, Product Service, Order Service and database components.",
+        "Separate product browsing from order processing into dedicated service nodes.",
+        "Connect services to their respective data stores (Product DB and Order DB).",
+        "Configure the API Gateway as the central entry point for all client requests."
+      ],
+      "learning_objectives": [
+        "Understand domain decomposition and microservices separation.",
+        "Learn the role of API Gateways in cross-cutting concerns (rate limiting, SSL termination, auth).",
+        "Design distinct storage models for read-heavy vs transactional workloads."
+      ],
+      "common_mistakes": [
+        "Using a single monolithic database shared directly between microservices.",
+        "Allowing clients to query the internal product database directly without an API Gateway.",
+        "Coupling catalog browsing directly to order processing execution."
+      ],
+      "hints": [
+        "Place the API Gateway directly behind the Client to route `/products` vs `/orders`.",
+        "Give Product Service a read-heavy replica or cache, while Order Service connects to an ACID relational database.",
+        "Clearly label the connection between the gateway and downstream services."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "HLD"
+      },
+      "system_design": {
+        "nodes": [
+          { "id": "n1", "kind": "client", "label": "Client App", "icon": "📱", "x": 40, "y": 160 },
+          { "id": "n2", "kind": "api gateway", "label": "API Gateway", "icon": "🚪", "x": 260, "y": 160 },
+          { "id": "n3", "kind": "product service", "label": "Product Catalog Service", "icon": "📦", "x": 480, "y": 80 },
+          { "id": "n4", "kind": "order service", "label": "Order Service", "icon": "🛒", "x": 480, "y": 240 },
+          { "id": "n5", "kind": "database", "label": "Product DB (MongoDB / Replica)", "icon": "🗄️", "x": 720, "y": 80 },
+          { "id": "n6", "kind": "postgresql", "label": "Order DB (PostgreSQL)", "icon": "🐘", "x": 720, "y": 240 }
+        ],
+        "edges": [
+          { "id": "e1", "from": "n1", "to": "n2", "label": "HTTPS" },
+          { "id": "e2", "from": "n2", "to": "n3", "label": "Route: /api/v1/products" },
+          { "id": "e3", "from": "n2", "to": "n4", "label": "Route: /api/v1/orders" },
+          { "id": "e4", "from": "n3", "to": "n5", "label": "Read/Search catalog" },
+          { "id": "e5", "from": "n4", "to": "n6", "label": "ACID order transactions" }
+        ],
+        "seq": "",
+        "schema": "",
+        "apis": [],
+        "notes": {
+          "hld": "## E-commerce Architecture\n- Decoupled Product Catalog from Order Processing.\n- API Gateway handles routing, rate limiting, and auth token validation.\n- Database-per-service pattern prevents schema contention and cascading failures.",
+          "sequence": "",
+          "schema": "",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Separates the read-heavy catalog domain from the transactional order processing domain through an API Gateway with dedicated databases per service.",
+        "approach": "Microservices with API Gateway routing and Database-per-service isolation."
+      },
+      "yuvro_points": 60,
+      "minutes_max": 30,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 2
+    },
+    {
+      "title": "Design a Notification System",
+      "ticket_slug": "sd-13",
+      "description": "### Scenario\nDesign an enterprise notification system that delivers email and SMS messages reliably at scale without blocking user-facing API operations.\n\n### Primary Tab\n**HLD · Architecture**\n\n### Requirements\n1. Add Notification API Service, Message Queue, and Worker components.\n2. Connect workers to external Email (e.g. SendGrid) and SMS (e.g. Twilio) providers.\n3. Decouple request acceptance from message delivery using asynchronous queues.\n4. Include a Dead-Letter Queue (DLQ) or retry path for delivery failures.\n\n### Constraints\n- User-facing requests must receive an immediate 202 Accepted response.\n- Downstream third-party providers have rate limits and occasional outages.\n\n### Acceptance Criteria\n- Notification delivery is asynchronous and resilient to downstream provider failures.\n- A defined retry mechanism and dead-letter store are present.",
+      "difficulty": "EASY",
+      "primary_tab": "HLD",
+      "tasks": [
+        "Add Notification Service, Message Queue, Worker, and Provider components to the canvas.",
+        "Connect workers to email and SMS third-party providers.",
+        "Separate immediate request ingestion from background notification delivery.",
+        "Show how failed jobs are retried or moved to a Dead-Letter Queue (DLQ)."
+      ],
+      "learning_objectives": [
+        "Master producer-consumer asynchronous architectures using message queues.",
+        "Learn how rate-limiting and backpressure are absorbed by message brokers.",
+        "Design retry mechanisms and dead-letter queues for resilient operations."
+      ],
+      "common_mistakes": [
+        "Sending email/SMS synchronously inside the user's HTTP request handler.",
+        "Failing to handle third-party provider timeouts and 5xx errors.",
+        "Not providing a dead-letter queue for permanently failed messages."
+      ],
+      "hints": [
+        "Use a Message Broker (RabbitMQ or Kafka) between the Notification Service and the Worker pool.",
+        "Add a Dead Letter Queue (DLQ) connected from the worker for poisoned or repeatedly failing messages.",
+        "Connect workers to external provider services."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "HLD"
+      },
+      "system_design": {
+        "nodes": [
+          { "id": "n1", "kind": "client", "label": "Producer Services", "icon": "🖥️", "x": 40, "y": 160 },
+          { "id": "n2", "kind": "notification service", "label": "Notification API", "icon": "🔔", "x": 260, "y": 160 },
+          { "id": "n3", "kind": "message queue", "label": "Message Queue (Kafka)", "icon": "📨", "x": 480, "y": 160 },
+          { "id": "n4", "kind": "worker", "label": "Notification Worker Pool", "icon": "⚙️", "x": 700, "y": 160 },
+          { "id": "n5", "kind": "external service", "label": "Email Provider (SendGrid)", "icon": "✉️", "x": 920, "y": 80 },
+          { "id": "n6", "kind": "external service", "label": "SMS Provider (Twilio)", "icon": "💬", "x": 920, "y": 240 },
+          { "id": "n7", "kind": "dead letter queue", "label": "Dead Letter Queue (DLQ)", "icon": "☠️", "x": 700, "y": 290 }
+        ],
+        "edges": [
+          { "id": "e1", "from": "n1", "to": "n2", "label": "POST /notifications" },
+          { "id": "e2", "from": "n2", "to": "n3", "label": "Enqueue message" },
+          { "id": "e3", "from": "n3", "to": "n4", "label": "Consume message" },
+          { "id": "e4", "from": "n4", "to": "n5", "label": "Send Email" },
+          { "id": "e5", "from": "n4", "to": "n6", "label": "Send SMS" },
+          { "id": "e6", "from": "n4", "to": "n7", "label": "Max retries exceeded" }
+        ],
+        "seq": "",
+        "schema": "",
+        "apis": [],
+        "notes": {
+          "hld": "## Notification System Architecture\n- Asynchronous queue decoupling prevents user API latency spikes.\n- Workers scale independently based on queue depth.\n- Failed deliveries undergo exponential backoff before being routed to a DLQ.",
+          "sequence": "",
+          "schema": "",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Decouples notification acceptance from delivery using an asynchronous message broker and independent worker pool with Dead Letter Queue handling.",
+        "approach": "Asynchronous Producer-Consumer pattern with DLQ for fault tolerance."
+      },
+      "yuvro_points": 60,
+      "minutes_max": 30,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 3
+    },
+    {
+      "title": "Scale a Video Streaming Platform",
+      "ticket_slug": "sd-14",
+      "description": "### Scenario\nDesign the high-level architecture for a global video streaming platform (like Netflix or YouTube) that delivers high-definition video during peak worldwide viewing hours.\n\n### Primary Tab\n**HLD · Architecture**\n\n### Requirements\n1. Add Client, Global CDN, Load Balancer, Streaming/Metadata Service, and Object Storage.\n2. Separate lightweight metadata/account queries from heavy video chunk delivery.\n3. Introduce caching for frequently queried catalog metadata and trending titles.\n4. Identify and alleviate at least two potential bandwidth or compute bottlenecks.\n\n### Constraints\n- Multi-gigabyte video files cannot be streamed directly through internal app servers.\n- Video start latency must be under 1.5 seconds globally.\n\n### Acceptance Criteria\n- Video media segments (HLS/DASH) are served directly via Edge CDNs and Object Storage.\n- Application servers exclusively handle business logic and catalog metadata.",
+      "difficulty": "MEDIUM",
+      "primary_tab": "HLD",
+      "tasks": [
+        "Add CDN, Load Balancer, Streaming Service, and Object Storage components.",
+        "Separate metadata requests from video chunk delivery.",
+        "Introduce caching for frequently requested metadata and recommendations.",
+        "Identify and address bandwidth bottlenecks using edge caching."
+      ],
+      "learning_objectives": [
+        "Learn how Content Delivery Networks (CDNs) terminate media traffic close to users.",
+        "Understand storage tiering: Object Storage for static blobs vs Relational/NoSQL for metadata.",
+        "Design architectures capable of handling petabyte-scale throughput."
+      ],
+      "common_mistakes": [
+        "Routing video stream bytes through the primary web API gateway or application server.",
+        "Storing raw video files directly inside a relational database.",
+        "Omitting a CDN for global media distribution."
+      ],
+      "hints": [
+        "Place the CDN directly in front of Object Storage for static media files.",
+        "Direct the client to fetch playback manifests from the API, and fetch media chunks from the CDN.",
+        "Add Redis for metadata caching between the API service and the database."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "HLD"
+      },
+      "system_design": {
+        "nodes": [
+          { "id": "n1", "kind": "client", "label": "Client Video Player", "icon": "📺", "x": 40, "y": 160 },
+          { "id": "n2", "kind": "cdn", "label": "Edge CDN (CloudFront/Cloudflare)", "icon": "🌐", "x": 260, "y": 70 },
+          { "id": "n3", "kind": "load balancer", "label": "Load Balancer", "icon": "⚖️", "x": 260, "y": 240 },
+          { "id": "n4", "kind": "streaming service", "label": "Video API & Metadata Service", "icon": "⚙️", "x": 480, "y": 240 },
+          { "id": "n5", "kind": "object storage", "label": "Object Storage (S3 - HLS Chunks)", "icon": "🪣", "x": 480, "y": 70 },
+          { "id": "n6", "kind": "redis", "label": "Metadata Cache (Redis)", "icon": "⚡", "x": 700, "y": 180 },
+          { "id": "n7", "kind": "postgresql", "label": "Metadata DB (PostgreSQL)", "icon": "🐘", "x": 700, "y": 290 }
+        ],
+        "edges": [
+          { "id": "e1", "from": "n1", "to": "n2", "label": "Stream video chunks (.ts/.m4s)" },
+          { "id": "e2", "from": "n2", "to": "n5", "label": "CDN Origin Fetch" },
+          { "id": "e3", "from": "n1", "to": "n3", "label": "Get manifest / metadata" },
+          { "id": "e4", "from": "n3", "to": "n4", "label": "Route API requests" },
+          { "id": "e5", "from": "n4", "to": "n6", "label": "Cache lookup" },
+          { "id": "e6", "from": "n4", "to": "n7", "label": "Query DB" }
+        ],
+        "seq": "",
+        "schema": "",
+        "apis": [],
+        "notes": {
+          "hld": "## Video Streaming Architecture\n- CDN caches chunked HLS/DASH media files near edge users.\n- API Service handles authorization, user history, and manifest generation.\n- Relieves internal network infrastructure from streaming petabytes of bandwidth.",
+          "sequence": "",
+          "schema": "",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Offloads bandwidth-intensive video streaming to edge CDNs and Object Storage, keeping backend API servers reserved for lightweight metadata and manifest generation.",
+        "approach": "Edge CDN distribution with Object Storage origin and tiered metadata caching."
+      },
+      "yuvro_points": 75,
+      "minutes_max": 35,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 4
+    },
+    {
+      "title": "Design a Scalable File Storage Service",
+      "ticket_slug": "sd-15",
+      "description": "### Scenario\nDesign an enterprise cloud drive service (like Google Drive or Dropbox) where millions of users upload, download, and share large files securely.\n\n### Primary Tab\n**HLD · Architecture**\n\n### Requirements\n1. Design separate upload, metadata, and download components.\n2. Incorporate Object Storage (for binary chunks) and a Relational Database (for file hierarchies and metadata).\n3. Use presigned URLs or dedicated chunk uploaders to prevent backend server bottlenecks.\n4. Document authorization and deduplication strategies for large files.\n\n### Constraints\n- Support files up to 5GB with resumable chunk uploads.\n- Relational databases must never store raw binary files.\n\n### Acceptance Criteria\n- Clean separation between binary file content and file metadata.\n- Scalable architecture that supports multipart uploads directly to object storage.",
+      "difficulty": "MEDIUM",
+      "primary_tab": "HLD",
+      "tasks": [
+        "Design upload, metadata and download components.",
+        "Include Object Storage, Metadata Database, and authorization components.",
+        "Separate file binary content from file metadata.",
+        "Document a strategy for large-file multipart uploads and downloads."
+      ],
+      "learning_objectives": [
+        "Learn how presigned URLs enable direct client-to-storage uploads.",
+        "Design file metadata schemas that represent hierarchical folders and permissions.",
+        "Master chunking, deduplication, and multipart upload strategies."
+      ],
+      "common_mistakes": [
+        "Buffering multi-gigabyte uploads in application server RAM.",
+        "Storing file binaries in database BLOB columns.",
+        "Lacking an authorization check before issuing download or upload permissions."
+      ],
+      "hints": [
+        "Have the client request an upload URL from the File Metadata Service first.",
+        "The client uploads chunks directly to Object Storage using presigned URLs.",
+        "Once uploaded, the client notifies the Metadata Service to finalize the file record."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "HLD"
+      },
+      "system_design": {
+        "nodes": [
+          { "id": "n1", "kind": "client", "label": "Client Application", "icon": "💻", "x": 40, "y": 160 },
+          { "id": "n2", "kind": "api gateway", "label": "API Gateway & Auth", "icon": "🚪", "x": 260, "y": 160 },
+          { "id": "n3", "kind": "file service", "label": "File Metadata Service", "icon": "📁", "x": 480, "y": 160 },
+          { "id": "n4", "kind": "object storage", "label": "Object Storage (S3)", "icon": "🪣", "x": 700, "y": 70 },
+          { "id": "n5", "kind": "postgresql", "label": "Metadata DB (PostgreSQL)", "icon": "🐘", "x": 700, "y": 240 },
+          { "id": "n6", "kind": "redis", "label": "Session & Lock Cache", "icon": "⚡", "x": 480, "y": 280 }
+        ],
+        "edges": [
+          { "id": "e1", "from": "n1", "to": "n2", "label": "Request upload ticket" },
+          { "id": "e2", "from": "n2", "to": "n3", "label": "Authorize & create session" },
+          { "id": "e3", "from": "n3", "to": "n4", "label": "Generate Presigned S3 URL" },
+          { "id": "e4", "from": "n3", "to": "n5", "label": "Store file metadata" },
+          { "id": "e5", "from": "n1", "to": "n4", "label": "Direct Multipart Upload (S3)" },
+          { "id": "e6", "from": "n3", "to": "n6", "label": "Check lock / session" }
+        ],
+        "seq": "",
+        "schema": "",
+        "apis": [],
+        "notes": {
+          "hld": "## Scalable File Storage Architecture\n- Clients authenticate and request presigned URLs from the File Metadata Service.\n- Large binary chunks upload directly to Object Storage, bypassing app servers.\n- PostgreSQL maintains folder hierarchies, versioning, access control, and chunk hashes.",
+          "sequence": "",
+          "schema": "",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Decouples metadata management from binary data transfer using S3 presigned URLs for direct multipart uploads.",
+        "approach": "Presigned URL direct upload with decoupled metadata indexing."
+      },
+      "yuvro_points": 80,
+      "minutes_max": 40,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 5
+    }
+  ]
+}

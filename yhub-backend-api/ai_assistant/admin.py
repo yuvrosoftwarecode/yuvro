@@ -7,6 +7,7 @@ from .models import (
     AIAgentConfiguration,
     InterviewSession,
     InterviewReport,
+    LabScoringEvaluation,
 )
 
 
@@ -246,3 +247,27 @@ class InterviewReportAdmin(admin.ModelAdmin):
         "created_at",
     ]
     ordering = ["-created_at"]
+
+
+@admin.register(LabScoringEvaluation)
+class LabScoringEvaluationAdmin(admin.ModelAdmin):
+    """
+    Admin interface for LabScoringEvaluation model.
+    """
+    list_display = [
+        "id",
+        "lab_type",
+        "lab_id",
+        "ticket_id",
+        "user",
+        "overall_score",
+        "passed",
+        "provider",
+        "model_name",
+        "created_at",
+    ]
+    list_filter = ["lab_type", "passed", "provider", "created_at"]
+    search_fields = ["lab_id", "ticket_id", "user__username", "user__email"]
+    readonly_fields = ["id", "created_at"]
+    ordering = ["-created_at"]
+

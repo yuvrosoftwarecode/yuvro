@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useMatch, useParams, useNavigate } from 
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { labs, tickets, leaderboard } from "@/lib/dummy";
+import { getSystemDesignLab, SYSTEM_DESIGN_SPRINTS } from "@/lib/systemDesign";
 import {
   Search,
   Filter,
@@ -361,19 +362,21 @@ function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
     },
   ];
   const groups =
-    slug === "python"
-      ? pythonGroups
-      : slug === "ui"
-        ? uiGroups
-        : slug === "sql"
-          ? sqlGroups
-          : slug === "mongo"
-            ? mongoGroups
-            : slug === "programming"
-              ? progGroups
-              : slug === "datastructures"
-                ? dsGroups
-                : javaGroups;
+    getSystemDesignLab(slug)
+      ? SYSTEM_DESIGN_SPRINTS.map((g) => ({ ...g, range: "Self-paced" }))
+      : slug === "python"
+        ? pythonGroups
+        : slug === "ui"
+          ? uiGroups
+          : slug === "sql"
+            ? sqlGroups
+            : slug === "mongo"
+              ? mongoGroups
+              : slug === "programming"
+                ? progGroups
+                : slug === "datastructures"
+                  ? dsGroups
+                  : javaGroups;
   return groups.map((g) => {
     const ts = allTickets.filter((t) => g.tags.includes(t.tag));
     const completed = ts.filter((t) => t.status === "done").length;
@@ -477,34 +480,11 @@ function LabDashboard() {
               return labId === targetId || labIdAlt === targetId;
             });
 
-            let localEnrolled = false;
-            try {
-              const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
-              const saved = localStorage.getItem(userMockKey);
-              if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.map(String).includes(String(realLab.id))) {
-                  localEnrolled = true;
-                }
-              }
-            } catch {}
-
-            setIsEnrolled(apiEnrolled || localEnrolled);
+            setIsEnrolled(apiEnrolled);
           })
           .catch(() => {
             if (!active) return;
-            let localEnrolled = false;
-            try {
-              const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
-              const saved = localStorage.getItem(userMockKey);
-              if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.map(String).includes(String(realLab.id))) {
-                  localEnrolled = true;
-                }
-              }
-            } catch {}
-            setIsEnrolled(localEnrolled);
+            setIsEnrolled(false);
           });
       });
     }
@@ -602,7 +582,11 @@ function LabDashboard() {
     return labs.find((l) => l.slug === slug) ?? labs[0];
   }, [realLab, realSprints, slug, statusOverrides]);
 
-  const activeDummySprints = useMemo(() => buildSprints(slug, tickets), [slug]);
+  const dummyTickets = useMemo(
+    () => (getSystemDesignLab(slug) ? tickets.filter((t) => t.id.startsWith("SD-")) : tickets),
+    [slug],
+  );
+  const activeDummySprints = useMemo(() => buildSprints(slug, dummyTickets), [slug, dummyTickets]);
 
   const sprints = useMemo(() => {
     if (realLab) {
@@ -619,7 +603,7 @@ function LabDashboard() {
   }, [realLab, realSprints, activeDummySprints]);
 
   const allTickets = useMemo(() => {
-    let baseData = tickets;
+    let baseData = dummyTickets;
     if (realLab) {
       baseData = realSprints
         .flatMap((s) => s.tasks)
@@ -687,6 +671,8 @@ function LabDashboard() {
 
   const isUpcoming = realLab ? realLab.status === "upcoming" : !isDsaLab(lab.name, slug);
   const isDsa = !isUpcoming;
+  const hasGithub = Boolean(user && (user as any).github_connected);
+  const isReady = Boolean(isEnrolled && hasGithub);
 
   const handleStartLabPrompt = () => {
     if (isUpcoming) {
@@ -696,6 +682,18 @@ function LabDashboard() {
     setEnrollRepoName(`yuvro_${lab.name?.toLowerCase().replace(/\s+/g, "_") || "lab"}`);
     setEnrollModalOpen(true);
   };
+
+  useEffect(() => {
+    if (realLab && hasGithub && typeof window !== "undefined") {
+      const resumeLab = sessionStorage.getItem("ylabs_resume_start_lab");
+      if (resumeLab && (resumeLab === "true" || resumeLab === String(realLab.id))) {
+        sessionStorage.removeItem("ylabs_resume_start_lab");
+        if (!isEnrolled) {
+          handleStartLabPrompt();
+        }
+      }
+    }
+  }, [realLab, hasGithub, isEnrolled]);
 
   useEffect(() => {
     if (!isDsa && activeSprint) {
@@ -708,7 +706,7 @@ function LabDashboard() {
       toast.info("This lab is upcoming and cannot be opened yet.");
       return;
     }
-    if (realLab && isEnrolled === false) {
+    if (realLab && (!isReady || isEnrolled === false)) {
       handleStartLabPrompt();
       return;
     }
@@ -839,7 +837,7 @@ function LabDashboard() {
       toast.info("This lab is upcoming. Sprint tickets are for preview only.");
       return;
     }
-    if (realLab && isEnrolled === false) {
+    if (realLab && (!isReady || isEnrolled === false)) {
       e.preventDefault();
       handleStartLabPrompt();
     }
@@ -886,9 +884,30 @@ function LabDashboard() {
   };
 
   if (ticketMatch || reportMatch) {
-    if (isUpcoming) {
+    if (!isLoading && realLab && realLab.status === "upcoming") {
       navigate({ to: "/student/dashboard" });
       return null;
+    }
+    if (!isLoading && realLab && isEnrolled !== null && (!isReady || isEnrolled === false)) {
+      return (
+        <div className="min-h-screen bg-background">
+          <TopNav />
+          <div className="flex h-[calc(100vh-64px)] flex-col items-center justify-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Preparing workspace repository...</p>
+          </div>
+          <StartLabModal
+            isOpen={true}
+            onClose={() => {
+              navigate({ to: "/student/lab/$slug", params: { slug } });
+            }}
+            labName={lab.name}
+            defaultRepoName={enrollRepoName || `yuvro_${lab.name?.toLowerCase().replace(/\s+/g, "_") || "lab"}`}
+            onConfirm={confirmEnroll}
+            isLoading={enrollLoading}
+          />
+        </div>
+      );
     }
     return <Outlet />;
   }

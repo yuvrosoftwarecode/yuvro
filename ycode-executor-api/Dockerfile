@@ -27,16 +27,21 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
         gcc \
         g++ \
-        nodejs \
-        npm \
         default-jre-headless \
         default-jdk-headless \
+        maven \
         curl \
         git \
         libxrender1 \
         libxext6 \
         sqlite3 \
         libpq5 \
+        ca-certificates \
+        gnupg \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && npm install -g --force express dotenv jsonwebtoken bcryptjs \
+    && ln -sf /usr/local/lib/node_modules /node_modules \
     && rm -rf /var/lib/apt/lists/*
 
 # ── Install uv for faster dependency resolution and installation ────────────────

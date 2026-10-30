@@ -1,0 +1,186 @@
+{
+  "title": "Sprint 3 — Task Update, Delete & Status Management",
+  "description": "Implement full RESTful modification capabilities: PUT/PATCH update endpoints, DELETE endpoints with HTTP 204 responses, and dedicated task completion status management.",
+  "order_index": 3,
+  "lab_title": "Django ToDo Lab",
+  "xp_pool": 300,
+  "tickets": [
+    {
+      "title": "TODO-007: Implement Update Task API",
+      "ticket_slug": "TODO-007",
+      "description": "### Overview\nImplement REST API endpoints that allow authenticated users to update their tasks. Support both full updates via `PUT /api/tasks/<int:pk>/` and partial updates via `PATCH /api/tasks/<int:pk>/`. The request body must be parsed and validated through `TaskSerializer`. Ensure that users can only update tasks they own; attempting to update a task belonging to another user must return HTTP 404 Not Found (or 403 Forbidden). On successful update, return the updated task representation with HTTP 200 OK. Invalid input (such as an empty title) must be rejected with HTTP 400 Bad Request.\n\n### Dependencies\n- `TODO-006`: Implement List and Retrieve Task APIs.\n\n### Acceptance Criteria\n- [ ] `PUT /api/tasks/<int:pk>/` supports full replacement of task details (`title`, `description`).\n- [ ] `PATCH /api/tasks/<int:pk>/` supports partial updates (e.g., updating only `description` while leaving `title` intact).\n- [ ] Input validation enforces field constraints; setting `title` to an empty string returns HTTP 400 Bad Request.\n- [ ] Users cannot update tasks belonging to another user; cross-user update attempts return HTTP 404 Not Found.\n- [ ] Successful update persists modifications in SQLite, auto-updates `updated_at`, and returns HTTP 200 OK with the updated task JSON.\n- [ ] Unauthenticated update requests return HTTP 401 Unauthorized.\n\n### Expected Deliverables\n- `tasks/views.py` implementing update handlers (`UpdateAPIView`, `RetrieveUpdateDestroyAPIView`, or ViewSet `update`/`partial_update`).\n- URL routes supporting PUT and PATCH at `/api/tasks/<int:pk>/`.\n\n### Evaluation Criteria\n- Verification of database field changes following PUT and PATCH requests.\n- Attempting to update another user's task ID returns HTTP 404.\n- Missing or blank title validation triggers HTTP 400 with field error message.\n- Unauthenticated request returns HTTP 401.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Distinguish between PUT (full replacement) and PATCH (partial update) in REST API design.",
+        "Implement update validation using DRF ModelSerializer(instance, data=..., partial=...).",
+        "Enforce multi-tenant ownership boundaries on write operations.",
+        "Verify automated timestamp updates (auto_now=True)."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — Full and Partial Update Logic",
+          "task_slug": "task-todo-007-1",
+          "description": "Configure `TaskDetailView` (inheriting `generics.RetrieveUpdateDestroyAPIView`) or ViewSet to handle PUT and PATCH requests. Ensure `get_queryset()` scopes to `owner=self.request.user`.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Update Validation and Security Verification",
+          "task_slug": "task-todo-007-2",
+          "description": "Test PUT and PATCH requests using Postman/curl. Verify that `PATCH /api/tasks/<pk>/` with `{\"description\": \"Updated notes\"}` updates only the description without requiring title re-submission. Verify that invalid data returns HTTP 400.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        }
+      ],
+      "common_mistakes": [
+        "Requiring all fields on a PATCH request, breaking partial update conventions.",
+        "Allowing client payloads to alter the 'owner' attribute during update.",
+        "Not scoping queryset by owner, allowing users to overwrite other users' tasks."
+      ],
+      "hints": [
+        "In DRF, `serializer = self.get_serializer(instance, data=request.data, partial=True)` enables partial updates for PATCH.",
+        "`RetrieveUpdateDestroyAPIView` provides built-in PUT and PATCH handling out of the box.",
+        "Inspect the response headers and body to confirm HTTP 200 and updated fields."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_endpoints": [
+          "PUT /api/tasks/<int:pk>/",
+          "PATCH /api/tasks/<int:pk>/"
+        ],
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
+      },
+      "solution": {
+        "views_py": "# Handled cleanly via generics.RetrieveUpdateDestroyAPIView:\nclass TaskDetailView(generics.RetrieveUpdateDestroyAPIView):\n    serializer_class = TaskSerializer\n    permission_classes = [permissions.IsAuthenticated]\n\n    def get_queryset(self):\n        return Task.objects.filter(owner=self.request.user)"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
+    },
+    {
+      "title": "TODO-008: Implement Delete Task API",
+      "ticket_slug": "TODO-008",
+      "description": "### Overview\nBuild the RESTful task deletion endpoint: `DELETE /api/tasks/<int:pk>/`. When an authenticated user issues a DELETE request for a task they own, the server must permanently delete the task record from the SQLite database and respond with HTTP 204 No Content and an empty body. Attempting to delete a task belonging to another student must return HTTP 404 Not Found (or 403 Forbidden). Any subsequent GET requests for the deleted task ID must return HTTP 404 Not Found. Unauthenticated deletion attempts must return HTTP 401 Unauthorized.\n\n### Dependencies\n- `TODO-007`: Implement Update Task API.\n\n### Acceptance Criteria\n- [ ] `DELETE /api/tasks/<int:pk>/` endpoint is implemented and requires authentication.\n- [ ] Unauthenticated DELETE requests return HTTP 401 Unauthorized.\n- [ ] Deleting an existing task owned by the caller removes the record from SQLite and responds with HTTP 204 No Content.\n- [ ] Response payload for successful deletion is completely empty.\n- [ ] Attempting to delete a task owned by another user returns HTTP 404 Not Found; the task is not deleted.\n- [ ] Subsequent GET/PUT/PATCH/DELETE requests for the deleted task ID return HTTP 404 Not Found.\n\n### Expected Deliverables\n- `tasks/views.py` implementing DELETE handling (e.g. `DestroyAPIView` or `destroy` method).\n- Route `DELETE /api/tasks/<int:pk>/` registered.\n\n### Evaluation Criteria\n- `DELETE /api/tasks/<pk>/` returns HTTP 204 No Content.\n- Database query confirms the task record no longer exists in SQLite.\n- Cross-user deletion attempt returns HTTP 404 and leaves record intact.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Implement standard RESTful delete operations returning HTTP 204 No Content.",
+        "Verify record removal from database upon deletion.",
+        "Prevent unauthorized cross-user resource destruction.",
+        "Adhere to REST response standards for empty body deletions."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — Delete API Endpoint Implementation",
+          "task_slug": "task-todo-008-1",
+          "description": "In `tasks/views.py`, ensure `TaskDetailView` inherits `DestroyAPIView` or includes destroy handling. Verify that `get_queryset()` strictly restricts deletions to `owner=self.request.user`.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Verify Status Code and Resource Invalidation",
+          "task_slug": "task-todo-008-2",
+          "description": "Test task deletion with Postman/curl. Assert that the response status code is exactly `204 No Content` and the body is empty. Confirm that subsequent `GET /api/tasks/<pk>/` returns `404 Not Found`.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        }
+      ],
+      "common_mistakes": [
+        "Returning HTTP 200 OK with a message instead of the standard HTTP 204 No Content.",
+        "Deleting another user's task when a valid ID is provided because queryset wasn't filtered by owner.",
+        "Allowing GET requests to trigger deletion."
+      ],
+      "hints": [
+        "DRF's `DestroyModelMixin` automatically returns `Response(status=status.HTTP_204_NO_CONTENT)` with an empty body.",
+        "Always verify that the record was removed: `Task.objects.filter(pk=pk).exists()` should be `False`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_endpoints": [
+          "DELETE /api/tasks/<int:pk>/"
+        ],
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
+      },
+      "solution": {
+        "views_py": "# Handled by RetrieveUpdateDestroyAPIView:\n# When DELETE request is received, DRF executes perform_destroy(instance) and returns status=204."
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
+    },
+    {
+      "title": "TODO-009: Implement Task Completion Status API",
+      "ticket_slug": "TODO-009",
+      "description": "### Overview\nImplement an explicit, targeted REST API endpoint to update or toggle the completion status of a task without sending other task attributes. Support `PATCH /api/tasks/<int:pk>/status/` accepting a JSON payload `{\"is_completed\": true}` (or `false`), or `POST /api/tasks/<int:pk>/toggle/` to invert the current completion state. Validate that the submitted status is a valid boolean value. Enforce task ownership so only the task owner can modify its status. Save the updated status in SQLite and return the updated task representation with HTTP 200 OK.\n\n### Dependencies\n- `TODO-007`: Implement Update Task API.\n\n### Acceptance Criteria\n- [ ] Dedicated endpoint `PATCH /api/tasks/<int:pk>/status/` (or action on ViewSet) accepts JSON body with `is_completed`.\n- [ ] Submitting `{\"is_completed\": true}` updates the task in the database and returns HTTP 200 OK with the updated task object.\n- [ ] Submitting non-boolean values (e.g. `{\"is_completed\": \"invalid\"}`) returns HTTP 400 Bad Request with validation errors.\n- [ ] Only the task owner can alter the status; cross-user requests return HTTP 404 Not Found.\n- [ ] Unauthenticated requests return HTTP 401 Unauthorized.\n- [ ] The updated completion status is persisted to SQLite and reflected in subsequent GET requests.\n\n### Expected Deliverables\n- Dedicated view or `@action` method in `tasks/views.py`.\n- Serializer validation for status field if using custom serializer.\n- Route wired in `todoproject/urls.py`.\n\n### Evaluation Criteria\n- `PATCH /api/tasks/<pk>/status/` with `{\"is_completed\": true}` updates record in SQLite and returns HTTP 200.\n- Non-boolean inputs return HTTP 400.\n- Cross-user status update returns HTTP 404.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Implement fine-grained resource state transitions in REST APIs.",
+        "Validate specific data types (booleans) using serializers or action methods.",
+        "Design focused REST sub-resource endpoints (e.g. /tasks/<pk>/status/).",
+        "Maintain object-level authorization across specialized action endpoints."
+      ],
+      "tasks": [
+        {
+          "title": "Task 1 — Status Update View Implementation",
+          "task_slug": "task-todo-009-1",
+          "description": "Create `TaskStatusView(APIView)` or an `@action(detail=True, methods=['patch'])` on TaskViewSet. Fetch the task scoped to `owner=request.user` using `get_object_or_404(Task, pk=pk, owner=request.user)`. Validate `is_completed` in `request.data`, update the model, call `task.save(update_fields=['is_completed', 'updated_at'])`, and return the serialized task.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 1
+        },
+        {
+          "title": "Task 2 — Status Validation and Route Integration",
+          "task_slug": "task-todo-009-2",
+          "description": "Map `PATCH /api/tasks/<int:pk>/status/` in URL patterns. Test updating status to `true`, then to `false`, and assert that passing non-boolean values returns HTTP 400.",
+          "points": 50,
+          "method": "Automated API Test & Code Review",
+          "order_index": 2
+        }
+      ],
+      "common_mistakes": [
+        "Treating string 'false' as truthy in Python (bool('false') is True), failing to properly validate booleans.",
+        "Not scoping lookup to owner=request.user, permitting any authenticated user to toggle other users' tasks.",
+        "Forgetting to call task.save() after modifying the attribute."
+      ],
+      "hints": [
+        "Use `serializers.BooleanField(required=True)` to parse and validate incoming booleans properly.",
+        "In an APIView: `task = get_object_or_404(Task, pk=pk, owner=request.user)` guarantees both existence and ownership.",
+        "Call `task.save(update_fields=['is_completed', 'updated_at'])` to perform an optimized SQL update."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "required_endpoints": [
+          "PATCH /api/tasks/<int:pk>/status/"
+        ],
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
+      },
+      "solution": {
+        "views_py": "class TaskStatusUpdateView(APIView):\n    permission_classes = [permissions.IsAuthenticated]\n\n    def patch(self, request, pk):\n        task = get_object_or_404(Task, pk=pk, owner=request.user)\n        if 'is_completed' not in request.data or not isinstance(request.data['is_completed'], bool):\n            return Response({'is_completed': ['A valid boolean is required.']}, status=status.HTTP_400_BAD_REQUEST)\n        task.is_completed = request.data['is_completed']\n        task.save(update_fields=['is_completed', 'updated_at'])\n        serializer = TaskSerializer(task)\n        return Response(serializer.data, status=status.HTTP_200_OK)"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
+    }
+  ]
+}

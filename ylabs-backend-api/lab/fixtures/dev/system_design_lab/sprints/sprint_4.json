@@ -1,0 +1,493 @@
+{
+  "title": "Sprint 4 — REST API: Endpoint and Contract Design",
+  "description": "Define resource-oriented endpoints, request/response contracts, HTTP status codes, validation rules, idempotency, and bring all design tabs together in the capstone.",
+  "order_index": 4,
+  "lab_title": "System Design Lab",
+  "tickets": [
+    {
+      "title": "URL Shortener API",
+      "ticket_slug": "sd-41",
+      "description": "### Scenario\nDesign the RESTful API contracts for a URL Shortener service, defining creation, metadata inspection, and redirection endpoints.\n\n### Primary Tab\n**REST API · Endpoints**\n\n### Requirements\n1. Define `POST /api/v1/urls` to create a short link with request body and 201 Created response.\n2. Define `GET /api/v1/urls/{code}` to retrieve link metadata and analytics.\n3. Define the redirect endpoint `GET /{code}` returning a 301 Moved Permanently with Location header.\n4. Specify clear error responses for invalid URLs (400) and unknown codes (404).\n\n### Acceptance Criteria\n- Every endpoint defines method, path, request/response payloads, and appropriate HTTP status codes.",
+      "difficulty": "EASY",
+      "primary_tab": "REST_API",
+      "tasks": [
+        "Define `POST /api/v1/urls` with JSON payload (`original_url`) and 201 Created response.",
+        "Define `GET /api/v1/urls/{code}` to fetch link analytics and creation details.",
+        "Define `GET /{code}` redirect endpoint with 301 Moved Permanently and `Location` header.",
+        "Document 400 Bad Request and 404 Not Found error responses."
+      ],
+      "learning_objectives": [
+        "Master RESTful resource naming and HTTP verbs (POST, GET).",
+        "Understand HTTP redirection status codes (301 Moved Permanently vs 302 Found).",
+        "Document request and response JSON schemas with realistic mock payloads."
+      ],
+      "common_mistakes": [
+        "Using 200 OK for resource creation instead of 201 Created.",
+        "Omitting the `Location` header in the redirect response.",
+        "Using verbs in paths (e.g., `/createUrl`) instead of noun resources (`/urls`)."
+      ],
+      "hints": [
+        "`POST /api/v1/urls` request body: `{\"original_url\": \"https://...\"}`.",
+        "`GET /{code}` response: headers `{\"Location\": \"https://...\"}` with status `301 Moved Permanently`.",
+        "`GET /api/v1/urls/{code}` response includes `click_count` and `created_at`."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "REST_API"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "",
+        "schema": "",
+        "apis": [
+          {
+            "id": "a1",
+            "method": "POST",
+            "path": "/api/v1/urls",
+            "summary": "Create short URL",
+            "request": "{\n  \"original_url\": \"https://example.com/deep/article/101\",\n  \"custom_alias\": \"my-link\"\n}",
+            "status": "201 Created",
+            "response": "{\n  \"short_code\": \"my-link\",\n  \"short_url\": \"https://yu.vr/my-link\",\n  \"original_url\": \"https://example.com/deep/article/101\",\n  \"created_at\": \"2026-10-28T10:00:00Z\"\n}"
+          },
+          {
+            "id": "a2",
+            "method": "GET",
+            "path": "/api/v1/urls/{code}",
+            "summary": "Retrieve URL metadata & stats",
+            "request": "",
+            "status": "200 OK",
+            "response": "{\n  \"short_code\": \"my-link\",\n  \"original_url\": \"https://example.com/deep/article/101\",\n  \"clicks\": 450,\n  \"created_at\": \"2026-10-28T10:00:00Z\"\n}"
+          },
+          {
+            "id": "a3",
+            "method": "GET",
+            "path": "/{code}",
+            "summary": "Redirect to original URL",
+            "request": "",
+            "status": "301 Moved Permanently",
+            "response": "{\n  \"Location\": \"https://example.com/deep/article/101\"\n}"
+          }
+        ],
+        "notes": {
+          "hld": "",
+          "sequence": "",
+          "schema": "",
+          "api": "## URL Shortener API Contracts\n- 301 Moved Permanently allows browsers to cache redirects and reduce server load.\n- 201 Created returns the fully qualified shortened URL.\n- 400 Bad Request returned if the input string is not a valid absolute HTTP/HTTPS URL."
+        }
+      },
+      "solution": {
+        "explanation": "Resource-oriented endpoints for creation, metadata inspection, and redirection using standard HTTP status codes.",
+        "approach": "REST API contract design with 301 redirection semantics."
+      },
+      "yuvro_points": 50,
+      "minutes_max": 25,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 1
+    },
+    {
+      "title": "Authentication API",
+      "ticket_slug": "sd-42",
+      "description": "### Scenario\nDesign the RESTful API contracts for user authentication, registration, session renewal, and profile retrieval.\n\n### Primary Tab\n**REST API · Endpoints**\n\n### Requirements\n1. Define `POST /api/v1/auth/register` and `POST /api/v1/auth/login` endpoints.\n2. Define `POST /api/v1/auth/refresh` for silent token renewal using a refresh token.\n3. Define `POST /api/v1/auth/logout` to revoke active refresh sessions.\n4. Document explicit error responses: 400 validation error, 401 unauthorized credentials, 409 duplicate email.\n\n### Acceptance Criteria\n- Distinguishes public endpoints from protected resources and documents consistent error responses.",
+      "difficulty": "EASY",
+      "primary_tab": "REST_API",
+      "tasks": [
+        "Define registration (`POST /api/v1/auth/register`) and login (`POST /api/v1/auth/login`) endpoints.",
+        "Define token refresh (`POST /api/v1/auth/refresh`) and logout (`POST /api/v1/auth/logout`) contracts.",
+        "Document request validation errors (400) and unauthorized responses (401).",
+        "Define authenticated user profile endpoint (`GET /api/v1/auth/me`)."
+      ],
+      "learning_objectives": [
+        "Design secure authentication endpoint contracts.",
+        "Model token refresh rotation in REST APIs.",
+        "Distinguish between client-side validation errors and authentication rejections."
+      ],
+      "common_mistakes": [
+        "Returning 200 OK on invalid login attempts instead of 401 Unauthorized.",
+        "Returning the user's password hash in the registration response.",
+        "Omitting token expiration timestamps in the login response."
+      ],
+      "hints": [
+        "Login response should include `access_token`, `refresh_token`, and `expires_in`.",
+        "Refresh endpoint accepts `refresh_token` and returns a new `access_token`.",
+        "`GET /api/v1/auth/me` requires Authorization header: `Bearer <token>`."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "REST_API"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "",
+        "schema": "",
+        "apis": [
+          {
+            "id": "a1",
+            "method": "POST",
+            "path": "/api/v1/auth/register",
+            "summary": "Register new account",
+            "request": "{\n  \"email\": \"alex@example.com\",\n  \"password\": \"P@ssw0rd123!\",\n  \"full_name\": \"Alex Mercer\"\n}",
+            "status": "201 Created",
+            "response": "{\n  \"id\": 101,\n  \"email\": \"alex@example.com\",\n  \"full_name\": \"Alex Mercer\",\n  \"created_at\": \"2026-10-28T10:00:00Z\"\n}"
+          },
+          {
+            "id": "a2",
+            "method": "POST",
+            "path": "/api/v1/auth/login",
+            "summary": "Authenticate user & issue tokens",
+            "request": "{\n  \"email\": \"alex@example.com\",\n  \"password\": \"P@ssw0rd123!\"\n}",
+            "status": "200 OK",
+            "response": "{\n  \"access_token\": \"eyJhbGciOi...\",\n  \"refresh_token\": \"c0ffee-9812-4f\",\n  \"token_type\": \"Bearer\",\n  \"expires_in\": 900\n}"
+          },
+          {
+            "id": "a3",
+            "method": "POST",
+            "path": "/api/v1/auth/refresh",
+            "summary": "Refresh expired access token",
+            "request": "{\n  \"refresh_token\": \"c0ffee-9812-4f\"\n}",
+            "status": "200 OK",
+            "response": "{\n  \"access_token\": \"eyJhbGciOi...new\",\n  \"expires_in\": 900\n}"
+          },
+          {
+            "id": "a4",
+            "method": "GET",
+            "path": "/api/v1/auth/me",
+            "summary": "Fetch authenticated user profile",
+            "request": "",
+            "status": "200 OK",
+            "response": "{\n  \"id\": 101,\n  \"email\": \"alex@example.com\",\n  \"full_name\": \"Alex Mercer\",\n  \"role\": \"USER\"\n}"
+          }
+        ],
+        "notes": {
+          "hld": "",
+          "sequence": "",
+          "schema": "",
+          "api": "## Authentication API Contracts\n- Stateless JWT access token with 15-minute validity.\n- Long-lived refresh token (14 days) allows silent token refresh.\n- Passwords stripped from all JSON responses."
+        }
+      },
+      "solution": {
+        "explanation": "Standard REST contracts for JWT-based authentication, token rotation, and protected profile access.",
+        "approach": "RESTful auth with JWT access and refresh token semantics."
+      },
+      "yuvro_points": 60,
+      "minutes_max": 30,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 2
+    },
+    {
+      "title": "E-commerce Order API",
+      "ticket_slug": "sd-43",
+      "description": "### Scenario\nDesign the RESTful API contracts for an e-commerce order management system, supporting product catalog browsing, pagination, and idempotent order placement.\n\n### Primary Tab\n**REST API · Endpoints**\n\n### Requirements\n1. Define `GET /api/v1/products` with query params for pagination (`limit`, `cursor`) and category filtering.\n2. Define `GET /api/v1/products/{id}` for single product details.\n3. Define `POST /api/v1/orders` with an `idempotency_key` to avoid duplicate order charges on network retries.\n4. Specify 409 Conflict response when requested inventory is out of stock.\n\n### Acceptance Criteria\n- Supports paginated browsing and safe, idempotent order creation.",
+      "difficulty": "MEDIUM",
+      "primary_tab": "REST_API",
+      "tasks": [
+        "Define product listing (`GET /api/v1/products`) and product detail (`GET /api/v1/products/{id}`) endpoints.",
+        "Define order creation (`POST /api/v1/orders`) and order detail (`GET /api/v1/orders/{id}`) endpoints.",
+        "Incorporate cursor pagination and query parameters in product listings.",
+        "Include `idempotency_key` and handle insufficient stock with 409 Conflict."
+      ],
+      "learning_objectives": [
+        "Implement API idempotency using client-supplied unique keys.",
+        "Design cursor-based pagination for large datasets.",
+        "Model conflict and error handling in transactional REST endpoints."
+      ],
+      "common_mistakes": [
+        "Failing to support idempotency on order creation endpoints.",
+        "Using offset-limit pagination for frequently changing product catalogs.",
+        "Omitting detailed error messages when inventory checks fail."
+      ],
+      "hints": [
+        "In `POST /api/v1/orders`, include `idempotency_key: \"uuid\"` in headers or body.",
+        "Return 409 Conflict when item stock is insufficient.",
+        "Return 201 Created with order ID and initial `PENDING` or `CONFIRMED` status."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "REST_API"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "",
+        "schema": "",
+        "apis": [
+          {
+            "id": "a1",
+            "method": "GET",
+            "path": "/api/v1/products?category=electronics&limit=20&cursor=prod_50",
+            "summary": "List products with cursor pagination",
+            "request": "",
+            "status": "200 OK",
+            "response": "{\n  \"items\": [\n    {\n      \"id\": 51,\n      \"sku\": \"LAP-01\",\n      \"name\": \"Pro Laptop 16\",\n      \"price\": 1299.99,\n      \"stock\": 14\n    }\n  ],\n  \"next_cursor\": \"prod_70\",\n  \"has_more\": true\n}"
+          },
+          {
+            "id": "a2",
+            "method": "GET",
+            "path": "/api/v1/products/{id}",
+            "summary": "Fetch product details",
+            "request": "",
+            "status": "200 OK",
+            "response": "{\n  \"id\": 51,\n  \"sku\": \"LAP-01\",\n  \"name\": \"Pro Laptop 16\",\n  \"description\": \"High-performance work laptop\",\n  \"price\": 1299.99,\n  \"stock\": 14\n}"
+          },
+          {
+            "id": "a3",
+            "method": "POST",
+            "path": "/api/v1/orders",
+            "summary": "Place order (Idempotent)",
+            "request": "{\n  \"idempotency_key\": \"ord-idem-9921\",\n  \"items\": [\n    { \"product_id\": 51, \"quantity\": 1 }\n  ],\n  \"shipping_address\": \"100 Market St, SF\"\n}",
+            "status": "201 Created",
+            "response": "{\n  \"order_id\": \"ord_8812\",\n  \"status\": \"CONFIRMED\",\n  \"total_amount\": 1299.99,\n  \"created_at\": \"2026-10-28T10:00:00Z\"\n}"
+          },
+          {
+            "id": "a4",
+            "method": "GET",
+            "path": "/api/v1/orders/{id}",
+            "summary": "Fetch order details & status",
+            "request": "",
+            "status": "200 OK",
+            "response": "{\n  \"order_id\": \"ord_8812\",\n  \"status\": \"CONFIRMED\",\n  \"items\": [\n    { \"product_id\": 51, \"quantity\": 1, \"unit_price\": 1299.99 }\n  ],\n  \"total_amount\": 1299.99\n}"
+          }
+        ],
+        "notes": {
+          "hld": "",
+          "sequence": "",
+          "schema": "",
+          "api": "## E-commerce Order API Decisions\n- `idempotency_key` ensures network retry requests cannot charge or order twice.\n- Cursor-based pagination on `/products` avoids deep-paging database slowdowns.\n- 409 Conflict returned if stock depletes during checkout."
+        }
+      },
+      "solution": {
+        "explanation": "Resource-oriented contracts for catalog browsing with cursor pagination and safe idempotent order processing.",
+        "approach": "Cursor pagination and client-driven idempotency keys in REST."
+      },
+      "yuvro_points": 75,
+      "minutes_max": 35,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 3
+    },
+    {
+      "title": "Notification API",
+      "ticket_slug": "sd-44",
+      "description": "### Scenario\nDesign the RESTful API contracts for an asynchronous notification engine, allowing client services to dispatch multi-channel notifications and query delivery status.\n\n### Primary Tab\n**REST API · Endpoints**\n\n### Requirements\n1. Define `POST /api/v1/notifications` returning immediate `202 Accepted` with a job ID.\n2. Define `GET /api/v1/notifications/{id}` to inspect delivery status (`QUEUED`, `PROCESSING`, `DELIVERED`, `FAILED`).\n3. Define `GET /api/v1/users/{id}/notifications` to query historical notifications for a user.\n4. Document request schema validation and rate-limiting responses (429 Too Many Requests).\n\n### Acceptance Criteria\n- Asynchronous job creation returns 202 Accepted and delivery telemetry is queryable via GET endpoints.",
+      "difficulty": "MEDIUM",
+      "primary_tab": "REST_API",
+      "tasks": [
+        "Define `POST /api/v1/notifications` with immediate 202 Accepted acknowledgment.",
+        "Define `GET /api/v1/notifications/{id}` to query delivery lifecycle status.",
+        "Define `GET /api/v1/users/{id}/notifications` for historical message logs.",
+        "Document request validation errors (400) and rate-limit headers (429)."
+      ],
+      "learning_objectives": [
+        "Design asynchronous job APIs using HTTP 202 Accepted status.",
+        "Model polling/status endpoints for background work.",
+        "Document rate-limiting behavior and standard headers."
+      ],
+      "common_mistakes": [
+        "Returning 200 OK synchronously before the message is sent.",
+        "Omitting a tracking ID for asynchronous tasks.",
+        "Failing to document 429 Too Many Requests responses."
+      ],
+      "hints": [
+        "In `POST /api/v1/notifications`, return `{\"job_id\": \"uuid\", \"status\": \"QUEUED\"}` with status `202 Accepted`.",
+        "`GET /api/v1/notifications/{id}` returns current delivery status and attempt count.",
+        "Add query parameters for filtering by channel (`channel=email|sms`)."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "REST_API"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "",
+        "schema": "",
+        "apis": [
+          {
+            "id": "a1",
+            "method": "POST",
+            "path": "/api/v1/notifications",
+            "summary": "Enqueue notification (Asynchronous)",
+            "request": "{\n  \"recipient\": \"user@example.com\",\n  \"channel\": \"EMAIL\",\n  \"template_key\": \"order_confirmation\",\n  \"params\": {\n    \"order_id\": \"ord_8812\",\n    \"total\": \"$1299.99\"\n  }\n}",
+            "status": "202 Accepted",
+            "response": "{\n  \"job_id\": \"notif_4492\",\n  \"status\": \"QUEUED\",\n  \"created_at\": \"2026-10-28T10:00:00Z\"\n}"
+          },
+          {
+            "id": "a2",
+            "method": "GET",
+            "path": "/api/v1/notifications/{id}",
+            "summary": "Inspect notification delivery status",
+            "request": "",
+            "status": "200 OK",
+            "response": "{\n  \"job_id\": \"notif_4492\",\n  \"channel\": \"EMAIL\",\n  \"status\": \"DELIVERED\",\n  \"attempts\": 1,\n  \"delivered_at\": \"2026-10-28T10:00:02Z\"\n}"
+          },
+          {
+            "id": "a3",
+            "method": "GET",
+            "path": "/api/v1/users/{id}/notifications",
+            "summary": "List user notification history",
+            "request": "",
+            "status": "200 OK",
+            "response": "{\n  \"user_id\": 101,\n  \"notifications\": [\n    {\n      \"job_id\": \"notif_4492\",\n      \"channel\": \"EMAIL\",\n      \"status\": \"DELIVERED\",\n      \"created_at\": \"2026-10-28T10:00:00Z\"\n    }\n  ]\n}"
+          }
+        ],
+        "notes": {
+          "hld": "",
+          "sequence": "",
+          "schema": "",
+          "api": "## Asynchronous Notification API\n- `202 Accepted` indicates the notification is accepted for background processing.\n- Clients poll `/api/v1/notifications/{id}` to verify deliverability status.\n- Protects API consumers from third-party provider latencies."
+        }
+      },
+      "solution": {
+        "explanation": "Asynchronous job creation API pattern returning 202 Accepted and queryable task status.",
+        "approach": "Asynchronous task acceptance pattern in REST."
+      },
+      "yuvro_points": 75,
+      "minutes_max": 35,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 4
+    },
+    {
+      "title": "Capstone — Event Booking Platform",
+      "ticket_slug": "sd-45",
+      "description": "### Capstone Scenario\nDesign a complete, production-ready Event Booking Platform (like BookMyShow or Ticketmaster). Users discover events, view real-time seat maps, reserve seats under high concurrency, complete payment, and receive booking confirmation.\n\n### Primary Tab\n**All Four Tabs Required (Integrated Design)**\n\n### Capstone Requirements Across All 4 Tabs:\n1. **HLD · Architecture**: Include Web/Mobile Client, API Gateway, Booking Service, Inventory Store, Payment Service, Event DB (PostgreSQL), Distributed Lock (Redis), Message Queue, and Notification Worker.\n2. **Sequence · Mermaid**: Diagram the entire end-to-end flow: seat selection, concurrency reservation, payment success/failure, timeout hold release, and asynchronous confirmation notification.\n3. **DB Schema · DBML**: Model `users`, `events`, `seats`, `bookings`, `payments`, and `notifications` tables with primary/foreign keys, uniqueness constraints, and expiration timestamps.\n4. **REST API · Endpoints**: Define endpoints for event discovery, seat availability, reservation hold, payment confirmation, and booking history.\n\n### Acceptance Criteria\n- All four tabs contain complete, consistent designs.\n- Concurrency safety and temporary hold expirations are addressed across all tabs.",
+      "difficulty": "MEDIUM",
+      "primary_tab": "ALL",
+      "tasks": [
+        "HLD: Construct complete distributed architecture with Gateway, Services, DBs, Cache, Queue, and Workers.",
+        "Sequence: Diagram end-to-end booking flow with concurrent seat hold race conditions and compensating release.",
+        "DB Schema: Build normalized DBML tables for Users, Events, Seats, Bookings, Payments, and Notifications.",
+        "REST API: Define endpoints for event discovery, seat holds, payment confirmation, and booking history."
+      ],
+      "learning_objectives": [
+        "Synthesize high-level architecture, interaction sequences, database schemas, and API contracts into one unified system.",
+        "Ensure design consistency across all architectural layers.",
+        "Address high-concurrency race conditions and transactional integrity in a complex domain."
+      ],
+      "common_mistakes": [
+        "Inconsistent naming across tabs (e.g. calling an entity `tickets` in DB but `seats` in API).",
+        "Omitting distributed locking or expiration TTL on seat holds.",
+        "Failing to provide solutions across all 4 design tabs."
+      ],
+      "hints": [
+        "Use the exact same entity names (Event, Seat, Booking, Payment) across HLD, Sequence, Schema, and REST APIs.",
+        "In HLD, connect Redis to Booking Service for seat locking, and Queue to Notification Worker.",
+        "In DBML, ensure `bookings` table has `expires_at timestamp` and `status`.",
+        "In REST API, `POST /api/v1/bookings/reserve` returns hold expiration time."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "ALL"
+      },
+      "system_design": {
+        "nodes": [
+          { "id": "n1", "kind": "client", "label": "Web & Mobile Client", "icon": "📱", "x": 40, "y": 180 },
+          { "id": "n2", "kind": "api gateway", "label": "API Gateway", "icon": "🚪", "x": 240, "y": 180 },
+          { "id": "n3", "kind": "booking service", "label": "Booking Service", "icon": "🎟️", "x": 460, "y": 110 },
+          { "id": "n4", "kind": "payment service", "label": "Payment Service", "icon": "💳", "x": 460, "y": 270 },
+          { "id": "n5", "kind": "redis", "label": "Redis (Distributed Lock)", "icon": "⚡", "x": 680, "y": 50 },
+          { "id": "n6", "kind": "postgresql", "label": "PostgreSQL Primary DB", "icon": "🐘", "x": 680, "y": 180 },
+          { "id": "n7", "kind": "message queue", "label": "Message Queue (Kafka)", "icon": "📨", "x": 680, "y": 290 },
+          { "id": "n8", "kind": "worker", "label": "Notification Worker", "icon": "⚙️", "x": 900, "y": 290 }
+        ],
+        "edges": [
+          { "id": "e1", "from": "n1", "to": "n2", "label": "HTTPS" },
+          { "id": "e2", "from": "n2", "to": "n3", "label": "Route: /bookings, /events" },
+          { "id": "e3", "from": "n2", "to": "n4", "label": "Route: /payments" },
+          { "id": "e4", "from": "n3", "to": "n5", "label": "Acquire seat lock" },
+          { "id": "e5", "from": "n3", "to": "n6", "label": "Create hold / booking" },
+          { "id": "e6", "from": "n4", "to": "n6", "label": "Record payment" },
+          { "id": "e7", "from": "n4", "to": "n7", "label": "Publish BookingConfirmedEvent" },
+          { "id": "e8", "from": "n7", "to": "n8", "label": "Consume & send tickets" }
+        ],
+        "seq": "sequenceDiagram\n  autonumber\n  actor U as User\n  participant G as API Gateway\n  participant B as Booking Service\n  participant R as Redis Lock\n  participant D as PostgreSQL DB\n  participant P as Payment Gateway\n  participant Q as Message Queue\n  participant W as Notification Worker\n\n  U->>+G: POST /api/v1/bookings/reserve { event_id: 1, seat_id: 42 }\n  G->>+B: Process reservation\n  B->>+R: SET lock:seat:42 (NX, EX 10s)\n  alt Seat already held by someone else\n    R-->>B: Lock failed (Key exists)\n    B-->>G: 409 Conflict (Seat unavailable)\n    G-->>U: 409 Conflict\n  else Lock acquired\n    R-->>-B: Lock acquired\n    B->>+D: INSERT INTO bookings (status='HELD', expires_at=NOW()+10m)\n    D-->>-B: Hold created\n    B-->>-G: 201 Created { hold_id: \"h_42\", expires_in: 600 }\n    G-->>-U: 201 Created\n\n    U->>+G: POST /api/v1/bookings/h_42/confirm { payment_token }\n    G->>+P: Charge payment ($45.00)\n    alt Payment Failed\n      P-->>G: Payment declined\n      G->>+B: Release hold (h_42)\n      B->>+D: UPDATE bookings SET status='EXPIRED'\n      D-->>-B: Released\n      G-->>U: 402 Payment Required\n    else Payment Succeeded\n      P-->>-G: Payment confirmed (txn_id: \"tx_8812\")\n      G->>+B: Confirm booking\n      B->>+D: UPDATE bookings SET status='CONFIRMED'\n      D-->>-B: Confirmed\n      B->>+Q: Publish BookingConfirmedEvent\n      Q-->>-B: Ack\n      B-->>-G: 200 OK { booking_id: \"bk_9901\", status: \"CONFIRMED\" }\n      G-->>-U: 200 OK (Booking Confirmed!)\n\n      Q->>+W: Consume BookingConfirmedEvent\n      W->>W: Generate PDF Ticket & Email User\n      W-->>-Q: ACK\n    end\n  end",
+        "schema": "Table users {\n  id bigint [pk, increment]\n  email varchar(255) [unique, not null]\n  full_name varchar(150)\n  created_at timestamp [default: `now()`]\n}\n\nTable events {\n  id bigint [pk, increment]\n  title varchar(255) [not null]\n  venue varchar(255) [not null]\n  starts_at timestamp [not null]\n  created_at timestamp [default: `now()`]\n}\n\nTable seats {\n  id bigint [pk, increment]\n  event_id bigint [ref: > events.id, not null]\n  section varchar(50) [not null]\n  seat_number varchar(20) [not null]\n  price decimal(10,2) [not null]\n}\n\nTable bookings {\n  id bigint [pk, increment]\n  user_id bigint [ref: > users.id, not null]\n  seat_id bigint [ref: > seats.id, not null]\n  status varchar(30) [not null, default: 'HELD']\n  expires_at timestamp [not null]\n  created_at timestamp [default: `now()`]\n}\n\nTable payments {\n  id bigint [pk, increment]\n  booking_id bigint [ref: > bookings.id, not null]\n  transaction_id varchar(100) [unique, not null]\n  amount decimal(10,2) [not null]\n  status varchar(30) [not null]\n  paid_at timestamp\n}\n\nTable notifications {\n  id bigint [pk, increment]\n  booking_id bigint [ref: > bookings.id, not null]\n  channel varchar(30) [not null]\n  status varchar(30) [not null, default: 'SENT']\n  created_at timestamp [default: `now()`]\n}",
+        "apis": [
+          {
+            "id": "a1",
+            "method": "GET",
+            "path": "/api/v1/events?city=SF&limit=10",
+            "summary": "Discover events",
+            "request": "",
+            "status": "200 OK",
+            "response": "{\n  \"events\": [\n    {\n      \"id\": 1,\n      \"title\": \"Rock Concert 2026\",\n      \"venue\": \"Arena One\",\n      \"starts_at\": \"2026-11-15T19:00:00Z\"\n    }\n  ]\n}"
+          },
+          {
+            "id": "a2",
+            "method": "GET",
+            "path": "/api/v1/events/{id}/seats",
+            "summary": "Check real-time seat availability",
+            "request": "",
+            "status": "200 OK",
+            "response": "{\n  \"event_id\": 1,\n  \"seats\": [\n    { \"id\": 42, \"section\": \"A\", \"number\": \"A-12\", \"price\": 45.00, \"status\": \"AVAILABLE\" },\n    { \"id\": 43, \"section\": \"A\", \"number\": \"A-13\", \"price\": 45.00, \"status\": \"HELD\" }\n  ]\n}"
+          },
+          {
+            "id": "a3",
+            "method": "POST",
+            "path": "/api/v1/bookings/reserve",
+            "summary": "Reserve seat with temporary hold",
+            "request": "{\n  \"event_id\": 1,\n  \"seat_id\": 42,\n  \"idempotency_key\": \"hold-seat-42-user1\"\n}",
+            "status": "201 Created",
+            "response": "{\n  \"hold_id\": \"h_42\",\n  \"seat_id\": 42,\n  \"status\": \"HELD\",\n  \"expires_at\": \"2026-10-28T10:10:00Z\",\n  \"expires_in_seconds\": 600\n}"
+          },
+          {
+            "id": "a4",
+            "method": "POST",
+            "path": "/api/v1/bookings/{hold_id}/confirm",
+            "summary": "Confirm payment & finalize booking",
+            "request": "{\n  \"payment_method_id\": \"pm_card_visa\",\n  \"amount\": 45.00\n}",
+            "status": "200 OK",
+            "response": "{\n  \"booking_id\": \"bk_9901\",\n  \"status\": \"CONFIRMED\",\n  \"seat_id\": 42,\n  \"transaction_id\": \"tx_8812\"\n}"
+          },
+          {
+            "id": "a5",
+            "method": "GET",
+            "path": "/api/v1/users/{id}/bookings",
+            "summary": "Fetch user booking history",
+            "request": "",
+            "status": "200 OK",
+            "response": "{\n  \"bookings\": [\n    {\n      \"booking_id\": \"bk_9901\",\n      \"event\": \"Rock Concert 2026\",\n      \"seat\": \"A-12\",\n      \"status\": \"CONFIRMED\"\n    }\n  ]\n}"
+          }
+        ],
+        "notes": {
+          "hld": "## Capstone High-Level Architecture\n- Microservices architecture decoupling Booking, Payment, and Notifications.\n- Redis distributed lock handles simultaneous seat holds atomically.\n- Kafka event streaming triggers asynchronous PDF ticket rendering and email delivery.",
+          "sequence": "## Capstone Flow Decisions\n- Concurrency race conditions handled via Redis `SET lock:seat:{id} NX EX 10`.\n- Two-phase checkout: 10-minute hold followed by payment confirmation.\n- Compensating action releases hold immediately if payment fails.",
+          "schema": "## Capstone Schema Decisions\n- `bookings.expires_at` timestamp enforces automatic hold expiration.\n- Normalized 3NF design connects Users, Events, Seats, Bookings, Payments, and Notifications.\n- Foreign keys maintain strict referential integrity across the entire transaction lifecycle.",
+          "api": "## Capstone API Decisions\n- Explicit REST contracts for event discovery, seat maps, reservations, and checkout.\n- Idempotency key on reservation prevents duplicate holds.\n- Clear HTTP status codes: 201 Created, 202 Accepted, 409 Conflict (seat taken), 402 Payment Required."
+        }
+      },
+      "solution": {
+        "explanation": "A complete, integrated system design spanning HLD topology, Mermaid sequence diagrams with concurrency handling, normalized DBML schemas with temporal holds, and idempotent REST API contracts.",
+        "approach": "Integrated 4-tier distributed system design for high-concurrency event bookings."
+      },
+      "yuvro_points": 100,
+      "minutes_max": 45,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 5
+    }
+  ]
+}

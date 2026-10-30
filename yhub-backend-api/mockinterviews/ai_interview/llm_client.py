@@ -88,13 +88,23 @@ class AnthropicClient(BaseLLMClient):
     ) -> str:
         logger.debug("Anthropic request: model=%s, max_tokens=%d", self._model, max_tokens)
 
-        response = await self._client.messages.create(
-            model=self._model,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            system=system_prompt or "You are a helpful assistant.",
-            messages=[{"role": "user", "content": prompt}],
-        )
+        create_kwargs = {
+            "model": self._model,
+            "max_tokens": max_tokens,
+            "system": system_prompt or "You are a helpful assistant.",
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        if temperature is not None:
+            create_kwargs["temperature"] = temperature
+
+        try:
+            response = await self._client.messages.create(**create_kwargs)
+        except TypeError as te:
+            if "unexpected keyword argument 'temperature'" in str(te):
+                create_kwargs.pop("temperature", None)
+                response = await self._client.messages.create(**create_kwargs)
+            else:
+                raise
 
         text = response.content[0].text if response.content else ""
         logger.debug(

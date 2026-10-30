@@ -2,10 +2,13 @@ import {
   createFileRoute,
   Link,
   Outlet,
-  useMatch,
+  useLocation,
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
+import { getSystemDesignLab } from "@/lib/systemDesign";
+import { SystemDesignStudio } from "@/routes/system-design-studio";
+import { getLab } from "@/lib/adminLabs";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { EditorView } from "@codemirror/view";
 import { useTheme } from "@/hooks/use-theme";
@@ -24,6 +27,7 @@ import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
 import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { TopNav } from "@/components/TopNav";
 import useAIChat from "@/components/common/ai-buddy/useAIChat";
+import { WalletBalanceBadge } from "@/components/credits/WalletBalanceBadge";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { evaluationService } from "@/services/evaluationService";
@@ -96,8 +100,20 @@ export type StudentPreviewOverride = {
 };
 
 function TicketEditorRoute() {
+  const location = useLocation();
+  const isReview = location.pathname.endsWith("/review");
+
+  if (isReview) {
+    return <Outlet />;
+  }
+
+  return <TicketEditorContent />;
+}
+
+function TicketEditorContent() {
   const { slug, ticketId } = useParams({ from: "/student/lab/$slug/ticket/$ticketId" });
   const [previewOverride, setPreviewOverride] = useState<StudentPreviewOverride | null>(null);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -109,6 +125,7 @@ function TicketEditorRoute() {
       /* ignore */
     }
   }, [ticketId]);
+
   return <StudentTicketView slug={slug} ticketId={ticketId} previewOverride={previewOverride} />;
 }
 
@@ -732,6 +749,111 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
   const t = (tag || "").toLowerCase();
   const s = (slug || "").toLowerCase();
 
+  if (
+    tag === "Java Spring Todo" ||
+    tag === "Spring Todo" ||
+    tag === "Java Spring Boot" ||
+    tag === "Java Spring" ||
+    s.includes("java_spring_todo") ||
+    s.includes("java_todo") ||
+    s.includes("spring_todo") ||
+    t === "spring" ||
+    t === "springboot" ||
+    ((t === "java") && (s.includes("todo") || tag?.toLowerCase()?.includes("todo")))
+  ) {
+    return {
+      name: "java",
+      rootLabel: "todo-app",
+      primary: "src/main/java/com/yuvro/todo/TodoApplication.java",
+      runtime: "Java 21 · Spring Boot",
+      fileList: [
+        "src/main/java/com/yuvro/todo/TodoApplication.java",
+        "src/main/java/com/yuvro/todo/config/SecurityConfig.java",
+        "src/main/java/com/yuvro/todo/config/JwtFilter.java",
+        "src/main/java/com/yuvro/todo/config/JwtUtil.java",
+        "src/main/java/com/yuvro/todo/controller/HealthController.java",
+        "src/main/java/com/yuvro/todo/controller/AuthController.java",
+        "src/main/java/com/yuvro/todo/controller/TaskController.java",
+        "src/main/java/com/yuvro/todo/entity/User.java",
+        "src/main/java/com/yuvro/todo/entity/Task.java",
+        "src/main/java/com/yuvro/todo/repository/UserRepository.java",
+        "src/main/java/com/yuvro/todo/repository/TaskRepository.java",
+        "src/main/resources/application.properties",
+        "pom.xml",
+        "README.md",
+      ],
+      files: {
+        "src/main/java/com/yuvro/todo/TodoApplication.java": `package com.yuvro.todo;\n\n// TODO: Ticket 1 - Add @SpringBootApplication and implement main method\npublic class TodoApplication {\n    public static void main(String[] args) {\n        // TODO: Launch application with SpringApplication.run\n    }\n}\n`,
+        "src/main/resources/application.properties": `# Server configuration\nserver.port=5000\n\n# TODO: Ticket 1 - Configure SQLite database connection\n# spring.datasource.url=jdbc:sqlite:todo.db\n`,
+        "pom.xml": `<?xml version="1.0" encoding="UTF-8"?>\n<project xmlns="http://maven.apache.org/POM/4.0.0"\n         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">\n    <modelVersion>4.0.0</modelVersion>\n    <parent>\n        <groupId>org.springframework.boot</groupId>\n        <artifactId>spring-boot-starter-parent</artifactId>\n        <version>3.2.5</version>\n        <relativePath/>\n    </parent>\n    <groupId>com.yuvro</groupId>\n    <artifactId>todo-app</artifactId>\n    <version>1.0.0</version>\n    <name>todo-app</name>\n    <description>Java Spring Boot Todo REST API</description>\n    <properties>\n        <java.version>21</java.version>\n    </properties>\n    <dependencies>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-web</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-data-jpa</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-security</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.xerial</groupId>\n            <artifactId>sqlite-jdbc</artifactId>\n            <version>3.45.3.0</version>\n        </dependency>\n        <dependency>\n            <groupId>org.hibernate.orm</groupId>\n            <artifactId>hibernate-community-dialects</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-api</artifactId>\n            <version>0.12.5</version>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-impl</artifactId>\n            <version>0.12.5</version>\n            <scope>runtime</scope>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-jackson</artifactId>\n            <version>0.12.5</version>\n            <scope>runtime</scope>\n        </dependency>\n    </dependencies>\n</project>\n`,
+        "README.md": `# Java Spring Boot Todo REST API Lab\n`,
+      },
+    };
+  }
+  if (
+    tag === "Node.js Todo" ||
+    tag === "Node Todo" ||
+    tag === "Express Todo" ||
+    s.includes("nodejs_todo") ||
+    s.includes("node_todo") ||
+    t === "express" ||
+    t === "node" ||
+    t === "nodejs" ||
+    ((t === "javascript" || t === "js") && (s.includes("todo") || tag?.toLowerCase()?.includes("todo")))
+  ) {
+    return {
+      name: "js",
+      rootLabel: "todo-app",
+      primary: "src/app.js",
+      runtime: "Node.js 20 · Express",
+      fileList: [
+        "src/app.js",
+        "src/config.js",
+        "src/db.js",
+        "src/server.js",
+        "src/middleware/auth.js",
+        "src/models/task.js",
+        "src/models/user.js",
+        "src/routes/auth.js",
+        "src/routes/tasks.js",
+        "package.json",
+        "README.md",
+      ],
+      files: {
+        "src/app.js": `const express = require('express');\nconst config = require('./config');\nconst { initDatabase } = require('./db');\n\nfunction createApp(customConfig = {}) {\n  const app = express();\n  const dbPath = customConfig.DB_PATH || config.DB_PATH;\n\n  // TODO: Initialize database and setup routes\n  return app;\n}\n\nmodule.exports = { createApp };\n`,
+        "src/config.js": `const path = require('path');\nrequire('dotenv').config();\n\nconst config = {\n  PORT: process.env.PORT || 5000,\n  JWT_SECRET: process.env.JWT_SECRET || 'yuvro-dev-secret-key-987654321',\n  DB_PATH: process.env.DB_PATH || path.resolve(__dirname, '../todo.db'),\n  JWT_EXPIRES_IN: '1d'\n};\n\nmodule.exports = config;\n`,
+        "package.json": `{\n  "name": "todo-app",\n  "version": "1.0.0",\n  "main": "src/server.js",\n  "scripts": {\n    "start": "node src/server.js"\n  },\n  "dependencies": {\n    "bcryptjs": "^2.4.3",\n    "dotenv": "^16.4.5",\n    "express": "^4.19.2",\n    "jsonwebtoken": "^9.0.2",\n    "sqlite3": "^5.1.7"\n  }\n}\n`,
+        "README.md": `# Node.js & Express Todo REST API Lab\n`,
+      },
+    };
+  }
+  if (
+    tag === "Flask Todo" ||
+    t === "flask" ||
+    s.includes("flask_todo") ||
+    s.includes("flask")
+  ) {
+    return {
+      name: "python",
+      rootLabel: "todo-app",
+      primary: "app/__init__.py",
+      runtime: "Python 3.12 · Flask",
+      fileList: [
+        "app/__init__.py",
+        "app/models.py",
+        "config.py",
+        "run.py",
+        "requirements.txt",
+        "README.md",
+      ],
+      files: {
+        "app/__init__.py": `from flask import Flask, jsonify\nfrom flask_sqlalchemy import SQLAlchemy\nfrom config import Config\n\ndb = SQLAlchemy()\n\ndef create_app(test_config=None):\n    app = Flask(__name__)\n    return app\n`,
+        "config.py": `import os\n\nclass Config:\n    SECRET_KEY = os.environ.get('SECRET_KEY', 'yuvro-dev-secret-key-987654321')\n    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')\n`,
+        "requirements.txt": `Flask>=3.0.0\nFlask-SQLAlchemy>=3.1.1\n`,
+        "README.md": `# Flask Todo App\n`,
+      },
+    };
+  }
   if (tag === "Django Todo" || t === "django") {
     return {
       name: "django",
@@ -740,6 +862,70 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       runtime: "Python 3.12 · Django 5",
       fileList: [...DJANGO_FILES],
       files: { ...DJANGO_STARTERS },
+    };
+  }
+  if (
+    tag === "Node.js Todo" ||
+    tag === "Node Todo" ||
+    tag === "Express Todo" ||
+    s.includes("nodejs_todo") ||
+    s.includes("node_todo") ||
+    t === "express" ||
+    t === "node" ||
+    t === "nodejs" ||
+    ((t === "javascript" || t === "js") && (s.includes("todo") || tag?.toLowerCase()?.includes("todo")))
+  ) {
+    return {
+      name: "js",
+      rootLabel: "todo-app",
+      primary: "src/app.js",
+      runtime: "Node.js 20 · Express",
+      fileList: [
+        "src/app.js",
+        "src/config.js",
+        "src/db.js",
+        "src/server.js",
+        "src/middleware/auth.js",
+        "src/models/task.js",
+        "src/models/user.js",
+        "src/routes/auth.js",
+        "src/routes/tasks.js",
+        "package.json",
+        "README.md",
+      ],
+      files: {
+        "src/app.js": `const express = require('express');\nconst config = require('./config');\nconst { initDatabase } = require('./db');\n\nfunction createApp(customConfig = {}) {\n  const app = express();\n  const dbPath = customConfig.DB_PATH || config.DB_PATH;\n\n  // TODO: Initialize database and setup routes\n  return app;\n}\n\nmodule.exports = { createApp };\n`,
+        "src/config.js": `const path = require('path');\nrequire('dotenv').config();\n\nconst config = {\n  PORT: process.env.PORT || 5000,\n  JWT_SECRET: process.env.JWT_SECRET || 'yuvro-dev-secret-key-987654321',\n  DB_PATH: process.env.DB_PATH || path.resolve(__dirname, '../todo.db'),\n  JWT_EXPIRES_IN: '1d'\n};\n\nmodule.exports = config;\n`,
+        "package.json": `{\n  "name": "todo-app",\n  "version": "1.0.0",\n  "main": "src/server.js",\n  "scripts": {\n    "start": "node src/server.js"\n  },\n  "dependencies": {\n    "bcryptjs": "^2.4.3",\n    "dotenv": "^16.4.5",\n    "express": "^4.19.2",\n    "jsonwebtoken": "^9.0.2",\n    "sqlite3": "^5.1.7"\n  }\n}\n`,
+        "README.md": `# Node.js & Express Todo REST API Lab\n`,
+      },
+    };
+  }
+  if (
+    tag === "Flask Todo" ||
+    t === "flask" ||
+    s.includes("flask_todo") ||
+    s.includes("flask")
+  ) {
+    return {
+      name: "python",
+      rootLabel: "todo-app",
+      primary: "app/__init__.py",
+      runtime: "Python 3.12 · Flask",
+      fileList: [
+        "app/__init__.py",
+        "app/models.py",
+        "config.py",
+        "run.py",
+        "requirements.txt",
+        "README.md",
+      ],
+      files: {
+        "app/__init__.py": `from flask import Flask, jsonify\nfrom flask_sqlalchemy import SQLAlchemy\nfrom config import Config\n\ndb = SQLAlchemy()\n\ndef create_app(test_config=None):\n    app = Flask(__name__)\n    return app\n`,
+        "config.py": `import os\n\nclass Config:\n    SECRET_KEY = os.environ.get('SECRET_KEY', 'yuvro-dev-secret-key-987654321')\n    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')\n`,
+        "requirements.txt": `Flask>=3.0.0\nFlask-SQLAlchemy>=3.1.1\n`,
+        "README.md": `# Flask Todo App\n`,
+      },
     };
   }
   if (t === "mysql" || s.includes("mysql")) return MYSQL_KIT_DEFAULT;
@@ -763,7 +949,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
   )
     return LINUX_KIT_DEFAULT;
 
-  if (tag === "javascript" || tag === "js" || tag === "typescript" || tag === "ts" || tag === "node" || tag === "nodejs") {
+  if (t === "javascript" || t === "js" || t === "typescript" || t === "ts" || t === "node" || t === "nodejs") {
     return {
       name: "js",
       rootLabel: "project",
@@ -776,7 +962,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "python" || tag === "py") {
+  if (t === "python" || t === "py") {
     return {
       name: "python",
       rootLabel: "project",
@@ -789,7 +975,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "c") {
+  if (t === "c") {
     return {
       name: "c",
       rootLabel: "project",
@@ -802,7 +988,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "cpp" || tag === "c++") {
+  if (t === "cpp" || t === "c++") {
     return {
       name: "cpp",
       rootLabel: "project",
@@ -815,7 +1001,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "java") {
+  if (t === "java") {
     return {
       name: "java",
       rootLabel: "java-101",
@@ -866,7 +1052,51 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
 type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string };
 type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff" | "testcases";
 
-export function StudentTicketView({
+export function StudentTicketView(props: {
+  slug: string;
+  ticketId: string;
+  previewOverride?: StudentPreviewOverride | null;
+}) {
+  const [labType, setLabType] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (getSystemDesignLab(props.slug)) {
+      setLabType("SYSTEM_DESIGN");
+      return;
+    }
+    let active = true;
+    getLab(props.slug)
+      .then((lab) => {
+        if (active && lab?.type) {
+          setLabType(lab.type);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [props.slug]);
+
+  if (
+    getSystemDesignLab(props.slug) ||
+    labType === "SYSTEM_DESIGN" ||
+    props.slug.toLowerCase().includes("system-design") ||
+    props.slug.toLowerCase().includes("systemdesign")
+  ) {
+    return (
+      <SystemDesignStudio
+        key={`${props.slug}:${props.ticketId}`}
+        slug={props.slug}
+        ticketId={props.ticketId}
+        taskOverride={props.previewOverride ?? undefined}
+      />
+    );
+  }
+
+  return <CodeTicketView {...props} />;
+}
+
+function CodeTicketView({
   slug,
   ticketId,
   previewOverride,
@@ -875,11 +1105,6 @@ export function StudentTicketView({
   ticketId: string;
   previewOverride?: StudentPreviewOverride | null;
 }) {
-  const reviewMatch = useMatch({
-    from: "/student/lab/$slug/ticket/$ticketId/review",
-    shouldThrow: false,
-  });
-
   const [resolvedTicket, setResolvedTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -916,8 +1141,10 @@ export function StudentTicketView({
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "bash",
             status: "Not Started",
-            startup_command: t.startup_command,
-            test_command: t.test_command,
+            startup_command: t.startup_command || t.scoring_rules?.startup_command || "",
+            test_command: t.test_command || t.scoring_rules?.test_command || "",
+            starter_path: t.starter_path || t.starterPath || t.scoring_rules?.starter_path || t.scoring_rules?.starterPath || "",
+            starterPath: t.starter_path || t.starterPath || t.scoring_rules?.starter_path || t.scoring_rules?.starterPath || "",
             connection_url: t.connection_url || t.uri || "",
             uri: t.connection_url || t.uri || "",
             databases: t.databases || [],
@@ -927,8 +1154,8 @@ export function StudentTicketView({
             backend_frameworks: t.backend_frameworks || [],
             programming_languages: t.programming_languages || t.accepted_programming_languages || [],
             sprint_id: t.sprint ?? null,
-            sprintOrder: t.sprint_order !== undefined ? t.sprint_order + 1 : 1,
-            ticketOrder: t.order_index !== undefined ? t.order_index + 1 : 1,
+            sprintOrder: t.sprint_order !== undefined && t.sprint_order !== null ? (t.sprint_order === 0 ? 1 : t.sprint_order) : 1,
+            ticketOrder: t.order_index !== undefined && t.order_index !== null ? (t.order_index === 0 ? 1 : t.order_index) : 1,
             tasks: Array.isArray(t.tasks) ? t.tasks.map((task: any) => {
               if (typeof task === "object" && task.title && !task.task_slug) {
                 const slugMatch = task.title.match(/Task (\d+\.\d+\.\d+)/i);
@@ -957,14 +1184,31 @@ export function StudentTicketView({
     };
   }, [ticketId]);
 
-  if (reviewMatch) return <Outlet />;
-
   if (loading || !resolvedTicket) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background text-muted-foreground">
         <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-primary" />
         <span className="text-sm">Loading ticket…</span>
       </div>
+    );
+  }
+
+  if (
+    resolvedTicket &&
+    (resolvedTicket.type === "SYSTEM_DESIGN" ||
+      resolvedTicket.ticket_type === "SYSTEM_DESIGN" ||
+      resolvedTicket.tag === "System Design")
+  ) {
+    return (
+      <SystemDesignStudio
+        key={`${slug}:${ticketId}`}
+        slug={slug}
+        ticketId={ticketId}
+        taskOverride={{
+          title: previewOverride?.title ?? resolvedTicket.title,
+          description: previewOverride?.description ?? resolvedTicket.description,
+        }}
+      />
     );
   }
 
@@ -1147,10 +1391,6 @@ export function TicketIDE({
   initialFiles?: Record<string, string>;
 }) {
   const navigate = useNavigate();
-  const reviewMatch = useMatch({
-    from: "/student/lab/$slug/ticket/$ticketId/review",
-    shouldThrow: false,
-  });
   const isDsaLabMatch = (str?: string) => {
     if (!str) return false;
     const s = str.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
@@ -1363,6 +1603,12 @@ export function TicketIDE({
     if (isSql || isMysql || isPostgres || fileExt === "sql") return "-- Write your query here\n";
     if (isBash || fileExt === "sh") return "#!/usr/bin/env bash\n\n# Write your solution here\n";
     if (isReal && slug !== "knowledge") {
+      if (defaultPrimaryFile && kit.files && kit.files[defaultPrimaryFile]) {
+        return kit.files[defaultPrimaryFile];
+      }
+      if (kit.primary && kit.files && kit.files[kit.primary]) {
+        return kit.files[kit.primary];
+      }
       return startersByLang[effectiveLang] || "# Write your solution here\n";
     }
     return kit.files[kit.primary] || startersByLang[effectiveLang] || "# Write your solution here\n";
@@ -1373,7 +1619,7 @@ export function TicketIDE({
   const starters: Record<string, string> = useMemo(() => {
     if (initialFiles) return initialFiles;
     if (isReal && slug !== "knowledge") {
-      const s: Record<string, string> = {};
+      const s: Record<string, string> = { ...kit.files };
       if (defaultPrimaryFile) {
         s[defaultPrimaryFile] = defaultStarterCode;
       }
@@ -1393,7 +1639,23 @@ export function TicketIDE({
   const [files, setFiles] = useState<Record<string, string>>(starters);
   const [dirty, setDirty] = useState<Record<string, boolean>>({});
 
-  const fileList = useMemo(() => Object.keys(files).filter(k => Boolean(k && k.trim())), [files]);
+  const isInternalOrHiddenFile = (p: string): boolean => {
+    if (!p) return true;
+    const lower = p.toLowerCase();
+    return (
+      lower.includes("yuvro_scoring_rules") ||
+      lower.includes("scoring_rules") ||
+      lower.includes("__pycache__") ||
+      lower.endsWith(".pyc") ||
+      lower.startsWith(".git") ||
+      lower.includes("/.git")
+    );
+  };
+
+  const fileList = useMemo(
+    () => Object.keys(files).filter(k => Boolean(k && k.trim()) && !isInternalOrHiddenFile(k)),
+    [files]
+  );
   
   const [activeFile, setActiveFile] = useState<FileName>(() => {
     if (initialFiles) {
@@ -1476,7 +1738,7 @@ export function TicketIDE({
       try {
         const flatten = (node: FileTreeNode, acc: Record<string, string>) => {
           if (!node) return acc;
-          if (node.name === ".bash_history" || !node.name) return acc;
+          if (node.name === ".bash_history" || node.name === "yuvro_scoring_rules" || node.name === "__pycache__" || !node.name) return acc;
           if (node.type === "file") {
             if (node.path && node.path.trim()) acc[node.path] = "";
           } else node.children?.forEach(c => flatten(c, acc));
@@ -1506,7 +1768,7 @@ export function TicketIDE({
           }
         }
 
-        const fileKeys = Object.keys(paths).filter(k => Boolean(k && k.trim()));
+        const fileKeys = Object.keys(paths).filter(k => Boolean(k && k.trim()) && !isInternalOrHiddenFile(k));
         setFiles(prev => {
           const next = { ...paths };
           for (const k of fileKeys) {
@@ -1527,10 +1789,10 @@ export function TicketIDE({
 
         if (preferredFile) {
           setOpenTabs(prev => {
-            const clean = prev.filter(t => Boolean(t && t.trim()));
+            const clean = prev.filter(t => Boolean(t && t.trim()) && !isInternalOrHiddenFile(t));
             return clean.includes(preferredFile) ? clean : [...clean, preferredFile];
           });
-          setActiveFile(preferredFile);
+          setActiveFile(prev => isInternalOrHiddenFile(prev) ? preferredFile : (prev || preferredFile));
           if (paths[preferredFile] && paths[preferredFile] !== "") {
             loadedFiles.current.add(preferredFile);
           } else {
@@ -1588,7 +1850,6 @@ export function TicketIDE({
   useEffect(() => {
     if (!isReal || !wsLoaded || !activeFile) return;
     if (loadedFiles.current.has(activeFile)) return;
-    if (files[activeFile] && files[activeFile] !== "") { loadedFiles.current.add(activeFile); return; }
     fetchFile(effectiveUserId, labId, sprintId, activeFile, evaluationId)
       .then(content => {
         let cleanContent = content;
@@ -1737,6 +1998,7 @@ export function TicketIDE({
 
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [initialRevealedHints, setInitialRevealedHints] = useState<number[]>([]);
+  const [initialSolutionRevealed, setInitialSolutionRevealed] = useState(false);
   const creatingSubmissionRef = useRef(false);
   
   useEffect(() => {
@@ -1799,12 +2061,15 @@ export function TicketIDE({
             if (sub.revealed_hints) {
               setInitialRevealedHints(sub.revealed_hints);
             }
+            if (sub.solution_revealed) {
+              setInitialSolutionRevealed(true);
+            }
             if (sub.ticket_status === "backlog") {
               await api.patch(`${submissionsEndpoint}${ sub.id }/`, {
                 [submissionsStatusField]: "in_progress",
               });
             }
-            if (sub.solution) {
+            if (!isReal && sub.solution) {
               try {
                 const parsed = JSON.parse(sub.solution);
                 if (typeof parsed === "object" && parsed !== null) {
@@ -2239,18 +2504,23 @@ export function TicketIDE({
   async function handleRun() {
     if (isReal) {
       const filesToSave = getFilesToSave();
-      Promise.all(
-        Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
-      ).catch(console.error);
+      try {
+        await Promise.all(
+          Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
+        );
+      } catch (err) {
+        console.error("Failed to save files before running tests:", err);
+      }
     }
     setRunning(true);
     const src = files[activeFile] ?? "";
     const file = activeFile;
 
-    if (ticket.test_command && ticket.test_command.trim()) {
+    const effectiveTestCommand = (ticket.test_command || ticket.scoring_rules?.test_command || "").trim();
+    if (effectiveTestCommand) {
       try {
         const { runTestCommand } = await import("@/services/workspaceService");
-        const res = await runTestCommand(effectiveUserId, labId, sprintId, ticket.test_command.trim(), evaluationId);
+        const res = await runTestCommand(effectiveUserId, labId, sprintId, effectiveTestCommand, evaluationId);
 
         let outText = res.stdout || "";
         if (res.stderr && res.stderr.trim()) {
@@ -2383,6 +2653,13 @@ export function TicketIDE({
       else if (file.endsWith(".java")) extLang = "java";
 
       const execLang = selectedLanguage || extLang;
+
+      const hasAlgorithmicTests = (ticket.tasks || []).some((tc: any) => tc.input !== undefined || tc.expected_output !== undefined) || (customTestCases && customTestCases.length > 0);
+      if (!hasAlgorithmicTests && isReal) {
+        setRunning(false);
+        showToast("No test command or test cases configured for this ticket.");
+        return;
+      }
 
       try {
         const res = await codeExecutorService.executeCode({
@@ -3018,7 +3295,9 @@ export function TicketIDE({
       // Build solution_output JSON from the last execution result so the
       // recruiter report can show per-task pass/fail breakdown accurately.
       let solutionOutput = JSON.stringify({ tasks: {}, total_score: computedScore, max_possible_score: 100, percentage: computedScore });
-      if (lastExecutionResult) {
+      if (taskExecutionData && typeof taskExecutionData === "object") {
+        solutionOutput = JSON.stringify(taskExecutionData);
+      } else if (lastExecutionResult) {
         const tasksMap: Record<string, any> = {};
         (ticket.tasks || []).forEach((tMeta: any, idx: number) => {
           const tr = lastExecutionResult.test_results?.results?.[idx];
@@ -3200,7 +3479,14 @@ export function TicketIDE({
     setIsCommitting(true);
     try {
       const formattedMessage = `feat(S${sprintNo}-T${ticketNo}) : ${commitMessage}`;
-      const cmd = `git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" && git push`;
+      const gitName = user?.github_username || user?.username || "Student";
+      const gitEmail = user?.github_username
+        ? `${user.github_username}@users.noreply.github.com`
+        : (user?.email || `${gitName}@users.noreply.github.com`);
+
+      const safeName = gitName.replace(/"/g, '\\"');
+      const safeEmail = gitEmail.replace(/"/g, '\\"');
+      const cmd = `git config user.name "${safeName}" && git config user.email "${safeEmail}" && git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" --author="${safeName} <${safeEmail}>" && git push`;
       
       const { runCommand } = await import("@/services/workspaceService");
       const res = await runCommand(userId, labId, sprintId, cmd, evaluationId);
@@ -3258,6 +3544,9 @@ export function TicketIDE({
           p.includes("node_modules")
         ) {
           return false;
+        }
+        if (isReal) {
+          return loadedFiles.current.has(p) || Boolean(dirty[p]);
         }
         return content !== "" || loadedFiles.current.has(p);
       })
@@ -3368,6 +3657,16 @@ export function TicketIDE({
         try {
           const { deleteWorkspaceFile } = await import("@/services/workspaceService");
           await deleteWorkspaceFile(effectiveUserId, labId, sprintId, "", evaluationId);
+          if (submissionId) {
+            const { default: api } = await import("@/utils/RestApiAuthUtil");
+            await api.patch(`${submissionsEndpoint}${submissionId}/`, {
+              solution: "",
+              solution_revealed: false,
+              solution_output: "",
+              yuvro_points: 0,
+              [submissionsStatusField]: "backlog",
+            }).catch(console.error);
+          }
           setTicketScore(null);
           setEvalResult({});
           window.location.reload();
@@ -3377,8 +3676,6 @@ export function TicketIDE({
       },
     });
   };
-
-  if (reviewMatch) return <Outlet />;
 
   if (!wsLoaded) {
     return (
@@ -3621,12 +3918,15 @@ export function TicketIDE({
                   <SolutionPanel
                     ticket={ticket}
                     isPreview={isRecruiterPreview}
+                    initialSolutionRevealed={initialSolutionRevealed}
                     onLoadIntoEditor={(code, language, targetFilePath) => {
                       const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
-                      const ext = langMap[language.toLowerCase()] || "txt";
-                      const targetFile = targetFilePath || `solution.${ext}`;
+                      const ext = langMap[language?.toLowerCase() || ""] || "py";
+                      const fallbackFile = (ticket as any).starter_path || (ticket as any).starterPath || ticket.scoring_rules?.starter_path || ticket.target_file || ticket.targeted_file || activeFile || `solution.${ext}`;
+                      const targetFile = targetFilePath || fallbackFile;
                       setFiles(prev => ({ ...prev, [targetFile]: code }));
                       setDirty(prev => ({ ...prev, [targetFile]: true }));
+                      loadedFiles.current.add(targetFile);
                       setOpenTabs(prev => prev.includes(targetFile) ? prev : [...prev, targetFile]);
                       setActiveFile(targetFile);
                       if (isReal) {
@@ -3643,6 +3943,7 @@ export function TicketIDE({
                         return next;
                       });
                       const fileKeys = Object.keys(fileMap);
+                      fileKeys.forEach(k => loadedFiles.current.add(k));
                       setOpenTabs(prev => {
                         const set = new Set(prev);
                         fileKeys.forEach(k => set.add(k));
@@ -3736,7 +4037,7 @@ export function TicketIDE({
                 </div>
                 <div className="flex-1 overflow-auto px-1 pb-2 min-h-0">
                   <FileTree
-                    rootLabel={isReal ? ticket.title || "Project" : kit.rootLabel}
+                    rootLabel={isAlgo ? (ticket.title || kit.rootLabel || "Project") : (kit.rootLabel || "todo-app")}
                     paths={fileList}
                     activeFile={activeFile}
                     dirty={dirty}
@@ -4218,7 +4519,7 @@ export function TicketIDE({
                 </div>
                 <div className="flex-1 overflow-hidden p-0 min-w-0 min-h-0 flex flex-col">
                   {sidePanel === "preview"
-                    ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} previewPort={previewPort} /></div>
+                    ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} previewPort={previewPort} ticket={ticket} isEvaluationMode={isEvaluationMode} effectiveUserId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={evaluationId} isMysql={isMysql} isPostgres={isPostgres} isSql={isSql} /></div>
                     : <SideMentor
                         chatTitle={`${labTitle} - Sprint ${sprintNo} - Ticket ${ticketNo}`}
                         persistenceKey={`ticket-${ticket.id}`}
@@ -5267,7 +5568,39 @@ function PreviewView() {
   );
 }
 
-function SidePreview({ device, kit, files, activeFile, startupCommand, previewPort: directPreviewPort }: { device: "Mobile" | "Tablet" | "Desktop"; kit: Kit; files: Record<string, string>; activeFile: string; startupCommand?: string; previewPort?: number }) {
+function SidePreview({
+  device,
+  kit,
+  files,
+  activeFile,
+  startupCommand,
+  previewPort: directPreviewPort,
+  ticket,
+  isEvaluationMode,
+  effectiveUserId,
+  labId,
+  sprintId,
+  evaluationId,
+  isMysql,
+  isPostgres,
+  isSql,
+}: {
+  device: "Mobile" | "Tablet" | "Desktop";
+  kit: Kit;
+  files: Record<string, string>;
+  activeFile: string;
+  startupCommand?: string;
+  previewPort?: number;
+  ticket?: any;
+  isEvaluationMode?: boolean;
+  effectiveUserId?: string;
+  labId?: string;
+  sprintId?: string;
+  evaluationId?: string;
+  isMysql?: boolean;
+  isPostgres?: boolean;
+  isSql?: boolean;
+}) {
   const w = device === "Mobile" ? 375 : device === "Tablet" ? 768 : "100%";
 
   // Extract port from startup command or direct previewPort
@@ -5275,13 +5608,17 @@ function SidePreview({ device, kit, files, activeFile, startupCommand, previewPo
     ? parseInt(startupCommand.match(/(\d{4,5})\s*$/)?.[1] ?? "8000", 10)
     : 8000);
 
+  const isMysqlActive = Boolean(isMysql || kit.name === "mysql");
+  const isPostgresActive = Boolean(isPostgres || kit.name === "postgresql");
+  const isSqlActive = Boolean(isSql || kit.name === "sql");
+
   // If startup_command exists, show web preview (for Django, Flask, Node, etc.)
   const body = startupCommand ? <WebPreview port={previewPort} /> :
     kit.name === "django" ? <DjangoTodoApp /> :
       kit.name === "ui" ? <UiPreview files={files} fullHeight /> :
-        isMysql || kit.name === "mysql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
-          isPostgres || kit.name === "postgresql" ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" configuredUri={ticket.connection_url || ticket.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
-            isSql || kit.name === "sql" ? <SqlResultsView query={files[activeFile] ?? ""} /> :
+        isMysqlActive ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="mysql" configuredUri={ticket?.connection_url || ticket?.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+          isPostgresActive ? <ExternalSqlResultsView query={files[activeFile] ?? ""} dbType="postgresql" configuredUri={ticket?.connection_url || ticket?.uri} isEvaluationMode={isEvaluationMode} userId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={isEvaluationMode ? evaluationId : undefined} /> :
+            isSqlActive ? <SqlResultsView query={files[activeFile] ?? ""} /> :
               kit.name === "mongo" ? <MongoResultsView query={files[activeFile] ?? ""} /> :
                 kit.name === "python" ? <PythonOutputView code={files[activeFile] ?? ""} /> :
                   (
@@ -5831,17 +6168,19 @@ function ProblemPanel({
   return (
     <>
       <div>
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-          {ticket.id} · {ticket.tag}
+        <div className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+          {ticket.tag}
         </div>
         <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
         {isAlgo && isReal ? (
           <div className="mt-3 text-sm text-muted-foreground leading-relaxed DS-Markdown"
                dangerouslySetInnerHTML={{ __html: parseDPMarkdown(ticket.description) }} />
         ) : (
-          <p className="mt-2 text-muted-foreground">
-            {isReal ? ticket.description : "📋 Create a program demonstrating Java variables and data types."}
-          </p>
+          <div className="mt-3 text-sm text-muted-foreground leading-relaxed prose prose-sm dark:prose-invert max-w-none [&>h3]:text-foreground [&>h3]:font-semibold [&>h3]:text-base [&>h3]:mt-4 [&>h3]:mb-2 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-3 [&>ol]:list-decimal [&>ol]:pl-5 [&>ol]:mb-3 [&_code]:bg-accent/50 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono [&_li]:my-0.5">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {isReal ? (ticket.description || "") : "📋 Create a program demonstrating Java variables and data types."}
+            </ReactMarkdown>
+          </div>
         )}
       </div>
 
@@ -6349,6 +6688,7 @@ function buildTree(paths: readonly string[]): TreeNode {
   const root: TreeNode = { name: "", path: "", isFile: false, children: [] };
   for (const full of paths) {
     if (!full || !full.trim()) continue;
+    if (full.startsWith("yuvro_scoring_rules") || full.includes("/yuvro_scoring_rules") || full.startsWith("__pycache__") || full.includes("/__pycache__")) continue;
     const parts = full.split("/");
     let cursor = root;
     for (let i = 0; i < parts.length; i++) {
@@ -7614,17 +7954,19 @@ export function getSolutionsFromTicket(ticket: any): any[] {
     go: "go", rs: "rust", sh: "bash"
   };
 
-  // 1. ticket.solution_files (Array of { path, code })
+  // 1. ticket.solution_files (Array of { path, code } or strings)
   if (Array.isArray(ticket.solution_files) && ticket.solution_files.length > 0) {
     ticket.solution_files.forEach((sf: any, idx: number) => {
-      const filePath = typeof sf === "string" ? sf : (sf.path || sf.file || `file_${idx + 1}`);
+      const filePath = typeof sf === "string" ? sf : (sf.path || sf.file || sf.filePath || sf.file_path || `file_${idx + 1}`);
       const code = typeof sf === "string" ? "" : (sf.code || sf.content || "");
-      const ext = filePath.split(".").pop()?.toLowerCase() || "txt";
+      const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "txt";
       const language = sf.language || langMap[ext] || "python";
       results.push({
-        approach: filePath,
-        title: filePath,
+        id: sf.id || `sol-${idx}`,
+        approach: sf.approach || filePath,
+        title: sf.title || filePath,
         filePath,
+        file_path: filePath,
         language,
         code,
         complexity_analysis: sf.complexity_analysis || "",
@@ -7634,26 +7976,64 @@ export function getSolutionsFromTicket(ticket: any): any[] {
   // 2. ticket.solution (Dict or String)
   else if (ticket.solution) {
     if (typeof ticket.solution === "object" && !Array.isArray(ticket.solution)) {
-      Object.entries(ticket.solution).forEach(([filePath, code]: [string, any]) => {
-        if (typeof code === "string") {
-          const ext = filePath.split(".").pop()?.toLowerCase() || "txt";
-          const language = langMap[ext] || "python";
+      // Check if ticket.solution is { solutions: [...] }
+      if (Array.isArray(ticket.solution.solutions)) {
+        ticket.solution.solutions.forEach((s: any, idx: number) => {
+          const filePath = s.filePath || s.file_path || ticket.target_file || ticket.starter_path || "";
+          const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "txt";
+          const language = s.language || langMap[ext] || "python";
           results.push({
-            approach: filePath,
-            title: filePath,
+            id: s.id || `sol-${idx}`,
+            approach: s.approach || "optimal",
+            title: s.title || (filePath ? filePath : (s.language ? s.language.toUpperCase() : `Solution ${idx + 1}`)),
             filePath,
+            file_path: filePath,
             language,
-            code,
-            complexity_analysis: "",
+            code: s.code || "",
+            complexity_analysis: s.complexity_analysis || "",
           });
-        }
-      });
+        });
+      } else {
+        Object.entries(ticket.solution).forEach(([filePath, code]: [string, any], idx: number) => {
+          if (typeof code === "string") {
+            const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "txt";
+            const language = langMap[ext] || "python";
+            results.push({
+              id: `sol-${idx}`,
+              approach: filePath,
+              title: filePath,
+              filePath,
+              file_path: filePath,
+              language,
+              code,
+              complexity_analysis: "",
+            });
+          } else if (typeof code === "object" && code !== null && (code as any).code) {
+            const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "txt";
+            const language = (code as any).language || langMap[ext] || "python";
+            results.push({
+              id: (code as any).id || `sol-${idx}`,
+              approach: (code as any).approach || filePath,
+              title: (code as any).title || filePath,
+              filePath: (code as any).filePath || (code as any).file_path || filePath,
+              file_path: (code as any).filePath || (code as any).file_path || filePath,
+              language,
+              code: (code as any).code || "",
+              complexity_analysis: (code as any).complexity_analysis || "",
+            });
+          }
+        });
+      }
     } else if (typeof ticket.solution === "string" && ticket.solution.trim()) {
+      const targetFile = ticket.target_file || ticket.targeted_file || ticket.starter_path || ticket.starterPath || ticket.scoring_rules?.starter_path || "";
+      const ext = targetFile.includes(".") ? targetFile.split(".").pop()?.toLowerCase() || "txt" : "py";
       results.push({
-        approach: "solution",
-        title: "Solution",
-        filePath: ticket.target_file || ticket.targeted_file || "",
-        language: "python",
+        id: "sol-0",
+        approach: targetFile || "solution",
+        title: targetFile || "Solution",
+        filePath: targetFile,
+        file_path: targetFile,
+        language: langMap[ext] || "python",
         code: ticket.solution,
         complexity_analysis: "",
       });
@@ -7662,12 +8042,18 @@ export function getSolutionsFromTicket(ticket: any): any[] {
 
   // 3. ticket.solutions (DSA-style array)
   if (results.length === 0 && Array.isArray(ticket.solutions) && ticket.solutions.length > 0) {
-    ticket.solutions.forEach((s: any) => {
+    ticket.solutions.forEach((s: any, idx: number) => {
+      const filePath = s.filePath || s.file_path || ticket.target_file || ticket.starter_path || "";
+      const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "txt";
+      const language = s.language || langMap[ext] || "python";
+      const isFile = filePath && (filePath.includes(".") || filePath.includes("/"));
       results.push({
-        approach: s.approach || "optimal",
-        title: s.title || s.approach || "Solution",
-        filePath: s.filePath || s.file_path || "",
-        language: s.language || "python",
+        id: s.id || `sol-${idx}`,
+        approach: isFile && (s.approach === "optimal" || !s.approach) ? filePath : (s.approach || "optimal"),
+        title: s.title || s.approach || (filePath ? filePath : (s.language ? s.language.toUpperCase() : `Solution ${idx + 1}`)),
+        filePath,
+        file_path: filePath,
+        language,
         code: s.code || "",
         complexity_analysis: s.complexity_analysis || "",
       });
@@ -7679,11 +8065,15 @@ export function getSolutionsFromTicket(ticket: any): any[] {
     ticket.tasks.forEach((task: any, idx: number) => {
       if (task.solution) {
         const title = task.title ? `Task ${idx + 1}: ${task.title}` : `Task ${idx + 1}`;
+        const filePath = task.filePath || task.file_path || task.target_file || "";
+        const ext = filePath.includes(".") ? filePath.split(".").pop()?.toLowerCase() || "txt" : "py";
         results.push({
+          id: task.id || `task-${idx + 1}`,
           approach: `task_${idx + 1}`,
           title,
-          filePath: task.filePath || task.target_file || "",
-          language: "python",
+          filePath,
+          file_path: filePath,
+          language: langMap[ext] || "python",
           code: typeof task.solution === "string" ? task.solution : JSON.stringify(task.solution, null, 2),
           complexity_analysis: "",
         });
@@ -7694,65 +8084,128 @@ export function getSolutionsFromTicket(ticket: any): any[] {
   return results;
 }
 
+export function normalizeSolutions(raw: any, starterPath?: string): any[] {
+  if (!raw) return [];
+  return getSolutionsFromTicket({ solution: raw, starter_path: starterPath });
+}
+
 export function SolutionPanel({
   ticket,
   onLoadIntoEditor,
   onLoadAllIntoEditor,
   isPreview = false,
+  initialSolutionRevealed = false,
 }: {
   ticket: any;
   onLoadIntoEditor?: (code: string, language: string, filePath?: string) => void;
   onLoadAllIntoEditor?: (fileMap: Record<string, string>) => void;
   isPreview?: boolean;
+  initialSolutionRevealed?: boolean;
 }) {
-  const previewSols: any[] = isPreview ? getSolutionsFromTicket(ticket) : [];
+  const normalizeSolutionItem = (s: any) => {
+    const filePath = s.filePath || s.file_path || (s.title && s.title.includes(".") ? s.title : "");
+    const isFile = filePath && (filePath.includes(".") || filePath.includes("/"));
+    return {
+      ...s,
+      filePath: filePath || s.filePath || "",
+      file_path: filePath || s.file_path || "",
+      title: s.title || filePath || "Solution",
+      approach: isFile && (s.approach === "optimal" || !s.approach) ? filePath : (s.approach || "optimal"),
+    };
+  };
 
-  const [revealedSolution, setRevealedSolution] = useState(isPreview);
-  const [fetchedSolutions, setFetchedSolutions] = useState<any[]>(isPreview ? previewSols : []);
+  const previewSols: any[] = useMemo(() => {
+    return getSolutionsFromTicket(ticket).map(normalizeSolutionItem);
+  }, [ticket]);
+
+  const [revealedSolution, setRevealedSolution] = useState(isPreview || initialSolutionRevealed);
+  const [fetchedSolutions, setFetchedSolutions] = useState<any[]>(
+    (isPreview || initialSolutionRevealed) ? previewSols : []
+  );
   const [loading, setLoading] = useState(false);
   const [selectedApproach, setSelectedApproach] = useState<string>(previewSols[0]?.approach || "optimal");
+  const [selectedId, setSelectedId] = useState<string>(previewSols[0]?.id || "");
   const [selectedLanguage, setSelectedLanguage] = useState<string>(previewSols[0]?.language || "");
   const [showWarningDialog, setShowWarningDialog] = useState(false);
 
   useEffect(() => {
-    if (isPreview) {
-      const sols = getSolutionsFromTicket(ticket);
-      setFetchedSolutions(sols);
+    if (isPreview || initialSolutionRevealed) {
+      const sols = getSolutionsFromTicket(ticket).map(normalizeSolutionItem);
       setRevealedSolution(true);
-      if (sols.length > 0) {
+      if (sols.length > 0 && fetchedSolutions.length === 0) {
+        setFetchedSolutions(sols);
         setSelectedApproach(sols[0].approach || "optimal");
+        setSelectedId(sols[0].id || "");
         setSelectedLanguage(sols[0].language || "python");
       }
     }
-  }, [ticket, isPreview]);
+  }, [ticket, isPreview, initialSolutionRevealed, fetchedSolutions.length]);
+
+  useEffect(() => {
+    if (fetchedSolutions.length > 0) {
+      const firstApproach = fetchedSolutions[0]?.approach || "optimal";
+      setSelectedApproach(prev => prev || firstApproach);
+      const match = fetchedSolutions.find((s: any) => (s.approach || "optimal") === (selectedApproach || firstApproach));
+      if (match) {
+        setSelectedId(prev => prev || match.id);
+        setSelectedLanguage(prev => prev || match.language);
+      }
+    }
+  }, [fetchedSolutions, selectedApproach]);
 
   const handleRevealSolution = async () => {
     setLoading(true);
     try {
       const { default: api } = await import("@/utils/RestApiAuthUtil");
-      const data = await api.post(`/lab/submissions/reveal-solution/`, { ticket_id: ticket.id });
+      const data: any = await api.post(`/lab/submissions/reveal-solution/`, { ticket_id: ticket.id });
       let sols: any[] = [];
-      if (Array.isArray(data?.solutions)) {
-        sols = data.solutions;
+      if (Array.isArray(data?.solutions) && data.solutions.length > 0) {
+        sols = data.solutions.map((s: any, idx: number) => {
+          const filePath = s.filePath || s.file_path || "";
+          return {
+            ...s,
+            id: s.id || `sol-${idx}`,
+            filePath,
+            file_path: filePath,
+            approach: (s.approach && s.approach !== "optimal") ? s.approach : (filePath || s.title || s.approach || `solution_${idx + 1}`),
+          };
+        });
+      } else if (data?.solution || data?.raw_solution) {
+        sols = getSolutionsFromTicket({ ...ticket, solution: data.solution || data.raw_solution });
       } else if (data) {
         sols = getSolutionsFromTicket({ ...ticket, solution: data });
       }
-      setFetchedSolutions(sols);
+      let effectiveSols = sols;
+      if (effectiveSols.length === 0) {
+        effectiveSols = getSolutionsFromTicket(ticket);
+      }
+      const normalizedSols = effectiveSols.map(normalizeSolutionItem);
+      setFetchedSolutions(normalizedSols);
 
-      const firstApproach = sols.length > 0 ? (sols[0].approach || "optimal") : "";
-      setSelectedApproach(firstApproach);
-      const firstLangForApproach = sols.find((s: any) => (s.approach || "optimal") === firstApproach)?.language || "python";
-      setSelectedLanguage(firstLangForApproach);
-
+      if (normalizedSols.length > 0) {
+        const firstApproach = normalizedSols[0].approach || "optimal";
+        setSelectedApproach(firstApproach);
+        const match = normalizedSols.find((s: any) => (s.approach || "optimal") === firstApproach);
+        if (match) {
+          setSelectedId(match.id || "");
+          setSelectedLanguage(match.language || "python");
+        }
+      }
       setRevealedSolution(true);
     } catch (err) {
       console.error("Failed to reveal solution", err);
+      const fallback = getSolutionsFromTicket(ticket);
+      if (fallback.length > 0) {
+        setFetchedSolutions(fallback);
+        setRevealedSolution(true);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const effectiveSolutions = isPreview ? (fetchedSolutions.length > 0 ? fetchedSolutions : previewSols) : fetchedSolutions;
+  const rawSolutions = isPreview ? (fetchedSolutions.length > 0 ? fetchedSolutions : previewSols) : fetchedSolutions;
+  const effectiveSolutions = rawSolutions.map(normalizeSolutionItem);
 
   // Preview mode with no solutions on the ticket
   if (isPreview && effectiveSolutions.length === 0) {
@@ -7813,55 +8266,70 @@ export function SolutionPanel({
 
   const solutionsForApproach = effectiveSolutions.filter((s: any) => (s.approach || "optimal") === selectedApproach);
 
-  if (solutionsForApproach.length > 0 && !solutionsForApproach.find((s: any) => s.language === selectedLanguage)) {
-    setSelectedLanguage(solutionsForApproach[0].language);
+  if (solutionsForApproach.length > 0 && !solutionsForApproach.find((s: any) => (selectedId && s.id === selectedId) || s.language === selectedLanguage)) {
+    setSelectedId(solutionsForApproach[0].id || "");
+    setSelectedLanguage(solutionsForApproach[0].language || "python");
   }
 
-  const sol = solutionsForApproach.find((s: any) => s.language === selectedLanguage) || solutionsForApproach[0];
+  const sol = solutionsForApproach.find((s: any) => (selectedId && s.id === selectedId)) ||
+              solutionsForApproach.find((s: any) => s.language === selectedLanguage) ||
+              solutionsForApproach[0];
 
   const fileMap: Record<string, string> = {};
   effectiveSolutions.forEach((s: any) => {
-    if (s.filePath && s.code) {
-      fileMap[s.filePath] = s.code;
+    const p = s.filePath || s.file_path || (s.title && s.title.includes(".") ? s.title : "");
+    if (p && s.code) {
+      fileMap[p] = s.code;
     }
   });
   const hasMultipleFiles = Object.keys(fileMap).length > 1;
 
+  const distinctLanguages = Array.from(new Set(solutionsForApproach.map((s: any) => s.language).filter(Boolean)));
+  const currentFilePath = sol?.filePath || sol?.file_path || (sol?.title && sol.title.includes(".") ? sol.title : "");
+
   return (
     <div className="w-full space-y-4 text-xs">
-      <div className="flex border-b border-border overflow-x-auto hide-scrollbar">
-        {approaches.map((approach: any) => (
-          <button
-            key={approach}
-            onClick={() => {
-              setSelectedApproach(approach);
-              const langForApp = effectiveSolutions.find((s: any) => (s.approach || "optimal") === approach)?.language;
-              if (langForApp) setSelectedLanguage(langForApp);
-            }}
-            className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors ${
-              selectedApproach === approach
-                ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {getApproachLabel(approach)}
-          </button>
-        ))}
-      </div>
+      {approaches.length > 1 && (
+        <div className="flex border-b border-border overflow-x-auto hide-scrollbar">
+          {approaches.map((approach: any) => (
+            <button
+              key={approach}
+              onClick={() => {
+                setSelectedApproach(approach);
+                const nextMatch = effectiveSolutions.find((s: any) => (s.approach || "optimal") === approach);
+                if (nextMatch) {
+                  setSelectedId(nextMatch.id || "");
+                  setSelectedLanguage(nextMatch.language || "python");
+                }
+              }}
+              className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors ${
+                selectedApproach === approach
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {getApproachLabel(approach)}
+            </button>
+          ))}
+        </div>
+      )}
 
       {solutionsForApproach.length > 1 && (
         <div className="flex flex-wrap gap-2">
           {solutionsForApproach.map((s: any) => (
             <button
-              key={s.language}
-              onClick={() => setSelectedLanguage(s.language)}
+              key={s.id || s.filePath || s.file_path || s.language}
+              onClick={() => {
+                if (s.id) setSelectedId(s.id);
+                if (s.language) setSelectedLanguage(s.language);
+              }}
               className={`px-3 py-1.5 rounded-full font-medium transition-colors border ${
-                selectedLanguage === s.language
+                (sol && (sol.id === s.id || (sol.filePath && sol.filePath === s.filePath) || sol.language === s.language))
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-editor-bg text-muted-foreground border-border hover:border-muted-foreground/30"
               }`}
             >
-              {s.language.toUpperCase()}
+              {s.title || (s.filePath || s.file_path) || s.language?.toUpperCase() || "SOLUTION"}
             </button>
           ))}
         </div>
@@ -7870,8 +8338,8 @@ export function SolutionPanel({
       {sol && (
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <span className="font-semibold text-muted-foreground font-mono text-[12px] truncate max-w-[280px]" title={sol.filePath || sol.title}>
-              {sol.filePath || sol.title}
+            <span className="font-semibold text-muted-foreground font-mono text-[12px] truncate max-w-[280px]" title={currentFilePath || sol.title}>
+              {currentFilePath || sol.title}
             </span>
             <div className="flex items-center gap-2">
               {hasMultipleFiles && onLoadAllIntoEditor && (
@@ -7886,9 +8354,9 @@ export function SolutionPanel({
               )}
               {onLoadIntoEditor && (
                 <button
-                  onClick={() => onLoadIntoEditor(sol.code, sol.language, sol.filePath)}
+                  onClick={() => onLoadIntoEditor(sol.code, sol.language, currentFilePath)}
                   className="inline-flex h-7 items-center justify-center rounded px-3 text-[11px] font-medium bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
-                  title={`Load ${sol.filePath || "this solution"} into editor`}
+                  title={`Load ${currentFilePath || "this solution"} into editor`}
                 >
                   <Download className="w-3 h-3 mr-1.5" />
                   Load into Editor
@@ -8230,6 +8698,7 @@ Do NOT output extra code blocks for file names or extra boilerplate. The code wi
         </div>
 
         <div className="flex items-center gap-2">
+          <WalletBalanceBadge />
           <button
             onClick={() => {
               if (!showHistory) fetchHistory();

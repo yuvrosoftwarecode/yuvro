@@ -1539,6 +1539,7 @@ class LabQuestionBankViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
+        self._validate_github_app_access(serializer.validated_data)
         user = self.request.user if (self.request.user and self.request.user.is_authenticated) else None
         if not user:
             from django.contrib.auth import get_user_model
@@ -1550,6 +1551,7 @@ class LabQuestionBankViewSet(viewsets.ModelViewSet):
             logging.getLogger(__name__).warning(f"Auto-export fixture failed on create: {e}")
 
     def perform_update(self, serializer):
+        self._validate_github_app_access(serializer.validated_data)
         instance = serializer.save()
         try:
             export_lab_question_to_fixture(instance)
@@ -1674,6 +1676,31 @@ class LabQuestionBankViewSet(viewsets.ModelViewSet):
         finally:
             shutil.rmtree(starter_lab_dir, ignore_errors=True)
             shutil.rmtree(user_lab_dir, ignore_errors=True)
+        
+    def _validate_github_app_access(self, validated_data):
+        from skill_evaluation.models import RepoSourceType
+        from recruiter.models import GithubAppInstallationGrant
+        from rest_framework.exceptions import ValidationError
+        
+        repo_source_type = validated_data.get('repo_source_type')
+        if repo_source_type == RepoSourceType.RECRUITER_GITHUB_APP:
+            installation = validated_data.get('github_app_installation')
+            github_repo_id = validated_data.get('github_repo_id')
+            
+            if not installation or not github_repo_id:
+                raise ValidationError("GitHub App installation and repository ID are required for Recruiter GitHub App source type.")
+                
+            if not GithubAppInstallationGrant.objects.filter(installation=installation, recruiter=self.request.user).exists():
+                raise ValidationError("You do not have permission to use this GitHub App installation.")
+                
+            try:
+                from recruiter.github_app_client import GithubAppClient
+                client = GithubAppClient()
+                repos = client.get_installation_repositories(installation.installation_id)
+                if str(github_repo_id) not in [str(r.get('id')) for r in repos]:
+                    raise ValidationError("The selected repository is not accessible through this installation.")
+            except Exception as e:
+                raise ValidationError(f"Failed to verify repository access: {str(e)}")
 
 
 class KnowledgeQuestionBankViewSet(viewsets.ModelViewSet):

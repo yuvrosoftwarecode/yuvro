@@ -1,0 +1,154 @@
+{
+  "title": "Sprint 4 \u2014 Task Updates, Deletions, and Filtering",
+  "description": "Implement task modifications, completion toggles, deletions, and status query parameter filtering.",
+  "order_index": 4,
+  "lab_title": "Flask Todo REST API Lab",
+  "tickets": [
+    {
+      "title": "Ticket 1 - Update Task & Status Toggle API",
+      "ticket_slug": "flask-todo-41",
+      "description": "Build `PUT` and `PATCH /api/tasks/<id>` to allow updating a task's title, description, or completion status (`is_completed`).\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Request Body (Partial or Full)\n```json\n{\n  \"title\": \"Updated Title\",\n  \"is_completed\": true\n}\n```\n\n### Requirements\n1. Protect endpoint with `@token_required`.\n2. Verify the task belongs to `current_user`. Return `404 Not Found` if missing or unauthorized.\n3. Update fields if provided in request body. If `title` is provided, validate it is not empty.\n4. Update `task.updated_at` to current time.\n5. Commit to database and return `200 OK` with `{\"message\": \"Task updated successfully\", \"task\": task.to_dict()}`.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Support partial and full REST resource updates.",
+        "Validate input fields during updates.",
+        "Update timestamp columns on record changes."
+      ],
+      "tasks": [
+        {
+          "title": "Verify task ownership before modifying.",
+          "points": 30
+        },
+        {
+          "title": "Update `title`, `description`, and `is_completed` fields safely.",
+          "points": 40
+        },
+        {
+          "title": "Return HTTP 200 with updated task payload.",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Allowing empty string titles to overwrite valid titles.",
+        "Not committing the session changes to the database."
+      ],
+      "hints": [
+        "Check `if 'title' in data:` and validate `data['title'].strip()`.",
+        "Set `task.is_completed = bool(data['is_completed'])` when present."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routes/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_4/ticket_1/main_test.py"
+      },
+      "solution": {
+        "app/routes/tasks.py": "from flask import Blueprint, request, jsonify\nfrom app import db\nfrom app.models import Task\nfrom app.utils.auth_helpers import token_required\n\ntasks_bp = Blueprint('tasks', __name__, url_prefix='/api/tasks')\n\n@tasks_bp.route('', methods=['POST'])\n@token_required\ndef create_task(current_user):\n    data = request.get_json() or {}\n    title = data.get('title', '').strip()\n    description = data.get('description', '')\n\n    if not title:\n        return jsonify({'error': 'Title is required'}), 400\n\n    task = Task(\n        user_id=current_user.id,\n        title=title,\n        description=description\n    )\n    db.session.add(task)\n    db.session.commit()\n\n    return jsonify({\n        'message': 'Task created successfully',\n        'task': task.to_dict()\n    }), 201\n\n@tasks_bp.route('', methods=['GET'])\n@token_required\ndef list_tasks(current_user):\n    tasks = Task.query.filter_by(user_id=current_user.id).order_by(Task.created_at.desc()).all()\n    return jsonify({\n        'tasks': [task.to_dict() for task in tasks]\n    }), 200\n\n@tasks_bp.route('/<int:task_id>', methods=['GET'])\n@token_required\ndef get_task(current_user, task_id):\n    task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()\n    if not task:\n        return jsonify({'error': 'Task not found'}), 404\n    return jsonify({'task': task.to_dict()}), 200\n\n@tasks_bp.route('/<int:task_id>', methods=['PUT', 'PATCH'])\n@token_required\ndef update_task(current_user, task_id):\n    task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()\n    if not task:\n        return jsonify({'error': 'Task not found'}), 404\n\n    data = request.get_json() or {}\n    if 'title' in data:\n        title = str(data['title']).strip()\n        if not title:\n            return jsonify({'error': 'Title cannot be empty'}), 400\n        task.title = title\n\n    if 'description' in data:\n        task.description = data['description']\n\n    if 'is_completed' in data:\n        task.is_completed = bool(data['is_completed'])\n\n    db.session.commit()\n    return jsonify({\n        'message': 'Task updated successfully',\n        'task': task.to_dict()\n    }), 200\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_4/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - Delete Task API",
+      "ticket_slug": "flask-todo-42",
+      "description": "Build `DELETE /api/tasks/<id>` to allow users to permanently delete a task.\n\n### Request Header\n`Authorization: Bearer <jwt_token>`\n\n### Requirements\n1. Protect endpoint with `@token_required`.\n2. Verify the task belongs to `current_user`. Return `404 Not Found` if missing or unauthorized.\n3. Delete the task record from the database.\n4. Return `200 OK` with `{\"message\": \"Task deleted successfully\"}` (or `204 No Content`).",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Implement resource deletion in REST APIs.",
+        "Enforce horizontal authorization on DELETE requests.",
+        "Handle database deletion operations in SQLAlchemy."
+      ],
+      "tasks": [
+        {
+          "title": "Enforce ownership authorization on task deletion.",
+          "points": 50
+        },
+        {
+          "title": "Delete task from database using `db.session.delete(task)` and commit.",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Deleting another user's task without ownership validation.",
+        "Forgetting `db.session.commit()` after `db.session.delete()`."
+      ],
+      "hints": [
+        "Use `Task.query.filter_by(id=task_id, user_id=current_user.id).first()`.",
+        "`db.session.delete(task)` followed by `db.session.commit()`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routes/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_4/ticket_2/main_test.py"
+      },
+      "solution": {
+        "app/routes/tasks.py": "from flask import Blueprint, request, jsonify\nfrom app import db\nfrom app.models import Task\nfrom app.utils.auth_helpers import token_required\n\ntasks_bp = Blueprint('tasks', __name__, url_prefix='/api/tasks')\n\n@tasks_bp.route('', methods=['POST'])\n@token_required\ndef create_task(current_user):\n    data = request.get_json() or {}\n    title = data.get('title', '').strip()\n    description = data.get('description', '')\n\n    if not title:\n        return jsonify({'error': 'Title is required'}), 400\n\n    task = Task(\n        user_id=current_user.id,\n        title=title,\n        description=description\n    )\n    db.session.add(task)\n    db.session.commit()\n\n    return jsonify({\n        'message': 'Task created successfully',\n        'task': task.to_dict()\n    }), 201\n\n@tasks_bp.route('', methods=['GET'])\n@token_required\ndef list_tasks(current_user):\n    tasks = Task.query.filter_by(user_id=current_user.id).order_by(Task.created_at.desc()).all()\n    return jsonify({\n        'tasks': [task.to_dict() for task in tasks]\n    }), 200\n\n@tasks_bp.route('/<int:task_id>', methods=['GET'])\n@token_required\ndef get_task(current_user, task_id):\n    task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()\n    if not task:\n        return jsonify({'error': 'Task not found'}), 404\n    return jsonify({'task': task.to_dict()}), 200\n\n@tasks_bp.route('/<int:task_id>', methods=['PUT', 'PATCH'])\n@token_required\ndef update_task(current_user, task_id):\n    task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()\n    if not task:\n        return jsonify({'error': 'Task not found'}), 404\n\n    data = request.get_json() or {}\n    if 'title' in data:\n        title = str(data['title']).strip()\n        if not title:\n            return jsonify({'error': 'Title cannot be empty'}), 400\n        task.title = title\n\n    if 'description' in data:\n        task.description = data['description']\n\n    if 'is_completed' in data:\n        task.is_completed = bool(data['is_completed'])\n\n    db.session.commit()\n    return jsonify({\n        'message': 'Task updated successfully',\n        'task': task.to_dict()\n    }), 200\n\n@tasks_bp.route('/<int:task_id>', methods=['DELETE'])\n@token_required\ndef delete_task(current_user, task_id):\n    task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()\n    if not task:\n        return jsonify({'error': 'Task not found'}), 404\n\n    db.session.delete(task)\n    db.session.commit()\n    return jsonify({'message': 'Task deleted successfully'}), 200\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_4/ticket_2/main_test.py"
+    },
+    {
+      "title": "Ticket 3 - Task Filtering by Status Query Parameter",
+      "ticket_slug": "flask-todo-43",
+      "description": "Enhance `GET /api/tasks` to support query parameter filtering by completion status: `?completed=true` or `?completed=false`.\n\n### Requirements\n1. If `?completed=true` is passed in URL query string, return only tasks where `is_completed == True`.\n2. If `?completed=false` is passed, return only tasks where `is_completed == False`.\n3. If `completed` parameter is omitted or empty, return all tasks for the current user as before.\n4. All tasks must still strictly belong to `current_user`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Read and parse URL query parameters using `request.args`.",
+        "Apply dynamic SQL filtering based on request criteria.",
+        "Combine user authorization with custom filtering conditions."
+      ],
+      "tasks": [
+        {
+          "title": "Parse `completed` query parameter from `request.args`.",
+          "points": 40
+        },
+        {
+          "title": "Apply dynamic filtering on `Task.query` based on parameter value.",
+          "points": 40
+        },
+        {
+          "title": "Return filtered tasks list with HTTP 200.",
+          "points": 20
+        }
+      ],
+      "common_mistakes": [
+        "Treating string `'false'` as boolean truthy in Python (`bool('false') == True`). Compare string values: `val.lower() == 'true'`.",
+        "Overriding user ownership filter when applying status filter."
+      ],
+      "hints": [
+        "`completed_param = request.args.get('completed')`",
+        "If `completed_param` is provided, compare `completed_param.lower() in ['true', '1']`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routes/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_4/ticket_3/main_test.py"
+      },
+      "solution": {
+        "app/routes/tasks.py": "from flask import Blueprint, request, jsonify\nfrom app import db\nfrom app.models import Task\nfrom app.utils.auth_helpers import token_required\n\ntasks_bp = Blueprint('tasks', __name__, url_prefix='/api/tasks')\n\n@tasks_bp.route('', methods=['POST'])\n@token_required\ndef create_task(current_user):\n    data = request.get_json() or {}\n    title = data.get('title', '').strip()\n    description = data.get('description', '')\n\n    if not title:\n        return jsonify({'error': 'Title is required'}), 400\n\n    task = Task(\n        user_id=current_user.id,\n        title=title,\n        description=description\n    )\n    db.session.add(task)\n    db.session.commit()\n\n    return jsonify({\n        'message': 'Task created successfully',\n        'task': task.to_dict()\n    }), 201\n\n@tasks_bp.route('', methods=['GET'])\n@token_required\ndef list_tasks(current_user):\n    query = Task.query.filter_by(user_id=current_user.id)\n    completed_param = request.args.get('completed')\n    if completed_param is not None:\n        is_comp = completed_param.lower() in ['true', '1', 'yes']\n        query = query.filter_by(is_completed=is_comp)\n    tasks = query.order_by(Task.created_at.desc()).all()\n    return jsonify({'tasks': [t.to_dict() for t in tasks]}), 200\n\n@tasks_bp.route('/<int:task_id>', methods=['GET'])\n@token_required\ndef get_task(current_user, task_id):\n    task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()\n    if not task:\n        return jsonify({'error': 'Task not found'}), 404\n    return jsonify({'task': task.to_dict()}), 200\n\n@tasks_bp.route('/<int:task_id>', methods=['PUT', 'PATCH'])\n@token_required\ndef update_task(current_user, task_id):\n    task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()\n    if not task:\n        return jsonify({'error': 'Task not found'}), 404\n\n    data = request.get_json() or {}\n    if 'title' in data:\n        title = str(data['title']).strip()\n        if not title:\n            return jsonify({'error': 'Title cannot be empty'}), 400\n        task.title = title\n\n    if 'description' in data:\n        task.description = data['description']\n\n    if 'is_completed' in data:\n        task.is_completed = bool(data['is_completed'])\n\n    db.session.commit()\n    return jsonify({\n        'message': 'Task updated successfully',\n        'task': task.to_dict()\n    }), 200\n\n@tasks_bp.route('/<int:task_id>', methods=['DELETE'])\n@token_required\ndef delete_task(current_user, task_id):\n    task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()\n    if not task:\n        return jsonify({'error': 'Task not found'}), 404\n\n    db.session.delete(task)\n    db.session.commit()\n    return jsonify({'message': 'Task deleted successfully'}), 200\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_4/ticket_3/main_test.py"
+    }
+  ]
+}

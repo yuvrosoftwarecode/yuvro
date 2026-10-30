@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SystemDesignStudioRouteImport } from './routes/system-design-studio'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as RecruiterSignupRouteImport } from './routes/recruiter-signup'
 import { Route as RecruiterLoginRouteImport } from './routes/recruiter-login'
@@ -32,6 +33,7 @@ import { Route as StudentCertificatesRouteImport } from './routes/student.certif
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
 import { Route as RecruiterSettingsRouteImport } from './routes/recruiter.settings'
 import { Route as RecruiterQuestionsRouteImport } from './routes/recruiter.questions'
+import { Route as RecruiterGithubRouteImport } from './routes/recruiter.github'
 import { Route as RecruiterDashboardRouteImport } from './routes/recruiter.dashboard'
 import { Route as RecruiterBillingRouteImport } from './routes/recruiter.billing'
 import { Route as MockInterviewSlugRouteImport } from './routes/mock-interview.$slug'
@@ -72,6 +74,11 @@ import { Route as StudentCollaborationSprintIdReportIndividualRouteImport } from
 import { Route as AdminUsersIdLabsSlugReportRouteImport } from './routes/admin.users.$id.labs.$slug.report'
 import { Route as AdminStudentReportUserIdLabIdTicketTicketIdReviewRouteImport } from './routes/admin.student-report.$userId.$labId.ticket.$ticketId.review'
 
+const SystemDesignStudioRoute = SystemDesignStudioRouteImport.update({
+  id: '/system-design-studio',
+  path: '/system-design-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
@@ -185,6 +192,11 @@ const RecruiterSettingsRoute = RecruiterSettingsRouteImport.update({
 const RecruiterQuestionsRoute = RecruiterQuestionsRouteImport.update({
   id: '/questions',
   path: '/questions',
+  getParentRoute: () => RecruiterRoute,
+} as any)
+const RecruiterGithubRoute = RecruiterGithubRouteImport.update({
+  id: '/github',
+  path: '/github',
   getParentRoute: () => RecruiterRoute,
 } as any)
 const RecruiterDashboardRoute = RecruiterDashboardRouteImport.update({
@@ -411,6 +423,7 @@ export interface FileRoutesByFullPath {
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
+  '/system-design-studio': typeof SystemDesignStudioRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
@@ -424,6 +437,7 @@ export interface FileRoutesByFullPath {
   '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
+  '/recruiter/github': typeof RecruiterGithubRoute
   '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -472,6 +486,7 @@ export interface FileRoutesByTo {
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
+  '/system-design-studio': typeof SystemDesignStudioRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
@@ -484,6 +499,7 @@ export interface FileRoutesByTo {
   '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
+  '/recruiter/github': typeof RecruiterGithubRoute
   '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -536,6 +552,7 @@ export interface FileRoutesById {
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
+  '/system-design-studio': typeof SystemDesignStudioRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
@@ -549,6 +566,7 @@ export interface FileRoutesById {
   '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
+  '/recruiter/github': typeof RecruiterGithubRoute
   '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -602,6 +620,7 @@ export interface FileRouteTypes {
     | '/recruiter-login'
     | '/recruiter-signup'
     | '/student'
+    | '/system-design-studio'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
@@ -615,6 +634,7 @@ export interface FileRouteTypes {
     | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
+    | '/recruiter/github'
     | '/recruiter/questions'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -663,6 +683,7 @@ export interface FileRouteTypes {
     | '/recruiter-login'
     | '/recruiter-signup'
     | '/student'
+    | '/system-design-studio'
     | '/admin/questions'
     | '/admin/recruiters'
     | '/evaluation/complete'
@@ -675,6 +696,7 @@ export interface FileRouteTypes {
     | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
+    | '/recruiter/github'
     | '/recruiter/questions'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -726,6 +748,7 @@ export interface FileRouteTypes {
     | '/recruiter-login'
     | '/recruiter-signup'
     | '/student'
+    | '/system-design-studio'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
@@ -739,6 +762,7 @@ export interface FileRouteTypes {
     | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
+    | '/recruiter/github'
     | '/recruiter/questions'
     | '/recruiter/settings'
     | '/student/analytics'
@@ -791,6 +815,7 @@ export interface RootRouteChildren {
   RecruiterLoginRoute: typeof RecruiterLoginRoute
   RecruiterSignupRoute: typeof RecruiterSignupRoute
   StudentRoute: typeof StudentRouteWithChildren
+  SystemDesignStudioRoute: typeof SystemDesignStudioRoute
   GithubCallbackRoute: typeof GithubCallbackRoute
   MockInterviewSlugRoute: typeof MockInterviewSlugRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
@@ -799,6 +824,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/system-design-studio': {
+      id: '/system-design-studio'
+      path: '/system-design-studio'
+      fullPath: '/system-design-studio'
+      preLoaderRoute: typeof SystemDesignStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/student': {
       id: '/student'
       path: '/student'
@@ -958,6 +990,13 @@ declare module '@tanstack/react-router' {
       path: '/questions'
       fullPath: '/recruiter/questions'
       preLoaderRoute: typeof RecruiterQuestionsRouteImport
+      parentRoute: typeof RecruiterRoute
+    }
+    '/recruiter/github': {
+      id: '/recruiter/github'
+      path: '/github'
+      fullPath: '/recruiter/github'
+      preLoaderRoute: typeof RecruiterGithubRouteImport
       parentRoute: typeof RecruiterRoute
     }
     '/recruiter/dashboard': {
@@ -1361,6 +1400,7 @@ const RecruiterEvaluationsIdRouteWithChildren =
 interface RecruiterRouteChildren {
   RecruiterBillingRoute: typeof RecruiterBillingRoute
   RecruiterDashboardRoute: typeof RecruiterDashboardRoute
+  RecruiterGithubRoute: typeof RecruiterGithubRoute
   RecruiterQuestionsRoute: typeof RecruiterQuestionsRoute
   RecruiterSettingsRoute: typeof RecruiterSettingsRoute
   RecruiterIndexRoute: typeof RecruiterIndexRoute
@@ -1371,6 +1411,7 @@ interface RecruiterRouteChildren {
 const RecruiterRouteChildren: RecruiterRouteChildren = {
   RecruiterBillingRoute: RecruiterBillingRoute,
   RecruiterDashboardRoute: RecruiterDashboardRoute,
+  RecruiterGithubRoute: RecruiterGithubRoute,
   RecruiterQuestionsRoute: RecruiterQuestionsRoute,
   RecruiterSettingsRoute: RecruiterSettingsRoute,
   RecruiterIndexRoute: RecruiterIndexRoute,
@@ -1475,6 +1516,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecruiterLoginRoute: RecruiterLoginRoute,
   RecruiterSignupRoute: RecruiterSignupRoute,
   StudentRoute: StudentRouteWithChildren,
+  SystemDesignStudioRoute: SystemDesignStudioRoute,
   GithubCallbackRoute: GithubCallbackRoute,
   MockInterviewSlugRoute: MockInterviewSlugRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,

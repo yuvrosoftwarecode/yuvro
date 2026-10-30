@@ -1,7 +1,14 @@
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 
 export type LabType =
-  "DATABASE" | "BACKEND" | "FRONTEND" | "FULL_STACK" | "QUALITY_ASSURANCE" | "DEVOPS" | "AI";
+  | "DATABASE"
+  | "BACKEND"
+  | "FRONTEND"
+  | "FULL_STACK"
+  | "QUALITY_ASSURANCE"
+  | "DEVOPS"
+  | "AI"
+  | "SYSTEM_DESIGN";
 
 export type LabDifficulty = "EASY" | "MEDIUM" | "HARD";
 
@@ -35,6 +42,7 @@ export const LAB_TYPES: { value: LabType; label: string }[] = [
   { value: "QUALITY_ASSURANCE", label: "Quality Assurance" },
   { value: "DEVOPS", label: "DevOps" },
   { value: "AI", label: "AI" },
+  { value: "SYSTEM_DESIGN", label: "System Design" },
 ];
 
 export const DIFFICULTIES: { value: LabDifficulty; label: string }[] = [

@@ -13,6 +13,11 @@ from core.models import (
 User = settings.AUTH_USER_MODEL
 
 
+class RepoSourceType(models.TextChoices):
+    ADMIN_SYSTEM = "ADMIN_SYSTEM", "Admin System"
+    RECRUITER_GITHUB_APP = "RECRUITER_GITHUB_APP", "Recruiter GitHub App"
+
+
 class LabType(models.TextChoices):
     DATABASE = "DATABASE", "Database"
     BACKEND = "BACKEND", "Backend"
@@ -215,6 +220,19 @@ class LabQuestionBank(QuestionBank):
         blank=True,
         help_text="Reference working solution files { 'relative/path': 'solution code' }"
     )
+    repo_source_type = models.CharField(
+        max_length=50,
+        choices=RepoSourceType.choices,
+        default=RepoSourceType.ADMIN_SYSTEM,
+    )
+    github_app_installation = models.ForeignKey(
+        "recruiter.GithubAppInstallation",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="lab_question_banks",
+    )
+    github_repo_id = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.title

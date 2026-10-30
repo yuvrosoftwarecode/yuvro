@@ -95,3 +95,29 @@ export function getLabIconUrl(name: string): string | null {
   }
   return null;
 }
+
+export interface LabIconOption {
+  value: string;
+  label: string;
+}
+
+export const AVAILABLE_LAB_ICONS: LabIconOption[] = [
+  { value: "", label: "Auto-detect (from title & tech)" },
+  { value: "Layers", label: "Layers (System Design & Architecture)" },
+  { value: "Boxes", label: "Boxes (Microservices & Scenarios)" },
+  { value: "Network", label: "Network (Data Structures & Distributed Systems)" },
+  { value: "Server", label: "Server (Backend APIs & Services)" },
+  { value: "Database", label: "Database (Databases, SQL & Storage)" },
+  { value: "AppWindow", label: "App Window (Frontend & Web Apps)" },
+  { value: "Terminal", label: "Terminal (Linux, Shell & DevOps)" },
+  { value: "Code", label: "Code (Programming & Logic)" },
+  { value: "GitBranch", label: "Git (Version Control & Workflows)" },
+  { value: "Zap", label: "Zap (Fast APIs & Realtime Systems)" },
+  { value: "FlaskConical", label: "Flask (Experiments & Micro-frameworks)" },
+  { value: "Cpu", label: "CPU (Algorithms & High Performance)" },
+  { value: "Briefcase", label: "Briefcase (Portfolio & Projects)" },
+  { value: "Workflow", label: "Workflow (Pipelines & CI/CD)" },
+  { value: "Shield", label: "Shield (Security & Auth)" },
+  { value: "Globe", label: "Globe (Web & Networking)" },
+];
+

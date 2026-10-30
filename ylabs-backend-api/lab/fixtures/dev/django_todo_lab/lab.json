@@ -1,0 +1,26 @@
+{
+  "labs": [
+    {
+      "title": "Django ToDo Lab",
+      "type": "BACKEND",
+      "description": "Build a production-grade, backend-only RESTful API for a ToDo application using Python, Django, Django REST Framework (DRF), and SQLite. Master REST API architecture, user authentication, serializers, CRUD endpoints, object-level permissions, and automated API testing with zero frontend overhead.",
+      "difficulty": "MEDIUM",
+      "icon": "Server",
+      "skills": [
+        "Python",
+        "Django",
+        "Django REST Framework",
+        "REST API Design",
+        "SQLite",
+        "API Authentication",
+        "Token Authentication",
+        "ModelSerializer",
+        "Object-Level Permissions",
+        "Automated API Testing"
+      ],
+      "prerequisites": "Basic knowledge of Python and relational database fundamentals.",
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/lab_todo_django",
+      "status": "active"
+    }
+  ]
+}

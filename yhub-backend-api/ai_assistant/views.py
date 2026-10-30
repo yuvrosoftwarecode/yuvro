@@ -1,7 +1,10 @@
 import asyncio
+import json
 import logging
+import queue
+import threading
 from django.shortcuts import get_object_or_404
-from django.db import transaction
+from django.db import transaction, close_old_connections
 from django.utils import timezone
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -18,6 +21,7 @@ from .models import (
     AIAgentConfiguration,
     InterviewSession,
     InterviewReport,
+    LabScoringEvaluation,
 )
 
 from .serializers import (
@@ -31,10 +35,81 @@ from .serializers import (
     ChatResponseSerializer,
     InterviewSessionSerializer,
     InterviewReportSerializer,
+    LabScoringRequestSerializer,
+    LabScoringEvaluationSerializer,
 )
+from .scoring import LabScoreEvaluatorFactory
 from .services import AIServiceFactory, AIServiceError, InterviewReportGenerator, GeminiService
+from ai_credits.metering import CreditMeteringManager
+from ai_credits.exceptions import InsufficientCreditsError
 
 logger = logging.getLogger(__name__)
+
+
+def sync_stream_adapter(async_generator_func, *args, **kwargs):
+    """
+    Consumes an async generator on a dedicated background thread with its own event loop
+    and yields chunks synchronously for Django WSGI StreamingHttpResponse.
+    """
+    q = queue.Queue(maxsize=100)
+    SENTINEL = object()
+    stop_event = threading.Event()
+
+    def runner():
+        close_old_connections()
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            async def run():
+                gen = async_generator_func(*args, **kwargs)
+                try:
+                    async for chunk in gen:
+                        if stop_event.is_set():
+                            break
+                        q.put(chunk)
+                except Exception as exc:
+                    logger.exception(f"Error in async stream runner: {exc}")
+                    q.put(exc)
+                finally:
+                    try:
+                        await gen.aclose()
+                    except Exception:
+                        pass
+                    q.put(SENTINEL)
+
+            loop.run_until_complete(run())
+        except Exception as exc:
+            logger.exception(f"Fatal error in stream event loop: {exc}")
+            q.put(exc)
+            q.put(SENTINEL)
+        finally:
+            try:
+                loop.close()
+            except Exception:
+                pass
+            try:
+                from django.db import connections
+                connections.close_all()
+            except Exception:
+                pass
+
+    thread = threading.Thread(target=runner, daemon=True)
+    thread.start()
+
+    try:
+        while True:
+            item = q.get()
+            if item is SENTINEL:
+                break
+            if isinstance(item, Exception):
+                import json
+                yield f"data: {json.dumps({'error': str(item)})}\n\n"
+                break
+            yield item
+    finally:
+        stop_event.set()
+        thread.join(timeout=2.0)
+
 
 class AIAgentViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -83,7 +158,306 @@ class AIAgentViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(available_providers)
 
-class ChatSessionViewSet(viewsets.ModelViewSet):
+class ChatServiceMixin:
+    """Shared utilities for streaming responses, message preparation, and usage tracking."""
+
+    @staticmethod
+    def _update_usage_stats(user, ai_agent, tokens_used):
+        """Update usage statistics for the user and AI agent."""
+        if not user or not ai_agent:
+            return
+        today = timezone.now().date()
+        usage, _ = AIAgentUsage.objects.get_or_create(
+            user=user,
+            ai_agent=ai_agent,
+            date=today,
+            defaults={"total_messages": 0, "total_tokens": 0, "total_cost": 0.0000},
+        )
+        usage.total_messages += 1
+        usage.total_tokens += (tokens_used or 0)
+        usage.save()
+
+    async def _prepare_messages(self, chat_session, user_config=None):
+        """Prepare messages for AI service."""
+        messages = []
+        if not chat_session:
+            return messages
+
+        if chat_session.page == "mock_interview":
+            is_start = not await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").exists())()
+
+            context = chat_session.context or {}
+            role = context.get("role", "Software Engineer")
+            level = context.get("level", "Intermediate")
+            interviewer_name = context.get("interviewer_name", "AI Interviewer")
+            candidate_info = context.get("candidate_info", "No specific background provided.")
+            ai_context_list = context.get("ai_context", [])
+            ai_context_str = "\n".join([f"- {item}" for item in ai_context_list]) if isinstance(ai_context_list, list) else str(ai_context_list)
+
+            instructions = context.get("instructions", "")
+            required_skills = ", ".join(context.get("required_skills", []))
+
+            time_left_msg = ""
+            try:
+                interview_session = await sync_to_async(lambda: chat_session.interview_session)()
+                total_duration_mins = interview_session.duration_minutes
+                elapsed_time = timezone.now() - interview_session.created_at
+                remaining_mins = total_duration_mins - (elapsed_time.total_seconds() / 60)
+
+                if remaining_mins <= 2 and remaining_mins > 0:
+                    time_left_msg = f"NOTE: There are only {int(remaining_mins)} minutes left. You MUST start wrapping up the interview now."
+                elif remaining_mins <= 0:
+                    time_left_msg = "NOTE: Time is UP. You MUST politely conclude the interview immediately."
+            except:
+                pass
+
+            interview_prompt = f"""Expert Technical Interviewer for "{role}" ({level}).
+Rules:
+1. RESPONSE LENGTH: Exactly 1 line.
+2. ACKNOWLEDGE & PIVOT: Briefly validate the candidate's last answer, then ask the next technical/scenario question.
+3. CONTEXT: Skills: {required_skills}. Coding trigger: "Please write code to..." or "Write a function that...".
+4. ADAPTIVE: Base depth on candidate background: {candidate_info[:200]}
+{time_left_msg}"""
+            if is_start:
+                interview_prompt = f"""You are {interviewer_name}, starting a mock interview for {role}.
+
+                TASK: Greet the candidate warmly and ask them to introduce themselves and highlight relevant experience.
+                STRICT RULE: Your response MUST be exactly 1 line long.
+
+                Example: "Hi, I'm {interviewer_name}, your interviewer for the {role} role today; could you please introduce yourself and tell me about your background?"
+                """
+
+            messages.append({"role": "system", "content": interview_prompt})
+
+        elif user_config and user_config.system_prompt:
+            messages.append({"role": "system", "content": user_config.system_prompt})
+
+        chat_messages_qs = chat_session.messages.order_by("-created_at")[:5]
+        chat_messages_list = await sync_to_async(list)(chat_messages_qs)
+
+        chat_messages_list = sorted(chat_messages_list, key=lambda x: x.created_at)
+
+        for msg in chat_messages_list:
+            role = "system" if msg.message_type == "system" else "user" if msg.message_type == "user" else "assistant"
+            messages.append({"role": role, "content": msg.content})
+
+        if chat_session.page == "mock_interview" and not await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").exists())():
+            last_user_msg = None
+            for msg in reversed(messages):
+                if msg["role"] == "user":
+                    last_user_msg = msg["content"]
+                    break
+
+            if last_user_msg:
+                adaptive_instruction = f"Candidate said: \"{last_user_msg[:100]}\". Briefly acknowledge and ask your next 1-LINE question. STAY ON TOPIC."
+                messages.append({"role": "system", "content": adaptive_instruction})
+
+        return messages
+
+    async def _handle_streaming_response(
+        self,
+        chat_session,
+        ai_agent,
+        user_config,
+        messages,
+        temperature,
+        max_tokens,
+        page_content,
+        user=None,
+        reservation=None,
+    ):
+        """Handle streaming response from AI service via SSE."""
+        import json
+        import time
+
+        start_time = time.time()
+
+        async def stream_generator():
+            full_response_text = ""
+            tokens_used = 0
+            response_data = {}
+            active_agent = ai_agent
+            is_settled = False
+            fallback_metadata = {}
+
+            ai_service = AIServiceFactory.create_service(
+                active_agent.provider, active_agent.model_name
+            )
+
+            try:
+                # UX Illusion: Send a small buffer breaker to pop any proxy buffers (nginx, cloudflare)
+                yield " " * 1024 + "\n"
+
+                prepared_messages = messages
+                if not prepared_messages and chat_session:
+                    prepared_messages = await self._prepare_messages(chat_session, user_config)
+
+                target_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
+                user_name = await sync_to_async(lambda: f"{target_user.first_name} {target_user.last_name}".strip() if target_user else "User")()
+
+                try:
+                    response_data = await ai_service.generate_response(
+                        messages=prepared_messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        page_content=page_content,
+                        user_name=user_name,
+                        stream=True,
+                    )
+                except Exception as primary_err:
+                    if active_agent and active_agent.provider != "gemini":
+                        logger.warning(
+                            f"Primary AI agent ({active_agent.provider}/{active_agent.model_name}) failed: {primary_err}. Attempting fallback to Gemini."
+                        )
+                        fallback_metadata = {
+                            "fallback_from": f"{active_agent.provider}/{active_agent.model_name}"
+                        }
+                        gemini_agent = await sync_to_async(
+                            lambda: AIAgent.objects.filter(provider="gemini", is_active=True).first()
+                        )()
+                        if gemini_agent:
+                            active_agent = gemini_agent
+                            ai_service = AIServiceFactory.create_service(
+                                gemini_agent.provider, gemini_agent.model_name
+                            )
+                            response_data = await ai_service.generate_response(
+                                messages=prepared_messages,
+                                temperature=temperature,
+                                max_tokens=max_tokens,
+                                page_content=page_content,
+                                user_name=user_name,
+                                stream=True,
+                            )
+                        else:
+                            raise primary_err
+                    else:
+                        raise primary_err
+
+                if "stream" in response_data:
+                    stream = response_data["stream"]
+                    async for chunk in stream:
+                        text = None
+                        # Gemini
+                        if hasattr(chunk, 'text'):
+                            try:
+                                text = chunk.text
+                            except ValueError:  # Blocked or safety
+                                pass
+                        # Anthropic
+                        elif hasattr(chunk, 'type'):
+                            if chunk.type == 'content_block_delta':
+                                text = chunk.delta.text
+
+                        if text:
+                            full_response_text += text
+                            data = json.dumps({"chunk": text})
+                            yield f"data: {data}\n\n"
+
+                    # Final usage update after loop
+                    if hasattr(stream, "get_final_metadata"):
+                        meta = stream.get_final_metadata()
+                        if hasattr(meta, 'usage'):
+                            tokens_used = meta.usage.input_tokens + meta.usage.output_tokens
+                    elif hasattr(stream, "usage_metadata") and stream.usage_metadata:
+                        tokens_used = stream.usage_metadata.total_token_count
+                    response_data["tokens_used"] = tokens_used
+                else:
+                    # Fallback if streaming is not supported by the provider
+                    full_response_text = response_data["response"]
+                    data = json.dumps({"chunk": full_response_text})
+                    yield f"data: {data}\n\n"
+                    tokens_used = response_data.get("tokens_used", 0)
+
+            except Exception as e:
+                # Send error chunk
+                error_data = json.dumps({"error": str(e)})
+                yield f"data: {error_data}\n\n"
+            finally:
+                final_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
+                credits_used = None
+
+                # Settle credit reservation if output was produced and reservation exists
+                if full_response_text and reservation and not is_settled:
+                    try:
+                        usage_dict = CreditMeteringManager.extract_token_usage(
+                            provider=active_agent.provider if active_agent else "unknown",
+                            model_name=active_agent.model_name if active_agent else "unknown",
+                            response_data=response_data,
+                            full_response_text=full_response_text,
+                            messages=prepared_messages,
+                        )
+                        usage_rec = await sync_to_async(CreditMeteringManager.settle_for_chat)(
+                            reservation=reservation,
+                            provider=active_agent.provider if active_agent else "unknown",
+                            model_name=active_agent.model_name if active_agent else "unknown",
+                            usage_dict=usage_dict,
+                            call_type="chat" if chat_session else "quick_chat",
+                            status="completed",
+                            metadata=fallback_metadata,
+                        )
+                        is_settled = True
+                        if usage_rec:
+                            credits_used = usage_rec.credits_charged
+                    except Exception as settle_err:
+                        logger.error(f"Failed to settle credit reservation {reservation.id}: {settle_err}", exc_info=True)
+
+                # Release held credits if stream ended prematurely, hit error, or had no output
+                if reservation and not is_settled:
+                    try:
+                        await sync_to_async(CreditMeteringManager.release_for_chat)(
+                            reservation=reservation,
+                            reason="stream_incomplete_or_error",
+                        )
+                    except Exception as rel_err:
+                        logger.error(f"Failed to release reservation {reservation.id}: {rel_err}", exc_info=True)
+
+                if full_response_text and chat_session:
+                    end_time = time.time()
+                    response_time_ms = int((end_time - start_time) * 1000)
+
+                    assistant_message = await sync_to_async(ChatMessage.objects.create)(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=full_response_text,
+                        tokens_used=tokens_used,
+                        response_time_ms=response_time_ms,
+                        metadata=response_data.get("metadata", {}),
+                    )
+
+                    await sync_to_async(self._update_usage_stats)(
+                        final_user, active_agent, tokens_used
+                    )
+
+                    chat_session.updated_at = timezone.now()
+                    await sync_to_async(chat_session.save)()
+
+                    done_payload = {
+                        "done": True,
+                        "message_id": str(assistant_message.id),
+                        "chat_session_id": str(chat_session.id),
+                    }
+                    if credits_used is not None:
+                        done_payload["credits_used"] = credits_used
+                    yield f"data: {json.dumps(done_payload)}\n\n"
+                elif full_response_text and final_user:
+                    await sync_to_async(self._update_usage_stats)(
+                        final_user, active_agent, tokens_used
+                    )
+                    done_payload = {"done": True}
+                    if credits_used is not None:
+                        done_payload["credits_used"] = credits_used
+                    yield f"data: {json.dumps(done_payload)}\n\n"
+
+        response = StreamingHttpResponse(
+            sync_stream_adapter(stream_generator), content_type="text/event-stream"
+        )
+        response["Cache-Control"] = "no-cache"
+        response["X-Accel-Buffering"] = "no"
+        response["X-Content-Type-Options"] = "nosniff"
+        return response
+
+
+class ChatSessionViewSet(ChatServiceMixin, viewsets.ModelViewSet):
     """
     ViewSet for ChatSession model.
     """
@@ -97,7 +471,7 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         """Return appropriate serializer based on action."""
         if self.action == "retrieve":
-            return ChatSessionSerializer                      
+            return ChatSessionSerializer
         return ChatSessionBasicSerializer
 
     def perform_create(self, serializer):
@@ -122,15 +496,15 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
             message = chat_session.messages.get(id=message_id)
         except ChatMessage.DoesNotExist:
             return Response({"error": "Message not found"}, status=status.HTTP_404_NOT_FOUND)
-            
+
         feedback_value = request.data.get("feedback")
         feedback_text = request.data.get("feedback_text")
-        
+
         if feedback_value is not None:
             message.feedback = feedback_value
         if feedback_text is not None:
             message.feedback_text = feedback_text
-            
+
         message.save()
         return Response({"status": "feedback recorded"}, status=status.HTTP_200_OK)
 
@@ -140,25 +514,14 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
         temperature = validated_data.get("temperature")
         max_tokens = validated_data.get("max_tokens")
         page_content = validated_data.get("page_content")
+        reservation = None
 
         try:
-                                                                               
             is_trigger = message_content == "The interview is starting now. Please introduce yourself and ask the first question."
-            
-            user_message = None
-            if not is_trigger:
-                                                     
-                user_message = await sync_to_async(ChatMessage.objects.create)(
-                    chat_session=chat_session,
-                    message_type="user",
-                    content=message_content,
-                )
-            else:
-                logger.info(f"Trigger message detected for session {chat_session.id}, skipping storage.")
 
             ai_agent = await sync_to_async(lambda: chat_session.ai_agent)()
             session_user = await sync_to_async(lambda: chat_session.user)()
-            
+
             user_config = await sync_to_async(
                 lambda: AIAgentConfiguration.objects.filter(
                     user=session_user, ai_agent=ai_agent
@@ -179,12 +542,62 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 )
 
             messages = await self._prepare_messages(chat_session, user_config)
-            
+
             if is_trigger:
                 messages.append({"role": "user", "content": message_content})
 
             is_streaming = validated_data.get("stream", False)
-            
+
+            # Pre-dispatch credit reservation
+            if CreditMeteringManager.is_enabled():
+                try:
+                    reservation = await sync_to_async(CreditMeteringManager.reserve_for_chat)(
+                        user=session_user,
+                        session_id=str(chat_session.id),
+                        message_id=None,
+                        max_tokens=max_tokens,
+                        call_type="chat",
+                    )
+                except InsufficientCreditsError as e:
+                    err_msg = str(e)
+                    err_avail = e.available
+                    err_req = e.required
+                    if is_streaming:
+                        async def sse_insufficient():
+                            err_data = json.dumps({
+                                "error": err_msg,
+                                "error_code": "insufficient_credits",
+                                "available": err_avail,
+                                "required": err_req,
+                            })
+                            yield f"data: {err_data}\n\n"
+                        return StreamingHttpResponse(
+                            sync_stream_adapter(sse_insufficient),
+                            content_type="text/event-stream",
+                        )
+                    return Response(
+                        {
+                            "error": "insufficient_credits",
+                            "message": err_msg,
+                            "available": err_avail,
+                            "required": err_req,
+                        },
+                        status=status.HTTP_402_PAYMENT_REQUIRED,
+                    )
+
+            user_message = None
+            if not is_trigger:
+                user_message = await sync_to_async(ChatMessage.objects.create)(
+                    chat_session=chat_session,
+                    message_type="user",
+                    content=message_content,
+                )
+                if reservation:
+                    reservation.message_id = str(user_message.id)
+                    await sync_to_async(reservation.save)(update_fields=["message_id"])
+            else:
+                logger.info(f"Trigger message detected for session {chat_session.id}, skipping storage.")
+
             if is_streaming:
                 return await self._handle_streaming_response(
                     chat_session=chat_session,
@@ -195,21 +608,52 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                     max_tokens=max_tokens,
                     page_content=page_content,
                     user=session_user,
+                    reservation=reservation,
                 )
-            else:    
+            else:
                 ai_service = AIServiceFactory.create_service(
                     ai_agent.provider, ai_agent.model_name
                 )
-                
+
                 full_user_name = await sync_to_async(lambda: f"{session_user.first_name} {session_user.last_name}".strip() or session_user.username)()
 
-                response_data = await ai_service.generate_response(
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    page_content=page_content,
-                    user_name=full_user_name,
-                )
+                try:
+                    response_data = await ai_service.generate_response(
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        page_content=page_content,
+                        user_name=full_user_name,
+                    )
+                except Exception as ai_err:
+                    if reservation:
+                        await sync_to_async(CreditMeteringManager.release_for_chat)(
+                            reservation=reservation,
+                            reason="ai_service_error",
+                        )
+                        reservation = None
+                    raise ai_err
+
+                credits_used = None
+                if reservation:
+                    usage_dict = CreditMeteringManager.extract_token_usage(
+                        provider=ai_agent.provider,
+                        model_name=ai_agent.model_name,
+                        response_data=response_data,
+                        full_response_text=response_data.get("response", ""),
+                        messages=messages,
+                    )
+                    usage_rec = await sync_to_async(CreditMeteringManager.settle_for_chat)(
+                        reservation=reservation,
+                        provider=ai_agent.provider,
+                        model_name=ai_agent.model_name,
+                        usage_dict=usage_dict,
+                        call_type="chat",
+                        status="completed",
+                    )
+                    reservation = None
+                    if usage_rec:
+                        credits_used = usage_rec.credits_charged
 
                 assistant_message = await sync_to_async(ChatMessage.objects.create)(
                     chat_session=chat_session,
@@ -227,247 +671,46 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
                 chat_session.updated_at = timezone.now()
                 await sync_to_async(chat_session.save)()
 
-                response_serializer = ChatResponseSerializer(
-                    {
-                        "chat_session_id": chat_session.id,
-                        "message_id": assistant_message.id,
-                        "response": response_data["response"],
-                        "tokens_used": response_data.get("tokens_used"),
-                        "response_time_ms": response_data.get("response_time_ms"),
-                        "metadata": response_data.get("metadata", {}),
-                    }
-                )
+                resp_payload = {
+                    "chat_session_id": chat_session.id,
+                    "message_id": assistant_message.id,
+                    "response": response_data["response"],
+                    "tokens_used": response_data.get("tokens_used"),
+                    "response_time_ms": response_data.get("response_time_ms"),
+                    "metadata": response_data.get("metadata", {}),
+                }
+                if credits_used is not None:
+                    resp_payload["credits_used"] = credits_used
 
+                response_serializer = ChatResponseSerializer(resp_payload)
                 return Response(response_serializer.data, status=status.HTTP_200_OK)
 
         except AIServiceError as e:
+            if reservation:
+                try:
+                    await sync_to_async(CreditMeteringManager.release_for_chat)(
+                        reservation=reservation,
+                        reason="ai_service_error",
+                    )
+                except Exception:
+                    pass
             return Response(
                 {"error": f"AI service error: {str(e)}"},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
         except Exception as e:
+            if reservation:
+                try:
+                    await sync_to_async(CreditMeteringManager.release_for_chat)(
+                        reservation=reservation,
+                        reason="unexpected_error",
+                    )
+                except Exception:
+                    pass
             return Response(
                 {"error": f"Unexpected error: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-            
-    async def _handle_streaming_response(
-        self,
-        chat_session,
-        ai_agent,
-        user_config,
-        messages,
-        temperature,
-        max_tokens,
-        page_content,
-        user=None,
-    ):
-        """Handle streaming response from AI service via SSE."""
-        import json
-        import time
-        
-        start_time = time.time()
-        
-        async def stream_generator():
-            full_response_text = ""
-            tokens_used = 0
-            
-            ai_service = AIServiceFactory.create_service(
-                ai_agent.provider, ai_agent.model_name
-            )
-            
-            try:
-                                                                                                                       
-                yield " " * 1024 + "\n"
-                
-                messages = await self._prepare_messages(chat_session, user_config)
-
-                target_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
-                user_name = await sync_to_async(lambda: f"{target_user.first_name} {target_user.last_name}".strip() if target_user else "User")()
-
-                response_data = await ai_service.generate_response(
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    page_content=page_content,
-                    user_name=user_name,
-                    stream=True,
-                )
-                
-                if "stream" in response_data:
-                    stream = response_data["stream"]
-                    async for chunk in stream:
-                        text = None
-                                                        
-                        if hasattr(chunk, 'text'):
-                            try:
-                                text = chunk.text
-                            except ValueError:                     
-                                pass
-                                                           
-                        elif hasattr(chunk, 'type'):
-                            if chunk.type == 'content_block_delta':
-                                text = chunk.delta.text
-                        
-                        if text:
-                            full_response_text += text
-                            data = json.dumps({"chunk": text})
-                            yield f"data: {data}\n\n"
-                                                                                                          
-                    if hasattr(stream, "get_final_metadata"):
-                        meta = stream.get_final_metadata()
-                        if hasattr(meta, 'usage'):
-                            tokens_used = meta.usage.input_tokens + meta.usage.output_tokens
-                    elif hasattr(stream, "usage_metadata") and stream.usage_metadata:
-                        tokens_used = stream.usage_metadata.total_token_count
-                else:
-                                                                                                
-                    full_response_text = response_data["response"]
-                    data = json.dumps({"chunk": full_response_text})
-                    yield f"data: {data}\n\n"
-                    tokens_used = response_data.get("tokens_used", 0)
-                    
-            except Exception as e:
-                                                  
-                error_data = json.dumps({"error": str(e)})
-                yield f"data: {error_data}\n\n"
-            finally:
-                                                                                                        
-                final_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
-                
-                if full_response_text and chat_session:
-                    end_time = time.time()
-                    response_time_ms = int((end_time - start_time) * 1000)
-                    
-                    assistant_message = await sync_to_async(ChatMessage.objects.create)(
-                        chat_session=chat_session,
-                        message_type="assistant",
-                        content=full_response_text,
-                        tokens_used=tokens_used,
-                        response_time_ms=response_time_ms,
-                        metadata=response_data.get("metadata", {}),
-                    )
-                    
-                    await sync_to_async(self._update_usage_stats)(
-                        final_user, ai_agent, tokens_used
-                    )
-                    
-                    chat_session.updated_at = timezone.now()
-                    await sync_to_async(chat_session.save)()
-                    
-                    done_data = json.dumps({
-                        "done": True, 
-                        "message_id": str(assistant_message.id),
-                        "chat_session_id": str(chat_session.id)
-                    })
-                    yield f"data: {done_data}\n\n"
-                elif full_response_text and final_user:
-                                                                                
-                    await sync_to_async(self._update_usage_stats)(
-                        final_user, ai_agent, tokens_used
-                    )
-                    yield f"data: {json.dumps({'done': True})}\n\n"
-
-        response = StreamingHttpResponse(
-            stream_generator(), content_type="text/event-stream"
-        )
-        response["Cache-Control"] = "no-cache"
-        response["X-Accel-Buffering"] = "no"                             
-        response["X-Content-Type-Options"] = "nosniff"
-        return response
-
-    async def _prepare_messages(self, chat_session, user_config=None):
-        """Prepare messages for AI service."""
-        messages = []
-
-        if chat_session.page == "mock_interview":
-                                                                                     
-            is_start = not await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").exists())()
-            
-            context = chat_session.context or {}
-            role = context.get("role", "Software Engineer")
-            level = context.get("level", "Intermediate")
-            interviewer_name = context.get("interviewer_name", "AI Interviewer")
-            candidate_info = context.get("candidate_info", "No specific background provided.")
-            ai_context_list = context.get("ai_context", [])
-            ai_context_str = "\n".join([f"- {item}" for item in ai_context_list]) if isinstance(ai_context_list, list) else str(ai_context_list)
-            
-            instructions = context.get("instructions", "")
-            required_skills = ", ".join(context.get("required_skills", []))
-
-            time_left_msg = ""
-            try:
-                interview_session = await sync_to_async(lambda: chat_session.interview_session)()
-                total_duration_mins = interview_session.duration_minutes
-                elapsed_time = timezone.now() - interview_session.created_at
-                remaining_mins = total_duration_mins - (elapsed_time.total_seconds() / 60)
-                
-                if remaining_mins <= 2 and remaining_mins > 0:
-                    time_left_msg = f"NOTE: There are only {int(remaining_mins)} minutes left. You MUST start wrapping up the interview now."
-                elif remaining_mins <= 0:
-                    time_left_msg = "NOTE: Time is UP. You MUST politely conclude the interview immediately."
-            except:
-                pass
-            
-            interview_prompt = f"""Expert Technical Interviewer for "{role}" ({level}).
-Rules:
-1. RESPONSE LENGTH: Exactly 1 line.
-2. ACKNOWLEDGE & PIVOT: Briefly validate the candidate's last answer, then ask the next technical/scenario question.
-3. CONTEXT: Skills: {required_skills}. Coding trigger: "Please write code to..." or "Write a function that...".
-4. ADAPTIVE: Base depth on candidate background: {candidate_info[:200]}
-{time_left_msg}"""
-            if is_start:
-                                                                                
-                interview_prompt = f"""You are {interviewer_name}, starting a mock interview for {role}.
-                
-                TASK: Greet the candidate warmly and ask them to introduce themselves and highlight relevant experience.
-                STRICT RULE: Your response MUST be exactly 1 line long.
-                
-                Example: "Hi, I'm {interviewer_name}, your interviewer for the {role} role today; could you please introduce yourself and tell me about your background?"
-                """
-            
-            messages.append({"role": "system", "content": interview_prompt})
-
-        elif user_config and user_config.system_prompt:
-            messages.append({"role": "system", "content": user_config.system_prompt})
-
-        chat_messages_qs = chat_session.messages.order_by("-created_at")[:5]
-        chat_messages_list = await sync_to_async(list)(chat_messages_qs)
-        
-        chat_messages_list = sorted(chat_messages_list, key=lambda x: x.created_at)
-        
-        for msg in chat_messages_list:
-            role = "system" if msg.message_type == "system" else "user" if msg.message_type == "user" else "assistant"
-            messages.append({"role": role, "content": msg.content})
-
-        if chat_session.page == "mock_interview" and not await sync_to_async(lambda: chat_session.messages.filter(message_type="assistant").exists())():
-                                                    
-            last_user_msg = None
-            for msg in reversed(messages):
-                if msg["role"] == "user":
-                    last_user_msg = msg["content"]
-                    break
-            
-            if last_user_msg:
-                adaptive_instruction = f"Candidate said: \"{last_user_msg[:100]}\". Briefly acknowledge and ask your next 1-LINE question. STAY ON TOPIC."
-                messages.append({"role": "system", "content": adaptive_instruction})
-
-        return messages
-
-    def _update_usage_stats(self, user, ai_agent, tokens_used):
-        """Update usage statistics for the user and AI agent."""
-        today = timezone.now().date()
-        usage, created = AIAgentUsage.objects.get_or_create(
-            user=user,
-            ai_agent=ai_agent,
-            date=today,
-            defaults={"total_messages": 0, "total_tokens": 0, "total_cost": 0.0000},
-        )
-
-        usage.total_messages += 1
-        usage.total_tokens += tokens_used
-                                                                
-        usage.save()
 
 class ChatMessageViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -579,7 +822,7 @@ class AIAgentConfigurationViewSet(viewsets.ModelViewSet):
         """Set the user to the current user."""
         serializer.save(user=self.request.user)
 
-class ChatViewSet(viewsets.ViewSet):
+class ChatViewSet(ChatServiceMixin, viewsets.ViewSet):
     """
     ViewSet for chat operations that don't require a session.
     """
@@ -598,28 +841,29 @@ class ChatViewSet(viewsets.ViewSet):
             validated_data = serializer.validated_data
             ai_agent_id = validated_data.get("ai_agent_id")
             message_content = validated_data["message"]
+            temperature = validated_data.get("temperature")
+            max_tokens = validated_data.get("max_tokens")
             page_content = validated_data.get("page_content")
-            
+            reservation = None
+
             def get_user_name(u):
                 return f"{u.first_name} {u.last_name}".strip() or u.username
-            
+
             full_user_name = await sync_to_async(get_user_name)(request.user)
 
             try:
-                                                   
                 if not ai_agent_id:
-                                                                                              
                     is_deep = any(kw in message_content.lower() for kw in ["explain", "why", "deep", "how does"]) or len(message_content) > 500
-                    
+
                     if is_deep:
                         ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="anthropic", is_active=True).first())()
-                    
+
                     if not is_deep or not ai_agent:
                         ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="gemini", is_active=True).first())()
-                    
+
                     if not ai_agent:
                         ai_agent = await sync_to_async(AIAgent.objects.first)()
-                        
+
                     if not ai_agent:
                         return Response({"error": "No active AI agent available"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
                 else:
@@ -629,6 +873,19 @@ class ChatViewSet(viewsets.ViewSet):
                     lambda: AIAgentConfiguration.objects.filter(user=request.user, ai_agent=ai_agent).first()
                 )()
 
+                if temperature is None:
+                    temperature = (
+                        user_config.custom_temperature
+                        if user_config and user_config.custom_temperature
+                        else ai_agent.temperature
+                    )
+                if max_tokens is None:
+                    max_tokens = (
+                        user_config.custom_max_tokens
+                        if user_config and user_config.custom_max_tokens
+                        else ai_agent.max_tokens
+                    )
+
                 messages = []
                 if user_config and user_config.system_prompt:
                     messages.append({"role": "system", "content": user_config.system_prompt})
@@ -636,6 +893,42 @@ class ChatViewSet(viewsets.ViewSet):
                 messages.append({"role": "user", "content": message_content})
 
                 is_streaming = validated_data.get("stream", False)
+
+                if CreditMeteringManager.is_enabled():
+                    try:
+                        reservation = await sync_to_async(CreditMeteringManager.reserve_for_chat)(
+                            user=request.user,
+                            session_id=None,
+                            message_id=None,
+                            max_tokens=max_tokens,
+                            call_type="quick_chat",
+                        )
+                    except InsufficientCreditsError as e:
+                        err_msg = str(e)
+                        err_avail = e.available
+                        err_req = e.required
+                        if is_streaming:
+                            async def sse_insufficient():
+                                err_data = json.dumps({
+                                    "error": err_msg,
+                                    "error_code": "insufficient_credits",
+                                    "available": err_avail,
+                                    "required": err_req,
+                                })
+                                yield f"data: {err_data}\n\n"
+                            return StreamingHttpResponse(
+                                sync_stream_adapter(sse_insufficient),
+                                content_type="text/event-stream",
+                            )
+                        return Response(
+                            {
+                                "error": "insufficient_credits",
+                                "message": err_msg,
+                                "available": err_avail,
+                                "required": err_req,
+                            },
+                            status=status.HTTP_402_PAYMENT_REQUIRED,
+                        )
 
                 if is_streaming:
                     return await self._handle_streaming_response(
@@ -647,32 +940,84 @@ class ChatViewSet(viewsets.ViewSet):
                         max_tokens=max_tokens,
                         page_content=page_content,
                         user=request.user,
+                        reservation=reservation,
                     )
-                
-                response_data = await ai_service.generate_response(
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    page_content=page_content,
-                    user_name=full_user_name,
+
+                ai_service = AIServiceFactory.create_service(
+                    ai_agent.provider, ai_agent.model_name
                 )
 
-                return Response(
-                    {
-                        "response": response_data["response"],
-                        "tokens_used": response_data.get("tokens_used"),
-                        "response_time_ms": response_data.get("response_time_ms"),
-                        "metadata": response_data.get("metadata", {}),
-                    },
-                    status=status.HTTP_200_OK,
-                )
+                try:
+                    response_data = await ai_service.generate_response(
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        page_content=page_content,
+                        user_name=full_user_name,
+                    )
+                except Exception as ai_err:
+                    if reservation:
+                        await sync_to_async(CreditMeteringManager.release_for_chat)(
+                            reservation=reservation,
+                            reason="ai_service_error",
+                        )
+                        reservation = None
+                    raise ai_err
+
+                credits_used = None
+                if reservation:
+                    usage_dict = CreditMeteringManager.extract_token_usage(
+                        provider=ai_agent.provider,
+                        model_name=ai_agent.model_name,
+                        response_data=response_data,
+                        full_response_text=response_data.get("response", ""),
+                        messages=messages,
+                    )
+                    usage_rec = await sync_to_async(CreditMeteringManager.settle_for_chat)(
+                        reservation=reservation,
+                        provider=ai_agent.provider,
+                        model_name=ai_agent.model_name,
+                        usage_dict=usage_dict,
+                        call_type="quick_chat",
+                        status="completed",
+                    )
+                    reservation = None
+                    if usage_rec:
+                        credits_used = usage_rec.credits_charged
+
+                resp_payload = {
+                    "response": response_data["response"],
+                    "tokens_used": response_data.get("tokens_used"),
+                    "response_time_ms": response_data.get("response_time_ms"),
+                    "metadata": response_data.get("metadata", {}),
+                }
+                if credits_used is not None:
+                    resp_payload["credits_used"] = credits_used
+
+                return Response(resp_payload, status=status.HTTP_200_OK)
 
             except AIServiceError as e:
+                if reservation:
+                    try:
+                        await sync_to_async(CreditMeteringManager.release_for_chat)(
+                            reservation=reservation,
+                            reason="ai_service_error",
+                        )
+                    except Exception:
+                        pass
                 return Response(
                     {"error": f"AI service error: {str(e)}"},
                     status=status.HTTP_503_SERVICE_UNAVAILABLE,
                 )
             except Exception as e:
+                if reservation:
+                    try:
+                        await sync_to_async(CreditMeteringManager.release_for_chat)(
+                            reservation=reservation,
+                            reason="unexpected_error",
+                        )
+                    except Exception:
+                        pass
                 return Response(
                     {"error": f"Unexpected error: {str(e)}"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -869,3 +1214,152 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
                 {"detail": "Interview ended but report generation failed.", "error": str(e)},
                 status=status.HTTP_200_OK,                                           
             )
+
+
+class LabScoringViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for AI-powered Lab Scoring (System Design, Practical Labs, etc.).
+    Leverages the LabScoreEvaluatorFactory with DeepSeek / Gemini Flash models.
+    """
+    queryset = LabScoringEvaluation.objects.all()
+    serializer_class = LabScoringEvaluationSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user and user.is_authenticated:
+            if hasattr(user, "is_admin") and user.is_admin():
+                return LabScoringEvaluation.objects.all()
+            return LabScoringEvaluation.objects.filter(user=user)
+        return LabScoringEvaluation.objects.none()
+
+    @action(detail=False, methods=["post"], url_path="system-design")
+    def score_system_design(self, request):
+        """
+        Specialized endpoint for scoring a System Design lab submission.
+        Payload:
+        {
+            "lab_context": { ... },
+            "user_submission": { ... },
+            "provider": "deepseek",  # optional (defaults to deepseek)
+            "model_name": "deepseek-chat", # optional
+            "save_record": true # optional
+        }
+        """
+        data = request.data
+        lab_context = data.get("lab_context", {})
+        user_submission = data.get("user_submission", {})
+        provider = data.get("provider", "deepseek")
+        model_name = data.get("model_name")
+        save_record = data.get("save_record", True)
+
+        evaluator = LabScoreEvaluatorFactory.get_evaluator(
+            lab_type="system_design",
+            provider=provider,
+            model_name=model_name,
+        )
+
+        try:
+            eval_result = evaluator.evaluate(
+                lab_context=lab_context,
+                user_submission=user_submission,
+            )
+
+            record_id = None
+            if save_record:
+                user = request.user if request.user and request.user.is_authenticated else None
+                lab_id = str(lab_context.get("lab_id") or "")
+                ticket_id = str(lab_context.get("ticket_id") or "")
+
+                record = LabScoringEvaluation.objects.create(
+                    user=user,
+                    lab_id=lab_id,
+                    ticket_id=ticket_id,
+                    lab_type="system_design",
+                    provider=eval_result.get("model_meta", {}).get("provider", provider),
+                    model_name=eval_result.get("model_meta", {}).get("model", model_name or "deepseek-chat"),
+                    overall_score=eval_result.get("overall_score", 0.0),
+                    passed=eval_result.get("passed", False),
+                    lab_context=lab_context,
+                    user_submission=user_submission,
+                    evaluation_result=eval_result,
+                    response_time_ms=eval_result.get("model_meta", {}).get("latency_ms"),
+                )
+                record_id = str(record.id)
+
+            eval_result["evaluation_id"] = record_id
+            return Response(eval_result, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error evaluating system design: {str(e)}", exc_info=True)
+            return Response(
+                {"error": "Failed to evaluate system design", "detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    @action(detail=False, methods=["post"], url_path="evaluate")
+    def evaluate_generic(self, request):
+        """
+        Generic lab evaluation endpoint driven by the LabScoreEvaluatorFactory.
+        Payload:
+        {
+            "lab_type": "system_design" | "practical",
+            "lab_context": { ... },
+            "user_submission": { ... },
+            "provider": "deepseek",
+            "model_name": "deepseek-chat"
+        }
+        """
+        serializer = LabScoringRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        valid_data = serializer.validated_data
+        lab_type = valid_data.get("lab_type", "system_design")
+        lab_context = valid_data.get("lab_context", {})
+        user_submission = valid_data.get("user_submission", {})
+        provider = valid_data.get("provider", "deepseek")
+        model_name = valid_data.get("model_name") or None
+        save_record = valid_data.get("save_record", True)
+
+        evaluator = LabScoreEvaluatorFactory.get_evaluator(
+            lab_type=lab_type,
+            provider=provider,
+            model_name=model_name,
+        )
+
+        try:
+            eval_result = evaluator.evaluate(
+                lab_context=lab_context,
+                user_submission=user_submission,
+            )
+
+            record_id = None
+            if save_record:
+                user = request.user if request.user and request.user.is_authenticated else None
+                record = LabScoringEvaluation.objects.create(
+                    user=user,
+                    lab_id=str(lab_context.get("lab_id") or ""),
+                    ticket_id=str(lab_context.get("ticket_id") or ""),
+                    lab_type=lab_type,
+                    provider=eval_result.get("model_meta", {}).get("provider", provider),
+                    model_name=eval_result.get("model_meta", {}).get("model", model_name or "deepseek-chat"),
+                    overall_score=eval_result.get("overall_score", 0.0),
+                    passed=eval_result.get("passed", False),
+                    lab_context=lab_context,
+                    user_submission=user_submission,
+                    evaluation_result=eval_result,
+                    response_time_ms=eval_result.get("model_meta", {}).get("latency_ms"),
+                )
+                record_id = str(record.id)
+
+            eval_result["evaluation_id"] = record_id
+            return Response(eval_result, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error in generic lab evaluation: {str(e)}", exc_info=True)
+            return Response(
+                {"error": "Failed to evaluate lab submission", "detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+

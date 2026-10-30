@@ -1,0 +1,25 @@
+{
+  "labs": [
+    {
+      "id": "6cbecb18-5c48-42b5-b036-16820dfc0f26",
+      "title": "System Design Lab",
+      "type": "SYSTEM_DESIGN",
+      "description": "Master end-to-end distributed system design across 4 progressive sprints: High-Level Architecture (HLD), Sequence Interaction Flows (Mermaid), Database Modeling (DBML), and REST API Contract Engineering.",
+      "difficulty": "MEDIUM",
+      "icon": "Layers",
+      "prerequisites": "Basic understanding of client-server architecture, databases, and HTTP protocol.",
+      "skills": [
+        "System Design",
+        "High-Level Architecture (HLD)",
+        "Sequence Diagrams (Mermaid)",
+        "Database Design (DBML)",
+        "REST API Design",
+        "Scalability & Caching",
+        "Microservices",
+        "Event-Driven Architecture"
+      ],
+      "git_repo_starter_url": "",
+      "status": "active"
+    }
+  ]
+}

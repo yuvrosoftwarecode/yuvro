@@ -10,6 +10,7 @@ import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
 import { useAuth } from "@/lib/auth";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 import { StartLabModal } from "@/components/student/StartLabModal";
+import { LabIcon } from "@/components/LabIcon";
 import {
   ArrowRight,
   Sparkles,
@@ -81,9 +82,15 @@ const FEATURED_SLUGS = [
 const LAB_CATEGORY: Record<string, Category> = {
   java: "Backend",
   javaspring: "Backend",
+  java_spring_todo_lab: "Backend",
   python: "Backend",
   pydjango: "Backend",
   pyflask: "Backend",
+  flask_todo_lab: "Backend",
+  nodejs: "Backend",
+  express: "Backend",
+  node: "Backend",
+  nodejs_todo_lab: "Backend",
   programming: "Backend",
   datastructures: "Backend",
   systemdesign: "Backend",
@@ -99,10 +106,16 @@ const LAB_CATEGORY: Record<string, Category> = {
 
 const LAB_LANGUAGES: Record<string, string[]> = {
   java: ["Java"],
-  javaspring: ["Java"],
+  javaspring: ["Java", "Spring Boot"],
+  java_spring_todo_lab: ["Java", "Spring Boot"],
   python: ["Python"],
   pydjango: ["Python"],
   pyflask: ["Python"],
+  flask_todo_lab: ["Python", "Flask"],
+  nodejs: ["JavaScript", "Node.js"],
+  express: ["JavaScript", "Node.js"],
+  node: ["JavaScript", "Node.js"],
+  nodejs_todo_lab: ["JavaScript", "Node.js"],
   programming: ["Python", "JavaScript"],
   datastructures: ["Python", "Java", "C++"],
   systemdesign: [],
@@ -908,7 +921,9 @@ function Hub() {
                     />
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="text-3xl">{lab.icon}</div>
+                        <div className="mb-2">
+                          <LabIcon name={lab.name} icon={lab.icon} size="h-8 w-8" />
+                        </div>
                         <h3 className="mt-3 font-semibold">{lab.name}</h3>
                         <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                           {lab.description}
@@ -1040,7 +1055,9 @@ function EnrolledCard({ lab }: { lab: CatalogLab }) {
       <div className="absolute inset-x-0 top-0 h-1" style={{ background: `var(--${lab.color})` }} />
       <div className="flex items-start justify-between">
         <div className="min-w-0">
-          <div className="text-2xl">{lab.icon}</div>
+          <div className="mb-2">
+            <LabIcon name={lab.name} icon={lab.icon} size="h-6 w-6" />
+          </div>
           <h3 className="mt-2 truncate font-semibold">{lab.name}</h3>
           <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{lab.description}</p>
         </div>
@@ -1107,7 +1124,9 @@ function FeaturedCard({
         )}
       </div>
       <div className="mt-3 flex items-start gap-3">
-        <div className="text-3xl">{lab.icon}</div>
+        <div className="shrink-0">
+          <LabIcon name={lab.name} icon={lab.icon} size="h-8 w-8" />
+        </div>
         <div className="min-w-0">
           <h3 className="truncate font-semibold">{lab.name}</h3>
           <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{lab.description}</p>
@@ -1181,7 +1200,9 @@ function CatalogCard({
     <div className="rounded-xl border bg-card p-4 transition hover:border-primary/40">
       <div className="flex items-start justify-between gap-3 flex-1">
         <div className="flex min-w-0 items-start gap-2.5">
-          <div className="shrink-0 text-xl">{lab.icon}</div>
+          <div className="shrink-0">
+            <LabIcon name={lab.name} icon={lab.icon} size="h-5 w-5" />
+          </div>
           <div className="min-w-0">
             <div className="truncate text-sm font-medium">{lab.name}</div>
             <div className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import { yhubApiAuthUtil } from "../../utils/RestApiAuthUtil";
+import { VitarkaCodeEditor, EditorDisplayMode } from "./VitarkaCodeEditor";
 
 interface Message {
   type: "ai" | "user";
@@ -32,7 +33,7 @@ export const VitarkaInterviewScreen = forwardRef<
     onQuestionChange,
     onSessionStart,
   },
-  ref
+  ref,
 ) {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [conversation, setConversation] = useState<Message[]>([]);
@@ -48,6 +49,57 @@ export const VitarkaInterviewScreen = forwardRef<
   const [micVolume, setMicVolume] = useState<number>(0);
   const [manualText, setManualText] = useState("");
   const [showInactivityModal, setShowInactivityModal] = useState(false);
+
+  // Code editor states
+  const [showCodeEditor, setShowCodeEditor] = useState(false);
+  const [editorDisplayMode, setEditorDisplayMode] = useState<EditorDisplayMode>("normal");
+  const [codeContent, setCodeContent] = useState("");
+  const [codeLanguage, setCodeLanguage] = useState("python");
+  const codeContentRef = useRef(codeContent);
+  const codeLanguageRef = useRef(codeLanguage);
+
+  useEffect(() => {
+    codeContentRef.current = codeContent;
+  }, [codeContent]);
+
+  useEffect(() => {
+    codeLanguageRef.current = codeLanguage;
+  }, [codeLanguage]);
+
+  const checkIfCodingQuestion = (text: string, resData?: Record<string, unknown>): boolean => {
+    if (!text) return false;
+    const meta = resData?.metadata as Record<string, unknown> | undefined;
+    if (resData?.question_kind === "coding" || meta?.requires_code === true) {
+      return true;
+    }
+    const lower = text.toLowerCase();
+    const codingTriggers = [
+      "write a code",
+      "write code",
+      "write the code",
+      "write a program",
+      "write a function",
+      "write a method",
+      "implement a function",
+      "implement the function",
+      "implement a method",
+      "implement an algorithm",
+      "write a query",
+      "write an sql",
+      "write a class",
+      "code a solution",
+      "code this",
+      "code it",
+      "write a snippet",
+      "code snippet",
+      "can you code",
+      "please code",
+    ];
+    return (
+      codingTriggers.some((trigger) => lower.includes(trigger)) ||
+      /```[a-z]*\n[\s\S]*?```/i.test(text)
+    );
+  };
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -256,7 +308,11 @@ export const VitarkaInterviewScreen = forwardRef<
       } else {
         // Small delay to prevent speaker reverberation from triggering mic
         setTimeout(() => {
-          if (!isFinishedRef.current && !isUnmountedRef.current && !window.speechSynthesis.speaking) {
+          if (
+            !isFinishedRef.current &&
+            !isUnmountedRef.current &&
+            !window.speechSynthesis.speaking
+          ) {
             setInterviewState("listening");
             setCurrentUserAnswer("");
             resetInactivityTimer();
@@ -298,7 +354,14 @@ export const VitarkaInterviewScreen = forwardRef<
       });
       if (res.interview_session_id) onSessionStart?.(res.interview_session_id);
 
-      const firstQ = (res.first_question || "Hello. Let's begin the discussion.").replace(/`+/g, "");
+      const firstQRaw = res.first_question || "Hello. Let's begin the discussion.";
+      const isCoding = checkIfCodingQuestion(firstQRaw, res);
+      setShowCodeEditor(isCoding);
+      if (isCoding) {
+        setEditorDisplayMode("normal");
+      }
+
+      const firstQ = firstQRaw.replace(/`+/g, "");
       setConversation([{ type: "ai", content: firstQ }]);
       onQuestionChange?.(firstQ);
       speakText(firstQ);
@@ -393,15 +456,21 @@ export const VitarkaInterviewScreen = forwardRef<
     }
 
     inactivityAttemptsRef.current = 0;
-    
+
     if (isWaitingForConfirmationRef.current) {
       const lowerAnswer = cleanAnswer.toLowerCase();
       isWaitingForConfirmationRef.current = false;
-      
+
       setConversation((prev) => [...prev, { type: "user", content: cleanAnswer }]);
       setCurrentUserAnswer("");
-      
-      if (lowerAnswer.includes("no") || lowerAnswer.includes("stop") || lowerAnswer.includes("end") || lowerAnswer.includes("quit") || lowerAnswer.includes("exit")) {
+
+      if (
+        lowerAnswer.includes("no") ||
+        lowerAnswer.includes("stop") ||
+        lowerAnswer.includes("end") ||
+        lowerAnswer.includes("quit") ||
+        lowerAnswer.includes("exit")
+      ) {
         const promptText = "Okay, thanks for your time. I am ending the interview.";
         setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
         speakText(promptText, () => {
@@ -409,7 +478,8 @@ export const VitarkaInterviewScreen = forwardRef<
         });
         return;
       } else {
-        const promptText = "Great, let's continue. Could you please provide your answer to the previous question?";
+        const promptText =
+          "Great, let's continue. Could you please provide your answer to the previous question?";
         setConversation((prev) => [...prev, { type: "ai", content: promptText }]);
         speakText(promptText);
         return;
@@ -420,7 +490,14 @@ export const VitarkaInterviewScreen = forwardRef<
     setInterviewState("thinking");
     recognitionRef.current?.stop();
 
-    setConversation((prev) => [...prev, { type: "user", content: cleanAnswer }]);
+    // If candidate wrote code, format the answer to include code block
+    let finalAnswerToSubmit = cleanAnswer;
+    const currentCode = codeContentRef.current?.trim();
+    if (showCodeEditor && currentCode) {
+      finalAnswerToSubmit = `${cleanAnswer}\n\n\`\`\`${codeLanguageRef.current}\n${currentCode}\n\`\`\``;
+    }
+
+    setConversation((prev) => [...prev, { type: "user", content: finalAnswerToSubmit }]);
     setCurrentUserAnswer("");
 
     try {
@@ -430,12 +507,19 @@ export const VitarkaInterviewScreen = forwardRef<
         {
           source: "evaluation",
           interview_session_id: sessionId,
-          user_answer: cleanAnswer,
+          user_answer: finalAnswerToSubmit,
           status: "normal",
         },
       );
 
-      const nextQ = (res.question || "").replace(/`+/g, "");
+      const nextQRaw = res.question || "";
+      const isCoding = checkIfCodingQuestion(nextQRaw, res);
+      setShowCodeEditor(isCoding);
+      if (isCoding) {
+        setEditorDisplayMode("normal");
+      }
+
+      const nextQ = nextQRaw.replace(/`+/g, "");
       setConversation((prev) => [...prev, { type: "ai", content: nextQ }]);
       onQuestionChange?.(nextQ);
       speakText(nextQ);
@@ -576,7 +660,7 @@ export const VitarkaInterviewScreen = forwardRef<
                 className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-[15px] leading-relaxed shadow-sm ${msg.type === "user" ? "bg-neutral-900 text-white rounded-br-none" : "bg-neutral-50 text-neutral-900 rounded-bl-none border border-neutral-100"}`}
+                  className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-5 py-3.5 text-[15px] leading-relaxed shadow-sm ${msg.type === "user" ? "bg-neutral-900 text-white rounded-br-none" : "bg-neutral-50 text-neutral-900 rounded-bl-none border border-neutral-100"}`}
                 >
                   {msg.content}
                 </div>
@@ -612,6 +696,20 @@ export const VitarkaInterviewScreen = forwardRef<
             </button>
           </form>
         </div>
+
+        {/* Code Editor for Coding Questions */}
+        {showCodeEditor && (
+          <div className="w-full">
+            <VitarkaCodeEditor
+              code={codeContent}
+              onChange={setCodeContent}
+              language={codeLanguage}
+              onLanguageChange={setCodeLanguage}
+              displayMode={editorDisplayMode}
+              onDisplayModeChange={setEditorDisplayMode}
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex w-full flex-col gap-6 lg:w-80">
@@ -627,6 +725,28 @@ export const VitarkaInterviewScreen = forwardRef<
           </div>
         </div>
 
+        {/* Floating thumbnail of video & status when editor is maximized */}
+        {showCodeEditor && editorDisplayMode === "maximized" && (
+          <div className="fixed bottom-6 right-6 z-50 w-72 overflow-hidden rounded-xl border border-neutral-700 bg-neutral-900 shadow-2xl">
+            <div className="relative">
+              <video ref={videoRef} muted playsInline className="h-40 w-full object-cover" />
+              <div className="absolute top-2 left-2 flex items-center gap-2 rounded-full bg-black/60 px-2.5 py-1 backdrop-blur-sm">
+                <span
+                  className={`h-2 w-2 rounded-full ${interviewState === "listening" ? "bg-emerald-400" : "bg-neutral-400"}`}
+                ></span>
+                <span className="text-[11px] font-medium text-white capitalize">
+                  {interviewState}
+                </span>
+              </div>
+            </div>
+            <div className="p-3 text-[12px] text-neutral-300">
+              <p className="line-clamp-2">
+                {conversation[conversation.length - 1]?.content || "Listening..."}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
           <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wider text-neutral-500">
             How it works
@@ -641,6 +761,12 @@ export const VitarkaInterviewScreen = forwardRef<
             <li className="flex gap-2">
               <span className="text-neutral-900">3.</span> If your microphone is not recognized, you can use the text box at the bottom to type your answer.
             </li>
+            {showCodeEditor && (
+              <li className="flex gap-2 text-emerald-600 font-medium">
+                <span>4.</span> Write and Run code in the editor above. You can minimize or maximize
+                it as needed.
+              </li>
+            )}
           </ul>
         </div>
       </div>

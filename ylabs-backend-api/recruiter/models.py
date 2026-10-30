@@ -111,3 +111,23 @@ class RecruiterTeamQuota(BaseTimestampedAdminModel):
         # A simple update expression:
         setattr(self, field_name, models.F(field_name) + amount)
         self.save(update_fields=[field_name])
+
+class GithubAppInstallation(BaseTimestampedAdminModel):
+    installation_id = models.CharField(max_length=255, unique=True)
+    account_id = models.CharField(max_length=255)
+    account_login = models.CharField(max_length=255)
+    account_type = models.CharField(max_length=50) # 'User' or 'Organization'
+    is_active = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return f"{self.account_login} ({self.installation_id})"
+
+class GithubAppInstallationGrant(BaseTimestampedAdminModel):
+    installation = models.ForeignKey(GithubAppInstallation, on_delete=models.CASCADE, related_name="grants")
+    recruiter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="github_app_grants")
+    
+    class Meta:
+        unique_together = ("installation", "recruiter")
+
+    def __str__(self):
+        return f"{self.recruiter} -> {self.installation.account_login}"

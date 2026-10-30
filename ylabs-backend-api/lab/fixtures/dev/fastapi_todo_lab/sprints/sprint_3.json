@@ -1,0 +1,153 @@
+{
+  "title": "Sprint 3: Core Task CRUD Operations",
+  "description": "Build user-scoped task creation, listing, and single-item retrieval endpoints with horizontal access control (IDOR prevention).",
+  "order_index": 3,
+  "tickets": [
+    {
+      "title": "Ticket 1 - Create Task API",
+      "ticket_slug": "fastapi-todo-31",
+      "description": "Implement `POST /api/tasks` in `app/routers/tasks.py` to create a task for the authenticated user.\n\n### Specifications\n1. Protect endpoint with `current_user: User = Depends(get_current_user)`.\n2. Accept `TaskCreate` payload (`title`, `description`).\n3. Assign `user_id = current_user.id`.\n4. Validate that `title` is not empty. If empty, return `400 Bad Request` (or 422).\n5. Save to database and return `201 Created` with `TaskResponse`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Implement authenticated POST endpoints.",
+        "Associate created entities with authenticated user ID.",
+        "Return proper REST status code 201 Created."
+      ],
+      "tasks": [
+        {
+          "title": "Protect POST /api/tasks requiring Bearer token auth",
+          "points": 40
+        },
+        {
+          "title": "Save task associated with current_user.id returning HTTP 201",
+          "points": 40
+        },
+        {
+          "title": "Validate non-empty title returning 400 or 422 on invalid input",
+          "points": 20
+        }
+      ],
+      "common_mistakes": [
+        "Allowing client to specify user_id in the request body (security flaw).",
+        "Returning HTTP 200 instead of 201 Created."
+      ],
+      "hints": [
+        "Always set `user_id = current_user.id` on server side.",
+        "Use `status_code=status.HTTP_201_CREATED`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routers/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
+      },
+      "solution": {
+        "app/routers/tasks.py": "from fastapi import APIRouter, Depends, HTTPException, status\nfrom typing import List, Optional\nfrom sqlalchemy.orm import Session\nfrom app.database import get_db\nfrom app.models import Task, User\nfrom app.schemas import TaskCreate, TaskResponse\nfrom app.dependencies import get_current_user\n\nrouter = APIRouter()\n\n@router.post(\"\", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)\ndef create_task(\n    task_in: TaskCreate,\n    current_user: User = Depends(get_current_user),\n    db: Session = Depends(get_db)\n):\n    if not task_in.title or not task_in.title.strip():\n        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=\"Title cannot be empty\")\n    task = Task(\n        title=task_in.title.strip(),\n        description=task_in.description,\n        is_completed=task_in.is_completed,\n        user_id=current_user.id\n    )\n    db.add(task)\n    db.commit()\n    db.refresh(task)\n    return task\n\n# TODO [Sprint 3, Ticket 2]: Implement GET / (List tasks)\n# TODO [Sprint 3, Ticket 3]: Implement GET /{task_id} (Retrieve task)\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - List Authenticated User Tasks",
+      "ticket_slug": "fastapi-todo-32",
+      "description": "Implement `GET /api/tasks` returning all tasks belonging to the authenticated user.\n\n### Specifications\n1. Protect endpoint with `Depends(get_current_user)`.\n2. Query only tasks where `Task.user_id == current_user.id`.\n3. Order tasks by `created_at desc`.\n4. Return `200 OK` with `List[TaskResponse]`.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Filter database queries by authenticated user identity.",
+        "Serialize ORM collections into JSON response lists.",
+        "Enforce tenant/user data isolation."
+      ],
+      "tasks": [
+        {
+          "title": "Implement GET /api/tasks returning list of user tasks with HTTP 200",
+          "points": 50
+        },
+        {
+          "title": "Ensure strict user data isolation (only current user tasks returned)",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Querying all tasks (`db.query(Task).all()`) leaking other users' data.",
+        "Failing to require authentication header."
+      ],
+      "hints": [
+        "Filter query: `db.query(Task).filter(Task.user_id == current_user.id)`.",
+        "Response model: `response_model=List[TaskResponse]`."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routers/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
+      },
+      "solution": {
+        "app/routers/tasks.py": "from fastapi import APIRouter, Depends, HTTPException, status\nfrom typing import List, Optional\nfrom sqlalchemy.orm import Session\nfrom app.database import get_db\nfrom app.models import Task, User\nfrom app.schemas import TaskCreate, TaskResponse\nfrom app.dependencies import get_current_user\n\nrouter = APIRouter()\n\n@router.post(\"\", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)\ndef create_task(\n    task_in: TaskCreate,\n    current_user: User = Depends(get_current_user),\n    db: Session = Depends(get_db)\n):\n    if not task_in.title or not task_in.title.strip():\n        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=\"Title cannot be empty\")\n    task = Task(\n        title=task_in.title.strip(),\n        description=task_in.description,\n        is_completed=task_in.is_completed,\n        user_id=current_user.id\n    )\n    db.add(task)\n    db.commit()\n    db.refresh(task)\n    return task\n\n@router.get(\"\", response_model=List[TaskResponse])\ndef list_tasks(\n    current_user: User = Depends(get_current_user),\n    db: Session = Depends(get_db)\n):\n    return db.query(Task).filter(Task.user_id == current_user.id).all()\n\n# TODO [Sprint 3, Ticket 3]: Implement GET /{task_id} (Retrieve task)\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
+    },
+    {
+      "title": "Ticket 3 - Retrieve Single Task by ID with IDOR Access Control",
+      "ticket_slug": "fastapi-todo-33",
+      "description": "Implement `GET /api/tasks/{task_id}` to retrieve a specific task.\n\n### Specifications\n1. Protect endpoint with `Depends(get_current_user)`.\n2. Query task by `task_id`.\n3. **IDOR Prevention:** If the task does not exist OR belongs to another user (`task.user_id != current_user.id`), return `404 Not Found`.\n4. If task belongs to `current_user`, return `200 OK` with `TaskResponse`.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Handle dynamic URL path parameters in FastAPI.",
+        "Implement object-level access control checks.",
+        "Prevent Insecure Direct Object Reference (IDOR) vulnerabilities."
+      ],
+      "tasks": [
+        {
+          "title": "Retrieve task by path parameter returning HTTP 200 for owner",
+          "points": 40
+        },
+        {
+          "title": "Enforce horizontal authorization returning 404/403 for unauthorized users",
+          "points": 40
+        },
+        {
+          "title": "Return HTTP 404 Not Found for non-existent IDs",
+          "points": 20
+        }
+      ],
+      "common_mistakes": [
+        "Returning another user's task without checking ownership (critical IDOR bug).",
+        "Crashing with 500 when non-existent ID is passed."
+      ],
+      "hints": [
+        "Check `if not task or task.user_id != current_user.id: raise HTTPException(status_code=404)`.",
+        "Returning 404 instead of 403 prevents attackers from enumerating valid task IDs."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "clean_code": 0,
+        "visual_accuracy": 0,
+        "starter_path": "app/routers/tasks.py",
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
+      },
+      "solution": {
+        "app/routers/tasks.py": "from fastapi import APIRouter, Depends, HTTPException, status\nfrom typing import List, Optional\nfrom sqlalchemy.orm import Session\nfrom app.database import get_db\nfrom app.models import Task, User\nfrom app.schemas import TaskCreate, TaskResponse\nfrom app.dependencies import get_current_user\n\nrouter = APIRouter()\n\n@router.post(\"\", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)\ndef create_task(\n    task_in: TaskCreate,\n    current_user: User = Depends(get_current_user),\n    db: Session = Depends(get_db)\n):\n    if not task_in.title or not task_in.title.strip():\n        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=\"Title cannot be empty\")\n    task = Task(\n        title=task_in.title.strip(),\n        description=task_in.description,\n        is_completed=task_in.is_completed,\n        user_id=current_user.id\n    )\n    db.add(task)\n    db.commit()\n    db.refresh(task)\n    return task\n\n@router.get(\"\", response_model=List[TaskResponse])\ndef list_tasks(\n    current_user: User = Depends(get_current_user),\n    db: Session = Depends(get_db)\n):\n    return db.query(Task).filter(Task.user_id == current_user.id).all()\n\n@router.get(\"/{task_id}\", response_model=TaskResponse)\ndef get_task(\n    task_id: int,\n    current_user: User = Depends(get_current_user),\n    db: Session = Depends(get_db)\n):\n    task = db.query(Task).filter(Task.id == task_id).first()\n    if not task:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Task not found\")\n    if task.user_id != current_user.id:\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Task not found\")\n    return task\n\n# TODO [Sprint 4, Ticket 1]: Implement PUT/PATCH /{task_id} (Update task)\n# TODO [Sprint 4, Ticket 2]: Implement DELETE /{task_id} (Delete task)\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
+    }
+  ]
+}

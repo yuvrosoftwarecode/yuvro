@@ -9,6 +9,7 @@ from .views import (
     AIAgentConfigurationViewSet,
     ChatViewSet,
     InterviewSessionViewSet,
+    LabScoringViewSet,
 )
 
 router = DefaultRouter()
@@ -21,6 +22,7 @@ router.register(
 )
 router.register(r"chat", ChatViewSet, basename="chat")
 router.register(r"interviews", InterviewSessionViewSet, basename="interviewsession")
+router.register(r"scoring", LabScoringViewSet, basename="labscoring")
 
 urlpatterns = [
     path("", include(router.urls)),

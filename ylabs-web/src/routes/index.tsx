@@ -17,7 +17,9 @@ import {
   Download,
   ChevronRight,
   Circle,
+  Boxes,
 } from "lucide-react";
+import { SystemDesignStudio } from "@/routes/system-design-studio";
 
 export const Route = createFileRoute("/")({
   beforeLoad: () => {
@@ -106,6 +108,7 @@ function Landing() {
       <ReportSplit />
       <EvaluationFlow />
       <SimulationLabs />
+      <SystemDesignSection />
       <CapabilityMetrics />
       <ReportPreview />
       <ProcessStrip />
@@ -199,6 +202,7 @@ function LandingNav() {
         </Link>
         <nav className="ml-10 hidden md:flex items-center gap-7 text-sm text-[#6B6B6B]">
           <a href="#labs" className="hover:text-[#0A0A0A] transition">Labs</a>
+          <Link to="/system-design-studio" className="hover:text-[#0A0A0A] transition">System Design Studio</Link>
           <a href="#process" className="hover:text-[#0A0A0A] transition">How it works</a>
           <a href="#report" className="hover:text-[#0A0A0A] transition">Report</a>
           <Link to="/pricing" className="hover:text-[#0A0A0A] transition">Pricing</Link>
@@ -543,6 +547,80 @@ function SimulationLabs() {
               </div>
             </Reveal>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================
+   5b — System Design Studio (Live Sandbox)
+   ================================================================ */
+function SystemDesignSection() {
+  return (
+    <section id="system-design-studio" className="border-t border-[#E8E6E1] bg-white">
+      <div className="mx-auto max-w-7xl px-6 py-[100px]">
+        <Reveal>
+          <div className="flex items-end justify-between gap-8 flex-wrap mb-10">
+            <div className="max-w-2xl">
+              <SectionGlyph />
+              <div className="font-mono text-[12px] uppercase tracking-[0.08em] text-[#6B6B6B]">
+                Interactive Simulation · System Design Studio
+              </div>
+              <h2 className="mt-3 text-[44px] leading-[1.05] tracking-[-0.02em] font-bold">
+                Architecture, Sequence,<br />
+                <span className="text-[#6B6B6B]">Schema and APIs in one canvas.</span>
+              </h2>
+              <p className="mt-4 text-[16px] text-[#6B6B6B] leading-relaxed">
+                Experience our full system design studio right in your browser. Drag and connect components, write Mermaid sequence flows, design DBML schemas, and inspect REST contracts. Export your design as JSON or import your own architecture anytime.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/system-design-studio"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#0A0A0A] text-white px-5 py-2.5 text-sm font-medium hover:bg-neutral-800 transition shadow-sm"
+              >
+                <span>Launch Full Studio</span>
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </Reveal>
+
+        {/* Feature Pillars */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="rounded-lg border border-[#E8E6E1] bg-[#FAFAF8] p-4">
+            <div className="font-semibold text-sm text-[#0A0A0A] flex items-center gap-1.5">
+              <Boxes className="h-4 w-4 text-amber-600" />
+              HLD Architecture
+            </div>
+            <p className="mt-1 text-xs text-[#6B6B6B]">Drag & drop 200+ microservices, databases, caches & edge nodes.</p>
+          </div>
+          <div className="rounded-lg border border-[#E8E6E1] bg-[#FAFAF8] p-4">
+            <div className="font-semibold text-sm text-[#0A0A0A] flex items-center gap-1.5">
+              <GitBranch className="h-4 w-4 text-blue-600" />
+              Sequence Flows
+            </div>
+            <p className="mt-1 text-xs text-[#6B6B6B]">Model distributed interactions with live Mermaid diagram rendering.</p>
+          </div>
+          <div className="rounded-lg border border-[#E8E6E1] bg-[#FAFAF8] p-4">
+            <div className="font-semibold text-sm text-[#0A0A0A] flex items-center gap-1.5">
+              <Database className="h-4 w-4 text-emerald-600" />
+              DB Schema (DBML)
+            </div>
+            <p className="mt-1 text-xs text-[#6B6B6B]">Design relational schemas & foreign key relations with visual ERDs.</p>
+          </div>
+          <div className="rounded-lg border border-[#E8E6E1] bg-[#FAFAF8] p-4">
+            <div className="font-semibold text-sm text-[#0A0A0A] flex items-center gap-1.5">
+              <FileCode2 className="h-4 w-4 text-purple-600" />
+              REST API Contracts
+            </div>
+            <p className="mt-1 text-xs text-[#6B6B6B]">Draft endpoint schemas, HTTP status codes, and request/response payloads.</p>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-[#E8E6E1] overflow-hidden shadow-lg bg-background h-[740px] flex flex-col">
+          <SystemDesignStudio slug="systemdesign-url-shortener" isLandingPage={true} />
         </div>
       </div>
     </section>

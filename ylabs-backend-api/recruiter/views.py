@@ -165,3 +165,179 @@ class RecruiterTeamViewSet(viewsets.ModelViewSet):
         team.quota.save(update_fields=["used_recruiter_logins"])
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+import os
+import uuid
+import urllib.parse
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from django.conf import settings
+from django.shortcuts import redirect
+from django.core.cache import cache
+from .github_app_client import GithubAppClient
+from .models import GithubAppInstallation, GithubAppInstallationGrant
+
+class GithubAppInstallRedirectView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        github_app_name = getattr(settings, 'GITHUB_APP_NAME', os.environ.get('GITHUB_APP_NAME', 'yuvro-labs-app'))
+        
+        # Generate cryptographically secure state
+        state = str(uuid.uuid4())
+        
+        # Store state in cache for 15 minutes mapped to the user ID
+        cache_key = f"github_app_state_{state}"
+        cache.set(cache_key, request.user.id, timeout=900)
+        
+        url = f"https://github.com/apps/{github_app_name}/installations/new?state={state}"
+        return Response({"url": url})
+
+from .models import GithubAppInstallation, GithubAppInstallationGrant
+
+class GithubAppInstallCallbackView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        installation_id = request.data.get('installation_id')
+        setup_action = request.data.get('setup_action')
+        state = request.data.get('state')
+        
+        if not installation_id:
+            return Response({"error": "installation_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not state:
+            return Response({"error": "state is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        cache_key = f"github_app_state_{state}"
+        cached_user_id = cache.get(cache_key)
+        
+        if not cached_user_id or cached_user_id != request.user.id:
+            return Response({"error": "Invalid, expired, or mismatched state."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Clear the state to make it single-use
+        cache.delete(cache_key)
+            
+        try:
+            client = GithubAppClient()
+            details = client.get_installation_details(installation_id)
+            
+            account = details.get('account', {})
+            account_id = str(account.get('id', ''))
+            account_login = account.get('login', '')
+            account_type = account.get('type', '')
+            
+            installation = GithubAppInstallation.objects.filter(installation_id=str(installation_id)).first()
+            if not installation:
+                installation = GithubAppInstallation.objects.create(
+                    installation_id=str(installation_id),
+                    account_id=account_id,
+                    account_login=account_login,
+                    account_type=account_type,
+                    is_active=True,
+                    created_by=request.user,
+                )
+            else:
+                installation.account_id = account_id
+                installation.account_login = account_login
+                installation.account_type = account_type
+                installation.is_active = True
+                installation.save()
+            
+            GithubAppInstallationGrant.objects.get_or_create(
+                installation=installation,
+                recruiter=request.user,
+                defaults={'created_by': request.user}
+            )
+            
+            return Response({
+                "message": "GitHub App installed successfully",
+                "installation_id": installation.installation_id,
+                "account_login": installation.account_login
+            })
+            
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class GithubAppInstallationsView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        grants = GithubAppInstallationGrant.objects.filter(recruiter=request.user, installation__is_active=True).select_related('installation')
+        data = []
+        for grant in grants:
+            inst = grant.installation
+            if inst.account_type == "Organization":
+                manage_url = f"https://github.com/organizations/{inst.account_login}/settings/installations/{inst.installation_id}"
+            else:
+                manage_url = f"https://github.com/settings/installations/{inst.installation_id}"
+            avatar_url = f"https://avatars.githubusercontent.com/u/{inst.account_id}?v=4" if inst.account_id else f"https://github.com/{inst.account_login}.png"
+            data.append({
+                "id": inst.id,
+                "installation_id": inst.installation_id,
+                "account_id": inst.account_id,
+                "account_login": inst.account_login,
+                "account_type": inst.account_type,
+                "avatar_url": avatar_url,
+                "manage_url": manage_url,
+                "connected_at": grant.created_at,
+            })
+        return Response(data)
+        
+    def delete(self, request, installation_id):
+        try:
+            grant = GithubAppInstallationGrant.objects.get(recruiter=request.user, installation__installation_id=installation_id)
+            inst = grant.installation
+            grant.delete()
+            # If no more grants exist, mark the installation inactive
+            if not GithubAppInstallationGrant.objects.filter(installation=inst).exists():
+                inst.is_active = False
+                inst.save()
+            
+            # Uninstall the app directly from user's GitHub account via GitHub App API
+            try:
+                client = GithubAppClient()
+                client.delete_installation(installation_id)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(f"Could not uninstall app {installation_id} on GitHub: {e}")
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except GithubAppInstallationGrant.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+class GithubAppRepositoriesView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, installation_id):
+        try:
+            # Verify ownership via grant
+            grant = GithubAppInstallationGrant.objects.get(recruiter=request.user, installation__installation_id=installation_id, installation__is_active=True)
+            inst = grant.installation
+            
+            client = GithubAppClient()
+            repos = client.get_installation_repositories(inst.installation_id)
+            
+            # Format output
+            result = []
+            for r in repos:
+                result.append({
+                    "id": r.get("id"),
+                    "name": r.get("name"),
+                    "full_name": r.get("full_name"),
+                    "private": r.get("private"),
+                    "default_branch": r.get("default_branch"),
+                    "html_url": r.get("html_url"),
+                    "description": r.get("description"),
+                    "language": r.get("language"),
+                    "updated_at": r.get("updated_at"),
+                })
+                
+            return Response(result)
+        except GithubAppInstallationGrant.DoesNotExist:
+            return Response({"error": "Installation not found or not authorized"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
