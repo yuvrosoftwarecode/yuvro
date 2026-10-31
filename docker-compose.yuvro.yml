@@ -43,7 +43,7 @@ services:
     volumes:
       - yuvro_minio_data:/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || curl -f http://localhost:9000/minio/health/startup || exit 1"]
+      test: ["CMD", "/usr/bin/mc", "ready", "local"]
       interval: 10s
       timeout: 5s
       retries: 5

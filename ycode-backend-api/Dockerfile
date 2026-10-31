@@ -27,10 +27,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=tmpfs,target=/tmp/build-deps \
-    apt-get update -qq && apt-get install -y --no-install-recommends gcc build-essential -qq 2>/dev/null; \
-    pip install --no-cache-dir -r requirements.txt; \
-    apt-get purge -y --auto-remove gcc build-essential 2>/dev/null || true; \
-    rm -rf /var/lib/apt/lists/*
+    apt-get update -qq && apt-get install -y --no-install-recommends gcc build-essential -qq \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get purge -y --auto-remove gcc build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # ── development: bind-mount friendly, runserver ───────────────────────────────
 FROM base AS development
