@@ -842,6 +842,22 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for pt in python_core_topics:
                         if pt not in all_skills:
                             all_skills.append(pt)
+                elif "node" in mock_interview.title.lower():
+                    node_core_topics = [
+                        "Event Loop, Libuv & Concurrency",
+                        "Asynchronous JavaScript (Promises, Async/Await, Microtasks)",
+                        "Streams, Buffers & File System",
+                        "Modules (CommonJS vs ES Modules)",
+                        "HTTP, REST APIs & Frameworks (Express / NestJS / Fastify)",
+                        "Middleware, Error Handling & Logging",
+                        "Database Integration (SQL / NoSQL / ORMs)",
+                        "Authentication & Security (JWT, CORS, OWASP, Rate Limiting)",
+                        "Performance Optimization, Clustering & Worker Threads",
+                        "Unit Testing & Integration Testing (Jest, Supertest)"
+                    ]
+                    for nt in node_core_topics:
+                        if nt not in all_skills:
+                            all_skills.append(nt)
 
                 analysis = {
                     "candidate_name": user.get_full_name() or user.username,
@@ -1019,18 +1035,46 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
                     first_name = (intro_details.get('name') or request.user.first_name or "there").strip().title()
                     if not next_q:
-                        next_q = {
-                            "id": 2,
-                            "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In Python, can you explain the difference between a list and a tuple?",
-                            "topic": "Data Structures (Lists vs Tuples)",
-                            "difficulty": "easy",
-                            "question_type": "technical",
-                            "expected_points": [
-                                "Lists are mutable while tuples are immutable",
-                                "Syntax differences [] vs ()",
-                                "Use cases when to choose a tuple over a list"
-                            ]
-                        }
+                        title_lower = mock_interview.title.lower()
+                        if "node" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In Node.js, can you explain how the Event Loop works and what distinguishes microtasks from macrotasks?",
+                                "topic": "Node.js Event Loop & Concurrency",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Libuv event loop phases (timers, I/O callbacks, check, close)",
+                                    "Microtask queue priority (process.nextTick, Promise callbacks)",
+                                    "Non-blocking I/O and asynchronous event-driven design"
+                                ]
+                            }
+                        elif "data structure" in title_lower or "algorithm" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: Can you explain the fundamental differences between an array and a linked list in terms of memory layout and time complexity?",
+                                "topic": "Data Structures (Arrays vs Linked Lists)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Contiguous memory vs dispersed pointer-linked nodes",
+                                    "O(1) index access in arrays vs O(N) access in linked lists",
+                                    "Insertion and deletion trade-offs"
+                                ]
+                            }
+                        else:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In Python, can you explain the difference between a list and a tuple?",
+                                "topic": "Data Structures (Lists vs Tuples)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Lists are mutable while tuples are immutable",
+                                    "Syntax differences [] vs ()",
+                                    "Use cases when to choose a tuple over a list"
+                                ]
+                            }
 
                     if next_q not in interview:
                         interview.append(next_q)

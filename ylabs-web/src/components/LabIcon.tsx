@@ -104,8 +104,22 @@ export function LabIcon({ name, icon, size = "h-8 w-8", className = "" }: LabIco
 
   const cleanIcon = (icon || "").trim();
   const iconKey = cleanIcon.toLowerCase().replace(/[\s-_]+/g, "");
+  const nameLower = name.toLowerCase();
 
-  // 1. Explicit image URL
+  // 1. Specific Data Structures Lab & Scenario heuristics
+  if (nameLower.includes("data structure") && nameLower.includes("scenario")) {
+    return <Boxes className={`${size} shrink-0 text-primary ${className}`} />;
+  }
+
+  if (
+    nameLower.includes("data structure") ||
+    nameLower.includes("algorithm") ||
+    nameLower.includes("dsa")
+  ) {
+    return <Network className={`${size} shrink-0 text-primary ${className}`} />;
+  }
+
+  // 2. Explicit image URL
   if (cleanIcon.startsWith("http://") || cleanIcon.startsWith("https://") || cleanIcon.startsWith("/")) {
     if (!imgErr) {
       return (
@@ -119,7 +133,7 @@ export function LabIcon({ name, icon, size = "h-8 w-8", className = "" }: LabIco
     }
   }
 
-  // 2. DevIcon brand match from lab title
+  // 3. DevIcon brand match from lab title
   const devIconUrl = getLabIconUrl(name);
   if (devIconUrl && !imgErr) {
     return (
@@ -155,26 +169,12 @@ export function LabIcon({ name, icon, size = "h-8 w-8", className = "" }: LabIco
   }
 
   // 5. Auto-resolution based on lab name heuristics
-  const nameLower = name.toLowerCase();
-
   if (
     nameLower.includes("system design") ||
     nameLower.includes("system-design") ||
     nameLower.includes("architecture")
   ) {
     return <Layers className={`${size} shrink-0 text-indigo-500 ${className}`} />;
-  }
-
-  if (nameLower.includes("data structure") && nameLower.includes("scenario")) {
-    return <Boxes className={`${size} shrink-0 text-primary ${className}`} />;
-  }
-
-  if (
-    nameLower.includes("data structure") ||
-    nameLower.includes("algorithm") ||
-    nameLower.includes("dsa")
-  ) {
-    return <Network className={`${size} shrink-0 text-primary ${className}`} />;
   }
 
   if (nameLower.includes("portfolio")) {

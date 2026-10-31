@@ -37,6 +37,9 @@ services:
         required: false
     volumes:
       - ./yhub-backend-api:/app
+    depends_on:
+      yhub-db:
+        condition: service_healthy
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
@@ -62,3 +65,5 @@ networks:
   executor:
     external: true
   yuvro-storage:
+    external: true
+    name: yuvro_yuvro-storage
