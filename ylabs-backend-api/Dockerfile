@@ -42,7 +42,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -y --no-install-recommends gcc build-essential -qq \
-    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --default-timeout=120 --retries=5 -r requirements.txt \
     && apt-get purge -y --auto-remove gcc build-essential \
     && rm -rf /var/lib/apt/lists/*
 
