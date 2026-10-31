@@ -554,12 +554,20 @@ def public_milestone_view(request, slug, user_id):
                 completed_tickets_count += 1
                 earned = sub.yuvro_points if sub.yuvro_points is not None else t.yuvro_points
                 total_earned_yp += earned
-                s_score_sum += 100
+                test_score = 100
+                if sub.solution_output:
+                    try:
+                        import json
+                        parsed = json.loads(sub.solution_output) if isinstance(sub.solution_output, str) else sub.solution_output
+                        test_score = parsed.get("percentage") or parsed.get("total_score") or 100
+                    except Exception:
+                        test_score = 100
+                s_score_sum += test_score
             elif sub and sub.ticket_status == TicketProgressStatus.IN_REVIEW:
                 s_completed += 1
                 s_score_sum += 75
 
-        s_pct = round((s_score_sum / (len(s_tasks) * 100)) * 100) if s_tasks else 0
+        s_pct = round(s_score_sum / len(s_tasks)) if s_tasks else 0
         sprint_data.append({
             "id": str(s.id),
             "name": s.title,

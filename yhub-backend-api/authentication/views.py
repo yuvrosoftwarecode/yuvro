@@ -753,46 +753,122 @@ class LinkedInShareMilestoneView(APIView):
         article_url = request.data.get("url") or "https://yuvro.com"
         title = request.data.get("title") or "Yuvro Milestone"
         description = request.data.get("description", "")
+        banner_base64 = request.data.get("image")  # data:image/png;base64,...
 
-        post_url = "https://api.linkedin.com/v2/ugcPosts"
         headers = {
             "Authorization": f"Bearer {raw_token}",
             "X-Restli-Protocol-Version": "2.0.0",
             "Content-Type": "application/json"
         }
 
-        payload = {
-            "author": f"urn:li:person:{connection.linkedin_sub}",
-            "lifecycleState": "PUBLISHED",
-            "specificContent": {
-                "com.linkedin.ugc.ShareContent": {
-                    "shareCommentary": {
-                        "text": commentary
-                    },
-                    "shareMediaCategory": "ARTICLE" if article_url else "NONE"
-                }
-            },
-            "visibility": {
-                "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
-            }
-        }
+        asset_urn = None
+        if banner_base64:
+            try:
+                # Strip header if data URL
+                if "base64," in banner_base64:
+                    banner_base64 = banner_base64.split("base64,")[1]
+                image_bytes = base64.b64decode(banner_base64)
 
-        if article_url:
-            payload["specificContent"]["com.linkedin.ugc.ShareContent"]["media"] = [
-                {
-                    "status": "READY",
-                    "description": {"text": description},
-                    "originalUrl": article_url,
-                    "title": {"text": title}
+                # Step 1: Register upload with LinkedIn
+                register_url = "https://api.linkedin.com/v2/assets?action=registerUpload"
+                register_payload = {
+                    "registerUploadRequest": {
+                        "recipes": ["urn:li:digitalmediaRecipe:feedshare-image"],
+                        "owner": f"urn:li:person:{connection.linkedin_sub}",
+                        "serviceRelationships": [
+                            {
+                                "relationshipType": "OWNER",
+                                "identifier": "urn:li:userGeneratedContent"
+                            }
+                        ],
+                        "supportedUploadMechanism": ["SYNCHRONOUS_UPLOAD"]
+                    }
                 }
-            ]
+                reg_resp = http_requests.post(register_url, headers=headers, json=register_payload)
+                if reg_resp.status_code == 200:
+                    reg_data = reg_resp.json()
+                    upload_mechanism = reg_data.get("value", {}).get("uploadMechanism", {})
+                    media_upload_request = upload_mechanism.get("com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest", {})
+                    upload_url = media_upload_request.get("uploadUrl")
+                    asset_urn = reg_data.get("value", {}).get("asset")
+
+                    # Step 2: Upload raw image binary to upload_url
+                    if upload_url and asset_urn:
+                        upload_headers = {
+                            "Authorization": f"Bearer {raw_token}",
+                            "Content-Type": "application/octet-stream"
+                        }
+                        upload_resp = http_requests.put(upload_url, headers=upload_headers, data=image_bytes)
+                        if upload_resp.status_code not in (200, 201):
+                            logger.warning(f"Failed to upload image binary to LinkedIn: {upload_resp.status_code} {upload_resp.text}")
+                            asset_urn = None
+                        else:
+                            logger.info(f"Successfully uploaded banner binary to LinkedIn: {asset_urn}")
+                else:
+                    logger.warning(f"LinkedIn registerUpload failed: {reg_resp.status_code} {reg_resp.text}")
+            except Exception as e:
+                logger.error(f"Error handling LinkedIn banner upload: {e}", exc_info=True)
+                asset_urn = None
+
+        post_url = "https://api.linkedin.com/v2/ugcPosts"
+        
+        # Build UGC post payload
+        if asset_urn:
+            payload = {
+                "author": f"urn:li:person:{connection.linkedin_sub}",
+                "lifecycleState": "PUBLISHED",
+                "specificContent": {
+                    "com.linkedin.ugc.ShareContent": {
+                        "shareCommentary": {
+                            "text": commentary
+                        },
+                        "shareMediaCategory": "IMAGE",
+                        "media": [
+                            {
+                                "status": "READY",
+                                "description": {"text": description or "Verified Milestone on Yuvro Labs"},
+                                "media": asset_urn,
+                                "title": {"text": title}
+                            }
+                        ]
+                    }
+                },
+                "visibility": {
+                    "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+                }
+            }
+        else:
+            payload = {
+                "author": f"urn:li:person:{connection.linkedin_sub}",
+                "lifecycleState": "PUBLISHED",
+                "specificContent": {
+                    "com.linkedin.ugc.ShareContent": {
+                        "shareCommentary": {
+                            "text": commentary
+                        },
+                        "shareMediaCategory": "ARTICLE" if article_url else "NONE"
+                    }
+                },
+                "visibility": {
+                    "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+                }
+            }
+            if article_url:
+                payload["specificContent"]["com.linkedin.ugc.ShareContent"]["media"] = [
+                    {
+                        "status": "READY",
+                        "description": {"text": description},
+                        "originalUrl": article_url,
+                        "title": {"text": title}
+                    }
+                ]
 
         resp = http_requests.post(post_url, headers=headers, json=payload)
         if resp.status_code not in (200, 201):
             logger.error(f"LinkedIn UGC post error: {resp.status_code} {resp.text}")
             return Response({"error": f"Failed to post to LinkedIn: {resp.text}"}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"message": "Successfully posted milestone to LinkedIn!", "data": resp.json()})
+        return Response({"message": "Successfully posted milestone banner to LinkedIn!", "data": resp.json(), "with_banner": bool(asset_urn)})
 
 
 

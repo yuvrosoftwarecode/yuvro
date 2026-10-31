@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Linkedin, Loader2, CheckCircle2, AlertCircle, Share2, X, Sparkles, Copy, Check } from "lucide-react";
+import {
+  Linkedin,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Share2,
+  X,
+  Sparkles,
+  Copy,
+  Check,
+  Download,
+  Image as ImageIcon,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { generateMilestoneBanner } from "@/utils/bannerGenerator";
 
 export interface MilestoneDetails {
   labTitle: string;
@@ -37,7 +50,10 @@ export function ShareMilestoneModal({
   const { user } = useAuth();
   const linkedinConnected = user?.linkedin_connected ?? false;
 
-  // Build high-impact, professional LinkedIn post copy designed for virality
+  // Student display name
+  const studentName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || user?.username || "Student";
+
+  // Build high-impact LinkedIn post caption
   const generateRichCopy = () => {
     if (defaultCommentary) return defaultCommentary;
 
@@ -46,12 +62,19 @@ export function ShareMilestoneModal({
       : "#SoftwareEngineering #Coding";
 
     if (milestoneType === "sprint") {
+      const ticketsText =
+        typeof details?.completedTickets === "number"
+          ? `${details.completedTickets} production tasks`
+          : "tasks";
+      const scoreLine = typeof details?.score === "number" ? `• Sprint Evaluation Score: ${details.score}%\n` : "";
+      const xpLine = typeof details?.earnedXp === "number" ? `• XP Earned: +${details.earnedXp} Yuvro Points\n` : "";
+
       return (
         `🚀 Milestone Unlocked: Completed ${details?.sprintTitle || milestoneTitle} in ${details?.labTitle || "Production Engineering"} on Yuvro Labs!\n\n` +
         `📈 Progress Breakdown:\n` +
-        `• Tickets Cleared: ${details?.completedTickets ?? "All"} production tasks\n` +
-        (details?.score ? `• Sprint Evaluation Score: ${details.score}%\n` : "") +
-        (details?.earnedXp ? `• XP Earned: +${details.earnedXp} Yuvro Points\n` : "") +
+        `• Tickets Cleared: ${ticketsText}\n` +
+        scoreLine +
+        xpLine +
         `\nTested against realistic enterprise edge cases and constraints.\n\n` +
         `Verified milestone report: ${shareUrl}\n\n` +
         `#Yuvro #DevJourney #CareerGrowth #LearningInPublic ${tagsStr}`
@@ -68,13 +91,19 @@ export function ShareMilestoneModal({
     }
 
     // Default: Lab Completion
+    const totalT = details?.totalTickets ?? 0;
+    const completedT = details?.completedTickets ?? 0;
+    const ticketsSummary = totalT > 0 ? `${completedT} / ${totalT}` : `${completedT}`;
+    const labScoreLine = typeof details?.score === "number" ? `• Evaluation Score: ${details.score}%\n` : "";
+    const labXpLine = typeof details?.earnedXp === "number" ? `• Total Points: ${details.earnedXp} Yuvro Points (YP)\n` : "";
+
     return (
       `🎯 Huge Milestone: I just completed the ${details?.labTitle || milestoneTitle} on Yuvro Labs!\n\n` +
       `📊 Milestone Telemetry:\n` +
-      `• Sprints Cleared: ${details?.sprintsCount ?? "Full Lab"}\n` +
-      `• Production Tickets Solved: ${details?.completedTickets ?? details?.totalTickets ?? "All"}\n` +
-      (details?.score ? `• Test Score: ${details.score}%\n` : "") +
-      (details?.earnedXp ? `• Total Points: ${details.earnedXp} Yuvro Points (YP)\n` : "") +
+      (details?.sprintsCount ? `• Sprints Cleared: ${details.sprintsCount}\n` : "") +
+      `• Production Tickets Solved: ${ticketsSummary}\n` +
+      labScoreLine +
+      labXpLine +
       `\nEngineered and verified against automated constraints and real-world architectures.\n\n` +
       `View my verified telemetry & code report here: ${shareUrl}\n\n` +
       `#Yuvro #EngineeringSkills #HandsOnCoding #100DaysOfCode ${tagsStr}`
@@ -86,14 +115,34 @@ export function ShareMilestoneModal({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [bannerDataUrl, setBannerDataUrl] = useState<string | null>(null);
+  const [generatingBanner, setGeneratingBanner] = useState(false);
 
+  // Generate banner on open
   useEffect(() => {
     if (isOpen) {
       setCommentary(generateRichCopy());
       setSuccess(false);
       setError(null);
+      setGeneratingBanner(true);
+
+      generateMilestoneBanner({
+        studentName,
+        milestoneTitle,
+        milestoneType,
+        details,
+      })
+        .then((dataUrl) => {
+          setBannerDataUrl(dataUrl);
+        })
+        .catch((err) => {
+          console.error("Failed to generate banner:", err);
+        })
+        .finally(() => {
+          setGeneratingBanner(false);
+        });
     }
-  }, [isOpen, milestoneTitle, details]);
+  }, [isOpen, milestoneTitle, details, studentName, milestoneType]);
 
   if (!isOpen) return null;
 
@@ -117,8 +166,9 @@ export function ShareMilestoneModal({
       await yhubApiAuthUtil.post("/auth/linkedin/share/", {
         commentary,
         url: shareUrl,
-        title: `${user?.first_name ? `${user.first_name}'s ` : ""}Milestone: ${milestoneTitle}`,
+        title: `${studentName}'s Milestone: ${milestoneTitle}`,
         description: `Verified engineering achievement on Yuvro Labs. ${details?.completedTickets ? `${details.completedTickets} tickets completed.` : ""}`,
+        image: bannerDataUrl, // attach base64 banner
       });
       setSuccess(true);
       setTimeout(() => {
@@ -147,9 +197,19 @@ export function ShareMilestoneModal({
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const downloadBanner = () => {
+    if (!bannerDataUrl) return;
+    const a = document.createElement("a");
+    a.href = bannerDataUrl;
+    a.download = `yuvro-milestone-${milestoneTitle.toLowerCase().replace(/[^a-z0-9]/g, "-")}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-      <div className="w-full max-w-xl rounded-2xl border bg-card p-6 shadow-2xl relative animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-150 overflow-y-auto">
+      <div className="w-full max-w-xl rounded-2xl border bg-card p-6 shadow-2xl relative animate-in zoom-in-95 duration-200 my-8">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -163,11 +223,11 @@ export function ShareMilestoneModal({
           </div>
           <div>
             <h2 className="text-base font-semibold text-foreground flex items-center gap-1.5">
-              Share Milestone to LinkedIn
+              Share Milestone with Banner
               <Sparkles className="h-4 w-4 text-warning" />
             </h2>
             <p className="text-xs text-muted-foreground">
-              Broadcast your verified engineering progress to recruiters and peers
+              Posts an official verified milestone card directly to your LinkedIn feed
             </p>
           </div>
         </div>
@@ -179,35 +239,49 @@ export function ShareMilestoneModal({
             </div>
             <h3 className="text-lg font-semibold text-foreground">Published to LinkedIn!</h3>
             <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-              Your milestone is live on your profile feed with verified telemetry metrics.
+              Your milestone banner and verified metrics are now live on your LinkedIn profile.
             </p>
           </div>
         ) : (
           <div>
-            {/* Quick Metrics Badge Banner */}
-            {details && (
-              <div className="grid grid-cols-3 gap-2 p-3 mb-4 rounded-xl border border-border/80 bg-accent/40 text-center">
-                <div>
-                  <div className="text-[11px] text-muted-foreground uppercase font-medium">Tickets</div>
-                  <div className="text-sm font-semibold text-foreground mt-0.5">
-                    {details.completedTickets ?? details.totalTickets ?? "-"} Cleared
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[11px] text-muted-foreground uppercase font-medium">Score</div>
-                  <div className="text-sm font-semibold text-success mt-0.5">
-                    {details.score ? `${details.score}%` : "100%"}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[11px] text-muted-foreground uppercase font-medium">XP Earned</div>
-                  <div className="text-sm font-semibold text-primary mt-0.5">
-                    +{details.earnedXp ?? 50} YP
-                  </div>
-                </div>
+            {/* Visual Banner Preview Card */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <ImageIcon className="h-3.5 w-3.5" />
+                  Milestone Banner Preview
+                </span>
+                {bannerDataUrl && (
+                  <button
+                    type="button"
+                    onClick={downloadBanner}
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
+                  >
+                    <Download className="h-3 w-3" />
+                    Download Image
+                  </button>
+                )}
               </div>
-            )}
 
+              <div className="rounded-xl border border-border/80 bg-black/40 overflow-hidden relative aspect-[1200/630] flex items-center justify-center shadow-md">
+                {generatingBanner ? (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    Generating your milestone card...
+                  </div>
+                ) : bannerDataUrl ? (
+                  <img
+                    src={bannerDataUrl}
+                    alt="Milestone Banner"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-xs text-muted-foreground">Failed to render banner</div>
+                )}
+              </div>
+            </div>
+
+            {/* Editable Caption */}
             <div className="mb-3">
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -218,12 +292,13 @@ export function ShareMilestoneModal({
               <textarea
                 value={commentary}
                 onChange={(e) => setCommentary(e.target.value)}
-                rows={6}
+                rows={5}
                 className="w-full rounded-xl border border-border bg-background p-3 text-xs leading-relaxed focus:border-[#0A66C2] focus:ring-1 focus:ring-[#0A66C2] focus:outline-none resize-none font-mono"
                 placeholder="What did you build or learn?"
               />
             </div>
 
+            {/* Attached Verification Link */}
             <div className="rounded-xl border border-border/70 bg-muted/40 p-3 mb-4 text-xs flex items-center justify-between gap-3">
               <div className="min-w-0 flex items-center gap-2">
                 <Share2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
@@ -246,6 +321,7 @@ export function ShareMilestoneModal({
               </div>
             )}
 
+            {/* Action Buttons */}
             <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-3 border-t border-border/60">
               <button
                 type="button"
@@ -277,7 +353,7 @@ export function ShareMilestoneModal({
                     ) : (
                       <Linkedin className="h-3.5 w-3.5 fill-current" />
                     )}
-                    {loading ? "Posting..." : "Share to LinkedIn"}
+                    {loading ? "Publishing with Banner..." : "Post to LinkedIn"}
                   </button>
                 ) : (
                   <button
