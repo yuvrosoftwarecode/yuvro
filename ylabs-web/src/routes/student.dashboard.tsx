@@ -20,7 +20,7 @@ export const Route = createFileRoute("/student/dashboard")({
 const FEATURED_SLUGS = ["javaspring", "systemdesign", "systemdesign-url-shortener", "systemdesign-bookmysystem", "cybersecurity", "pydjango", "postgres", "datastructures", "qa"];
 
 type Category = "Backend" | "Frontend" | "Database" | "DevOps" | "QA" | "AI" | "Security" | "Design";
-const CATEGORIES: Category[] = ["Backend", "Frontend", "Database", "DevOps", "QA", "Security", "Design"];
+const CATEGORIES: Category[] = ["Backend", "Frontend", "Database", "DevOps", "QA", "AI", "Security", "Design"];
 const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"] as const;
 
 const LAB_CATEGORY: Record<string, Category> = {
@@ -51,6 +51,11 @@ const LAB_CATEGORY: Record<string, Category> = {
   aws: "DevOps",
   qa: "QA",
   cybersecurity: "Security",
+  llm: "AI",
+  "build-llm-from-scratch": "AI",
+  microgpt: "AI",
+  "microgpt-transformer-engine": "AI",
+  ai: "AI",
 };
 
 const LAB_LANGUAGES: Record<string, string[]> = {
@@ -79,6 +84,10 @@ const LAB_LANGUAGES: Record<string, string[]> = {
   aws: ["Bash", "Python"],
   qa: ["JavaScript"],
   cybersecurity: ["Python", "Bash"],
+  llm: ["Python"],
+  "build-llm-from-scratch": ["Python"],
+  microgpt: ["Python"],
+  "microgpt-transformer-engine": ["Python"],
 };
 
 const ALL_LANGUAGES = Array.from(new Set(Object.values(LAB_LANGUAGES).flat())).sort();

@@ -1,0 +1,139 @@
+{
+  "title": "Sprint 3 \u00b7 Multi-Head Attention & Causal Sequence Modeling",
+  "description": "Implement scaled dot-product attention, causal masking tensors, and vectorized multi-head attention.",
+  "order_index": 3,
+  "tickets": [
+    {
+      "title": "Ticket 1 - Scaled Contextual Similarity Core",
+      "ticket_slug": "microgpt-s3-similarity-core",
+      "description": "Implement scaled_dot_product_attention(q, k, v, mask=None) in micro_gpt/attention.py.",
+      "difficulty": "HARD",
+      "learning_objectives": [
+        "Compute affinity matrix Q @ K.T",
+        "Scale by dimension variance factor",
+        "Weight Value representations"
+      ],
+      "tasks": [
+        {
+          "title": "Compute scaled dot product scores",
+          "points": 40
+        },
+        {
+          "title": "Apply softmax to obtain attention weights",
+          "points": 30
+        },
+        {
+          "title": "Multiply attention weights by Value tensor",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Transposing batch axes instead of feature axes."
+      ],
+      "hints": [
+        "Use k.swapaxes(-1, -2)."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/attention.py",
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/attention.py": "import numpy as np\nfrom typing import Optional, Tuple\nfrom micro_gpt.activations import softmax\n\ndef create_causal_mask(seq_len: int) -> np.ndarray:\n    # TODO: Implement causal mask with np.triu\n    pass\n\ndef scaled_dot_product_attention(\n    q: np.ndarray,\n    k: np.ndarray,\n    v: np.ndarray,\n    mask: Optional[np.ndarray] = None\n) -> Tuple[np.ndarray, np.ndarray]:\n    d_k = q.shape[-1]\n    scores = np.matmul(q, np.swapaxes(k, -1, -2)) / np.sqrt(d_k)\n    if mask is not None:\n        scores = scores + mask\n    weights = softmax(scores, axis=-1)\n    output = np.matmul(weights, v)\n    return output, weights\n\nclass MultiHeadAttention:\n    def __init__(self, d_model: int, num_heads: int):\n        assert d_model % num_heads == 0, \"d_model must be divisible by num_heads\"\n        self.d_model = d_model\n        self.num_heads = num_heads\n        # TODO: Initialize head_dim, d_k, and projection matrices (W_q, W_k, W_v, W_o)\n        self.head_dim = None\n        self.d_k = None\n        self.W_q = None\n        self.W_k = None\n        self.W_v = None\n        self.W_o = None\n\n    def forward(self, x: np.ndarray, is_causal: bool = True) -> np.ndarray:\n        # TODO: Implement Multi-Head Attention forward pass\n        pass\n\n    def __call__(self, x: np.ndarray, is_causal: bool = True) -> np.ndarray:\n        return self.forward(x, is_causal=is_causal)\n"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 35,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - Autoregressive Temporal Mask Generator",
+      "ticket_slug": "microgpt-s3-temporal-mask",
+      "description": "Implement create_causal_mask(seq_len) in micro_gpt/attention.py with upper triangle suppressed to -1e9.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Prevent future token information leakage",
+        "Construct directional causal masks"
+      ],
+      "tasks": [
+        {
+          "title": "Create upper triangular mask with -1e9 values",
+          "points": 50
+        },
+        {
+          "title": "Verify zero attention to future positions",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Masking the diagonal (tokens must attend to themselves)."
+      ],
+      "hints": [
+        "np.triu(np.full((seq_len, seq_len), -1e9), k=1)"
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/attention.py",
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/attention.py": "import numpy as np\nfrom typing import Optional, Tuple\nfrom micro_gpt.activations import softmax\n\ndef create_causal_mask(seq_len: int) -> np.ndarray:\n    mask = np.triu(np.full((seq_len, seq_len), -1e9), k=1)\n    return mask\n\ndef scaled_dot_product_attention(\n    q: np.ndarray,\n    k: np.ndarray,\n    v: np.ndarray,\n    mask: Optional[np.ndarray] = None\n) -> Tuple[np.ndarray, np.ndarray]:\n    d_k = q.shape[-1]\n    scores = np.matmul(q, np.swapaxes(k, -1, -2)) / np.sqrt(d_k)\n    if mask is not None:\n        scores = scores + mask\n    weights = softmax(scores, axis=-1)\n    output = np.matmul(weights, v)\n    return output, weights\n\nclass MultiHeadAttention:\n    def __init__(self, d_model: int, num_heads: int):\n        assert d_model % num_heads == 0, \"d_model must be divisible by num_heads\"\n        self.d_model = d_model\n        self.num_heads = num_heads\n        # TODO: Initialize head_dim, d_k, and projection matrices (W_q, W_k, W_v, W_o)\n        self.head_dim = None\n        self.d_k = None\n        self.W_q = None\n        self.W_k = None\n        self.W_v = None\n        self.W_o = None\n\n    def forward(self, x: np.ndarray, is_causal: bool = True) -> np.ndarray:\n        # TODO: Implement Multi-Head Attention forward pass\n        pass\n\n    def __call__(self, x: np.ndarray, is_causal: bool = True) -> np.ndarray:\n        return self.forward(x, is_causal=is_causal)\n"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_2/main_test.py"
+    },
+    {
+      "title": "Ticket 3 - Parallel Subspace Multi-Head Aggregator",
+      "ticket_slug": "microgpt-s3-multihead-aggregator",
+      "description": "Implement MultiHeadAttention in micro_gpt/attention.py with parallel projections and output projection W_O.",
+      "difficulty": "HARD",
+      "learning_objectives": [
+        "Split representation into parallel subspaces",
+        "Compute multi-head attention across batches"
+      ],
+      "tasks": [
+        {
+          "title": "Implement Q, K, V projections and head reshaping",
+          "points": 40
+        },
+        {
+          "title": "Compute parallel scaled dot-product attention",
+          "points": 30
+        },
+        {
+          "title": "Concatenate heads and apply W_O",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Incorrect axis transposition before attention."
+      ],
+      "hints": [
+        "Reshape to (batch, seq_len, num_heads, head_dim) and swapaxes(1, 2)."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/attention.py",
+        "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/attention.py": "import numpy as np\nfrom typing import Optional, Tuple\nfrom micro_gpt.activations import softmax\n\ndef create_causal_mask(seq_len: int) -> np.ndarray:\n    mask = np.triu(np.full((seq_len, seq_len), -1e9), k=1)\n    return mask\n\ndef scaled_dot_product_attention(\n    q: np.ndarray,\n    k: np.ndarray,\n    v: np.ndarray,\n    mask: Optional[np.ndarray] = None\n) -> Tuple[np.ndarray, np.ndarray]:\n    d_k = q.shape[-1]\n    scores = np.matmul(q, np.swapaxes(k, -1, -2)) / np.sqrt(d_k)\n    if mask is not None:\n        scores = scores + mask\n    weights = softmax(scores, axis=-1)\n    output = np.matmul(weights, v)\n    return output, weights\n\nclass MultiHeadAttention:\n    def __init__(self, d_model: int, num_heads: int):\n        assert d_model % num_heads == 0, \"d_model must be divisible by num_heads\"\n        self.d_model = d_model\n        self.num_heads = num_heads\n        self.head_dim = d_model // num_heads\n        self.d_k = self.head_dim\n\n        scale = np.sqrt(1.0 / d_model)\n        self.W_q = np.random.randn(d_model, d_model) * scale\n        self.W_k = np.random.randn(d_model, d_model) * scale\n        self.W_v = np.random.randn(d_model, d_model) * scale\n        self.W_o = np.random.randn(d_model, d_model) * scale\n\n    def forward(self, x: np.ndarray, is_causal: bool = True) -> np.ndarray:\n        batch_size, seq_len, _ = x.shape\n        \n        Q = np.matmul(x, self.W_q)\n        K = np.matmul(x, self.W_k)\n        V = np.matmul(x, self.W_v)\n        \n        Q = Q.reshape(batch_size, seq_len, self.num_heads, self.head_dim).swapaxes(1, 2)\n        K = K.reshape(batch_size, seq_len, self.num_heads, self.head_dim).swapaxes(1, 2)\n        V = V.reshape(batch_size, seq_len, self.num_heads, self.head_dim).swapaxes(1, 2)\n        \n        mask = create_causal_mask(seq_len) if is_causal else None\n        \n        out, _ = scaled_dot_product_attention(Q, K, V, mask=mask)\n        out = out.swapaxes(1, 2).reshape(batch_size, seq_len, self.d_model)\n        return np.matmul(out, self.W_o)\n\n    def __call__(self, x: np.ndarray, is_causal: bool = True) -> np.ndarray:\n        return self.forward(x, is_causal=is_causal)\n"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 40,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_3/ticket_3/main_test.py"
+    }
+  ]
+}
