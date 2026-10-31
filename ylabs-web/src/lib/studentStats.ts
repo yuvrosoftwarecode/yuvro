@@ -10,12 +10,12 @@ let inFlightStudentStats: Promise<StudentStats> | null = null;
 let cachedStudentStats: { data: StudentStats; timestamp: number } | null = null;
 const STATS_CACHE_TTL = 10000;
 
-export async function loadStudentStats(): Promise<StudentStats> {
+export async function loadStudentStats(forceRefresh: boolean = false): Promise<StudentStats> {
   const now = Date.now();
-  if (cachedStudentStats && now - cachedStudentStats.timestamp < STATS_CACHE_TTL) {
+  if (!forceRefresh && cachedStudentStats && now - cachedStudentStats.timestamp < STATS_CACHE_TTL) {
     return cachedStudentStats.data;
   }
-  if (inFlightStudentStats) {
+  if (!forceRefresh && inFlightStudentStats) {
     return inFlightStudentStats;
   }
 
@@ -30,4 +30,11 @@ export async function loadStudentStats(): Promise<StudentStats> {
     });
 
   return inFlightStudentStats;
+}
+
+export function invalidateStudentStats() {
+  cachedStudentStats = null;
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("yuvro-stats-refresh"));
+  }
 }

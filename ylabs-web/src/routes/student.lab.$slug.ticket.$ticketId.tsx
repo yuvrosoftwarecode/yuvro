@@ -32,7 +32,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { evaluationService } from "@/services/evaluationService";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
-import { tickets, labs } from "@/lib/dummy";
+import { tickets, labs, type Status } from "@/lib/dummy";
+import { invalidateStudentStats } from "@/lib/studentStats";
 import ExamplesPanel from "@/components/ExamplesPanel";
 import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema, getMongoSchema } from "@/lib/dbEngine";
 import { executeExternalDbQuery, fetchExternalDbSchema } from "@/services/codeExecutorService";
@@ -1140,7 +1141,7 @@ function CodeTicketView({
             xp: t.yuvro_points ?? 100,
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "bash",
-            status: "Not Started",
+            status: "in_progress",
             startup_command: t.startup_command || t.scoring_rules?.startup_command || "",
             test_command: t.test_command || t.scoring_rules?.test_command || "",
             starter_path: t.starter_path || t.starterPath || t.scoring_rules?.starter_path || t.scoring_rules?.starterPath || "",
@@ -1672,6 +1673,12 @@ export function TicketIDE({
     return [...initialFileList];
   });
 
+  const [ticketStatus, setTicketStatus] = useState<Status>(() => {
+    if (ticket.status === "done" || ticket.status === "in_review" || ticket.status === "backlog" || ticket.status === "in_progress") {
+      return ticket.status as Status;
+    }
+    return "in_progress";
+  });
   const [inlineAction, setInlineAction] = useState<InlineTreeAction | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -1873,7 +1880,14 @@ export function TicketIDE({
   const [bottomTab, setBottomTab] = useState<BottomTab>("terminal");
   const [uiDiffResult, setUiDiffResult] = useState<any>(null);
   const [hintLevel, setHintLevel] = useState(2);
-  const [elapsed, setElapsed] = useState(0);
+  const [elapsed, setElapsed] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`elapsed_${ticket.id}`);
+      return stored ? parseInt(stored, 10) || 0 : 0;
+    } catch {
+      return 0;
+    }
+  });
   const { theme, toggle: toggleTheme } = useTheme();
   const [showProgress, setShowProgress] = useState(true);
   const [fileTreeOpen, setFileTreeOpen] = useState(true);
@@ -2036,6 +2050,7 @@ export function TicketIDE({
       api.get<any[]>(`${submissionsEndpoint}?${submissionsIdField}=${taskId}${evalQuery}`)
         .then(async (subs) => {
           if (subs.length === 0) {
+            setTicketStatus("in_progress");
             if (creatingSubmissionRef.current) return;
             creatingSubmissionRef.current = true;
             try {
@@ -2058,6 +2073,11 @@ export function TicketIDE({
           } else {
             const sub = subs[0];
             setSubmissionId(sub.id);
+            if (sub.ticket_status) {
+              setTicketStatus(sub.ticket_status === "backlog" ? "in_progress" : (sub.ticket_status as Status));
+            } else {
+              setTicketStatus("in_progress");
+            }
             if (sub.revealed_hints) {
               setInitialRevealedHints(sub.revealed_hints);
             }
@@ -2286,9 +2306,17 @@ export function TicketIDE({
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
-    const id = setInterval(() => setElapsed((e) => e + 1), 1000);
+    const id = setInterval(() => {
+      setElapsed((e) => {
+        const next = e + 1;
+        try {
+          localStorage.setItem(`elapsed_${ticket.id}`, String(next));
+        } catch {}
+        return next;
+      });
+    }, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [ticket.id]);
 
   const onCodeChangeRef = useRef(onCodeChange);
   useEffect(() => {
@@ -3236,6 +3264,8 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
+            invalidateStudentStats();
+            if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -3251,6 +3281,8 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
+          invalidateStudentStats();
+          if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3299,6 +3331,8 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
+            invalidateStudentStats();
+            if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -3314,6 +3348,8 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
+          invalidateStudentStats();
+          if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3393,6 +3429,8 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
+            invalidateStudentStats();
+            if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -3409,6 +3447,8 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
+          invalidateStudentStats();
+          if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3485,6 +3525,8 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
+            invalidateStudentStats();
+            if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -3499,6 +3541,8 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
+          invalidateStudentStats();
+          if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3704,8 +3748,12 @@ export function TicketIDE({
               [submissionsStatusField]: "backlog",
             }).catch(console.error);
           }
+          setTicketStatus("backlog");
           setTicketScore(null);
           setEvalResult({});
+          try {
+            localStorage.removeItem(`elapsed_${ticket.id}`);
+          } catch {}
           window.location.reload();
         } catch (e: any) {
           showToast("Failed to reset progress: " + e.message);
@@ -3747,10 +3795,9 @@ export function TicketIDE({
           ) : (
             <PanelLeftClose className="h-3 w-3" />
           )}
-          <span className="hidden md:inline">{leftCollapsed ? "Show" : "Hide"} panel</span>
         </button>
 
-        <StatusBadge value={ticket.status} />
+        <StatusBadge value={ticketStatus} />
         <DiffBadge value={ticket.difficulty} />
         {!isEvaluationMode && (
           <span className="text-muted-foreground inline-flex items-center gap-1">
@@ -3759,7 +3806,7 @@ export function TicketIDE({
         )}
         <span className="text-muted-foreground inline-flex items-center gap-1">
           <Clock className="h-3 w-3" />
-          Est. {ticket.estMin}m · Elapsed{" "}
+          Elapsed{" "}
           <span className="font-mono text-foreground">{timeStr}</span>
         </span>
         {savedAt && (
