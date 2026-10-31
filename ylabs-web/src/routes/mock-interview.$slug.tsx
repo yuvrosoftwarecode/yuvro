@@ -1137,7 +1137,13 @@ function InterviewScreen() {
           <div className="rounded-2xl border bg-card p-6 flex flex-col justify-between shadow-sm">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="text-4xl">{iv.icon}</div>
+                <div className="flex h-12 w-12 items-center justify-center text-4xl shrink-0">
+                  {iv.icon?.startsWith("http") ? (
+                    <img src={iv.icon} alt={iv.name} className="h-10 w-10 object-contain" />
+                  ) : (
+                    iv.icon
+                  )}
+                </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">

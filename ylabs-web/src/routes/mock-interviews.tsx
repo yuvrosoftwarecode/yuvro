@@ -52,6 +52,27 @@ const loadEnrolled = (): string[] => {
     return [];
   }
 };
+function MockInterviewIcon({
+  icon,
+  name,
+  className = "h-8 w-8 text-2xl",
+  imgClassName = "h-full w-full object-contain",
+}: {
+  icon?: string;
+  name?: string;
+  className?: string;
+  imgClassName?: string;
+}) {
+  if (!icon) return null;
+  if (icon.startsWith("http://") || icon.startsWith("https://") || icon.startsWith("/")) {
+    return (
+      <span className={`inline-flex items-center justify-center shrink-0 ${className}`}>
+        <img src={icon} alt={name || "icon"} className={imgClassName} />
+      </span>
+    );
+  }
+  return <span className={`inline-flex items-center justify-center shrink-0 leading-none ${className}`}>{icon}</span>;
+}
 
 function MockHub() {
   const { user } = useAuth();
@@ -300,7 +321,12 @@ function MockHub() {
                             params={{ slug: i.slug }}
                             className="mt-3 flex items-start gap-3"
                           >
-                            <div className="text-3xl">{i.icon}</div>
+                            <MockInterviewIcon
+                              icon={i.icon}
+                              name={i.name}
+                              className="h-10 w-10 text-3xl"
+                              imgClassName="h-9 w-9 object-contain"
+                            />
                             <div className="min-w-0">
                               <h3 className="font-semibold truncate">{i.name}</h3>
                               <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
@@ -436,7 +462,12 @@ function MockHub() {
                               params={{ slug: i.slug }}
                               className="flex items-start gap-2.5 min-w-0"
                             >
-                              <div className="text-xl">{i.icon}</div>
+                              <MockInterviewIcon
+                                icon={i.icon}
+                                name={i.name}
+                                className="h-6 w-6 text-xl"
+                                imgClassName="h-5 w-5 object-contain"
+                              />
                               <div className="min-w-0">
                                 <div className="flex items-center gap-1.5 flex-wrap">
                                   <div className="font-medium text-sm truncate">{i.name}</div>
@@ -530,7 +561,12 @@ function MineCard({ i }: { i: Interview }) {
       <div>
         <div className="flex items-start justify-between">
           <div className="min-w-0">
-            <div className="text-2xl">{i.icon}</div>
+            <MockInterviewIcon
+              icon={i.icon}
+              name={i.name}
+              className="h-8 w-8 text-2xl"
+              imgClassName="h-7 w-7 object-contain"
+            />
             <div className="flex items-center gap-1.5 mt-2 flex-wrap">
               <h3 className="font-semibold truncate">{i.name}</h3>
               <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.2 text-[9px] font-medium bg-primary/10 text-primary border border-primary/20">

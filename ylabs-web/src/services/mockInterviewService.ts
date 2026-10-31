@@ -71,12 +71,17 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
 
   // Determine Category dynamically based on backend skills / text
   let category: Category = "Backend";
-  if (
-    allText.includes("machine learning") ||
-    allText.includes("ai") ||
-    allText.includes("deep learning") ||
-    allText.includes("model evaluation") ||
-    allText.includes("statistics")
+  if (titleLower.includes("node") || titleLower.includes("express")) {
+    category = "Backend";
+  } else if (titleLower.includes("python") && !titleLower.includes("machine learning")) {
+    category = "Backend";
+  } else if (
+    titleLower.includes("machine learning") ||
+    titleLower.includes("deep learning") ||
+    skills.includes("machine learning") ||
+    skills.includes("deep learning") ||
+    skills.includes("model evaluation") ||
+    /\b(ai engineer|ml engineer|data scientist)\b/i.test(allText)
   ) {
     category = "AI/ML";
   } else if (
@@ -119,11 +124,14 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   // Determine Icon & Color
   let icon = "💻";
   let color = "primary";
-  if (category === "AI/ML" || titleLower.includes("machine learning")) {
-    icon = "🤖";
-    color = "info";
+  if (titleLower.includes("node")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg";
+    color = "emerald";
   } else if (titleLower.includes("python")) {
     icon = "🐍";
+    color = "info";
+  } else if (category === "AI/ML" || titleLower.includes("machine learning")) {
+    icon = "🤖";
     color = "info";
   } else if (category === "Frontend" || titleLower.includes("frontend")) {
     icon = "⚛️";

@@ -8,7 +8,11 @@ const ICON_MAP: { keywords: string[]; path: string }[] = [
   { keywords: ["java", "spring", "kotlin"], path: "java/java-original.svg" },
   { keywords: ["kotlin"], path: "kotlin/kotlin-original.svg" },
   {
-    keywords: ["javascript", "js", "node", "express", "nestjs"],
+    keywords: ["node", "nodejs", "node.js", "express", "nestjs"],
+    path: "nodejs/nodejs-original.svg",
+  },
+  {
+    keywords: ["javascript", "js"],
     path: "javascript/javascript-original.svg",
   },
   { keywords: ["typescript", "ts"], path: "typescript/typescript-original.svg" },
