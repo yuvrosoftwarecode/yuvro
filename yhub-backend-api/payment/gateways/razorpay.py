@@ -2,6 +2,7 @@ from django.http import response
 import hmac
 import hashlib
 import json
+import re
 from typing import Any, Dict, Optional
 import logging
 
@@ -101,8 +102,15 @@ class RazorpayGateway(BasePaymentGateway):
         return response.json()
 
     def create_customer(self, customer: Dict[str, Any]) -> Dict[str, Any]:
+        raw_name = (customer.get("name") or "").strip()
+        clean_name = re.sub(r"[^a-zA-Z0-9\s\.\-]", "", raw_name).strip()
+        if len(clean_name) < 3:
+            email = (customer.get("email") or "").strip()
+            clean_email_prefix = re.sub(r"[^a-zA-Z0-9\s\.\-]", "", email.split("@")[0]).strip()
+            clean_name = clean_email_prefix if len(clean_email_prefix) >= 3 else "Customer"
+
         data = {
-            "name": customer.get("name"),
+            "name": clean_name[:50],
             "email": customer.get("email"),
             "notes": customer.get("metadata", {}),
             "fail_existing": "0",
@@ -114,10 +122,12 @@ class RazorpayGateway(BasePaymentGateway):
         data = {
             "amount": int(payment["amount"] * 100),
             "currency": payment["currency"].upper(),
-            "customer_id": payment["customer_id"],
             "receipt": payment.get("payment_id"),
             "notes": payment.get("metadata", {}),
         }
+        if payment.get("customer_id"):
+            data["customer_id"] = payment["customer_id"]
+
         resp = self._post("orders", data)
         return {
             "order_id": resp["id"],

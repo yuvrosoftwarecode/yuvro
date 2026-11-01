@@ -110,11 +110,11 @@ class MockInterviewQuotaTests(TestCase):
         self.assertEqual(payment.user, self.user)
         self.assertEqual(float(payment.amount), 399.00)
 
-    @patch("payment.gateways.razorpay.RazorpayGateway.create_customer")
-    def test_create_order_gateway_failure_returns_502(self, mock_create_customer):
+    @patch("payment.gateways.razorpay.RazorpayGateway.create_payment")
+    def test_create_order_gateway_failure_returns_502(self, mock_create_payment):
         """POST /api/mock-interviews/create_order/ gracefully handles gateway exceptions with 502."""
         import requests
-        mock_create_customer.side_effect = requests.exceptions.HTTPError("401 Client Error: Unauthorized")
+        mock_create_payment.side_effect = requests.exceptions.HTTPError("500 Server Error from Razorpay")
 
         response = self.client.post("/api/mock-interviews/create_order/", {"pack_id": "mock_pack_5"})
         self.assertEqual(response.status_code, status.HTTP_502_BAD_GATEWAY)
