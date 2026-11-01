@@ -41,11 +41,88 @@ export interface StartInterviewResponse {
   interview_type?: string;
   interview_mode?: string;
   num_questions?: number;
+  available_interviews?: number;
   progress?: {
     completed_count: number;
     is_master: boolean;
   };
 }
+
+export interface CandidateMockInterviewQuota {
+  free_interviews: number;
+  purchased_interviews: number;
+  used_interviews: number;
+  available_interviews: number;
+  total_granted: number;
+}
+
+export interface MockInterviewPack {
+  id: string;
+  name: string;
+  description: string;
+  interviews_count: number;
+  price_inr: number;
+  price_paise: number;
+  badge?: string;
+  sort_order?: number;
+}
+
+export interface CreateMockInterviewOrderResponse {
+  order_id: string;
+  payment_id: string;
+  amount: number;
+  currency: string;
+  key_id: string;
+  name: string;
+  description: string;
+  pack_id: string;
+  interviews_count: number;
+}
+
+export interface VerifyMockInterviewPaymentPayload {
+  gateway_order_id: string;
+  gateway_payment_id: string;
+  signature: string;
+}
+
+export interface VerifyMockInterviewPaymentResponse {
+  status: "SUCCESS" | "FAILED";
+  message: string;
+  quota?: CandidateMockInterviewQuota;
+}
+
+export const DEFAULT_MOCK_INTERVIEW_PACKS: MockInterviewPack[] = [
+  {
+    id: "mock_pack_1",
+    name: "1 Mock Interview",
+    description: "1 full AI mock interview session with real-time adaptive questioning and detailed report.",
+    interviews_count: 1,
+    price_inr: 99,
+    price_paise: 9900,
+    badge: "",
+    sort_order: 1,
+  },
+  {
+    id: "mock_pack_5",
+    name: "5 Mock Interviews",
+    description: "5 full AI mock interview sessions with real-time adaptive questioning, cycle progression, and analytics.",
+    interviews_count: 5,
+    price_inr: 399,
+    price_paise: 39900,
+    badge: "Popular",
+    sort_order: 2,
+  },
+  {
+    id: "mock_pack_10",
+    name: "10 Mock Interviews",
+    description: "10 full AI mock interview sessions for comprehensive end-to-end interview mastery.",
+    interviews_count: 10,
+    price_inr: 700,
+    price_paise: 70000,
+    badge: "Best Value",
+    sort_order: 3,
+  },
+];
 
 export interface NextQuestionResponse {
   question: string;
@@ -349,9 +426,9 @@ export async function startBackendInterview(
       payload
     );
     return res;
-  } catch (err) {
+  } catch (err: any) {
     console.error("Failed to start backend interview:", err);
-    return null;
+    throw err;
   }
 }
 
@@ -443,4 +520,49 @@ export async function fetchInterviewSubmissions(
   } catch {
     return [];
   }
+}
+
+export async function fetchMockInterviewQuota(): Promise<CandidateMockInterviewQuota> {
+  try {
+    const res = await yhubApiAuthUtil.get<CandidateMockInterviewQuota>("/mock-interviews/quota/");
+    if (res && typeof res.available_interviews === "number") {
+      return res;
+    }
+  } catch (err) {
+    console.warn("Could not fetch mock interview quota from server:", err);
+  }
+  return {
+    free_interviews: 3,
+    purchased_interviews: 0,
+    used_interviews: 0,
+    available_interviews: 3,
+    total_granted: 3,
+  };
+}
+
+export async function fetchMockInterviewPacks(): Promise<MockInterviewPack[]> {
+  try {
+    const res = await yhubApiAuthUtil.get<MockInterviewPack[]>("/mock-interviews/packs/");
+    if (Array.isArray(res) && res.length > 0) {
+      return res;
+    }
+  } catch (err) {
+    console.warn("Could not fetch mock interview packs from server, using defaults:", err);
+  }
+  return DEFAULT_MOCK_INTERVIEW_PACKS;
+}
+
+export async function createMockInterviewOrder(packId: string): Promise<CreateMockInterviewOrderResponse> {
+  return await yhubApiAuthUtil.post<CreateMockInterviewOrderResponse>("/mock-interviews/create_order/", {
+    pack_id: packId,
+  });
+}
+
+export async function verifyMockInterviewPayment(
+  payload: VerifyMockInterviewPaymentPayload
+): Promise<VerifyMockInterviewPaymentResponse> {
+  return await yhubApiAuthUtil.post<VerifyMockInterviewPaymentResponse>(
+    "/mock-interviews/verify_payment/",
+    payload
+  );
 }

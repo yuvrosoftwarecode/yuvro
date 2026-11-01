@@ -24,7 +24,9 @@ from django.core.cache import cache
 
 
 from rest_framework.views import APIView
-from .models import GithubConnection, RegistrationOTP
+from django.utils import timezone
+from datetime import timedelta
+from .models import GithubConnection, RegistrationOTP, UserSession
 import base64
 import os   
 
@@ -37,11 +39,98 @@ from .serializers import (
     UserRegistrationSerializer,
     UserSerializer,
     UserLoginSerializer,
+    UserUpdateSerializer,
 )
 from drf_spectacular.utils import extend_schema
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+
+
+def parse_ua(user_agent: str):
+    ua = user_agent or ""
+    browser = "Web Browser"
+    if "Firefox/" in ua:
+        browser = "Firefox"
+    elif "Edg/" in ua:
+        browser = "Microsoft Edge"
+    elif "Chrome/" in ua and "Edg/" not in ua:
+        browser = "Chrome"
+    elif "Safari/" in ua and "Chrome/" not in ua:
+        browser = "Safari"
+    elif "OPR/" in ua or "Opera/" in ua:
+        browser = "Opera"
+
+    os_name = "Desktop"
+    if "Macintosh" in ua or "Mac OS" in ua:
+        os_name = "macOS"
+    elif "Windows" in ua:
+        os_name = "Windows"
+    elif "Android" in ua:
+        os_name = "Android"
+    elif "iPhone" in ua or "iPad" in ua:
+        os_name = "iOS"
+    elif "Linux" in ua:
+        os_name = "Linux"
+
+    is_mobile = any(m in ua for m in ["Android", "iPhone", "iPad", "Mobile"])
+    device_type = "Mobile" if is_mobile else "Desktop"
+
+    return browser, os_name, device_type
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0].strip()
+    else:
+        ip = request.META.get("REMOTE_ADDR", "")
+    return ip or "127.0.0.1"
+
+
+def record_user_session(request, user, reactivate=False):
+    """Record or update active session for the authenticated user and client device."""
+    if not user or not user.is_authenticated:
+        return None
+    try:
+        user_agent = request.META.get("HTTP_USER_AGENT", "")
+        ip = get_client_ip(request)
+        session_key = (
+            request.headers.get("X-Session-Id")
+            or request.META.get("HTTP_X_SESSION_ID")
+            or f"sess_{hash(user_agent or 'client')}_{user.id}"
+        )
+        browser, os_name, device_type = parse_ua(user_agent)
+
+        session = UserSession.objects.filter(user=user, session_key=session_key).first()
+        if session:
+            if not session.is_active and not reactivate:
+                return None
+            session.ip_address = ip
+            session.user_agent = user_agent
+            session.browser = browser
+            session.os = os_name
+            session.device_type = device_type
+            session.location = getattr(user, "location", "") or "India"
+            session.is_active = True
+            session.save()
+            UserSession.objects.filter(user=user, session_key=session_key).exclude(id=session.id).delete()
+        else:
+            session = UserSession.objects.create(
+                user=user,
+                session_key=session_key,
+                ip_address=ip,
+                user_agent=user_agent,
+                browser=browser,
+                os=os_name,
+                device_type=device_type,
+                location=getattr(user, "location", "") or "India",
+                is_active=True,
+            )
+        return session
+    except Exception as exc:
+        logger.error(f"Failed to record user session: {exc}")
+        return None
 
 
 @api_view(["POST"])
@@ -53,6 +142,7 @@ def login_view(request):
     
     user = serializer.validated_data["user"]
     login(request, user)
+    record_user_session(request, user, reactivate=True)
     
     token_serializer = CustomTokenObtainPairSerializer()
     refresh = token_serializer.get_token(user)
@@ -128,6 +218,8 @@ def google_login_view(request):
         
     if update_fields:
         user.save(update_fields=update_fields)
+
+    record_user_session(request, user, reactivate=True)
 
     token_serializer = CustomTokenObtainPairSerializer()
     refresh = token_serializer.get_token(user)
@@ -400,18 +492,17 @@ def recover_candidate_session(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticatedUser])
+@permission_classes([permissions.AllowAny])
 def logout_view(request):
     try:
-        refresh_token = request.data.get("refresh")
-        if not refresh_token:
-            return Response(
-                {"error": "Refresh token is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        session_id = request.data.get("session_id") or request.headers.get("X-Session-Id")
+        if session_id:
+            UserSession.objects.filter(session_key=session_id).delete()
 
-        token = RefreshToken(refresh_token)
-        token.blacklist()
+        refresh_token = request.data.get("refresh")
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
         return Response({"message": "Successfully logged out."})
     except TokenError as e:
         return Response(
@@ -434,6 +525,29 @@ class CustomTokenRefreshView(TokenRefreshView):
 @api_view(["GET", "PUT", "PATCH"])
 @permission_classes([IsAuthenticatedUser])
 def user_info_view(request):
+    session_key = (
+        request.headers.get("X-Session-Id")
+        or request.META.get("HTTP_X_SESSION_ID")
+    )
+    if session_key:
+        revoked = UserSession.objects.filter(user=request.user, session_key=session_key, is_active=False).exists()
+        if revoked:
+            return Response(
+                {"detail": "This session has been terminated. Please log in again."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+    record_user_session(request, request.user)
+    if request.method in ["PUT", "PATCH"]:
+        serializer = UserUpdateSerializer(
+            request.user,
+            data=request.data,
+            partial=True,
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        request.user.refresh_from_db()
+        return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
+
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
@@ -534,27 +648,92 @@ class ResetPasswordView(generics.GenericAPIView):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticatedUser])
-def change_password_view(request):
-    password = request.data.get("password")
-    if not password:
-        return Response({"error": "Password is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-    first_name = request.data.get("first_name")
-    last_name = request.data.get("last_name")
-
+def send_change_password_otp(request):
     user = request.user
+    if not user.email:
+        return Response(
+            {"error": "No email address found for this account."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    otp = str(random.randint(100000, 999999))
+    RegistrationOTP.objects.update_or_create(
+        email=user.email,
+        resource_id=str(user.id),
+        resource_type="password_change",
+        defaults={"otp": otp, "expires_at": None},
+    )
 
     try:
-        validate_password(password, user)
+        send_mail(
+            subject="Yuvro - OTP for Password Change",
+            message=f"Hi {user.first_name or user.username},\n\nYour OTP to change your password is: {otp}.\n\nThis OTP is valid for 5 minutes. If you did not request this change, please ignore this email.\n\nBest regards,\nTeam Yuvro",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+    except Exception as exc:
+        logger.error(f"Failed to send password change OTP to {user.email}: {exc}")
+        return Response(
+            {"error": "Failed to send verification email. Please try again."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    return Response({
+        "status": "success",
+        "message": f"Verification code sent to {user.email}",
+    })
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticatedUser])
+def change_password_view(request):
+    user = request.user
+    new_password = request.data.get("new_password") or request.data.get("password")
+    current_password = request.data.get("current_password")
+    otp = request.data.get("otp")
+
+    if not new_password:
+        return Response(
+            {"error": "New password is required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # 1. Verification via OTP
+    if otp:
+        otp_clean = str(otp).strip()
+        otp_record = RegistrationOTP.objects.filter(
+            email=user.email,
+            resource_id=str(user.id),
+            resource_type="password_change",
+        ).first()
+
+        if not otp_record or str(otp_record.otp).strip() != otp_clean or not otp_record.is_valid():
+            return Response(
+                {"error": "Invalid or expired OTP. Please check your email or request a new one."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        otp_record.delete()
+
+    # 2. Verification via Current (Old) Password
+    elif current_password:
+        if user.has_usable_password() and not user.check_password(current_password):
+            return Response(
+                {"error": "Current password is incorrect."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+    else:
+        return Response(
+            {"error": "Please provide either your current password or OTP verification code."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        validate_password(new_password, user)
     except ValidationError as e:
         return Response({"error": e.messages}, status=status.HTTP_400_BAD_REQUEST)
 
-    user.set_password(password)
-    if first_name:
-        user.first_name = first_name
-    if last_name:
-        user.last_name = last_name
-
+    user.set_password(new_password)
     user.save()
 
     return Response({"message": "Password changed successfully."})
@@ -801,3 +980,71 @@ def remove_profile_image(request):
     user.save(update_fields=[target_field])
 
     return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticatedUser])
+def sessions_view(request):
+    user = request.user
+    current_session = record_user_session(request, user)
+    session_key = (
+        request.headers.get("X-Session-Id")
+        or request.META.get("HTTP_X_SESSION_ID")
+        or (current_session.session_key if current_session else None)
+    )
+
+    sessions = UserSession.objects.filter(user=user, is_active=True).order_by("-last_activity")
+    data = []
+    for s in sessions:
+        is_curr = False
+        if session_key and s.session_key == session_key:
+            is_curr = True
+        elif current_session and s.id == current_session.id:
+            is_curr = True
+
+        data.append({
+            "id": str(s.id),
+            "browser": s.browser,
+            "os": s.os,
+            "device_type": s.device_type,
+            "location": s.location,
+            "ip_address": s.ip_address,
+            "last_activity": s.last_activity,
+            "created_at": s.created_at,
+            "is_current": is_curr,
+        })
+
+    # Ensure at least the current session has is_current = True
+    if not any(d["is_current"] for d in data) and len(data) > 0:
+        data[0]["is_current"] = True
+
+    return Response(data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST", "DELETE"])
+@permission_classes([IsAuthenticatedUser])
+def revoke_session_view(request, session_id):
+    user = request.user
+    session = UserSession.objects.filter(user=user, id=session_id).first()
+    if not session:
+        return Response({"error": "Session not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    session.is_active = False
+    session.save()
+
+    return Response({"status": "success", "message": "Session terminated successfully."})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticatedUser])
+def revoke_other_sessions_view(request):
+    user = request.user
+    session_key = (
+        request.headers.get("X-Session-Id")
+        or request.META.get("HTTP_X_SESSION_ID")
+        or f"sess_{hash(request.META.get('HTTP_USER_AGENT', ''))}_{user.id}"
+    )
+
+    UserSession.objects.filter(user=user).exclude(session_key=session_key).update(is_active=False)
+
+    return Response({"status": "success", "message": "Logged out of all other sessions."})

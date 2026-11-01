@@ -2845,7 +2845,7 @@
       ]
     },
     {
-      "title": "Python Development (Automatic)",
+      "title": "Python Development",
       "description": "Adaptive AI-powered dynamic Python technical interview. Evaluates core language features, asynchronous patterns, OOP architecture, and backend engineering in real-time.",
       "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
       "max_duration": 30,
@@ -2871,7 +2871,7 @@
       "predefined_tree": []
     },
     {
-      "title": "Data Structures & Algorithms (Automatic)",
+      "title": "Data Structures & Algorithms",
       "description": "Comprehensive adaptive technical interview assessing problem-solving abilities, core data structures, algorithm design, and computational complexity analysis in real-time.",
       "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine assesses your algorithmic thinking, data structure selection, edge-case handling, and time/space complexity optimization.",
       "max_duration": 45,
@@ -2900,7 +2900,7 @@
       "predefined_tree": []
     },
     {
-      "title": "Node.js Development (Automatic)",
+      "title": "Node.js Development",
       "description": "Adaptive AI-powered dynamic Node.js technical interview. Evaluates asynchronous programming, event loop mechanics, Express/Nest frameworks, REST APIs, and backend scalability in real-time.",
       "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
       "max_duration": 30,

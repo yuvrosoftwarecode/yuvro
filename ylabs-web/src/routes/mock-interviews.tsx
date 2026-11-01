@@ -1,21 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { hasCompletedInterview } from "@/lib/mockInterviewReports";
 import { INTERVIEWS, type Interview } from "@/lib/mockInterviews";
 import {
   fetchBackendMockInterviews,
   fetchUserInterviewSubmissions,
+  fetchMockInterviewQuota,
+  type CandidateMockInterviewQuota,
 } from "@/services/mockInterviewService";
+import { BuyMockInterviewsModal } from "@/components/interview/BuyMockInterviewsModal";
 
 export const Route = createFileRoute("/mock-interviews")({
   head: () => ({
@@ -45,13 +40,17 @@ function MockHub() {
     return INTERVIEWS.filter((i) => enrolled.includes(i.slug));
   });
   const [submissions, setSubmissions] = useState<any[]>([]);
+  const [quota, setQuota] = useState<CandidateMockInterviewQuota | null>(null);
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+  const [buyModalNote, setBuyModalNote] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
       fetchBackendMockInterviews("ylabs"),
       fetchUserInterviewSubmissions("ylabs"),
+      fetchMockInterviewQuota(),
     ])
-      .then(([backendData, userSubmissions]) => {
+      .then(([backendData, userSubmissions, userQuota]) => {
         if (backendData && backendData.length > 0) {
           setInterviews(backendData);
           try {
@@ -63,11 +62,21 @@ function MockHub() {
         if (userSubmissions && Array.isArray(userSubmissions)) {
           setSubmissions(userSubmissions);
         }
+        if (userQuota) {
+          setQuota(userQuota);
+        }
       })
       .catch((err) => {
         console.error("Failed to load mock interview data:", err);
       });
   }, []);
+
+  const availableCount = quota ? quota.available_interviews : 3;
+
+  const handleRequireBuy = () => {
+    setBuyModalNote("You have 0 mock interviews remaining. Please choose a pack to start your interview.");
+    setIsBuyModalOpen(true);
+  };
 
   const countText =
     interviews.length === 1 ? "1 interview" : `${interviews.length} interviews`;
@@ -84,21 +93,18 @@ function MockHub() {
             </div>
             <div className="flex items-center gap-3">
               <p className="text-sm text-muted-foreground">
-                Available mock interview: <span className="font-medium text-foreground">0</span>
+                Available mock interview:{" "}
+                <span className="font-medium text-foreground">{availableCount}</span>
               </p>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button size="sm">Buy</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Buy mock interviews</DialogTitle>
-                    <DialogDescription>
-                      Mock interview purchases are not available yet.
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setBuyModalNote(null);
+                  setIsBuyModalOpen(true);
+                }}
+              >
+                Buy
+              </Button>
             </div>
           </div>
           {interviews.length === 0 ? (
@@ -112,12 +118,24 @@ function MockHub() {
                   key={i.slug}
                   i={i}
                   isCompleted={checkCompleted(i, submissions)}
+                  availableInterviews={availableCount}
+                  onRequireBuy={handleRequireBuy}
                 />
               ))}
             </div>
           )}
         </section>
       </main>
+
+      <BuyMockInterviewsModal
+        open={isBuyModalOpen}
+        onOpenChange={setIsBuyModalOpen}
+        quota={quota}
+        initialNote={buyModalNote}
+        onSuccess={(updated) => {
+          setQuota(updated);
+        }}
+      />
     </div>
   );
 }
@@ -135,8 +153,20 @@ function checkCompleted(i: Interview, submissions: any[]): boolean {
   });
 }
 
-function MineCard({ i, isCompleted }: { i: Interview; isCompleted: boolean }) {
+function MineCard({
+  i,
+  isCompleted,
+  availableInterviews,
+  onRequireBuy,
+}: {
+  i: Interview;
+  isCompleted: boolean;
+  availableInterviews: number;
+  onRequireBuy: () => void;
+}) {
   const completed = isCompleted;
+  const isBlocked = availableInterviews <= 0;
+
   return (
     <article className="flex min-w-0 flex-col rounded-lg bg-card p-6">
       <p
@@ -161,15 +191,25 @@ function MineCard({ i, isCompleted }: { i: Interview; isCompleted: boolean }) {
             </Link>
           </Button>
         )}
-        <Button asChild size="sm" variant={completed ? "secondary" : "default"}>
-          <Link
-            to="/mock-interview/$slug"
-            params={{ slug: i.slug }}
-            search={{ report: false }}
+        {isBlocked ? (
+          <Button
+            size="sm"
+            variant={completed ? "secondary" : "default"}
+            onClick={onRequireBuy}
           >
             {completed ? "Retake" : "Start interview"}
-          </Link>
-        </Button>
+          </Button>
+        ) : (
+          <Button asChild size="sm" variant={completed ? "secondary" : "default"}>
+            <Link
+              to="/mock-interview/$slug"
+              params={{ slug: i.slug }}
+              search={{ report: false }}
+            >
+              {completed ? "Retake" : "Start interview"}
+            </Link>
+          </Button>
+        )}
       </div>
     </article>
   );

@@ -39,6 +39,12 @@ class UserSerializer(serializers.ModelSerializer):
             "cover_image",
             "resume_file",
             "roles",
+            "education",
+            "employment",
+            "phone",
+            "location",
+            "website",
+            "about",
             "is_guest_user",
             "is_active",
             "date_joined",
@@ -137,5 +143,17 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "email", "first_name", "last_name"]
+        fields = [
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "education",
+            "employment",
+            "phone",
+            "location",
+            "website",
+            "about",
+        ]
+        read_only_fields = ["email"]
 

@@ -52,20 +52,20 @@ services:
     networks:
       - yuvro-storage
 
-  # yuvro-minio-init:
-  #   image: coollabsio/minio:latest
-  #   depends_on:
-  #     yuvro-minio:
-  #       condition: service_healthy
-  #   entrypoint: >
-  #     sh -c "
-  #     /usr/bin/mc alias set local http://yuvro-minio:9000 minioadmin minioadmin &&
-  #     (/usr/bin/mc mb --ignore-existing local/yuvro-local || true) &&
-  #     /usr/bin/mc anonymous set download local/yuvro-local || true
-  #     "
-  #   networks:
-  #     - yuvro-storage
-  #   restart: "no"
+  yuvro-minio-init:
+    image: coollabsio/minio:latest
+    depends_on:
+      yuvro-minio:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+      /usr/bin/mc alias set local http://yuvro-minio:9000 minioadmin minioadmin &&
+      (/usr/bin/mc mb --ignore-existing local/yuvro-local || true) &&
+      /usr/bin/mc anonymous set download local/yuvro-local || true
+      "
+    networks:
+      - yuvro-storage
+    restart: "no"
 
 volumes:
   yuvro_minio_data:

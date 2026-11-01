@@ -192,10 +192,20 @@ class RestApiAuthUtil extends RestApiUtil {
   }
 
   private getAuthHeaders(): HeadersInit {
-    const headers: HeadersInit = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
     const token = this.getAuthToken();
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      let sessId = localStorage.getItem("yuvro_session_id");
+      if (!sessId) {
+        sessId = "sess_" + Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem("yuvro_session_id", sessId);
+      }
+      headers["X-Session-Id"] = sessId;
+    } catch {
+      /* storage unavailable */
     }
     return headers;
   }

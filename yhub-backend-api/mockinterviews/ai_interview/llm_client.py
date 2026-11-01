@@ -212,13 +212,27 @@ class DeepSeekClient(BaseLLMClient):
 
         logger.info("DeepSeek request: model=%s, max_tokens=%d, temp=%.2f", self._model, max_tokens, temperature)
 
-        response = await self._client.chat.completions.create(
-            model=self._model,
-            messages=messages,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            extra_body={"thinking": {"type": "disabled"}},
-        )
+        try:
+            response = await self._client.chat.completions.create(
+                model=self._model,
+                messages=messages,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                extra_body={"thinking": {"type": "disabled"}},
+            )
+        except Exception as e:
+            err_str = str(e).lower()
+            if ("model" in err_str or "not found" in err_str) and self._model != "deepseek-chat":
+                logger.warning("DeepSeekClient: model '%s' failed (%s), retrying with 'deepseek-chat'...", self._model, e)
+                response = await self._client.chat.completions.create(
+                    model="deepseek-chat",
+                    messages=messages,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    extra_body={"thinking": {"type": "disabled"}},
+                )
+            else:
+                raise
 
         msg = response.choices[0].message
         text = msg.content or getattr(msg, "reasoning_content", "") or ""
@@ -275,6 +289,10 @@ class ResilientLLMClient(BaseLLMClient):
 def _fetch_active_agent():
     try:
         from ai_assistant.models import AIAgent
+        # Use existing agent whose name is DeepSeek Flash
+        agent = AIAgent.objects.filter(name="DeepSeek Flash").first()
+        if agent:
+            return agent
         return AIAgent.objects.filter(is_active=True).first()
     except Exception:
         return None

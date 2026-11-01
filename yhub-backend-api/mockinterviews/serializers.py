@@ -1,5 +1,13 @@
 from rest_framework import serializers
-from .models import MockInterview, MockInterviewSubmission, PredefinedInterviewQuestion, UserInterviewProgress
+from .models import (
+    MockInterview,
+    MockInterviewSubmission,
+    PredefinedInterviewQuestion,
+    UserInterviewProgress,
+    CandidateMockInterviewQuota,
+    MockInterviewPack,
+    MockInterviewCreditLedger,
+)
 
 class MockInterviewSerializer(serializers.ModelSerializer):
     participants_count = serializers.SerializerMethodField()
@@ -285,3 +293,52 @@ class MockInterviewSubmissionSerializer(serializers.ModelSerializer):
                 seconds = total_seconds % 60
                 return f"{minutes}m {seconds}s"
         return None
+
+
+class CandidateMockInterviewQuotaSerializer(serializers.ModelSerializer):
+    available_interviews = serializers.IntegerField(read_only=True)
+    total_granted = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = CandidateMockInterviewQuota
+        fields = [
+            "id",
+            "free_interviews",
+            "purchased_interviews",
+            "used_interviews",
+            "available_interviews",
+            "total_granted",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = fields
+
+
+class MockInterviewPackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MockInterviewPack
+        fields = [
+            "id",
+            "name",
+            "description",
+            "interviews_count",
+            "price_inr",
+            "price_paise",
+            "badge",
+            "sort_order",
+            "is_active",
+        ]
+
+
+class MockInterviewCreditLedgerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MockInterviewCreditLedger
+        fields = [
+            "id",
+            "entry_type",
+            "delta",
+            "balance_after",
+            "description",
+            "created_at",
+        ]
+

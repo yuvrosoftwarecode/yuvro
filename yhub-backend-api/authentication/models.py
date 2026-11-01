@@ -40,6 +40,12 @@ class User(AbstractUser):
     resume_file = models.URLField(blank=True, null=True)
     
     roles = models.JSONField(default=dict, blank=True)
+    education = models.JSONField(default=list, blank=True)
+    employment = models.JSONField(default=list, blank=True)
+    phone = models.CharField(max_length=30, blank=True, null=True)
+    location = models.CharField(max_length=150, blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+    about = models.TextField(blank=True, null=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
@@ -146,3 +152,25 @@ class RegistrationOTP(models.Model):
 
     def is_valid(self):
         return timezone.now() <= self.expires_at
+
+
+class UserSession(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_sessions")
+    session_key = models.CharField(max_length=255, db_index=True)
+    ip_address = models.CharField(max_length=64, blank=True, null=True)
+    user_agent = models.TextField(blank=True, null=True)
+    browser = models.CharField(max_length=64, default="Browser")
+    os = models.CharField(max_length=64, default="Desktop")
+    device_type = models.CharField(max_length=32, default="Desktop")
+    location = models.CharField(max_length=128, default="India")
+    last_activity = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["-last_activity"]
+        unique_together = ("user", "session_key")
+
+    def __str__(self):
+        return f"{self.user.email} - {self.browser} on {self.os}"

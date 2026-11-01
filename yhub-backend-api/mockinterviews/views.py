@@ -3,7 +3,11 @@ import traceback
 import random
 import asyncio
 import re
+import json
 
+from django.conf import settings
+from django.db import transaction
+from django.utils import timezone
 from django.db.models import Q
 from rest_framework import viewsets, filters, status, permissions
 from rest_framework.decorators import action
@@ -16,8 +20,21 @@ from .models import (
     MockInterviewSubmission,
     PredefinedInterviewQuestion,
     UserInterviewProgress,
+    CandidateMockInterviewQuota,
+    MockInterviewPack,
+    MockInterviewCreditLedger,
+    DEFAULT_MOCK_PACKS,
 )
-from .serializers import MockInterviewSerializer, MockInterviewSubmissionSerializer
+from .serializers import (
+    MockInterviewSerializer,
+    MockInterviewSubmissionSerializer,
+    CandidateMockInterviewQuotaSerializer,
+    MockInterviewPackSerializer,
+    MockInterviewCreditLedgerSerializer,
+)
+from payment.models import Payment, PaymentStatus, PurchasableItem, PurchasableType, UserEntitlement
+from payment.payment_service import PaymentService
+from payment.gateways.razorpay import RazorpayGateway
 
 from ai_assistant.models import AIAgent, ChatSession, InterviewSession, ChatMessage, InterviewReport
 from ai_assistant.serializers import InterviewReportSerializer
@@ -90,9 +107,205 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
+        if self.action in ["list", "retrieve", "packs"]:
             return [permissions.AllowAny()]
+        if self.action in ["quota", "create_order", "verify_payment", "start_interview", "get_next_question", "my_interviews"]:
+            return [permissions.IsAuthenticated()]
         return super().get_permissions()
+
+    @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
+    def quota(self, request):
+        """
+        Returns the candidate's available mock interview quota.
+        Guarantees 3 initial free mock interviews for every candidate.
+        """
+        quota = CandidateMockInterviewQuota.get_or_create_quota(request.user)
+        serializer = CandidateMockInterviewQuotaSerializer(quota)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["get"], permission_classes=[permissions.AllowAny])
+    def packs(self, request):
+        """
+        Returns the catalog of available mock interview packs.
+        Tiers:
+          1  : ₹99/-
+          5  : ₹399/-
+          10 : ₹700/-
+        """
+        packs = list(MockInterviewPack.objects.filter(is_active=True).order_by("sort_order", "price_inr"))
+        if not packs:
+            for p_data in DEFAULT_MOCK_PACKS:
+                p_obj, _ = MockInterviewPack.objects.get_or_create(
+                    id=p_data["id"],
+                    defaults=p_data
+                )
+                packs.append(p_obj)
+        serializer = MockInterviewPackSerializer(packs, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def create_order(self, request):
+        """
+        Initiates a server-side validated Razorpay order for purchasing mock interviews.
+        """
+        pack_id = request.data.get("pack_id")
+        if not pack_id:
+            return Response({"error": "pack_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        pack = MockInterviewPack.objects.filter(id=pack_id, is_active=True).first()
+        if not pack:
+            for p_data in DEFAULT_MOCK_PACKS:
+                if p_data["id"] == pack_id:
+                    pack, _ = MockInterviewPack.objects.get_or_create(
+                        id=p_data["id"],
+                        defaults=p_data
+                    )
+                    break
+
+        if not pack:
+            return Response({"error": f"Invalid pack_id: {pack_id}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        purchasable_item, _ = PurchasableItem.objects.get_or_create(
+            item_type=PurchasableType.MOCK_INTERVIEW,
+            item_id=pack.id,
+            defaults={
+                "name": pack.name,
+                "product": "ylabs",
+                "current_price": pack.price_inr,
+                "is_active": True,
+                "metadata": {"interviews_count": pack.interviews_count},
+            }
+        )
+
+        payment_service = PaymentService()
+        payment = payment_service.create_payment(
+            user=request.user,
+            amount=float(pack.price_inr),
+            currency="INR",
+            purpose=f"Mock Interview - {pack.name}",
+            description=pack.description or f"Purchase of {pack.interviews_count} mock interviews",
+            product="ylabs",
+            gateway_name="razorpay",
+            metadata={
+                "pack_id": pack.id,
+                "interviews_count": pack.interviews_count,
+                "product": "ylabs",
+            },
+        )
+        payment.purchasable_item = purchasable_item
+        payment.save(update_fields=["purchasable_item"])
+
+        return Response({
+            "order_id": payment.gateway_order_or_intent_id,
+            "payment_id": str(payment.id),
+            "amount": pack.price_paise,
+            "currency": "INR",
+            "key_id": getattr(settings, "RAZORPAY_KEY_ID", ""),
+            "name": "Yuvro Mock Interviews",
+            "description": pack.name,
+            "pack_id": pack.id,
+            "interviews_count": pack.interviews_count,
+        }, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def verify_payment(self, request):
+        """
+        Cryptographically verifies the Razorpay payment signature and credits mock interviews.
+        """
+        gateway_order_id = request.data.get("gateway_order_id")
+        gateway_payment_id = request.data.get("gateway_payment_id")
+        signature = request.data.get("signature")
+
+        if not all([gateway_order_id, gateway_payment_id, signature]):
+            return Response(
+                {"error": "gateway_order_id, gateway_payment_id, and signature are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            payment = Payment.objects.select_related("purchasable_item", "user").get(
+                gateway_order_or_intent_id=gateway_order_id,
+                user=request.user
+            )
+        except Payment.DoesNotExist:
+            return Response({"error": "Payment order not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        gateway = RazorpayGateway()
+        is_valid = gateway.verify_signature(
+            order_id=gateway_order_id,
+            payment_id=gateway_payment_id,
+            signature=signature,
+        )
+        if not is_valid:
+            logger.error(f"Invalid Razorpay signature for mock interview order {gateway_order_id}")
+            return Response(
+                {"status": "FAILED", "error": "Invalid signature"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        quota = CandidateMockInterviewQuota.get_or_create_quota(request.user)
+
+        with transaction.atomic():
+            if payment.status in [PaymentStatus.SUCCESS_OR_CAPTURED, PaymentStatus.AUTHORIZED]:
+                serializer = CandidateMockInterviewQuotaSerializer(quota)
+                return Response({
+                    "status": "SUCCESS",
+                    "message": "Payment was already verified and credited.",
+                    "quota": serializer.data,
+                })
+
+            payment.gateway_payment_or_charge_id = gateway_payment_id
+            payment.status = PaymentStatus.SUCCESS_OR_CAPTURED
+            payment.completed_at = timezone.now()
+            payment.latest_successfull_payment = {
+                "status": payment.status,
+                "amount": float(payment.amount),
+                "signature": signature,
+                "verified_at": payment.completed_at.isoformat(),
+            }
+            payment.save(update_fields=["gateway_payment_or_charge_id", "status", "completed_at", "latest_successfull_payment"])
+
+            pack_id = payment.metadata.get("pack_id")
+            interviews_count = int(payment.metadata.get("interviews_count", 0))
+            if not interviews_count and pack_id:
+                pack = MockInterviewPack.objects.filter(id=pack_id).first()
+                if pack:
+                    interviews_count = pack.interviews_count
+
+            if not interviews_count and payment.purchasable_item and payment.purchasable_item.metadata:
+                interviews_count = int(payment.purchasable_item.metadata.get("interviews_count", 1))
+
+            if not interviews_count:
+                interviews_count = 1
+
+            quota = CandidateMockInterviewQuota.objects.select_for_update().get(id=quota.id)
+            quota.purchased_interviews += interviews_count
+            quota.save(update_fields=["purchased_interviews", "updated_at"])
+
+            MockInterviewCreditLedger.objects.create(
+                user=request.user,
+                quota=quota,
+                entry_type=MockInterviewCreditLedger.TYPE_PURCHASE,
+                delta=interviews_count,
+                balance_after=quota.available_interviews,
+                payment=payment,
+                description=f"Purchased {interviews_count} mock interview(s)",
+            )
+
+            if payment.purchasable_item:
+                UserEntitlement.objects.get_or_create(
+                    user=request.user,
+                    payment=payment,
+                    purchasable_item=payment.purchasable_item,
+                )
+
+        serializer = CandidateMockInterviewQuotaSerializer(quota)
+        return Response({
+            "status": "SUCCESS",
+            "message": f"Successfully added {interviews_count} mock interview(s) to your balance.",
+            "quota": serializer.data,
+        })
+
 
     search_fields = ["title", "description"]
     ordering_fields = ["created_at", "updated_at"]
@@ -259,9 +472,11 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             if candidate_context_frontend:
                 context_text += f"\n\nCandidate Assessment & Labs Context:\n{candidate_context_frontend}"
 
-            ai_agent = AIAgent.objects.filter(is_active=True).first()
-            if not ai_agent:
-                ai_agent = AIAgent.objects.first()
+            ai_agent = (
+                AIAgent.objects.filter(name="DeepSeek Flash").first()
+                or AIAgent.objects.filter(is_active=True).first()
+                or AIAgent.objects.first()
+            )
             
             duration_mins = selected_duration or mock_interview.max_duration
             
@@ -688,6 +903,18 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
+            # Check candidate mock interview quota
+            quota = CandidateMockInterviewQuota.get_or_create_quota(user)
+            if quota.available_interviews <= 0:
+                return Response(
+                    {
+                        "error": "You have 0 mock interviews remaining. Please purchase more mock interviews to continue.",
+                        "code": "INSUFFICIENT_MOCK_INTERVIEWS",
+                        "available_interviews": 0,
+                    },
+                    status=status.HTTP_402_PAYMENT_REQUIRED
+                )
+
             experience_level = request.data.get('experience_level', 'Beginner')
             selected_duration = request.data.get('selected_duration') or request.data.get('duration')
             resume_file = request.FILES.get('resume')
@@ -735,9 +962,11 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             if not context_text.strip():
                 context_text = "No specific background provided."
 
-            ai_agent = AIAgent.objects.filter(is_active=True).first()
-            if not ai_agent:
-                ai_agent = AIAgent.objects.first()
+            ai_agent = (
+                AIAgent.objects.filter(name="DeepSeek Flash").first()
+                or AIAgent.objects.filter(is_active=True).first()
+                or AIAgent.objects.first()
+            )
 
             duration_mins = selected_duration or mock_interview.max_duration
 
@@ -780,6 +1009,21 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 selected_duration=duration_mins or 0,
                 resume=resume_file
             )
+
+            # Deduct 1 mock interview from quota
+            with transaction.atomic():
+                q = CandidateMockInterviewQuota.objects.select_for_update().get(id=quota.id)
+                q.used_interviews += 1
+                q.save(update_fields=["used_interviews", "updated_at"])
+                MockInterviewCreditLedger.objects.create(
+                    user=user,
+                    quota=q,
+                    entry_type=MockInterviewCreditLedger.TYPE_CONSUME,
+                    delta=-1,
+                    balance_after=q.available_interviews,
+                    submission=submission,
+                    description=f"Mock interview started: {mock_interview.title}",
+                )
 
             is_sequential = str(request.data.get('sequential', '')).lower() in ['true', '1', 'yes']
 
@@ -910,7 +1154,8 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 'progress': {
                     "completed_count": current_cycle_step,
                     "is_master": is_master
-                }
+                },
+                'available_interviews': q.available_interviews
             })
         except Exception as e:
             logger.error(f"Error starting AI interview: {str(e)}")
@@ -1569,6 +1814,18 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                     {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+            # Check candidate mock interview quota
+            quota = CandidateMockInterviewQuota.get_or_create_quota(user)
+            if quota.available_interviews <= 0:
+                return Response(
+                    {
+                        "error": "You have 0 mock interviews remaining. Please purchase more mock interviews to continue.",
+                        "code": "INSUFFICIENT_MOCK_INTERVIEWS",
+                        "available_interviews": 0,
+                    },
+                    status=status.HTTP_402_PAYMENT_REQUIRED
+                )
             
             analysis = request.data.get('analysis')
             difficulty = request.data.get('difficulty', 'medium').lower()
@@ -1655,6 +1912,21 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 selected_duration=30,
                 state_data=state_data
             )
+
+            # Deduct 1 mock interview from quota
+            with transaction.atomic():
+                q = CandidateMockInterviewQuota.objects.select_for_update().get(id=quota.id)
+                q.used_interviews += 1
+                q.save(update_fields=["used_interviews", "updated_at"])
+                MockInterviewCreditLedger.objects.create(
+                    user=user,
+                    quota=q,
+                    entry_type=MockInterviewCreditLedger.TYPE_CONSUME,
+                    delta=-1,
+                    balance_after=q.available_interviews,
+                    submission=submission,
+                    description=f"Mock interview started: {role_title}",
+                )
             
             # Save first question as ChatMessage
             first_question = state_data["interview"][0]
@@ -1671,7 +1943,8 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 'first_question': first_question["question"],
                 'first_question_id': first_question["id"],
                 'status': submission.status,
-                'is_finished': False
+                'is_finished': False,
+                'available_interviews': q.available_interviews
             })
         except Exception as e:
             logger.error(f"Error in start_interview: {str(e)}")
@@ -2212,11 +2485,8 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                     role = "Interviewer" if msg.message_type != "user" else "Candidate"
                     conversation_text += f"{role}: {msg.content}\n\n"
 
-                resume_text = chat_sess.context.get("candidate_info", "No resume provided.") if chat_sess.context else "No resume provided."
-
-                report_data = async_to_sync(generator.generate_report)(
-                    conversation_text, resume_content=resume_text
-                )
+                # Evaluate objectively on demonstrated transcript responses without personalization
+                report_data = async_to_sync(generator.generate_report)(conversation_text)
             except Exception as gen_err:
                 logger.warning(f"InterviewReportGenerator failed: {gen_err}. Falling back to state_data synthesis.")
                 report_data = self._synthesize_report_from_state(submission, interview_session)
