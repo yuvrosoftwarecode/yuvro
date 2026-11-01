@@ -7,9 +7,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface WalletBalanceBadgeProps {
   className?: string;
   showBreakdownOnHover?: boolean;
+  variant?: "badge" | "minimal";
 }
 
-export const WalletBalanceBadge: React.FC<WalletBalanceBadgeProps> = ({ className = "" }) => {
+export const WalletBalanceBadge: React.FC<WalletBalanceBadgeProps> = ({
+  className = "",
+  variant = "badge",
+}) => {
   const { wallet, isLoading, error, refreshWallet, openPurchaseModal } = useCreditWallet();
 
   const [isOpen, setIsOpen] = React.useState(false);
@@ -30,6 +34,14 @@ export const WalletBalanceBadge: React.FC<WalletBalanceBadgeProps> = ({ classNam
   };
 
   if (isLoading && !wallet) {
+    if (variant === "minimal") {
+      return (
+        <div className={`flex items-baseline gap-1.5 ${className}`}>
+          <span className="text-muted-foreground">AI Credits</span>
+          <Skeleton className="h-3 w-12 rounded inline-block" />
+        </div>
+      );
+    }
     return (
       <div
         className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted/50 border border-border/40 ${className}`}
@@ -43,6 +55,20 @@ export const WalletBalanceBadge: React.FC<WalletBalanceBadgeProps> = ({ classNam
   }
 
   if (error && !wallet) {
+    if (variant === "minimal") {
+      return (
+        <button
+          type="button"
+          onClick={handleRefresh}
+          className={`flex items-baseline gap-1 text-red-500 hover:text-red-600 transition-colors ${className}`}
+          title={`Error: ${error}. Click to retry.`}
+          aria-label={`Error loading credits: ${error}. Click to retry.`}
+        >
+          <span className="text-muted-foreground">AI Credits</span>
+          <span className="font-semibold">Retry</span>
+        </button>
+      );
+    }
     return (
       <button
         type="button"
@@ -68,31 +94,58 @@ export const WalletBalanceBadge: React.FC<WalletBalanceBadgeProps> = ({ classNam
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <button
-          type="button"
-          className={`group flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all border outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
-            hasDeficit || isFlagged
-              ? "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20"
-              : "bg-muted/70 hover:bg-muted border-border/50 text-foreground"
-          } ${className}`}
-          aria-label={
-            hasDeficit
-              ? `Account has credit deficit: ${formatNumber(wallet?.uncollected_deficit || 0)} credits. Click for details.`
-              : `AI Credits: ${formatNumber(availableCredits)} available. Click for breakdown and purchase.`
-          }
-        >
-          {hasDeficit || isFlagged ? (
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-          ) : (
-            <Coins className="w-3.5 h-3.5 text-amber-500 shrink-0 group-hover:scale-110 transition-transform" />
-          )}
+        {variant === "minimal" ? (
+          <button
+            type="button"
+            className={`group flex items-baseline gap-1.5 cursor-pointer outline-none transition-colors ${className}`}
+            aria-label={
+              hasDeficit
+                ? `Account has credit deficit: ${formatNumber(wallet?.uncollected_deficit || 0)} credits. Click for details.`
+                : `AI Credits: ${formatNumber(availableCredits)} available. Click for breakdown and purchase.`
+            }
+          >
+            <span className="text-muted-foreground group-hover:text-foreground transition-colors">
+              AI Credits
+            </span>
+            <span
+              className={`font-semibold tabular-nums ${
+                hasDeficit
+                  ? "text-amber-600 dark:text-amber-400"
+                  : isFlagged
+                  ? "text-amber-600 dark:text-amber-400"
+                  : "text-foreground"
+              }`}
+            >
+              {hasDeficit ? "Deficit" : isFlagged ? "Alert" : formatNumber(availableCredits)}
+            </span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            className={`group flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all border outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
+              hasDeficit || isFlagged
+                ? "bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20"
+                : "bg-muted/70 hover:bg-muted border-border/50 text-foreground"
+            } ${className}`}
+            aria-label={
+              hasDeficit
+                ? `Account has credit deficit: ${formatNumber(wallet?.uncollected_deficit || 0)} credits. Click for details.`
+                : `AI Credits: ${formatNumber(availableCredits)} available. Click for breakdown and purchase.`
+            }
+          >
+            {hasDeficit || isFlagged ? (
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+            ) : (
+              <Coins className="w-3.5 h-3.5 text-amber-500 shrink-0 group-hover:scale-110 transition-transform" />
+            )}
 
-          <span className="font-semibold tabular-nums">
-            {hasDeficit ? "Deficit" : isFlagged ? "Status Alert" : formatNumber(availableCredits)}
-          </span>
+            <span className="font-semibold tabular-nums">
+              {hasDeficit ? "Deficit" : isFlagged ? "Status Alert" : formatNumber(availableCredits)}
+            </span>
 
-          <span className="text-[10px] text-muted-foreground hidden sm:inline">credits</span>
-        </button>
+            <span className="text-[10px] text-muted-foreground hidden sm:inline">credits</span>
+          </button>
+        )}
       </PopoverTrigger>
 
       <PopoverContent
