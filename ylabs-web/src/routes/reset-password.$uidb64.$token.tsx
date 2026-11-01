@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import authService from "@/services/authService";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import YuvroLogo from "@/assets/YuvroLogo.png";
 
 export const Route = createFileRoute("/reset-password/$uidb64/$token")({
   component: ResetPasswordPage,
@@ -57,8 +58,10 @@ function ResetPasswordPage() {
       </div>
       <div className="w-full max-w-md border border-border bg-card/60 backdrop-blur-xl shadow-2xl rounded-2xl p-8">
         <div className="text-center mb-6">
-          <div className="grid mx-auto h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-primary to-ui text-primary-foreground font-mono text-xl shadow-lg shadow-primary/30 mb-4">
-            Y
+          <div className="flex justify-center mb-4">
+            <Link to="/" className="inline-block hover:opacity-90 transition">
+              <img src={YuvroLogo} alt="Yuvro Logo" className="h-12 w-auto object-contain" />
+            </Link>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Yuvro Labs</h1>
           <p className="text-sm text-muted-foreground mt-1">Set a new password</p>
