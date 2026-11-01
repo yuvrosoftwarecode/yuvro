@@ -1,5 +1,6 @@
 import { getSystemDesignLab } from "@/lib/systemDesign";
-import { labs, tickets } from "@/lib/dummy";
+import { labs, tickets, type Status } from "@/lib/dummy";
+import { invalidateStudentStats } from "@/lib/studentStats";
 import { Button } from "@/components/ui/button";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -36,6 +37,7 @@ import {
   Loader2,
   Check,
   Upload,
+  RotateCcw,
   Lock,
   Unlock,
   Github,
@@ -983,6 +985,41 @@ export function SystemDesignStudio({
   const [evalResult, setEvalResult] = useState<SystemDesignEvaluationResult | null>(null);
   const [showEvalModal, setShowEvalModal] = useState(false);
 
+  const [ticketStatus, setTicketStatus] = useState<Status>(() => {
+    const raw = ticket?.status || ticketData?.status;
+    if (raw === "done" || raw === "in_review" || raw === "backlog" || raw === "in_progress") {
+      return raw as Status;
+    }
+    return "in_progress";
+  });
+
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+
+  const [elapsed, setElapsed] = useState<number>(() => {
+    try {
+      const stored = localStorage.getItem(`elapsed_${ticketId || ""}`);
+      return stored ? parseInt(stored, 10) || 0 : 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  useEffect(() => {
+    if (!ticketId || isPureStudio) return;
+    const interval = setInterval(() => {
+      setElapsed((prev) => {
+        const next = prev + 1;
+        try {
+          localStorage.setItem(`elapsed_${ticketId}`, String(next));
+        } catch {}
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [ticketId, isPureStudio]);
+
+  const timeStr = `${String(Math.floor(elapsed / 60)).padStart(2, "0")}:${String(elapsed % 60).padStart(2, "0")}`;
+
   // Sidebar state (Problem, Hints, Solution)
   type SidebarTab = "problem" | "hints" | "solution";
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("problem");
@@ -1129,6 +1166,7 @@ export function SystemDesignStudio({
           status: isPassed ? "done" : "in_progress",
           solution_output: result,
         });
+        setTicketStatus(isPassed ? "done" : "in_progress");
         setTicketData((prev: any) =>
           prev ? { ...prev, status: isPassed ? "Done" : "In Progress", yuvro_points: resp?.yuvro_points ?? prev.yuvro_points } : prev
         );
@@ -1137,6 +1175,11 @@ export function SystemDesignStudio({
         toast.success("Ticket submitted and passed successfully!");
       } else {
         toast.error(`Submission incomplete: scored ${result?.percentage ?? 0}% (needs 70% to pass)`);
+      }
+
+      invalidateStudentStats();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
       }
 
       if (ticketId && slug) {
@@ -1256,9 +1299,13 @@ export function SystemDesignStudio({
           if (res.starter_design.notes && typeof res.starter_design.notes === "object") setNotes(res.starter_design.notes);
         }
         if (res.status) {
+          const s = res.status === "done" ? "done" : res.status;
+          setTicketStatus(s as Status);
           setTicketData((prev: any) =>
             prev ? { ...prev, status: res.status === "done" ? "Done" : res.status } : prev
           );
+        } else {
+          setTicketStatus("in_progress");
         }
         setHasInitialized(true);
       })
@@ -1282,6 +1329,11 @@ export function SystemDesignStudio({
           .post(`/lab/tickets/${ticketId}/system-design/`, {
             ...designPayload,
             is_submitted: false,
+          })
+          .then(() => {
+            const now = new Date();
+            const timeFormatted = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            setSavedAt(timeFormatted);
           })
           .catch(() => {});
       }
@@ -1570,6 +1622,38 @@ export function SystemDesignStudio({
     else if (tab === "api") exportApis();
   };
 
+  const [showResetProgressDialog, setShowResetProgressDialog] = useState(false);
+
+  const handleResetProgress = async () => {
+    try {
+      localStorage.removeItem(storageKey);
+      try {
+        if (ticketId) localStorage.removeItem(`elapsed_${ticketId}`);
+      } catch {}
+      setElapsed(0);
+      apply(EMPTY);
+      setTicketStatus("backlog");
+      setEvalResult(null);
+      if (ticketId && !isLandingPage) {
+        restApiAuthUtil
+          .post(`/lab/tickets/${ticketId}/system-design/`, {
+            ...EMPTY,
+            is_submitted: false,
+            status: "backlog",
+          })
+          .catch(() => {});
+      }
+      setShowResetProgressDialog(false);
+      invalidateStudentStats();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+      }
+      toast.success("Progress reset successfully");
+    } catch (e: any) {
+      toast.error("Failed to reset progress: " + (e?.message || "Unknown error"));
+    }
+  };
+
   const [showClearWorkspaceDialog, setShowClearWorkspaceDialog] = useState(false);
 
   const handleConfirmClearWorkspace = () => {
@@ -1639,27 +1723,39 @@ export function SystemDesignStudio({
             </Link>
             <button
               onClick={() => setLeftCollapsed((v) => !v)}
-              title="Toggle problem panel"
+              title="Toggle panel"
               className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-accent text-muted-foreground hover:text-foreground"
             >
               {leftCollapsed ? (
-                <PanelLeftOpen className="h-3.5 w-3.5" />
+                <PanelLeftOpen className="h-3 w-3" />
               ) : (
-                <PanelLeftClose className="h-3.5 w-3.5" />
+                <PanelLeftClose className="h-3 w-3" />
               )}
-              <span className="hidden sm:inline">{leftCollapsed ? "Show" : "Hide"} panel</span>
             </button>
 
-            <div className="h-4 w-px bg-border mx-1" />
-            <StatusBadge value={(ticketData?.status || "Not Started") as any} />
+            <StatusBadge value={ticketStatus} />
             <DiffBadge value={(ticketData?.difficulty || "Advanced") as any} />
             <span className="text-muted-foreground inline-flex items-center gap-1 text-xs">
               <Zap className="h-3 w-3 text-primary" />+{ticketData?.xp || 180} YP
             </span>
             <span className="text-muted-foreground inline-flex items-center gap-1 text-xs">
               <Clock className="h-3 w-3" />
-              Est. {ticketData?.estMin || 40}m
+              Elapsed <span className="font-mono text-foreground">{timeStr}</span>
             </span>
+            {savedAt && (
+              <span className="text-success inline-flex items-center gap-1 text-xs">
+                <Check className="h-3 w-3" />
+                Saved {savedAt}
+              </span>
+            )}
+            <button
+              onClick={() => setShowResetProgressDialog(true)}
+              title="Reset Progress"
+              className="text-destructive inline-flex items-center gap-1 rounded-md border border-destructive/20 bg-destructive/10 px-2 py-1 hover:bg-destructive/20 font-medium text-xs ml-1"
+            >
+              <RotateCcw className="h-3 w-3" />
+              Reset
+            </button>
           </>
         )}
 
@@ -2526,6 +2622,30 @@ export function SystemDesignStudio({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Reset Progress Dialog */}
+      <AlertDialog open={showResetProgressDialog} onOpenChange={setShowResetProgressDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <RotateCcw className="h-5 w-5" />
+              Reset Progress
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to reset your progress? This will delete all your design components, sequence diagram, database schema, REST APIs, and restart the ticket.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleResetProgress}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Reset Progress
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
