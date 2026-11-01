@@ -177,23 +177,30 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             }
         )
 
-        payment_service = PaymentService()
-        payment = payment_service.create_payment(
-            user=request.user,
-            amount=float(pack.price_inr),
-            currency="INR",
-            purpose=f"Mock Interview - {pack.name}",
-            description=pack.description or f"Purchase of {pack.interviews_count} mock interviews",
-            product="ylabs",
-            gateway_name="razorpay",
-            metadata={
-                "pack_id": pack.id,
-                "interviews_count": pack.interviews_count,
-                "product": "ylabs",
-            },
-        )
-        payment.purchasable_item = purchasable_item
-        payment.save(update_fields=["purchasable_item"])
+        try:
+            payment_service = PaymentService()
+            payment = payment_service.create_payment(
+                user=request.user,
+                amount=float(pack.price_inr),
+                currency="INR",
+                purpose=f"Mock Interview - {pack.name}",
+                description=pack.description or f"Purchase of {pack.interviews_count} mock interviews",
+                product="ylabs",
+                gateway_name="razorpay",
+                metadata={
+                    "pack_id": pack.id,
+                    "interviews_count": pack.interviews_count,
+                    "product": "ylabs",
+                },
+            )
+            payment.purchasable_item = purchasable_item
+            payment.save(update_fields=["purchasable_item"])
+        except Exception as e:
+            logger.error(f"Error creating Razorpay order for user {request.user.id}: {str(e)}", exc_info=True)
+            return Response(
+                {"error": f"Failed to create payment order with gateway: {str(e)}"},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
 
         return Response({
             "order_id": payment.gateway_order_or_intent_id,
