@@ -250,50 +250,57 @@ async def get_next_question(
     )
 
     for attempt in range(1, settings.MAX_QUESTION_GENERATION_ATTEMPTS + 1):
-        prompt = ADAPTIVE_QUESTION_PROMPT.format(
-            candidate_name=candidate_name,
-            analysis_summary=summary,
-            questions_asked=questions_asked,
-            avg_score=f"{avg_score:.1f}",
-            topics_covered=", ".join(topics_covered) or "none yet",
-            topics_remaining=", ".join(topics_remaining),
-            trend=trend,
-            base_difficulty=session.get("difficulty", "medium"),
-            dialogue_history=dialogue_history,
-            last_answer=last_answer,
-            previous_questions=_format_previous_questions(avoid_questions),
-            last_feedback=last_feedback,
-            follow_up_suggestion=last_follow_up,
-            next_id=next_id,
-        )
+        try:
+            prompt = ADAPTIVE_QUESTION_PROMPT.format(
+                candidate_name=candidate_name,
+                analysis_summary=summary,
+                questions_asked=questions_asked,
+                avg_score=f"{avg_score:.1f}",
+                topics_covered=", ".join(topics_covered) or "none yet",
+                topics_remaining=", ".join(topics_remaining),
+                trend=trend,
+                base_difficulty=session.get("difficulty", "medium"),
+                dialogue_history=dialogue_history,
+                last_answer=last_answer,
+                previous_questions=_format_previous_questions(avoid_questions),
+                last_feedback=last_feedback,
+                follow_up_suggestion=last_follow_up,
+                next_id=next_id,
+            )
 
-        response = await client.generate(
-            prompt=prompt,
-            system_prompt="You are an empathetic Principal Software Engineer conducting an authentic technical interview. Always warmly acknowledge the candidate's response before asking the next question, never ignore what they said, and vary your acknowledgements naturally. Return only valid JSON.",
-            max_tokens=settings.MAX_OUTPUT_TOKENS_ADAPTIVE,
-        )
+            response = await client.generate(
+                prompt=prompt,
+                system_prompt="You are an empathetic Principal Software Engineer conducting an authentic technical interview. Always warmly acknowledge the candidate's response before asking the next question, never ignore what they said, and vary your acknowledgements naturally. Return only valid JSON.",
+                max_tokens=settings.MAX_OUTPUT_TOKENS_ADAPTIVE,
+            )
 
-        question = parse_json_response(response)
+            question = parse_json_response(response)
 
-        if isinstance(question, list) and question:
-            question = question[0]
+            if isinstance(question, list) and question:
+                question = question[0]
 
-        question = _normalize_question(
-            question=question,
-            question_id=next_id,
-            default_difficulty=session.get("difficulty", "medium"),
-        )
+            question = _normalize_question(
+                question=question,
+                question_id=next_id,
+                default_difficulty=session.get("difficulty", "medium"),
+            )
 
-        if question and not _is_duplicate_question(question, questions):
-            return question
+            if question and not _is_duplicate_question(question, questions):
+                return question
 
-        rejected = question.get("question", "") if isinstance(question, dict) else ""
-        if rejected:
-            avoid_questions.append(rejected)
-        logger.warning(
-            "Adaptive question attempt %d produced a duplicate; retrying",
-            attempt,
-        )
+            rejected = question.get("question", "") if isinstance(question, dict) else ""
+            if rejected:
+                avoid_questions.append(rejected)
+            logger.warning(
+                "Adaptive question attempt %d produced a duplicate; retrying",
+                attempt,
+            )
+        except Exception as e:
+            logger.warning(
+                "Adaptive question attempt %d failed: %s",
+                attempt,
+                e,
+            )
 
     return _build_fallback_question(
         question_id=next_id,

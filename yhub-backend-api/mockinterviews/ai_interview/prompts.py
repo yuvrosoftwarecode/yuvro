@@ -254,7 +254,13 @@ CRITICAL INTERVIEWING INSTRUCTIONS:
    - The "question" field will be spoken aloud to the candidate via text-to-speech.
    - Keep it concise, natural, and clear (1-3 spoken sentences).
 
-6. Return ONLY a valid JSON object:
+6. CODING QUESTIONS & IN-INTERVIEW CODE EDITOR:
+   - When asking the candidate to write, implement, or code a function, algorithm, script, or query:
+     * Set "question_type": "coding".
+     * In the spoken question, naturally invite them to code (e.g., "Could you please write a function in the code editor to...", "Please implement a function to...", "Go ahead and write the code in the editor for...").
+     * The candidate's interview interface will automatically open the interactive split-screen code editor for them to write and submit their solution.
+
+7. Return ONLY a valid JSON object:
 {{
   "id": {next_id},
   "question": "<acknowledgement + natural spoken question>",

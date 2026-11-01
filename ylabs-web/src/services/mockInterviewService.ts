@@ -37,6 +37,7 @@ export interface StartInterviewResponse {
   status: string;
   first_question: string;
   first_question_id?: string;
+  first_question_type?: string;
   interview_type?: string;
   interview_mode?: string;
   num_questions?: number;
@@ -51,6 +52,7 @@ export interface NextQuestionResponse {
   is_finished: boolean;
   question_id?: string;
   question_kind?: string;
+  question_type?: string;
   competency_targets?: string[];
   rationale?: string;
 }
@@ -286,7 +288,11 @@ export async function fetchMockInterviewBySlugOrId(slugOrId: string): Promise<In
     } catch {}
   }
 
-  return null;
+  return (
+    INTERVIEWS.find(
+      (i) => i.slug === slugOrId || i.backendId === slugOrId || slugifyTitle(i.name) === slugOrId
+    ) || null
+  );
 }
 
 export async function fetchUserInterviewSubmissions(
@@ -409,5 +415,32 @@ export async function fetchBackendSubmission(submissionId: string): Promise<any 
       console.error("Failed to fetch backend submission:", err);
       return null;
     }
+  }
+}
+
+export async function fetchInterviewSubmissions(
+  interviewId: string
+): Promise<any[]> {
+  try {
+    const res = await yhubApiAuthUtil.get<any[]>(
+      `/mock-interviews/${interviewId}/submissions/`
+    );
+    if (Array.isArray(res) && res.length > 0) {
+      return res;
+    }
+  } catch (err) {
+    console.warn("Could not fetch submissions from detail endpoint:", err);
+  }
+
+  // Fallback: check my_interviews
+  try {
+    const all = await fetchUserInterviewSubmissions("ylabs");
+    const matched = all.filter((s: any) => {
+      const sId = String(s.mock_interview || s.mock_interview_id || "");
+      return sId === String(interviewId);
+    });
+    return matched;
+  } catch {
+    return [];
   }
 }

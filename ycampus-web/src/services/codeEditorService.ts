@@ -115,9 +115,13 @@ class CodeEditorService {
       const testResults = data.test_results || [];
       const firstTestError = testResults.find((result: any) => result?.error)?.error || '';
 
-      let statusVal: any = executionResult.success ? 'completed' : 'error';
+      let statusVal: any = 'completed';
       if (data.status === 'tle') {
           statusVal = 'timeout';
+      } else if (executionResult.status === 'compilation_error' || executionResult.status === 'security_error') {
+          statusVal = 'error';
+      } else if (!testResults || testResults.length === 0) {
+          statusVal = executionResult.success ? 'completed' : 'error';
       }
       let reasonVal: string | undefined = undefined;
       const performance_warnings: any[] = [];
@@ -178,7 +182,8 @@ class CodeEditorService {
             actual_output: result.actual_output || '',
             error: result.error || '',
             error_message: result.error || '',
-            execution_time: result.execution_time || 0
+            execution_time: result.execution_time || 0,
+            is_hidden: Boolean(result.is_hidden)
           })),
           success: executionResult.success || false
         },

@@ -22,7 +22,7 @@ import {
   runDatabaseQuery,
   type FileTreeNode,
 } from "@/services/workspaceService";
-import codeExecutorService from "@/services/codeExecutorService";
+import codeExecutorService, { isTaskHidden } from "@/services/codeExecutorService";
 import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
 import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { TopNav } from "@/components/TopNav";
@@ -1050,7 +1050,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
   };
 }
 
-type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string };
+type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string; is_hidden?: boolean };
 type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff" | "testcases";
 
 export function StudentTicketView(props: {
@@ -2742,16 +2742,22 @@ export function TicketIDE({
         });
         setTestResults(res.test_results);
 
-        if (res.status === 'completed') {
-          showToast(`Passed ${res.test_cases_passed} of ${res.total_test_cases} tests`);
+        const hasTestResults = Boolean(res.test_results?.results && res.test_results.results.length > 0);
+        if (res.status === 'completed' || res.status === 'failed' || hasTestResults) {
+          if (res.test_cases_passed === res.total_test_cases && res.total_test_cases > 0) {
+            showToast(`All ${res.total_test_cases} tests passed!`);
+          } else {
+            showToast(`Passed ${res.test_cases_passed} of ${res.total_test_cases} tests`);
+          }
           setTestsRan(true);
 
           const newEvalResult: Record<string, { passed: boolean; reason: string }> = {};
+          const tasksToIterate = (ticket.tasks && ticket.tasks.length > 0) ? ticket.tasks : (res.test_results?.results || []);
 
-          (ticket.tasks || []).forEach((taskMeta: any, idx: number) => {
+          tasksToIterate.forEach((taskMeta: any, idx: number) => {
             const tr = res.test_results?.results?.[idx];
             const isPassed = tr ? tr.passed === true : (res.test_cases_passed > 0 && idx < res.test_cases_passed);
-            const reasonMsg = tr ? (tr.passed ? "Passed" : (tr.error || "Output mismatch")) : (isPassed ? "Passed" : "Task failed verification");
+            const reasonMsg = tr ? (tr.passed ? "Passed" : (tr.error || (tr.actual_output !== tr.expected_output ? `Expected "${tr.expected_output}", got "${tr.actual_output}"` : "Output mismatch"))) : (isPassed ? "Passed" : "Task failed verification");
 
             const itemEval = { passed: isPassed, reason: reasonMsg };
 
@@ -2766,14 +2772,16 @@ export function TicketIDE({
           setLastExecutionResult(res);
 
           if (res.test_results?.results && res.test_results.results.length > 0) {
-            setTests((ticket.tasks || []).map((tMeta: any, idx: number) => {
+            setTests(tasksToIterate.map((tMeta: any, idx: number) => {
               const tr = res.test_results?.results?.[idx];
+              const isHidden = Boolean(tr?.is_hidden || isTaskHidden(tMeta));
               return {
                 name: tMeta?.title || `Test Case ${idx + 1}`,
                 pass: tr ? tr.passed === true : false,
                 time: tr?.execution_time ? `${tr.execution_time.toFixed(2)}s` : "—",
-                expected: tr?.expected_output || "",
-                got: tr?.actual_output || tr?.error || ""
+                expected: isHidden ? "" : (tr?.expected_output || ""),
+                got: isHidden ? "" : (tr?.actual_output || tr?.error || tr?.console_output || ""),
+                is_hidden: isHidden
               };
             }));
           } else {
@@ -3173,6 +3181,22 @@ export function TicketIDE({
   };
 
   async function handleSubmit() {
+    function notifyTicketSubmitted(status = "done") {
+      try {
+        const localKanbanStr = localStorage.getItem(`kanban_${slug}`);
+        const kanban = localKanbanStr ? JSON.parse(localKanbanStr) : {};
+        kanban[ticket.id] = status;
+        localStorage.setItem(`kanban_${slug}`, JSON.stringify(kanban));
+      } catch (e) {}
+      invalidateStudentStats();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("yuvro:ticket_submission_updated", {
+          detail: { ticketId: ticket.id, status }
+        }));
+        window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+      }
+    }
+
     const sessionStartMs = (window as any).__labSessionStartTime || Date.now();
     const elapsedSessionSecs = Math.max(1, Math.round((Date.now() - sessionStartMs) / 1000));
     const elapsedSessionMins = Math.max(1, Math.round(elapsedSessionSecs / 60));
@@ -3264,8 +3288,7 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
-            invalidateStudentStats();
-            if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+            notifyTicketSubmitted(computedSqlScore > 0 ? "done" : "in_progress");
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -3281,8 +3304,7 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
-          invalidateStudentStats();
-          if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+          notifyTicketSubmitted(computedSqlScore > 0 ? "done" : "in_progress");
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3331,8 +3353,7 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
-            invalidateStudentStats();
-            if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+            notifyTicketSubmitted(computedUiScore > 0 ? "done" : "in_progress");
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -3348,8 +3369,7 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
-          invalidateStudentStats();
-          if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+          notifyTicketSubmitted(computedUiScore > 0 ? "done" : "in_progress");
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3429,8 +3449,7 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
-            invalidateStudentStats();
-            if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+            notifyTicketSubmitted(computedScore > 0 ? "done" : "in_progress");
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -3447,8 +3466,7 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
-          invalidateStudentStats();
-          if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+          notifyTicketSubmitted(computedScore > 0 ? "done" : "in_progress");
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3525,8 +3543,7 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
-            invalidateStudentStats();
-            if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+            notifyTicketSubmitted(legacyScore > 0 ? "done" : "in_progress");
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -3541,8 +3558,7 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
-          invalidateStudentStats();
-          if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+          notifyTicketSubmitted(legacyScore > 0 ? "done" : "in_progress");
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3565,12 +3581,41 @@ export function TicketIDE({
         ? `${user.github_username}@users.noreply.github.com`
         : (user?.email || `${gitName}@users.noreply.github.com`);
 
+      // 1. Try backend GitHub commit endpoint first (for all enrolled lab tickets)
+      if (isReal && ticket.id) {
+        try {
+          const { default: api } = await import("@/utils/RestApiAuthUtil");
+          const commitRes: any = await api.post(`/lab/tickets/${ticket.id}/github-commit/`, {
+            commit_message: formattedMessage,
+            files,
+            code: files[activeFile] ?? "",
+            design: ticket.system_design,
+            sprint_no: sprintNo,
+            ticket_no: ticketNo,
+          });
+          if (commitRes && (commitRes.status === "success" || commitRes.message)) {
+            showToast(commitRes.message || "Changes committed and pushed successfully");
+            setIsCommitDialogOpen(false);
+            setCommitMessage("");
+            return;
+          }
+        } catch (backendErr: any) {
+          const errMsg = backendErr?.response?.data?.error || backendErr?.message || "";
+          if (errMsg.includes("GitHub account not connected") || errMsg.includes("connect your GitHub")) {
+            showToast("Please connect your GitHub account in Profile Settings before committing.");
+            return;
+          }
+          console.warn("Backend ticket commit endpoint failed, falling back to workspace git:", backendErr);
+        }
+      }
+
+      // 2. Fallback: runCommand in workspace
       const safeName = gitName.replace(/"/g, '\\"');
       const safeEmail = gitEmail.replace(/"/g, '\\"');
       const cmd = `git config user.name "${safeName}" && git config user.email "${safeEmail}" && git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" --author="${safeName} <${safeEmail}>" && git push`;
       
       const { runCommand } = await import("@/services/workspaceService");
-      const res = await runCommand(userId, labId, sprintId, cmd, evaluationId);
+      const res = await runCommand(effectiveUserId, labId, sprintId, cmd, evaluationId);
       if (res.exit_code === 0) {
         showToast("Changes committed and pushed successfully");
         setIsCommitDialogOpen(false);
@@ -4493,7 +4538,7 @@ export function TicketIDE({
                     <ExecutionOutputView
                       output={output}
                       executionMetrics={executionMetrics}
-                      testResults={null}
+                      testResults={testResults}
                       executionOutput={executionOutput}
                     />
                   )}
@@ -5124,7 +5169,104 @@ function FormattedResultsView({
   sprintId?: string;
   evaluationId?: string;
 }) {
-  // 1. Task-based evaluation (Django, REST API, Backend labs, or any lab with test_command or tasks or taskExecutionData)
+  // 1. Algo test cases (if testResults from code executor exists)
+  if (testResults && testResults.results && testResults.results.length > 0) {
+    const passedCount = testResults.passed ?? testResults.results.filter((r: any) => r.passed).length;
+    const totalCount = testResults.total ?? testResults.results.length;
+    const isAllPassed = passedCount === totalCount && totalCount > 0;
+
+    return (
+      <div className="space-y-4 max-w-4xl pb-4">
+        {/* Metrics Header */}
+        <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg border bg-card text-xs">
+          <div className="flex items-center gap-2">
+            <span className={`font-semibold ${isAllPassed ? "text-success" : "text-foreground"}`}>
+              {passedCount} / {totalCount} Test Cases Passed
+            </span>
+          </div>
+          {executionMetrics && (
+            <div className="flex items-center gap-3 text-muted-foreground font-mono text-[11px]">
+              {executionMetrics.execution_time !== undefined && (
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  <span>{executionMetrics.execution_time.toFixed(3)}s</span>
+                </div>
+              )}
+              {executionMetrics.memory_usage !== undefined && (
+                <div className="flex items-center gap-1">
+                  <Zap className="w-3 h-3" />
+                  <span>{executionMetrics.memory_usage.toFixed(2)}MB</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Test Cases List */}
+        <div className="space-y-2">
+          {testResults.results.map((tr: any, idx: number) => {
+            const taskMeta = ticket?.tasks?.[idx];
+            const isHidden = Boolean(tr.is_hidden || isTaskHidden(taskMeta) || isTaskHidden(tr));
+            const testNum = tr.test_case_id !== undefined ? tr.test_case_id + 1 : idx + 1;
+
+            return (
+              <div
+                key={idx}
+                className={`rounded-lg border p-3 font-mono text-xs ${tr.passed ? "border-success/30 bg-success/5" : "border-destructive/30 bg-destructive/5"}`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  {tr.passed ? <CheckCircle2 className="w-4 h-4 text-success" /> : <XCircle className="w-4 h-4 text-destructive" />}
+                  <span className={`font-semibold ${tr.passed ? "text-success" : "text-destructive"}`}>
+                    Test Case #{testNum} {isHidden ? "(Hidden) " : ""}{tr.passed ? "Passed" : "Failed"}
+                  </span>
+                  {tr.execution_time !== undefined && (
+                    <span className="text-muted-foreground ml-auto text-[10px]">{tr.execution_time.toFixed(3)}s</span>
+                  )}
+                </div>
+
+                {!tr.passed && !isHidden && (
+                  <div className="space-y-2 mt-2 text-[11px]">
+                    {tr.input !== undefined && (
+                      <div className="grid grid-cols-[80px_1fr] gap-2">
+                        <span className="text-muted-foreground font-semibold">Input:</span>
+                        <span className="font-mono text-foreground whitespace-pre-wrap break-all bg-muted/40 p-2 rounded">{tr.input || "(empty)"}</span>
+                      </div>
+                    )}
+                    {tr.expected_output !== undefined && (
+                      <div className="grid grid-cols-[80px_1fr] gap-2">
+                        <span className="text-muted-foreground font-semibold">Expected:</span>
+                        <span className="font-mono text-success whitespace-pre-wrap break-all bg-success/10 p-2 rounded">{tr.expected_output}</span>
+                      </div>
+                    )}
+                    {tr.actual_output !== undefined && (
+                      <div className="grid grid-cols-[80px_1fr] gap-2">
+                        <span className="text-muted-foreground font-semibold">Output:</span>
+                        <span className="font-mono text-destructive whitespace-pre-wrap break-all bg-destructive/10 p-2 rounded">{tr.actual_output || "(no output)"}</span>
+                      </div>
+                    )}
+                    {(tr.error || tr.console_output) && (
+                      <div className="mt-2 text-destructive font-semibold text-[11px] whitespace-pre-wrap break-all bg-destructive/10 p-2 rounded">
+                        Error: {tr.error || tr.console_output}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!tr.passed && isHidden && (
+                  <div className="mt-1.5 text-muted-foreground italic text-[11px] flex items-center gap-1.5">
+                    <Lock className="w-3 h-3 text-muted-foreground/70" />
+                    <span>Hidden test case — inputs and outputs are hidden.</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Task-based evaluation (Django, REST API, Backend labs, or any lab with test_command or tasks or taskExecutionData)
   const report = extractTasksReport(ticket, taskExecutionData, executionOutput || output, evalResult, ticketScore);
 
   if (taskExecutionData || ticket?.test_command || (!isSql && !isMongo && !isExternalDb && !isUi && report.items.length > 0)) {
@@ -5335,91 +5477,7 @@ function FormattedResultsView({
     return <UiPreview files={files} />;
   }
 
-  // 4. Algo test cases (if testResults from code executor exists)
-  if (testResults && testResults.results && testResults.results.length > 0) {
-    const passedCount = testResults.passed ?? testResults.results.filter((r: any) => r.passed).length;
-    const totalCount = testResults.total ?? testResults.results.length;
-    const isAllPassed = passedCount === totalCount && totalCount > 0;
-
-    return (
-      <div className="space-y-4 max-w-4xl pb-4">
-        {/* Metrics Header */}
-        <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg border bg-card text-xs">
-          <div className="flex items-center gap-2">
-            <span className={`font-semibold ${isAllPassed ? "text-success" : "text-foreground"}`}>
-              {passedCount} / {totalCount} Test Cases Passed
-            </span>
-          </div>
-          {executionMetrics && (
-            <div className="flex items-center gap-3 text-muted-foreground font-mono text-[11px]">
-              {executionMetrics.execution_time !== undefined && (
-                <div className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  <span>{executionMetrics.execution_time.toFixed(3)}s</span>
-                </div>
-              )}
-              {executionMetrics.memory_usage !== undefined && (
-                <div className="flex items-center gap-1">
-                  <Zap className="w-3 h-3" />
-                  <span>{executionMetrics.memory_usage.toFixed(2)}MB</span>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Test Cases List */}
-        <div className="space-y-2">
-          {testResults.results.map((tr: any, idx: number) => (
-            <div
-              key={idx}
-              className={`rounded-lg border p-3 font-mono text-xs ${tr.passed ? "border-success/30 bg-success/5" : "border-destructive/30 bg-destructive/5"}`}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                {tr.passed ? <CheckCircle2 className="w-4 h-4 text-success" /> : <XCircle className="w-4 h-4 text-destructive" />}
-                <span className={`font-semibold ${tr.passed ? "text-success" : "text-destructive"}`}>
-                  Test Case #{tr.test_case_id !== undefined ? tr.test_case_id + 1 : idx + 1} {tr.passed ? "Passed" : "Failed"}
-                </span>
-                {tr.execution_time !== undefined && (
-                  <span className="text-muted-foreground ml-auto text-[10px]">{tr.execution_time.toFixed(3)}s</span>
-                )}
-              </div>
-
-              {!tr.passed && (
-                <div className="space-y-1.5 mt-2 text-[11px]">
-                  {tr.input !== undefined && (
-                    <div className="grid grid-cols-[80px_1fr] gap-2">
-                      <span className="text-muted-foreground font-semibold">Input:</span>
-                      <span className="text-foreground truncate">{tr.input}</span>
-                    </div>
-                  )}
-                  {tr.expected_output !== undefined && (
-                    <div className="grid grid-cols-[80px_1fr] gap-2">
-                      <span className="text-muted-foreground font-semibold">Expected:</span>
-                      <span className="text-success truncate">{tr.expected_output}</span>
-                    </div>
-                  )}
-                  {tr.actual_output !== undefined && (
-                    <div className="grid grid-cols-[80px_1fr] gap-2">
-                      <span className="text-muted-foreground font-semibold">Output:</span>
-                      <span className="text-destructive truncate">{tr.actual_output || "(no output)"}</span>
-                    </div>
-                  )}
-                  {tr.error && (
-                    <div className="mt-2 text-destructive font-semibold text-[11px]">
-                      Error: {tr.error}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // 5. Empty State fallback
+  // 4. Empty State fallback
   return (
     <div className="flex h-full min-h-[160px] flex-col items-center justify-center gap-2.5 text-center p-4">
       <div className="h-10 w-10 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground mb-1">
@@ -5482,7 +5540,7 @@ function TestsView({
             <span className={t.pass ? "" : "text-destructive"}>{t.name}</span>
             <span className="ml-auto text-muted-foreground">{t.time}</span>
           </div>
-          {!t.pass && t.expected && (
+          {!t.pass && !t.is_hidden && t.expected && (
             <div className="ml-5 mt-1 rounded border border-destructive/30 bg-destructive/5 p-1.5 text-[11px] text-destructive/90">
               <div>
                 Expected: <span className="text-success">{t.expected}</span>
@@ -6321,16 +6379,20 @@ function ProblemPanel({
                               </span>
                             </div>
                           )}
-                          {!isDS && evalResult[task.task_slug || `task-${originalIdx}`] && (
-                            <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
-                              evalResult[task.task_slug || `task-${originalIdx}`].passed 
-                                ? "border-success/20 bg-success/10 text-success" 
-                                : "border-destructive/20 bg-destructive/10 text-destructive"
-                            }`}>
-                              {evalResult[task.task_slug || `task-${originalIdx}`].passed ? "✅ Passed: " : "❌ Failed: "}
-                              {evalResult[task.task_slug || `task-${originalIdx}`].reason}
-                            </div>
-                          )}
+                          {(() => {
+                            const item = evalResult[task.task_slug] || evalResult[`task-${originalIdx}`] || evalResult[`task-${idx}`] || (task.id ? evalResult[String(task.id)] : undefined);
+                            if (!item) return null;
+                            return (
+                              <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
+                                item.passed 
+                                  ? "border-success/20 bg-success/10 text-success" 
+                                  : "border-destructive/20 bg-destructive/10 text-destructive"
+                              }`}>
+                                {item.passed ? "✅ Passed: " : "❌ Failed: "}
+                                {item.reason}
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>

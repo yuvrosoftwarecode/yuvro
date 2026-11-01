@@ -171,6 +171,7 @@ function Hub() {
           })
         );
 
+        // Integrate catalog dummy labs (AI/ML, System Design, DevOps, AWS, Cybersecurity, React) with real labs
         const realNames = new Set(mapped.map((l) => l.name.toLowerCase()));
         const requestedDummyLabs: CatalogLab[] = [
           {
@@ -198,7 +199,7 @@ function Hub() {
             completed: 0,
             payment_tier: "free",
             hoursLeft: 32,
-            status: "upcoming",
+            status: "active",
             sprints: 6,
           },
           {
