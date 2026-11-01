@@ -101,29 +101,23 @@ export const IR_CSS = `
 .ir-m .b{display:inline-block;text-align:left;padding:12px 16px;border:1px solid var(--bar);border-radius:14px 14px 14px 4px;background:var(--card);color:var(--ink);font-size:14.5px;line-height:1.55}
 .ir-m.me .b{background:var(--brand);border-color:var(--brand);color:#fff;border-radius:14px 14px 4px 14px}
 .ir-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,0);background:var(--ink);color:var(--page);padding:11px 18px;border-radius:12px;font-weight:600;font-size:14px;z-index:50}
-.ir-attempts{display:flex;flex-direction:column;gap:16px}
-.ir-att-summary{background:var(--card);border:1px solid var(--bar);border-radius:16px;padding:22px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-.ir-att-sum-item b{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-.ir-att-sum-item span{font-size:22px;font-weight:700;color:var(--ink)}
-.ir-attempt-card{background:var(--card);border:1px solid var(--bar);border-radius:16px;padding:24px 28px;transition:border-color .15s,box-shadow .15s,transform .15s}
-.ir-attempt-card:hover{border-color:color-mix(in srgb,var(--brand) 50%,var(--bar));transform:translateY(-1px)}
-.ir-attempt-card.active{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand)}
-.ir-att-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:12px}
-.ir-att-title{font-size:17px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:10px}
+.ir-attempts{display:flex;flex-direction:column;gap:10px}
+.ir-att-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:10px}
+.ir-att-stats{display:inline-flex;align-items:center;gap:12px;font-size:13px;color:var(--muted);background:var(--card);border:1px solid var(--bar);padding:7px 16px;border-radius:999px}
+.ir-att-stats b{color:var(--ink);font-weight:600}
+.ir-att-stats .dot{opacity:0.35}
+.ir-qa.active-attempt{border-color:color-mix(in srgb,var(--brand) 60%,var(--bar));background:color-mix(in srgb,var(--brand) 4%,var(--card))}
+.ir-att-tag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px;line-height:1.2}
+.ir-att-tag.active{background:var(--good-bg);color:var(--good)}
+.ir-att-tag.best{background:color-mix(in srgb,var(--brand) 16%,transparent);color:var(--brand)}
+.ir-att-actions{display:flex;align-items:center;gap:10px}
+.ir-att-switch-btn{font-size:12.5px;font-weight:600;color:var(--brand);padding:5px 12px;border-radius:6px;background:var(--soft);border:none;cursor:pointer;transition:all .15s ease;white-space:nowrap}
+.ir-att-switch-btn:hover{background:var(--brand);color:#fff}
+.ir-att-curr-pill{font-size:12px;font-weight:600;color:var(--good);padding:4px 10px;border-radius:6px;background:var(--good-bg);white-space:nowrap}
 .ir-att-pill{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--muted)}
 .ir-att-pill.active{background:var(--good-bg);color:var(--good)}
 .ir-att-pill.latest{background:var(--warn-bg);color:var(--warn)}
-.ir-att-pill.best{background:#e8f0fe;color:#1a73e8}
-.ir-att-meta{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:14px;margin-top:6px;flex-wrap:wrap}
-.ir-att-body{display:grid;grid-template-columns:190px 1fr auto;gap:24px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--bar)}
-@media(max-width:768px){.ir-att-body{grid-template-columns:1fr;gap:16px}}
-.ir-att-score{font-size:36px;font-weight:700;color:var(--ink);line-height:1;display:flex;align-items:baseline;gap:6px}
-.ir-att-score small{font-size:14px;font-weight:500;color:var(--muted)}
-.ir-att-badge{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:6px;margin-top:6px}
-.ir-att-desc{font-size:14px;color:var(--body);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.ir-att-btn{font-size:13.5px;font-weight:600;padding:9px 18px;border-radius:9px;background:var(--soft);color:var(--brand);transition:background .15s,color .15s;cursor:pointer}
-.ir-att-btn:hover{background:var(--brand);color:#fff}
-.ir-att-btn.active{background:var(--good-bg);color:var(--good);cursor:default}
+.ir-att-pill.best{background:color-mix(in srgb,var(--brand) 16%,transparent);color:var(--brand)}
 .ir-att-dropdown-root{position:relative;display:inline-flex;align-items:center}
 .ir-att-trigger-btn{display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:999px;border:1px solid var(--bar);background:var(--card);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s ease;box-shadow:0 1px 3px rgba(0,0,0,0.04);line-height:1.2}
 .ir-att-trigger-btn:hover{border-color:var(--brand);background:var(--soft);transform:translateY(-1px)}
@@ -515,6 +509,7 @@ export default function InterviewReport({
   const b = band(r.score);
   const [tab, setTab] = useState<"skills" | "qs" | "tr" | "attempts">("skills");
   const [open, setOpen] = useState<number | null>(null);
+  const [openAttempt, setOpenAttempt] = useState<number | null>(null);
   const [meter, setMeter] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -540,8 +535,8 @@ export default function InterviewReport({
   const tabs: [typeof tab, string][] = [
     ["skills", "Skills & growth"],
     ["qs", "Question analysis"],
-    ["tr", "Transcript"],
-    ["attempts", attempts && attempts.length > 0 ? `All attempts (${attempts.length})` : "Previous attempts"],
+    ...(r.transcript && r.transcript.length > 0 ? [["tr", "Transcript"] as [typeof tab, string]] : []),
+    ...(attempts && attempts.length > 0 ? [["attempts", `All attempts (${attempts.length})`] as [typeof tab, string]] : []),
   ];
 
   return (
@@ -669,35 +664,16 @@ export default function InterviewReport({
             {attempts.length > 0 && (() => {
               const scores = attempts.map((a) => a.score);
               const bestScore = Math.max(...scores);
-              const latestAttempt = attempts[0];
-              const completedCount = attempts.filter((a) => a.status === "completed" || a.score > 0).length;
+              const avgScore = Math.round(scores.reduce((sum, s) => sum + s, 0) / (scores.length || 1));
 
               return (
-                <div className="ir-att-summary">
-                  <div className="ir-att-sum-item">
-                    <b>Total attempts</b>
-                    <span>{attempts.length}</span>
-                  </div>
-                  <div className="ir-att-sum-item">
-                    <b>Best score</b>
-                    <span style={{ color: "var(--good)" }}>
-                      {bestScore} <small style={{ fontSize: "14px", fontWeight: 500, color: "var(--muted)" }}>/ 100</small>
-                    </span>
-                  </div>
-                  <div className="ir-att-sum-item">
-                    <b>Latest score</b>
-                    <span>
-                      {latestAttempt?.score ?? 0} <small style={{ fontSize: "14px", fontWeight: 500, color: "var(--muted)" }}>/ 100</small>
-                    </span>
-                  </div>
-                  <div className="ir-att-sum-item">
-                    <b>Completed rounds</b>
-                    <span>{completedCount}</span>
-                  </div>
-                  <div>
-                    <button className="ir-dl" onClick={onTryAgain}>
-                      + Take new attempt
-                    </button>
+                <div className="ir-att-header">
+                  <div className="ir-att-stats">
+                    <span>Total attempts: <b>{attempts.length}</b></span>
+                    <span className="dot">•</span>
+                    <span>Best score: <b style={{ color: "var(--good)" }}>{bestScore}%</b></span>
+                    <span className="dot">•</span>
+                    <span>Average: <b>{avgScore}%</b></span>
                   </div>
                 </div>
               );
@@ -708,20 +684,13 @@ export default function InterviewReport({
                 style={{
                   background: "var(--card)",
                   border: "1px solid var(--bar)",
-                  borderRadius: "16px",
-                  padding: "48px 24px",
+                  borderRadius: "12px",
+                  padding: "36px 20px",
                   textAlign: "center",
                   color: "var(--muted)",
                 }}
               >
-                <p style={{ margin: 0, fontSize: "15px" }}>No previous attempts found for this interview.</p>
-                <button
-                  className="ir-dl"
-                  style={{ marginTop: "16px", display: "inline-block" }}
-                  onClick={onTryAgain}
-                >
-                  Start your first attempt
-                </button>
+                <p style={{ margin: 0, fontSize: "14px" }}>No previous attempts found for this interview.</p>
               </div>
             ) : (
               attempts.map((att, idx) => {
@@ -729,87 +698,49 @@ export default function InterviewReport({
                 const isViewing = currentAttemptId
                   ? att.id === currentAttemptId
                   : att.report?.id === r.id || (att.score === r.score && att.duration === r.duration);
-                const isLatest = idx === 0;
                 const isBest = att.score === Math.max(...attempts.map((a) => a.score)) && att.score > 0;
+                const isOpen = openAttempt === idx;
 
                 return (
                   <div
                     key={att.id || idx}
-                    className={`ir-attempt-card ${isViewing ? "active" : ""}`}
+                    className={`ir-qa ${isViewing ? "active-attempt" : ""}`}
                   >
-                    <div className="ir-att-top">
-                      <div>
-                        <div className="ir-att-title">
+                    <div
+                      className="ir-qh"
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={isOpen}
+                      onClick={() => setOpenAttempt(isOpen ? null : idx)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setOpenAttempt(isOpen ? null : idx);
+                        }
+                      }}
+                    >
+                      <span className="no">#{att.attemptNumber}</span>
+                      <span className="t">
+                        <b style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                           <span>Attempt #{att.attemptNumber}</span>
-                          {isViewing && <span className="ir-att-pill active">Viewing now</span>}
-                          {isLatest && !isViewing && <span className="ir-att-pill latest">Latest</span>}
-                          {isBest && <span className="ir-att-pill best">Best score</span>}
-                          <span
-                            className="ir-att-pill"
-                            style={{
-                              background: att.status === "completed" ? "var(--good-bg)" : "var(--soft)",
-                              color: att.status === "completed" ? "var(--good)" : "var(--muted)",
-                            }}
-                          >
-                            {att.status === "completed" ? "Completed" : att.status}
-                          </span>
-                        </div>
-                        <div className="ir-att-meta">
-                          <span>📅 {att.date}</span>
-                          <span>⏱️ {att.duration}</span>
-                          {att.report?.questions?.length ? (
-                            <span>💬 {att.report.questions.length} questions evaluated</span>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="ir-att-body">
-                      <div>
-                        <div className="ir-att-score">
-                          {att.score}
-                          <small>/ 100</small>
-                        </div>
-                        <div
-                          className="ir-att-badge"
-                          style={{ background: bnd.bg, color: bnd.fg }}
-                        >
-                          {bnd.label}
-                        </div>
-                        <div className="ir-track" style={{ marginTop: "8px", maxWidth: "140px" }}>
-                          <i
-                            style={{
-                              width: `${Math.max(att.score, 4)}%`,
-                              background: bnd.fg,
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="ir-att-desc">
-                          {att.summary || "Performance evaluation and key insights recorded."}
-                        </p>
-                        {att.strength && (
-                          <div style={{ marginTop: "8px", fontSize: "12.5px", color: "var(--good)" }}>
-                            <b>Top strength:</b> {att.strength}
-                          </div>
-                        )}
-                        {att.focus && (
-                          <div style={{ marginTop: "4px", fontSize: "12.5px", color: "var(--warn)" }}>
-                            <b>Focus next:</b> {att.focus}
-                          </div>
-                        )}
-                      </div>
-
-                      <div>
+                          {isViewing && <span className="ir-att-tag active">Active</span>}
+                          {isBest && <span className="ir-att-tag best">Best</span>}
+                        </b>
+                        <span>
+                          {att.date} · {att.duration}
+                          {att.report?.questions?.length ? ` · ${att.report.questions.length} questions` : ""}
+                        </span>
+                      </span>
+                      <span className="sc" style={{ background: bnd.bg, color: bnd.fg }}>
+                        {att.score}%
+                      </span>
+                      <div className="ir-att-actions" onClick={(e) => e.stopPropagation()}>
                         {isViewing ? (
-                          <span className="ir-att-btn active">
-                            ✓ Active report
-                          </span>
+                          <span className="ir-att-curr-pill">✓ Current</span>
                         ) : (
                           <button
-                            className="ir-att-btn"
+                            type="button"
+                            className="ir-att-switch-btn"
                             onClick={() => {
                               onSelectAttempt?.(att.id);
                               setTab("skills");
@@ -819,7 +750,31 @@ export default function InterviewReport({
                           </button>
                         )}
                       </div>
+                      <span className="tg">{isOpen ? "Hide" : "Details"}</span>
                     </div>
+
+                    {isOpen && (
+                      <div className="ir-qb">
+                        <p className="ir-lab">AI Summary</p>
+                        <p>{att.summary || "Performance evaluation and key insights recorded."}</p>
+                        {(att.strength || att.focus) && (
+                          <div className="ir-two" style={{ marginTop: "14px" }}>
+                            {att.strength && (
+                              <div className="ir-s">
+                                <b>Top strength</b>
+                                <p>{att.strength}</p>
+                              </div>
+                            )}
+                            {att.focus && (
+                              <div className="ir-f">
+                                <b>Focus next</b>
+                                <p>{att.focus}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })

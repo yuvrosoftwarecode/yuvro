@@ -477,29 +477,63 @@ class DeepSeekService(BaseAIService):
             if "thinking" not in extra:
                 extra["thinking"] = {"type": "disabled"}
 
-            if stream:
+            try:
+                if stream:
+                    response = await self.client.chat.completions.create(
+                        model=self.model_name,
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        extra_body=extra,
+                        stream=True,
+                        **kwargs,
+                    )
+                    return {
+                        "stream": response,
+                        "metadata": {"model": self.model_name},
+                    }
+
                 response = await self.client.chat.completions.create(
                     model=self.model_name,
                     messages=messages,
                     temperature=temperature,
                     max_tokens=max_tokens,
                     extra_body=extra,
-                    stream=True,
                     **kwargs,
                 )
-                return {
-                    "stream": response,
-                    "metadata": {"model": self.model_name},
-                }
+            except Exception as model_err:
+                # If model_name is deepseek-flash and provider expects deepseek-chat (or vice versa), auto-retry
+                err_str = str(model_err).lower()
+                if ("model" in err_str or "not found" in err_str) and self.model_name != "deepseek-chat":
+                    logger.warning(
+                        f"DeepSeek call with model '{self.model_name}' failed: {model_err}. "
+                        "Retrying with 'deepseek-chat'..."
+                    )
+                    if stream:
+                        response = await self.client.chat.completions.create(
+                            model="deepseek-chat",
+                            messages=messages,
+                            temperature=temperature,
+                            max_tokens=max_tokens,
+                            extra_body=extra,
+                            stream=True,
+                            **kwargs,
+                        )
+                        return {
+                            "stream": response,
+                            "metadata": {"model": "deepseek-chat"},
+                        }
 
-            response = await self.client.chat.completions.create(
-                model=self.model_name,
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                extra_body=extra,
-                **kwargs,
-            )
+                    response = await self.client.chat.completions.create(
+                        model="deepseek-chat",
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        extra_body=extra,
+                        **kwargs,
+                    )
+                else:
+                    raise model_err
 
             end_time = time.time()
             response_time_ms = int((end_time - start_time) * 1000)
@@ -555,58 +589,60 @@ class InterviewReportGenerator:
 
 
     def __init__(self):
+        # 1. Primary: Use existing agent whose name is 'DeepSeek Flash'
+        try:
+            from ai_assistant.models import AIAgent
+            agent = AIAgent.objects.filter(name="DeepSeek Flash").first()
+            if agent:
+                self.service = AIServiceFactory.create_service(agent.provider, agent.model_name)
+                logger.info(f"InterviewReportGenerator using existing agent: {agent.name} ({agent.provider}/{agent.model_name})")
+                return
+        except Exception as e:
+            logger.warning(f"Could not initialize with 'DeepSeek Flash' agent: {e}")
+
+        # 2. Fallback to direct DeepSeek service if agent not found in DB
+        try:
+            self.service = AIServiceFactory.create_service("deepseek", "deepseek-flash")
+            logger.info("InterviewReportGenerator using DeepSeekService via AIServiceFactory")
+            return
+        except Exception:
+            pass
+
+        # 3. Fallback: Check other active AIAgent records in DB
         try:
             from ai_assistant.models import AIAgent
             active_agent = AIAgent.objects.filter(is_active=True).first()
             if active_agent:
-                if active_agent.provider == "deepseek":
-                    deepseek_key = config("DEEPSEEK_API_KEY", default=None)
-                    if deepseek_key:
-                        self.service = DeepSeekService(deepseek_key, model_name=active_agent.model_name or "deepseek-flash")
-                        return
-                elif active_agent.provider == "gemini":
-                    gemini_key = config("GEMINI_API_KEY", default=None)
-                    if gemini_key:
-                        self.service = GeminiService(gemini_key, model_name=active_agent.model_name or "gemini-2.5-flash")
-                        return
-                elif active_agent.provider == "anthropic":
-                    anthropic_key = config("ANTHROPIC_API_KEY", default=None)
-                    if anthropic_key:
-                        self.service = AnthropicService(anthropic_key, model_name=active_agent.model_name or "claude-sonnet-4-5-20250929")
-                        return
-                elif active_agent.provider == "openai":
-                    openai_key = config("OPENAI_API_KEY", default=None)
-                    if openai_key:
-                        self.service = OpenAIService(openai_key, model_name=active_agent.model_name or "gpt-4o-mini")
-                        return
+                self.service = AIServiceFactory.create_service(active_agent.provider, active_agent.model_name)
+                return
         except Exception:
             pass
+
+        # 4. Final fallback to Gemini / Anthropic if DeepSeek is unavailable
+        gemini_key = config("GEMINI_API_KEY", default=None)
+        if gemini_key:
+            self.service = GeminiService(gemini_key, model_name="gemini-2.5-flash")
+            return
 
         self.api_key = config("ANTHROPIC_API_KEY", default=None)
         if self.api_key:
             model_name = config("ANTHROPIC_REPORT_MODEL", default="claude-sonnet-4-5-20250929")
             self.service = AnthropicService(self.api_key, model_name=model_name)
         else:
-            gemini_key = config("GEMINI_API_KEY", default=None)
-            if gemini_key:
-                self.service = GeminiService(gemini_key, model_name="gemini-2.5-flash")
-            else:
-                raise AIServiceError("Neither ANTHROPIC_API_KEY nor GEMINI_API_KEY found needed for report generation.")
+            raise AIServiceError("No valid AI API key found (DEEPSEEK_API_KEY, GEMINI_API_KEY, or ANTHROPIC_API_KEY required).")
 
     async def generate_report(self, conversation_text: str, resume_content: str = None) -> Dict[str, Any]:
 
 
         prompt = f"""
         You are an expert technical interviewer and career coach. 
-        Analyze the following mock interview transcript and generate a detailed performance report.
+        Analyze the following mock interview transcript and generate an objective, detailed performance report based strictly on the candidate's answers and technical performance in this interview session.
+        Do not personalize based on external background or resume. Evaluate only the demonstrated responses in the transcript.
         
         RETURN ONLY RAW JSON. DO NOT USE MARKDOWN BLOCK.
 
         TRANSCRIPT:
         {conversation_text}
-
-        RESUME CONTEXT:
-        {resume_content if resume_content else "No resume provided."}
 
         OUTPUT FORMAT (JSON):
         {{

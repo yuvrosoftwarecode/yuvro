@@ -38,7 +38,10 @@ import {
   startBackendInterview,
   submitBackendAnswer,
   generateBackendReport,
+  fetchMockInterviewQuota,
+  type CandidateMockInterviewQuota,
 } from "@/services/mockInterviewService";
+import { BuyMockInterviewsModal } from "@/components/interview/BuyMockInterviewsModal";
 
 const LANGS = {
   javascript: {
@@ -403,8 +406,17 @@ function InterviewScreen() {
   const [isLoadingSubmissions, setIsLoadingSubmissions] = useState(false);
   const [selectedAttemptId, setSelectedAttemptId] = useState<string | null>(null);
   const [viewingReportOverride, setViewingReportOverride] = useState<Report | null>(null);
+  const [quota, setQuota] = useState<CandidateMockInterviewQuota | null>(null);
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+  const [buyModalNote, setBuyModalNote] = useState<string | null>(null);
 
   const backendId = iv.backendId || (iv.slug.length > 20 ? iv.slug : null);
+
+  useEffect(() => {
+    fetchMockInterviewQuota().then((q) => {
+      if (q) setQuota(q);
+    });
+  }, []);
 
   useEffect(() => {
     if (!backendId) return;
@@ -712,6 +724,12 @@ function InterviewScreen() {
   }, [log]);
 
   const handleStart = async () => {
+    if (quota && quota.available_interviews <= 0) {
+      setBuyModalNote("You have 0 mock interviews remaining. Please choose a pack to start your interview.");
+      setIsBuyModalOpen(true);
+      return;
+    }
+
     setIsStarting(true);
     const backendId = iv.backendId || (iv.slug.length > 20 ? iv.slug : null);
 
@@ -722,6 +740,16 @@ function InterviewScreen() {
         });
 
         if (res) {
+          if (res.available_interviews !== undefined && quota) {
+            setQuota({ ...quota, available_interviews: res.available_interviews });
+          } else if (quota) {
+            setQuota({
+              ...quota,
+              available_interviews: Math.max(0, quota.available_interviews - 1),
+              used_interviews: quota.used_interviews + 1,
+            });
+          }
+
           const sessId = res.interview_session_id || res.chat_session_id || res.submission_id;
           if (res.submission_id) setSubmissionId(res.submission_id);
           if (sessId) setSessionId(sessId);
@@ -735,8 +763,21 @@ function InterviewScreen() {
           setIsStarting(false);
           return;
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to start backend interview:", err);
+        const errData = err?.response?.data || err?.data || err;
+        const isQuotaErr =
+          err?.status === 402 ||
+          err?.response?.status === 402 ||
+          errData?.code === "INSUFFICIENT_MOCK_INTERVIEWS" ||
+          (typeof err?.message === "string" && err.message.includes("0 mock interviews"));
+
+        if (isQuotaErr) {
+          setIsStarting(false);
+          setBuyModalNote("You have 0 mock interviews remaining. Please choose a pack to continue.");
+          setIsBuyModalOpen(true);
+          return;
+        }
       }
     }
 
@@ -872,15 +913,31 @@ function InterviewScreen() {
 
   if (phase === "lobby") {
     return (
-      <Lobby
-        iv={iv}
-        mic={mic}
-        cam={cam}
-        setMic={setMic}
-        setCam={setCam}
-        onStart={handleStart}
-        isStarting={isStarting}
-      />
+      <>
+        <Lobby
+          iv={iv}
+          mic={mic}
+          cam={cam}
+          setMic={setMic}
+          setCam={setCam}
+          onStart={handleStart}
+          isStarting={isStarting}
+          availableInterviews={quota ? quota.available_interviews : 3}
+          onOpenBuyModal={() => {
+            setBuyModalNote(null);
+            setIsBuyModalOpen(true);
+          }}
+        />
+        <BuyMockInterviewsModal
+          open={isBuyModalOpen}
+          onOpenChange={setIsBuyModalOpen}
+          quota={quota}
+          initialNote={buyModalNote}
+          onSuccess={(updated) => {
+            setQuota(updated);
+          }}
+        />
+      </>
     );
   }
 
@@ -949,7 +1006,7 @@ function InterviewScreen() {
                   margin: "0 0 32px",
                 }}
               >
-                Vitarka AI is evaluating your responses, scoring technical competencies, and preparing personalized insights.
+                Vitarka AI is evaluating your responses, scoring technical competencies, and preparing detailed insights.
               </p>
 
               <div
@@ -1481,46 +1538,21 @@ function LiveRoom(p: {
     }
   }, [lastAiText, p.questionType, p.title]);
 
-  const transcript = (compact: boolean) => (
+  const currentQuestionView = (compact: boolean) => (
     <div
-      className={`${compact ? "flex-1 min-h-0" : "max-h-[300px]"} space-y-7 overflow-y-auto pr-2 [scrollbar-width:none]`}
-      style={
-        compact
-          ? undefined
-          : {
-              maskImage: "linear-gradient(to bottom, transparent 0, black 30%)",
-              WebkitMaskImage: "linear-gradient(to bottom, transparent 0, black 30%)",
-            }
-      }
+      className={`${compact ? "flex-1 min-h-0" : "max-h-[340px]"} space-y-3 overflow-y-auto pr-2 [scrollbar-width:none]`}
     >
-      {p.log.map((m, k) => (
-        <div key={k} className="space-y-2">
-          {m.who === "ai" ? (
-            <div className="text-xs font-medium text-[#f59e42]">Vitarka AI</div>
-          ) : (
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">You</div>
+      <div className="space-y-2">
+        <div className="text-xs font-medium text-[#f59e42]">Vitarka AI</div>
+        <p
+          className={`${compact ? "text-sm" : "text-[16px] md:text-lg"} leading-relaxed text-foreground`}
+        >
+          {lastAiText || "Connecting to interviewer..."}
+          {p.speaking && (
+            <span className="ml-0.5 inline-block h-4 w-2 translate-y-0.5 animate-pulse bg-[#f59e42]" />
           )}
-          <p
-            className={`${compact ? "text-sm" : "text-[15px]"} leading-relaxed ${
-              m.who === "ai" ? "text-foreground" : "text-muted-foreground"
-            }`}
-          >
-            {m.text}
-            {m.who === "ai" && p.speaking && k === lastAi && (
-              <span className="ml-0.5 inline-block h-4 w-2 translate-y-0.5 animate-pulse bg-[#f59e42]" />
-            )}
-          </p>
-        </div>
-      ))}
-      {liveSpokenText && (
-        <div className="space-y-2">
-          <div className="text-[10px] uppercase tracking-widest text-[#8b93a7]">You</div>
-          <p className={`${compact ? "text-sm" : "text-[15px]"} leading-relaxed text-[#c0c6d8] italic`}>
-            {liveSpokenText}
-            <span className="ml-1 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse bg-[#f59e42]" />
-          </p>
-        </div>
-      )}
+        </p>
+      </div>
       <div ref={p.endRef} />
     </div>
   );
@@ -1639,15 +1671,6 @@ function LiveRoom(p: {
                     <span className="ml-0.5 inline-block h-4 w-2 translate-y-0.5 animate-pulse bg-[#f59e42]" />
                   )}
                 </p>
-                {liveSpokenText && (
-                  <div className="mt-4 space-y-1">
-                    <div className="text-[10px] uppercase tracking-widest text-[#8b93a7]">You</div>
-                    <p className="text-sm leading-relaxed text-white/80 italic">
-                      {liveSpokenText}
-                      <span className="ml-1 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse bg-[#f59e42]" />
-                    </p>
-                  </div>
-                )}
                 <div ref={p.endRef} />
               </div>
               <div className="space-y-2 p-2.5">
@@ -1888,7 +1911,7 @@ function LiveRoom(p: {
         </div>
 
         <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-6 pb-40 lg:grid-cols-2">
-          {transcript(false)}
+          {currentQuestionView(false)}
           {camera}
         </div>
         <VoiceTerrain speaking={p.speaking} listening={p.mic && !p.speaking} />
@@ -2195,6 +2218,8 @@ function Lobby({
   setCam,
   onStart,
   isStarting,
+  availableInterviews = 3,
+  onOpenBuyModal,
 }: {
   iv: { name: string; icon?: string; minutes?: number };
   mic: boolean;
@@ -2203,6 +2228,8 @@ function Lobby({
   setCam: (v: boolean) => void;
   onStart: () => void;
   isStarting?: boolean;
+  availableInterviews?: number;
+  onOpenBuyModal?: () => void;
 }) {
   const words = (iv.name || "Technical Interview")
     .replace(/\s+(Engineer|Developer|Interview|\(Automatic\))$/gi, "")
@@ -2236,15 +2263,32 @@ function Lobby({
     return () => stream?.getTracks().forEach((t) => t.stop());
   }, [cam]);
 
+  const isBlocked = availableInterviews <= 0;
+
   return (
     <div className="min-h-screen bg-white font-sans text-[#1B1340]">
-      <div className="px-6 pt-4">
+      <div className="flex items-center justify-between px-6 pt-4">
         <Link
           to="/mock-interviews"
           className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm text-[#1B1340]/70 hover:bg-[#1B1340]/5"
         >
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-[#1B1340]/70">
+            Available:{" "}
+            <strong className={availableInterviews > 0 ? "font-semibold text-emerald-600" : "font-semibold text-amber-600"}>
+              {availableInterviews}
+            </strong>
+          </span>
+          <button
+            type="button"
+            onClick={onOpenBuyModal}
+            className="rounded-md border border-[#1B1340]/20 px-2 py-0.5 text-xs font-medium text-[#1B1340] hover:bg-[#1B1340]/5"
+          >
+            Buy
+          </button>
+        </div>
       </div>
       <div className="mx-auto mt-2 max-w-6xl px-6">
         <div className="flex items-center justify-center gap-4 rounded-2xl px-5 py-3 text-center">
@@ -2326,20 +2370,29 @@ function Lobby({
               icon={cam ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
               label={cam ? "Camera on" : "Camera off"}
             />
-            <button
-              onClick={onStart}
-              disabled={isStarting}
-              className="ml-auto flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px]"
-            >
-              {isStarting ? (
-                <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  <span>Connecting...</span>
-                </>
-              ) : (
-                "Start interview"
-              )}
-            </button>
+            {isBlocked ? (
+              <button
+                onClick={onOpenBuyModal}
+                className="ml-auto flex items-center justify-center gap-2 rounded-md bg-amber-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700 min-w-[140px]"
+              >
+                Buy interviews to start
+              </button>
+            ) : (
+              <button
+                onClick={onStart}
+                disabled={isStarting}
+                className="ml-auto flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px]"
+              >
+                {isStarting ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Connecting...</span>
+                  </>
+                ) : (
+                  "Start interview"
+                )}
+              </button>
+            )}
           </div>
           <p className="mt-3 text-xs text-[#1B1340]/60">
             Tip: sit near a window, look at the lens, and smile once before you start. Speak or type — pause any time.

@@ -285,17 +285,8 @@ export default function LearnerHero({
       <style>{CSS}</style>
       <section className="lh-hero">
         <div>
-          <div className="lh-badge">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-              </svg>
-              {isFirstLogin ? `Welcome, ${nameToDisplay}` : `Welcome back, ${nameToDisplay}`}
-            </span>
-          </div>
-
           <p className="lh-hi">
-            <span>{meta.greet}</span>, <b>{nameToDisplay}</b> <span aria-hidden="true">{meta.emoji}</span>
+            <span>{meta.greet},</span> <b>{nameToDisplay}</b> <span aria-hidden="true">{meta.emoji}</span>
           </p>
           <h1>
             Let’s write some <i>code</i> today.
