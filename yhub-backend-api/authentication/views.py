@@ -202,6 +202,10 @@ def public_send_otp(request):
     if not email or not resource_id:
         return Response({"error": "Email and resource_id are required"}, status=status.HTTP_400_BAD_REQUEST)
         
+    if resource_type == 'signup':
+        user = User.objects.filter(email=email).first()
+        if user and not getattr(user, 'is_guest_user', False):
+            return Response({"error": "An account with this email already exists. Please log in."}, status=status.HTTP_400_BAD_REQUEST)
     
     otp = str(random.randint(100000, 999999))
     
@@ -463,17 +467,28 @@ class ForgotPasswordView(generics.GenericAPIView):
 
         reset_link = f"{frontend_url}/reset-password/{uidb64}/{token}"
 
+        user_name = user.get_full_name() or user.first_name or user.username or "there"
+        logo_url = getattr(settings, "EMAIL_LOGO_URL", "").strip() or "https://marketplace.yuvro.ai/knowledge-tree.png"
         context = {
             "user": user,
+            "user_name": user_name,
             "reset_link": reset_link,
             "frontend_url": frontend_url,
+            "logo_url": logo_url,
         }
         try:
             html_message = render_to_string("emails/password_reset.html", context)
-        except:
+        except Exception as e:
+            logger.error(f"Failed to render password reset email: {e}", exc_info=True)
             html_message = f"Click the link to reset your password: {reset_link}"
 
-        plain_message = f"Click the link to reset your password: {reset_link}"
+        plain_message = (
+            f"Hello {user_name},\n\n"
+            f"We received a request to reset your password for your Yuvro account.\n\n"
+            f"Click the link below to choose a new password:\n{reset_link}\n\n"
+            f"This link will expire in 24 hours. If you did not request a password reset, you can safely ignore this email.\n\n"
+            f"- The Yuvro Team"
+        )
 
         send_mail(
             subject="Password Reset Request",

@@ -107,6 +107,24 @@ class AuthService {
     });
   }
 
+  async sendSignupOtp(email: string, title: string = "Student Registration"): Promise<any> {
+    return await yhubApiAuthUtil.post(`/auth/public_send_otp/`, {
+      email: email.trim(),
+      resource_id: "student_signup",
+      resource_type: "signup",
+      contest_title: title,
+    });
+  }
+
+  async verifySignupOtp(email: string, otp: string): Promise<any> {
+    return await yhubApiAuthUtil.post(`/auth/public_check_otp/`, {
+      email: email.trim(),
+      resource_id: "student_signup",
+      resource_type: "signup",
+      otp: otp.trim(),
+    });
+  }
+
   async loginWithGoogle(token: string): Promise<LoginResponse> {
     const response = await yhubApiAuthUtil.post<LoginResponse>("/auth/google/?product=ylabs", {
       token,
