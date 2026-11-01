@@ -24,6 +24,8 @@ import {
   PieChart,
   ArrowRight,
   ChevronDown,
+  Github,
+  ExternalLink,
 } from "lucide-react";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
@@ -60,7 +62,10 @@ const isDsaLab = (name?: string, slug?: string) => {
     s.includes("data structure") ||
     s.includes("datastructure") ||
     s.includes("ds lab") ||
-    s.includes("ds scenario")
+    s.includes("ds scenario") ||
+    s.includes("system design") ||
+    s.includes("systemdesign") ||
+    s.includes("sysd")
   );
 };
 
@@ -408,11 +413,12 @@ const normalizeDiff = (diff?: string) => {
 
 function LabDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { slug } = useParams({ from: "/student/lab/$slug" });
-  const location = useLocation();
   const ticketMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId", shouldThrow: false });
   const reportMatch = useMatch({ from: "/student/lab/$slug/report", shouldThrow: false });
+  const isDashboardView = !ticketMatch && !reportMatch && !location.pathname.includes("/ticket/") && !location.pathname.includes("/report");
 
   const [realLab, setRealLab] = useState<AdminLab | null>(null);
   const [realSprints, setRealSprints] = useState<LabSprint[]>([]);
@@ -463,6 +469,7 @@ function LabDashboard() {
   }, []);
 
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
+  const [enrollmentInfo, setEnrollmentInfo] = useState<any>(null);
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
   const [enrollRepoName, setEnrollRepoName] = useState("");
   const [enrollLoading, setEnrollLoading] = useState(false);
@@ -481,7 +488,7 @@ function LabDashboard() {
           .then((data) => {
             if (!active) return;
             const list = Array.isArray(data) ? data : (data as any)?.results || [];
-            const apiEnrolled = list.some((e: any) => {
+            const matched = list.find((e: any) => {
               if (!e) return false;
               const labId = String(typeof e.lab === "object" ? e.lab?.id : e.lab);
               const labIdAlt = String(e.lab_id ?? e.lab_details?.id ?? "");
@@ -489,7 +496,12 @@ function LabDashboard() {
               return labId === targetId || labIdAlt === targetId;
             });
 
-            setIsEnrolled(apiEnrolled);
+            if (matched) {
+              setEnrollmentInfo(matched);
+              setIsEnrolled(true);
+            } else {
+              setIsEnrolled(false);
+            }
           })
           .catch(() => {
             if (!active) return;
@@ -504,21 +516,7 @@ function LabDashboard() {
 
   const [rawSubmissions, setRawSubmissions] = useState<any[]>([]);
 
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  useEffect(() => {
-    const handleSubmissionRefresh = () => {
-      setRefreshTrigger((prev) => prev + 1);
-    };
-    window.addEventListener("yuvro-submission-updated", handleSubmissionRefresh);
-    window.addEventListener("focus", handleSubmissionRefresh);
-    return () => {
-      window.removeEventListener("yuvro-submission-updated", handleSubmissionRefresh);
-      window.removeEventListener("focus", handleSubmissionRefresh);
-    };
-  }, []);
-
-  useEffect(() => {
+  const reloadDashboardData = useCallback(() => {
     let active = true;
     syncUnlocks().then(() => {
       if (active) setUnlockBump((x) => x + 1);
@@ -533,6 +531,8 @@ function LabDashboard() {
           const overrides: Record<string, { status: Status; earnedXp: number; fromApi: boolean }> = {};
           const subIds: Record<string, string> = {};
           subList.forEach((s: any) => {
+            const ticketKey = String(typeof s.lab_sprint_ticket === 'object' ? s.lab_sprint_ticket?.id : s.lab_sprint_ticket);
+            subIds[ticketKey] = s.id;
             subIds[s.lab_sprint_ticket] = s.id;
             if (["backlog", "in_progress", "in_review", "done"].includes(s.ticket_status)) {
               let testPct = 0;
@@ -543,11 +543,13 @@ function LabDashboard() {
                 } catch (e) {}
               }
               const isEvaluated = s.ticket_status === "done" || s.ticket_status === "in_review";
-              overrides[s.lab_sprint_ticket] = {
+              const entry = {
                 status: s.ticket_status as Status,
                 earnedXp: isEvaluated ? (s.yuvro_points ?? 0) : (testPct / 100),
                 fromApi: true,
               };
+              overrides[ticketKey] = entry;
+              overrides[s.lab_sprint_ticket] = entry;
             }
           });
           try {
@@ -566,11 +568,37 @@ function LabDashboard() {
         })
         .catch(console.error);
     });
+    loadStudentStats().then(setStudentStats).catch(console.error);
     return () => {
       active = false;
     };
+  }, [slug]);
 
-  }, [slug, refreshTrigger, location.pathname]);
+  useEffect(() => {
+    reloadDashboardData();
+  }, [slug, reloadDashboardData]);
+
+  useEffect(() => {
+    if (isDashboardView) {
+      reloadDashboardData();
+    }
+  }, [isDashboardView, location.pathname, reloadDashboardData]);
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      reloadDashboardData();
+    };
+    window.addEventListener("focus", handleRefresh);
+    window.addEventListener("visibilitychange", handleRefresh);
+    window.addEventListener("yuvro:ticket_submission_updated", handleRefresh);
+    window.addEventListener("yuvro-submission-updated", handleRefresh);
+    return () => {
+      window.removeEventListener("focus", handleRefresh);
+      window.removeEventListener("visibilitychange", handleRefresh);
+      window.removeEventListener("yuvro:ticket_submission_updated", handleRefresh);
+      window.removeEventListener("yuvro-submission-updated", handleRefresh);
+    };
+  }, [reloadDashboardData]);
   const lab = useMemo(() => {
     if (realLab) {
       const isLinux = realLab.title.toLowerCase().includes("linux");
@@ -885,7 +913,8 @@ function LabDashboard() {
     setEnrollLoading(true);
     try {
       const { default: api } = await import("@/utils/RestApiAuthUtil");
-      await api.post("/lab/enrollments/", { lab: realLab.id, lab_id: parseInt(realLab.id) || realLab.id, github_repo_name: repoNameToUse });
+      const enrollRes: any = await api.post("/lab/enrollments/", { lab: realLab.id, lab_id: parseInt(realLab.id) || realLab.id, github_repo_name: repoNameToUse });
+      if (enrollRes) setEnrollmentInfo(enrollRes);
       setIsEnrolled(true);
       setEnrollModalOpen(false);
       const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
@@ -1381,6 +1410,28 @@ function LabDashboard() {
                 />
               </div>
             </div>
+
+            {enrollmentInfo && (
+              <div className="rounded-xl border bg-card p-4">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <Github className="h-4 w-4" />
+                  <span>GitHub Repository</span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Your workspace is linked with GitHub. Commits and system designs route to this repo.
+                </p>
+                <a
+                  href={enrollmentInfo.github_repo_url || (user?.github_username && enrollmentInfo.github_repo_name ? `https://github.com/${user.github_username}/${enrollmentInfo.github_repo_name}` : "#")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-md border bg-accent/40 px-2.5 py-1.5 text-xs font-mono text-primary hover:bg-accent hover:text-foreground transition max-w-full"
+                >
+                  <Github className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{enrollmentInfo.github_repo_name || "View on GitHub"}</span>
+                  <ExternalLink className="h-3 w-3 shrink-0 ml-auto" />
+                </a>
+              </div>
+            )}
 
             {/* <div className="rounded-xl border bg-card p-4">
               <div className="mb-2 flex items-center justify-between">

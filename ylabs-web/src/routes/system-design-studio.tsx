@@ -38,7 +38,18 @@ import {
   Upload,
   Lock,
   Unlock,
+  Github,
+  ExternalLink,
 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -822,19 +833,53 @@ export function SystemDesignStudio({
   const task = tickets.find(t => t.id === ticketId);
   const navigate = useNavigate();
   const [realLabTitle, setRealLabTitle] = useState<string | null>(null);
+  const [realLabId, setRealLabId] = useState<string | null>(null);
+
+  const { user } = useAuth();
+  const [isCommitDialogOpen, setIsCommitDialogOpen] = useState(false);
+  const [commitMessage, setCommitMessage] = useState("");
+  const [isCommitting, setIsCommitting] = useState(false);
+  const [userEnrollment, setUserEnrollment] = useState<any>(null);
 
   const [ticketData, setTicketData] = useState<any>(ticket || null);
   const [loadingTicket, setLoadingTicket] = useState(!ticket && !!ticketId && !isPureStudio);
 
   useEffect(() => {
-    if (!lab && slug && !isPureStudio) {
+    if (slug && !isPureStudio) {
       import("@/lib/adminLabs").then(({ getLab }) => {
         getLab(slug).then((l) => {
           if (l?.title) setRealLabTitle(l.title);
+          if (l?.id) setRealLabId(String(l.id));
         }).catch(() => {});
       });
     }
   }, [slug, lab, isPureStudio]);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    restApiAuthUtil
+      .get<any[]>("/lab/enrollments/")
+      .then((res: any) => {
+        if (!active) return;
+        const list = Array.isArray(res) ? res : res?.results || [];
+        const match = list.find((e: any) => {
+          const lId = String(typeof e.lab === "object" ? e.lab.id : e.lab);
+          return (
+            (realLabId && lId === String(realLabId)) ||
+            (ticketData?.sprint?.lab && lId === String(ticketData.sprint.lab)) ||
+            (slug && lId === slug) ||
+            e.lab_details?.type === "SYSTEM_DESIGN" ||
+            e.lab_details?.title?.toLowerCase().includes("system design")
+          );
+        });
+        if (match) setUserEnrollment(match);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [user, realLabId, ticketData, slug]);
 
   useEffect(() => {
     if (isPureStudio && !ticket) return;
@@ -1104,6 +1149,60 @@ export function SystemDesignStudio({
       toast.error("Failed to submit ticket. Saved progress locally.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const sprintNo =
+    ticketData?.sprintOrder ??
+    ticketData?.sprint_order ??
+    ticketData?.sprint?.order_index ??
+    (ticketId?.match(/SD-(\d)/)?.[1] ? parseInt(ticketId.match(/SD-(\d)/)![1]) : 1);
+
+  const ticketNo =
+    ticketData?.ticketOrder ??
+    ticketData?.order_index ??
+    (ticketId?.match(/SD-\d(\d\d)/)?.[1] ? parseInt(ticketId.match(/SD-\d(\d\d)/)![1]) : 1);
+
+  const handleCommitSubmit = async () => {
+    if (!commitMessage.trim()) return;
+    setIsCommitting(true);
+    const designPayload = { nodes, edges, seq, schema, apis, notes };
+    const formattedMessage = `feat(S${sprintNo}-T${ticketNo}) : ${commitMessage.trim()}`;
+
+    try {
+      const endpoint = ticketId
+        ? `/lab/tickets/${ticketId}/github-commit/`
+        : `/lab/system-designs/github-commit/`;
+
+      const payload: any = {
+        commit_message: formattedMessage,
+        design: designPayload,
+        ticket_id: ticketId,
+        lab_id: realLabId || slug,
+      };
+
+      const res: any = await restApiAuthUtil.post(endpoint, payload);
+
+      if (res?.status === "success" || res?.message) {
+        toast.success(res.message || "Changes committed and pushed to GitHub successfully!");
+        if (res.github_repo_url && !userEnrollment) {
+          setUserEnrollment({ github_repo_url: res.github_repo_url, github_repo_name: res.github_repo_name });
+        }
+        setIsCommitDialogOpen(false);
+        setCommitMessage("");
+      } else {
+        throw new Error(res?.error || "Commit failed");
+      }
+    } catch (err: any) {
+      console.error("Failed to commit to GitHub", err);
+      const errMsg =
+        err?.response?.data?.error ||
+        err?.error ||
+        err?.message ||
+        "Failed to commit and push to GitHub. Please check your GitHub connection.";
+      toast.error(errMsg);
+    } finally {
+      setIsCommitting(false);
     }
   };
 
@@ -1737,8 +1836,55 @@ export function SystemDesignStudio({
               <ArrowRight className="h-3 w-3" />
             </Link>
           )}
+          {isStandaloneStudio && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                if (!commitMessage) {
+                  setCommitMessage(`Update ${tabLabel(tab)} architecture design`);
+                }
+                setIsCommitDialogOpen(true);
+              }}
+              disabled={isCommitting}
+              className="h-7 text-xs border border-border inline-flex items-center gap-1 font-medium hover:bg-accent ml-1"
+              title="Commit and push system design to GitHub"
+            >
+              {isCommitting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Github className="h-3 w-3" />}
+              <span>{isCommitting ? "Committing…" : "Commit to GitHub"}</span>
+            </Button>
+          )}
           {!isPureStudio && (
             <>
+              {userEnrollment?.github_repo_url && (
+                <a
+                  href={userEnrollment.github_repo_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden md:inline-flex items-center gap-1 rounded-md border border-border bg-accent/40 px-2 py-1 text-[11px] font-mono text-muted-foreground hover:text-foreground hover:bg-accent transition mr-1"
+                  title="Open linked GitHub repository"
+                >
+                  <Github className="h-3 w-3" />
+                  <span className="truncate max-w-[120px]">{userEnrollment.github_repo_name || "GitHub Repo"}</span>
+                  <ExternalLink className="h-2.5 w-2.5" />
+                </a>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  if (!commitMessage) {
+                    setCommitMessage(`Update ${tabLabel(tab)} architecture for ${ticketData?.title || "system design"}`);
+                  }
+                  setIsCommitDialogOpen(true);
+                }}
+                disabled={isCommitting}
+                className="h-7 text-xs border border-border inline-flex items-center gap-1 font-medium hover:bg-accent"
+                title="Commit and push system design to GitHub"
+              >
+                {isCommitting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Github className="h-3 w-3" />}
+                <span>{isCommitting ? "Committing…" : "Commit"}</span>
+              </Button>
               <Button
                 size="sm"
                 onClick={handleRun}
@@ -2219,6 +2365,167 @@ export function SystemDesignStudio({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* GitHub Commit Dialog */}
+      <Dialog open={isCommitDialogOpen} onOpenChange={setIsCommitDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <div className="flex items-center gap-2.5">
+              <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary shrink-0">
+                <Github className="h-4 w-4" />
+              </div>
+              <div>
+                <DialogTitle className="text-base font-semibold">Commit System Design to GitHub</DialogTitle>
+                <DialogDescription className="text-xs">
+                  Your architecture diagrams, sequence flows, DBML schema, and REST APIs will be committed and pushed to GitHub.
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {/* GitHub Account Status */}
+            {!user?.github_username && !(user as any)?.github_connected ? (
+              <div className="rounded-xl border border-warning/40 bg-warning/5 p-3.5 text-xs">
+                <p className="font-semibold text-warning mb-1">GitHub Account Not Connected</p>
+                <p className="text-muted-foreground mb-3 leading-relaxed">
+                  You need to connect your GitHub account so Yuvro Labs can commit and push your system designs directly to your repository.
+                </p>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      if (typeof window !== "undefined") {
+                        sessionStorage.setItem("github_oauth_redirect", window.location.pathname + window.location.search);
+                      }
+                      const { yhubApiAuthUtil } = await import("@/utils/RestApiAuthUtil");
+                      const data = await yhubApiAuthUtil.get<{ authorization_url: string }>("/auth/github/connect/");
+                      if (data.authorization_url) window.location.href = data.authorization_url;
+                    } catch (e: any) {
+                      toast.error(e?.message || "Failed to initiate GitHub connection");
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#24292e] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2c3137] transition"
+                >
+                  <Github className="h-3.5 w-3.5" /> Connect GitHub
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between rounded-lg border border-success/30 bg-success/5 px-3 py-2 text-xs">
+                <div className="flex items-center gap-2 text-success font-medium">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span>Connected as @{user?.github_username || (user as any)?.username}</span>
+                </div>
+                {userEnrollment?.github_repo_url && (
+                  <a
+                    href={userEnrollment.github_repo_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground hover:text-foreground underline"
+                  >
+                    <span>{userEnrollment.github_repo_name || "repo"}</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+            )}
+
+            {/* Commit Message Input */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">Commit Message</label>
+              <div className="flex w-full items-center rounded-md border border-input bg-transparent px-3 py-1.5 text-xs shadow-xs focus-within:ring-1 focus-within:ring-ring">
+                <span className="text-muted-foreground font-mono mr-1 whitespace-nowrap">
+                  feat(S{sprintNo}-T{ticketNo}) :
+                </span>
+                <input
+                  type="text"
+                  placeholder="Design high-level architecture with Redis caching and DBML schema..."
+                  value={commitMessage}
+                  onChange={(e) => setCommitMessage(e.target.value)}
+                  className="flex-1 bg-transparent file:border-0 placeholder:text-muted-foreground focus-visible:outline-none"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleCommitSubmit();
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Files checklist */}
+            <div className="rounded-lg border bg-accent/20 p-3 text-xs space-y-2">
+              <div className="font-medium text-muted-foreground text-[11px] uppercase tracking-wider">
+                Files generated & pushed
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 font-mono text-[11px]">
+                <div className="flex items-center gap-1.5 text-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
+                  <span className="truncate">architecture.json</span>
+                  <span className="text-muted-foreground text-[10px]">(HLD)</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                  <span className="truncate">sequence.mmd</span>
+                  <span className="text-muted-foreground text-[10px]">(Flow)</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="truncate">schema.dbml</span>
+                  <span className="text-muted-foreground text-[10px]">(DBML)</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full bg-purple-500 shrink-0" />
+                  <span className="truncate">endpoints.json</span>
+                  <span className="text-muted-foreground text-[10px]">(REST)</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 shrink-0" />
+                  <span className="truncate">system-design.json</span>
+                  <span className="text-muted-foreground text-[10px]">(All)</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
+                  <span className="truncate">README.md</span>
+                  <span className="text-muted-foreground text-[10px]">(Docs)</span>
+                </div>
+              </div>
+              <div className="text-[10px] text-muted-foreground border-t pt-1.5 mt-1.5">
+                Archived under <code className="bg-muted px-1 py-0.5 rounded text-[10px]">designs/{ticketData?.ticket_slug || ticketId || "sd-spec"}/</code>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <button
+              type="button"
+              onClick={() => setIsCommitDialogOpen(false)}
+              className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium shadow-xs hover:bg-accent"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleCommitSubmit}
+              disabled={!commitMessage.trim() || isCommitting || (!user?.github_username && !(user as any)?.github_connected)}
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground shadow-xs hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
+            >
+              {isCommitting ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span>Committing...</span>
+                </>
+              ) : (
+                <>
+                  <Github className="h-3.5 w-3.5" />
+                  <span>Commit & Push</span>
+                </>
+              )}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -60,10 +60,20 @@ function Review() {
             subsList[0];
           setSubmission(sub);
           setLoading(false);
+          try {
+            const localKanbanStr = localStorage.getItem(`kanban_${slug}`);
+            const kanban = localKanbanStr ? JSON.parse(localKanbanStr) : {};
+            kanban[ticketId] = "done";
+            localStorage.setItem(`kanban_${slug}`, JSON.stringify(kanban));
+          } catch (e) {}
+
           // Invalidate student stats cache and dispatch update notifications
           invalidateStudentStats();
           if (typeof window !== "undefined") {
             window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+            window.dispatchEvent(new CustomEvent("yuvro:ticket_submission_updated", {
+              detail: { ticketId, status: "done" }
+            }));
           }
         })
         .catch((e) => {
@@ -300,6 +310,11 @@ function Review() {
             <Link
               to="/student/lab/$slug"
               params={{ slug }}
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("yuvro:ticket_submission_updated", {
+                  detail: { ticketId, status: "done" }
+                }));
+              }}
               className="rounded-md border px-3 py-2 text-sm hover:bg-accent ml-auto"
             >
               ← Lab dashboard

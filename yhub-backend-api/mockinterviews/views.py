@@ -905,6 +905,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 'interview_type': interview_type,
                 'first_question': first_question_text,
                 'first_question_id': first_question_id,
+                'first_question_type': 'behavioral',
                 'num_questions': state_data.get('num_questions', 5),
                 'progress': {
                     "completed_count": current_cycle_step,
@@ -1096,7 +1097,8 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     return Response({
                         "question": final_q_text,
                         "is_finished": False,
-                        "question_id": next_q["id"]
+                        "question_id": next_q["id"],
+                        "question_type": next_q.get("question_type", "technical")
                     })
 
                 # Candidate is answering a technical question:
@@ -1184,6 +1186,13 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 }
                 state["answers"] = answers
 
+                # Save answer in state right away so evaluated answers are permanently recorded
+                interview_session.state_data = state
+                interview_session.save()
+                if submission:
+                    submission.state_data = state
+                    submission.save(update_fields=['state_data'])
+
                 # Only conclude if user explicitly requested finish / timer ended
                 if status_code in ['finish', 'end', 'complete']:
                     farewell = "Thank you! That concludes our interview for today. I'll now finalize your performance report."
@@ -1209,21 +1218,15 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     logger.error(f"Error in get_next_question (full_ai turn): {e}")
 
                 if not next_q:
-                    # Conclude if no more questions
-                    farewell = "Thank you! That concludes our interview for today. I'll now finalize your performance report."
-                    ChatMessage.objects.create(
-                        chat_session=chat_session,
-                        message_type="assistant",
-                        content=farewell
+                    # Never conclude prematurely on question failures; fall back to deterministic unique technical question
+                    from mockinterviews.ai_interview.interview_engine import _build_fallback_question, _get_all_topics
+                    all_topics = _get_all_topics(state.get("analysis", {}))
+                    next_q = _build_fallback_question(
+                        question_id=len(interview) + 1,
+                        topics=all_topics,
+                        difficulty=state.get("difficulty", "medium"),
+                        existing_questions=interview,
                     )
-                    if submission:
-                        submission.status = MockInterviewSubmission.STATUS_COMPLETED
-                        submission.save(update_fields=['status'])
-                    return Response({
-                        "question": farewell,
-                        "is_finished": True,
-                        "question_id": None
-                    })
 
                 interview.append(next_q)
                 state["interview"] = interview
@@ -1244,7 +1247,8 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 return Response({
                     "question": final_q_text,
                     "is_finished": False,
-                    "question_id": next_q["id"]
+                    "question_id": next_q["id"],
+                    "question_type": next_q.get("question_type", "technical")
                 })
 
             # ==========================================================
@@ -1419,13 +1423,13 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
         mock_interview = self.get_object()
         user = request.user
         
-        qs = MockInterviewSubmission.objects.filter(mock_interview=mock_interview)
+        qs = MockInterviewSubmission.objects.filter(mock_interview=mock_interview).order_by('-created_at')
         is_privileged = user.is_staff or (hasattr(user, 'role') and user.role in ['admin', 'instructor'])
         
         if not is_privileged:
             qs = qs.filter(user=user)
             
-        serializer = MockInterviewSubmissionSerializer(qs, many=True)
+        serializer = MockInterviewSubmissionSerializer(qs, many=True, context={'request': request, 'view': self})
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])

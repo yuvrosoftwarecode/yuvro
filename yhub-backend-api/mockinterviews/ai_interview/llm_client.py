@@ -235,6 +235,43 @@ _PROVIDERS = {
 }
 
 
+class ResilientLLMClient(BaseLLMClient):
+    """Wrapper that tries primary client and falls back through other available providers on failure."""
+
+    def __init__(self, primary_client: BaseLLMClient, primary_name: str) -> None:
+        self.primary_client = primary_client
+        self.primary_name = primary_name
+
+    async def generate(
+        self,
+        prompt: str,
+        system_prompt: str = "",
+        max_tokens: int = 512,
+        temperature: float = 0.3,
+    ) -> str:
+        try:
+            return await self.primary_client.generate(prompt, system_prompt, max_tokens, temperature)
+        except Exception as e:
+            logger.warning("Primary LLM provider '%s' failed: %s. Attempting fallbacks...", self.primary_name, e)
+
+        # Fallback sequence: deepseek -> openai -> gemini
+        fallback_order = ["deepseek", "openai", "gemini"]
+        for provider in fallback_order:
+            if provider == self.primary_name:
+                continue
+            try:
+                cls = _PROVIDERS.get(provider)
+                if not cls:
+                    continue
+                client = cls()
+                logger.info("Executing resilient fallback to LLM provider '%s'...", provider)
+                return await client.generate(prompt, system_prompt, max_tokens, temperature)
+            except Exception as fe:
+                logger.warning("Fallback provider '%s' failed: %s", provider, fe)
+
+        raise RuntimeError("All available LLM providers failed to generate response.")
+
+
 def _fetch_active_agent():
     try:
         from ai_assistant.models import AIAgent
@@ -312,6 +349,5 @@ def get_llm_client() -> BaseLLMClient:
             f"Unknown LLM_PROVIDER '{provider}'. Choose from: {list(_PROVIDERS)}"
         )
     logger.info("Initializing LLM client: provider=%s, model=%s", provider, model_name or "default")
-    if provider in ("deepseek", "gemini") and model_name:
-        return cls(model_name=model_name)
-    return cls()
+    primary_inst = cls(model_name=model_name) if (provider in ("deepseek", "gemini") and model_name) else cls()
+    return ResilientLLMClient(primary_inst, provider)

@@ -74,6 +74,16 @@ def provision_user_lab_repo(lab_uuid, user_uuid, starter_repo_path, user_github_
             shutil.copytree(starter_repo_path, user_dir, ignore=shutil.ignore_patterns('.git'), dirs_exist_ok=True)
         else:
             os.makedirs(user_dir, exist_ok=True)
+            readme_file = os.path.join(user_dir, "README.md")
+            if not os.path.exists(readme_file):
+                with open(readme_file, "w", encoding="utf-8") as f:
+                    f.write("# System Design Lab Workspace\n\n"
+                            "Welcome to your System Design workspace.\n"
+                            "Your architecture designs, Mermaid sequence flows, DBML schemas, and REST API contracts designed in Yuvro Labs are committed here.\n")
+            gitignore_file = os.path.join(user_dir, ".gitignore")
+            if not os.path.exists(gitignore_file):
+                with open(gitignore_file, "w", encoding="utf-8") as f:
+                    f.write(".DS_Store\n*.tmp\nnode_modules/\n")
         
         scoring_rules_path = os.path.join(user_dir, "yuvro_scoring_rules")
         if os.path.exists(scoring_rules_path):

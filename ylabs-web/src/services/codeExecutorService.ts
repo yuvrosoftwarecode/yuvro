@@ -34,6 +34,7 @@ export interface ExecutionResult {
       execution_time: number;
       memory_usage?: number;
       console_output?: string;
+      is_hidden?: boolean;
     }>;
   };
 }
@@ -114,6 +115,14 @@ function parseTestCaseInputOutput(tc: any): { input: string; expected_output: st
   return { input, expected_output };
 }
 
+export function isTaskHidden(task: any): boolean {
+  if (!task) return false;
+  if (task.is_hidden === true || task.hidden === true) return true;
+  const title = (typeof task === 'string' ? task : (task.title || '')).toLowerCase();
+  const desc = (typeof task === 'object' && typeof task.description === 'string' ? task.description : '').toLowerCase();
+  return title.includes('hidden') || title.includes('advanced') || desc.includes('hidden test case');
+}
+
 class CodeExecutorService {
   async getSupportedLanguagesAndTemplates(): Promise<any> {
     const data = await restApiUtilCodeExecuter.get<any>('/supported-languages-and-templates');
@@ -132,13 +141,14 @@ class CodeExecutorService {
         return {
           input,
           expected_output,
-          weight: (typeof tc.weight === 'number') ? tc.weight : 1
+          weight: (typeof tc.weight === 'number') ? tc.weight : 1,
+          is_hidden: isTaskHidden(tc)
         };
       }),
       test_cases_advanced: [],
       test_cases_custom: (request.test_cases_custom || []).map(tc => {
         const { input, expected_output } = parseTestCaseInputOutput(tc);
-        return { input, expected_output, weight: 1 };
+        return { input, expected_output, weight: 1, is_hidden: false };
       }),
       timeout: timeLimit + 5,
       time_limit: 60,
@@ -146,12 +156,24 @@ class CodeExecutorService {
     });
 
     const executionResult = data.execution_result || {};
-    const testResults = data.test_results || [];
+    const rawTestResults = data.test_results || [];
+    const testResults = rawTestResults.map((r: any, idx: number) => {
+      const origTc = request.test_cases?.[idx];
+      const isHidden = Boolean(r.is_hidden || isTaskHidden(origTc));
+      return {
+        ...r,
+        is_hidden: isHidden
+      };
+    });
     const firstTestError = testResults.find((result: any) => result?.error)?.error || '';
 
-    let statusVal: 'completed' | 'error' | 'timeout' | 'failed' = executionResult.success ? 'completed' : 'error';
+    let statusVal: 'completed' | 'error' | 'timeout' | 'failed' = 'completed';
     if (data.status === 'tle') {
       statusVal = 'timeout';
+    } else if (executionResult.status === 'compilation_error' || executionResult.status === 'security_error') {
+      statusVal = 'error';
+    } else if (!testResults || testResults.length === 0) {
+      statusVal = executionResult.success ? 'completed' : 'error';
     }
     
     let reasonVal: string | undefined = undefined;
@@ -199,7 +221,8 @@ class CodeExecutorService {
           error_message: result.error || '',
           execution_time: result.execution_time || 0,
           memory_usage: result.memory_usage || 0,
-          console_output: result.console_output || ''
+          console_output: result.console_output || '',
+          is_hidden: Boolean(result.is_hidden)
         }))
       }
     };
