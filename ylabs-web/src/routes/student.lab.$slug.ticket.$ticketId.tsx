@@ -3558,7 +3558,8 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
-          notifyTicketSubmitted(legacyScore > 0 ? "done" : "in_progress");
+          invalidateStudentStats();
+          if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
