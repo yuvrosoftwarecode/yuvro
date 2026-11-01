@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useMatch, useParams, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useMatch, useParams, useNavigate, useLocation } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { labs, tickets, leaderboard } from "@/lib/dummy";
@@ -23,6 +23,7 @@ import {
   Flag,
   PieChart,
   ArrowRight,
+  ChevronDown,
 } from "lucide-react";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
@@ -409,6 +410,7 @@ function LabDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { slug } = useParams({ from: "/student/lab/$slug" });
+  const location = useLocation();
   const ticketMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId", shouldThrow: false });
   const reportMatch = useMatch({ from: "/student/lab/$slug/report", shouldThrow: false });
 
@@ -442,7 +444,7 @@ function LabDashboard() {
     };
   }, [slug]);
 
-  const [statusOverrides, setStatusOverrides] = useState<Record<string, { status: Status, earnedXp: number }>>({});
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, { status: Status; earnedXp: number; fromApi?: boolean }>>({});
   const [submissionIds, setSubmissionIds] = useState<Record<string, string>>({});
   const [payOpen, setPayOpen] = useState(false);
   const [unlockBump, setUnlockBump] = useState(0);
@@ -452,6 +454,12 @@ function LabDashboard() {
 
   useEffect(() => {
     loadStudentStats().then(setStudentStats).catch(console.error);
+
+    const handleRefresh = () => {
+      loadStudentStats(true).then(setStudentStats).catch(console.error);
+    };
+    window.addEventListener("yuvro-stats-refresh", handleRefresh);
+    return () => window.removeEventListener("yuvro-stats-refresh", handleRefresh);
   }, []);
 
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
@@ -462,6 +470,7 @@ function LabDashboard() {
   const [selectedDiffs, setSelectedDiffs] = useState<string[]>(["Beginner", "Intermediate", "Advanced"]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["backlog", "in_progress", "in_review", "done"]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -493,6 +502,22 @@ function LabDashboard() {
     };
   }, [realLab, user?.id]);
 
+  const [rawSubmissions, setRawSubmissions] = useState<any[]>([]);
+
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  useEffect(() => {
+    const handleSubmissionRefresh = () => {
+      setRefreshTrigger((prev) => prev + 1);
+    };
+    window.addEventListener("yuvro-submission-updated", handleSubmissionRefresh);
+    window.addEventListener("focus", handleSubmissionRefresh);
+    return () => {
+      window.removeEventListener("yuvro-submission-updated", handleSubmissionRefresh);
+      window.removeEventListener("focus", handleSubmissionRefresh);
+    };
+  }, []);
+
   useEffect(() => {
     let active = true;
     syncUnlocks().then(() => {
@@ -503,9 +528,11 @@ function LabDashboard() {
         .get<any[]>("/lab/submissions/")
         .then((subs) => {
           if (!active) return;
-          const overrides: Record<string, { status: Status, earnedXp: number }> = {};
+          const subList = Array.isArray(subs) ? subs : (subs as any)?.results || [];
+          setRawSubmissions(subList);
+          const overrides: Record<string, { status: Status; earnedXp: number; fromApi: boolean }> = {};
           const subIds: Record<string, string> = {};
-          subs.forEach((s) => {
+          subList.forEach((s: any) => {
             subIds[s.lab_sprint_ticket] = s.id;
             if (["backlog", "in_progress", "in_review", "done"].includes(s.ticket_status)) {
               let testPct = 0;
@@ -543,7 +570,7 @@ function LabDashboard() {
       active = false;
     };
 
-  }, [slug]);
+  }, [slug, refreshTrigger, location.pathname]);
   const lab = useMemo(() => {
     if (realLab) {
       const isLinux = realLab.title.toLowerCase().includes("linux");
@@ -618,8 +645,16 @@ function LabDashboard() {
           description: t.description,
         }));
     }
+    const submissionMap = new Map<string, any>();
+    rawSubmissions.forEach((sub) => {
+      if (sub.lab_sprint_ticket) {
+        submissionMap.set(String(sub.lab_sprint_ticket), sub);
+      }
+    });
+
     return baseData.map((t) => {
       const override = statusOverrides[t.id];
+      const sub = submissionMap.get(String(t.id));
       // Only count YP if this status came from the API (real submission), not from drag-and-drop
       const xpFractionOrValue = override?.fromApi ? (override?.earnedXp ?? 0) : 0;
       // If fromApi: fraction<=1 is test%, >1 is actual yuvro_points
@@ -629,9 +664,10 @@ function LabDashboard() {
         status: override?.status ?? t.status,
         earnedXp: calculatedEarnedXp,
         fromApi: override?.fromApi ?? false,
+        timeTakenMins: sub ? (sub.minutes_solved || (sub.seconds_solved ? Math.round(sub.seconds_solved / 60) : 0)) : 0,
       };
     });
-  }, [realLab, realSprints, statusOverrides]);
+  }, [realLab, realSprints, statusOverrides, rawSubmissions]);
 
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [activeSprint, setActiveSprint] = useState<string | null>(null);
@@ -860,6 +896,11 @@ function LabDashboard() {
         localStorage.setItem(userMockKey, JSON.stringify([...set]));
       } catch {}
       toast.success("Repository created and lab started successfully!");
+      // Directly open tickets page
+      const firstSprintId = sprints[0]?.id;
+      if (firstSprintId) {
+        setActiveSprint(firstSprintId);
+      }
     } catch (e: any) {
       console.error("Failed to enroll in lab", e);
       let errMsg = e instanceof Error ? e.message : typeof e === "string" ? e : "Failed to create repository. Please try again.";
@@ -1002,7 +1043,7 @@ function LabDashboard() {
                   />
                 </div>
                 <div className="mt-2 text-xs text-muted-foreground">
-                  {lab.completed}/{lab.total} tickets · {lab.hoursLeft}h remaining
+                  {lab.completed}/{lab.total} tickets{/* · {lab.hoursLeft}h remaining */}
                 </div>
               </div>
               <div className="mt-4 border-t pt-3 text-xs">
@@ -1033,48 +1074,64 @@ function LabDashboard() {
               </div>
             )}
 
-            <div className="rounded-xl border bg-card p-4">
-              <div className="mb-2 flex items-center gap-2 text-sm font-medium">
-                <Filter className="h-3.5 w-3.5" />
-                Filters
-              </div>
-              <div className="space-y-2 text-xs">
-                {["Beginner", "Intermediate", "Advanced"].map((d) => (
-                  <label key={d} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedDiffs.includes(d)}
-                      onChange={(e) => {
-                        if (e.target.checked) setSelectedDiffs([...selectedDiffs, d]);
-                        else setSelectedDiffs(selectedDiffs.filter((x) => x !== d));
-                      }}
-                      className="accent-[var(--primary)]"
-                    />{" "}
-                    {d}
-                  </label>
-                ))}
-                <div className="border-t pt-2 mt-2">
-                  {[
-                    { label: "Backlog", val: "backlog" },
-                    { label: "In Progress", val: "in_progress" },
-                    { label: "In Review", val: "in_review" },
-                    { label: "Done", val: "done" },
-                  ].map((d) => (
-                    <label key={d.val} className="flex items-center gap-2">
+            <div className="rounded-xl border bg-card p-3 shadow-xs">
+              <button
+                type="button"
+                onClick={() => setFiltersOpen((o) => !o)}
+                className="flex w-full items-center justify-between text-sm font-medium hover:text-foreground transition cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Filter className="h-3.5 w-3.5 text-primary" />
+                  <span>Filters</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {(selectedDiffs.length < 3 || selectedStatuses.length < 4) && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  )}
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${filtersOpen ? "rotate-180" : ""}`} />
+                </div>
+              </button>
+              {filtersOpen && (
+                <div className="mt-3 border-t pt-3 space-y-2 text-xs">
+                  <div className="font-medium text-muted-foreground mb-1 text-[11px] uppercase tracking-wider">Difficulty</div>
+                  {["Beginner", "Intermediate", "Advanced"].map((d) => (
+                    <label key={d} className="flex items-center gap-2 cursor-pointer select-none">
                       <input
                         type="checkbox"
-                        checked={selectedStatuses.includes(d.val)}
+                        checked={selectedDiffs.includes(d)}
                         onChange={(e) => {
-                          if (e.target.checked) setSelectedStatuses([...selectedStatuses, d.val]);
-                          else setSelectedStatuses(selectedStatuses.filter((x) => x !== d.val));
+                          if (e.target.checked) setSelectedDiffs([...selectedDiffs, d]);
+                          else setSelectedDiffs(selectedDiffs.filter((x) => x !== d));
                         }}
-                        className="accent-[var(--primary)]"
+                        className="accent-[var(--primary)] rounded"
                       />{" "}
-                      {d.label}
+                      {d}
                     </label>
                   ))}
+                  <div className="border-t pt-2 mt-2">
+                    <div className="font-medium text-muted-foreground mb-1 text-[11px] uppercase tracking-wider">Status</div>
+                    {[
+                      { label: "Backlog", val: "backlog" },
+                      { label: "In Progress", val: "in_progress" },
+                      { label: "In Review", val: "in_review" },
+                      { label: "Done", val: "done" },
+                    ].map((d) => (
+                      <label key={d.val} className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={selectedStatuses.includes(d.val)}
+                          onChange={(e) => {
+                            if (e.target.checked) setSelectedStatuses([...selectedStatuses, d.val]);
+                            else setSelectedStatuses(selectedStatuses.filter((x) => x !== d.val));
+                          }}
+                          className="accent-[var(--primary)] rounded"
+                        />{" "}
+                        {d.label}
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </aside>
 
@@ -1120,6 +1177,13 @@ function LabDashboard() {
                     const xp = items.reduce((a, t) => a + t.xp, 0);
                     const earnedXpSprint = items.reduce((a: number, t: any) => a + (t.fromApi ? (t.earnedXp || 0) : 0), 0);
                     const mins = items.reduce((a, t) => a + t.estMin, 0);
+                    const takenMins = items.reduce((a: number, t: any) => a + (t.timeTakenMins || 0), 0);
+                    const formatDuration = (m: number) => {
+                      if (m < 60) return `${m}m`;
+                      const hrs = Math.floor(m / 60);
+                      const rem = m % 60;
+                      return rem > 0 ? `${hrs}h ${rem}m` : `${hrs}h`;
+                    };
                     const tone = locked
                       ? "muted-foreground"
                       : s.status === "Completed"
@@ -1188,9 +1252,9 @@ function LabDashboard() {
                               <Target className="h-3 w-3" />
                               {items.length} tickets
                             </span>
-                            <span className="inline-flex items-center gap-1">
+                            <span className="inline-flex items-center gap-1" title="Taken time / Actual (estimated) time">
                               <Clock className="h-3 w-3" />
-                              {Math.round(mins / 60)}h
+                              {formatDuration(takenMins)} / {formatDuration(mins)}
                             </span>
                             <span className="inline-flex items-center gap-1 text-primary">
                               <Zap className="h-3 w-3" />
@@ -1235,153 +1299,65 @@ function LabDashboard() {
                         className="w-56 rounded-md border bg-input/40 pl-8 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
                       />
                     </div>
-                    <div className="flex rounded-md border bg-card p-0.5 text-xs">
-                      <button
-                        onClick={() => setView("kanban")}
-                        className={`flex items-center gap-1 rounded px-2 py-1 ${view === "kanban" ? "bg-accent" : ""}`}
-                      >
-                        <LayoutGrid className="h-3 w-3" />
-                        Kanban
-                      </button>
-                      <button
-                        onClick={() => setView("list")}
-                        className={`flex items-center gap-1 rounded px-2 py-1 ${view === "list" ? "bg-accent" : ""}`}
-                      >
-                        <List className="h-3 w-3" />
-                        List
-                      </button>
-                      <button className="flex items-center gap-1 rounded px-2 py-1 text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
-                        Timeline
-                      </button>
-                    </div>
                   </div>
                 </div>
 
-                {view === "kanban" ? (
-                  <div className="grid gap-3 md:grid-cols-3">
-                    {cols.map((c) => {
-                      const items = sprintTickets.filter((t) => t.status === c.key);
-                      return (
-                        <div key={c.key} className="flex flex-col rounded-xl border bg-card/50 p-3 max-h-[calc(100vh-11rem)]"
-                          onDragOver={(e) => e.preventDefault()}
-                          onDrop={async (e) => {
-                            e.preventDefault();
-                            const tId = e.dataTransfer.getData("text/plain");
-                            if (tId) {
-                              const oldStatus =
-                                statusOverrides[tId]?.status ||
-                                sprintTickets.find((t) => t.id === tId)?.status ||
-                                "backlog";
-                              if (oldStatus === c.key) return;
-                              setStatusOverrides((prev) => ({ ...prev, [tId]: { status: c.key as Status, earnedXp: prev[tId]?.earnedXp ?? 0, fromApi: prev[tId]?.fromApi ?? false } }));
-                              try {
-                                const localKanbanStr = localStorage.getItem(`kanban_${slug}`) || "{}";
-                                const localKanban = JSON.parse(localKanbanStr);
-                                localKanban[tId] = c.key;
-                                localStorage.setItem(`kanban_${slug}`, JSON.stringify(localKanban));
-                              } catch (err) {}
-                            }
-                          }}
-                        >
-                          <div className="mb-3 flex items-center justify-between px-1 shrink-0">
-                            <div className="text-sm font-medium">{c.label}</div>
-                            <span className="rounded-full bg-accent px-2 py-0.5 text-[11px]">
-                              {items.length}
-                            </span>
-                          </div>
-                          <div className="space-y-2 overflow-y-auto min-h-0 pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            {items.length === 0 && <div className="px-1 py-4 text-[11px] text-muted-foreground">No tickets</div>}
-                            {items.map((t) => (
-                              <div
-                                key={t.id}
-                                draggable
-                                onDragStart={(e) => e.dataTransfer.setData("text/plain", t.id)}
-                              >
-                                <Link
-                                  onClick={handleTicketClick}
-                                  to="/student/lab/$slug/ticket/$ticketId"
-                                  params={{ slug: lab.slug, ticketId: t.id }}
-                                  className="block rounded-lg border bg-card p-3 hover:border-primary/50 transition cursor-grab active:cursor-grabbing"
-                                >
-                                  <div className="text-sm font-medium leading-snug">{t.title}</div>
-                                  <div className="mt-1.5 flex items-center justify-between">
-                                    <DiffBadge value={t.difficulty} />
-                                  </div>
-                                  <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-                                    <span>
-                                      ⏱ {t.estMin}m · {t.tag}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1 text-primary">
-                                      <Zap className="h-3 w-3" />
-                                      {t.xp}
-                                    </span>
-                                  </div>
-                                  {t.status === "in_progress" && t.progress != null && (
-                                    <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
-                                      <div
-                                        className="h-full bg-info"
-                                        style={{ width: `${t.progress}%` }}
-                                      />
-                                    </div>
-                                  )}
-                                  {t.status === "done" && (
-                                    <div className="mt-2 flex items-center justify-between text-[11px]">
-                                      <span className="text-success">✓ Score {t.score}</span>
-                                      <Award className="h-3.5 w-3.5 text-warning" />
-                                    </div>
-                                  )}
-                                </Link>
-                              </div>
-                            ))}
-                          </div>
+                <div className="grid gap-3 md:grid-cols-3">
+                  {cols.map((c) => {
+                    const items = sprintTickets.filter((t) => t.status === c.key);
+                    return (
+                      <div key={c.key} className="flex flex-col rounded-xl border bg-card/50 p-3 max-h-[calc(100vh-11rem)]">
+                        <div className="mb-3 flex items-center justify-between px-1 shrink-0">
+                          <div className="text-sm font-medium">{c.label}</div>
+                          <span className="rounded-full bg-accent px-2 py-0.5 text-[11px]">
+                            {items.length}
+                          </span>
                         </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="rounded-xl border bg-card overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-accent/40 text-xs text-muted-foreground">
-                        <tr>
-                          <th className="text-left p-3">Title</th>
-                          <th>Difficulty</th>
-                          <th>Status</th>
-                          <th>YP</th>
-                          <th>Time</th>
-                          <th>Score</th>
-                          <th></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sprintTickets.map((t) => (
-                          <tr key={t.id} className="border-t hover:bg-accent/30">
-                            <td className="p-3">{t.title}</td>
-                            <td className="text-center">
-                              <DiffBadge value={t.difficulty} />
-                            </td>
-                            <td className="text-center">
-                              <StatusBadge value={t.status} />
-                            </td>
-                            <td className="text-center text-primary">{t.xp}</td>
-                            <td className="text-center text-muted-foreground">{t.estMin}m</td>
-                            <td className="text-center">{t.score ?? "—"}</td>
-                            <td className="text-right p-3">
+                        <div className="space-y-2 overflow-y-auto min-h-0 pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                          {items.length === 0 && <div className="px-1 py-4 text-[11px] text-muted-foreground">No tickets</div>}
+                          {items.map((t) => (
+                            <div key={t.id}>
                               <Link
                                 onClick={handleTicketClick}
                                 to="/student/lab/$slug/ticket/$ticketId"
                                 params={{ slug: lab.slug, ticketId: t.id }}
-                                className="text-primary text-xs"
+                                className="block rounded-lg border bg-card p-3 hover:border-primary/50 transition"
                               >
-                                Open →
+                                <div className="text-sm font-medium leading-snug">{t.title}</div>
+                                <div className="mt-1.5 flex items-center justify-between">
+                                  <DiffBadge value={t.difficulty} />
+                                </div>
+                                <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+                                  <span>
+                                    ⏱ {t.estMin}m · {t.tag}
+                                  </span>
+                                  <span className="inline-flex items-center gap-1 text-primary">
+                                    <Zap className="h-3 w-3" />
+                                    {t.xp}
+                                  </span>
+                                </div>
+                                {t.status === "in_progress" && t.progress != null && (
+                                  <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
+                                    <div
+                                      className="h-full bg-info"
+                                      style={{ width: `${t.progress}%` }}
+                                    />
+                                  </div>
+                                )}
+                                {t.status === "done" && (
+                                  <div className="mt-2 flex items-center justify-between text-[11px]">
+                                    <span className="text-success">✓ Score {t.score}</span>
+                                    <Award className="h-3.5 w-3.5 text-warning" />
+                                  </div>
+                                )}
                               </Link>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </>
             )}
           </section>
@@ -1393,10 +1369,15 @@ function LabDashboard() {
               <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                 <Mini label="Completion" value={`${pct}%`} />
                 <Mini label="Streak" value={`${studentStats?.day_streak ?? 0}d`} />
-                <Mini label="Earned YP" value={`${allTickets.filter((t: any) => t.fromApi && t.status === "done").reduce((acc: number, t: any) => acc + (t.earnedXp || 0), 0)} / ${allTickets.reduce((acc: number, t: any) => acc + (t.xp || 0), 0)} YP`} />
+                <Mini label="Earned YP" value={`${allTickets.filter((t: any) => t.fromApi && (t.status === "done" || t.status === "in_review")).reduce((acc: number, t: any) => acc + (t.earnedXp || 0), 0)} / ${allTickets.reduce((acc: number, t: any) => acc + (t.xp || 0), 0)} YP`} />
                 <Mini 
                   label="Avg time" 
-                  value={`${allTickets.filter(t => t.status === "done").length > 0 ? Math.round(allTickets.filter(t => t.status === "done").reduce((acc, t) => acc + (t.estMin || 0), 0) / allTickets.filter(t => t.status === "done").length) : 0}m`} 
+                  value={`${(() => {
+                    const doneTickets = allTickets.filter((t: any) => t.fromApi && (t.status === "done" || t.status === "in_review"));
+                    if (doneTickets.length === 0) return "0m";
+                    const totalMins = doneTickets.reduce((acc: number, t: any) => acc + (t.timeTakenMins > 0 ? t.timeTakenMins : (t.estMin || 0)), 0);
+                    return `${Math.round(totalMins / doneTickets.length)}m`;
+                  })()}`} 
                 />
               </div>
             </div>

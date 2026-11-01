@@ -60,6 +60,12 @@ export function TopNav({
     if (user) {
       loadStudentStats().then(setStats).catch(() => {});
     }
+
+    const handleRefresh = () => {
+      loadStudentStats(true).then(setStats).catch(() => {});
+    };
+    window.addEventListener("yuvro-stats-refresh", handleRefresh);
+    return () => window.removeEventListener("yuvro-stats-refresh", handleRefresh);
   }, [user]);
 
   useEffect(() => {

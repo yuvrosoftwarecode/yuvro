@@ -2,6 +2,7 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { tickets, labs } from "@/lib/dummy";
+import { invalidateStudentStats } from "@/lib/studentStats";
 import {
   CheckCircle2,
   XCircle,
@@ -59,6 +60,11 @@ function Review() {
             subsList[0];
           setSubmission(sub);
           setLoading(false);
+          // Invalidate student stats cache and dispatch update notifications
+          invalidateStudentStats();
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+          }
         })
         .catch((e) => {
           console.error(e);
