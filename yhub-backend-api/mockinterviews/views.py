@@ -1109,6 +1109,22 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for nt in node_core_topics:
                         if nt not in all_skills:
                             all_skills.append(nt)
+                elif "ai" in mock_interview.title.lower() or "machine learning" in mock_interview.title.lower():
+                    ai_core_topics = [
+                        "Machine Learning Fundamentals & Optimization",
+                        "Deep Neural Networks & Transformer Architectures",
+                        "Large Language Models (LLMs) & Tokenization",
+                        "Retrieval-Augmented Generation (RAG) & Embedding Models",
+                        "Vector Search & Vector Databases (Chroma / Pinecone / Milvus)",
+                        "Prompt Engineering, Few-shot Learning & Chain-of-Thought",
+                        "Model Fine-Tuning (PEFT, LoRA, QLoRA)",
+                        "AI Frameworks (PyTorch, Hugging Face, LangChain, LlamaIndex)",
+                        "Model Evaluation, Hallucination Detection & Safety Guardrails",
+                        "MLOps & Model Serving (vLLM, TensorRT, Quantization, CI/CD)"
+                    ]
+                    for at in ai_core_topics:
+                        if at not in all_skills:
+                            all_skills.append(at)
 
                 analysis = {
                     "candidate_name": user.get_full_name() or user.username,
@@ -1313,6 +1329,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Contiguous memory vs dispersed pointer-linked nodes",
                                     "O(1) index access in arrays vs O(N) access in linked lists",
                                     "Insertion and deletion trade-offs"
+                                ]
+                            }
+                        elif "ai" in title_lower or "machine learning" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: Can you explain the fundamental architectural differences between fine-tuning a Large Language Model and implementing a Retrieval-Augmented Generation (RAG) system, and in what scenarios would you choose one over the other?",
+                                "topic": "Generative AI Systems (Fine-Tuning vs RAG)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "RAG grounds models dynamically on external knowledge bases without updating weights",
+                                    "Fine-tuning modifies model parameters to specialize in tone, format, or niche domains",
+                                    "Latency, computational cost, data freshness, and maintenance trade-offs"
                                 ]
                             }
                         else:
