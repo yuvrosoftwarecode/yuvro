@@ -2965,6 +2965,36 @@
       "predefined_tree": []
     },
     {
+      "title": "React.js Development",
+      "description": "Adaptive AI-powered dynamic React.js technical interview. Evaluates core React concepts, JSX, component lifecycle, hooks, state management, Virtual DOM, rendering optimization, and modern frontend architecture in real-time.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs",
+        "ycode",
+        "ycampus"
+      ],
+      "required_skills": [
+        "React.js",
+        "JavaScript (ES6+)",
+        "React Hooks",
+        "State Management & Context API",
+        "Component Lifecycle & Virtual DOM",
+        "Frontend Architecture & Performance Optimization"
+      ],
+      "optional_skills": [
+        "Next.js & SSR/SSG",
+        "TypeScript",
+        "Redux Toolkit / Zustand",
+        "React Query / TanStack Query",
+        "Tailwind CSS",
+        "Jest & React Testing Library"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
+    },
+    {
       "title": "Frontend Development",
       "description": "Comprehensive assessment of frontend development skills, including HTML, CSS, JavaScript, React, browser behavior, performance optimization, and frontend architecture.",
       "instructions": "HTML semantics, CSS layouts, JavaScript fundamentals and advanced concepts, React hooks and state management, performance optimization, and frontend security.",

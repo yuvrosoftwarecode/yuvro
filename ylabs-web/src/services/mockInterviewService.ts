@@ -211,6 +211,9 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("python")) {
     icon = "🐍";
     color = "info";
+  } else if (titleLower.includes("react")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg";
+    color = "info";
   } else if (category === "AI/ML" || titleLower.includes("machine learning")) {
     icon = "🤖";
     color = "info";

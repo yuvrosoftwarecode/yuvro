@@ -1125,6 +1125,22 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for at in ai_core_topics:
                         if at not in all_skills:
                             all_skills.append(at)
+                elif "react" in mock_interview.title.lower():
+                    react_core_topics = [
+                        "Virtual DOM, Reconciliation & Fiber Architecture",
+                        "React Component Lifecycle & Rendering Phases",
+                        "React Hooks (useState, useEffect, useMemo, useCallback, useRef, custom hooks)",
+                        "Hook Rules & Stale Closure Pitfalls",
+                        "State Management (Context API vs Redux Toolkit / Zustand)",
+                        "Performance Optimization (React.memo, code splitting, lazy loading)",
+                        "Error Boundaries & React Suspense",
+                        "Controlled vs Uncontrolled Components & Form Handling",
+                        "SSR, SSG & Next.js Architecture Principles",
+                        "Unit Testing React Components (Jest & React Testing Library)"
+                    ]
+                    for rt in react_core_topics:
+                        if rt not in all_skills:
+                            all_skills.append(rt)
 
                 analysis = {
                     "candidate_name": user.get_full_name() or user.username,
@@ -1342,6 +1358,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "RAG grounds models dynamically on external knowledge bases without updating weights",
                                     "Fine-tuning modifies model parameters to specialize in tone, format, or niche domains",
                                     "Latency, computational cost, data freshness, and maintenance trade-offs"
+                                ]
+                            }
+                        elif "react" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In React, can you explain how the Virtual DOM and the reconciliation process work, and how the React Fiber architecture optimizes component rendering?",
+                                "topic": "React Virtual DOM & Fiber Reconciliation",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Virtual DOM as an in-memory representation synchronized with the real DOM",
+                                    "Diffing algorithm and batched updates to minimize DOM operations",
+                                    "React Fiber incremental rendering and prioritized concurrent work"
                                 ]
                             }
                         else:
