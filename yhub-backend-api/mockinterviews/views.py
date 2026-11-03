@@ -1141,6 +1141,22 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for rt in react_core_topics:
                         if rt not in all_skills:
                             all_skills.append(rt)
+                elif "mysql" in mock_interview.title.lower() or "sql" in mock_interview.title.lower():
+                    mysql_core_topics = [
+                        "Relational Modeling & Schema Normalization (1NF to BCNF)",
+                        "Advanced SQL Queries, Subqueries & Complex Joins",
+                        "Indexing Architecture (B-Tree, Clustered vs Secondary Indexes, Covering Indexes)",
+                        "Query Performance Tuning & EXPLAIN Query Plan Analysis",
+                        "Transactions, ACID Properties & Concurrency Control (MVCC, Lock Modes)",
+                        "Transaction Isolation Levels (Read Committed, Repeatable Read, Serializable)",
+                        "Storage Engines (InnoDB vs MyISAM architecture and row-level locking)",
+                        "Database Constraints, Keys, Cascading & Data Integrity",
+                        "High Availability, Replication Strategies & Failover",
+                        "Database Backup, Point-in-Time Recovery & Security Best Practices"
+                    ]
+                    for mt in mysql_core_topics:
+                        if mt not in all_skills:
+                            all_skills.append(mt)
 
                 analysis = {
                     "candidate_name": user.get_full_name() or user.username,
@@ -1371,6 +1387,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Virtual DOM as an in-memory representation synchronized with the real DOM",
                                     "Diffing algorithm and batched updates to minimize DOM operations",
                                     "React Fiber incremental rendering and prioritized concurrent work"
+                                ]
+                            }
+                        elif "mysql" in title_lower or "sql" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In MySQL, can you explain the architectural difference between a Clustered Index and a Secondary Index in the InnoDB storage engine, and how index selection impacts query performance?",
+                                "topic": "MySQL Indexing & InnoDB Architecture (Clustered vs Secondary Indexes)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "In InnoDB, the primary key forms the clustered index where leaf nodes store the actual row data",
+                                    "Secondary indexes store the column value and point to the primary key, requiring a bookmark lookup unless covering",
+                                    "Impact of index selection on write amplification, memory footprint, and query execution speed with EXPLAIN"
                                 ]
                             }
                         else:
