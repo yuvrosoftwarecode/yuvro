@@ -589,3 +589,277 @@ def _format_dialogue_history(
         return "No prior dialogue turns."
     recent = turns[-max_turns:] if len(turns) > max_turns else turns
     return "\n\n".join(recent)
+
+
+
+# ───────────────────────────────────────────────────────────
+# Master System Prompt Engine Implementation (Alex)
+# ───────────────────────────────────────────────────────────
+
+from mockinterviews.ai_interview.schemas.master_interviewer import (
+    InterviewPhase,
+    CandidateIntent,
+    NextAction,
+    CodingAction,
+    AnswerRating,
+    InterviewState,
+    CodeRunResult,
+    TurnEvents,
+    InterviewerTurnOutput,
+)
+from mockinterviews.ai_interview.prompts import (
+    MASTER_INTERVIEWER_SYSTEM_PROMPT,
+    MASTER_INTERVIEWER_TURN_PROMPT,
+)
+
+# Phase time specifications in seconds (Total 60m = 3600s)
+PHASE_TIME_SPECS = {
+    InterviewPhase.P1: {"target": 180, "soft": 240, "hard": 300},      # 3m
+    InterviewPhase.P2: {"target": 600, "soft": 720, "hard": 840},      # 10m
+    InterviewPhase.P3: {"target": 420, "soft": 540, "hard": 600},      # 7m
+    InterviewPhase.P4: {"target": 720, "soft": 840, "hard": 960},      # 12m target, 14m soft, 16m hard
+    InterviewPhase.P5: {"target": 240, "soft": 300, "hard": 360},      # 4m target, 5m soft, 6m hard
+    InterviewPhase.P6: {"target": 240, "soft": 300, "hard": 360},      # 4m target, 5m soft, 6m hard
+    InterviewPhase.P7: {"target": 360, "soft": 420, "hard": 480},      # 6m
+    InterviewPhase.P8: {"target": 240, "soft": 300, "hard": 360},      # 4m
+    InterviewPhase.P9: {"target": 180, "soft": 240, "hard": 300},      # 3m
+    InterviewPhase.P10: {"target": 240, "soft": 300, "hard": 360},     # 4m
+    InterviewPhase.P11: {"target": 180, "soft": 240, "hard": 300},     # 3m
+}
+
+PHASE_ORDER = [
+    InterviewPhase.P1,
+    InterviewPhase.P2,
+    InterviewPhase.P3,
+    InterviewPhase.P4,
+    InterviewPhase.P5,
+    InterviewPhase.P6,
+    InterviewPhase.P7,
+    InterviewPhase.P8,
+    InterviewPhase.P9,
+    InterviewPhase.P10,
+    InterviewPhase.P11,
+]
+
+
+def sanitize_candidate_profile_for_fairness(profile: dict[str, Any]) -> dict[str, Any]:
+    """Strip college, university, institute, tier, and company names for fairness compliance."""
+    sanitized = dict(profile)
+    disallowed_keys = {
+        "college", "university", "institute", "school", "tier",
+        "company", "employer", "organization", "company_brand"
+    }
+    for k in list(sanitized.keys()):
+        if any(d in k.lower() for d in disallowed_keys):
+            sanitized.pop(k, None)
+    return sanitized
+
+
+def init_interview_state(
+    role: str = "Software Engineer",
+    stack: list[str] | None = None,
+    experience_years: float | None = None,
+    candidate_profile: dict[str, Any] | None = None,
+) -> InterviewState:
+    """Initialize interview state with starting prior per the Master Prompt."""
+    stack = stack or ["python"]
+    # Starting prior: fresher or intern D1-D2; 1-3 years D2; 3-6 years D3; 6+ years D3-D4; unknown D2.
+    if experience_years is None:
+        exp_desc = "unknown"
+        initial_d = 2
+    elif experience_years < 1:
+        exp_desc = "fresher"
+        initial_d = 1
+    elif experience_years < 3:
+        exp_desc = f"{experience_years} years"
+        initial_d = 2
+    elif experience_years < 6:
+        exp_desc = f"{experience_years} years"
+        initial_d = 3
+    else:
+        exp_desc = f"{experience_years} years"
+        initial_d = 4
+
+    topic_levels = {tech.lower(): initial_d for tech in stack}
+    if "python_basics" not in topic_levels:
+        topic_levels["python_basics"] = initial_d
+
+    p1_specs = PHASE_TIME_SPECS[InterviewPhase.P1]
+
+    return InterviewState(
+        role=role,
+        stack=stack,
+        experience=exp_desc,
+        experience_years=experience_years,
+        phase=InterviewPhase.P1,
+        time_remaining=3600,
+        phase_time_used=0,
+        phase_target=p1_specs["target"],
+        phase_soft_cap=p1_specs["soft"],
+        phase_hard_cap=p1_specs["hard"],
+        topic_levels=topic_levels,
+        strong_streak=0,
+        weak_streak=0,
+        calibration_done=False,
+    )
+
+
+def update_state_for_turn(
+    state: InterviewState,
+    turn_output: InterviewerTurnOutput,
+    elapsed_seconds: int = 0,
+) -> InterviewState:
+    """Update state per the difficulty engine rules and phase discipline in code."""
+    state.time_remaining = max(0, state.time_remaining - elapsed_seconds)
+    state.phase_time_used += elapsed_seconds
+
+    # Apply updates returned by model
+    updates = turn_output.state_updates or {}
+    if "topic_levels" in updates and isinstance(updates["topic_levels"], dict):
+        state.topic_levels.update(updates["topic_levels"])
+    if "claims_verified" in updates and isinstance(updates["claims_verified"], dict):
+        state.claims_verified.update(updates["claims_verified"])
+    if "ai_usage_maturity" in updates:
+        state.ai_usage_maturity = updates["ai_usage_maturity"]
+    if "calibration_done" in updates:
+        state.calibration_done = bool(updates["calibration_done"])
+
+    # Difficulty engine enforcement in code as backstop
+    topic = turn_output.topic or "python_basics"
+    current_lvl = state.topic_levels.get(topic, 2)
+    rating = turn_output.answer_rating
+
+    if rating == AnswerRating.STRONG:
+        state.strong_streak += 1
+        state.weak_streak = 0
+        if not state.calibration_done:
+            # First 3 questions calibration: strong and confident goes up, 2 strong jumps +2
+            bonus = 2 if state.strong_streak >= 2 else 1
+            current_lvl = min(5, current_lvl + bonus)
+        else:
+            if state.strong_streak >= 2:
+                current_lvl = min(5, current_lvl + 1)
+                state.strong_streak = 0
+    elif rating == AnswerRating.WEAK:
+        state.weak_streak += 1
+        state.strong_streak = 0
+        # Weak answer drops ONE level on that topic only
+        current_lvl = max(1, current_lvl - 1)
+    elif rating == AnswerRating.PARTIAL:
+        state.strong_streak = 0
+        state.weak_streak = 0
+
+    state.topic_levels[topic] = current_lvl
+
+    # Coding / Hints tracking
+    if turn_output.coding_action == CodingAction.GUIDE_HINT:
+        state.hint_level_given = min(3, state.hint_level_given + 1)
+    elif turn_output.coding_action in (CodingAction.WRAP_UP, CodingAction.COMPLETE_REVIEW, CodingAction.SKIP_AND_MOVE_ON):
+        state.hint_level_given = 0
+        state.followups_used = 0
+        state.idle_prompts_used = 0
+
+    if turn_output.phase == InterviewPhase.P5 and turn_output.next_action == NextAction.SWITCH_PHASE:
+        state.debug_done = True
+    if turn_output.phase == InterviewPhase.P6 and turn_output.next_action == NextAction.SWITCH_PHASE:
+        state.optimise_done = True
+
+    # Phase advancement & Time Rules
+    # 1. 3 minutes or less left: straight to P11
+    if state.time_remaining <= 180 and state.phase != InterviewPhase.P11:
+        state.phase = InterviewPhase.P11
+        state.phase_time_used = 0
+    # 2. 8 minutes or less left: skip unfinished middle phases and jump to P10
+    elif state.time_remaining <= 480 and state.phase in [
+        InterviewPhase.P2, InterviewPhase.P3, InterviewPhase.P7, InterviewPhase.P8, InterviewPhase.P9
+    ]:
+        state.phase = InterviewPhase.P10
+        state.phase_time_used = 0
+    # 3. Model requests switch_phase or hard cap reached
+    elif turn_output.next_action == NextAction.SWITCH_PHASE or state.phase_time_used >= state.phase_hard_cap:
+        try:
+            curr_idx = PHASE_ORDER.index(state.phase)
+            if curr_idx < len(PHASE_ORDER) - 1:
+                state.phase = PHASE_ORDER[curr_idx + 1]
+                state.phase_time_used = 0
+        except ValueError:
+            state.phase = InterviewPhase.P11
+
+    # Update caps for current phase
+    specs = PHASE_TIME_SPECS.get(state.phase, {"target": 180, "soft": 240, "hard": 300})
+    state.phase_target = specs["target"]
+    state.phase_soft_cap = specs["soft"]
+    state.phase_hard_cap = specs["hard"]
+
+    return state
+
+
+async def execute_interviewer_turn(
+    session_state: InterviewState,
+    events: TurnEvents,
+    dialogue_history: list[dict[str, str]] | None = None,
+    elapsed_seconds: int = 15,
+) -> tuple[InterviewerTurnOutput, InterviewState]:
+    """Run one turn of Alex (The Master AI Mock Interviewer)."""
+    import json
+    dialogue_history = dialogue_history or []
+
+    # App-level time signal generation
+    if session_state.phase_time_used + elapsed_seconds >= session_state.phase_hard_cap:
+        events.time_signal = "hard_cap"
+    elif session_state.phase_time_used + elapsed_seconds >= session_state.phase_soft_cap:
+        events.time_signal = "soft_cap"
+    elif session_state.phase_time_used + elapsed_seconds >= session_state.phase_target:
+        events.time_signal = "target_reached"
+
+    # Format dialogue turns
+    recent_dialogue_text = "\n\n".join(
+        f"{turn.get('speaker', 'Candidate')}: {turn.get('text', '')}"
+        for turn in dialogue_history[-4:]
+    ) or "No prior turns in this session."
+
+    state_dict = session_state.model_dump()
+    events_dict = events.model_dump(exclude_none=True)
+
+    turn_prompt = MASTER_INTERVIEWER_TURN_PROMPT.format(
+        interview_state_json=json.dumps(state_dict, indent=2),
+        events_json=json.dumps(events_dict, indent=2),
+        recent_dialogue=recent_dialogue_text,
+    )
+
+    client = get_llm_client()
+    response = await client.generate(
+        prompt=turn_prompt,
+        system_prompt=MASTER_INTERVIEWER_SYSTEM_PROMPT,
+        temperature=0.3,
+        max_tokens=800,
+    )
+
+    raw_output = parse_json_response(response)
+    if not isinstance(raw_output, dict):
+        raw_output = {
+            "intent": "answer",
+            "intent_confidence": 0.8,
+            "say": "Understood. Let's move forward.",
+            "next_action": "next_question",
+            "coding_action": "none",
+            "phase": session_state.phase.value,
+            "topic": list(session_state.topic_levels.keys())[0] if session_state.topic_levels else "general",
+            "difficulty_level": 2,
+            "answer_rating": "partial",
+            "evaluation_note": "Fallback parsing applied",
+            "state_updates": {},
+        }
+
+    turn_output = InterviewerTurnOutput(**raw_output)
+
+    # Precedence Rule 1: Never end without confirmation
+    if turn_output.intent == CandidateIntent.END_ASSESSMENT:
+        if turn_output.intent_confidence >= 0.7 and turn_output.next_action != NextAction.CONFIRM_END:
+            turn_output.say = "Do you want to end the interview now? Your report will be generated."
+            turn_output.next_action = NextAction.CONFIRM_END
+
+    # Update state
+    updated_state = update_state_for_turn(session_state, turn_output, elapsed_seconds=elapsed_seconds)
+
+    return turn_output, updated_state
