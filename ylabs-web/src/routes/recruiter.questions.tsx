@@ -18,6 +18,7 @@ import {
   Loader2,
   AlertTriangle,
   Link,
+  Boxes,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { questionBankService } from "@/services/questionBankService";
@@ -90,6 +91,176 @@ const DEFAULT_LAB_FORM = {
   backend_frameworks: [],
   frontend_frameworks: [],
   tasks: [],
+};
+
+const BUILTIN_SYSTEM_DESIGN_CHALLENGES = [
+  {
+    id: "builtin-sd-url-shortener",
+    title: "Design a High-Throughput URL Shortener (TinyURL)",
+    description:
+      "Architect a resilient, distributed URL shortening service capable of creating billions of aliases and serving high-frequency redirects with sub-millisecond response times, low latency CDN caching, and custom analytics tracking.",
+    company: "Uber",
+    scenario_type: "Distributed Storage & Routing",
+    difficulty: "MEDIUM",
+    domain: "BACKEND",
+    duration_minutes: 45,
+    marks: 30,
+    system_slug: "systemdesign-url-shortener",
+    constraints: [
+      "100M new URLs shortened per month (10:1 read-to-write ratio)",
+      "URL redirects must respond in < 15ms at p99",
+      "99.999% availability for resolution endpoints",
+      "Shortened keys must be 7-8 base62 alphanumeric characters",
+      "Protect against malicious redirects and rate-limit abusive IP ranges",
+    ],
+    tasks: [
+      {
+        id: "t1",
+        title: "HLD Architecture Canvas",
+        description:
+          "Design client DNS, API Gateway, Key Generation Service (KGS), cache layer, and database cluster with replication.",
+        marks: 10,
+      },
+      {
+        id: "t2",
+        title: "Database Schema (DBML)",
+        description:
+          "Define relational or NoSQL schema for URLs, users, expiration timestamps, and analytics telemetry.",
+        marks: 10,
+      },
+      {
+        id: "t3",
+        title: "REST API Contracts",
+        description:
+          "Specify endpoints for POST /api/v1/shorten, GET /{shortCode}, and GET /api/v1/analytics.",
+        marks: 5,
+      },
+      {
+        id: "t4",
+        title: "Sequence Diagrams",
+        description:
+          "Model the end-to-end request lifecycle for URL creation and cached redirection lookup.",
+        marks: 5,
+      },
+    ],
+  },
+  {
+    id: "builtin-sd-ecommerce",
+    title: "Design a Flash-Sale E-Commerce Platform",
+    description:
+      "Design an ultra-high concurrency e-commerce checkout and inventory system capable of handling surges of 100,000+ orders per second during limited-time flash sales without double bookings or overselling.",
+    company: "Amazon",
+    scenario_type: "High Concurrency & Transactions",
+    difficulty: "HARD",
+    domain: "RETAIL",
+    duration_minutes: 60,
+    marks: 40,
+    system_slug: "systemdesign",
+    constraints: [
+      "Peak throughput: 100k requests/sec during drop window",
+      "Zero overselling: strict inventory reservation guarantees",
+      "Eventual consistency for order fulfillment and payment webhook processing",
+      "Cart reservations expire after 10 minutes if unpurchased",
+    ],
+    tasks: [
+      {
+        id: "t1",
+        title: "HLD Architecture Canvas",
+        description:
+          "Draw CDN, Edge Rate Limiter, Inventory Cache with Redis Lua scripts, Kafka Order Queue, and Payment Orchestrator.",
+        marks: 10,
+      },
+      {
+        id: "t2",
+        title: "Database Schema (DBML)",
+        description:
+          "Model inventory balances, lock states, order records, and idempotent transaction logs.",
+        marks: 10,
+      },
+      {
+        id: "t3",
+        title: "REST API Contracts",
+        description:
+          "Define endpoints for product catalog, inventory lock, and order placement.",
+        marks: 10,
+      },
+      {
+        id: "t4",
+        title: "Sequence Diagrams",
+        description:
+          "Trace the distributed lock acquisition, payment confirmation, and async inventory reconciliation flow.",
+        marks: 10,
+      },
+    ],
+  },
+  {
+    id: "builtin-sd-bookmyshow",
+    title: "Design a Real-Time Ticket & Seat Booking Engine",
+    description:
+      "Build a distributed movie and concert seat reservation platform with interactive venue seat maps, pessimistic seat locking, and live websocket seat availability updates.",
+    company: "BookMyShow",
+    scenario_type: "Real-time Event Streaming & Locking",
+    difficulty: "HARD",
+    domain: "FINANCE",
+    duration_minutes: 60,
+    marks: 40,
+    system_slug: "systemdesign-bookmysystem",
+    constraints: [
+      "Concurrent seat locking by tens of thousands of users per showtime",
+      "Seat held for max 8 minutes during checkout before releasing back to the pool",
+      "Real-time websocket broadcast of seat occupancy status to active viewers",
+      "Multi-region data isolation per theatre/cinema chain",
+    ],
+    tasks: [
+      {
+        id: "t1",
+        title: "HLD Architecture Canvas",
+        description:
+          "Diagram load balancers, WebSocket gateways, Distributed Locking Service, and Show Booking Workers.",
+        marks: 10,
+      },
+      {
+        id: "t2",
+        title: "Database Schema (DBML)",
+        description:
+          "Design theatres, screens, shows, seats, seat reservations, and booking tickets tables.",
+        marks: 10,
+      },
+      {
+        id: "t3",
+        title: "REST API Contracts",
+        description:
+          "Create contracts for seat map queries, seat reservation requests, and payment settlement.",
+        marks: 10,
+      },
+      {
+        id: "t4",
+        title: "Sequence Diagrams",
+        description:
+          "Illustrate concurrent seat conflict handling and automatic release on timeout.",
+        marks: 10,
+      },
+    ],
+  },
+];
+
+const DEFAULT_SYSTEM_DESIGN_FORM = {
+  title: "",
+  description: "",
+  difficulty: "MEDIUM",
+  marks: 30,
+  duration_minutes: 45,
+  scenario_type: "Distributed System",
+  system_slug: "systemdesign-url-shortener",
+  domain: "BACKEND",
+  company: "",
+  constraints: "",
+  tasks: [
+    { id: "t1", title: "HLD Architecture Canvas", description: "Design client DNS, API Gateway, caching layer, and database cluster with replication.", marks: 10 },
+    { id: "t2", title: "Database Schema (DBML)", description: "Define relational or NoSQL schema with keys, relationships, and telemetry tables.", marks: 10 },
+    { id: "t3", title: "REST API Contracts", description: "Specify endpoints, request schemas, status codes, and error responses.", marks: 5 },
+    { id: "t4", title: "Sequence Diagrams", description: "Model the end-to-end request lifecycle and async operations.", marks: 5 },
+  ],
 };
 
 const PROGRAMMING_LANGUAGES = ["C", "C++", "Python", "Java", "SQL", "Bash", "JavaScript", "TypeScript"];
@@ -383,6 +554,72 @@ function QuestionPreview({ q }: { q: any }) {
   );
 }
 
+function SystemDesignPreview({ q }: { q: any }) {
+  if (!q) return null;
+  return (
+    <div className="rounded-md bg-neutral-50 dark:bg-white/5 p-4 text-[13px] text-neutral-700 dark:text-neutral-300 space-y-4">
+      {q.description || q.problem ? (
+        <div className="whitespace-pre-wrap leading-relaxed">{q.description || q.problem}</div>
+      ) : (
+        <div className="italic text-neutral-500">No detailed description available.</div>
+      )}
+
+      <div className="grid grid-cols-2 gap-4 text-[12px]">
+        <div>
+          <div className="text-neutral-500 dark:text-neutral-400">Category</div>
+          <div className="text-neutral-900 dark:text-white font-medium">System Design</div>
+        </div>
+        <div>
+          <div className="text-neutral-500 dark:text-neutral-400">Difficulty</div>
+          <div className="text-neutral-900 dark:text-white font-medium">{q.difficulty || "MEDIUM"}</div>
+        </div>
+        <div>
+          <div className="text-neutral-500 dark:text-neutral-400">Duration</div>
+          <div className="text-neutral-900 dark:text-white font-medium">{q.duration_minutes || 45} min</div>
+        </div>
+        <div>
+          <div className="text-neutral-500 dark:text-neutral-400">Marks</div>
+          <div className="text-neutral-900 dark:text-white font-medium">{q.marks || 100}</div>
+        </div>
+      </div>
+
+      {Array.isArray(q.tasks) && q.tasks.length > 0 && (
+        <div className="border-t border-neutral-200 dark:border-white/5 pt-4">
+          <div className="text-neutral-900 dark:text-neutral-200 font-semibold mb-3">Deliverables & Objectives</div>
+          <div className="space-y-2">
+            {q.tasks.map((t: any, i: number) => (
+              <div key={t.id || i} className="rounded bg-white dark:bg-black/20 p-3 text-[12px] border border-neutral-200 dark:border-white/5">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-neutral-900 dark:text-white">
+                    {i + 1}. {t.title || t.name}
+                  </span>
+                  {t.marks && (
+                    <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">{t.marks} pts</span>
+                  )}
+                </div>
+                {t.description && (
+                  <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{t.description}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {Array.isArray(q.constraints) && q.constraints.length > 0 && (
+        <div className="border-t border-neutral-200 dark:border-white/5 pt-4">
+          <div className="text-neutral-900 dark:text-neutral-200 font-semibold mb-2">Constraints & Scale Targets</div>
+          <ul className="space-y-1 text-[12px] text-neutral-600 dark:text-neutral-400 list-disc pl-4">
+            {q.constraints.map((c: string, i: number) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const QuestionCardItem = memo(function QuestionCardItem({
   q,
   loadingEditId,
@@ -407,6 +644,10 @@ const QuestionCardItem = memo(function QuestionCardItem({
               <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-medium text-cyan-600 dark:text-cyan-300">
                 <FlaskConical className="h-3 w-3" /> Engineering Lab
               </span>
+            ) : q.questionCategory === "SYSTEM_DESIGN" ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-300">
+                <Boxes className="h-3 w-3" /> System Design
+              </span>
             ) : (
               <span className="inline-flex items-center gap-1 rounded-full border border-purple-400/30 bg-purple-400/10 px-2 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-300">
                 <BookOpen className="h-3 w-3" /> Knowledge Assessment
@@ -430,6 +671,16 @@ const QuestionCardItem = memo(function QuestionCardItem({
               {q.scenario?.replace(/_/g, " ")}
             </span>
           )}
+          {q.scenario_type && (
+            <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-300">
+              {q.scenario_type}
+            </span>
+          )}
+          {q.company && (
+            <span className="rounded-full border border-neutral-300 dark:border-white/10 bg-neutral-100 dark:bg-white/5 px-2 py-0.5 text-[10px] font-medium text-neutral-600 dark:text-neutral-400">
+              {q.company}
+            </span>
+          )}
           {(q.format || q.type) && q.questionCategory === "KNOWLEDGE" && (
             <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-300">
               {(q.format || q.type)?.replace(/_/g, " ").toUpperCase()}
@@ -446,9 +697,10 @@ const QuestionCardItem = memo(function QuestionCardItem({
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" /> {q.duration_minutes || 0}m
           </span>
-          {q.questionCategory === "LAB" && (
+          {(q.questionCategory === "LAB" || q.questionCategory === "SYSTEM_DESIGN") && (
             <span>
-              Tasks <strong className="text-neutral-900 dark:text-white font-mono">{q.tasks?.length || 0}</strong>
+              {q.questionCategory === "SYSTEM_DESIGN" ? "Deliverables" : "Tasks"}{" "}
+              <strong className="text-neutral-900 dark:text-white font-mono">{q.tasks?.length || 0}</strong>
             </span>
           )}
         </div>
@@ -488,8 +740,8 @@ const QuestionCardItem = memo(function QuestionCardItem({
 function RecruiterQuestionBankPage() {
   const queryClient = useQueryClient();
 
-  // Tab State: "ALL" | "LAB" | "KNOWLEDGE"
-  const [activeTab, setActiveTab] = useState<"ALL" | "LAB" | "KNOWLEDGE">("ALL");
+  // Tab State: "ALL" | "LAB" | "KNOWLEDGE" | "SYSTEM_DESIGN"
+  const [activeTab, setActiveTab] = useState<"ALL" | "LAB" | "KNOWLEDGE" | "SYSTEM_DESIGN">("ALL");
 
   // Courses state for Knowledge Assessment Form
   const [courses, setCourses] = useState<{ id: string; name: string }[]>([]);
@@ -508,6 +760,24 @@ function RecruiterQuestionBankPage() {
   const { data: knowledgeQuestions = [], isLoading: isLoadingKnowledge } = useQuery({
     queryKey: ["knowledgeQuestions"],
     queryFn: () => questionBankService.getKnowledgeQuestions(),
+  });
+
+  // Fetch System Design Questions
+  const { data: systemDesignQuestions = [], isLoading: isLoadingSystemDesign } = useQuery({
+    queryKey: ["systemDesignQuestions"],
+    queryFn: async () => {
+      try {
+        const data = await questionBankService.getSystemDesignQuestions();
+        if (Array.isArray(data) && data.length > 0) {
+          const ids = new Set(data.map((d: any) => d.id));
+          const nonDupBuiltins = BUILTIN_SYSTEM_DESIGN_CHALLENGES.filter((b) => !ids.has(b.id));
+          return [...data, ...nonDupBuiltins];
+        }
+      } catch (e) {
+        console.warn("Failed to fetch system design questions from API, using builtins", e);
+      }
+      return BUILTIN_SYSTEM_DESIGN_CHALLENGES;
+    },
   });
 
   // Filters state
@@ -550,7 +820,7 @@ function RecruiterQuestionBankPage() {
 
   const handleOpenPreview = async (q: any) => {
     setPreviewQuestion(q);
-    if (q.questionCategory === "LAB") return;
+    if (q.questionCategory === "LAB" || q.questionCategory === "SYSTEM_DESIGN") return;
 
     setLoadingPreview(true);
     try {
@@ -619,6 +889,102 @@ function RecruiterQuestionBankPage() {
       showToast(err?.message || "Failed to delete question");
     },
   });
+
+  const deleteSystemDesignMutation = useMutation({
+    mutationFn: (id: string) => questionBankService.deleteSystemDesignQuestion(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systemDesignQuestions"] });
+      showToast("System Design Question deleted");
+    },
+    onError: (err: any) => {
+      showToast(err?.message || "Failed to delete question");
+    },
+  });
+
+  // System Design Form State & Mutations
+  const [isSystemDesignModalOpen, setIsSystemDesignModalOpen] = useState(false);
+  const [editingSystemDesignId, setEditingSystemDesignId] = useState<string | null>(null);
+  const [systemDesignFormData, setSystemDesignFormData] = useState<any>(DEFAULT_SYSTEM_DESIGN_FORM);
+
+  const createSystemDesignMutation = useMutation({
+    mutationFn: (data: any) => questionBankService.createSystemDesignQuestion(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systemDesignQuestions"] });
+      showToast("System Design Challenge created");
+      setIsSystemDesignModalOpen(false);
+    },
+    onError: (err: any) => {
+      showToast(err?.message || "Failed to create system design challenge");
+    },
+  });
+
+  const updateSystemDesignMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      questionBankService.updateSystemDesignQuestion(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systemDesignQuestions"] });
+      showToast("System Design Challenge updated");
+      setIsSystemDesignModalOpen(false);
+    },
+    onError: (err: any) => {
+      showToast(err?.message || "Failed to update system design challenge");
+    },
+  });
+
+  const handleSelectSystemDesignType = () => {
+    setIsAddTypeModalOpen(false);
+    setEditingSystemDesignId(null);
+    setSystemDesignFormData(DEFAULT_SYSTEM_DESIGN_FORM);
+    setIsSystemDesignModalOpen(true);
+  };
+
+  const closeSystemDesignModal = () => {
+    setIsSystemDesignModalOpen(false);
+    setEditingSystemDesignId(null);
+  };
+
+  const openEditSystemDesignModal = (q: any) => {
+    setEditingSystemDesignId(q.id);
+    setSystemDesignFormData({
+      title: q.title || "",
+      description: q.description || q.problem || "",
+      difficulty: (q.difficulty || "MEDIUM").toUpperCase(),
+      marks: q.marks || 30,
+      duration_minutes: q.duration_minutes || 45,
+      scenario_type: q.scenario_type || "Distributed System",
+      system_slug: q.system_slug || "systemdesign-url-shortener",
+      domain: q.domain || "BACKEND",
+      company: q.company || "",
+      constraints: Array.isArray(q.constraints) ? q.constraints.join("\n") : (q.constraints || ""),
+      tasks: Array.isArray(q.tasks) && q.tasks.length > 0 ? q.tasks : DEFAULT_SYSTEM_DESIGN_FORM.tasks,
+    });
+    setIsSystemDesignModalOpen(true);
+  };
+
+  const handleSaveSystemDesign = () => {
+    const rawConstraints = typeof systemDesignFormData.constraints === "string"
+      ? systemDesignFormData.constraints.split("\n").map((s: string) => s.trim()).filter(Boolean)
+      : systemDesignFormData.constraints || [];
+
+    const payload = {
+      ...systemDesignFormData,
+      constraints: rawConstraints,
+      tasks: (systemDesignFormData.tasks || []).map((t: any, index: number) => ({
+        id: t.id || `t${index + 1}`,
+        title: t.title,
+        description: t.description || "",
+        marks: Number(t.marks) || 10,
+      })),
+      marks: Number(systemDesignFormData.marks) || 30,
+      duration_minutes: Number(systemDesignFormData.duration_minutes) || 45,
+    };
+
+    if (editingSystemDesignId) {
+      updateSystemDesignMutation.mutate({ id: editingSystemDesignId, data: payload });
+    } else {
+      createSystemDesignMutation.mutate(payload);
+    }
+  };
 
   // Handlers for Add Button
   const handleOpenAddModal = () => {
@@ -701,7 +1067,7 @@ function RecruiterQuestionBankPage() {
   const [deletingQuestion, setDeletingQuestion] = useState<{
     id: string;
     title: string;
-    category: "LAB" | "KNOWLEDGE";
+    category: "LAB" | "KNOWLEDGE" | "SYSTEM_DESIGN";
   } | null>(null);
 
   const handleSaveLab = () => {
@@ -809,12 +1175,26 @@ function RecruiterQuestionBankPage() {
       questionCategory: "KNOWLEDGE",
     }));
 
+    const sysDesign = systemDesignQuestions.map((q: any) => ({
+      ...q,
+      title: q.title || "Untitled System Design Challenge",
+      description: q.description || q.problem || "",
+      difficulty: (q.difficulty || "MEDIUM").toUpperCase(),
+      domain: q.domain || "BACKEND",
+      marks: q.marks || 30,
+      duration_minutes: q.duration_minutes || 45,
+      questionCategory: "SYSTEM_DESIGN",
+      format: "SYSTEM_DESIGN",
+      type: "SYSTEM_DESIGN",
+    }));
+
     if (activeTab === "LAB") return labs;
     if (activeTab === "KNOWLEDGE") return knowledge;
-    return [...labs, ...knowledge];
-  }, [labQuestions, knowledgeQuestions, activeTab]);
+    if (activeTab === "SYSTEM_DESIGN") return sysDesign;
+    return [...labs, ...knowledge, ...sysDesign];
+  }, [labQuestions, knowledgeQuestions, systemDesignQuestions, activeTab]);
 
-  const handleTabChange = (tab: "ALL" | "LAB" | "KNOWLEDGE") => {
+  const handleTabChange = (tab: "ALL" | "LAB" | "KNOWLEDGE" | "SYSTEM_DESIGN") => {
     setActiveTab(tab);
     setSelectedDomain("ALL");
     setSelectedDifficulty("ALL");
@@ -832,23 +1212,27 @@ function RecruiterQuestionBankPage() {
         q.title?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         q.description?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         q.domain?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        q.course_name?.toLowerCase().includes(debouncedSearch.toLowerCase());
+        q.course_name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        q.scenario_type?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        q.company?.toLowerCase().includes(debouncedSearch.toLowerCase());
 
       // 2. Difficulty filter (applies to all)
       const matchesDifficulty =
         selectedDifficulty === "ALL" ||
         (q.difficulty || "").toUpperCase() === selectedDifficulty.toUpperCase();
 
-      // 3. Domain filter (applies to LAB questions; ignored for KNOWLEDGE when on KNOWLEDGE tab)
+      // 3. Domain filter (applies to LAB questions; ignored for KNOWLEDGE when on KNOWLEDGE tab or SYSTEM_DESIGN)
       const matchesDomain =
         selectedDomain === "ALL" ||
         (q.questionCategory === "KNOWLEDGE" && activeTab === "KNOWLEDGE") ||
+        (q.questionCategory === "SYSTEM_DESIGN" && activeTab === "SYSTEM_DESIGN") ||
         q.domain === selectedDomain;
 
-      // 4. Scenario filter (applies to LAB questions; ignored for KNOWLEDGE)
+      // 4. Scenario filter (applies to LAB questions; ignored for KNOWLEDGE and SYSTEM_DESIGN)
       const matchesScenario =
         selectedScenario === "ALL" ||
         q.questionCategory === "KNOWLEDGE" ||
+        q.questionCategory === "SYSTEM_DESIGN" ||
         q.scenario === selectedScenario;
 
       // 5. Format filter
@@ -856,8 +1240,10 @@ function RecruiterQuestionBankPage() {
       if (selectedFormat !== "ALL") {
         if (selectedFormat === "LAB") {
           matchesFormat = q.questionCategory === "LAB";
-        } else if (q.questionCategory === "LAB") {
-          matchesFormat = activeTab !== "ALL";
+        } else if (selectedFormat === "SYSTEM_DESIGN") {
+          matchesFormat = q.questionCategory === "SYSTEM_DESIGN" || q.format === "SYSTEM_DESIGN" || q.type === "SYSTEM_DESIGN";
+        } else if (q.questionCategory === "LAB" || q.questionCategory === "SYSTEM_DESIGN") {
+          matchesFormat = false;
         } else {
           const qFmt = (q.format || "").toUpperCase();
           const qType = (q.type || "").toUpperCase();
@@ -885,10 +1271,11 @@ function RecruiterQuestionBankPage() {
         }
       }
 
-      // 6. Course filter (applies to KNOWLEDGE questions; ignored for LAB)
+      // 6. Course filter (applies to KNOWLEDGE questions; ignored for LAB and SYSTEM_DESIGN)
       const matchesCourse =
         selectedCourse === "ALL" ||
         q.questionCategory === "LAB" ||
+        q.questionCategory === "SYSTEM_DESIGN" ||
         q.course === selectedCourse ||
         q.course_id === selectedCourse ||
         q.course_name === selectedCourse ||
@@ -916,10 +1303,11 @@ function RecruiterQuestionBankPage() {
     activeTab,
   ]);
 
-  const isLoading = isLoadingLabs || isLoadingKnowledge;
+  const isLoading = isLoadingLabs || isLoadingKnowledge || isLoadingSystemDesign;
   const labCount = labQuestions.length;
   const knowledgeCount = knowledgeQuestions.length;
-  const totalCount = labCount + knowledgeCount;
+  const systemDesignCount = systemDesignQuestions.length;
+  const totalCount = labCount + knowledgeCount + systemDesignCount;
 
   const totalFilteredCount = filteredQuestions.length;
   const totalPages = Math.max(1, Math.ceil(totalFilteredCount / pageSize));
@@ -934,7 +1322,7 @@ function RecruiterQuestionBankPage() {
         <div>
           <h1 className="text-[28px] font-semibold tracking-tight text-neutral-900 dark:text-white">Question Bank</h1>
           <p className="mt-1 text-[13px] text-neutral-600 dark:text-neutral-400">
-            Browse, create, and manage engineering lab & knowledge assessment questions for candidate evaluations.
+            Browse, create, and manage engineering lab, system design & knowledge assessment questions for candidate evaluations.
           </p>
         </div>
         <button
@@ -946,7 +1334,7 @@ function RecruiterQuestionBankPage() {
       </div>
 
       {/* KPI Metrics */}
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div 
           onClick={() => handleTabChange("ALL")}
           className={`relative overflow-hidden rounded-2xl border p-5 cursor-pointer ${activeTab === "ALL" ? "border-emerald-500/50 bg-emerald-500/5 dark:border-emerald-400/50 dark:bg-white/[0.04]" : "border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] hover:border-neutral-300 dark:hover:border-white/15"}`}
@@ -974,6 +1362,21 @@ function RecruiterQuestionBankPage() {
           </div>
           <div className="mt-1 text-[32px] font-semibold tracking-tight text-cyan-600 dark:text-cyan-400">
             {isLoadingLabs ? "..." : labCount}
+          </div>
+        </div>
+
+        <div 
+          onClick={() => handleTabChange("SYSTEM_DESIGN")}
+          className={`relative overflow-hidden rounded-2xl border p-5 cursor-pointer ${activeTab === "SYSTEM_DESIGN" ? "border-amber-500/50 bg-amber-500/5 dark:border-amber-400/50 dark:bg-white/[0.04]" : "border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] hover:border-neutral-300 dark:hover:border-white/15"}`}
+        >
+          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400">
+            <Boxes className="h-4 w-4" />
+          </div>
+          <div className="mt-4 text-[11px] uppercase tracking-widest text-neutral-500">
+            System Design
+          </div>
+          <div className="mt-1 text-[32px] font-semibold tracking-tight text-amber-600 dark:text-amber-400">
+            {isLoadingSystemDesign ? "..." : systemDesignCount}
           </div>
         </div>
 
@@ -1008,6 +1411,12 @@ function RecruiterQuestionBankPage() {
           Engineering Labs ({labCount})
         </button>
         <button
+          onClick={() => handleTabChange("SYSTEM_DESIGN")}
+          className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors duration-150 ${activeTab === "SYSTEM_DESIGN" ? "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/30" : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/5"}`}
+        >
+          System Design ({systemDesignCount})
+        </button>
+        <button
           onClick={() => handleTabChange("KNOWLEDGE")}
           className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors duration-150 ${activeTab === "KNOWLEDGE" ? "bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/30" : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/5"}`}
         >
@@ -1027,6 +1436,8 @@ function RecruiterQuestionBankPage() {
               placeholder={
                 activeTab === "LAB"
                   ? "Search by title, description, or domain..."
+                  : activeTab === "SYSTEM_DESIGN"
+                  ? "Search by title, description, or scenario..."
                   : activeTab === "KNOWLEDGE"
                   ? "Search by title, description, or course..."
                   : "Search questions by title, description, or domain..."
@@ -1040,8 +1451,8 @@ function RecruiterQuestionBankPage() {
             )}
           </div>
 
-          {/* Domain Filter (For LAB or ALL) */}
-          {(activeTab === "LAB" || activeTab === "ALL") && (
+          {/* Domain Filter (For LAB or SYSTEM_DESIGN or ALL) */}
+          {(activeTab === "LAB" || activeTab === "SYSTEM_DESIGN" || activeTab === "ALL") && (
             <select
               value={selectedDomain}
               onChange={(e) => setSelectedDomain(e.target.value)}
@@ -1056,8 +1467,8 @@ function RecruiterQuestionBankPage() {
             </select>
           )}
 
-          {/* Format Filter (For KNOWLEDGE or ALL) */}
-          {(activeTab === "KNOWLEDGE" || activeTab === "ALL") && (
+          {/* Format Filter (For KNOWLEDGE or SYSTEM_DESIGN or ALL) */}
+          {(activeTab === "KNOWLEDGE" || activeTab === "SYSTEM_DESIGN" || activeTab === "ALL") && (
             <select
               value={selectedFormat}
               onChange={(e) => setSelectedFormat(e.target.value)}
@@ -1067,10 +1478,17 @@ function RecruiterQuestionBankPage() {
               {activeTab === "ALL" && (
                 <option value="LAB" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Engineering Lab</option>
               )}
-              <option value="MCQ" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">MCQ</option>
-              <option value="MULTIPLE_SELECT" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Multiple Select</option>
-              <option value="DESCRIPTION" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Description</option>
-              <option value="CODING" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Coding</option>
+              {(activeTab === "ALL" || activeTab === "SYSTEM_DESIGN") && (
+                <option value="SYSTEM_DESIGN" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">System Design</option>
+              )}
+              {(activeTab === "ALL" || activeTab === "KNOWLEDGE") && (
+                <>
+                  <option value="MCQ" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">MCQ</option>
+                  <option value="MULTIPLE_SELECT" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Multiple Select</option>
+                  <option value="DESCRIPTION" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Description</option>
+                  <option value="CODING" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Coding</option>
+                </>
+              )}
             </select>
           )}
 
@@ -1151,6 +1569,8 @@ function RecruiterQuestionBankPage() {
                 onEdit={(item) => {
                   if (item.questionCategory === "LAB") {
                     openEditLabModal(item);
+                  } else if (item.questionCategory === "SYSTEM_DESIGN") {
+                    openEditSystemDesignModal(item);
                   } else {
                     openEditKnowledgeModal(item);
                   }
@@ -1270,7 +1690,26 @@ function RecruiterQuestionBankPage() {
               <ChevronRight className="h-4 w-4 text-neutral-400 dark:text-neutral-600 transition group-hover:text-neutral-900 dark:group-hover:text-white shrink-0" />
             </button>
 
-            {/* Option 2: Knowledge Assessment */}
+            {/* Option 2: System Design Challenge */}
+            <button
+              onClick={handleSelectSystemDesignType}
+              className="group flex items-center gap-4 rounded-xl border border-neutral-100 dark:border-white/5 bg-neutral-50 dark:bg-white/[0.02] p-4 text-left transition hover:border-neutral-200 dark:hover:border-white/15 hover:bg-neutral-100 dark:hover:bg-white/[0.04] w-full"
+            >
+              <div className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-to-br from-amber-400 to-orange-400 text-white dark:text-black shrink-0">
+                <Boxes className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[14px] font-medium text-neutral-900 dark:text-white">
+                  System Design Challenge
+                </div>
+                <div className="text-[11px] text-neutral-500 mt-0.5">
+                  High-level architecture, DBML, REST API & sequence flows.
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-neutral-400 dark:text-neutral-600 transition group-hover:text-neutral-900 dark:group-hover:text-white shrink-0" />
+            </button>
+
+            {/* Option 3: Knowledge Assessment */}
             <button
               onClick={handleSelectKnowledgeType}
               className="group flex items-center gap-4 rounded-xl border border-neutral-100 dark:border-white/5 bg-neutral-50 dark:bg-white/[0.02] p-4 text-left transition hover:border-neutral-200 dark:hover:border-white/15 hover:bg-neutral-100 dark:hover:bg-white/[0.04] w-full"
@@ -1700,6 +2139,132 @@ function RecruiterQuestionBankPage() {
         </DialogContent>
       </Dialog>
 
+      {/* SYSTEM DESIGN QUESTION FORM MODAL */}
+      <Dialog open={isSystemDesignModalOpen} onOpenChange={setIsSystemDesignModalOpen}>
+        <DialogContent className="sm:max-w-[780px] w-full bg-white dark:bg-[#121215] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white max-h-[85vh] flex flex-col p-0 overflow-hidden shadow-2xl rounded-2xl">
+          <DialogHeader className="p-6 border-b border-neutral-200 dark:border-white/5">
+            <DialogTitle className="text-[18px] font-semibold text-neutral-900 dark:text-white">
+              {editingSystemDesignId ? "Edit System Design Challenge" : "New System Design Challenge"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto p-6 space-y-5 hide-scrollbar">
+            <div>
+              <label className="text-[11px] uppercase tracking-widest text-neutral-500">Title</label>
+              <input
+                value={systemDesignFormData.title}
+                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, title: e.target.value })}
+                placeholder="e.g. Design a High-Throughput URL Shortener (TinyURL)"
+                className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-amber-500/60"
+              />
+            </div>
+
+            <div>
+              <label className="text-[11px] uppercase tracking-widest text-neutral-500">Description / Problem Statement</label>
+              <textarea
+                rows={3}
+                value={systemDesignFormData.description}
+                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, description: e.target.value })}
+                placeholder="Architect an end-to-end distributed system capable of handling high loads..."
+                className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-amber-500/60"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Scenario Type</label>
+                <input
+                  value={systemDesignFormData.scenario_type}
+                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, scenario_type: e.target.value })}
+                  placeholder="e.g. Distributed Storage, High Concurrency"
+                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-amber-500/60"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Difficulty</label>
+                <select
+                  value={systemDesignFormData.difficulty}
+                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, difficulty: e.target.value })}
+                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-amber-500/60"
+                >
+                  <option value="EASY" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Easy</option>
+                  <option value="MEDIUM" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Medium</option>
+                  <option value="HARD" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Hard</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Marks</label>
+                <input
+                  type="number"
+                  value={systemDesignFormData.marks}
+                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, marks: e.target.value })}
+                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-amber-500/60 font-mono"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Duration (Minutes)</label>
+                <input
+                  type="number"
+                  value={systemDesignFormData.duration_minutes}
+                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, duration_minutes: e.target.value })}
+                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-amber-500/60 font-mono"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] uppercase tracking-widest text-neutral-500">System Slug</label>
+                <input
+                  value={systemDesignFormData.system_slug}
+                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, system_slug: e.target.value })}
+                  placeholder="systemdesign-url-shortener"
+                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-amber-500/60 font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[11px] uppercase tracking-widest text-neutral-500">Company (Optional)</label>
+              <input
+                value={systemDesignFormData.company || ""}
+                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, company: e.target.value })}
+                placeholder="e.g. Uber, Amazon, BookMyShow"
+                className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-amber-500/60"
+              />
+            </div>
+
+            <div>
+              <label className="text-[11px] uppercase tracking-widest text-neutral-500">Constraints & Scale Targets (One per line)</label>
+              <textarea
+                rows={3}
+                value={systemDesignFormData.constraints}
+                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, constraints: e.target.value })}
+                placeholder="100M daily active requests&#10;Sub-15ms p99 latency&#10;99.999% availability"
+                className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-amber-500/60 font-mono text-[12px]"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="p-4 border-t border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-black/20 flex items-center justify-end gap-3">
+            <button
+              onClick={closeSystemDesignModal}
+              className="rounded-lg border border-neutral-200 dark:border-white/10 px-4 py-2 text-[13px] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveSystemDesign}
+              disabled={createSystemDesignMutation.isPending || updateSystemDesignMutation.isPending || !systemDesignFormData.title}
+              className="inline-flex items-center gap-2 rounded-md bg-amber-600 px-5 py-2.5 text-[13px] font-medium text-white hover:bg-amber-700 transition-colors disabled:opacity-50"
+            >
+              {createSystemDesignMutation.isPending || updateSystemDesignMutation.isPending ? "Saving..." : "Save System Design Challenge"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* 3. KNOWLEDGE ASSESSMENT QUESTION FORM MODAL */}
       <Dialog open={isKnowledgeModalOpen} onOpenChange={setIsKnowledgeModalOpen}>
         <DialogContent hideCloseButton className="sm:max-w-[800px] w-full bg-white dark:bg-[#121215] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white h-[85vh] max-h-[85vh] flex flex-col p-0 overflow-hidden shadow-2xl rounded-2xl">
@@ -1736,6 +2301,8 @@ function RecruiterQuestionBankPage() {
               </div>
             ) : previewQuestion?.questionCategory === "LAB" ? (
               <LabPreview l={previewQuestion} />
+            ) : previewQuestion?.questionCategory === "SYSTEM_DESIGN" ? (
+              <SystemDesignPreview q={previewQuestion} />
             ) : (
               <QuestionPreview q={previewQuestion} />
             )}
@@ -1776,11 +2343,13 @@ function RecruiterQuestionBankPage() {
               Cancel
             </button>
             <button
-              disabled={deleteLabMutation.isPending || deleteKnowledgeMutation.isPending}
+              disabled={deleteLabMutation.isPending || deleteKnowledgeMutation.isPending || deleteSystemDesignMutation.isPending}
               onClick={() => {
                 if (!deletingQuestion) return;
                 if (deletingQuestion.category === "LAB") {
                   deleteLabMutation.mutate(deletingQuestion.id);
+                } else if (deletingQuestion.category === "SYSTEM_DESIGN") {
+                  deleteSystemDesignMutation.mutate(deletingQuestion.id);
                 } else {
                   deleteKnowledgeMutation.mutate(deletingQuestion.id);
                 }
@@ -1788,7 +2357,7 @@ function RecruiterQuestionBankPage() {
               }}
               className="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-[13px] font-medium text-white hover:bg-rose-700 transition-colors disabled:opacity-50"
             >
-              {deleteLabMutation.isPending || deleteKnowledgeMutation.isPending ? (
+              {deleteLabMutation.isPending || deleteKnowledgeMutation.isPending || deleteSystemDesignMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin text-white" />
                   Deleting...

@@ -921,12 +921,12 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                             const labSec = activeSections.find((s: any) => s.type === 'LAB');
                                             if (labSec) return labSec.id || 'labs';
                                             const firstSec = activeSections[0];
-                                            return firstSec.id || (firstSec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : 'vitarka');
+                                            return firstSec.id || (firstSec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : firstSec.type === 'SYSTEM_DESIGN' ? 'system_design' : 'vitarka');
                                         })()} className="w-full">
                                             <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-slate-100 dark:bg-white/10 p-1 text-slate-500 dark:text-neutral-400 mb-4 max-w-full overflow-x-auto">
                                                 {activeSections.map((sec: any, index: number) => {
-                                                    const sectionTitle = sec.title || (sec.type === 'LAB' ? 'Engineering Labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'Knowledge Assessment' : 'Vitarka AI Discussion');
-                                                    const sectionKey = sec.type === 'LAB' ? 'labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : 'vitarka';
+                                                    const sectionTitle = sec.title || (sec.type === 'LAB' ? 'Engineering Labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'Knowledge Assessment' : sec.type === 'SYSTEM_DESIGN' ? 'System Design' : 'Vitarka AI Discussion');
+                                                    const sectionKey = sec.type === 'LAB' ? 'labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : sec.type === 'SYSTEM_DESIGN' ? 'system_design' : 'vitarka';
                                                     return (
                                                         <TabsTrigger key={`trigger-${sec.id || sectionKey}`} value={sec.id || sectionKey} className="data-[state=active]:bg-white data-[state=active]:dark:bg-[#121215] data-[state=active]:text-slate-900 data-[state=active]:dark:text-white data-[state=active]:shadow-sm text-[13px]">
                                                             {sectionTitle}
@@ -935,8 +935,8 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                 })}
                                             </TabsList>
                                             {activeSections.map((sec: any, index: number) => {
-                                        const sectionTitle = sec.title || (sec.type === 'LAB' ? 'Engineering Labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'Knowledge Assessment' : 'Vitarka AI Discussion');
-                                        const sectionKey = sec.type === 'LAB' ? 'labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : 'vitarka';
+                                        const sectionTitle = sec.title || (sec.type === 'LAB' ? 'Engineering Labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'Knowledge Assessment' : sec.type === 'SYSTEM_DESIGN' ? 'System Design' : 'Vitarka AI Discussion');
+                                        const sectionKey = sec.type === 'LAB' ? 'labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : sec.type === 'SYSTEM_DESIGN' ? 'system_design' : 'vitarka';
                                         const sectionMock = candidate.proctoringData?.sections?.[sectionKey as keyof typeof candidate.proctoringData.sections] || { score: 0, timeSpent: 0, events: [] };
 
                                         // Build a list of all question IDs in this section
@@ -974,6 +974,12 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                 if (otherSec.type === 'KNOWLEDGE_ASSESSMENT' && submission?.knowledge_submissions) {
                                                     submission.knowledge_submissions.forEach((ks: any) => {
                                                         if (ks.section === otherSec.id) ks.answers?.forEach((a: any) => otherSectionQuestionIds.add(String(a.question_id)));
+                                                    });
+                                                }
+                                                if (otherSec.type === 'SYSTEM_DESIGN' && submission?.system_design_submissions) {
+                                                    submission.system_design_submissions.forEach((sds: any) => {
+                                                        if (sds.system_design_question) otherSectionQuestionIds.add(String(sds.system_design_question));
+                                                        if (sds.question_id) otherSectionQuestionIds.add(String(sds.question_id));
                                                     });
                                                 }
                                             }
@@ -1033,7 +1039,14 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                         }
 
                                         // Use real scores directly from the candidate object
-                                        const realScore = sectionKey === 'labs' ? candidate.labsScore : sectionKey === 'assessment' ? candidate.assessmentScore : candidate.vitarkaScore;
+                                        const realScore =
+                                            sectionKey === 'labs'
+                                                ? candidate.labsScore
+                                                : sectionKey === 'assessment'
+                                                ? candidate.assessmentScore
+                                                : sectionKey === 'system_design'
+                                                ? (candidate.systemDesignScore !== undefined ? candidate.systemDesignScore : 0)
+                                                : candidate.vitarkaScore;
                                         // Fix: If section wasn't attempted, set score to 0 or N/A
                                         const displayScore = index === 0 ? (realScore !== undefined ? realScore : sectionMock.score) : 0;
                                         

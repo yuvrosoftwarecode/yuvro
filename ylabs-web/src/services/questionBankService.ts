@@ -48,6 +48,27 @@ export const questionBankService = {
 
   async deleteKnowledgeQuestion(id: string): Promise<any> {
     return restApiAuthUtil.delete(`/skill_evaluation/knowledge-questions/${id}/`);
+  },
+
+  async getSystemDesignQuestions(): Promise<any[]> {
+    const data: any = await restApiAuthUtil.get(`/skill_evaluation/system-design-questions/`);
+    return Array.isArray(data) ? data : data?.results || [];
+  },
+
+  async getSystemDesignQuestion(id: string): Promise<any> {
+    return restApiAuthUtil.get(`/skill_evaluation/system-design-questions/${id}/`);
+  },
+
+  async createSystemDesignQuestion(data: any): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/system-design-questions/`, data);
+  },
+
+  async updateSystemDesignQuestion(id: string, data: any): Promise<any> {
+    return restApiAuthUtil.put(`/skill_evaluation/system-design-questions/${id}/`, data);
+  },
+
+  async deleteSystemDesignQuestion(id: string): Promise<any> {
+    return restApiAuthUtil.delete(`/skill_evaluation/system-design-questions/${id}/`);
   }
 };
 
