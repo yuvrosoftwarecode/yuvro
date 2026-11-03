@@ -85,6 +85,223 @@ async def generate_questions(
     return all_questions
 
 
+
+
+
+
+def detect_end_interview_intent(user_text: str) -> tuple[bool, float]:
+    """Detect if the candidate's message indicates an intent to end or quit the interview.
+
+    Rules:
+    - End assessment intent: 'stop the test', 'close the test', 'close /test', 'I am done',
+      'let's wrap up', 'quit', 'end it', 'enough for today', 'exit', 'end the interview',
+      'I want to leave', 'can we finish now', 'terminate test', etc.
+    - Explicitly excludes question-level skips ('skip this question', 'stop this question', 'next question').
+
+    Returns:
+        (is_end_intent, confidence)
+    """
+    if not user_text:
+        return False, 0.0
+
+    text = user_text.lower().strip()
+    clean = text.replace("'", "").replace('"', '')
+    clean = re.sub(r"[^a-z0-9\s/]", " ", clean)
+    clean = re.sub(r"\s+", " ", clean).strip()
+
+    # Question-level skip phrases (NOT interview-level ends)
+    skip_phrases = [
+        "skip this question", "skip the question", "stop this question",
+        "skip question", "next question", "move to next question",
+        "don't know this question", "pass this question", "skip to next"
+    ]
+    for sp in skip_phrases:
+        if sp in clean:
+            return False, 0.0
+
+    # High-confidence interview termination phrases
+    end_exact_or_substring = [
+        "stop the test", "stop the interview", "stop test", "stop interview",
+        "close the test", "close the interview", "close test", "close interview",
+        "close /test", "/test close", "end the interview", "end this interview",
+        "end the test", "end this test", "end interview", "end test",
+        "i want to end", "want to end the interview", "i want to stop the interview",
+        "i want to quit", "quit the interview", "quit interview", "quit test",
+        "let's wrap up", "lets wrap up", "wrap up the interview", "wrap up test",
+        "enough for today", "i am done with the interview", "i'm done with the interview",
+        "done with the interview", "exit the interview", "exit test", "exit interview",
+        "can we end here", "can we stop here", "can we wrap up here",
+        "i don't want to continue", "i dont want to continue", "leave the interview",
+        "finish the interview now", "terminate the interview"
+    ]
+    for ep in end_exact_or_substring:
+        if ep in clean:
+            return True, 0.95
+
+    # Check any phrasing containing "end the interview", "end this interview", "stop the interview", etc.
+    # or general phrases having both ("end" or "stop" or "quit" or "close" or "terminate" or "finish") AND ("interview" or "test" or "session")
+    action_words = {"end", "stop", "quit", "close", "terminate", "finish", "wrap"}
+    target_words = {"interview", "test", "session"}
+    words_set = set(clean.split())
+    if words_set & action_words and words_set & target_words and "question" not in words_set:
+        return True, 0.95
+
+    # Short exact or near-exact end phrases
+    short_exact = {"quit", "exit", "end it", "stop it", "terminate", "close", "end", "stop", "please end", "can we end"}
+    if clean in short_exact:
+        return True, 0.90
+
+    words = clean.split()
+    if len(words) <= 4 and any(w in {"quit", "exit", "end", "terminate"} for w in words) and "question" not in words:
+        return True, 0.85
+
+    # Check phrases with 'done' where it means done with whole test
+    if clean in {"i am done", "i'm done", "i am done for today", "i'm done for today", "we are done", "done for today", "im done"}:
+        return True, 0.85
+
+    return False, 0.0
+
+
+def check_end_confirmation_response(user_text: str) -> str:
+    """Evaluate response when interviewer asked 'Do you want to end this interview?'.
+
+    Returns:
+        'yes' -> Confirmed, end the interview.
+        'no'  -> Declined, continue the interview.
+        'unclear' -> Needs another check.
+    """
+    if not user_text:
+        return "unclear"
+
+    text = user_text.lower().strip()
+    clean = text.replace("'", "").replace('"', '')
+    clean = re.sub(r"[^a-z0-9\s]", " ", clean)
+    clean = re.sub(r"\s+", " ", clean).strip()
+    words = clean.split()
+
+    yes_tokens = {
+        "yes", "yeah", "yep", "sure", "confirm", "end", "quit", "stop", "finish",
+        "please", "definitely", "absolutely", "yes please", "yes i want to end"
+    }
+    no_tokens = {
+        "no", "nope", "nah", "continue", "resume", "stay", "nevermind", "wait"
+    }
+    no_phrases = [
+        "keep going", "dont end", "not now", "lets continue", "let us continue",
+        "never mind", "carry on", "go on", "no thanks", "no i want to continue", "no continue"
+    ]
+
+    # Affirmative check
+    if any(phrase in clean for phrase in ["yes please", "yes i do", "yes end it", "yes end this", "yeah end it", "i want to end"]):
+        return "yes"
+    if any(w in yes_tokens for w in words) and not any(w in no_tokens for w in words):
+        return "yes"
+
+    # Negative check
+    if any(phrase in clean for phrase in no_phrases):
+        return "no"
+    if any(w in no_tokens for w in words):
+        return "no"
+
+    return "unclear"
+
+
+def determine_adaptive_difficulty(
+    scores: list[float],
+    questions_asked: int,
+    base_difficulty: str = "medium",
+) -> tuple[str, str, str]:
+    """Calculate adaptive target difficulty and scaffolding instruction based on performance.
+
+    Rules:
+    - Calibration across first 3 questions (affecting Q4 onward):
+      * If user average >= 7.0 (70%-80%+): increase level slightly from Q4 onward (little by little).
+      * If user average < 7.0 (< 70%-80%): decrease difficulty and explain by deconstructing/breaking down.
+    - Subsequent questions: progressive small-step tuning.
+    """
+    levels = ["easy", "medium", "hard"]
+    base_norm = base_difficulty.lower() if base_difficulty else "medium"
+    base_idx = levels.index(base_norm) if base_norm in levels else 1
+
+    if not scores:
+        return base_norm, "ESTABLISH_BASELINE", "Ask an accessible foundational question to establish candidate comfort."
+
+    early_scores = scores[:3]
+    early_avg = sum(early_scores) / len(early_scores)
+    latest_score = scores[-1]
+
+    # CASE A: First 3 questions calibration -> impact on Question 4+
+    if questions_asked <= 3:
+        # Candidate is on Q1, Q2, or Q3
+        if early_avg >= 7.5:
+            return (
+                "medium" if base_idx == 0 else "medium",
+                "SLIGHT_INCREASE_FOUNDATION",
+                "Candidate is performing well above 70%-80%. Keep questions clear and foundational, preparing to step up slightly."
+            )
+        elif early_avg < 7.0:
+            return (
+                "easy",
+                "DECREASE_AND_SCAFFOLD",
+                "Candidate scored below 70%-80%. Lower difficulty immediately. Break down the question into simpler parts, explain the core premise clearly, and ask for a simple first step."
+            )
+        else:
+            return base_norm, "STEADY_CALIBRATION", "Maintain comfortable foundational pacing."
+
+    # CASE B: Question 4 and onward
+    if questions_asked >= 4:
+        if early_avg >= 7.0:
+            # Candidate did well in first 3 questions (70-80%+) -> increase difficulty a bit
+            # Now adjust based on overall and recent trajectory
+            rolling_avg = sum(scores) / len(scores)
+            if rolling_avg >= 8.0 and latest_score >= 8.0:
+                target_idx = min(len(levels) - 1, base_idx + 1)
+                directive = "STEP_UP_INCREMENTALLY"
+                instruction = (
+                    "Candidate maintained strong performance (>= 70%-80%+). "
+                    "Increase difficulty slightly (one small step). Probe deeper into edge cases, internals, or trade-offs. "
+                    "Do NOT jump to overly advanced or unrelated complex architecture—increase little by little."
+                )
+            elif rolling_avg < 7.0:
+                # Performance dropped after early strength
+                target_idx = max(0, base_idx - 1)
+                directive = "STEP_DOWN_AND_SCAFFOLD"
+                instruction = (
+                    "Recent performance dropped below 70%. Lower difficulty. "
+                    "Break the question into smaller, intuitive pieces with a clear, guided explanation."
+                )
+            else:
+                target_idx = min(len(levels) - 1, base_idx + 1 if base_idx == 0 else base_idx)
+                directive = "MODERATE_DEPTH"
+                instruction = (
+                    "Candidate is solid above 70%. Deepen the concept slightly while keeping it accessible and clear."
+                )
+            return levels[target_idx], directive, instruction
+        else:
+            # Candidate responded below 70-80% for the first 3 questions
+            # Decrease difficulty and explain question by dividing it clearly
+            rolling_avg = sum(scores) / len(scores)
+            if rolling_avg < 7.0 or latest_score < 7.0:
+                target_idx = 0  # easy
+                directive = "DECREASE_AND_DIVIDE_QUESTION"
+                instruction = (
+                    "CRITICAL: Candidate responded below 70%-80% on early questions. "
+                    "DECREASE difficulty to foundational concepts. Do NOT ask broad or multi-part questions. "
+                    "EXPLAIN AND DIVIDE: Break the question down into 1-2 small, bite-sized components, "
+                    "explain what is being asked in plain words with a quick example, and ask for an easy first step."
+                )
+            else:
+                # Candidate is recovering
+                target_idx = min(1, base_idx)
+                directive = "GENTLE_RECOVERY_SCAFFOLDING"
+                instruction = (
+                    "Candidate is improving. Maintain gentle scaffolding and clear step-by-step questions without jumping ahead."
+                )
+            return levels[target_idx], directive, instruction
+
+    return base_norm, "STANDARD_PACING", "Maintain natural interview pacing."
+
+
 async def get_next_question(
     session: dict[str, Any],
     num_total_questions: int | None = None,
@@ -249,6 +466,18 @@ async def get_next_question(
         last_score,
     )
 
+    target_diff, diff_directive, scaffolding_inst = determine_adaptive_difficulty(
+        scores=scores,
+        questions_asked=questions_asked,
+        base_difficulty=session.get("difficulty", "medium"),
+    )
+    logger.info(
+        "Adaptive difficulty calculation: questions_asked=%d, target_difficulty=%s, directive=%s",
+        questions_asked,
+        target_diff,
+        diff_directive,
+    )
+
     for attempt in range(1, settings.MAX_QUESTION_GENERATION_ATTEMPTS + 1):
         try:
             prompt = ADAPTIVE_QUESTION_PROMPT.format(
@@ -260,6 +489,9 @@ async def get_next_question(
                 topics_remaining=", ".join(topics_remaining),
                 trend=trend,
                 base_difficulty=session.get("difficulty", "medium"),
+                target_difficulty=target_diff,
+                difficulty_directive=diff_directive,
+                scaffolding_instruction=scaffolding_inst,
                 dialogue_history=dialogue_history,
                 last_answer=last_answer,
                 previous_questions=_format_previous_questions(avoid_questions),
@@ -282,7 +514,7 @@ async def get_next_question(
             question = _normalize_question(
                 question=question,
                 question_id=next_id,
-                default_difficulty=session.get("difficulty", "medium"),
+                default_difficulty=target_diff,
             )
 
             if question and not _is_duplicate_question(question, questions):
