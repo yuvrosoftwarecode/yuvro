@@ -532,16 +532,37 @@ function InterviewScreen() {
   };
 
   const questions = useMemo(() => {
+    const introItem = {
+      text: `Hello! I'm your AI interviewer today for the ${iv.name} role. To get started, could you please introduce yourself and share a brief overview of your background and technical experience?`,
+      skill: "Introduction",
+    };
+
+    let baseQuestions: { text: string; skill: string }[] = [];
+
     if (iv.predefinedTree && Array.isArray(iv.predefinedTree) && iv.predefinedTree.length > 0) {
-      return iv.predefinedTree.map((node: any, k: number) => ({
+      baseQuestions = iv.predefinedTree.map((node: any, k: number) => ({
         text: node.text || node.question || `Question ${k + 1}`,
         skill: `${iv.name} · Topic ${k + 1}`,
       }));
+    } else {
+      const nameLower = (iv.name || "").toLowerCase();
+      const slugLower = (iv.slug || "").toLowerCase();
+      if (nameLower.includes("mongodb") || slugLower.includes("mongodb") || nameLower.includes("mongo")) {
+        baseQuestions = [
+          { text: "Can you explain the key architectural differences between MongoDB and traditional relational databases, specifically regarding schema design and horizontal scaling?", skill: "MongoDB Architecture & NoSQL" },
+          { text: "When modeling one-to-many relationships in MongoDB, how do you decide whether to embed documents or reference them with ObjectIDs?", skill: "Document Schema Design" },
+          { text: "How does the MongoDB Aggregation Pipeline work, and can you walk through a pipeline using $match, $group, and $project stages?", skill: "Aggregation Framework" },
+          { text: "What indexing strategies does MongoDB support (e.g. compound, multikey, TTL), and how do you use explain plans to optimize a slow query?", skill: "Indexing & Query Optimization" },
+          { text: "Can you explain how replication and replica sets work in MongoDB to ensure high availability and automatic failover?", skill: "Replication & High Availability" },
+        ];
+      } else if (iv.category && BANK[iv.category] && BANK[iv.category].length > 0) {
+        baseQuestions = BANK[iv.category];
+      } else {
+        baseQuestions = BANK.Backend;
+      }
     }
-    if (iv.category && BANK[iv.category] && BANK[iv.category].length > 0) {
-      return BANK[iv.category];
-    }
-    return BANK.Backend;
+
+    return [introItem, ...baseQuestions];
   }, [iv]);
 
   const [phase, setPhase] = useState<"lobby" | "live" | "done">("lobby");
@@ -754,10 +775,13 @@ function InterviewScreen() {
           if (res.submission_id) setSubmissionId(res.submission_id);
           if (sessId) setSessionId(sessId);
 
-          const firstQ = res.first_question || questions[0]?.text;
+          const firstQ =
+            res.first_question ||
+            questions[0]?.text ||
+            `Hello! I'm your AI interviewer today for the ${iv.name} role. To get started, could you please introduce yourself and share a brief overview of your background and technical experience?`;
           if (firstQ) {
             setLog([{ who: "ai", text: firstQ }]);
-            setQuestionType(res.first_question_type || (isCodingQuestion(firstQ) ? "coding" : "behavioral"));
+            setQuestionType(res.first_question_type || "behavioral");
           }
           setPhase("live");
           setIsStarting(false);
@@ -782,11 +806,11 @@ function InterviewScreen() {
     }
 
     // Fallback if not a backend interview or network call failed
-    if (questions.length > 0) {
-      const firstQ = questions[0].text;
-      setLog([{ who: "ai", text: firstQ }]);
-      setQuestionType(isCodingQuestion(firstQ) ? "coding" : "behavioral");
-    }
+    const firstQ =
+      questions[0]?.text ||
+      `Hello! I'm your AI interviewer today for the ${iv.name} role. To get started, could you please introduce yourself and share a brief overview of your background and technical experience?`;
+    setLog([{ who: "ai", text: firstQ }]);
+    setQuestionType("behavioral");
     setPhase("live");
     setIsStarting(false);
   };
@@ -832,6 +856,16 @@ function InterviewScreen() {
     }
 
     // Fallback to local questions
+    if (idx === 0) {
+      const nextQ = questions[1]?.text || "Can you explain your approach to writing scalable, maintainable code?";
+      const transitionText = `Thank you for introducing yourself! Let's start with our first technical question:\n\n${nextQ}`;
+      setLog((l) => [...l, { who: "ai", text: transitionText }]);
+      setFollowUp(null);
+      setIdx(1);
+      setQuestionType(isCodingQuestion(nextQ) ? "coding" : "technical");
+      return;
+    }
+
     if (!followUp && next.length % 2 === 1 && idx < questions.length - 1) {
       const f = FOLLOWUPS[idx % FOLLOWUPS.length];
       setLog((l) => [...l, { who: "ai", text: f }]);

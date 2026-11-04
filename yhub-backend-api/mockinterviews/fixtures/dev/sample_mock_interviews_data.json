@@ -8629,6 +8629,35 @@
         "ycode",
         "ycampus"
       ]
+    },
+    {
+      "title": "MongoDB Development",
+      "description": "Adaptive AI-powered MongoDB technical interview. Evaluates document schema design, aggregation pipelines, indexing, replica sets, sharding, and query performance in real-time.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs",
+        "ycode",
+        "ycampus"
+      ],
+      "required_skills": [
+        "MongoDB",
+        "NoSQL",
+        "Aggregation Pipeline",
+        "Indexing & Query Optimization",
+        "Schema Design",
+        "Replica Sets & Sharding"
+      ],
+      "optional_skills": [
+        "Mongoose",
+        "MongoDB Atlas",
+        "WiredTiger",
+        "Transactions",
+        "Data Modeling"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
     }
   ]
 }
