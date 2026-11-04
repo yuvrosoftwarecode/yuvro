@@ -1080,6 +1080,7 @@ type ColKey =
   | "labs"
   | "assessment"
   | "vitarka"
+  | "system_design"
   | "eci"
   | "recommendation"
   | "submitted"
@@ -1091,6 +1092,7 @@ const ALL_COLS: { key: ColKey; label: string; always?: boolean }[] = [
   { key: "labs", label: "Engineering Labs", always: true },
   { key: "assessment", label: "Knowledge Assessment", always: true },
   { key: "vitarka", label: "Vitarka", always: true },
+  { key: "system_design", label: "System Design", always: true },
   { key: "eci", label: "Total Score", always: true },
   { key: "recommendation", label: "AI Recommendation", always: true },
   { key: "submitted", label: "Submitted On", always: true },
@@ -1143,15 +1145,17 @@ function CandidatesTab({
   const hasLabs = hasSections ? sections.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") : false;
   const hasAssessment = hasSections ? sections.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT") : false;
   const hasVitarka = hasSections ? sections.some((s: any) => s.kind === "discussion" || s.kind === "vitarka" || s.type === "VITARKA_AI_INTERVIEW") : false;
+  const hasSystemDesign = hasSections ? sections.some((s: any) => s.kind === "system_design" || s.type === "SYSTEM_DESIGN") : false;
 
   const defaultColsSet = useMemo(() => {
     const list: ColKey[] = ["candidate"];
     if (hasLabs) list.push("labs");
     if (hasAssessment) list.push("assessment");
     if (hasVitarka) list.push("vitarka");
+    if (hasSystemDesign) list.push("system_design");
     list.push("eci", "recommendation", "submitted", "status");
     return new Set(list);
-  }, [hasLabs, hasAssessment, hasVitarka]);
+  }, [hasLabs, hasAssessment, hasVitarka, hasSystemDesign]);
 
   const [cols, setCols] = useState<Set<ColKey>>(defaultColsSet);
 
@@ -1308,12 +1312,14 @@ function CandidatesTab({
           labsMaxScore: c.labsMaxScore ?? 80,
           assessmentMaxScore: c.assessmentMaxScore ?? 30,
           discussionMaxScore: c.discussionMaxScore ?? 25,
+          systemDesignScore: c.systemDesignScore,
+          systemDesignMaxScore: c.systemDesignMaxScore,
           strengths: detail.strengths,
           weaknesses: detail.weaknesses,
           aiSummary: detail.aiSummary,
           nextStep: detail.nextStep,
           evaluationTitle: ev?.title || "Evaluation Report",
-          summary: buildEvaluationSummary(c, hasLabs, hasAssessment, hasVitarka),
+          summary: buildEvaluationSummary(c, hasLabs, hasAssessment, hasVitarka, hasSystemDesign),
         });
         notify("Report downloaded");
       } catch (err) {
@@ -1499,6 +1505,7 @@ function CandidatesTab({
             hasLabs={hasLabs}
             hasAssessment={hasAssessment}
             hasVitarka={hasVitarka}
+            hasSystemDesign={hasSystemDesign}
           />
         ) : (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -1514,6 +1521,7 @@ function CandidatesTab({
                 hasLabs={hasLabs}
                 hasAssessment={hasAssessment}
                 hasVitarka={hasVitarka}
+                hasSystemDesign={hasSystemDesign}
               />
             ))}
           </div>
@@ -1799,6 +1807,7 @@ function CandidateTable({
   hasLabs = true,
   hasAssessment = true,
   hasVitarka = true,
+  hasSystemDesign = true,
 }: {
   rows: Candidate[];
   cols: Set<ColKey>;
@@ -1813,11 +1822,13 @@ function CandidateTable({
   hasLabs?: boolean;
   hasAssessment?: boolean;
   hasVitarka?: boolean;
+  hasSystemDesign?: boolean;
 }) {
   const show = (k: ColKey) => {
     if (k === "labs" && !hasLabs) return false;
     if (k === "assessment" && !hasAssessment) return false;
     if (k === "vitarka" && !hasVitarka) return false;
+    if (k === "system_design" && !hasSystemDesign) return false;
     return cols.has(k);
   };
 
@@ -1835,6 +1846,7 @@ function CandidateTable({
             {show("labs") && <Th className="w-[84px] text-right">Eng. Labs</Th>}
             {show("assessment") && <Th className="w-[104px] text-right">Knowledge</Th>}
             {show("vitarka") && <Th className="w-[84px] text-right">Vitarka</Th>}
+            {show("system_design") && <Th className="w-[96px] text-right">Sys. Design</Th>}
             {show("eci") && <Th className="w-[84px] text-right">Total</Th>}
             {show("recommendation") && <Th className="w-[150px]">AI Recommendation</Th>}
             {show("submitted") && <Th className="w-[120px]">Submitted</Th>}
@@ -1896,6 +1908,14 @@ function CandidateTable({
                   <div className="font-medium">{c.vitarkaScore}</div>
                   <div className="text-[10.5px] text-neutral-500">
                     {c.discussionMaxScore ? `of ${c.discussionMaxScore}` : ""}
+                  </div>
+                </Td>
+              )}
+              {show("system_design") && (
+                <Td className="text-right tabular-nums text-neutral-900">
+                  <div className="font-medium">{c.systemDesignScore || 0}</div>
+                  <div className="text-[10.5px] text-neutral-500">
+                    {c.systemDesignMaxScore ? `of ${c.systemDesignMaxScore}` : ""}
                   </div>
                 </Td>
               )}
@@ -1980,6 +2000,7 @@ function CandidateCard({
   hasLabs = true,
   hasAssessment = true,
   hasVitarka = true,
+  hasSystemDesign = true,
 }: {
   c: Candidate;
   selected: boolean;
@@ -1990,6 +2011,7 @@ function CandidateCard({
   hasLabs?: boolean;
   hasAssessment?: boolean;
   hasVitarka?: boolean;
+  hasSystemDesign?: boolean;
 }) {
   return (
     <div
@@ -2019,6 +2041,7 @@ function CandidateCard({
           {hasLabs && <MiniScore label="Labs" v={c.labsScore} />}
           {hasAssessment && <MiniScore label="Assess" v={c.assessmentScore} />}
           {hasVitarka && <MiniScore label="Vitarka" v={c.vitarkaScore} />}
+          {hasSystemDesign && <MiniScore label="Sys Design" v={c.systemDesignScore || 0} />}
           <MiniScore label="Total" v={c.totalEarned != null ? c.totalEarned : c.eci} highlight />
         </div>
         <div className="mt-3 flex items-center justify-between text-[11px] text-neutral-600">
@@ -3334,7 +3357,8 @@ function AnalyticsTab({ evId, candidates: mockCandidates }: { evId?: string, can
           sections: {
             labs: { score: subScore, timeSpent: durationMins, events: allEvents.filter(e => e.severity > 0) },
             assessment: { score: 0, timeSpent: 0, events: [] },
-            vitarka: { score: 0, timeSpent: 0, events: [] }
+            vitarka: { score: 0, timeSpent: 0, events: [] },
+            system_design: { score: 0, timeSpent: 0, events: [] }
           }
         }
       } as Candidate;
