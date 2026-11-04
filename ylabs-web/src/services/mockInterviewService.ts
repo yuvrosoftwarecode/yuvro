@@ -1,5 +1,5 @@
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
-import { type Category, type Diff, type Interview } from "@/lib/mockInterviews";
+import { type Category, type Diff, type Interview, INTERVIEWS } from "@/lib/mockInterviews";
 
 export interface BackendQuestionNode {
   id: string;
@@ -574,3 +574,26 @@ export async function verifyMockInterviewPayment(
     payload
   );
 }
+
+export async function polishDictatedQuery(
+  text: string,
+  language: string = "sql",
+  context: string = ""
+): Promise<string> {
+  if (!text || !text.trim()) return text;
+  try {
+    const res = await yhubApiAuthUtil.post<{ polished_code?: string }>("/mock-interviews/polish_query/", {
+      text,
+      language,
+      context,
+    });
+    if (res && res.polished_code) {
+      return res.polished_code;
+    }
+    return text;
+  } catch (err) {
+    console.warn("Could not polish query with backend AI:", err);
+    return text;
+  }
+}
+

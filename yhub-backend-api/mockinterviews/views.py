@@ -313,6 +313,49 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             "quota": serializer.data,
         })
 
+    @action(detail=False, methods=["post"], permission_classes=[permissions.AllowAny])
+    def polish_query(self, request):
+        """
+        Takes raw spoken database query / code dictation and polishes it into
+        clean, syntactically correct, properly formatted code using the LLM.
+        """
+        raw_text = request.data.get("text", "")
+        language = request.data.get("language", "sql")
+        context = request.data.get("context", "")
+
+        if not raw_text or not raw_text.strip():
+            return Response({"polished_code": ""}, status=status.HTTP_200_OK)
+
+        system_prompt = (
+            f"You are an expert database software engineer and SQL formatter. "
+            f"Your job is to take raw, unedited speech-to-text voice dictation of a {language.upper()} database query or code snippet "
+            f"and convert it into clean, syntactically correct, professionally formatted and indented {language.upper()} code.\n"
+            f"Rules:\n"
+            f"1. Fix obvious speech recognition phonetic mishearings (e.g. 'solid' -> 'sold', 'Order 0' -> 'orders o', 'is =' -> '=', 'some' -> 'SUM').\n"
+            f"2. Resolve speech stumbles or duplicates (e.g. 'total under score quant. Quantity under score solid' -> 'total_quantity_sold').\n"
+            f"3. Return ONLY the raw code itself. Do NOT enclose in markdown code fences (no ```sql or ```). Do NOT include any explanations or conversational chatter."
+        )
+
+        user_prompt = f"Raw dictated transcript:\n{raw_text}"
+        if context:
+            user_prompt = f"Interview Question Context:\n{context}\n\n{user_prompt}"
+
+        try:
+            from mockinterviews.ai_interview.llm_client import get_llm_client
+            llm = get_llm_client()
+            from asgiref.sync import async_to_sync
+            polished = async_to_sync(llm.generate)(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                max_tokens=600,
+                temperature=0.1,
+            )
+            clean_code = re.sub(r"^```[a-zA-Z]*\n?", "", polished.strip())
+            clean_code = re.sub(r"\n?```$", "", clean_code).strip()
+            return Response({"polished_code": clean_code}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.warning(f"Error polishing query with LLM: {e}")
+            return Response({"polished_code": raw_text, "error": str(e)}, status=status.HTTP_200_OK)
 
     search_fields = ["title", "description"]
     ordering_fields = ["created_at", "updated_at"]
