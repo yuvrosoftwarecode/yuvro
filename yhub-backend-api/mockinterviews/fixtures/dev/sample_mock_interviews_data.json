@@ -2872,7 +2872,7 @@
     },
     {
       "title": "Data Structures & Algorithms",
-      "description": "Comprehensive adaptive technical interview assessing problem-solving abilities, core data structures, algorithm design, and computational complexity analysis in real-time.",
+      "description": "Comprehensive adaptive technical interview assessing problem-solving abilities, core  , algorithm design, and computational complexity analysis in real-time.",
       "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine assesses your algorithmic thinking, data structure selection, edge-case handling, and time/space complexity optimization.",
       "max_duration": 45,
       "interview_mode": "automatic",
