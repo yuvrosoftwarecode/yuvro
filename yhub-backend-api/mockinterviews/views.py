@@ -1184,6 +1184,22 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for rt in react_core_topics:
                         if rt not in all_skills:
                             all_skills.append(rt)
+                elif "postgres" in mock_interview.title.lower() or "postgresql" in mock_interview.title.lower():
+                    postgres_core_topics = [
+                        "Relational Modeling & Schema Design in PostgreSQL",
+                        "Advanced SQL Queries, Window Functions & Common Table Expressions (CTEs)",
+                        "MVCC Architecture, Tuple Versioning, VACUUM & AUTOVACUUM Tuning",
+                        "PostgreSQL Indexing Mechanisms (B-Tree, GIN, GiST, BRIN, Partial & Expression Indexes)",
+                        "Query Performance Optimization & EXPLAIN ANALYZE Execution Plans",
+                        "Transactions, ACID Isolation Levels & PostgreSQL Lock Modes",
+                        "JSON / JSONB Storage, Query Operators & GIN Indexing",
+                        "PostgreSQL Extensions (pg_stat_statements, PostGIS, pgcrypto)",
+                        "Replication, Write-Ahead Logging (WAL) & High Availability (Patroni, PgBouncer)",
+                        "Database Backup (pg_dump, pg_basebackup) & Point-in-Time Recovery (PITR)"
+                    ]
+                    for pt in postgres_core_topics:
+                        if pt not in all_skills:
+                            all_skills.append(pt)
                 elif "mysql" in mock_interview.title.lower() or "sql" in mock_interview.title.lower():
                     mysql_core_topics = [
                         "Relational Modeling & Schema Normalization (1NF to BCNF)",
@@ -1430,6 +1446,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Virtual DOM as an in-memory representation synchronized with the real DOM",
                                     "Diffing algorithm and batched updates to minimize DOM operations",
                                     "React Fiber incremental rendering and prioritized concurrent work"
+                                ]
+                            }
+                        elif "postgres" in title_lower or "postgresql" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In PostgreSQL, can you explain how Multi-Version Concurrency Control (MVCC) works under the hood, how dead tuples accumulate, and what role VACUUM and AUTOVACUUM play in maintaining database health?",
+                                "topic": "PostgreSQL MVCC Internals & VACUUM Architecture",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "MVCC allows readers and writers not to block each other by maintaining multiple tuple versions with xmin and xmax",
+                                    "Updates and deletes create dead tuples that consume disk space and degrade query performance over time",
+                                    "VACUUM reclaims dead tuple storage for reuse, and AUTOVACUUM automatically triggers vacuum and analyze operations based on update/delete thresholds"
                                 ]
                             }
                         elif "mysql" in title_lower or "sql" in title_lower:
