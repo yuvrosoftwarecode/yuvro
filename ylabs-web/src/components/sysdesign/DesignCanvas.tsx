@@ -173,7 +173,7 @@ export function DiagramBoard({ nodes, edges, setNodes, setEdges, readOnly, sel, 
             <div key={n.id} data-node-id={n.id} onPointerDown={e => onNodeDown(e, n)}
               className={`group absolute flex items-center gap-2 rounded-lg border bg-card px-2.5 text-xs shadow-sm ${readOnly ? "" : "cursor-move"} ${on ? "border-primary ring-2 ring-primary/30" : "hover:border-primary/60"}`}
               style={{ left: n.x, top: n.y, width: W, height: H }}>
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-muted text-base">{n.icon}</span>
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-muted text-base select-none grayscale opacity-80" style={{ filter: "grayscale(100%)" }}>{n.icon}</span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium leading-tight">{n.label}</span>
                 {n.tag && <span className="block text-[9px] uppercase tracking-wider text-muted-foreground">{n.tag}</span>}
@@ -240,7 +240,7 @@ export function HldEditor({ nodes, edges, setNodes, setEdges }: {
                       <div key={it.kind} draggable onClick={() => addAtCenter(it)}
                         onDragStart={e => { e.dataTransfer.setData("application/sds", JSON.stringify(it)); e.dataTransfer.effectAllowed = "copy"; }}
                         className="flex cursor-grab items-center gap-2 rounded-md border bg-card px-2 py-1 text-[11px] hover:border-primary active:cursor-grabbing">
-                        <span className="w-4 text-center">{it.icon}</span><span className="truncate">{it.label}</span>
+                        <span className="inline-block w-4 text-center select-none grayscale opacity-75" style={{ filter: "grayscale(100%)" }}>{it.icon}</span><span className="truncate">{it.label}</span>
                         {it.tag && <span className="ml-auto text-[9px] text-muted-foreground">{it.tag}</span>}
                       </div>
                     ))}

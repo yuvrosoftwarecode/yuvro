@@ -36,6 +36,11 @@ const TRIAL = {
   repos: 1,
 };
 
+type FeatureItem = {
+  text: string;
+  subItems?: string[];
+};
+
 const STARTUP = {
   name: "Startup",
   monthly: 99,
@@ -44,12 +49,16 @@ const STARTUP = {
   submissionsMonthly: 20,
   submissionsYearly: 240,
   features: [
-    "20 submissions per month",
-    "2 codebase repository setups",
-    "1 recruiter login",
-    "Candidate reports",
-    "AI follow-up questions",
-  ],
+    { text: "20 submissions per month" },
+    {
+      text: "Company can use these across:",
+      subItems: ["Simulation Labs", "AI Mock Interviews", "Coding Assessments"],
+    },
+    { text: "2 codebase repository setups" },
+    { text: "1 recruiter login" },
+    { text: "Candidate reports" },
+    { text: "AI follow-up questions" },
+  ] as FeatureItem[],
 };
 
 const GROWTH = {
@@ -60,25 +69,29 @@ const GROWTH = {
   submissionsMonthly: 100,
   submissionsYearly: 1200,
   features: [
-    "100 submissions per month",
-    "5 codebase repository setups",
-    "3 recruiter logins",
-    "Advanced candidate reports",
-    "Custom assessments",
-    "Priority support",
-  ],
+    { text: "100 submissions per month" },
+    {
+      text: "Company can use these across:",
+      subItems: ["Simulation Labs", "AI Mock Interviews", "Coding Assessments"],
+    },
+    { text: "5 codebase repository setups" },
+    { text: "3 recruiter logins" },
+    { text: "Advanced candidate reports" },
+    { text: "Custom assessments" },
+    { text: "Priority support" },
+  ] as FeatureItem[],
 };
 
 const ENTERPRISE = {
   name: "Enterprise",
   features: [
-    "Everything in Growth",
-    "Custom submission volumes",
-    "Custom repository setups and recruiter access",
-    "API, MCP and ATS integrations",
-    "2,500+ library questions",
-    "Dedicated account manager and support",
-  ],
+    { text: "Everything in Growth" },
+    { text: "Custom submission volumes" },
+    { text: "Custom repository setups and recruiter access" },
+    { text: "API, MCP and ATS integrations" },
+    { text: "2,500+ library questions" },
+    { text: "Dedicated account manager and support" },
+  ] as FeatureItem[],
 };
 
 const WORK_TRAIL = {
@@ -375,10 +388,21 @@ function PlanCard({
       </div>
 
       <ul className="mt-6 flex flex-col gap-3.5 border-t border-[#646d84]/15 pt-6 text-sm text-[#14192b] dark:text-[#f1f4fc]">
-        {plan.features.map((f) => (
-          <li key={f} className="flex items-start gap-2.5 leading-snug">
-            <span className="mt-0.5 text-[#f7931e] font-bold">✓</span>
-            <span>{f}</span>
+        {plan.features.map((item, idx) => (
+          <li key={idx} className="flex flex-col gap-1.5 leading-snug">
+            <div className="flex items-start gap-2.5">
+              <span className="mt-0.5 text-[#f7931e] font-bold">✓</span>
+              <span>{item.text}</span>
+            </div>
+            {item.subItems && (
+              <ul className="ml-7 list-disc space-y-1 pl-1 text-[13px] text-[#646d84] dark:text-[#a1abc4] marker:text-[#646d84]">
+                {item.subItems.map((sub) => (
+                  <li key={sub} className="leading-snug">
+                    {sub}
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         ))}
       </ul>

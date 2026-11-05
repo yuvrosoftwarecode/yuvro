@@ -68,9 +68,9 @@ const COMPANY_ROWS = [
     d: "Conduct realistic AI voice interviews with follow-up questions and detailed feedback.",
   },
   {
-    id: "feature-development",
-    t: "Company Feature Development",
-    d: "Let candidates build company-specific features in secure environments.",
+    id: "codebase-challenges",
+    t: "Codebase Challenges",
+    d: "Evaluate candidates by having them develop company-specific features in secure environments.",
   },
   {
     id: "work-trial",
