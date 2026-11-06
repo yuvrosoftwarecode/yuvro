@@ -1204,6 +1204,95 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     content=clean_answer
                 )
 
+            # Global Check for End Interview intent or Confirmation response across all student/ai interview routes
+            state = interview_session.state_data or {}
+            from mockinterviews.ai_interview.interview_engine import (
+                detect_end_interview_intent,
+                check_end_confirmation_response,
+            )
+
+            # 1. Already awaiting confirmation for "Do you want to end this interview?"
+            if state.get("awaiting_end_confirmation") and clean_answer:
+                confirmation = check_end_confirmation_response(clean_answer)
+                if confirmation == "yes":
+                    state["awaiting_end_confirmation"] = False
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                        submission.state_data = state
+                        submission.save(update_fields=['status', 'state_data'])
+
+                    farewell = "Thank you! That completes the interview. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    return Response({
+                        "question": farewell,
+                        "is_finished": True,
+                        "question_id": None,
+                        "proceed": True
+                    })
+                elif confirmation == "no":
+                    state["awaiting_end_confirmation"] = False
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    resume_msg = "Alright, let's continue! Whenever you're ready, please share your answer or approach."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=resume_msg
+                    )
+                    return Response({
+                        "question": resume_msg,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+                else:
+                    clarify_msg = "Do you want to end this interview? Please reply yes to end or no to continue."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=clarify_msg
+                    )
+                    return Response({
+                        "question": clarify_msg,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+
+            # 2. Check if candidate explicitly expresses intent to end/stop/quit the interview
+            if clean_answer:
+                has_end_intent, confidence = detect_end_interview_intent(clean_answer)
+                if has_end_intent and confidence >= 0.7:
+                    state["awaiting_end_confirmation"] = True
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    confirm_prompt = "Do you want to end this interview? Your report will be generated."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=confirm_prompt
+                    )
+                    return Response({
+                        "question": confirm_prompt,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+
             state = interview_session.state_data or {}
             interview_type = state.get("interview_type") or (submission.interview_type if submission else "predefined")
             planned_questions = state.get('planned_questions', [])
@@ -2065,6 +2154,105 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 message_type="user",
                 content=user_answer
             )
+
+            # Check for End Interview intent or Confirmation response
+            from mockinterviews.ai_interview.interview_engine import (
+                detect_end_interview_intent,
+                check_end_confirmation_response,
+            )
+
+            # Case A: Already asked "Do you want to end this interview?"
+            if state.get("awaiting_end_confirmation"):
+                confirmation = check_end_confirmation_response(user_answer)
+                if confirmation == "yes":
+                    state["awaiting_end_confirmation"] = False
+                    submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                    submission.state_data = state
+                    submission.save()
+
+                    farewell = "Thank you! That completes the interview. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    return Response({
+                        "is_finished": True,
+                        "proceed": True,
+                        "cue": {"message": farewell, "action": "end_assessment"},
+                        "evaluation": {
+                            "score": 10,
+                            "feedback": "Interview ended by user request.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+                elif confirmation == "no":
+                    state["awaiting_end_confirmation"] = False
+                    submission.state_data = state
+                    submission.save()
+
+                    resume_msg = "Alright, let's continue! Whenever you're ready, please share your answer or approach."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=resume_msg
+                    )
+                    return Response({
+                        "is_finished": False,
+                        "proceed": False,
+                        "cue": {"message": resume_msg, "action": "continue"},
+                        "evaluation": {
+                            "score": 0,
+                            "feedback": "Resumed interview. Awaiting candidate answer.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+                else:
+                    # Unclear: repeat confirmation question once
+                    clarify_msg = "Do you want to end this interview? Please say yes to end or no to continue."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=clarify_msg
+                    )
+                    return Response({
+                        "is_finished": False,
+                        "proceed": False,
+                        "cue": {"message": clarify_msg, "action": "confirm_end"},
+                        "evaluation": {
+                            "score": 0,
+                            "feedback": "Awaiting confirmation.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+
+            # Case B: Check if user expresses intent to end the interview
+            has_end_intent, confidence = detect_end_interview_intent(user_answer)
+            if has_end_intent and confidence >= 0.7:
+                state["awaiting_end_confirmation"] = True
+                submission.state_data = state
+                submission.save()
+
+                confirm_prompt = "Do you want to end this interview? Your report will be generated."
+                ChatMessage.objects.create(
+                    chat_session=submission.chat_session,
+                    message_type="assistant",
+                    content=confirm_prompt
+                )
+                return Response({
+                    "is_finished": False,
+                    "proceed": False,
+                    "cue": {"message": confirm_prompt, "action": "confirm_end"},
+                    "evaluation": {
+                        "score": 0,
+                        "feedback": "Candidate requested to end assessment. Confirmation requested.",
+                        "covered_points": [],
+                        "missed_points": []
+                    }
+                })
             
             # Update answers dict in state_data
             answers = state.get("answers", {})
