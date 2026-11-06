@@ -10,6 +10,7 @@ import {
   Github,
   Settings,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
@@ -92,7 +93,7 @@ function RecruiterLayout() {
 
   const items: { to: string; label: string; icon: any; exact?: boolean }[] = [
     { to: "/recruiter/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { to: "/recruiter/vitarka-ai", label: "Vitarka AI", icon: null, exact: true },
+    { to: "/recruiter/vitarka-ai", label: "Vitarka AI", icon: Sparkles, exact: true },
     { to: "/recruiter/evaluations", label: "Evaluations", icon: ClipboardList },
     { to: "/recruiter/questions", label: "Question bank", icon: Database },
     { to: "/recruiter/github", label: "GitHub and repositories", icon: Github },
@@ -240,9 +241,7 @@ function RecruiterLayout() {
                     <span className="whitespace-nowrap">{it.label}</span>
                   ) : it.icon ? (
                     <it.icon className="h-5 w-5 shrink-0" />
-                  ) : (
-                    <span className="text-[13px] font-semibold text-neutral-600">V</span>
-                  )}
+                  ) : null}
                 </Link>
               );
             })}
