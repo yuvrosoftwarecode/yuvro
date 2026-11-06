@@ -1,6 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { StandardHeader } from "@/components/StandardHeader";
+import { useAuth } from "@/lib/auth";
+import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { loadRazorpayScript } from "@/lib/razorpay";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -42,6 +47,7 @@ type FeatureItem = {
 };
 
 const STARTUP = {
+  id: "startup",
   name: "Startup",
   monthly: 99,
   yearlyTotal: 990,
@@ -62,6 +68,7 @@ const STARTUP = {
 };
 
 const GROWTH = {
+  id: "growth",
   name: "Growth",
   monthly: 449,
   yearlyTotal: 4490,
@@ -147,6 +154,24 @@ export function selectPlan(planId: string, billing: "monthly" | "yearly") {
 }
 
 type Billing = "monthly" | "yearly";
+
+export function PricingContent({ onSubscribe }: { onSubscribe?: () => void }) {
+  const [billing, setBilling] = useState<Billing>("monthly");
+
+  return (
+    <div className="ylp font-sans text-[#14192b] dark:text-[#f1f4fc] antialiased">
+      <style>{YLP_CSS}</style>
+      <div className="mx-auto w-full max-w-[1120px] px-6 py-6">
+        <Hero billing={billing} setBilling={setBilling} />
+        <TrialStrip onSubscribe={onSubscribe} />
+        <Plans billing={billing} onSubscribe={onSubscribe} />
+        <HowSubmissionsWork />
+        <Faq />
+        <ClosingBanner onSubscribe={onSubscribe} />
+      </div>
+    </div>
+  );
+}
 
 export function PricingPage() {
   const [billing, setBilling] = useState<Billing>("monthly");
@@ -249,7 +274,54 @@ function ToggleOption({
   );
 }
 
-function StartFreeButton({ className = "" }: { className?: string }) {
+function StartFreeButton({
+  className = "",
+  onSubscribe,
+}: {
+  className?: string;
+  onSubscribe?: () => void;
+}) {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleStartTrial = async () => {
+    if (!isAuthenticated) {
+      selectPlan("trial", "monthly");
+      navigate({ to: "/auth", search: { tab: "signup" } });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await yhubApiAuthUtil.post("/payment/start_trial/", {});
+      toast.success("Free trial activated successfully!");
+      if (onSubscribe) {
+        onSubscribe();
+      } else {
+        navigate({ to: "/recruiter/evaluations" });
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to start trial");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isAuthenticated) {
+    return (
+      <button
+        type="button"
+        onClick={handleStartTrial}
+        disabled={isLoading}
+        className={`ylp-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-50 ${className}`}
+      >
+        {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+        {isLoading ? "Starting..." : "Start free"}
+      </button>
+    );
+  }
+
   return (
     <Link
       to="/auth"
@@ -261,7 +333,7 @@ function StartFreeButton({ className = "" }: { className?: string }) {
   );
 }
 
-function TrialStrip() {
+function TrialStrip({ onSubscribe }: { onSubscribe?: () => void }) {
   return (
     <section
       className="mb-14 flex flex-col items-center justify-between gap-4 rounded-2xl border px-6 py-5 sm:flex-row shadow-sm"
@@ -277,12 +349,18 @@ function TrialStrip() {
           codebase repository setup.
         </p>
       </div>
-      <StartFreeButton className="shrink-0" />
+      <StartFreeButton className="shrink-0" onSubscribe={onSubscribe} />
     </section>
   );
 }
 
-function Plans({ billing }: { billing: Billing }) {
+function Plans({
+  billing,
+  onSubscribe,
+}: {
+  billing: Billing;
+  onSubscribe?: () => void;
+}) {
   const [workTrailQty, setWorkTrailQty] = useState(0);
 
   const workTrailTotal =
@@ -304,6 +382,7 @@ function Plans({ billing }: { billing: Billing }) {
           plan={STARTUP}
           billing={billing}
           workTrailLine={workTrailLine}
+          onSubscribe={onSubscribe}
         />
         <PlanCard
           order="order-1 lg:order-2"
@@ -311,6 +390,7 @@ function Plans({ billing }: { billing: Billing }) {
           featured
           billing={billing}
           workTrailLine={workTrailLine}
+          onSubscribe={onSubscribe}
         />
         <PlanCard order="order-3 lg:order-3" plan={ENTERPRISE} billing={billing} />
       </div>
@@ -329,16 +409,137 @@ function PlanCard({
   billing,
   workTrailLine = null,
   order,
+  onSubscribe,
 }: {
   plan: typeof STARTUP | typeof GROWTH | typeof ENTERPRISE;
   featured?: boolean;
   billing: Billing;
   workTrailLine?: string | null;
   order: string;
+  onSubscribe?: () => void;
 }) {
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [isPaying, setIsPaying] = useState(false);
+
   const isEnterprise = !("monthly" in plan);
   const yearly = billing === "yearly";
   const planAny = plan as typeof STARTUP;
+
+  const handleBuyPlan = async () => {
+    if (!isAuthenticated) {
+      selectPlan(planAny.id, billing);
+      navigate({ to: "/auth", search: { tab: "signup" } });
+      return;
+    }
+
+    const price = yearly ? planAny.yearlyTotal : planAny.monthly;
+    setIsPaying(true);
+    try {
+      const orderRes = await yhubApiAuthUtil.post<{
+        id: string;
+        gateway_order_or_intent_id: string;
+        key_id?: string;
+      }>("/payment/", {
+        payment_gateway: "RAZORPAY",
+        amount: price,
+        currency: "USD",
+        item_type: "plan",
+        item_id: planAny.id,
+        item_name: `${planAny.name} (${billing})`,
+        product: "ylabs",
+      });
+
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        toast.error("Razorpay SDK failed to load. Are you online?");
+        setIsPaying(false);
+        return;
+      }
+
+      const rzpKey = orderRes.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID;
+
+      const options = {
+        key: rzpKey,
+        amount: price,
+        currency: "USD",
+        name: "Yuvro Labs",
+        description: `${planAny.name} Plan Subscription`,
+        order_id: orderRes.gateway_order_or_intent_id,
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await yhubApiAuthUtil.post<{ status: string; message: string }>(
+              "/payment/verify/",
+              {
+                gateway_order_id: response.razorpay_order_id,
+                gateway_payment_id: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+              },
+            );
+
+            if (verifyRes.status === "SUCCESS") {
+              toast.success("Subscription activated successfully!");
+              if (onSubscribe) {
+                onSubscribe();
+              } else {
+                navigate({ to: "/recruiter/evaluations" });
+              }
+            } else {
+              await yhubApiAuthUtil.post("/payment/fail/", {
+                gateway_order_id: orderRes.gateway_order_or_intent_id,
+                reason: "Payment signature verification failed",
+              });
+              throw new Error(verifyRes.message || "Payment verification failed");
+            }
+          } catch (error: any) {
+            console.error(error);
+            toast.error(error.message || "Payment verification failed");
+          } finally {
+            setIsPaying(false);
+          }
+        },
+        prefill: {
+          name: user?.first_name || "",
+          email: user?.email || "",
+        },
+        theme: {
+          color: BRAND,
+        },
+        modal: {
+          ondismiss: async function () {
+            setIsPaying(false);
+            toast.info("Payment cancelled");
+            try {
+              await yhubApiAuthUtil.post("/payment/fail/", {
+                gateway_order_id: orderRes.gateway_order_or_intent_id,
+                reason: "User closed the payment modal",
+              });
+            } catch (e) {}
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+
+      rzp.on("payment.failed", async function (response: any) {
+        try {
+          await yhubApiAuthUtil.post("/payment/fail/", {
+            gateway_order_id: response.error?.metadata?.order_id,
+            gateway_payment_id: response.error?.metadata?.payment_id,
+            reason: response.error?.description,
+          });
+        } catch (e) {}
+        toast.error(response.error?.description || "Payment failed");
+        setIsPaying(false);
+      });
+
+      rzp.open();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error?.message || "Failed to initiate payment.");
+      setIsPaying(false);
+    }
+  };
 
   return (
     <div
@@ -416,7 +617,15 @@ function PlanCard({
           Contact us
         </Link>
       ) : (
-        <StartFreeButton />
+        <button
+          type="button"
+          onClick={handleBuyPlan}
+          disabled={isPaying}
+          className="ylp-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-50"
+        >
+          {isPaying && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isPaying ? "Processing..." : isAuthenticated ? "Upgrade plan" : "Start free"}
+        </button>
       )}
     </div>
   );
@@ -555,7 +764,7 @@ function Faq() {
   );
 }
 
-function ClosingBanner() {
+function ClosingBanner({ onSubscribe }: { onSubscribe?: () => void }) {
   return (
     <section
       className="mt-16 flex flex-col items-center justify-between gap-4 rounded-2xl border px-8 py-6 sm:flex-row shadow-sm"
@@ -565,7 +774,7 @@ function ClosingBanner() {
       }}
     >
       <p className="text-[16px] font-bold text-[#14192b] dark:text-white">Try Yuvro free for {TRIAL.days} days</p>
-      <StartFreeButton className="shrink-0" />
+      <StartFreeButton className="shrink-0" onSubscribe={onSubscribe} />
     </section>
   );
 }

@@ -805,7 +805,7 @@ function LabDashboard() {
       }
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key: (orderRes as any).key_id || import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: amount,
         currency: "INR",
         name: "Yuvro Labs",
