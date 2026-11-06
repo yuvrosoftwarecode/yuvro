@@ -11,6 +11,7 @@ import YuvroLogo from "@/assets/YuvroLogo.png";
 const primaryLinks = [
   { to: "/student/dashboard", label: "Simulation Labs" },
   { to: "/mock-interviews", label: "Mock Interviews" },
+  { to: "/research", label: "AI Research Papers" },
 ];
 
 export function TopNav({
@@ -64,6 +65,9 @@ export function TopNav({
     }
     if (to === "/mock-interviews") {
       return activePath.startsWith("/mock-interviews") || activePath.startsWith("/mock-interview");
+    }
+    if (to === "/research") {
+      return activePath.startsWith("/research") || activePath.startsWith("/student/research");
     }
     return activePath.startsWith(to);
   };
