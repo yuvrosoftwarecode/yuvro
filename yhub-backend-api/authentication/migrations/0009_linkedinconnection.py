@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("authentication", "0005_user_is_guest_user"),
+        ("authentication", "0008_alter_usersession_unique_together"),
     ]
 
     operations = [

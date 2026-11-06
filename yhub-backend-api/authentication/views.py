@@ -1081,6 +1081,7 @@ class LinkedInGenerateGifView(APIView):
         name = request.data.get("name") or request.user.first_name or request.user.username or "Student"
         task = request.data.get("task") or "Engineering Milestone"
         company = request.data.get("company") or "Practical Labs"
+        badge = request.data.get("badge") or "TICKET CLEARED"
 
         # Locate logo.png
         possible_logo_paths = [
@@ -1103,6 +1104,7 @@ class LinkedInGenerateGifView(APIView):
                 name=name,
                 task=task,
                 company=company,
+                badge=badge,
                 logo_path=logo_path,
                 output_fps=15,
                 duration_sec=1.6

@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
-import { generateMilestoneBanner } from "@/utils/bannerGenerator";
 
 export interface MilestoneDetails {
   labTitle: string;
@@ -32,7 +31,7 @@ export interface ShareMilestoneModalProps {
   isOpen: boolean;
   onClose: () => void;
   milestoneTitle: string;
-  milestoneType?: "sprint" | "lab" | "certificate";
+  milestoneType?: "sprint" | "lab" | "ticket" | "certificate";
   shareUrl?: string;
   details?: MilestoneDetails;
   defaultCommentary?: string;
@@ -60,6 +59,19 @@ export function ShareMilestoneModal({
     const tagsStr = details?.tags && details.tags.length > 0
       ? details.tags.map((t) => `#${t.replace(/[^a-zA-Z0-9]/g, "")}`).join(" ")
       : "#SoftwareEngineering #Coding";
+
+    if (milestoneType === "ticket") {
+      const scoreLine = typeof details?.score === "number" ? `• Score: ${details.score}%\n` : "";
+      const xpLine = typeof details?.earnedXp === "number" ? `• XP Earned: +${details.earnedXp} YP\n` : "";
+
+      return (
+        `⚡ Ticket Cleared: Just solved "${milestoneTitle}" in ${details?.labTitle || "Practical Labs"} on Yuvro Labs!\n\n` +
+        `🛠️ Solved and verified against production test suites and automated execution.\n` +
+        scoreLine +
+        xpLine +
+        `\n#Yuvro #EngineeringSkills #DevJourney #Coding #100DaysOfCode ${tagsStr}`
+      );
+    }
 
     if (milestoneType === "sprint") {
       const ticketsText =
@@ -126,35 +138,31 @@ export function ShareMilestoneModal({
       const taskName = details?.sprintTitle || milestoneTitle || "Engineering Milestone";
       const labName = details?.labTitle || "Practical Labs";
 
+      // Badge logic:
+      // - ticket level: "TICKET CLEARED"
+      // - sprint level: "SPRINT COMPLETED"
+      // - lab level: "LAB COMPLETED"
+      let badge = "TICKET CLEARED";
+      if (milestoneType === "lab") {
+        badge = "LAB COMPLETED";
+      } else if (milestoneType === "sprint") {
+        badge = "SPRINT COMPLETED";
+      }
+
       yhubApiAuthUtil
         .post<{ data_uri: string }>("/auth/linkedin/generate-gif/", {
           name: studentName,
           task: taskName,
           company: labName,
+          badge,
         })
         .then((res) => {
           if (res?.data_uri) {
             setBannerDataUrl(res.data_uri);
-          } else {
-            // Fallback to static banner generator if backend gif generation fails
-            return generateMilestoneBanner({
-              studentName,
-              milestoneTitle,
-              milestoneType,
-              details,
-            }).then(setBannerDataUrl);
           }
         })
         .catch((err) => {
-          console.warn("Backend GIF generation failed, falling back to static banner:", err);
-          generateMilestoneBanner({
-            studentName,
-            milestoneTitle,
-            milestoneType,
-            details,
-          })
-            .then(setBannerDataUrl)
-            .catch((e) => console.error("Static banner fallback failed:", e));
+          console.error("Backend celebration GIF generation failed:", err);
         })
         .finally(() => {
           setGeneratingBanner(false);

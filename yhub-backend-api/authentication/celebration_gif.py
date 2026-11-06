@@ -8,6 +8,7 @@ def generate_celebration_gif(
     name: str = "Student",
     task: str = "Payment retry logic",
     company: str = "MySQL Lab",
+    badge: str = "TICKET CLEARED",
     logo_path: str = None,
     output_fps: int = 15,
     duration_sec: float = 1.6,
@@ -227,8 +228,14 @@ def generate_celebration_gif(
             fill=(28, 18, 8, 255)
         )
 
-        # 4. Pill ("TICKET CLEARED") - Static, scaled up slightly
-        pill_w = 250
+        # 4. Pill (Badge: "TICKET CLEARED" / "LAB COMPLETED" / "SPRINT COMPLETED")
+        pill_text = (badge or "TICKET CLEARED").strip().upper()
+        p_bbox = font_pill.getbbox(pill_text)
+        p_text_w = p_bbox[2] - p_bbox[0]
+        p_text_h = p_bbox[3] - p_bbox[1]
+
+        tick_d = 24
+        pill_w = max(240, tick_d + 12 + p_text_w + 32)
         pill_h = 42
         pill_x1 = (width - pill_w) / 2
         pill_y1 = 88
@@ -239,7 +246,6 @@ def generate_celebration_gif(
         draw.rounded_rectangle([pill_x1, pill_y1, pill_x2, pill_y2], radius=int(pill_h / 2), fill=(245, 154, 35, 255))
 
         # Checkmark white circle inside pill
-        tick_d = 24
         tick_x = pill_x1 + 11
         tick_y = pill_y1 + (pill_h - tick_d) / 2
         draw.ellipse([tick_x, tick_y, tick_x + tick_d, tick_y + tick_d], fill=(255, 255, 255, 255))
@@ -247,11 +253,7 @@ def generate_celebration_gif(
         draw.line([tick_x + 7, tick_y + 12, tick_x + 10, tick_y + 16], fill=(245, 154, 35, 255), width=3)
         draw.line([tick_x + 10, tick_y + 16, tick_x + 17, tick_y + 8], fill=(245, 154, 35, 255), width=3)
 
-        # Pill text
-        pill_text = "TICKET CLEARED"
-        p_bbox = font_pill.getbbox(pill_text)
-        p_text_w = p_bbox[2] - p_bbox[0]
-        p_text_h = p_bbox[3] - p_bbox[1]
+        # Draw Pill text
         draw.text(
             (tick_x + tick_d + 12, pill_y1 + (pill_h - p_text_h) / 2 - 2),
             pill_text,
