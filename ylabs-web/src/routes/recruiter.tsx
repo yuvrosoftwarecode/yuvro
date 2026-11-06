@@ -90,16 +90,21 @@ function RecruiterLayout() {
     checkPlan();
   }, [nav]);
 
-  const items = [
+  const items: { to: string; label: string; icon: any; exact?: boolean }[] = [
     { to: "/recruiter/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { to: "/recruiter/vitarka-ai", label: "Vitarka AI", icon: null, exact: true },
     { to: "/recruiter/evaluations", label: "Evaluations", icon: ClipboardList },
     { to: "/recruiter/questions", label: "Question bank", icon: Database },
     { to: "/recruiter/github", label: "GitHub and repositories", icon: Github },
     { to: "/recruiter/settings", label: "Settings", icon: Settings },
   ];
 
-  const isActive = (to: string, exact?: boolean) =>
-    exact ? pathname === to : pathname.startsWith(to);
+  const isActive = (to: string, exact?: boolean) => {
+    if (to === "/recruiter/vitarka-ai") {
+      return pathname === "/recruiter/vitarka-ai" || pathname === "/vitarka-ai";
+    }
+    return exact ? pathname === to : pathname.startsWith(to);
+  };
 
   if (hasPlan === false) {
     return (
@@ -233,8 +238,10 @@ function RecruiterLayout() {
                 >
                   {isSidebarOpen ? (
                     <span className="whitespace-nowrap">{it.label}</span>
-                  ) : (
+                  ) : it.icon ? (
                     <it.icon className="h-5 w-5 shrink-0" />
+                  ) : (
+                    <span className="text-[13px] font-semibold text-neutral-600">V</span>
                   )}
                 </Link>
               );

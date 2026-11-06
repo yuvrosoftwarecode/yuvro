@@ -856,4 +856,47 @@
 .rec-btn-danger { display:inline-flex; align-items:center; justify-content:center; border-radius:8px; background:var(--rec-danger); color:var(--rec-accent-fg); padding:10px 16px; font-size:15px; line-height:20px; font-weight:500; transition:background-color .15s; }
 .rec-btn-danger:hover { background:#b91c1c; }
 
+/* Settings: semantic roles scoped to this page */
+.settings-theme {
+  --background: var(--rec-bg);
+  --foreground: var(--rec-fg);
+  --card: var(--rec-surface);
+  --card-foreground: var(--rec-fg);
+  --primary: var(--rec-accent);
+  --primary-foreground: var(--rec-accent-fg);
+  --secondary-foreground: var(--rec-fg-soft);
+  --muted-foreground: var(--rec-muted-2);
+  --accent: var(--rec-overlay-1);
+  --accent-foreground: var(--rec-fg);
+  --border: var(--rec-border);
+  --input: var(--rec-border);
+  --ring: var(--rec-accent);
+  --destructive: var(--rec-danger);
+  color-scheme: light;
+}
+.bg-nav-active {
+  background-color: var(--rec-active) !important;
+}
 
+/* Vitarka AI: pulsing dots animation matching prototype */
+@keyframes vitarka-dot-pulse {
+  0%, 80%, 100% { opacity: 0.25; }
+  40% { opacity: 1; }
+}
+.vitarka-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--rec-muted-2, #6b6b6b);
+  margin-right: 4px;
+  animation: vitarka-dot-pulse 1.2s infinite;
+}
+.vitarka-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.vitarka-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+/* Evaluation workspace (Submissions): allow main to shrink beside the fixed sidebar. */
+.recruiter-theme main:has(.evs-theme) { min-width: 0; }

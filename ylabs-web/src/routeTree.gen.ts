@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VitarkaAiRouteImport } from './routes/vitarka-ai'
 import { Route as SystemDesignStudioRouteImport } from './routes/system-design-studio'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as RecruiterSignupRouteImport } from './routes/recruiter-signup'
@@ -31,6 +32,7 @@ import { Route as StudentForumRouteImport } from './routes/student.forum'
 import { Route as StudentDashboardRouteImport } from './routes/student.dashboard'
 import { Route as StudentCertificatesRouteImport } from './routes/student.certificates'
 import { Route as StudentAnalyticsRouteImport } from './routes/student.analytics'
+import { Route as RecruiterVitarkaAiRouteImport } from './routes/recruiter.vitarka-ai'
 import { Route as RecruiterSettingsRouteImport } from './routes/recruiter.settings'
 import { Route as RecruiterQuestionsRouteImport } from './routes/recruiter.questions'
 import { Route as RecruiterGithubRouteImport } from './routes/recruiter.github'
@@ -74,6 +76,11 @@ import { Route as StudentCollaborationSprintIdReportIndividualRouteImport } from
 import { Route as AdminUsersIdLabsSlugReportRouteImport } from './routes/admin.users.$id.labs.$slug.report'
 import { Route as AdminStudentReportUserIdLabIdTicketTicketIdReviewRouteImport } from './routes/admin.student-report.$userId.$labId.ticket.$ticketId.review'
 
+const VitarkaAiRoute = VitarkaAiRouteImport.update({
+  id: '/vitarka-ai',
+  path: '/vitarka-ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SystemDesignStudioRoute = SystemDesignStudioRouteImport.update({
   id: '/system-design-studio',
   path: '/system-design-studio',
@@ -183,6 +190,11 @@ const StudentAnalyticsRoute = StudentAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
   getParentRoute: () => StudentRoute,
+} as any)
+const RecruiterVitarkaAiRoute = RecruiterVitarkaAiRouteImport.update({
+  id: '/vitarka-ai',
+  path: '/vitarka-ai',
+  getParentRoute: () => RecruiterRoute,
 } as any)
 const RecruiterSettingsRoute = RecruiterSettingsRouteImport.update({
   id: '/settings',
@@ -424,6 +436,7 @@ export interface FileRoutesByFullPath {
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
+  '/vitarka-ai': typeof VitarkaAiRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
@@ -440,6 +453,7 @@ export interface FileRoutesByFullPath {
   '/recruiter/github': typeof RecruiterGithubRoute
   '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
+  '/recruiter/vitarka-ai': typeof RecruiterVitarkaAiRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/certificates': typeof StudentCertificatesRoute
   '/student/dashboard': typeof StudentDashboardRoute
@@ -487,6 +501,7 @@ export interface FileRoutesByTo {
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
+  '/vitarka-ai': typeof VitarkaAiRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
@@ -502,6 +517,7 @@ export interface FileRoutesByTo {
   '/recruiter/github': typeof RecruiterGithubRoute
   '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
+  '/recruiter/vitarka-ai': typeof RecruiterVitarkaAiRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/certificates': typeof StudentCertificatesRoute
   '/student/dashboard': typeof StudentDashboardRoute
@@ -553,6 +569,7 @@ export interface FileRoutesById {
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
+  '/vitarka-ai': typeof VitarkaAiRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
@@ -569,6 +586,7 @@ export interface FileRoutesById {
   '/recruiter/github': typeof RecruiterGithubRoute
   '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
+  '/recruiter/vitarka-ai': typeof RecruiterVitarkaAiRoute
   '/student/analytics': typeof StudentAnalyticsRoute
   '/student/certificates': typeof StudentCertificatesRoute
   '/student/dashboard': typeof StudentDashboardRoute
@@ -621,6 +639,7 @@ export interface FileRouteTypes {
     | '/recruiter-signup'
     | '/student'
     | '/system-design-studio'
+    | '/vitarka-ai'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
@@ -637,6 +656,7 @@ export interface FileRouteTypes {
     | '/recruiter/github'
     | '/recruiter/questions'
     | '/recruiter/settings'
+    | '/recruiter/vitarka-ai'
     | '/student/analytics'
     | '/student/certificates'
     | '/student/dashboard'
@@ -684,6 +704,7 @@ export interface FileRouteTypes {
     | '/recruiter-signup'
     | '/student'
     | '/system-design-studio'
+    | '/vitarka-ai'
     | '/admin/questions'
     | '/admin/recruiters'
     | '/evaluation/complete'
@@ -699,6 +720,7 @@ export interface FileRouteTypes {
     | '/recruiter/github'
     | '/recruiter/questions'
     | '/recruiter/settings'
+    | '/recruiter/vitarka-ai'
     | '/student/analytics'
     | '/student/certificates'
     | '/student/dashboard'
@@ -749,6 +771,7 @@ export interface FileRouteTypes {
     | '/recruiter-signup'
     | '/student'
     | '/system-design-studio'
+    | '/vitarka-ai'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
@@ -765,6 +788,7 @@ export interface FileRouteTypes {
     | '/recruiter/github'
     | '/recruiter/questions'
     | '/recruiter/settings'
+    | '/recruiter/vitarka-ai'
     | '/student/analytics'
     | '/student/certificates'
     | '/student/dashboard'
@@ -816,6 +840,7 @@ export interface RootRouteChildren {
   RecruiterSignupRoute: typeof RecruiterSignupRoute
   StudentRoute: typeof StudentRouteWithChildren
   SystemDesignStudioRoute: typeof SystemDesignStudioRoute
+  VitarkaAiRoute: typeof VitarkaAiRoute
   GithubCallbackRoute: typeof GithubCallbackRoute
   MockInterviewSlugRoute: typeof MockInterviewSlugRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
@@ -824,6 +849,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vitarka-ai': {
+      id: '/vitarka-ai'
+      path: '/vitarka-ai'
+      fullPath: '/vitarka-ai'
+      preLoaderRoute: typeof VitarkaAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/system-design-studio': {
       id: '/system-design-studio'
       path: '/system-design-studio'
@@ -977,6 +1009,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/student/analytics'
       preLoaderRoute: typeof StudentAnalyticsRouteImport
       parentRoute: typeof StudentRoute
+    }
+    '/recruiter/vitarka-ai': {
+      id: '/recruiter/vitarka-ai'
+      path: '/vitarka-ai'
+      fullPath: '/recruiter/vitarka-ai'
+      preLoaderRoute: typeof RecruiterVitarkaAiRouteImport
+      parentRoute: typeof RecruiterRoute
     }
     '/recruiter/settings': {
       id: '/recruiter/settings'
@@ -1403,6 +1442,7 @@ interface RecruiterRouteChildren {
   RecruiterGithubRoute: typeof RecruiterGithubRoute
   RecruiterQuestionsRoute: typeof RecruiterQuestionsRoute
   RecruiterSettingsRoute: typeof RecruiterSettingsRoute
+  RecruiterVitarkaAiRoute: typeof RecruiterVitarkaAiRoute
   RecruiterIndexRoute: typeof RecruiterIndexRoute
   RecruiterEvaluationsIdRoute: typeof RecruiterEvaluationsIdRouteWithChildren
   RecruiterEvaluationsIndexRoute: typeof RecruiterEvaluationsIndexRoute
@@ -1414,6 +1454,7 @@ const RecruiterRouteChildren: RecruiterRouteChildren = {
   RecruiterGithubRoute: RecruiterGithubRoute,
   RecruiterQuestionsRoute: RecruiterQuestionsRoute,
   RecruiterSettingsRoute: RecruiterSettingsRoute,
+  RecruiterVitarkaAiRoute: RecruiterVitarkaAiRoute,
   RecruiterIndexRoute: RecruiterIndexRoute,
   RecruiterEvaluationsIdRoute: RecruiterEvaluationsIdRouteWithChildren,
   RecruiterEvaluationsIndexRoute: RecruiterEvaluationsIndexRoute,
@@ -1517,6 +1558,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecruiterSignupRoute: RecruiterSignupRoute,
   StudentRoute: StudentRouteWithChildren,
   SystemDesignStudioRoute: SystemDesignStudioRoute,
+  VitarkaAiRoute: VitarkaAiRoute,
   GithubCallbackRoute: GithubCallbackRoute,
   MockInterviewSlugRoute: MockInterviewSlugRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
