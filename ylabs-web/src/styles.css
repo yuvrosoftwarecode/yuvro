@@ -426,7 +426,7 @@
 .rec-btn { display:inline-flex; align-items:center; justify-content:center; border-radius:8px; background:var(--rec-accent); color:var(--rec-accent-fg) !important; padding:10px 16px; font-size:15px; line-height:20px; font-weight:500; transition:background-color .15s; }
 .rec-btn:hover { background:var(--rec-accent-hover); }
 .rec-card { background:var(--rec-surface); border:1px solid var(--rec-border); border-radius:12px; }
-.rec-nav { display:block; border-radius:8px; padding:8px 12px; font-size:15px; line-height:20px; color:var(--rec-fg-soft); }
+.rec-nav { display:block; border-radius:8px; padding:8px 12px; font-size:15px; line-height:20px; color:var(--rec-fg-soft); white-space: nowrap; }
 .rec-nav:hover { background:var(--rec-overlay-2); color:var(--rec-fg); }
 .rec-nav-active, .rec-nav-active:hover { background:var(--rec-active); color:var(--rec-fg); font-weight:500; }
 .rec-row:hover { background:var(--rec-overlay-1); }

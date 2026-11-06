@@ -1,6 +1,16 @@
 import { createFileRoute, Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { PanelLeftClose, Menu } from "lucide-react";
+import {
+  PanelLeftClose,
+  PanelLeftOpen,
+  Menu,
+  LayoutDashboard,
+  ClipboardList,
+  Database,
+  Github,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { requireRecruiterAuth } from "@/utils/authGuards";
@@ -81,11 +91,11 @@ function RecruiterLayout() {
   }, [nav]);
 
   const items = [
-    { to: "/recruiter/dashboard", label: "Dashboard", exact: true },
-    { to: "/recruiter/evaluations", label: "Evaluations" },
-    { to: "/recruiter/questions", label: "Question bank" },
-    { to: "/recruiter/github", label: "GitHub and repositories" },
-    { to: "/recruiter/settings", label: "Settings" },
+    { to: "/recruiter/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { to: "/recruiter/evaluations", label: "Evaluations", icon: ClipboardList },
+    { to: "/recruiter/questions", label: "Question bank", icon: Database },
+    { to: "/recruiter/github", label: "GitHub and repositories", icon: Github },
+    { to: "/recruiter/settings", label: "Settings", icon: Settings },
   ];
 
   const isActive = (to: string, exact?: boolean) =>
@@ -149,92 +159,165 @@ function RecruiterLayout() {
 
         {/* Sidebar */}
         <aside
-          className={`rec-border fixed inset-y-0 left-0 z-30 flex w-[240px] flex-col border-r bg-white transition-transform duration-200 md:translate-x-0 ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          className={`rec-border fixed inset-y-0 left-0 z-30 flex flex-col border-r bg-white transition-all duration-300 overflow-x-hidden ${
+            isSidebarOpen
+              ? "w-[240px] translate-x-0"
+              : "w-[240px] -translate-x-full md:translate-x-0 md:w-[72px]"
           }`}
         >
-          <div className="flex items-center justify-between px-6 py-6">
-            <Link
-              to="/recruiter/dashboard"
-              className="rec-fg flex items-center gap-2.5 text-[16px] font-semibold"
-              onClick={() => {
-                if (window.innerWidth < 768) setIsSidebarOpen(false);
-              }}
-            >
-              <img src="/logo.png" alt="Yuvro" className="h-6 w-6 object-contain" />
-              <span>Yuvro Recruiter</span>
-            </Link>
-            <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="md:hidden text-neutral-400 hover:text-neutral-700"
-              aria-label="Close menu"
-            >
-              <PanelLeftClose className="h-4 w-4" />
-            </button>
-          </div>
-
-          <nav className="flex-1 space-y-1 px-3">
-            {items.map((it) => (
+          {isSidebarOpen ? (
+            /* Expanded Header: Yuvro Icon + Yuvro Recruiter Text + Toggle Icon */
+            <div className="flex items-center justify-between px-6 py-6 whitespace-nowrap min-w-[240px]">
               <Link
-                key={it.to}
-                to={it.to}
+                to="/recruiter/dashboard"
+                className="rec-fg flex items-center gap-2.5 text-[16px] font-semibold whitespace-nowrap"
                 onClick={() => {
                   if (window.innerWidth < 768) setIsSidebarOpen(false);
                 }}
-                className={`rec-nav ${isActive(it.to, it.exact) ? "rec-nav-active" : ""}`}
               >
-                {it.label}
+                <img src="/logo.png" alt="Yuvro" className="h-6 w-6 object-contain shrink-0" />
+                <span className="whitespace-nowrap">Yuvro Recruiter</span>
               </Link>
-            ))}
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="rounded-md p-1.5 text-neutral-400 hover:text-neutral-800 hover:bg-neutral-100 transition-colors shrink-0"
+                title="Collapse sidebar"
+                aria-label="Collapse sidebar"
+              >
+                <PanelLeftClose className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            /* Collapsed Header (Desktop): Centered Logo & Expand Button */
+            <div className="flex flex-col items-center justify-center py-6 gap-2">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg hover:ring-2 hover:ring-neutral-200 transition-all"
+                title="Expand sidebar"
+                aria-label="Expand sidebar"
+              >
+                <img src="/logo.png" alt="Yuvro" className="h-6 w-6 object-contain" />
+              </button>
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="rounded-md p-1.5 text-neutral-400 hover:text-neutral-800 hover:bg-neutral-100 transition-colors"
+                title="Expand sidebar"
+                aria-label="Expand sidebar"
+              >
+                <PanelLeftOpen className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
+          {/* Navigation Items */}
+          <nav className={`flex-1 space-y-1 overflow-hidden ${isSidebarOpen ? "px-3" : "px-2 mt-2"}`}>
+            {items.map((it) => {
+              const active = isActive(it.to, it.exact);
+              return (
+                <Link
+                  key={it.to}
+                  to={it.to}
+                  title={!isSidebarOpen ? it.label : undefined}
+                  onClick={() => {
+                    if (window.innerWidth < 768) setIsSidebarOpen(false);
+                  }}
+                  className={
+                    isSidebarOpen
+                      ? `rec-nav whitespace-nowrap ${active ? "rec-nav-active" : ""}`
+                      : `flex items-center justify-center p-3 rounded-lg transition-colors ${
+                          active
+                            ? "bg-[#ffebd1] text-[var(--rec-fg)] font-medium"
+                            : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+                        }`
+                  }
+                >
+                  {isSidebarOpen ? (
+                    <span className="whitespace-nowrap">{it.label}</span>
+                  ) : (
+                    <it.icon className="h-5 w-5 shrink-0" />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="rec-border border-t px-6 py-5">
-            {/* Free Trial Banner — Retained as requested */}
-            {isTrial && expiryDate && (
-              <div className="mb-4 rounded-xl border rec-border bg-[#fffdfb] p-3.5">
-                <div className="text-[12px] font-semibold text-neutral-900">
-                  Free trial ends
+          {/* Footer Area */}
+          <div className="rec-border border-t p-3 overflow-hidden">
+            {isSidebarOpen ? (
+              <div className="px-3 py-2 min-w-[214px] whitespace-nowrap">
+                {/* Free Trial Banner — Retained as requested */}
+                {isTrial && expiryDate && (
+                  <div className="mb-4 rounded-xl border rec-border bg-[#fffdfb] p-3.5">
+                    <div className="text-[12px] font-semibold text-neutral-900">
+                      Free trial ends
+                    </div>
+                    <div className="mt-1 font-mono text-[11px] rec-muted">
+                      {new Date(expiryDate).toLocaleString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
+                    </div>
+                    <Link
+                      to="/recruiter/billing"
+                      className="mt-3 block w-full text-center rounded-lg bg-[var(--rec-accent)] py-1.5 text-[12px] font-medium text-white transition hover:bg-[var(--rec-accent-hover)]"
+                    >
+                      Upgrade plan
+                    </Link>
+                  </div>
+                )}
+
+                <div className="rec-accent truncate text-[15px] font-semibold">
+                  {(user as any)?.name ?? "Recruiter"}
                 </div>
-                <div className="mt-1 font-mono text-[11px] rec-muted">
-                  {new Date(expiryDate).toLocaleString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
+                <div className="rec-muted truncate text-[14px]">
+                  {user?.email ?? "recruiter@yuvrolabs.com"}
                 </div>
-                <Link
-                  to="/recruiter/billing"
-                  className="mt-3 block w-full text-center rounded-lg bg-[var(--rec-accent)] py-1.5 text-[12px] font-medium text-white transition hover:bg-[var(--rec-accent-hover)]"
+                <div className="mt-3 flex items-center justify-between">
+                  <button
+                    onClick={() => {
+                      logout();
+                      nav({ to: "/auth", search: { tab: "signin" } });
+                    }}
+                    className="rec-logout"
+                  >
+                    Log out
+                  </button>
+                  <DeployInfo className="text-neutral-400 text-[10px]" />
+                </div>
+              </div>
+            ) : (
+              /* Collapsed Footer: Avatar + Logout Icon */
+              <div className="flex flex-col items-center gap-3 py-2">
+                <div
+                  className="grid h-8 w-8 place-items-center rounded-full bg-[#ffebd1] text-[12px] font-semibold text-[var(--rec-fg)]"
+                  title={(user as any)?.name ?? "Recruiter"}
                 >
-                  Upgrade plan
-                </Link>
+                  {((user as any)?.name ?? "R")[0]}
+                </div>
+                <button
+                  onClick={() => {
+                    logout();
+                    nav({ to: "/auth", search: { tab: "signin" } });
+                  }}
+                  className="rounded-md p-2 text-neutral-400 hover:text-neutral-800 hover:bg-neutral-100 transition-colors"
+                  title="Sign out"
+                  aria-label="Sign out"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
               </div>
             )}
-
-            <div className="rec-accent truncate text-[15px] font-semibold">
-              {user?.name ?? "Recruiter"}
-            </div>
-            <div className="rec-muted truncate text-[14px]">
-              {user?.email ?? "recruiter@yuvrolabs.com"}
-            </div>
-            <div className="mt-3 flex items-center justify-between">
-              <button
-                onClick={() => {
-                  logout();
-                  nav({ to: "/auth", search: { tab: "signin" } });
-                }}
-                className="rec-logout"
-              >
-                Log out
-              </button>
-              <DeployInfo className="text-neutral-400 text-[10px]" />
-            </div>
           </div>
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 min-w-0 md:ml-[240px] bg-white min-h-screen">
+        <main
+          className={`flex-1 min-w-0 bg-white min-h-screen transition-[margin] duration-300 ${
+            isSidebarOpen ? "md:ml-[240px]" : "md:ml-[72px]"
+          }`}
+        >
           <Outlet />
         </main>
       </div>
