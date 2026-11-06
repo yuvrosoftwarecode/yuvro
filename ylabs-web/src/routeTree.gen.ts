@@ -9,11 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SystemDesignStudioRouteImport } from './routes/system-design-studio'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as RecruiterSignupRouteImport } from './routes/recruiter-signup'
 import { Route as RecruiterLoginRouteImport } from './routes/recruiter-login'
 import { Route as RecruiterRouteImport } from './routes/recruiter'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MockInterviewsRouteImport } from './routes/mock-interviews'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as EvaluationRouteImport } from './routes/evaluation'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -34,6 +36,7 @@ import { Route as RecruiterQuestionsRouteImport } from './routes/recruiter.quest
 import { Route as RecruiterGithubRouteImport } from './routes/recruiter.github'
 import { Route as RecruiterDashboardRouteImport } from './routes/recruiter.dashboard'
 import { Route as RecruiterBillingRouteImport } from './routes/recruiter.billing'
+import { Route as MockInterviewSlugRouteImport } from './routes/mock-interview.$slug'
 import { Route as LinkedinCallbackRouteImport } from './routes/linkedin.callback'
 import { Route as GithubCallbackRouteImport } from './routes/github.callback'
 import { Route as EvaluationWorkspaceRouteImport } from './routes/evaluation.workspace'
@@ -73,6 +76,11 @@ import { Route as StudentCollaborationSprintIdReportIndividualRouteImport } from
 import { Route as AdminUsersIdLabsSlugReportRouteImport } from './routes/admin.users.$id.labs.$slug.report'
 import { Route as AdminStudentReportUserIdLabIdTicketTicketIdReviewRouteImport } from './routes/admin.student-report.$userId.$labId.ticket.$ticketId.review'
 
+const SystemDesignStudioRoute = SystemDesignStudioRouteImport.update({
+  id: '/system-design-studio',
+  path: '/system-design-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
@@ -96,6 +104,11 @@ const RecruiterRoute = RecruiterRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MockInterviewsRoute = MockInterviewsRouteImport.update({
+  id: '/mock-interviews',
+  path: '/mock-interviews',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -197,6 +210,11 @@ const RecruiterBillingRoute = RecruiterBillingRouteImport.update({
   id: '/billing',
   path: '/billing',
   getParentRoute: () => RecruiterRoute,
+} as any)
+const MockInterviewSlugRoute = MockInterviewSlugRouteImport.update({
+  id: '/mock-interview/$slug',
+  path: '/mock-interview/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LinkedinCallbackRoute = LinkedinCallbackRouteImport.update({
   id: '/linkedin/callback',
@@ -412,11 +430,13 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/mock-interviews': typeof MockInterviewsRoute
   '/pricing': typeof PricingRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
+  '/system-design-studio': typeof SystemDesignStudioRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
@@ -428,6 +448,7 @@ export interface FileRoutesByFullPath {
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
   '/linkedin/callback': typeof LinkedinCallbackRoute
+  '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
@@ -475,10 +496,12 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/mock-interviews': typeof MockInterviewsRoute
   '/pricing': typeof PricingRoute
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
+  '/system-design-studio': typeof SystemDesignStudioRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
@@ -489,6 +512,7 @@ export interface FileRoutesByTo {
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
   '/linkedin/callback': typeof LinkedinCallbackRoute
+  '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
@@ -539,11 +563,13 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/mock-interviews': typeof MockInterviewsRoute
   '/pricing': typeof PricingRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
+  '/system-design-studio': typeof SystemDesignStudioRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
@@ -555,6 +581,7 @@ export interface FileRoutesById {
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
   '/linkedin/callback': typeof LinkedinCallbackRoute
+  '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
@@ -606,11 +633,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/evaluation'
     | '/forgot-password'
+    | '/mock-interviews'
     | '/pricing'
     | '/recruiter'
     | '/recruiter-login'
     | '/recruiter-signup'
     | '/student'
+    | '/system-design-studio'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
@@ -622,6 +651,7 @@ export interface FileRouteTypes {
     | '/evaluation/workspace'
     | '/github/callback'
     | '/linkedin/callback'
+    | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/github'
@@ -669,10 +699,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/forgot-password'
+    | '/mock-interviews'
     | '/pricing'
     | '/recruiter-login'
     | '/recruiter-signup'
     | '/student'
+    | '/system-design-studio'
     | '/admin/questions'
     | '/admin/recruiters'
     | '/evaluation/complete'
@@ -683,6 +715,7 @@ export interface FileRouteTypes {
     | '/evaluation/workspace'
     | '/github/callback'
     | '/linkedin/callback'
+    | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/github'
@@ -732,11 +765,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/evaluation'
     | '/forgot-password'
+    | '/mock-interviews'
     | '/pricing'
     | '/recruiter'
     | '/recruiter-login'
     | '/recruiter-signup'
     | '/student'
+    | '/system-design-studio'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
@@ -748,6 +783,7 @@ export interface FileRouteTypes {
     | '/evaluation/workspace'
     | '/github/callback'
     | '/linkedin/callback'
+    | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/github'
@@ -798,13 +834,16 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   EvaluationRoute: typeof EvaluationRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  MockInterviewsRoute: typeof MockInterviewsRoute
   PricingRoute: typeof PricingRoute
   RecruiterRoute: typeof RecruiterRouteWithChildren
   RecruiterLoginRoute: typeof RecruiterLoginRoute
   RecruiterSignupRoute: typeof RecruiterSignupRoute
   StudentRoute: typeof StudentRouteWithChildren
+  SystemDesignStudioRoute: typeof SystemDesignStudioRoute
   GithubCallbackRoute: typeof GithubCallbackRoute
   LinkedinCallbackRoute: typeof LinkedinCallbackRoute
+  MockInterviewSlugRoute: typeof MockInterviewSlugRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
   SharedReportTokenRoute: typeof SharedReportTokenRoute
   PublicMilestoneSlugUserIdRoute: typeof PublicMilestoneSlugUserIdRoute
@@ -812,6 +851,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/system-design-studio': {
+      id: '/system-design-studio'
+      path: '/system-design-studio'
+      fullPath: '/system-design-studio'
+      preLoaderRoute: typeof SystemDesignStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/student': {
       id: '/student'
       path: '/student'
@@ -845,6 +891,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mock-interviews': {
+      id: '/mock-interviews'
+      path: '/mock-interviews'
+      fullPath: '/mock-interviews'
+      preLoaderRoute: typeof MockInterviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -986,6 +1039,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/recruiter/billing'
       preLoaderRoute: typeof RecruiterBillingRouteImport
       parentRoute: typeof RecruiterRoute
+    }
+    '/mock-interview/$slug': {
+      id: '/mock-interview/$slug'
+      path: '/mock-interview/$slug'
+      fullPath: '/mock-interview/$slug'
+      preLoaderRoute: typeof MockInterviewSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/linkedin/callback': {
       id: '/linkedin/callback'
@@ -1491,13 +1551,16 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   EvaluationRoute: EvaluationRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  MockInterviewsRoute: MockInterviewsRoute,
   PricingRoute: PricingRoute,
   RecruiterRoute: RecruiterRouteWithChildren,
   RecruiterLoginRoute: RecruiterLoginRoute,
   RecruiterSignupRoute: RecruiterSignupRoute,
   StudentRoute: StudentRouteWithChildren,
+  SystemDesignStudioRoute: SystemDesignStudioRoute,
   GithubCallbackRoute: GithubCallbackRoute,
   LinkedinCallbackRoute: LinkedinCallbackRoute,
+  MockInterviewSlugRoute: MockInterviewSlugRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
   SharedReportTokenRoute: SharedReportTokenRoute,
   PublicMilestoneSlugUserIdRoute: PublicMilestoneSlugUserIdRoute,

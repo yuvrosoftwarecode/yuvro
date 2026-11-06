@@ -6,6 +6,7 @@ from .views import MockInterviewViewSet, MockInterviewSubmissionViewSet
 router = DefaultRouter()
 router.register(r'mock-interviews', MockInterviewViewSet, basename='mock-interview')
 router.register(r'interview/submissions', MockInterviewSubmissionViewSet, basename='mock-interview-submission')
+router.register(r'mock-interview-submissions', MockInterviewSubmissionViewSet, basename='mock-interview-submissions')
 
 urlpatterns = [
     path('', include(router.urls)),

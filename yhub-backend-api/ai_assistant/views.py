@@ -21,6 +21,7 @@ from .models import (
     AIAgentConfiguration,
     InterviewSession,
     InterviewReport,
+    LabScoringEvaluation,
 )
 
 from .serializers import (
@@ -34,7 +35,10 @@ from .serializers import (
     ChatResponseSerializer,
     InterviewSessionSerializer,
     InterviewReportSerializer,
+    LabScoringRequestSerializer,
+    LabScoringEvaluationSerializer,
 )
+from .scoring import LabScoreEvaluatorFactory
 from .services import AIServiceFactory, AIServiceError, InterviewReportGenerator, GeminiService
 from ai_credits.metering import CreditMeteringManager
 from ai_credits.exceptions import InsufficientCreditsError
@@ -1210,3 +1214,152 @@ class InterviewSessionViewSet(viewsets.ModelViewSet):
                 {"detail": "Interview ended but report generation failed.", "error": str(e)},
                 status=status.HTTP_200_OK,                                           
             )
+
+
+class LabScoringViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for AI-powered Lab Scoring (System Design, Practical Labs, etc.).
+    Leverages the LabScoreEvaluatorFactory with DeepSeek / Gemini Flash models.
+    """
+    queryset = LabScoringEvaluation.objects.all()
+    serializer_class = LabScoringEvaluationSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user and user.is_authenticated:
+            if hasattr(user, "is_admin") and user.is_admin():
+                return LabScoringEvaluation.objects.all()
+            return LabScoringEvaluation.objects.filter(user=user)
+        return LabScoringEvaluation.objects.none()
+
+    @action(detail=False, methods=["post"], url_path="system-design")
+    def score_system_design(self, request):
+        """
+        Specialized endpoint for scoring a System Design lab submission.
+        Payload:
+        {
+            "lab_context": { ... },
+            "user_submission": { ... },
+            "provider": "deepseek",  # optional (defaults to deepseek)
+            "model_name": "deepseek-chat", # optional
+            "save_record": true # optional
+        }
+        """
+        data = request.data
+        lab_context = data.get("lab_context", {})
+        user_submission = data.get("user_submission", {})
+        provider = data.get("provider", "deepseek")
+        model_name = data.get("model_name")
+        save_record = data.get("save_record", True)
+
+        evaluator = LabScoreEvaluatorFactory.get_evaluator(
+            lab_type="system_design",
+            provider=provider,
+            model_name=model_name,
+        )
+
+        try:
+            eval_result = evaluator.evaluate(
+                lab_context=lab_context,
+                user_submission=user_submission,
+            )
+
+            record_id = None
+            if save_record:
+                user = request.user if request.user and request.user.is_authenticated else None
+                lab_id = str(lab_context.get("lab_id") or "")
+                ticket_id = str(lab_context.get("ticket_id") or "")
+
+                record = LabScoringEvaluation.objects.create(
+                    user=user,
+                    lab_id=lab_id,
+                    ticket_id=ticket_id,
+                    lab_type="system_design",
+                    provider=eval_result.get("model_meta", {}).get("provider", provider),
+                    model_name=eval_result.get("model_meta", {}).get("model", model_name or "deepseek-chat"),
+                    overall_score=eval_result.get("overall_score", 0.0),
+                    passed=eval_result.get("passed", False),
+                    lab_context=lab_context,
+                    user_submission=user_submission,
+                    evaluation_result=eval_result,
+                    response_time_ms=eval_result.get("model_meta", {}).get("latency_ms"),
+                )
+                record_id = str(record.id)
+
+            eval_result["evaluation_id"] = record_id
+            return Response(eval_result, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error evaluating system design: {str(e)}", exc_info=True)
+            return Response(
+                {"error": "Failed to evaluate system design", "detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    @action(detail=False, methods=["post"], url_path="evaluate")
+    def evaluate_generic(self, request):
+        """
+        Generic lab evaluation endpoint driven by the LabScoreEvaluatorFactory.
+        Payload:
+        {
+            "lab_type": "system_design" | "practical",
+            "lab_context": { ... },
+            "user_submission": { ... },
+            "provider": "deepseek",
+            "model_name": "deepseek-chat"
+        }
+        """
+        serializer = LabScoringRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        valid_data = serializer.validated_data
+        lab_type = valid_data.get("lab_type", "system_design")
+        lab_context = valid_data.get("lab_context", {})
+        user_submission = valid_data.get("user_submission", {})
+        provider = valid_data.get("provider", "deepseek")
+        model_name = valid_data.get("model_name") or None
+        save_record = valid_data.get("save_record", True)
+
+        evaluator = LabScoreEvaluatorFactory.get_evaluator(
+            lab_type=lab_type,
+            provider=provider,
+            model_name=model_name,
+        )
+
+        try:
+            eval_result = evaluator.evaluate(
+                lab_context=lab_context,
+                user_submission=user_submission,
+            )
+
+            record_id = None
+            if save_record:
+                user = request.user if request.user and request.user.is_authenticated else None
+                record = LabScoringEvaluation.objects.create(
+                    user=user,
+                    lab_id=str(lab_context.get("lab_id") or ""),
+                    ticket_id=str(lab_context.get("ticket_id") or ""),
+                    lab_type=lab_type,
+                    provider=eval_result.get("model_meta", {}).get("provider", provider),
+                    model_name=eval_result.get("model_meta", {}).get("model", model_name or "deepseek-chat"),
+                    overall_score=eval_result.get("overall_score", 0.0),
+                    passed=eval_result.get("passed", False),
+                    lab_context=lab_context,
+                    user_submission=user_submission,
+                    evaluation_result=eval_result,
+                    response_time_ms=eval_result.get("model_meta", {}).get("latency_ms"),
+                )
+                record_id = str(record.id)
+
+            eval_result["evaluation_id"] = record_id
+            return Response(eval_result, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error in generic lab evaluation: {str(e)}", exc_info=True)
+            return Response(
+                {"error": "Failed to evaluate lab submission", "detail": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+

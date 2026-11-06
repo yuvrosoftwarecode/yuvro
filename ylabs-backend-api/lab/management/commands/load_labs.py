@@ -159,16 +159,25 @@ class Command(BaseCommand):
                 except Exception as e:
                     self.stdout.write(self.style.WARNING(f"  ⚠ Failed to provision starter repo: {e}"))
 
-            for sprint_data in lab_data.get("sprints", []):
-                sprint, created = LabSprint.objects.update_or_create(
-                    lab=lab,
-                    title=sprint_data["title"],
-                    defaults={
-                        "description": sprint_data.get("description", ""),
-                        "order_index": sprint_data.get("order_index", 0),
-                        "created_by": admin_user,
-                    },
+            for idx, sprint_data in enumerate(lab_data.get("sprints", []), start=1):
+                order_index = sprint_data.get("order_index", idx)
+                sprint = (
+                    LabSprint.objects.filter(lab=lab, title=sprint_data["title"]).first()
+                    or LabSprint.objects.filter(lab=lab, order_index=order_index).first()
                 )
+                if sprint:
+                    sprint.title = sprint_data["title"]
+                    sprint.description = sprint_data.get("description", "")
+                    sprint.order_index = order_index
+                    sprint.save()
+                else:
+                    sprint = LabSprint.objects.create(
+                        lab=lab,
+                        title=sprint_data["title"],
+                        description=sprint_data.get("description", ""),
+                        order_index=order_index,
+                        created_by=admin_user,
+                    )
 
                 for ticket_data in sprint_data.get("tickets", []):
                     LabSprintTicket.objects.update_or_create(
@@ -184,6 +193,7 @@ class Command(BaseCommand):
                             "hints": ticket_data.get("hints", []),
                             "scoring_rules": ticket_data.get("scoring_rules", {}),
                             "solution": ticket_data.get("solution", {}),
+                            "system_design": ticket_data.get("system_design", {}),
                             "test_command": ticket_data.get("test_command", ""),
                             "yuvro_points": ticket_data.get("yuvro_points", 5),
                             "minutes_max": ticket_data.get("minutes_max", 30),

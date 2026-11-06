@@ -1,0 +1,298 @@
+{
+  "title": "Sprint 2 — Sequence: Request and Interaction Flows",
+  "description": "Model interaction order, synchronous vs asynchronous communications, alternative flows, and error recovery using Mermaid sequence diagrams.",
+  "order_index": 2,
+  "lab_title": "System Design Lab",
+  "tickets": [
+    {
+      "title": "URL Shortening Request Flow",
+      "ticket_slug": "sd-21",
+      "description": "### Scenario\nModel the exact interaction order for creating short links and handling invalid inputs using a Mermaid sequence diagram.\n\n### Primary Tab\n**Sequence · Mermaid**\n\n### Requirements\n1. Define participants: Client, API Gateway, URL Service, and Database.\n2. Model the successful creation flow: validation, unique hash generation, and database insertion.\n3. Add an alternative branch (`alt ... else`) showing how malformed URLs are rejected.\n4. Show the returned short URL payload and HTTP status codes.\n\n### Acceptance Criteria\n- The sequence diagram accurately displays both the successful creation path and the error validation branch.",
+      "difficulty": "EASY",
+      "primary_tab": "SEQUENCE",
+      "tasks": [
+        "Define participants: Client, URL Service, and Database.",
+        "Model the request to create a short URL with sequential step numbering.",
+        "Show the database write operation and returned short URL response.",
+        "Add an alternative flow branch for invalid or unreachable URLs."
+      ],
+      "learning_objectives": [
+        "Learn Mermaid sequence diagram syntax (participants, arrows, activations, alt blocks).",
+        "Understand synchronous validation and error response branching.",
+        "Model state changes and status codes in interaction diagrams."
+      ],
+      "common_mistakes": [
+        "Omitting the error/invalid URL alternative path.",
+        "Mislabeling asynchronous vs synchronous message arrows (`->>` vs `-->>`).",
+        "Directly connecting the client to the database without the application service."
+      ],
+      "hints": [
+        "Use `autonumber` at the start of your sequence diagram for numbered steps.",
+        "Use `alt Invalid URL format` and `else Valid URL` blocks to illustrate branching logic.",
+        "Return `400 Bad Request` on invalid inputs and `201 Created` on success."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "SEQUENCE"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "sequenceDiagram\n  autonumber\n  actor C as Client\n  participant G as API Gateway\n  participant S as URL Service\n  participant R as Redis Cache\n  participant D as PostgreSQL DB\n\n  C->>+G: POST /api/v1/urls { \"long_url\": \"https://example.com/item/1\" }\n  G->>+S: Forward create request\n  alt Invalid URL format\n    S-->>G: 400 Bad Request (Invalid URL syntax)\n    G-->>C: 400 Bad Request\n  else Valid URL\n    S->>S: Generate Base62 hash (e.g. \"x8k2Q\")\n    S->>+D: INSERT INTO urls (short_code, original_url, created_at)\n    D-->>-S: 201 Inserted\n    S->>+R: SET short_code -> original_url (TTL 7d)\n    R-->>-S: OK\n    S-->>-G: 201 Created { \"short_code\": \"x8k2Q\" }\n    G-->>-C: 201 Created { \"short_url\": \"https://yu.vr/x8k2Q\" }\n  end",
+        "schema": "",
+        "apis": [],
+        "notes": {
+          "hld": "",
+          "sequence": "## URL Shortening Flow\n- Validates input format before generating hash.\n- Dual-writes to PostgreSQL (durable) and Redis (fast cache warming).\n- Handles invalid URL branches gracefully with 400 status.",
+          "schema": "",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Demonstrates a comprehensive Mermaid sequence flow with input validation branching, Base62 hashing, database persistence, cache population, and status codes.",
+        "approach": "Mermaid sequence diagram with alt/else branching."
+      },
+      "yuvro_points": 50,
+      "minutes_max": 25,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 1
+    },
+    {
+      "title": "User Authentication Flow",
+      "ticket_slug": "sd-22",
+      "description": "### Scenario\nModel a secure authentication and token issuance workflow (JWT Access + Refresh tokens) between Client, Gateway, Auth Service, and User Database.\n\n### Primary Tab\n**Sequence · Mermaid**\n\n### Requirements\n1. Model Client, API Gateway, Authentication Service, and User Database.\n2. Show credential verification (password hashing check) and token generation.\n3. Include negative cases: incorrect credentials and expired/invalid tokens.\n4. Clarify the boundary between authentication (login) and authorization (accessing protected resources).\n\n### Acceptance Criteria\n- Diagram covers successful login, credential failure, and token refresh cases.",
+      "difficulty": "EASY",
+      "primary_tab": "SEQUENCE",
+      "tasks": [
+        "Model Client, API Gateway, Authentication Service and User Database.",
+        "Show credential validation and token issuance (JWT Access & Refresh tokens).",
+        "Include incorrect credentials and expired-token failure cases.",
+        "Distinguish authentication from authorization in subsequent requests."
+      ],
+      "learning_objectives": [
+        "Model token-based authentication (JWT + Refresh token rotation).",
+        "Understand error branches for 401 Unauthorized vs 403 Forbidden.",
+        "Diagram security lifecycles clearly using Mermaid."
+      ],
+      "common_mistakes": [
+        "Storing or transmitting passwords in plaintext without hashing.",
+        "Failing to model expired token handling.",
+        "Conflating authentication (who you are) with authorization (what you can do)."
+      ],
+      "hints": [
+        "Use `alt Invalid credentials` to show the 401 Unauthorized branch.",
+        "Show the Auth Service issuing both an Access Token (short-lived) and a Refresh Token (long-lived).",
+        "Show the storage of active refresh tokens in a fast store like Redis."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "SEQUENCE"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "sequenceDiagram\n  autonumber\n  actor C as Client\n  participant G as API Gateway\n  participant A as Auth Service\n  participant D as User DB\n  participant R as Token Cache (Redis)\n\n  C->>+G: POST /api/v1/auth/login { email, password }\n  G->>+A: Verify credentials\n  A->>+D: SELECT id, password_hash, role FROM users WHERE email = ?\n  D-->>-A: Return user record\n  alt Invalid password / user not found\n    A-->>G: 401 Unauthorized (Invalid credentials)\n    G-->>C: 401 Unauthorized\n  else Valid credentials\n    A->>A: Verify bcrypt(password, hash)\n    A->>A: Generate Access Token (JWT, 15m) & Refresh Token (UUID, 14d)\n    A->>+R: SET refresh_token -> user_id (TTL 14d)\n    R-->>-A: OK\n    A-->>-G: 200 OK { access_token, refresh_token, expires_in: 900 }\n    G-->>-C: 200 OK (Tokens received)\n  end\n\n  opt Accessing Protected Resource\n    C->>+G: GET /api/v1/profile (Header: Bearer access_token)\n    G->>G: Verify JWT signature & expiration\n    alt Token Expired\n      G-->>C: 401 Unauthorized (Token expired)\n    else Valid Token\n      G-->>-C: 200 OK { user profile data }\n    end\n  end",
+        "schema": "",
+        "apis": [],
+        "notes": {
+          "hld": "",
+          "sequence": "## Authentication & Authorization Flow\n- Short-lived stateless JWT access tokens for API Gateway verification.\n- Long-lived refresh tokens stored in Redis for revocation capability.\n- Explicit branches for invalid credentials and expired tokens.",
+          "schema": "",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Illustrates complete token issuance, password hash comparison, refresh token caching, and token expiration handling during protected resource access.",
+        "approach": "Stateless JWT access tokens with stateful refresh token verification."
+      },
+      "yuvro_points": 60,
+      "minutes_max": 30,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 2
+    },
+    {
+      "title": "E-commerce Order Placement",
+      "ticket_slug": "sd-23",
+      "description": "### Scenario\nDesign the interaction sequence for e-commerce checkout involving inventory reservation, payment charging, order confirmation, and compensating transactions on failure.\n\n### Primary Tab\n**Sequence · Mermaid**\n\n### Requirements\n1. Model Client, Order Service, Inventory Service, and Payment Service.\n2. Enforce inventory reservation before attempting payment processing.\n3. Include payment success and failure branches.\n4. Design compensating transactions: if payment fails or times out, release the reserved inventory.\n\n### Acceptance Criteria\n- Diagram accounts for partial failures and exhibits an explicit compensating rollback.",
+      "difficulty": "MEDIUM",
+      "primary_tab": "SEQUENCE",
+      "tasks": [
+        "Model Client, Order Service, Inventory Service, and Payment Gateway.",
+        "Show inventory reservation prior to payment execution.",
+        "Include payment approval and payment decline branches.",
+        "Document compensation: release reserved inventory when payment fails."
+      ],
+      "learning_objectives": [
+        "Master the Saga pattern (orchestration-based) and compensating transactions.",
+        "Prevent inventory leakage during distributed checkout workflows.",
+        "Model distributed partial failure states in sequence diagrams."
+      ],
+      "common_mistakes": [
+        "Deducting inventory permanently before payment confirmation.",
+        "Failing to release held inventory when a payment provider declines or times out.",
+        "Omitting idempotency keys on order creation requests."
+      ],
+      "hints": [
+        "Use temporary inventory holds (reservation status) rather than direct deletion of stock.",
+        "In the `else Payment Failed` block, show a message from Order Service to Inventory Service: `Compensate: Release hold`.",
+        "Use asynchronous event publishing for non-critical post-checkout steps like notifications."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "SEQUENCE"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "sequenceDiagram\n  autonumber\n  actor C as Client\n  participant O as Order Service\n  participant I as Inventory Service\n  participant P as Payment Gateway\n  participant N as Notification Service\n\n  C->>+O: POST /api/v1/orders { items, idempotency_key }\n  O->>+I: Reserve inventory (item_ids, quantities)\n  alt Insufficient stock\n    I-->>O: Stock unavailable\n    O-->>C: 409 Conflict (Items out of stock)\n  else Stock reserved\n    I-->>-O: Reservation successful (Hold 15m)\n    O->>+P: Charge payment ($120.00)\n    alt Payment failed / declined\n      P-->>O: Payment declined (Insufficient funds)\n      O->>+I: Compensate: Release reserved inventory\n      I-->>-O: Hold released\n      O-->>C: 402 Payment Required\n    else Payment succeeded\n      P-->>-O: Payment confirmed (txn_id: \"tx_9921\")\n      O->>O: Mark order status = 'CONFIRMED'\n      O->>+N: Publish OrderPlacedEvent (async)\n      N-->>-O: Ack\n      O-->>-C: 201 Created { order_id: \"ord_101\", status: \"CONFIRMED\" }\n    end\n  end",
+        "schema": "",
+        "apis": [],
+        "notes": {
+          "hld": "",
+          "sequence": "## E-commerce Checkout Sequence\n- Step 1: Reserve inventory with temporary hold.\n- Step 2: Charge payment gateway.\n- Step 3: If payment fails, trigger compensating rollback to release inventory hold.\n- Step 4: Asynchronously dispatch confirmation notification.",
+          "schema": "",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Illustrates orchestrated distributed transaction with two-phase inventory reservation and compensating rollback upon payment failure.",
+        "approach": "Orchestrated Saga pattern with compensating actions."
+      },
+      "yuvro_points": 75,
+      "minutes_max": 35,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 3
+    },
+    {
+      "title": "Asynchronous Notification Delivery",
+      "ticket_slug": "sd-24",
+      "description": "### Scenario\nModel end-to-end asynchronous notification delivery through a message broker, showing immediate API acknowledgment, worker processing, retries, and dead-letter queue routing.\n\n### Primary Tab\n**Sequence · Mermaid**\n\n### Requirements\n1. Model API Service, Message Queue, Notification Worker, and Email Provider.\n2. Return an immediate acknowledgment (`202 Accepted`) to the calling client.\n3. Show the worker consuming the message and dispatching to the provider.\n4. Detail the failure path: retry with backoff, and terminal routing to a Dead Letter Queue (DLQ).\n\n### Acceptance Criteria\n- The sequence diagram proves client requests do not block on external provider latency.",
+      "difficulty": "MEDIUM",
+      "primary_tab": "SEQUENCE",
+      "tasks": [
+        "Model the API Service, Message Queue, Worker, and Third-Party Provider.",
+        "Show immediate acknowledgment (`202 Accepted`) after message enqueuing.",
+        "Add retry loop behavior when provider delivery experiences transient errors.",
+        "Show the terminal failure path routing the message to a Dead Letter Queue (DLQ)."
+      ],
+      "learning_objectives": [
+        "Understand asynchronous decoupling with message queues.",
+        "Model exponential backoff and retry limits in sequence diagrams.",
+        "Implement Dead Letter Queue (DLQ) architectures for unprocessable events."
+      ],
+      "common_mistakes": [
+        "Holding the client HTTP connection open while the worker retries sending.",
+        "Dropping messages on provider failure instead of moving them to a DLQ.",
+        "Missing acknowledgment (ACK) mechanics from the worker to the queue."
+      ],
+      "hints": [
+        "Return `202 Accepted` to the client immediately after enqueuing the message.",
+        "Use a `loop` block to indicate the worker retrying up to max attempts.",
+        "Send message to the DLQ only after retries are exhausted, then ACK the original queue."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "SEQUENCE"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "sequenceDiagram\n  autonumber\n  actor P as Producer Service\n  participant Q as Notification Queue (Kafka)\n  participant W as Worker Pool\n  participant E as Email Provider (SendGrid)\n  participant D as Dead Letter Queue (DLQ)\n\n  P->>+Q: Enqueue SendEmailEvent { to, template, data }\n  Q-->>-P: 202 Accepted (job_id: \"job_771\")\n\n  Note over Q,W: Asynchronous processing\n  W->>+Q: Pull message\n  Q-->>-W: Deliver SendEmailEvent\n  W->>+E: Send email API request\n  alt Provider Success (200 OK)\n    E-->>W: 200 OK\n    W->>Q: ACK message (remove from queue)\n  else Provider Transient 5xx / Rate Limit\n    E-->>-W: 503 Service Unavailable\n    loop Retry with Exponential Backoff (1..3)\n      W->>W: Wait backoff interval (2s, 4s, 8s)\n      W->>E: Retry Send Email\n    end\n    alt Max Retries Exhausted\n      W->>+D: Move poison message to DLQ\n      D-->>-W: Stored in DLQ\n      W->>Q: ACK original queue message\n    end\n  end",
+        "schema": "",
+        "apis": [],
+        "notes": {
+          "hld": "",
+          "sequence": "## Asynchronous Notification Sequence\n- Non-blocking client response with 202 Accepted.\n- Worker pulls from message queue and handles transient failures.\n- Terminal failures safely preserved in DLQ for manual inspection or replay.",
+          "schema": "",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Illustrates non-blocking job enqueuing, worker polling, retry loops with backoff, and dead-letter queue routing for resilient messaging.",
+        "approach": "Asynchronous queue processing with retry and DLQ pattern."
+      },
+      "yuvro_points": 75,
+      "minutes_max": 35,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 4
+    },
+    {
+      "title": "Ticket Booking Under Concurrent Demand",
+      "ticket_slug": "sd-25",
+      "description": "### Scenario\nModel high-concurrency ticket booking where multiple users attempt to reserve the same popular seat simultaneously. Handle distributed locking, temporary holds, and hold expiration.\n\n### Primary Tab\n**Sequence · Mermaid**\n\n### Requirements\n1. Model Client 1, Client 2, Booking Service, Distributed Lock (Redis), and Database.\n2. Show simultaneous reservation attempts for the exact same seat.\n3. Demonstrate distributed locking: the first requester succeeds; the second receives a conflict response.\n4. Model payment timeout behavior and seat-release cleanup by a background worker.\n\n### Acceptance Criteria\n- Prevents duplicate reservations under concurrency and models hold expiration cleanly.",
+      "difficulty": "MEDIUM",
+      "primary_tab": "SEQUENCE",
+      "tasks": [
+        "Model Client 1, Client 2, Booking Service, Distributed Lock (Redis), and DB.",
+        "Demonstrate simultaneous reservation requests for the same seat.",
+        "Show lock acquisition by User 1 and lock rejection (409 Conflict) for User 2.",
+        "Model timeout expiration and automatic seat release when payment is not completed."
+      ],
+      "learning_objectives": [
+        "Learn distributed locking with Redis (Redlock / SET NX EX).",
+        "Prevent race conditions and double-booking in high-traffic applications.",
+        "Model TTL-based temporary holds and automated expiration cleanup."
+      ],
+      "common_mistakes": [
+        "Allowing race conditions by checking and booking without atomic locks.",
+        "Failing to release holds when users abandon checkout.",
+        "Blocking all database tables rather than using row-level or distributed locks."
+      ],
+      "hints": [
+        "Use `par` block in Mermaid to represent simultaneous requests from Client 1 and Client 2.",
+        "Show Redis atomic lock `SET lock:seat:{id} (NX, EX 10s)`.",
+        "Show a background worker releasing expired holds where `expires_at < NOW()`."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "SEQUENCE"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "sequenceDiagram\n  autonumber\n  actor C1 as User 1\n  actor C2 as User 2\n  participant B as Booking Service\n  participant R as Redis (Distributed Lock)\n  participant D as Bookings DB\n  participant W as Expiration Worker\n\n  par Simultaneous Booking for Seat 42\n    C1->>+B: POST /reserve { event_id: 10, seat_id: 42 }\n    C2->>+B: POST /reserve { event_id: 10, seat_id: 42 }\n  end\n\n  B->>+R: SET lock:seat:42 (NX, EX 10s)\n  R-->>B: Lock Acquired (User 1)\n  B->>+D: INSERT INTO bookings (seat_id, status='HELD', expires_at=NOW()+10m)\n  D-->>-B: Hold Recorded\n  B-->>C1: 200 OK { hold_id: \"h_99\", expires_in: 600 }\n\n  B->>R: Attempt lock for User 2\n  R-->>-B: Lock Failed (Key exists)\n  B-->>C2: 409 Conflict (Seat currently held by another user)\n\n  opt Payment Timeout Exceeded\n    Note over W,D: Background Worker scans expired holds\n    W->>+D: UPDATE bookings SET status='EXPIRED' WHERE status='HELD' AND expires_at < NOW()\n    D-->>-W: Released expired seats\n  end",
+        "schema": "",
+        "apis": [],
+        "notes": {
+          "hld": "",
+          "sequence": "## Concurrency Control in Ticket Booking\n- Distributed lock via Redis `SET NX EX` guarantees mutual exclusion.\n- Loser of the lock race receives an immediate 409 Conflict.\n- Background worker reclaims abandoned holds without manual intervention.",
+          "schema": "",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Resolves concurrent race conditions using atomic distributed locking in Redis and handles temporary holds with automatic worker-driven expiration.",
+        "approach": "Atomic distributed lock pattern with TTL-based state machine."
+      },
+      "yuvro_points": 80,
+      "minutes_max": 40,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 5
+    }
+  ]
+}

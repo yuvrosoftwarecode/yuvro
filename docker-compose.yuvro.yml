@@ -43,7 +43,7 @@ services:
     volumes:
       - yuvro_minio_data:/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || curl -f http://localhost:9000/minio/health/startup || exit 1"]
+      test: ["CMD", "/usr/bin/mc", "ready", "local"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -52,20 +52,20 @@ services:
     networks:
       - yuvro-storage
 
-  # yuvro-minio-init:
-  #   image: coollabsio/minio:latest
-  #   depends_on:
-  #     yuvro-minio:
-  #       condition: service_healthy
-  #   entrypoint: >
-  #     sh -c "
-  #     /usr/bin/mc alias set local http://yuvro-minio:9000 minioadmin minioadmin &&
-  #     (/usr/bin/mc mb --ignore-existing local/yuvro-local || true) &&
-  #     /usr/bin/mc anonymous set download local/yuvro-local || true
-  #     "
-  #   networks:
-  #     - yuvro-storage
-  #   restart: "no"
+  yuvro-minio-init:
+    image: coollabsio/minio:latest
+    depends_on:
+      yuvro-minio:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+      /usr/bin/mc alias set local http://yuvro-minio:9000 minioadmin minioadmin &&
+      (/usr/bin/mc mb --ignore-existing local/yuvro-local || true) &&
+      /usr/bin/mc anonymous set download local/yuvro-local || true
+      "
+    networks:
+      - yuvro-storage
+    restart: "no"
 
 volumes:
   yuvro_minio_data:
@@ -74,6 +74,7 @@ networks:
   executor:
     external: true
   yuvro-storage:
+    external: true
     name: yuvro_yuvro-storage
   ylabs:
     external: true

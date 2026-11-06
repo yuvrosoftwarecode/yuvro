@@ -107,6 +107,24 @@ class AuthService {
     });
   }
 
+  async sendSignupOtp(email: string, title: string = "Student Registration"): Promise<any> {
+    return await yhubApiAuthUtil.post(`/auth/public_send_otp/`, {
+      email: email.trim(),
+      resource_id: "student_signup",
+      resource_type: "signup",
+      contest_title: title,
+    });
+  }
+
+  async verifySignupOtp(email: string, otp: string): Promise<any> {
+    return await yhubApiAuthUtil.post(`/auth/public_check_otp/`, {
+      email: email.trim(),
+      resource_id: "student_signup",
+      resource_type: "signup",
+      otp: otp.trim(),
+    });
+  }
+
   async loginWithGoogle(token: string): Promise<LoginResponse> {
     const response = await yhubApiAuthUtil.post<LoginResponse>("/auth/google/?product=ylabs", {
       token,
@@ -159,11 +177,18 @@ class AuthService {
 
   async logoutUser(): Promise<void> {
     const refreshToken = localStorage.getItem("refresh");
-    if (refreshToken) {
-      yhubApiAuthUtil.post("/auth/logout/", { refresh: refreshToken }).catch((error) => {
-        console.warn("Logout error:", error);
-      });
+    const sessionId = localStorage.getItem("yuvro_session_id");
+    try {
+      if (refreshToken || sessionId) {
+        await yhubApiAuthUtil.post("/auth/logout/", {
+          refresh: refreshToken,
+          session_id: sessionId,
+        });
+      }
+    } catch (e) {
+      console.warn("Logout error:", e);
     }
+    localStorage.removeItem("yuvro_session_id");
     restApiAuthUtil.clearAuthToken();
     yhubApiAuthUtil.clearAuthToken();
     ycodeApiAuthUtil.clearAuthToken();
@@ -182,11 +207,52 @@ class AuthService {
     return await yhubApiAuthUtil.post(`/auth/reset-password/${uidb64}/${token}/`, { password });
   }
 
-  async changePassword(currentPassword: string, newPassword: string): Promise<any> {
+  async sendChangePasswordOtp(): Promise<{ status: string; message: string }> {
+    return await yhubApiAuthUtil.post<{ status: string; message: string }>(
+      "/auth/change-password/send-otp/",
+      {},
+    );
+  }
+
+  async changePassword(options: {
+    currentPassword?: string;
+    otp?: string;
+    newPassword: string;
+  }): Promise<any> {
     return await yhubApiAuthUtil.post("/auth/change-password/", {
-      password: newPassword,
+      current_password: options.currentPassword,
+      otp: options.otp,
+      new_password: options.newPassword,
     });
   }
+
+  async getActiveSessions(): Promise<ActiveSession[]> {
+    return await yhubApiAuthUtil.get<ActiveSession[]>("/auth/sessions/");
+  }
+
+  async revokeSession(sessionId: string): Promise<any> {
+    try {
+      return await yhubApiAuthUtil.post(`/auth/sessions/${sessionId}/logout/`, {});
+    } catch {
+      return await yhubApiAuthUtil.delete(`/auth/sessions/${sessionId}/logout/`);
+    }
+  }
+
+  async revokeAllOtherSessions(): Promise<any> {
+    return await yhubApiAuthUtil.post("/auth/sessions/logout-all/", {});
+  }
+}
+
+export interface ActiveSession {
+  id: string;
+  browser: string;
+  os: string;
+  device_type: string;
+  location: string;
+  ip_address: string;
+  last_activity: string;
+  created_at: string;
+  is_current: boolean;
 }
 
 export const authService = new AuthService();

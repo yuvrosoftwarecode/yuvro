@@ -1,0 +1,130 @@
+{
+  "title": "Sprint 2 \u00b7 Output Projections & Probability Distributions",
+  "description": "Transform hidden representations into vocabulary logits, implement numerically stable probability normalization, and implement training loss calculation.",
+  "order_index": 2,
+  "tickets": [
+    {
+      "title": "Ticket 1 - Log-Sum-Exp Probability Normalizer",
+      "ticket_slug": "microgpt-s2-stable-normalizer",
+      "description": "Implement softmax(x, temperature=1.0, axis=-1) in micro_gpt/activations.py with log-sum-exp numerical stabilization.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Prevent float overflow via maximum subtraction",
+        "Ensure valid probability simplex output"
+      ],
+      "tasks": [
+        {
+          "title": "Implement subtract-max normalization trick",
+          "points": 50
+        },
+        {
+          "title": "Ensure probabilities sum to 1 along target axis",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Omitting keepdims=True during axis reduction."
+      ],
+      "hints": [
+        "shift = x - np.max(x, axis=axis, keepdims=True)"
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/activations.py",
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_1/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/activations.py": "import numpy as np\n\ndef softmax(x: np.ndarray, temperature: float = 1.0, axis: int = -1) -> np.ndarray:\n    \"\"\"\n    Compute numerically stable softmax with optional temperature scaling.\n    \"\"\"\n    shifted = x - np.max(x, axis=axis, keepdims=True)\n    exp_shifted = np.exp(shifted)\n    return exp_shifted / np.sum(exp_shifted, axis=axis, keepdims=True)\n\ndef gelu(x: np.ndarray) -> np.ndarray:\n    \"\"\"\n    Gaussian Error Linear Unit (GELU) activation function using the tanh approximation.\n    \"\"\"\n    # TODO: Implement GELU activation\n    pass\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - Entropy Control & Temperature Scaling",
+      "ticket_slug": "microgpt-s2-entropy-scaling",
+      "description": "Incorporate temperature scaling into softmax to control generation entropy and variance.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Master physical interpretation of temperature in LLMs",
+        "Tune peak vs uniform distribution behavior"
+      ],
+      "tasks": [
+        {
+          "title": "Verify cold temperature convergence to argmax",
+          "points": 50
+        },
+        {
+          "title": "Verify hot temperature uniform distribution",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Multiplying by temperature instead of dividing."
+      ],
+      "hints": [
+        "Divide logits by max(temperature, 1e-8) before exponentiation."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/activations.py",
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_2/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/activations.py": "import numpy as np\n\ndef softmax(x: np.ndarray, temperature: float = 1.0, axis: int = -1) -> np.ndarray:\n    \"\"\"\n    Compute numerically stable softmax with optional temperature scaling.\n    \"\"\"\n    scaled = x / float(temperature)\n    shifted = scaled - np.max(scaled, axis=axis, keepdims=True)\n    exp_shifted = np.exp(shifted)\n    return exp_shifted / np.sum(exp_shifted, axis=axis, keepdims=True)\n\ndef gelu(x: np.ndarray) -> np.ndarray:\n    \"\"\"\n    Gaussian Error Linear Unit (GELU) activation function using the tanh approximation.\n    \"\"\"\n    # TODO: Implement GELU activation\n    pass\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_2/main_test.py"
+    },
+    {
+      "title": "Ticket 3 - Vocabulary Projection Head & Objective Loss",
+      "ticket_slug": "microgpt-s2-projection-loss",
+      "description": "Implement Linear projection layer and cross_entropy_loss in micro_gpt/linear.py.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Build matrix projection heads",
+        "Calculate multi-class negative log-likelihood loss"
+      ],
+      "tasks": [
+        {
+          "title": "Implement Linear.forward(x)",
+          "points": 50
+        },
+        {
+          "title": "Implement cross_entropy_loss(logits, targets)",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Zero division in log without epsilon guard."
+      ],
+      "hints": [
+        "Compute softmax probabilities first, then extract target indices."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/linear.py",
+        "test_command": "python yuvro_scoring_rules/sprint_2/ticket_3/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/linear.py": "import numpy as np\nfrom typing import Optional\n\nclass Linear:\n    def __init__(self, in_features: int, out_features: int, bias: bool = True):\n        self.in_features = in_features\n        self.out_features = out_features\n        scale = np.sqrt(2.0 / (in_features + out_features))\n        self.weight = np.random.randn(in_features, out_features) * scale\n        self.bias = np.zeros(out_features) if bias else None\n\n    def forward(self, x: np.ndarray) -> np.ndarray:\n        out = np.matmul(x, self.weight)\n        if self.bias is not None:\n            out = out + self.bias\n        return out\n\n    def __call__(self, x: np.ndarray) -> np.ndarray:\n        return self.forward(x)\n\ndef cross_entropy_loss(logits: np.ndarray, targets: np.ndarray) -> float:\n    C = logits.shape[-1]\n    flat_logits = logits.reshape(-1, C)\n    flat_targets = targets.reshape(-1)\n    \n    max_logits = np.max(flat_logits, axis=-1, keepdims=True)\n    exp_logits = np.exp(flat_logits - max_logits)\n    sum_exp = np.sum(exp_logits, axis=-1, keepdims=True)\n    log_probs = (flat_logits - max_logits) - np.log(sum_exp)\n    \n    n = flat_targets.shape[0]\n    target_log_probs = log_probs[np.arange(n), flat_targets]\n    return float(-np.mean(target_log_probs))\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_2/ticket_3/main_test.py"
+    }
+  ]
+}

@@ -1,0 +1,298 @@
+{
+  "title": "Sprint 3 — DB Schema: Data Modeling with DBML",
+  "description": "Design normalized schemas, establish primary and foreign key constraints, enforce uniqueness, and model relational data structures using DBML.",
+  "order_index": 3,
+  "lab_title": "System Design Lab",
+  "tickets": [
+    {
+      "title": "Design a URL Mapping Database",
+      "ticket_slug": "sd-31",
+      "description": "### Scenario\nDesign the relational database schema in DBML for a URL shortener, ensuring unique alias lookups and tracking click analytics.\n\n### Primary Tab\n**DB Schema · DBML**\n\n### Requirements\n1. Create a `urls` table with primary key, original URL, short code, and timestamps.\n2. Enforce a unique constraint on `short_code` to prevent collisions.\n3. Create a `url_clicks` analytics table referencing `urls.id` via foreign key.\n4. Design appropriate indexes for O(1) redirection lookups.\n\n### Acceptance Criteria\n- DBML schema enforces uniqueness on short codes and defines valid relationships between URLs and analytics entries.",
+      "difficulty": "EASY",
+      "primary_tab": "DB_SCHEMA",
+      "tasks": [
+        "Create a `urls` table with primary key, original URL, short code, and created_at timestamp.",
+        "Enforce uniqueness on the short code column (`[unique]`).",
+        "Create a `url_clicks` table with a foreign key referencing `urls.id` (`[ref: > urls.id]`).",
+        "Document an indexing strategy for fast short code resolution."
+      ],
+      "learning_objectives": [
+        "Learn DBML syntax for tables, column types, and constraints (`[pk]`, `[unique]`, `[ref]`).",
+        "Design 1-to-many relationships with foreign key integrity.",
+        "Choose appropriate column data types for URLs, hashes, and timestamps."
+      ],
+      "common_mistakes": [
+        "Omitting the unique constraint on the short code column.",
+        "Using unbounded or inefficient string types for hashes.",
+        "Failing to relate click analytics to parent URL records."
+      ],
+      "hints": [
+        "In DBML: `Table urls { id bigint [pk] short_code varchar [unique] ... }`.",
+        "Establish foreign key using `ref: > urls.id` inside the child table column definition.",
+        "Include counters or analytics tracking tables."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "DB_SCHEMA"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "",
+        "schema": "Table urls {\n  id bigint [pk, increment]\n  short_code varchar(10) [unique, not null]\n  original_url text [not null]\n  created_by bigint\n  click_count bigint [default: 0]\n  created_at timestamp [default: `now()`]\n  expires_at timestamp\n}\n\nTable url_clicks {\n  id bigint [pk, increment]\n  url_id bigint [ref: > urls.id, not null]\n  ip_hash varchar(64)\n  country_code varchar(3)\n  user_agent text\n  clicked_at timestamp [default: `now()`]\n}",
+        "apis": [],
+        "notes": {
+          "hld": "",
+          "sequence": "",
+          "schema": "## URL Mapping Data Model\n- `urls`: Stores short codes with unique B-tree index for O(1) redirection lookup.\n- `url_clicks`: Tracks every redirect access with foreign key to parent URL.\n- High-velocity click logs can be partitioned or aggregated into daily metrics.",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Defines relational schema with primary/foreign keys, uniqueness constraints on the short code, and an audit table for click telemetry.",
+        "approach": "Normalized DBML schema with foreign key relationships."
+      },
+      "yuvro_points": 50,
+      "minutes_max": 25,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 1
+    },
+    {
+      "title": "Design an E-commerce Database",
+      "ticket_slug": "sd-32",
+      "description": "### Scenario\nDesign the relational database schema in DBML for an e-commerce platform supporting users, product catalog, orders, and order line items.\n\n### Primary Tab\n**DB Schema · DBML**\n\n### Requirements\n1. Create `users`, `products`, `orders`, and `order_items` tables.\n2. Define primary keys (`[pk]`) and foreign keys (`[ref: > ...]`).\n3. Model the many-to-many relationship between orders and products via the `order_items` join table.\n4. Preserve historical purchase price inside `order_items` so future product price changes do not alter past orders.\n\n### Acceptance Criteria\n- Schema preserves historical pricing integrity and establishes valid relational constraints.",
+      "difficulty": "EASY",
+      "primary_tab": "DB_SCHEMA",
+      "tasks": [
+        "Create `users`, `products`, `orders`, and `order_items` tables.",
+        "Define primary keys and foreign key relationships between orders, users, and products.",
+        "Model the many-to-many relationship through `order_items`.",
+        "Store historical `unit_price` on `order_items` to protect order history integrity."
+      ],
+      "learning_objectives": [
+        "Model many-to-many relationships through associative join entities.",
+        "Understand temporal data integrity: snapshotting prices at transaction time.",
+        "Define decimal types for currency and status enumerations."
+      ],
+      "common_mistakes": [
+        "Referencing `products.price` directly for past orders instead of storing historical price in `order_items`.",
+        "Omitting foreign keys on `order_items` to `orders` and `products`.",
+        "Using float instead of decimal for financial currencies."
+      ],
+      "hints": [
+        "`order_items` needs `order_id bigint [ref: > orders.id]` and `product_id bigint [ref: > products.id]`.",
+        "Include `unit_price decimal(10,2)` on `order_items`.",
+        "Add status column (e.g. `PENDING`, `CONFIRMED`, `SHIPPED`) on `orders`."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "DB_SCHEMA"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "",
+        "schema": "Table users {\n  id bigint [pk, increment]\n  email varchar(255) [unique, not null]\n  password_hash varchar(255) [not null]\n  full_name varchar(150)\n  created_at timestamp [default: `now()`]\n}\n\nTable products {\n  id bigint [pk, increment]\n  sku varchar(50) [unique, not null]\n  name varchar(255) [not null]\n  description text\n  price decimal(10,2) [not null]\n  stock_quantity int [not null, default: 0]\n  created_at timestamp [default: `now()`]\n}\n\nTable orders {\n  id bigint [pk, increment]\n  user_id bigint [ref: > users.id, not null]\n  status varchar(30) [not null, default: 'PENDING']\n  total_amount decimal(10,2) [not null]\n  created_at timestamp [default: `now()`]\n}\n\nTable order_items {\n  id bigint [pk, increment]\n  order_id bigint [ref: > orders.id, not null]\n  product_id bigint [ref: > products.id, not null]\n  unit_price decimal(10,2) [not null]\n  quantity int [not null, default: 1]\n}",
+        "apis": [],
+        "notes": {
+          "hld": "",
+          "sequence": "",
+          "schema": "## E-commerce Data Model Decisions\n- `order_items.unit_price` snapshots the purchase price at time of order creation.\n- Decimal precision (10,2) prevents floating-point rounding errors on currency calculations.\n- Relational foreign keys maintain referential integrity.",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Accurately represents relational e-commerce tables, junction table constraints, and pricing snapshot preservation.",
+        "approach": "Third Normal Form (3NF) relational design with historical price snapshotting."
+      },
+      "yuvro_points": 60,
+      "minutes_max": 30,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 2
+    },
+    {
+      "title": "Design a Notification Database",
+      "ticket_slug": "sd-33",
+      "description": "### Scenario\nDesign the relational database schema in DBML for a multi-channel notification platform (Email, SMS, Push) that tracks delivery attempts, templates, and statuses.\n\n### Primary Tab\n**DB Schema · DBML**\n\n### Requirements\n1. Create `notification_templates`, `notifications`, and `notification_attempts` tables.\n2. Define statuses: `PENDING`, `PROCESSING`, `SENT`, `FAILED`.\n3. Establish foreign keys linking delivery attempts to their parent notification.\n4. Design schema to track error messages, provider responses, and timestamps for every delivery retry.\n\n### Acceptance Criteria\n- Multiple delivery attempts can be tracked and audited per notification request.",
+      "difficulty": "EASY",
+      "primary_tab": "DB_SCHEMA",
+      "tasks": [
+        "Create `notification_templates`, `notifications`, and `notification_attempts` tables.",
+        "Define status columns with states: PENDING, SENT, FAILED.",
+        "Relate delivery attempts to parent notifications (`[ref: > notifications.id]`).",
+        "Include provider response and error message columns on attempts for observability."
+      ],
+      "learning_objectives": [
+        "Design audit log tables for asynchronous background jobs.",
+        "Model reusable template configurations with variable interpolation.",
+        "Track parent-child execution attempts for distributed workflows."
+      ],
+      "common_mistakes": [
+        "Overwriting previous delivery attempt errors instead of logging each retry row.",
+        "Hardcoding templates in application code rather than a dedicated database entity.",
+        "Missing foreign key constraints between notifications and attempts."
+      ],
+      "hints": [
+        "Create a 1-to-many relationship: One `notifications` row has many `notification_attempts` rows.",
+        "Store the template key on `notification_templates` with a unique constraint.",
+        "Record attempt number, provider name, and error response on `notification_attempts`."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "DB_SCHEMA"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "",
+        "schema": "Table notification_templates {\n  id bigint [pk, increment]\n  template_key varchar(100) [unique, not null]\n  channel varchar(30) [not null]\n  subject text\n  body_template text [not null]\n  created_at timestamp [default: `now()`]\n}\n\nTable notifications {\n  id bigint [pk, increment]\n  user_id bigint [not null]\n  template_id bigint [ref: > notification_templates.id]\n  channel varchar(30) [not null]\n  status varchar(30) [not null, default: 'PENDING']\n  recipient text [not null]\n  payload_json text\n  created_at timestamp [default: `now()`]\n}\n\nTable notification_attempts {\n  id bigint [pk, increment]\n  notification_id bigint [ref: > notifications.id, not null]\n  attempt_number int [not null]\n  provider_name varchar(50) [not null]\n  status varchar(30) [not null]\n  error_message text\n  response_code int\n  attempted_at timestamp [default: `now()`]\n}",
+        "apis": [],
+        "notes": {
+          "hld": "",
+          "sequence": "",
+          "schema": "## Notification Audit Schema\n- Every retry is appended as a new row in `notification_attempts`.\n- Preserves complete operational history for debugging provider deliverability.\n- Decouples template rendering from notification execution.",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Separates notification intent from execution attempts, enabling full auditability and retry tracking.",
+        "approach": "Parent-child event audit log data modeling in DBML."
+      },
+      "yuvro_points": 60,
+      "minutes_max": 30,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 3
+    },
+    {
+      "title": "Design a Multi-tenant SaaS Database",
+      "ticket_slug": "sd-34",
+      "description": "### Scenario\nDesign the relational database schema in DBML for a multi-tenant B2B SaaS platform (like GitHub or Linear) where users can join multiple organizations with distinct roles.\n\n### Primary Tab\n**DB Schema · DBML**\n\n### Requirements\n1. Create `organizations`, `users`, `memberships`, and `projects` tables.\n2. Model users belonging to multiple organizations through a `memberships` table.\n3. Enforce membership roles (`ADMIN`, `MEMBER`, `VIEWER`) and uniqueness on `(org_id, user_id)`.\n4. Ensure all tenant-owned entities (e.g. `projects`) have an explicit foreign key to `organizations.id` for row-level security.\n\n### Acceptance Criteria\n- Schema enforces tenant isolation and supports many-to-many user-organization memberships.",
+      "difficulty": "MEDIUM",
+      "primary_tab": "DB_SCHEMA",
+      "tasks": [
+        "Create `organizations`, `users`, `memberships`, and `projects` tables in DBML.",
+        "Model users belonging to multiple organizations via `memberships`.",
+        "Define membership roles and uniqueness constraints (`unique(org_id, user_id)`).",
+        "Ensure tenant-owned records link directly to `organizations.id` for strict tenant isolation."
+      ],
+      "learning_objectives": [
+        "Master multi-tenant shared-database row-level tenant separation.",
+        "Design Role-Based Access Control (RBAC) membership schemas.",
+        "Prevent cross-tenant data leakage through explicit foreign keys."
+      ],
+      "common_mistakes": [
+        "Hardcoding an `org_id` on the `users` table, preventing users from joining multiple organizations.",
+        "Omitting tenant foreign keys on subsidiary resource tables like `projects`.",
+        "Failing to enforce unique constraints on membership pairings."
+      ],
+      "hints": [
+        "`memberships` table should have `org_id [ref: > organizations.id]` and `user_id [ref: > users.id]`.",
+        "Add `role varchar(30)` to memberships table.",
+        "`projects` must have `org_id [ref: > organizations.id]` to enforce tenant boundary."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "DB_SCHEMA"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "",
+        "schema": "Table organizations {\n  id bigint [pk, increment]\n  slug varchar(100) [unique, not null]\n  name varchar(255) [not null]\n  plan varchar(50) [default: 'FREE']\n  created_at timestamp [default: `now()`]\n}\n\nTable users {\n  id bigint [pk, increment]\n  email varchar(255) [unique, not null]\n  full_name varchar(150)\n  created_at timestamp [default: `now()`]\n}\n\nTable memberships {\n  id bigint [pk, increment]\n  org_id bigint [ref: > organizations.id, not null]\n  user_id bigint [ref: > users.id, not null]\n  role varchar(30) [not null, default: 'MEMBER']\n  created_at timestamp [default: `now()`]\n}\n\nTable projects {\n  id bigint [pk, increment]\n  org_id bigint [ref: > organizations.id, not null]\n  name varchar(255) [not null]\n  status varchar(30) [default: 'ACTIVE']\n  created_at timestamp [default: `now()`]\n}",
+        "apis": [],
+        "notes": {
+          "hld": "",
+          "sequence": "",
+          "schema": "## Multi-tenant Schema Architecture\n- Row-level multitenancy: `org_id` partitioned on every tenant entity.\n- `memberships` associative entity allows a single user login to access multiple companies.\n- Prevents data crossover using strict composite indexes and foreign key references.",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Implements row-level multi-tenancy with an associative membership model supporting RBAC roles across organizations.",
+        "approach": "Row-level multi-tenant database design with RBAC memberships."
+      },
+      "yuvro_points": 75,
+      "minutes_max": 35,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 4
+    },
+    {
+      "title": "Design a Ticket Booking Database",
+      "ticket_slug": "sd-35",
+      "description": "### Scenario\nDesign the relational database schema in DBML for a high-concurrency event booking platform (like Ticketmaster or BookMyShow) that manages seat reservations, payment holds, and concurrency safety.\n\n### Primary Tab\n**DB Schema · DBML**\n\n### Requirements\n1. Create `events`, `seats`, `bookings`, and `payments` tables.\n2. Model temporary seat holds with `status` (`HELD`, `CONFIRMED`, `CANCELLED`, `EXPIRED`) and an `expires_at` timestamp.\n3. Prevent duplicate active bookings for the same seat using unique constraints.\n4. Link payments to bookings with transaction ID and status tracking.\n\n### Acceptance Criteria\n- Schema reliably supports concurrency-safe seat allocation, expiration timestamps, and payment tracking.",
+      "difficulty": "MEDIUM",
+      "primary_tab": "DB_SCHEMA",
+      "tasks": [
+        "Create `events`, `seats`, `bookings`, and `payments` tables in DBML.",
+        "Model temporary seat holds with status and `expires_at` timestamp columns.",
+        "Establish foreign key relationships connecting seats to events, bookings to seats, and payments to bookings.",
+        "Design constraints to prevent simultaneous active bookings for the same seat."
+      ],
+      "learning_objectives": [
+        "Model state machine lifecycles (Held -> Confirmed -> Expired) in database schemas.",
+        "Design temporal expiration fields for transaction timeouts.",
+        "Enforce data integrity under high-concurrency reservation scenarios."
+      ],
+      "common_mistakes": [
+        "Omitting the expiration timestamp (`expires_at`) for temporary reservations.",
+        "Failing to track payment transaction references.",
+        "Allowing multiple confirmed booking records for the same seat."
+      ],
+      "hints": [
+        "`seats` table has `event_id [ref: > events.id]`.",
+        "`bookings` table links to `seats.id` and has an `expires_at timestamp`.",
+        "`payments` table links to `bookings.id` with `transaction_id varchar [unique]`."
+      ],
+      "scoring_rules": {
+        "rubric": {
+          "correctness": 35,
+          "coverage": 25,
+          "constraints": 20,
+          "decisions": 20
+        },
+        "primary_tab": "DB_SCHEMA"
+      },
+      "system_design": {
+        "nodes": [],
+        "edges": [],
+        "seq": "",
+        "schema": "Table events {\n  id bigint [pk, increment]\n  title varchar(255) [not null]\n  venue varchar(255) [not null]\n  starts_at timestamp [not null]\n  created_at timestamp [default: `now()`]\n}\n\nTable seats {\n  id bigint [pk, increment]\n  event_id bigint [ref: > events.id, not null]\n  section varchar(50) [not null]\n  seat_number varchar(20) [not null]\n  price decimal(10,2) [not null]\n}\n\nTable bookings {\n  id bigint [pk, increment]\n  user_id bigint [not null]\n  seat_id bigint [ref: > seats.id, not null]\n  status varchar(30) [not null, default: 'HELD']\n  expires_at timestamp [not null]\n  created_at timestamp [default: `now()`]\n}\n\nTable payments {\n  id bigint [pk, increment]\n  booking_id bigint [ref: > bookings.id, not null]\n  transaction_id varchar(100) [unique, not null]\n  amount decimal(10,2) [not null]\n  status varchar(30) [not null]\n  paid_at timestamp\n}",
+        "apis": [],
+        "notes": {
+          "hld": "",
+          "sequence": "",
+          "schema": "## Ticket Booking Schema Design\n- `bookings.expires_at`: Enforces hard TTL for seat holds (e.g. 10 minutes).\n- Status values: 'HELD' -> 'CONFIRMED' or 'EXPIRED'.\n- Unique constraint prevents duplicate active holds per seat.",
+          "api": ""
+        }
+      },
+      "solution": {
+        "explanation": "Models seat hold states, TTL expiration timestamps, and payment tracking for concurrency-safe event bookings.",
+        "approach": "Stateful reservation entity with temporal TTL fields."
+      },
+      "yuvro_points": 80,
+      "minutes_max": 40,
+      "accepted_programming_languages": ["System Design"],
+      "order_index": 5
+    }
+  ]
+}

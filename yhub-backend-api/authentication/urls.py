@@ -26,6 +26,7 @@ urlpatterns = [
         name="reset_password",
     ),
     path("change-password/", views.change_password_view, name="change_password"),
+    path("change-password/send-otp/", views.send_change_password_otp, name="send_change_password_otp"),
     path("admin-users/", admin_users, name="admin_users"),
     path("github/connect/", views.GithubConnectView.as_view(), name="github_connect"),
     path("linkedin/connect/", views.LinkedInConnectView.as_view(), name="linkedin_connect"),
@@ -35,4 +36,7 @@ urlpatterns = [
     path("internal/delete-user/", views.internal_delete_user, name="internal_delete_user"),
     path("profile/upload-image/", views.upload_profile_image, name="upload_profile_image"),
     path("profile/remove-image/", views.remove_profile_image, name="remove_profile_image"),
+    path("sessions/", views.sessions_view, name="sessions"),
+    path("sessions/<uuid:session_id>/logout/", views.revoke_session_view, name="revoke_session"),
+    path("sessions/logout-all/", views.revoke_other_sessions_view, name="revoke_other_sessions"),
 ]

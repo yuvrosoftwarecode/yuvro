@@ -23,6 +23,12 @@ export interface User {
   profile_image?: string;
   cover_image?: string;
   resume_file?: string;
+  phone?: string;
+  location?: string;
+  website?: string;
+  about?: string;
+  education?: Array<Record<string, any>>;
+  employment?: Array<Record<string, any>>;
   profile?: {
     about?: string;
     avatar?: string;

@@ -1,5 +1,6 @@
 import uuid
-from django.db import models
+from decimal import Decimal
+from django.db import models, transaction
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
@@ -67,6 +68,10 @@ class MockInterview(BaseModel):
 
     publish_status = models.CharField(
         max_length=20, choices=PUBLISH_STATUS_CHOICES, default=PUBLISH_STATUS_DRAFT
+    )
+
+    products = models.JSONField(
+        default=list, blank=True, help_text="Associated products e.g. ['ycode', 'ylabs', 'ycampus']"
     )
 
 
@@ -228,3 +233,149 @@ class UserInterviewProgress(BaseTimestampedModel):
 
     def __str__(self):
         return f"{self.user.username} - {self.mock_interview.title} - {self.completed_count}"
+
+
+class CandidateMockInterviewQuota(BaseTimestampedModel):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="mock_interview_quota"
+    )
+    free_interviews = models.IntegerField(
+        default=3, help_text="Initial free mock interviews granted"
+    )
+    purchased_interviews = models.IntegerField(
+        default=0, help_text="Total mock interviews purchased"
+    )
+    used_interviews = models.IntegerField(
+        default=0, help_text="Total mock interviews consumed"
+    )
+
+    class Meta:
+        verbose_name = "Candidate Mock Interview Quota"
+        verbose_name_plural = "Candidate Mock Interview Quotas"
+
+    @property
+    def total_granted(self) -> int:
+        return self.free_interviews + self.purchased_interviews
+
+    @property
+    def available_interviews(self) -> int:
+        return max(0, (self.free_interviews + self.purchased_interviews) - self.used_interviews)
+
+    @classmethod
+    def get_or_create_quota(cls, user):
+        with transaction.atomic():
+            quota, created = cls.objects.select_for_update().get_or_create(
+                user=user,
+                defaults={
+                    "free_interviews": 3,
+                    "purchased_interviews": 0,
+                    "used_interviews": 0,
+                },
+            )
+            if created:
+                MockInterviewCreditLedger.objects.create(
+                    user=user,
+                    quota=quota,
+                    entry_type=MockInterviewCreditLedger.TYPE_INITIAL_GRANT,
+                    delta=3,
+                    balance_after=3,
+                    description="Initial welcome grant: 3 free mock interviews",
+                )
+            return quota
+
+    def __str__(self):
+        return f"{self.user.username} - Available: {self.available_interviews} (Free: {self.free_interviews}, Purchased: {self.purchased_interviews}, Used: {self.used_interviews})"
+
+
+class MockInterviewPack(BaseTimestampedModel):
+    id = models.CharField(
+        max_length=50, primary_key=True, help_text="Pack identifier e.g. mock_pack_1, mock_pack_5, mock_pack_10"
+    )
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    interviews_count = models.IntegerField(help_text="Number of mock interviews granted")
+    price_inr = models.DecimalField(
+        max_digits=10, decimal_places=2, default=Decimal("0.00"), help_text="Price in INR"
+    )
+    price_paise = models.PositiveIntegerField(
+        default=0, help_text="Price in integer paise for payment gateways (e.g. 9900 for ₹99)"
+    )
+    badge = models.CharField(max_length=50, blank=True, help_text="UI badge like 'Popular' or 'Best Value'")
+    is_active = models.BooleanField(default=True)
+    sort_order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ["sort_order", "price_inr"]
+
+    def __str__(self):
+        return f"{self.name} ({self.interviews_count} interviews - ₹{self.price_inr})"
+
+
+class MockInterviewCreditLedger(BaseTimestampedModel):
+    TYPE_INITIAL_GRANT = "initial_grant"
+    TYPE_PURCHASE = "purchase"
+    TYPE_CONSUME = "consume"
+    TYPE_REFUND = "refund"
+    TYPE_ADMIN_ADJUSTMENT = "admin_adjustment"
+
+    TYPE_CHOICES = [
+        (TYPE_INITIAL_GRANT, "Initial Grant"),
+        (TYPE_PURCHASE, "Purchase"),
+        (TYPE_CONSUME, "Consume"),
+        (TYPE_REFUND, "Refund"),
+        (TYPE_ADMIN_ADJUSTMENT, "Admin Adjustment"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="mock_interview_ledger_entries")
+    quota = models.ForeignKey(CandidateMockInterviewQuota, on_delete=models.CASCADE, related_name="ledger_entries")
+    entry_type = models.CharField(max_length=30, choices=TYPE_CHOICES)
+    delta = models.IntegerField(help_text="Change in available interviews (+3, -1, +5, etc.)")
+    balance_after = models.IntegerField(help_text="Available balance after this transaction")
+    submission = models.ForeignKey(
+        'MockInterviewSubmission', on_delete=models.SET_NULL, null=True, blank=True, related_name="credit_entries"
+    )
+    payment = models.ForeignKey(
+        'payment.Payment', on_delete=models.SET_NULL, null=True, blank=True, related_name="mock_interview_ledger_entries"
+    )
+    description = models.CharField(max_length=255, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user.username} | {self.entry_type} | delta: {self.delta} | balance: {self.balance_after}"
+
+
+DEFAULT_MOCK_PACKS = [
+    {
+        "id": "mock_pack_1",
+        "name": "1 Mock Interview",
+        "description": "1 AI-led Mock Interview session with real-time adaptive questioning, dynamic evaluation, and comprehensive analytics report.",
+        "interviews_count": 1,
+        "price_inr": Decimal("99.00"),
+        "price_paise": 9900,
+        "badge": "",
+        "sort_order": 1,
+    },
+    {
+        "id": "mock_pack_5",
+        "name": "5 Mock Interviews",
+        "description": "5 AI-led Mock Interview sessions with real-time adaptive questioning, dynamic evaluation, and comprehensive analytics reports.",
+        "interviews_count": 5,
+        "price_inr": Decimal("399.00"),
+        "price_paise": 39900,
+        "badge": "Popular",
+        "sort_order": 2,
+    },
+    {
+        "id": "mock_pack_10",
+        "name": "10 Mock Interviews",
+        "description": "10 AI-led Mock Interview sessions with real-time adaptive questioning, dynamic evaluation, and comprehensive analytics reports.",
+        "interviews_count": 10,
+        "price_inr": Decimal("700.00"),
+        "price_paise": 70000,
+        "badge": "Best Value",
+        "sort_order": 3,
+    },
+]

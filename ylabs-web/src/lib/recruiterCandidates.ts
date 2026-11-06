@@ -21,12 +21,14 @@ export interface Candidate {
   labsScore: number;
   assessmentScore: number;
   vitarkaScore: number;
+  systemDesignScore?: number;
   eci: number; // Engineering Capability Index / Total score percentage
   totalEarned?: number;
   totalPossible?: number;
   labsMaxScore?: number;
   assessmentMaxScore?: number;
   discussionMaxScore?: number;
+  systemDesignMaxScore?: number;
   recommendation: Recommendation;
   status: CandStatus;
   hiringStatus: HiringStatus;
@@ -49,6 +51,7 @@ export interface Candidate {
       labs: { score: number; timeSpent: number; events: { time: number; type: string; desc: string; severity: number }[] };
       assessment: { score: number; timeSpent: number; events: { time: number; type: string; desc: string; severity: number }[] };
       vitarka: { score: number; timeSpent: number; events: { time: number; type: string; desc: string; severity: number }[] };
+      system_design?: { score: number; timeSpent: number; events: { time: number; type: string; desc: string; severity: number }[] };
     };
   };
 }
@@ -244,7 +247,23 @@ export function getCandidates(
     ? (discMetaMarks ?? discSec.marks ?? discSec.max_score ?? 25)
     : (hasSections ? 0 : 25);
 
-  const totalPossible = labsMaxScore + assessmentMaxScore + discussionMaxScore;
+  const sdSec = sectionsList.find(
+    (s: any) => s.type === "SYSTEM_DESIGN" || s.kind === "system_design"
+  );
+  const systemDesignMaxScore = sdSec
+    ? (sdSec.marks ?? 30)
+    : (hasSections ? 0 : 30);
+
+  const hasLabsSec = Boolean(labsSec) || sectionsList.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS");
+  const hasAssessmentSec = Boolean(assessSec) || sectionsList.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT");
+  const hasVitarkaSec = Boolean(discSec) || sectionsList.some((s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka");
+  const hasSystemDesignSec = Boolean(sdSec) || sectionsList.some((s: any) => s.kind === "system_design" || s.type === "SYSTEM_DESIGN");
+
+  const totalPossible =
+    labsMaxScore +
+    assessmentMaxScore +
+    discussionMaxScore +
+    (hasSections ? (sdSec ? systemDesignMaxScore : 0) : 0);
 
   const r = rng(hash(evaluationId));
   const out: Candidate[] = [];
@@ -265,6 +284,7 @@ export function getCandidates(
     let labs = 0;
     let assess = 0;
     let vit = 0;
+    let sd = 0;
     let eci = 0;
     let totalEarned = 0;
     let rec: Recommendation = "Reject";
@@ -273,11 +293,12 @@ export function getCandidates(
     let vitSub: any = null;
 
     if (isDemo) {
-      labs = Math.round(35 + r() * 65);
-      assess = Math.round(35 + r() * 65);
-      vit = Math.round(35 + r() * 65);
-      totalEarned = labs + assess + vit;
-      eci = Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
+      labs = hasLabsSec ? Math.round(35 + r() * 65) : 0;
+      assess = hasAssessmentSec ? Math.round(35 + r() * 65) : 0;
+      vit = hasVitarkaSec ? Math.round(35 + r() * 65) : 0;
+      sd = hasSystemDesignSec ? Math.round(35 + r() * 65) : 0;
+      totalEarned = labs + assess + vit + sd;
+      eci = totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : Math.round(labs * 0.35 + assess * 0.2 + vit * 0.2 + sd * 0.25);
       rec = eci >= 70 ? "Strong Hire" : eci >= 50 ? "Hire" : eci >= 35 ? "Maybe" : "Reject";
       
       const statusRoll = r();
@@ -361,10 +382,7 @@ export function getCandidates(
         assess = Math.round(knowSubs.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0));
       }
 
-      // Check active sections in evaluation
-      const hasLabsSec = sectionsList.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS");
-      const hasAssessmentSec = sectionsList.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT");
-      const hasVitarkaSec = sectionsList.some((s: any) => s.type === "VITARKA_AI_INTERVIEW" || s.kind === "discussion" || s.kind === "vitarka");
+      // Check active sections in evaluation and vitarka submissions
       vitSub = hasVitarkaSec ? vitarkaSubmissions.find((vs: any) =>
         (email && (vs.user?.email === email || vs.user_email === email || vs.candidate_email === email)) ||
         (user.id && (vs.user === user.id || vs.user?.id === user.id)) ||
@@ -390,17 +408,30 @@ export function getCandidates(
       } else {
         vit = 0;
       }
+
+      // Check for system design submissions
+      const sdSubs = sub.system_design_submissions || [];
+      if (sdSubs.length > 0) {
+        sd = Math.round(
+          sdSubs.reduce((acc: number, cur: any) => acc + (Number(cur.score) || 0), 0)
+        );
+      } else if (sub.system_design_score != null) {
+        sd = Number(sub.system_design_score);
+      } else if (sub.systemDesignScore != null) {
+        sd = Number(sub.systemDesignScore);
+      }
       
-      totalEarned = Number((labs + assess + vit).toFixed(1));
+      totalEarned = Number((labs + assess + vit + (hasSystemDesignSec ? sd : 0)).toFixed(1));
       eci = totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
 
       const labsPct = labsMaxScore > 0 ? (labs / labsMaxScore) * 10 : (labs > 0 ? 10 : 0);
       const assessPct = assessmentMaxScore > 0 ? (assess / assessmentMaxScore) * 10 : (assess > 0 ? 10 : 0);
       const vitPct = discussionMaxScore > 0 ? (vit / discussionMaxScore) * 10 : (vit > 0 ? 10 : 0);
+      const sdPct = systemDesignMaxScore > 0 ? (sd / systemDesignMaxScore) * 10 : (sd > 0 ? 10 : 0);
       
-      const activeWeights = (hasLabsSec ? 0.35 : 0) + (hasAssessmentSec ? 0.25 : 0) + (hasVitarkaSec ? 0.40 : 0);
+      const activeWeights = (hasLabsSec ? 0.35 : 0) + (hasAssessmentSec ? 0.25 : 0) + (hasVitarkaSec ? 0.40 : 0) + (hasSystemDesignSec ? 0.30 : 0);
       const weighted10 = activeWeights > 0
-        ? ((hasLabsSec ? labsPct * 0.35 : 0) + (hasAssessmentSec ? assessPct * 0.25 : 0) + (hasVitarkaSec ? vitPct * 0.40 : 0)) / activeWeights
+        ? ((hasLabsSec ? labsPct * 0.35 : 0) + (hasAssessmentSec ? assessPct * 0.25 : 0) + (hasVitarkaSec ? vitPct * 0.40 : 0) + (hasSystemDesignSec ? sdPct * 0.30 : 0)) / activeWeights
         : (totalPossible > 0 ? (totalEarned / totalPossible) * 10 : 0);
 
       const score10 = Number(weighted10.toFixed(1));
@@ -515,17 +546,18 @@ export function getCandidates(
       if (sub.evaluation?.sections) {
           const sectionCount = sub.evaluation.sections.length;
           sub.evaluation.sections.forEach((sec: any) => {
-              const secKey = sec.type === 'LAB' ? 'labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : 'vitarka';
+              const secKey = sec.type === 'LAB' ? 'labs' : sec.type === 'KNOWLEDGE_ASSESSMENT' ? 'assessment' : sec.type === 'SYSTEM_DESIGN' ? 'system_design' : 'vitarka';
               sectionsMap[secKey] = {
-                  score: secKey === 'labs' ? labs : secKey === 'assessment' ? assess : vit,
+                  score: secKey === 'labs' ? labs : secKey === 'assessment' ? assess : secKey === 'system_design' ? sd : vit,
                   timeSpent: Math.floor(completionMinutes / sectionCount),
-                  events: secKey === 'labs' ? labsEvents : secKey === 'assessment' ? assessEvents : vitarkaEvents
+                  events: secKey === 'labs' ? labsEvents : secKey === 'assessment' ? assessEvents : secKey === 'system_design' ? [] : vitarkaEvents
               };
           });
       } else {
-          sectionsMap.labs = { score: labs, timeSpent: Math.floor(completionMinutes * 0.5), events: labsEvents };
-          sectionsMap.assessment = { score: assess, timeSpent: Math.floor(completionMinutes * 0.3), events: assessEvents };
+          sectionsMap.labs = { score: labs, timeSpent: Math.floor(completionMinutes * 0.4), events: labsEvents };
+          sectionsMap.assessment = { score: assess, timeSpent: Math.floor(completionMinutes * 0.2), events: assessEvents };
           sectionsMap.vitarka = { score: vit, timeSpent: Math.floor(completionMinutes * 0.2), events: vitarkaEvents };
+          sectionsMap.system_design = { score: sd, timeSpent: Math.floor(completionMinutes * 0.2), events: [] };
       }
 
       out.push({
@@ -549,9 +581,11 @@ export function getCandidates(
         labsMaxScore,
         assessmentMaxScore,
         discussionMaxScore,
+        systemDesignMaxScore: hasSystemDesignSec ? systemDesignMaxScore : 0,
         labsScore: labs,
         assessmentScore: assess,
         vitarkaScore: vit,
+        systemDesignScore: sd,
         recommendation: rec,
         skills,
         tags,

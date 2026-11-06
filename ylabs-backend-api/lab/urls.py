@@ -6,6 +6,7 @@ from .views import (
     LabSprintTicketViewSet,
     UserLabEnrollmentViewSet,
     UserLabSprintTicketSubmissionViewSet,
+    SystemDesignViewSet,
     student_stats_view,
     FrontendValidateView,
     public_milestone_view,
@@ -17,6 +18,7 @@ router.register(r'sprints', LabSprintViewSet)
 router.register(r'tickets', LabSprintTicketViewSet)
 router.register(r'enrollments', UserLabEnrollmentViewSet, basename='lab-enrollment')
 router.register(r'submissions', UserLabSprintTicketSubmissionViewSet, basename='lab-submission')
+router.register(r'system-designs', SystemDesignViewSet, basename='system-design')
 
 urlpatterns = [
     path('stats/', student_stats_view, name='student-stats'),

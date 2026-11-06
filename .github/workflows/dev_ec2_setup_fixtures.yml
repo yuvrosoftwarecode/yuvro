@@ -52,6 +52,7 @@ jobs:
         FIXTURE_ACTION: ${{ inputs.action }}
         SSH_KEY_PATH: /home/runner/.ssh/yuvro-dev.pem
       run: |
+        set -euo pipefail
         echo "🚀 Running fixture operation [$FIXTURE_ACTION] on EC2 dev for app [$TARGET_APP]..."
         
         EXTRA_FLAG=""
@@ -59,6 +60,6 @@ jobs:
           EXTRA_FLAG="--clear"
         fi
         
-        bash infra/scripts/runFixtures.sh "$TARGET_APP" $EXTRA_FLAG
+        bash infra/scripts/utils/runFixtures.sh "$TARGET_APP" $EXTRA_FLAG
         
         echo "✅ Fixture operation completed!"

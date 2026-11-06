@@ -84,7 +84,7 @@ class CreateCreditOrderView(views.APIView):
         except Exception as e:
             logger.error(f"Error creating credit order for user {request.user.id}: {e}", exc_info=True)
             return Response(
-                {"error": "order_creation_failed", "message": "Failed to create payment order"},
+                {"error": "order_creation_failed", "message": f"Failed to create payment order: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 

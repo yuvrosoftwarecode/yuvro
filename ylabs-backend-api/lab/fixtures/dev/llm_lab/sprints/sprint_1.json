@@ -1,0 +1,140 @@
+{
+  "title": "Sprint 1 \u00b7 Token Representations & Vector Embeddings",
+  "description": "Establish the foundational data pipeline. Implement vector dot product similarity, a subword lexer with special token fallback, and a continuous latent lookup matrix.",
+  "order_index": 1,
+  "tickets": [
+    {
+      "title": "Ticket 1 - Vector Metric Engine & Angular Similarity",
+      "ticket_slug": "microgpt-s1-vector-metrics",
+      "description": "Implement vector dot product and cosine angular similarity in micro_gpt/embeddings.py.\n\n### Specifications\n1. In vector_dot(v1, v2): compute algebraic inner product between two 1D NumPy arrays.\n2. In cosine_similarity(v1, v2, eps=1e-9): compute directional cosine distance normalized by L2 norms with division-by-zero protection.\n3. Validate identical vectors yield 1.0 and orthogonal vectors yield 0.0.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Compute vector inner products",
+        "Measure directional cosine similarity",
+        "Protect against divide-by-zero errors"
+      ],
+      "tasks": [
+        {
+          "title": "Implement vector_dot in micro_gpt/embeddings.py",
+          "points": 30
+        },
+        {
+          "title": "Implement cosine_similarity with norm scaling",
+          "points": 40
+        },
+        {
+          "title": "Pass test suite in test_s1_embeddings.py",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Using Euclidean distance instead of directional cosine metric."
+      ],
+      "hints": [
+        "Use np.dot and np.linalg.norm."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/embeddings.py",
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/embeddings.py": "import numpy as np\nfrom typing import List, Union\n\ndef vector_dot(v1: np.ndarray, v2: np.ndarray) -> float:\n    \"\"\"\n    Compute the dot product between two 1D vectors.\n    \"\"\"\n    return float(np.dot(v1, v2))\n\ndef cosine_similarity(v1: np.ndarray, v2: np.ndarray, eps: float = 1e-9) -> float:\n    \"\"\"\n    Compute the cosine similarity between two 1D vectors:\n    cos_sim(v1, v2) = (v1 . v2) / (||v1|| * ||v2||)\n    \"\"\"\n    norm_v1 = np.linalg.norm(v1)\n    norm_v2 = np.linalg.norm(v2)\n    denom = max(norm_v1 * norm_v2, eps)\n    return float(np.dot(v1, v2) / denom)\n\nclass EmbeddingTable:\n    \"\"\"\n    Learnable lookup table mapping integer token IDs to continuous feature vectors.\n    \"\"\"\n    def __init__(self, vocab_size: int, d_model: int):\n        self.vocab_size = vocab_size\n        self.d_model = d_model\n        self.weights = np.random.randn(vocab_size, d_model) * 0.02\n\n    def lookup(self, token_ids: Union[List[int], np.ndarray]) -> np.ndarray:\n        # TODO: Implement embedding lookup using numpy fancy indexing\n        pass\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - Subword Vocabulary Encoder & Lexer",
+      "ticket_slug": "microgpt-s1-subword-lexer",
+      "description": "Implement SimpleTokenizer in micro_gpt/tokenizer.py providing bidirectional token-to-integer translation.\n\n### Specifications\n1. Initialize vocabulary dictionary including special tokens (<PAD>, <UNK>, <BOS>, <EOS>).\n2. Implement encode(text) -> List[int] mapping unknown words to <UNK>.\n3. Implement decode(token_ids) -> str filtering padding and control tokens.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Implement discrete token mapping",
+        "Handle out-of-vocabulary inputs gracefully",
+        "Build string reconstruction pipeline"
+      ],
+      "tasks": [
+        {
+          "title": "Initialize token2id and id2token lookup dictionaries",
+          "points": 30
+        },
+        {
+          "title": "Implement encode(text) -> List[int]",
+          "points": 40
+        },
+        {
+          "title": "Implement decode(token_ids) -> str",
+          "points": 30
+        }
+      ],
+      "common_mistakes": [
+        "Not defaulting unknown words to <UNK> token index."
+      ],
+      "hints": [
+        "Use self.token2id.get(w, self.token2id['<UNK>'])"
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/tokenizer.py",
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/tokenizer.py": "from typing import List, Dict, Tuple\n\nclass SimpleTokenizer:\n    \"\"\"\n    A vocabulary-based subword and word tokenizer with special token support.\n    \"\"\"\n    def __init__(self, vocab: List[str] = None):\n        self.special_tokens = [\"<PAD>\", \"<UNK>\", \"<BOS>\", \"<EOS>\"]\n        if vocab is None:\n            vocab = []\n        \n        all_tokens = list(self.special_tokens)\n        for token in vocab:\n            if token not in all_tokens:\n                all_tokens.append(token)\n                \n        self.token2id: Dict[str, int] = {t: i for i, t in enumerate(all_tokens)}\n        self.id2token: Dict[int, str] = {i: t for i, t in enumerate(all_tokens)}\n\n    def __len__(self) -> int:\n        return len(self.token2id)\n\n    def encode(self, text: str) -> List[int]:\n        words = text.split()\n        unk_id = self.token2id.get(\"<UNK>\", 1)\n        return [self.token2id.get(w, unk_id) for w in words]\n\n    def decode(self, token_ids: List[int]) -> str:\n        ignore = {\"<PAD>\", \"<BOS>\", \"<EOS>\"}\n        words = []\n        for tid in token_ids:\n            tok = self.id2token.get(tid, \"\")\n            if tok and tok not in ignore:\n                words.append(tok)\n        return \" \".join(words)\n\n    @staticmethod\n    def get_stats(vocab_splits: Dict[str, int]) -> Dict[Tuple[str, str], int]:\n        pairs: Dict[Tuple[str, str], int] = {}\n        for word, freq in vocab_splits.items():\n            symbols = word.split()\n            for i in range(len(symbols) - 1):\n                pair = (symbols[i], symbols[i + 1])\n                pairs[pair] = pairs.get(pair, 0) + freq\n        return pairs\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 25,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_2/main_test.py"
+    },
+    {
+      "title": "Ticket 3 - Dense Matrix Representation & Latent Lookup",
+      "ticket_slug": "microgpt-s1-latent-embeddings",
+      "description": "Implement EmbeddingTable in micro_gpt/embeddings.py mapping discrete tokens to continuous latent representations.\n\n### Specifications\n1. Maintain weight matrix W of shape (vocab_size, d_model).\n2. Implement lookup(token_ids) supporting 1D and 2D batch inputs.",
+      "difficulty": "EASY",
+      "learning_objectives": [
+        "Understand embedding matrices as weight tables",
+        "Leverage fast vectorized NumPy indexing"
+      ],
+      "tasks": [
+        {
+          "title": "Implement lookup supporting batches",
+          "points": 50
+        },
+        {
+          "title": "Verify output shapes match (batch, seq_len, d_model)",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Using Python loops instead of array indexing."
+      ],
+      "hints": [
+        "Return self.weights[np.asarray(token_ids)]."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/embeddings.py",
+        "test_command": "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/embeddings.py": "import numpy as np\nfrom typing import List, Union\n\ndef vector_dot(v1: np.ndarray, v2: np.ndarray) -> float:\n    \"\"\"\n    Compute the dot product between two 1D vectors.\n    \"\"\"\n    return float(np.dot(v1, v2))\n\ndef cosine_similarity(v1: np.ndarray, v2: np.ndarray, eps: float = 1e-9) -> float:\n    \"\"\"\n    Compute the cosine similarity between two 1D vectors:\n    cos_sim(v1, v2) = (v1 . v2) / (||v1|| * ||v2||)\n    \"\"\"\n    norm_v1 = np.linalg.norm(v1)\n    norm_v2 = np.linalg.norm(v2)\n    denom = max(norm_v1 * norm_v2, eps)\n    return float(np.dot(v1, v2) / denom)\n\nclass EmbeddingTable:\n    \"\"\"\n    Learnable lookup table mapping integer token IDs to continuous feature vectors.\n    \"\"\"\n    def __init__(self, vocab_size: int, d_model: int):\n        self.vocab_size = vocab_size\n        self.d_model = d_model\n        self.weights = np.random.randn(vocab_size, d_model) * 0.02\n\n    def lookup(self, token_ids: Union[List[int], np.ndarray]) -> np.ndarray:\n        ids = np.asarray(token_ids, dtype=np.int64)\n        return self.weights[ids]\n"
+      },
+      "yuvro_points": 50,
+      "minutes_max": 20,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 3,
+      "test_command": "python yuvro_scoring_rules/sprint_1/ticket_3/main_test.py"
+    }
+  ]
+}

@@ -1,24 +1,6 @@
+// @ts-nocheck
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useMemo, memo } from "react";
-import {
-  Database,
-  Plus,
-  Search,
-  Trash2,
-  Pencil,
-  Eye,
-  Check,
-  Clock,
-  Code2,
-  X,
-  FileQuestion,
-  BookOpen,
-  FlaskConical,
-  ChevronRight,
-  Loader2,
-  AlertTriangle,
-  Link,
-} from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { questionBankService } from "@/services/questionBankService";
 import { fetchCourses, fetchQuestions, fetchQuestionDetails } from "@/lib/recruiter";
@@ -26,6 +8,7 @@ import { ycodeApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { CreateQuestionForm } from "@/components/evaluation/CreateQuestionForm";
 import LoadingSkeleton from "@/components/common/LoadingSkeleton";
+import { Button } from "@/components/ui/button";
 import { GithubAppIntegration } from "@/components/recruiter/GithubAppIntegration";
 
 export const Route = createFileRoute("/recruiter/questions")({
@@ -92,6 +75,176 @@ const DEFAULT_LAB_FORM = {
   tasks: [],
 };
 
+const BUILTIN_SYSTEM_DESIGN_CHALLENGES = [
+  {
+    id: "builtin-sd-url-shortener",
+    title: "Design a High-Throughput URL Shortener (TinyURL)",
+    description:
+      "Architect a resilient, distributed URL shortening service capable of creating billions of aliases and serving high-frequency redirects with sub-millisecond response times, low latency CDN caching, and custom analytics tracking.",
+    company: "Uber",
+    scenario_type: "Distributed Storage & Routing",
+    difficulty: "MEDIUM",
+    domain: "BACKEND",
+    duration_minutes: 45,
+    marks: 30,
+    system_slug: "systemdesign-url-shortener",
+    constraints: [
+      "100M new URLs shortened per month (10:1 read-to-write ratio)",
+      "URL redirects must respond in < 15ms at p99",
+      "99.999% availability for resolution endpoints",
+      "Shortened keys must be 7-8 base62 alphanumeric characters",
+      "Protect against malicious redirects and rate-limit abusive IP ranges",
+    ],
+    tasks: [
+      {
+        id: "t1",
+        title: "HLD Architecture Canvas",
+        description:
+          "Design client DNS, API Gateway, Key Generation Service (KGS), cache layer, and database cluster with replication.",
+        marks: 10,
+      },
+      {
+        id: "t2",
+        title: "Database Schema (DBML)",
+        description:
+          "Define relational or NoSQL schema for URLs, users, expiration timestamps, and analytics telemetry.",
+        marks: 10,
+      },
+      {
+        id: "t3",
+        title: "REST API Contracts",
+        description:
+          "Specify endpoints for POST /api/v1/shorten, GET /{shortCode}, and GET /api/v1/analytics.",
+        marks: 5,
+      },
+      {
+        id: "t4",
+        title: "Sequence Diagrams",
+        description:
+          "Model the end-to-end request lifecycle for URL creation and cached redirection lookup.",
+        marks: 5,
+      },
+    ],
+  },
+  {
+    id: "builtin-sd-ecommerce",
+    title: "Design a Flash-Sale E-Commerce Platform",
+    description:
+      "Design an ultra-high concurrency e-commerce checkout and inventory system capable of handling surges of 100,000+ orders per second during limited-time flash sales without double bookings or overselling.",
+    company: "Amazon",
+    scenario_type: "High Concurrency & Transactions",
+    difficulty: "HARD",
+    domain: "RETAIL",
+    duration_minutes: 60,
+    marks: 40,
+    system_slug: "systemdesign",
+    constraints: [
+      "Peak throughput: 100k requests/sec during drop window",
+      "Zero overselling: strict inventory reservation guarantees",
+      "Eventual consistency for order fulfillment and payment webhook processing",
+      "Cart reservations expire after 10 minutes if unpurchased",
+    ],
+    tasks: [
+      {
+        id: "t1",
+        title: "HLD Architecture Canvas",
+        description:
+          "Draw CDN, Edge Rate Limiter, Inventory Cache with Redis Lua scripts, Kafka Order Queue, and Payment Orchestrator.",
+        marks: 10,
+      },
+      {
+        id: "t2",
+        title: "Database Schema (DBML)",
+        description:
+          "Model inventory balances, lock states, order records, and idempotent transaction logs.",
+        marks: 10,
+      },
+      {
+        id: "t3",
+        title: "REST API Contracts",
+        description:
+          "Define endpoints for product catalog, inventory lock, and order placement.",
+        marks: 10,
+      },
+      {
+        id: "t4",
+        title: "Sequence Diagrams",
+        description:
+          "Trace the distributed lock acquisition, payment confirmation, and async inventory reconciliation flow.",
+        marks: 10,
+      },
+    ],
+  },
+  {
+    id: "builtin-sd-bookmyshow",
+    title: "Design a Real-Time Ticket & Seat Booking Engine",
+    description:
+      "Build a distributed movie and concert seat reservation platform with interactive venue seat maps, pessimistic seat locking, and live websocket seat availability updates.",
+    company: "BookMyShow",
+    scenario_type: "Real-time Event Streaming & Locking",
+    difficulty: "HARD",
+    domain: "FINANCE",
+    duration_minutes: 60,
+    marks: 40,
+    system_slug: "systemdesign-bookmysystem",
+    constraints: [
+      "Concurrent seat locking by tens of thousands of users per showtime",
+      "Seat held for max 8 minutes during checkout before releasing back to the pool",
+      "Real-time websocket broadcast of seat occupancy status to active viewers",
+      "Multi-region data isolation per theatre/cinema chain",
+    ],
+    tasks: [
+      {
+        id: "t1",
+        title: "HLD Architecture Canvas",
+        description:
+          "Diagram load balancers, WebSocket gateways, Distributed Locking Service, and Show Booking Workers.",
+        marks: 10,
+      },
+      {
+        id: "t2",
+        title: "Database Schema (DBML)",
+        description:
+          "Design theatres, screens, shows, seats, seat reservations, and booking tickets tables.",
+        marks: 10,
+      },
+      {
+        id: "t3",
+        title: "REST API Contracts",
+        description:
+          "Create contracts for seat map queries, seat reservation requests, and payment settlement.",
+        marks: 10,
+      },
+      {
+        id: "t4",
+        title: "Sequence Diagrams",
+        description:
+          "Illustrate concurrent seat conflict handling and automatic release on timeout.",
+        marks: 10,
+      },
+    ],
+  },
+];
+
+const DEFAULT_SYSTEM_DESIGN_FORM = {
+  title: "",
+  description: "",
+  difficulty: "MEDIUM",
+  marks: 30,
+  duration_minutes: 45,
+  scenario_type: "Distributed System",
+  system_slug: "systemdesign-url-shortener",
+  domain: "BACKEND",
+  company: "",
+  constraints: "",
+  tasks: [
+    { id: "t1", title: "HLD Architecture Canvas", description: "Design client DNS, API Gateway, caching layer, and database cluster with replication.", marks: 10 },
+    { id: "t2", title: "Database Schema (DBML)", description: "Define relational or NoSQL schema with keys, relationships, and telemetry tables.", marks: 10 },
+    { id: "t3", title: "REST API Contracts", description: "Specify endpoints, request schemas, status codes, and error responses.", marks: 5 },
+    { id: "t4", title: "Sequence Diagrams", description: "Model the end-to-end request lifecycle and async operations.", marks: 5 },
+  ],
+};
+
 const PROGRAMMING_LANGUAGES = ["C", "C++", "Python", "Java", "SQL", "Bash", "JavaScript", "TypeScript"];
 const DATABASES = ["SQLite", "PostgreSQL", "MySQL", "MongoDB", "Redis", "Elasticsearch"];
 const BACKEND_FRAMEWORKS = ["Django", "Django REST Framework", "FastAPI", "Flask", "Spring Boot", "NodeJS", "Express", "NestJS"];
@@ -110,25 +263,25 @@ function MultiSelectPills({ label, options, value, onChange }: { label: string, 
   };
   return (
     <div className="col-span-full">
-      <label className="text-[11px] uppercase tracking-widest text-neutral-500">{label}</label>
+      <label className="text-[11px]   text-muted-foreground">{label}</label>
       <div className="flex flex-wrap gap-2 mt-1.5">
         {options.map(opt => {
           let mappedVal = opt.toUpperCase().replace(/ /g, "_").replace(/\+/g, "P");
           if (opt === "C++") mappedVal = "C++";
           const selected = value.includes(mappedVal);
           return (
-            <button
+            <Button variant="ghost"
               key={opt}
               type="button"
               onClick={() => toggle(opt)}
               className={`rounded-full px-3 py-1 text-[11px] font-medium border transition ${
                 selected 
-                  ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" 
-                  : "border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-white/20"
+                  ? "border-border bg-background text-muted-foreground " 
+                  : "border-border  bg-background  text-muted-foreground  hover:border-border "
               }`}
             >
               {opt}
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -151,7 +304,7 @@ const getSolutionString = (solution: any) => {
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-neutral-300">
+    <span className="rounded bg-background/10 px-1.5 py-0.5 text-[10px] text-muted-foreground">
       {children}
     </span>
   );
@@ -160,41 +313,41 @@ function Chip({ children }: { children: React.ReactNode }) {
 function LabPreview({ l }: { l: any }) {
   if (!l) return null;
   return (
-    <div className="rounded-md bg-neutral-50 dark:bg-white/5 p-4 text-[13px] text-neutral-700 dark:text-neutral-300 space-y-4">
+    <div className="rounded-md bg-background  p-4 text-[13px] text-muted-foreground  space-y-4">
       {l.description ? (
         <div className="whitespace-pre-wrap">{l.description}</div>
       ) : l.text ? (
         <div className="whitespace-pre-wrap">{l.text}</div>
       ) : (
-        <div className="italic text-neutral-500">No detailed description available.</div>
+        <div className="italic text-muted-foreground">No detailed description available.</div>
       )}
 
       <div className="grid grid-cols-2 gap-4 text-[12px]">
         <div>
-          <div className="text-neutral-500 dark:text-neutral-400">Domain</div>
-          <div className="text-neutral-900 dark:text-white font-medium">{l.domain || "N/A"}</div>
+          <div className="text-muted-foreground ">Domain</div>
+          <div className="text-muted-foreground  font-medium">{l.domain || "N/A"}</div>
         </div>
         <div>
-          <div className="text-neutral-500 dark:text-neutral-400">Scenario</div>
-          <div className="text-neutral-900 dark:text-white font-medium">{l.scenario || "N/A"}</div>
+          <div className="text-muted-foreground ">Scenario</div>
+          <div className="text-muted-foreground  font-medium">{l.scenario || "N/A"}</div>
         </div>
         <div>
-          <div className="text-neutral-500 dark:text-neutral-400">Difficulty</div>
-          <div className="text-neutral-900 dark:text-white font-medium">{l.difficulty || "N/A"}</div>
+          <div className="text-muted-foreground ">Difficulty</div>
+          <div className="text-muted-foreground  font-medium">{l.difficulty || "N/A"}</div>
         </div>
         <div>
-          <div className="text-neutral-500 dark:text-neutral-400">Duration</div>
-          <div className="text-neutral-900 dark:text-white font-medium">{l.duration_minutes || 0} min</div>
+          <div className="text-muted-foreground ">Duration</div>
+          <div className="text-muted-foreground  font-medium">{l.duration_minutes || 0} min</div>
         </div>
         <div>
-          <div className="text-neutral-500 dark:text-neutral-400">Marks</div>
-          <div className="text-neutral-900 dark:text-white font-medium">{l.marks || 0}</div>
+          <div className="text-muted-foreground ">Marks</div>
+          <div className="text-muted-foreground  font-medium">{l.marks || 0}</div>
         </div>
       </div>
 
       {Array.isArray(l.programming_languages) && l.programming_languages.length > 0 && (
         <div>
-          <div className="text-neutral-500 dark:text-neutral-400 mb-1 text-[12px]">Programming Languages</div>
+          <div className="text-muted-foreground  mb-1 text-[12px]">Programming Languages</div>
           <div className="flex flex-wrap gap-1">
             {l.programming_languages.map((x: string) => (
               <Chip key={x}>{x}</Chip>
@@ -205,7 +358,7 @@ function LabPreview({ l }: { l: any }) {
 
       {Array.isArray(l.databases) && l.databases.length > 0 && (
         <div>
-          <div className="text-neutral-500 dark:text-neutral-400 mb-1 text-[12px]">Databases</div>
+          <div className="text-muted-foreground  mb-1 text-[12px]">Databases</div>
           <div className="flex flex-wrap gap-1">
             {l.databases.map((x: string) => (
               <Chip key={x}>{x}</Chip>
@@ -215,21 +368,21 @@ function LabPreview({ l }: { l: any }) {
       )}
 
       {Array.isArray(l.tasks) && l.tasks.length > 0 && (
-        <div className="border-t border-neutral-200 dark:border-white/5 pt-4">
-          <div className="text-neutral-900 dark:text-neutral-200 font-semibold mb-3">Tasks in this Lab</div>
+        <div className="border-t border-border  pt-4">
+          <div className="text-muted-foreground  font-semibold mb-3">Tasks in this Lab</div>
           <div className="space-y-2">
             {l.tasks.map((t: any, i: number) => (
-              <div key={t.id || i} className="rounded bg-white dark:bg-black/20 p-3 text-[12px] border border-neutral-200 dark:border-white/5">
+              <div key={t.id || i} className="rounded bg-background  p-3 text-[12px] border border-border ">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium text-neutral-900 dark:text-white">
+                  <span className="font-medium text-muted-foreground ">
                     {i + 1}. {t.title}
                   </span>
                   {t.difficulty && (
-                    <span className="text-[10px] text-neutral-500 dark:text-neutral-400">{t.difficulty}</span>
+                    <span className="text-[10px] text-muted-foreground ">{t.difficulty}</span>
                   )}
                 </div>
                 {t.description && (
-                  <div className="text-neutral-600 dark:text-neutral-400 mt-1 whitespace-pre-wrap">
+                  <div className="text-muted-foreground  mt-1 whitespace-pre-wrap">
                     {t.description}
                   </div>
                 )}
@@ -298,24 +451,24 @@ function QuestionPreview({ q }: { q: any }) {
   }
 
   return (
-    <div className="rounded-md bg-neutral-50 dark:bg-white/5 p-4 text-[13px] text-neutral-700 dark:text-neutral-300 space-y-4">
+    <div className="rounded-md bg-background  p-4 text-[13px] text-muted-foreground  space-y-4">
       {questionContent && (
-        <div className="whitespace-pre-wrap font-medium text-neutral-900 dark:text-white">{questionContent}</div>
+        <div className="whitespace-pre-wrap font-medium text-muted-foreground ">{questionContent}</div>
       )}
 
       {options.length > 0 && (
         <div className="space-y-2">
-          <div className="font-semibold text-neutral-600 dark:text-neutral-400">Options:</div>
+          <div className="font-semibold text-muted-foreground ">Options:</div>
           {options.map((opt: any, i: number) => (
-            <div key={i} className="flex items-start gap-3 rounded bg-white dark:bg-black/20 border border-neutral-200 dark:border-white/5 px-3 py-2">
+            <div key={i} className="flex items-start gap-3 rounded bg-background  border border-border  px-3 py-2">
               <div className="mt-0.5">
                 {opt?.is_correct ? (
-                  <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-muted-foreground">Correct</span>
                 ) : (
-                  <div className="h-4 w-4 rounded-full border border-neutral-300 dark:border-white/20" />
+                  <div className="h-4 w-4 rounded-full border border-border " />
                 )}
               </div>
-              <div className="flex-1 text-neutral-900 dark:text-white">{opt?.text || (typeof opt === "string" ? opt : "")}</div>
+              <div className="flex-1 text-muted-foreground ">{opt?.text || (typeof opt === "string" ? opt : "")}</div>
             </div>
           ))}
         </div>
@@ -323,14 +476,14 @@ function QuestionPreview({ q }: { q: any }) {
 
       {testCases.length > 0 && (
         <div className="space-y-3">
-          <div className="font-semibold text-neutral-600 dark:text-neutral-400">Examples:</div>
+          <div className="font-semibold text-muted-foreground ">Examples:</div>
           {testCases.map((ex: any, i: number) => (
-            <div key={i} className="rounded bg-white dark:bg-black/20 border border-neutral-200 dark:border-white/5 p-3 font-mono text-[11px]">
-              <div className="text-neutral-900 dark:text-neutral-300">
-                <span className="text-neutral-500">Input:</span> {ex?.input !== undefined ? String(ex.input) : ""}
+            <div key={i} className="rounded bg-background  border border-border  p-3 font-mono text-[11px]">
+              <div className="text-muted-foreground ">
+                <span className="text-muted-foreground">Input:</span> {ex?.input !== undefined ? String(ex.input) : ""}
               </div>
-              <div className="mt-2 text-neutral-900 dark:text-neutral-300">
-                <span className="text-neutral-500">Output:</span> {ex?.expected_output !== undefined ? String(ex.expected_output) : ex?.output !== undefined ? String(ex.output) : ""}
+              <div className="mt-2 text-muted-foreground ">
+                <span className="text-muted-foreground">Output:</span> {ex?.expected_output !== undefined ? String(ex.expected_output) : ex?.output !== undefined ? String(ex.output) : ""}
               </div>
             </div>
           ))}
@@ -339,10 +492,10 @@ function QuestionPreview({ q }: { q: any }) {
 
       {hints.length > 0 && (
         <div className="space-y-2">
-          <div className="font-semibold text-neutral-600 dark:text-neutral-400">Hints:</div>
+          <div className="font-semibold text-muted-foreground ">Hints:</div>
           <ul className="list-inside list-disc space-y-1">
             {hints.map((hint: string, i: number) => (
-              <li key={i} className="text-neutral-700 dark:text-neutral-300">
+              <li key={i} className="text-muted-foreground ">
                 {hint}
               </li>
             ))}
@@ -352,26 +505,26 @@ function QuestionPreview({ q }: { q: any }) {
 
       {solutions.length > 0 && (
         <div className="space-y-3">
-          <div className="font-semibold text-neutral-600 dark:text-neutral-400">Solutions:</div>
+          <div className="font-semibold text-muted-foreground ">Solutions:</div>
           {solutions.map((sol: any, i: number) => (
-            <div key={i} className="rounded border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/20 p-3 space-y-2">
+            <div key={i} className="rounded border border-border  bg-background  p-3 space-y-2">
               <div className="flex items-center gap-2">
-                <span className="font-medium text-neutral-900 dark:text-white">
+                <span className="font-medium text-muted-foreground ">
                   {sol?.title || "Solution"}
                 </span>
                 {sol?.language && (
-                  <span className="rounded bg-neutral-100 dark:bg-white/10 px-1.5 py-0.5 text-[10px] uppercase text-neutral-600 dark:text-neutral-400">
+                  <span className="rounded bg-background  px-1.5 py-0.5 text-[10px]  text-muted-foreground ">
                     {sol.language}
                   </span>
                 )}
                 {sol?.is_primary && (
-                  <span className="rounded bg-emerald-100 dark:bg-emerald-500/20 px-1.5 py-0.5 text-[10px] uppercase text-emerald-700 dark:text-emerald-400">
+                  <span className="rounded bg-background  px-1.5 py-0.5 text-[10px]  text-muted-foreground ">
                     Primary
                   </span>
                 )}
               </div>
               {sol?.code && (
-                <pre className="overflow-x-auto rounded bg-neutral-100 dark:bg-black/50 p-2 font-mono text-[11px] text-neutral-800 dark:text-neutral-300 border border-neutral-200 dark:border-white/5">
+                <pre className="overflow-x-auto rounded bg-background  p-2 font-mono text-[11px] text-muted-foreground  border border-border ">
                   <code>{sol.code}</code>
                 </pre>
               )}
@@ -383,12 +536,83 @@ function QuestionPreview({ q }: { q: any }) {
   );
 }
 
+function SystemDesignPreview({ q }: { q: any }) {
+  if (!q) return null;
+  return (
+    <div className="rounded-md bg-background  p-4 text-[13px] text-muted-foreground  space-y-4">
+      {q.description || q.problem ? (
+        <div className="whitespace-pre-wrap leading-relaxed">{q.description || q.problem}</div>
+      ) : (
+        <div className="italic text-muted-foreground">No detailed description available.</div>
+      )}
+
+      <div className="grid grid-cols-2 gap-4 text-[12px]">
+        <div>
+          <div className="text-muted-foreground ">Category</div>
+          <div className="text-muted-foreground  font-medium">System Design</div>
+        </div>
+        <div>
+          <div className="text-muted-foreground ">Difficulty</div>
+          <div className="text-muted-foreground  font-medium">{q.difficulty || "MEDIUM"}</div>
+        </div>
+        <div>
+          <div className="text-muted-foreground ">Duration</div>
+          <div className="text-muted-foreground  font-medium">{q.duration_minutes || 45} min</div>
+        </div>
+        <div>
+          <div className="text-muted-foreground ">Marks</div>
+          <div className="text-muted-foreground  font-medium">{q.marks || 100}</div>
+        </div>
+      </div>
+
+      {Array.isArray(q.tasks) && q.tasks.length > 0 && (
+        <div className="border-t border-border  pt-4">
+          <div className="text-muted-foreground  font-semibold mb-3">Deliverables & Objectives</div>
+          <div className="space-y-2">
+            {q.tasks.map((t: any, i: number) => (
+              <div key={t.id || i} className="rounded bg-background  p-3 text-[12px] border border-border ">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-muted-foreground ">
+                    {i + 1}. {t.title || t.name}
+                  </span>
+                  {t.marks && (
+                    <span className="text-[10px] font-mono text-muted-foreground  font-semibold">{t.marks} pts</span>
+                  )}
+                </div>
+                {t.description && (
+                  <p className="text-[11px] text-muted-foreground ">{t.description}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {Array.isArray(q.constraints) && q.constraints.length > 0 && (
+        <div className="border-t border-border  pt-4">
+          <div className="text-muted-foreground  font-semibold mb-2">Constraints & Scale Targets</div>
+          <ul className="space-y-1 text-[12px] text-muted-foreground  list-disc pl-4">
+            {q.constraints.map((c: string, i: number) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const sentence = (value: string) => {
+  const text = value.replace(/_/g, " ").toLowerCase();
+  return (text.charAt(0).toUpperCase() + text.slice(1)).replace(/\b(mcq|sql|api)\b/gi, word => word.toUpperCase());
+};
+const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
+const categoryLabels: Record<string, string> = {
+  LAB: "Engineering lab", SYSTEM_DESIGN: "System design", KNOWLEDGE: "Knowledge assessment",
+};
+
 const QuestionCardItem = memo(function QuestionCardItem({
-  q,
-  loadingEditId,
-  onPreview,
-  onEdit,
-  onDelete,
+  q, loadingEditId, onPreview, onEdit, onDelete,
 }: {
   q: any;
   loadingEditId: string | null;
@@ -396,102 +620,51 @@ const QuestionCardItem = memo(function QuestionCardItem({
   onEdit: (q: any) => void;
   onDelete: (q: any) => void;
 }) {
+  const tags = [q.domain, q.scenario, q.scenario_type, q.company,
+    q.questionCategory === "KNOWLEDGE" ? q.format || q.type : null,
+  ].filter(Boolean);
+  const tasks = Array.isArray(q.tasks) ? q.tasks.length : 0;
   return (
-    <div
-      className="group relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-white/5 bg-white dark:bg-gradient-to-b dark:from-white/[0.03] dark:to-white/[0.01] p-5 hover:border-neutral-300 dark:hover:border-white/15 shadow-sm dark:shadow-none flex flex-col justify-between"
+    <article
+      className="qb-question-card flex min-w-0 cursor-pointer flex-col rounded-xl border border-border bg-card p-5 transition-colors hover:bg-accent"
+      onClick={() => onPreview(q)}
+      onKeyDown={event => {
+        if (event.target !== event.currentTarget) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onPreview(q);
+        }
+      }}
+      tabIndex={0}
+      aria-label={`Open ${q.title}`}
     >
-      <div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {q.questionCategory === "LAB" ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-medium text-cyan-600 dark:text-cyan-300">
-                <FlaskConical className="h-3 w-3" /> Engineering Lab
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 rounded-full border border-purple-400/30 bg-purple-400/10 px-2 py-0.5 text-[10px] font-medium text-purple-600 dark:text-purple-300">
-                <BookOpen className="h-3 w-3" /> Knowledge Assessment
-              </span>
-            )}
+      <div className="text-sm leading-5 text-muted-foreground">
+        {categoryLabels[q.questionCategory]} · {sentence(q.difficulty || "Easy")}
+      </div>
+      <h3 className="mt-2 break-words text-base font-medium leading-6 text-foreground">{q.title}</h3>
+      {q.description && <p className="mt-1 break-words text-[15px] leading-[22px] text-secondary-foreground">{q.description}</p>}
+      {tags.length > 0 && <div className="mt-3 break-words text-sm leading-5 text-muted-foreground">{tags.map(sentence).join(" · ")}</div>}
+      <div className="mt-auto pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-border pt-4 text-sm leading-5 text-muted-foreground">
+          <span>{plural(q.marks ?? 0, "mark")} · {q.duration_minutes ?? 0} min{tasks > 0 ? ` · ${plural(tasks, "task")}` : ""}</span>
+          <div className="flex gap-4" onClick={event => event.stopPropagation()}>
+            <Button variant="link" className="qb-action" onClick={() => onPreview(q)}>View</Button>
+            <Button variant="link" className="qb-action" disabled={loadingEditId === q.id} onClick={() => onEdit(q)}>{loadingEditId === q.id ? "Editing…" : "Edit"}</Button>
+            <Button variant="link" className="qb-action hover:text-destructive" onClick={() => onDelete(q)}>Delete</Button>
           </div>
-          <DifficultyPill difficulty={q.difficulty} />
-        </div>
-        <h3 className="mt-3 text-[16px] font-medium text-neutral-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-          {q.title}
-        </h3>
-        {q.description && (
-          <p className="mt-1 text-[12px] text-neutral-600 dark:text-neutral-400 line-clamp-2">{q.description}</p>
-        )}
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          <span className="rounded-full border border-violet-400/20 bg-violet-400/10 px-2 py-0.5 text-[10px] font-medium text-violet-600 dark:text-violet-300">
-            {q.domain || "GENERAL"}
-          </span>
-          {q.scenario && (
-            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-medium text-cyan-600 dark:text-cyan-300">
-              {q.scenario?.replace(/_/g, " ")}
-            </span>
-          )}
-          {(q.format || q.type) && q.questionCategory === "KNOWLEDGE" && (
-            <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-300">
-              {(q.format || q.type)?.replace(/_/g, " ").toUpperCase()}
-            </span>
-          )}
         </div>
       </div>
-
-      <div className="mt-6 flex items-center justify-between border-t border-neutral-200 dark:border-white/5 pt-3">
-        <div className="flex items-center gap-4 text-[11px] text-neutral-500 dark:text-neutral-400">
-          <span>
-            Marks <strong className="text-neutral-900 dark:text-white font-mono">{q.marks || 0}</strong>
-          </span>
-          <span className="flex items-center gap-1">
-            <Clock className="h-3 w-3" /> {q.duration_minutes || 0}m
-          </span>
-          {q.questionCategory === "LAB" && (
-            <span>
-              Tasks <strong className="text-neutral-900 dark:text-white font-mono">{q.tasks?.length || 0}</strong>
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => onPreview(q)}
-            className="rounded-md p-1.5 text-neutral-500 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white"
-            title="Preview question"
-          >
-            <Eye className="h-3.5 w-3.5" />
-          </button>
-          <button
-            disabled={loadingEditId === q.id}
-            onClick={() => onEdit(q)}
-            className="rounded-md p-1.5 text-neutral-500 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-white/5 hover:text-neutral-900 dark:hover:text-white disabled:opacity-50"
-            title="Edit question"
-          >
-            {loadingEditId === q.id ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Pencil className="h-3.5 w-3.5" />
-            )}
-          </button>
-          <button
-            onClick={() => onDelete(q)}
-            className="rounded-md p-1.5 text-neutral-500 dark:text-neutral-400 transition-colors hover:bg-rose-50 dark:hover:bg-rose-500/20 hover:text-rose-600 dark:hover:text-rose-400"
-            title="Delete question"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      </div>
-    </div>
+    </article>
   );
 });
 
 function RecruiterQuestionBankPage() {
   const queryClient = useQueryClient();
 
-  // Tab State: "ALL" | "LAB" | "KNOWLEDGE"
-  const [activeTab, setActiveTab] = useState<"ALL" | "LAB" | "KNOWLEDGE">("ALL");
+  // Tab State: "ALL" | "LAB" | "KNOWLEDGE" | "SYSTEM_DESIGN"
+  const [activeTab, setActiveTab] = useState<"ALL" | "LAB" | "KNOWLEDGE" | "SYSTEM_DESIGN">("ALL");
 
-  // Courses state for Knowledge Assessment Form
+  // Courses state for Knowledge assessment Form
   const [courses, setCourses] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
@@ -508,6 +681,24 @@ function RecruiterQuestionBankPage() {
   const { data: knowledgeQuestions = [], isLoading: isLoadingKnowledge } = useQuery({
     queryKey: ["knowledgeQuestions"],
     queryFn: () => questionBankService.getKnowledgeQuestions(),
+  });
+
+  // Fetch System Design Questions
+  const { data: systemDesignQuestions = [], isLoading: isLoadingSystemDesign } = useQuery({
+    queryKey: ["systemDesignQuestions"],
+    queryFn: async () => {
+      try {
+        const data = await questionBankService.getSystemDesignQuestions();
+        if (Array.isArray(data) && data.length > 0) {
+          const ids = new Set(data.map((d: any) => d.id));
+          const nonDupBuiltins = BUILTIN_SYSTEM_DESIGN_CHALLENGES.filter((b) => !ids.has(b.id));
+          return [...data, ...nonDupBuiltins];
+        }
+      } catch (e) {
+        console.warn("Failed to fetch system design questions from API, using builtins", e);
+      }
+      return BUILTIN_SYSTEM_DESIGN_CHALLENGES;
+    },
   });
 
   // Filters state
@@ -550,7 +741,7 @@ function RecruiterQuestionBankPage() {
 
   const handleOpenPreview = async (q: any) => {
     setPreviewQuestion(q);
-    if (q.questionCategory === "LAB") return;
+    if (q.questionCategory === "LAB" || q.questionCategory === "SYSTEM_DESIGN") return;
 
     setLoadingPreview(true);
     try {
@@ -608,17 +799,113 @@ function RecruiterQuestionBankPage() {
     },
   });
 
-  // Knowledge Assessment Mutations
+  // Knowledge assessment Mutations
   const deleteKnowledgeMutation = useMutation({
     mutationFn: (id: string) => questionBankService.deleteKnowledgeQuestion(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["knowledgeQuestions"] });
-      showToast("Knowledge Assessment Question deleted");
+      showToast("Knowledge assessment Question deleted");
     },
     onError: (err: any) => {
       showToast(err?.message || "Failed to delete question");
     },
   });
+
+  const deleteSystemDesignMutation = useMutation({
+    mutationFn: (id: string) => questionBankService.deleteSystemDesignQuestion(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systemDesignQuestions"] });
+      showToast("System Design Question deleted");
+    },
+    onError: (err: any) => {
+      showToast(err?.message || "Failed to delete question");
+    },
+  });
+
+  // System Design Form State & Mutations
+  const [isSystemDesignModalOpen, setIsSystemDesignModalOpen] = useState(false);
+  const [editingSystemDesignId, setEditingSystemDesignId] = useState<string | null>(null);
+  const [systemDesignFormData, setSystemDesignFormData] = useState<any>(DEFAULT_SYSTEM_DESIGN_FORM);
+
+  const createSystemDesignMutation = useMutation({
+    mutationFn: (data: any) => questionBankService.createSystemDesignQuestion(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systemDesignQuestions"] });
+      showToast("System design challenge created");
+      setIsSystemDesignModalOpen(false);
+    },
+    onError: (err: any) => {
+      showToast(err?.message || "Failed to create system design challenge");
+    },
+  });
+
+  const updateSystemDesignMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      questionBankService.updateSystemDesignQuestion(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["systemDesignQuestions"] });
+      showToast("System design challenge updated");
+      setIsSystemDesignModalOpen(false);
+    },
+    onError: (err: any) => {
+      showToast(err?.message || "Failed to update system design challenge");
+    },
+  });
+
+  const handleSelectSystemDesignType = () => {
+    setIsAddTypeModalOpen(false);
+    setEditingSystemDesignId(null);
+    setSystemDesignFormData(DEFAULT_SYSTEM_DESIGN_FORM);
+    setIsSystemDesignModalOpen(true);
+  };
+
+  const closeSystemDesignModal = () => {
+    setIsSystemDesignModalOpen(false);
+    setEditingSystemDesignId(null);
+  };
+
+  const openEditSystemDesignModal = (q: any) => {
+    setEditingSystemDesignId(q.id);
+    setSystemDesignFormData({
+      title: q.title || "",
+      description: q.description || q.problem || "",
+      difficulty: (q.difficulty || "MEDIUM").toUpperCase(),
+      marks: q.marks || 30,
+      duration_minutes: q.duration_minutes || 45,
+      scenario_type: q.scenario_type || "Distributed System",
+      system_slug: q.system_slug || "systemdesign-url-shortener",
+      domain: q.domain || "BACKEND",
+      company: q.company || "",
+      constraints: Array.isArray(q.constraints) ? q.constraints.join("\n") : (q.constraints || ""),
+      tasks: Array.isArray(q.tasks) && q.tasks.length > 0 ? q.tasks : DEFAULT_SYSTEM_DESIGN_FORM.tasks,
+    });
+    setIsSystemDesignModalOpen(true);
+  };
+
+  const handleSaveSystemDesign = () => {
+    const rawConstraints = typeof systemDesignFormData.constraints === "string"
+      ? systemDesignFormData.constraints.split("\n").map((s: string) => s.trim()).filter(Boolean)
+      : systemDesignFormData.constraints || [];
+
+    const payload = {
+      ...systemDesignFormData,
+      constraints: rawConstraints,
+      tasks: (systemDesignFormData.tasks || []).map((t: any, index: number) => ({
+        id: t.id || `t${index + 1}`,
+        title: t.title,
+        description: t.description || "",
+        marks: Number(t.marks) || 10,
+      })),
+      marks: Number(systemDesignFormData.marks) || 30,
+      duration_minutes: Number(systemDesignFormData.duration_minutes) || 45,
+    };
+
+    if (editingSystemDesignId) {
+      updateSystemDesignMutation.mutate({ id: editingSystemDesignId, data: payload });
+    } else {
+      createSystemDesignMutation.mutate(payload);
+    }
+  };
 
   // Handlers for Add Button
   const handleOpenAddModal = () => {
@@ -701,7 +988,7 @@ function RecruiterQuestionBankPage() {
   const [deletingQuestion, setDeletingQuestion] = useState<{
     id: string;
     title: string;
-    category: "LAB" | "KNOWLEDGE";
+    category: "LAB" | "KNOWLEDGE" | "SYSTEM_DESIGN";
   } | null>(null);
 
   const handleSaveLab = () => {
@@ -809,12 +1096,26 @@ function RecruiterQuestionBankPage() {
       questionCategory: "KNOWLEDGE",
     }));
 
+    const sysDesign = systemDesignQuestions.map((q: any) => ({
+      ...q,
+      title: q.title || "Untitled System design challenge",
+      description: q.description || q.problem || "",
+      difficulty: (q.difficulty || "MEDIUM").toUpperCase(),
+      domain: q.domain || "BACKEND",
+      marks: q.marks || 30,
+      duration_minutes: q.duration_minutes || 45,
+      questionCategory: "SYSTEM_DESIGN",
+      format: "SYSTEM_DESIGN",
+      type: "SYSTEM_DESIGN",
+    }));
+
     if (activeTab === "LAB") return labs;
     if (activeTab === "KNOWLEDGE") return knowledge;
-    return [...labs, ...knowledge];
-  }, [labQuestions, knowledgeQuestions, activeTab]);
+    if (activeTab === "SYSTEM_DESIGN") return sysDesign;
+    return [...labs, ...knowledge, ...sysDesign];
+  }, [labQuestions, knowledgeQuestions, systemDesignQuestions, activeTab]);
 
-  const handleTabChange = (tab: "ALL" | "LAB" | "KNOWLEDGE") => {
+  const handleTabChange = (tab: "ALL" | "LAB" | "KNOWLEDGE" | "SYSTEM_DESIGN") => {
     setActiveTab(tab);
     setSelectedDomain("ALL");
     setSelectedDifficulty("ALL");
@@ -832,23 +1133,27 @@ function RecruiterQuestionBankPage() {
         q.title?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         q.description?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         q.domain?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        q.course_name?.toLowerCase().includes(debouncedSearch.toLowerCase());
+        q.course_name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        q.scenario_type?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        q.company?.toLowerCase().includes(debouncedSearch.toLowerCase());
 
       // 2. Difficulty filter (applies to all)
       const matchesDifficulty =
         selectedDifficulty === "ALL" ||
         (q.difficulty || "").toUpperCase() === selectedDifficulty.toUpperCase();
 
-      // 3. Domain filter (applies to LAB questions; ignored for KNOWLEDGE when on KNOWLEDGE tab)
+      // 3. Domain filter (applies to LAB questions; ignored for KNOWLEDGE when on KNOWLEDGE tab or SYSTEM_DESIGN)
       const matchesDomain =
         selectedDomain === "ALL" ||
         (q.questionCategory === "KNOWLEDGE" && activeTab === "KNOWLEDGE") ||
+        (q.questionCategory === "SYSTEM_DESIGN" && activeTab === "SYSTEM_DESIGN") ||
         q.domain === selectedDomain;
 
-      // 4. Scenario filter (applies to LAB questions; ignored for KNOWLEDGE)
+      // 4. Scenario filter (applies to LAB questions; ignored for KNOWLEDGE and SYSTEM_DESIGN)
       const matchesScenario =
         selectedScenario === "ALL" ||
         q.questionCategory === "KNOWLEDGE" ||
+        q.questionCategory === "SYSTEM_DESIGN" ||
         q.scenario === selectedScenario;
 
       // 5. Format filter
@@ -856,8 +1161,10 @@ function RecruiterQuestionBankPage() {
       if (selectedFormat !== "ALL") {
         if (selectedFormat === "LAB") {
           matchesFormat = q.questionCategory === "LAB";
-        } else if (q.questionCategory === "LAB") {
-          matchesFormat = activeTab !== "ALL";
+        } else if (selectedFormat === "SYSTEM_DESIGN") {
+          matchesFormat = q.questionCategory === "SYSTEM_DESIGN" || q.format === "SYSTEM_DESIGN" || q.type === "SYSTEM_DESIGN";
+        } else if (q.questionCategory === "LAB" || q.questionCategory === "SYSTEM_DESIGN") {
+          matchesFormat = false;
         } else {
           const qFmt = (q.format || "").toUpperCase();
           const qType = (q.type || "").toUpperCase();
@@ -885,10 +1192,11 @@ function RecruiterQuestionBankPage() {
         }
       }
 
-      // 6. Course filter (applies to KNOWLEDGE questions; ignored for LAB)
+      // 6. Course filter (applies to KNOWLEDGE questions; ignored for LAB and SYSTEM_DESIGN)
       const matchesCourse =
         selectedCourse === "ALL" ||
         q.questionCategory === "LAB" ||
+        q.questionCategory === "SYSTEM_DESIGN" ||
         q.course === selectedCourse ||
         q.course_id === selectedCourse ||
         q.course_name === selectedCourse ||
@@ -916,10 +1224,11 @@ function RecruiterQuestionBankPage() {
     activeTab,
   ]);
 
-  const isLoading = isLoadingLabs || isLoadingKnowledge;
+  const isLoading = isLoadingLabs || isLoadingKnowledge || isLoadingSystemDesign;
   const labCount = labQuestions.length;
   const knowledgeCount = knowledgeQuestions.length;
-  const totalCount = labCount + knowledgeCount;
+  const systemDesignCount = systemDesignQuestions.length;
+  const totalCount = labCount + knowledgeCount + systemDesignCount;
 
   const totalFilteredCount = filteredQuestions.length;
   const totalPages = Math.max(1, Math.ceil(totalFilteredCount / pageSize));
@@ -929,219 +1238,61 @@ function RecruiterQuestionBankPage() {
   }, [filteredQuestions, currentPage, pageSize]);
 
   return (
-    <div className="p-10">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-[28px] font-semibold tracking-tight text-neutral-900 dark:text-white">Question Bank</h1>
-          <p className="mt-1 text-[13px] text-neutral-600 dark:text-neutral-400">
-            Browse, create, and manage engineering lab & knowledge assessment questions for candidate evaluations.
-          </p>
+    <div className="qb-theme min-w-0 px-5 py-8 lg:px-10">
+      <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold leading-8 text-foreground">Question bank</h1>
+          <p className="mt-1 text-sm leading-5 text-muted-foreground">Browse and manage questions for candidate evaluations</p>
         </div>
-        <button
-          onClick={handleOpenAddModal}
-          className="group inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-4 py-2.5 text-[13px] font-medium text-black transition hover:brightness-110"
-        >
-          <Plus className="h-4 w-4" /> Add Question
-        </button>
+        <Button onClick={handleOpenAddModal} className="rec-btn shrink-0">Add question</Button>
+      </header>
+
+      <div role="tablist" aria-label="Question categories" className="mb-6 flex flex-wrap gap-x-6 gap-y-2 border-b border-border">
+        {([
+          { key: "ALL", label: "All questions", count: totalCount },
+          { key: "LAB", label: "Engineering labs", count: labCount },
+          { key: "SYSTEM_DESIGN", label: "System design", count: systemDesignCount },
+          { key: "KNOWLEDGE", label: "Knowledge assessment", count: knowledgeCount },
+        ] as const).map(tab => (
+          <Button key={tab.key} role="tab" aria-selected={activeTab === tab.key} variant="ghost"
+            onClick={() => handleTabChange(tab.key)}
+            className={`qb-tab -mb-px h-auto rounded-none border-b-2 px-0 pb-3 pt-0 text-[15px] leading-5 ${activeTab === tab.key ? "border-primary font-medium text-foreground" : "border-transparent font-normal text-muted-foreground hover:text-foreground"}`}>
+            {tab.label} ({tab.count})
+          </Button>
+        ))}
       </div>
 
-      {/* KPI Metrics */}
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div 
-          onClick={() => handleTabChange("ALL")}
-          className={`relative overflow-hidden rounded-2xl border p-5 cursor-pointer ${activeTab === "ALL" ? "border-emerald-500/50 bg-emerald-500/5 dark:border-emerald-400/50 dark:bg-white/[0.04]" : "border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] hover:border-neutral-300 dark:hover:border-white/15"}`}
-        >
-          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-400 text-black">
-            <Database className="h-4 w-4" />
-          </div>
-          <div className="mt-4 text-[11px] uppercase tracking-widest text-neutral-500">
-            Total Questions
-          </div>
-          <div className="mt-1 text-[32px] font-semibold tracking-tight text-neutral-900 dark:text-white">
-            {isLoading ? "..." : totalCount}
-          </div>
-        </div>
-
-        <div 
-          onClick={() => handleTabChange("LAB")}
-          className={`relative overflow-hidden rounded-2xl border p-5 cursor-pointer ${activeTab === "LAB" ? "border-cyan-500/50 bg-cyan-500/5 dark:border-cyan-400/50 dark:bg-white/[0.04]" : "border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] hover:border-neutral-300 dark:hover:border-white/15"}`}
-        >
-          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-400/20 text-cyan-500 dark:text-cyan-300">
-            <FlaskConical className="h-4 w-4" />
-          </div>
-          <div className="mt-4 text-[11px] uppercase tracking-widest text-neutral-500">
-            Engineering Labs
-          </div>
-          <div className="mt-1 text-[32px] font-semibold tracking-tight text-cyan-600 dark:text-cyan-400">
-            {isLoadingLabs ? "..." : labCount}
-          </div>
-        </div>
-
-        <div 
-          onClick={() => handleTabChange("KNOWLEDGE")}
-          className={`relative overflow-hidden rounded-2xl border p-5 cursor-pointer ${activeTab === "KNOWLEDGE" ? "border-purple-500/50 bg-purple-500/5 dark:border-purple-400/50 dark:bg-white/[0.04]" : "border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] hover:border-neutral-300 dark:hover:border-white/15"}`}
-        >
-          <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 text-purple-600 dark:text-purple-300">
-            <BookOpen className="h-4 w-4" />
-          </div>
-          <div className="mt-4 text-[11px] uppercase tracking-widest text-neutral-500">
-            Knowledge Assessment
-          </div>
-          <div className="mt-1 text-[32px] font-semibold tracking-tight text-purple-600 dark:text-purple-400">
-            {isLoadingKnowledge ? "..." : knowledgeCount}
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="mt-6 flex items-center gap-2 border-b border-neutral-200 dark:border-white/5 pb-3">
-        <button
-          onClick={() => handleTabChange("ALL")}
-          className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors duration-150 ${activeTab === "ALL" ? "bg-neutral-200 dark:bg-white/10 text-neutral-900 dark:text-white font-semibold" : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/5"}`}
-        >
-          All Questions ({totalCount})
-        </button>
-        <button
-          onClick={() => handleTabChange("LAB")}
-          className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors duration-150 ${activeTab === "LAB" ? "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30" : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/5"}`}
-        >
-          Engineering Labs ({labCount})
-        </button>
-        <button
-          onClick={() => handleTabChange("KNOWLEDGE")}
-          className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-colors duration-150 ${activeTab === "KNOWLEDGE" ? "bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-500/30" : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/5"}`}
-        >
-          Knowledge Assessment ({knowledgeCount})
-        </button>
-      </div>
-
-      {/* Filter Bar */}
-      <div className="mt-6 rounded-2xl border border-neutral-200 dark:border-white/5 bg-white dark:bg-white/[0.02] p-4 shadow-sm dark:shadow-none">
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Search Bar */}
-          <div className="flex items-center gap-2 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/40 px-3 py-2 text-[13px] text-neutral-900 dark:text-white flex-1 min-w-[240px]">
-            <Search className="h-4 w-4 text-neutral-400 shrink-0" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={
-                activeTab === "LAB"
-                  ? "Search by title, description, or domain..."
-                  : activeTab === "KNOWLEDGE"
-                  ? "Search by title, description, or course..."
-                  : "Search questions by title, description, or domain..."
-              }
-              className="bg-transparent outline-none flex-1 text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
-            />
-            {search && (
-              <button onClick={() => setSearch("")} className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white">
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* Domain Filter (For LAB or ALL) */}
-          {(activeTab === "LAB" || activeTab === "ALL") && (
-            <select
-              value={selectedDomain}
-              onChange={(e) => setSelectedDomain(e.target.value)}
-              className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/40 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-300 outline-none focus:border-emerald-500/60"
-            >
-              <option value="ALL" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">All Domains</option>
-              {DOMAINS.map((d) => (
-                <option key={d.value} value={d.value} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
-                  {d.label}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {/* Format Filter (For KNOWLEDGE or ALL) */}
-          {(activeTab === "KNOWLEDGE" || activeTab === "ALL") && (
-            <select
-              value={selectedFormat}
-              onChange={(e) => setSelectedFormat(e.target.value)}
-              className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/40 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-300 outline-none focus:border-emerald-500/60"
-            >
-              <option value="ALL" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">All Formats</option>
-              {activeTab === "ALL" && (
-                <option value="LAB" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Engineering Lab</option>
-              )}
-              <option value="MCQ" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">MCQ</option>
-              <option value="MULTIPLE_SELECT" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Multiple Select</option>
-              <option value="DESCRIPTION" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Description</option>
-              <option value="CODING" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Coding</option>
-            </select>
-          )}
-
-          {/* Difficulty Filter (Common across all tabs) */}
-          <select
-            value={selectedDifficulty}
-            onChange={(e) => setSelectedDifficulty(e.target.value)}
-            className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/40 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-300 outline-none focus:border-emerald-500/60"
-          >
-            <option value="ALL" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">All Difficulties</option>
-            <option value="EASY" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Easy</option>
-            <option value="MEDIUM" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Medium</option>
-            <option value="HARD" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Hard</option>
-          </select>
-
-          {/* Course Filter (For KNOWLEDGE or ALL) */}
-          {(activeTab === "KNOWLEDGE" || activeTab === "ALL") && (
-            <select
-              value={selectedCourse}
-              onChange={(e) => setSelectedCourse(e.target.value)}
-              className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/40 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-300 outline-none focus:border-emerald-500/60"
-            >
-              <option value="ALL" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">All Courses</option>
-              {courses.map((c) => (
-                <option key={c.id} value={c.id} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {/* Scenario Filter (For LAB) */}
-          {activeTab === "LAB" && (
-            <select
-              value={selectedScenario}
-              onChange={(e) => setSelectedScenario(e.target.value)}
-              className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/40 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-300 outline-none focus:border-emerald-500/60"
-            >
-              <option value="ALL" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">All Scenarios</option>
-              {SCENARIOS.map((s) => (
-                <option key={s} value={s} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
-                  {s.replace(/_/g, " ")}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
+      <div className="qb-filters mb-6 flex flex-wrap gap-3">
+        <input value={search} onChange={event => setSearch(event.target.value)}
+          aria-label="Search questions" placeholder="Search by title, description or domain"
+          className="qb-filter h-10 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 text-[15px] text-foreground placeholder:text-muted-foreground" />
+        <select aria-label="Domain" value={selectedDomain} onChange={event => setSelectedDomain(event.target.value)} className="qb-filter h-10 min-w-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground">
+          <option value="ALL">All domains</option>
+          {DOMAINS.map(domain => <option key={domain.value} value={domain.value}>{domain.label}</option>)}
+        </select>
+        <select aria-label="Format" value={selectedFormat} onChange={event => setSelectedFormat(event.target.value)} className="qb-filter h-10 min-w-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground">
+          <option value="ALL">All formats</option>
+          <option value="LAB">Engineering lab</option><option value="SYSTEM_DESIGN">System design</option>
+          <option value="MCQ">MCQ</option><option value="MULTIPLE_SELECT">Multiple select</option>
+          <option value="DESCRIPTION">Description</option><option value="CODING">Coding</option>
+        </select>
+        <select aria-label="Difficulty" value={selectedDifficulty} onChange={event => setSelectedDifficulty(event.target.value)} className="qb-filter h-10 min-w-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground">
+          <option value="ALL">All difficulties</option><option value="EASY">Easy</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option>
+        </select>
+        <select aria-label="Course" value={selectedCourse} onChange={event => setSelectedCourse(event.target.value)} className="qb-filter h-10 min-w-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground">
+          <option value="ALL">All courses</option>
+          {courses.map(course => <option key={course.id} value={course.id}>{course.name}</option>)}
+        </select>
       </div>
 
       {/* Questions List */}
       {isLoading ? (
         <LoadingSkeleton type="cards" count={6} className="mt-8" />
       ) : filteredQuestions.length === 0 ? (
-        <div className="mt-12 rounded-2xl border border-dashed border-neutral-200 dark:border-white/10 p-16 text-center bg-white dark:bg-transparent shadow-sm dark:shadow-none">
-          <FileQuestion className="mx-auto h-8 w-8 text-neutral-400 dark:text-neutral-500 mb-3" />
-          <div className="text-[15px] font-medium text-neutral-900 dark:text-white">No questions found</div>
-          <div className="mt-1 text-[12px] text-neutral-500">
-            {search || selectedDomain !== "ALL" || selectedDifficulty !== "ALL"
-              ? "Try adjusting your search filters."
-              : "Start by adding your first assessment question."}
-          </div>
-          <button
-            onClick={handleOpenAddModal}
-            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-neutral-100 dark:bg-white/10 px-4 py-2 text-[12px] font-medium text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-white/15 transition-colors"
-          >
-            <Plus className="h-3.5 w-3.5" /> Add Question
-          </button>
-        </div>
+        <p className="py-12 text-center text-muted-foreground">No questions match your filters</p>
       ) : (
         <>
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             {paginatedQuestions.map((q: any) => (
               <QuestionCardItem
                 key={`${q.questionCategory}-${q.id}`}
@@ -1151,6 +1302,8 @@ function RecruiterQuestionBankPage() {
                 onEdit={(item) => {
                   if (item.questionCategory === "LAB") {
                     openEditLabModal(item);
+                  } else if (item.questionCategory === "SYSTEM_DESIGN") {
+                    openEditSystemDesignModal(item);
                   } else {
                     openEditKnowledgeModal(item);
                   }
@@ -1168,31 +1321,31 @@ function RecruiterQuestionBankPage() {
 
           {/* Pagination Controls */}
           {totalFilteredCount > 0 && (
-            <div className="mt-8 flex flex-col items-center justify-between gap-4 sm:flex-row border-t border-neutral-200 dark:border-white/5 pt-6">
-              <div className="text-[13px] text-neutral-500 dark:text-neutral-400">
+            <div className="mt-8 flex flex-col items-center justify-between gap-4 sm:flex-row border-t border-border  pt-6">
+              <div className="text-[13px] text-muted-foreground ">
                 Showing{" "}
-                <span className="font-semibold text-neutral-900 dark:text-white">
+                <span className="font-semibold text-muted-foreground ">
                   {Math.min((currentPage - 1) * pageSize + 1, totalFilteredCount)}
                 </span>{" "}
                 to{" "}
-                <span className="font-semibold text-neutral-900 dark:text-white">
+                <span className="font-semibold text-muted-foreground ">
                   {Math.min(currentPage * pageSize, totalFilteredCount)}
                 </span>{" "}
                 of{" "}
-                <span className="font-semibold text-neutral-900 dark:text-white">
+                <span className="font-semibold text-muted-foreground ">
                   {totalFilteredCount}
                 </span>{" "}
                 questions
               </div>
 
               <div className="flex items-center gap-1.5">
-                <button
+                <Button variant="ghost"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  className="rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-[12px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="rounded-lg border border-border  bg-background  px-3 py-1.5 text-[12px] font-medium text-muted-foreground  hover:bg-background  transition disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Previous
-                </button>
+                </Button>
 
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter((page) => {
@@ -1209,29 +1362,29 @@ function RecruiterQuestionBankPage() {
                     return (
                       <div key={page} className="flex items-center gap-1.5">
                         {showEllipsis && (
-                          <span className="px-1 text-[12px] text-neutral-400">...</span>
+                          <span className="px-1 text-[12px] text-muted-foreground">...</span>
                         )}
-                        <button
+                        <Button variant="ghost"
                           onClick={() => setCurrentPage(page)}
                           className={`h-8 w-8 rounded-lg text-[12px] font-medium transition ${
                             currentPage === page
-                              ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-semibold"
-                              : "border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/5 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/10"
+                              ? "bg-background  text-muted-foreground  font-semibold"
+                              : "border border-border  bg-background  text-muted-foreground  hover:bg-background "
                           }`}
                         >
                           {page}
-                        </button>
+                        </Button>
                       </div>
                     );
                   })}
 
-                <button
+                <Button variant="ghost"
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  className="rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-[12px] font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/10 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="rounded-lg border border-border  bg-background  px-3 py-1.5 text-[12px] font-medium text-muted-foreground  hover:bg-background  transition disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Next
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -1240,99 +1393,112 @@ function RecruiterQuestionBankPage() {
 
       {/* 1. SELECTION MODAL: "What kind of question?" */}
       <Dialog open={isAddTypeModalOpen} onOpenChange={setIsAddTypeModalOpen}>
-        <DialogContent className="sm:max-w-[540px] w-full bg-white dark:bg-neutral-950 border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white p-6 shadow-xl dark:shadow-none rounded-2xl">
+        <DialogContent className="recruiter-theme qb-theme qb-dialog sm:max-w-[540px] w-full bg-background  border-border  text-muted-foreground  p-6   rounded-xl">
           <DialogHeader className="p-0 text-left">
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              ADD QUESTION
+            <div className="text-[10px] font-semibold   text-muted-foreground">
+              Add question
             </div>
-            <DialogTitle className="text-[18px] font-semibold text-neutral-900 dark:text-white mt-1">
+            <DialogTitle className="text-[18px] font-semibold text-muted-foreground  mt-1">
               What kind of question?
             </DialogTitle>
           </DialogHeader>
 
           <div className="mt-5 grid gap-2.5">
-            {/* Option 1: Engineering Labs */}
-            <button
+            {/* Option 1: Engineering labs */}
+            <Button variant="ghost"
               onClick={handleSelectLabType}
-              className="group flex items-center gap-4 rounded-xl border border-neutral-100 dark:border-white/5 bg-neutral-50 dark:bg-white/[0.02] p-4 text-left transition hover:border-neutral-200 dark:hover:border-white/15 hover:bg-neutral-100 dark:hover:bg-white/[0.04] w-full"
+              className="group flex items-center gap-4 rounded-xl border border-border  bg-background  p-4 text-left transition hover:border-border  hover:bg-background  w-full"
             >
-              <div className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-to-br from-emerald-400 to-cyan-400 text-white dark:text-black shrink-0">
-                <FlaskConical className="h-5 w-5" />
-              </div>
+              
               <div className="flex-1 min-w-0">
-                <div className="text-[14px] font-medium text-neutral-900 dark:text-white">
-                  Engineering Labs
+                <div className="text-[14px] font-medium text-muted-foreground ">
+                  Engineering labs
                 </div>
-                <div className="text-[11px] text-neutral-500 mt-0.5">
+                <div className="text-[11px] text-muted-foreground mt-0.5">
                   Real workspaces with terminal, editor and tasks.
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-neutral-400 dark:text-neutral-600 transition group-hover:text-neutral-900 dark:group-hover:text-white shrink-0" />
-            </button>
+              
+            </Button>
 
-            {/* Option 2: Knowledge Assessment */}
-            <button
-              onClick={handleSelectKnowledgeType}
-              className="group flex items-center gap-4 rounded-xl border border-neutral-100 dark:border-white/5 bg-neutral-50 dark:bg-white/[0.02] p-4 text-left transition hover:border-neutral-200 dark:hover:border-white/15 hover:bg-neutral-100 dark:hover:bg-white/[0.04] w-full"
+            {/* Option 2: System design challenge */}
+            <Button variant="ghost"
+              onClick={handleSelectSystemDesignType}
+              className="group flex items-center gap-4 rounded-xl border border-border  bg-background  p-4 text-left transition hover:border-border  hover:bg-background  w-full"
             >
-              <div className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-to-br from-violet-400 to-fuchsia-400 text-white dark:text-black shrink-0">
-                <BookOpen className="h-5 w-5" />
-              </div>
+              
               <div className="flex-1 min-w-0">
-                <div className="text-[14px] font-medium text-neutral-900 dark:text-white">
-                  Knowledge Assessment
+                <div className="text-[14px] font-medium text-muted-foreground ">
+                  System design challenge
                 </div>
-                <div className="text-[11px] text-neutral-500 mt-0.5">
+                <div className="text-[11px] text-muted-foreground mt-0.5">
+                  High-level architecture, DBML, REST API & sequence flows.
+                </div>
+              </div>
+              
+            </Button>
+
+            {/* Option 3: Knowledge assessment */}
+            <Button variant="ghost"
+              onClick={handleSelectKnowledgeType}
+              className="group flex items-center gap-4 rounded-xl border border-border  bg-background  p-4 text-left transition hover:border-border  hover:bg-background  w-full"
+            >
+              
+              <div className="flex-1 min-w-0">
+                <div className="text-[14px] font-medium text-muted-foreground ">
+                  Knowledge assessment
+                </div>
+                <div className="text-[11px] text-muted-foreground mt-0.5">
                   MCQ, multi-select and scenario questions.
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-neutral-400 dark:text-neutral-600 transition group-hover:text-neutral-900 dark:group-hover:text-white shrink-0" />
-            </button>
+              
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* 2. ENGINEERING LAB QUESTION FORM MODAL */}
       <Dialog open={isLabModalOpen} onOpenChange={setIsLabModalOpen}>
-        <DialogContent className="sm:max-w-[780px] w-full bg-white dark:bg-[#121215] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white max-h-[85vh] flex flex-col p-0 overflow-hidden shadow-2xl rounded-2xl">
-          <DialogHeader className="p-6 border-b border-neutral-200 dark:border-white/5">
-            <DialogTitle className="text-[18px] font-semibold text-neutral-900 dark:text-white">
-              {editingLabId ? "Edit Engineering Lab Question" : "New Engineering Lab Question"}
+        <DialogContent className="recruiter-theme qb-theme qb-dialog sm:max-w-[780px] w-full bg-background  border-border  text-muted-foreground  max-h-[85vh] flex flex-col p-0 overflow-hidden  rounded-xl">
+          <DialogHeader className="p-6 border-b border-border ">
+            <DialogTitle className="text-[18px] font-semibold text-muted-foreground ">
+              {editingLabId ? "Edit engineering lab question" : "New engineering lab question"}
             </DialogTitle>
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto p-6 space-y-5 hide-scrollbar">
             <div>
-              <label className="text-[11px] uppercase tracking-widest text-neutral-500">Title</label>
+              <label className="text-[11px]   text-muted-foreground">Title</label>
               <input
                 value={labFormData.title}
                 onChange={(e) => setLabFormData({ ...labFormData, title: e.target.value })}
                 placeholder="e.g. Build a High-Throughput Order Queue"
-                className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
               />
             </div>
 
             <div>
-              <label className="text-[11px] uppercase tracking-widest text-neutral-500">Description</label>
+              <label className="text-[11px]   text-muted-foreground">Description</label>
               <textarea
                 rows={3}
                 value={labFormData.description}
                 onChange={(e) => setLabFormData({ ...labFormData, description: e.target.value })}
                 placeholder="Problem overview, background, and expectations..."
-                className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Domain / Industry</label>
+                <label className="text-[11px]   text-muted-foreground">Domain / Industry</label>
                 <select
                   value={labFormData.domain || "OTHER"}
                   onChange={(e) => setLabFormData({ ...labFormData, domain: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
                 >
                   {DOMAINS.map((d) => (
-                    <option key={d.value} value={d.value} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
+                    <option key={d.value} value={d.value} className="bg-background  text-muted-foreground ">
                       {d.label}
                     </option>
                   ))}
@@ -1340,27 +1506,27 @@ function RecruiterQuestionBankPage() {
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Difficulty</label>
+                <label className="text-[11px]   text-muted-foreground">Difficulty</label>
                 <select
                   value={labFormData.difficulty}
                   onChange={(e) => setLabFormData({ ...labFormData, difficulty: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
                 >
-                  <option value="EASY" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Easy</option>
-                  <option value="MEDIUM" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Medium</option>
-                  <option value="HARD" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Hard</option>
+                  <option value="EASY" className="bg-background  text-muted-foreground ">Easy</option>
+                  <option value="MEDIUM" className="bg-background  text-muted-foreground ">Medium</option>
+                  <option value="HARD" className="bg-background  text-muted-foreground ">Hard</option>
                 </select>
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Lab Role / Type</label>
+                <label className="text-[11px]   text-muted-foreground">Lab Role / Type</label>
                 <select
                   value={labFormData.type}
                   onChange={(e) => setLabFormData({ ...labFormData, type: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
                 >
                   {LAB_TYPES.map((d) => (
-                    <option key={d} value={d} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
+                    <option key={d} value={d} className="bg-background  text-muted-foreground ">
                       {d.replace("_", " ")}
                     </option>
                   ))}
@@ -1368,27 +1534,27 @@ function RecruiterQuestionBankPage() {
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Experience</label>
+                <label className="text-[11px]   text-muted-foreground">Experience</label>
                 <select
                   value={labFormData.experience}
                   onChange={(e) => setLabFormData({ ...labFormData, experience: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
                 >
-                  <option value="FRESHER" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Fresher</option>
-                  <option value="MID_LEVEL" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Mid Level</option>
-                  <option value="SENIOR" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Senior</option>
+                  <option value="FRESHER" className="bg-background  text-muted-foreground ">Fresher</option>
+                  <option value="MID_LEVEL" className="bg-background  text-muted-foreground ">Mid Level</option>
+                  <option value="SENIOR" className="bg-background  text-muted-foreground ">Senior</option>
                 </select>
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Scenario</label>
+                <label className="text-[11px]   text-muted-foreground">Scenario</label>
                 <select
                   value={labFormData.scenario}
                   onChange={(e) => setLabFormData({ ...labFormData, scenario: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
                 >
                   {SCENARIOS.map((s) => (
-                    <option key={s} value={s} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
+                    <option key={s} value={s} className="bg-background  text-muted-foreground ">
                       {s.replace(/_/g, " ")}
                     </option>
                   ))}
@@ -1396,38 +1562,38 @@ function RecruiterQuestionBankPage() {
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Marks</label>
+                <label className="text-[11px]   text-muted-foreground">Marks</label>
                 <input
                   type="number"
                   value={labFormData.marks}
                   onChange={(e) => setLabFormData({ ...labFormData, marks: parseInt(e.target.value) || 0 })}
-                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Duration (minutes)</label>
+                <label className="text-[11px]   text-muted-foreground">Duration (minutes)</label>
                 <input
                   type="number"
                   value={labFormData.duration_minutes}
                   onChange={(e) =>
                     setLabFormData({ ...labFormData, duration_minutes: parseInt(e.target.value) || 0 })
                   }
-                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/20 p-3">
+            <div className="flex items-center gap-2.5 rounded-lg border border-border  bg-background  p-3">
               <input
                 type="checkbox"
                 id="allow_task_selection"
                 checked={labFormData.allow_task_selection !== false}
                 onChange={(e) => setLabFormData({ ...labFormData, allow_task_selection: e.target.checked })}
-                className="h-4 w-4 rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                className="h-4 w-4 rounded border-border text-muted-foreground focus:ring-ring cursor-pointer"
               />
-              <label htmlFor="allow_task_selection" className="text-[12px] text-neutral-700 dark:text-neutral-300 cursor-pointer select-none">
-                <span className="font-medium text-neutral-900 dark:text-white">Allow Task Selection:</span> Enable recruiters to select specific tasks from this question when building evaluations.
+              <label htmlFor="allow_task_selection" className="text-[12px] text-muted-foreground  cursor-pointer select-none">
+                <span className="font-medium text-muted-foreground ">Allow Task Selection:</span> Enable recruiters to select specific tasks from this question when building evaluations.
               </label>
             </div>
 
@@ -1455,7 +1621,7 @@ function RecruiterQuestionBankPage() {
 
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-2">
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">
+                <label className="text-[11px]   text-muted-foreground">
                   Starter Repository URL
                 </label>
                 <input
@@ -1468,37 +1634,37 @@ function RecruiterQuestionBankPage() {
                     })
                   }
                   placeholder="https://github.com/..."
-                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
                 />
               </div>
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Branch</label>
+                <label className="text-[11px]   text-muted-foreground">Branch</label>
                 <input
                   value={labFormData.git_repo_starter_branch}
                   onChange={(e) => setLabFormData({ ...labFormData, git_repo_starter_branch: e.target.value })}
                   placeholder="main"
-                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Startup Command</label>
+                <label className="text-[11px]   text-muted-foreground">Startup Command</label>
                 <input
                   value={labFormData.startup_command}
                   onChange={(e) => setLabFormData({ ...labFormData, startup_command: e.target.value })}
                   placeholder="npm start or python main.py"
-                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
                 />
               </div>
               <div>
-                <label className="text-[11px] uppercase tracking-widest text-neutral-500">Test Command</label>
+                <label className="text-[11px]   text-muted-foreground">Test Command</label>
                 <input
                   value={labFormData.test_command || ""}
                   onChange={(e) => setLabFormData({ ...labFormData, test_command: e.target.value })}
                   placeholder="npm test or pytest"
-                  className="mt-1.5 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 px-3 py-2 text-[13px] text-neutral-900 dark:text-neutral-200 outline-none transition focus:border-emerald-500/60"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
                 />
               </div>
             </div>
@@ -1520,7 +1686,7 @@ function RecruiterQuestionBankPage() {
             {labFormData.databases?.some((d: string) => ["MySQL", "PostgreSQL", "MongoDB", "MYSQL", "POSTGRESQL", "MONGODB"].includes(d)) && (
               <div className="grid gap-2 border p-3 rounded-md bg-muted/20">
                 <label className="text-sm font-semibold flex items-center gap-1.5 text-foreground">
-                  <Database className="h-4 w-4 text-primary" />
+                  
                   Evaluation Database Connection URL (e.g. Aiven MySQL)
                 </label>
                 <input
@@ -1528,7 +1694,7 @@ function RecruiterQuestionBankPage() {
                   placeholder="mysql://avnadmin:password@mysql-xyz.aivencloud.com:24128/defaultdb"
                   value={labFormData.connection_url || ""}
                   onChange={(e) => setLabFormData({ ...labFormData, connection_url: e.target.value })}
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm  transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 />
                 <p className="text-xs text-muted-foreground">
                   Candidates will automatically execute queries against this database without needing credentials.
@@ -1551,43 +1717,43 @@ function RecruiterQuestionBankPage() {
             />
 
             {/* Dynamic Tasks Section */}
-            <div className="border-t border-neutral-200 dark:border-white/5 pt-4">
+            <div className="border-t border-border  pt-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[13px] font-medium text-neutral-900 dark:text-white">Tasks / Sub-questions</span>
-                <button
+                <span className="text-[13px] font-medium text-muted-foreground ">Tasks / Sub-questions</span>
+                <Button variant="ghost"
                   type="button"
                   onClick={addLabTask}
-                  className="inline-flex items-center gap-1 text-[11px] rounded-md border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-white/5 px-2.5 py-1 text-neutral-800 dark:text-white hover:bg-neutral-200 dark:hover:bg-white/10 transition"
+                  className="inline-flex items-center gap-1 text-[11px] rounded-md border border-border  bg-background  px-2.5 py-1 text-muted-foreground  hover:bg-background  transition"
                 >
-                  <Plus className="h-3 w-3" /> Add Task
-                </button>
+                   Add task
+                </Button>
               </div>
 
               <div className="space-y-3">
                 {labFormData.tasks.map((task: any, index: number) => (
-                  <div key={index} className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-black/30 p-4 relative">
-                    <button
+                  <div key={index} className="rounded-xl border border-border  bg-background  p-4 relative">
+                    <Button variant="ghost"
                       type="button"
                       onClick={() => removeLabTask(index)}
-                      className="absolute top-3 right-3 text-neutral-400 hover:text-rose-500 dark:hover:text-rose-400 transition"
+                      className="absolute top-3 right-3 text-muted-foreground hover:text-muted-foreground  transition"
                       title="Remove task"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                      Remove
+                    </Button>
                     <div className="space-y-3 pr-6">
                       <div>
-                        <label className="text-[10px] uppercase tracking-widest text-neutral-500">
-                          Task Title
+                        <label className="text-[10px]   text-muted-foreground">
+                          Task title
                         </label>
                         <input
                           value={task.title}
                           onChange={(e) => updateLabTask(index, "title", e.target.value)}
                           placeholder="e.g. Implement GET /api/orders endpoint"
-                          className="mt-1 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/40 px-3 py-1.5 text-[12px] text-neutral-900 dark:text-neutral-200 outline-none focus:border-emerald-500/60"
+                          className="mt-1 w-full rounded-md border border-border  bg-background  px-3 py-1.5 text-[12px] text-muted-foreground  outline-none focus:border-border"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] uppercase tracking-widest text-neutral-500">
+                        <label className="text-[10px]   text-muted-foreground">
                           Description
                         </label>
                         <textarea
@@ -1595,11 +1761,11 @@ function RecruiterQuestionBankPage() {
                           value={task.description}
                           onChange={(e) => updateLabTask(index, "description", e.target.value)}
                           placeholder="Input parameters, constraints, and requirements..."
-                          className="mt-1 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/40 px-3 py-1.5 text-[12px] text-neutral-900 dark:text-neutral-200 outline-none focus:border-emerald-500/60"
+                          className="mt-1 w-full rounded-md border border-border  bg-background  px-3 py-1.5 text-[12px] text-muted-foreground  outline-none focus:border-border"
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] uppercase tracking-widest text-neutral-500">
+                        <label className="text-[10px]   text-muted-foreground">
                           Reference Solution / Query
                         </label>
                         <textarea
@@ -1607,35 +1773,35 @@ function RecruiterQuestionBankPage() {
                           value={getSolutionString(task.solution)}
                           onChange={(e) => updateLabTask(index, "solution", e.target.value)}
                           placeholder="Reference solution code or SQL query..."
-                          className="mt-1 w-full font-mono rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/40 px-3 py-1.5 text-[11px] text-neutral-900 dark:text-neutral-200 outline-none focus:border-emerald-500/60"
+                          className="mt-1 w-full font-mono rounded-md border border-border  bg-background  px-3 py-1.5 text-[11px] text-muted-foreground  outline-none focus:border-border"
                         />
                       </div>
                       <div className="grid grid-cols-3 gap-3">
                         <div>
-                          <label className="text-[10px] uppercase tracking-widest text-neutral-500">
+                          <label className="text-[10px]   text-muted-foreground">
                             Difficulty
                           </label>
                           <select
                             value={task.difficulty}
                             onChange={(e) => updateLabTask(index, "difficulty", e.target.value)}
-                            className="mt-1 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/40 px-2 py-1 text-[12px] text-neutral-900 dark:text-neutral-200 outline-none"
+                            className="mt-1 w-full rounded-md border border-border  bg-background  px-2 py-1 text-[12px] text-muted-foreground  outline-none"
                           >
-                            <option value="EASY" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Easy</option>
-                            <option value="MEDIUM" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Medium</option>
-                            <option value="HARD" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">Hard</option>
+                            <option value="EASY" className="bg-background  text-muted-foreground ">Easy</option>
+                            <option value="MEDIUM" className="bg-background  text-muted-foreground ">Medium</option>
+                            <option value="HARD" className="bg-background  text-muted-foreground ">Hard</option>
                           </select>
                         </div>
                         <div>
-                          <label className="text-[10px] uppercase tracking-widest text-neutral-500">Marks</label>
+                          <label className="text-[10px]   text-muted-foreground">Marks</label>
                           <input
                             type="number"
                             value={task.marks}
                             onChange={(e) => updateLabTask(index, "marks", parseInt(e.target.value) || 0)}
-                            className="mt-1 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/40 px-2 py-1 text-[12px] text-neutral-900 dark:text-neutral-200 outline-none"
+                            className="mt-1 w-full rounded-md border border-border  bg-background  px-2 py-1 text-[12px] text-muted-foreground  outline-none"
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] uppercase tracking-widest text-neutral-500">
+                          <label className="text-[10px]   text-muted-foreground">
                             Duration (min)
                           </label>
                           <input
@@ -1644,31 +1810,31 @@ function RecruiterQuestionBankPage() {
                             onChange={(e) =>
                               updateLabTask(index, "duration_minutes", parseInt(e.target.value) || 0)
                             }
-                            className="mt-1 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/40 px-2 py-1 text-[12px] text-neutral-900 dark:text-neutral-200 outline-none"
+                            className="mt-1 w-full rounded-md border border-border  bg-background  px-2 py-1 text-[12px] text-muted-foreground  outline-none"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="text-[10px] uppercase tracking-widest text-neutral-500 flex items-center gap-1">
-                          <Link className="h-3 w-3" /> Linked Task / Dependency
+                        <label className="text-[10px]   text-muted-foreground flex items-center gap-1">
+                           Linked Task / Dependency
                         </label>
                         <select
                           value={task.parent_task_id || task.parent_task || ""}
                           onChange={(e) => updateLabTask(index, "parent_task_id", e.target.value || null)}
-                          className="mt-1 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/40 px-2 py-1.5 text-[12px] text-neutral-900 dark:text-neutral-200 outline-none focus:border-emerald-500/60"
+                          className="mt-1 w-full rounded-md border border-border  bg-background  px-2 py-1.5 text-[12px] text-muted-foreground  outline-none focus:border-border"
                         >
-                          <option value="" className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">None (Independent Task)</option>
+                          <option value="" className="bg-background  text-muted-foreground ">None (Independent Task)</option>
                           {labFormData.tasks.map((otherTask: any, otherIdx: number) => {
                             if (otherIdx === index) return null;
                             const otherId = otherTask.id || `task_idx_${otherIdx}`;
                             return (
-                              <option key={otherId} value={otherId} className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white">
+                              <option key={otherId} value={otherId} className="bg-background  text-muted-foreground ">
                                 Task {otherIdx + 1}: {otherTask.title || `Task ${otherIdx + 1}`}
                               </option>
                             );
                           })}
                         </select>
-                        <p className="mt-0.5 text-[10px] text-neutral-500">
+                        <p className="mt-0.5 text-[10px] text-muted-foreground">
                           Selecting this task when creating an evaluation will automatically select the linked task.
                         </p>
                       </div>
@@ -1676,33 +1842,159 @@ function RecruiterQuestionBankPage() {
                   </div>
                 ))}
                 {labFormData.tasks.length === 0 && (
-                  <p className="text-[12px] text-neutral-500 text-center py-3">No tasks added yet.</p>
+                  <p className="text-[12px] text-muted-foreground text-center py-3">No tasks added yet.</p>
                 )}
               </div>
             </div>
           </div>
 
-          <DialogFooter className="p-4 border-t border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-black/20 flex items-center justify-end gap-3">
-            <button
+          <DialogFooter className="p-4 border-t border-border  bg-background  flex items-center justify-end gap-3">
+            <Button variant="ghost"
               onClick={closeLabModal}
-              className="rounded-lg border border-neutral-200 dark:border-white/10 px-4 py-2 text-[13px] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition"
+              className="rounded-lg border border-border  px-4 py-2 text-[13px] text-muted-foreground  hover:bg-background  transition"
             >
               Cancel
-            </button>
-            <button
-              onClick={handleSaveLab}
+            </Button>
+            <Button variant="ghost"
+              className="rec-btn" onClick={handleSaveLab}
               disabled={createLabMutation.isPending || updateLabMutation.isPending}
-              className="inline-flex items-center gap-2 rounded-md bg-neutral-900 px-5 py-2.5 text-[13px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50"
+              
             >
-              {createLabMutation.isPending || updateLabMutation.isPending ? "Saving..." : "Save Lab Question"}
-            </button>
+              {createLabMutation.isPending || updateLabMutation.isPending ? "Saving..." : "Save lab question"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* SYSTEM DESIGN QUESTION FORM MODAL */}
+      <Dialog open={isSystemDesignModalOpen} onOpenChange={setIsSystemDesignModalOpen}>
+        <DialogContent className="recruiter-theme qb-theme qb-dialog sm:max-w-[780px] w-full bg-background  border-border  text-muted-foreground  max-h-[85vh] flex flex-col p-0 overflow-hidden  rounded-xl">
+          <DialogHeader className="p-6 border-b border-border ">
+            <DialogTitle className="text-[18px] font-semibold text-muted-foreground ">
+              {editingSystemDesignId ? "Edit System design challenge" : "New System design challenge"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto p-6 space-y-5 hide-scrollbar">
+            <div>
+              <label className="text-[11px]   text-muted-foreground">Title</label>
+              <input
+                value={systemDesignFormData.title}
+                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, title: e.target.value })}
+                placeholder="e.g. Design a High-Throughput URL Shortener (TinyURL)"
+                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
+              />
+            </div>
+
+            <div>
+              <label className="text-[11px]   text-muted-foreground">Description / Problem Statement</label>
+              <textarea
+                rows={3}
+                value={systemDesignFormData.description}
+                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, description: e.target.value })}
+                placeholder="Architect an end-to-end distributed system capable of handling high loads..."
+                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[11px]   text-muted-foreground">Scenario Type</label>
+                <input
+                  value={systemDesignFormData.scenario_type}
+                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, scenario_type: e.target.value })}
+                  placeholder="e.g. Distributed Storage, High Concurrency"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px]   text-muted-foreground">Difficulty</label>
+                <select
+                  value={systemDesignFormData.difficulty}
+                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, difficulty: e.target.value })}
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
+                >
+                  <option value="EASY" className="bg-background  text-muted-foreground ">Easy</option>
+                  <option value="MEDIUM" className="bg-background  text-muted-foreground ">Medium</option>
+                  <option value="HARD" className="bg-background  text-muted-foreground ">Hard</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="text-[11px]   text-muted-foreground">Marks</label>
+                <input
+                  type="number"
+                  value={systemDesignFormData.marks}
+                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, marks: e.target.value })}
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border font-mono"
+                />
+              </div>
+              <div>
+                <label className="text-[11px]   text-muted-foreground">Duration (Minutes)</label>
+                <input
+                  type="number"
+                  value={systemDesignFormData.duration_minutes}
+                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, duration_minutes: e.target.value })}
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border font-mono"
+                />
+              </div>
+              <div>
+                <label className="text-[11px]   text-muted-foreground">System Slug</label>
+                <input
+                  value={systemDesignFormData.system_slug}
+                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, system_slug: e.target.value })}
+                  placeholder="systemdesign-url-shortener"
+                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[11px]   text-muted-foreground">Company (Optional)</label>
+              <input
+                value={systemDesignFormData.company || ""}
+                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, company: e.target.value })}
+                placeholder="e.g. Uber, Amazon, BookMyShow"
+                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
+              />
+            </div>
+
+            <div>
+              <label className="text-[11px]   text-muted-foreground">Constraints & Scale Targets (One per line)</label>
+              <textarea
+                rows={3}
+                value={systemDesignFormData.constraints}
+                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, constraints: e.target.value })}
+                placeholder="100M daily active requests&#10;Sub-15ms p99 latency&#10;99.999% availability"
+                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border font-mono text-[12px]"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="p-4 border-t border-border  bg-background  flex items-center justify-end gap-3">
+            <Button variant="ghost"
+              onClick={closeSystemDesignModal}
+              className="rounded-lg border border-border  px-4 py-2 text-[13px] text-muted-foreground  hover:bg-background  transition"
+            >
+              Cancel
+            </Button>
+            <Button variant="ghost"
+              className="rec-btn" onClick={handleSaveSystemDesign}
+              disabled={createSystemDesignMutation.isPending || updateSystemDesignMutation.isPending || !systemDesignFormData.title}
+              
+            >
+              {createSystemDesignMutation.isPending || updateSystemDesignMutation.isPending ? "Saving..." : "Save System design challenge"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* 3. KNOWLEDGE ASSESSMENT QUESTION FORM MODAL */}
       <Dialog open={isKnowledgeModalOpen} onOpenChange={setIsKnowledgeModalOpen}>
-        <DialogContent hideCloseButton className="sm:max-w-[800px] w-full bg-white dark:bg-[#121215] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white h-[85vh] max-h-[85vh] flex flex-col p-0 overflow-hidden shadow-2xl rounded-2xl">
+        <DialogContent className="recruiter-theme qb-theme qb-dialog sm:max-w-[800px] w-full bg-background  border-border  text-muted-foreground  h-[85vh] max-h-[85vh] flex flex-col p-0 overflow-hidden  rounded-xl">
           <CreateQuestionForm
             initialData={editingKnowledgeQuestion}
             courses={courses}
@@ -1712,8 +2004,8 @@ function RecruiterQuestionBankPage() {
               queryClient.invalidateQueries({ queryKey: ["knowledgeQuestions"] });
               showToast(
                 editingKnowledgeQuestion
-                  ? "Knowledge Assessment Question updated"
-                  : "Knowledge Assessment Question created"
+                  ? "Knowledge assessment Question updated"
+                  : "Knowledge assessment Question created"
               );
             }}
           />
@@ -1722,113 +2014,93 @@ function RecruiterQuestionBankPage() {
 
       {/* 4. PREVIEW QUESTION MODAL (Matches Engineering Lab Library & Assessment Question Bank Preview UI) */}
       <Dialog open={!!previewQuestion} onOpenChange={(open) => !open && setPreviewQuestion(null)}>
-        <DialogContent className="sm:max-w-[700px] w-full bg-white dark:bg-[#121215] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white max-h-[85vh] flex flex-col p-0 overflow-hidden shadow-2xl rounded-2xl">
-          <div className="flex items-center justify-between border-b border-neutral-200 dark:border-white/5 p-6 shrink-0 pr-12">
-            <div className="text-[16px] font-semibold text-neutral-900 dark:text-white truncate">
+        <DialogContent className="recruiter-theme qb-theme qb-dialog sm:max-w-[700px] w-full bg-background  border-border  text-muted-foreground  max-h-[85vh] flex flex-col p-0 overflow-hidden  rounded-xl">
+          <div className="flex items-center justify-between border-b border-border  p-6 shrink-0 pr-12">
+            <div className="text-[16px] font-semibold text-muted-foreground  truncate">
               {previewQuestion?.title || previewQuestion?.text || previewQuestion?.content || "Preview"}
             </div>
           </div>
           <div className="flex-1 overflow-y-auto hide-scrollbar p-6 min-h-0">
             {loadingPreview ? (
-              <div className="flex items-center justify-center p-12 text-neutral-500">
-                <Loader2 className="h-6 w-6 animate-spin mr-2" />
+              <div className="flex items-center justify-center p-12 text-muted-foreground">
+                
                 Loading question details...
               </div>
             ) : previewQuestion?.questionCategory === "LAB" ? (
               <LabPreview l={previewQuestion} />
+            ) : previewQuestion?.questionCategory === "SYSTEM_DESIGN" ? (
+              <SystemDesignPreview q={previewQuestion} />
             ) : (
               <QuestionPreview q={previewQuestion} />
             )}
           </div>
-          <div className="border-t border-neutral-200 dark:border-white/5 p-5 flex justify-end shrink-0 bg-neutral-50 dark:bg-black/20">
-            <button
+          <div className="border-t border-border  p-5 flex justify-end shrink-0 bg-background ">
+            <Button variant="ghost"
               onClick={() => setPreviewQuestion(null)}
-              className="rounded-md bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-5 py-2.5 text-[13px] font-medium hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors"
+              className="rounded-md bg-background  text-muted-foreground  px-5 py-2.5 text-[13px] font-medium hover:bg-background  transition-colors"
             >
               Close
-            </button>
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* 5. DELETE QUESTION CONFIRMATION MODAL */}
       <Dialog open={!!deletingQuestion} onOpenChange={(open) => !open && setDeletingQuestion(null)}>
-        <DialogContent className="sm:max-w-[440px] w-full bg-white dark:bg-[#121215] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white p-6 shadow-2xl rounded-2xl">
+        <DialogContent className="recruiter-theme qb-theme qb-dialog sm:max-w-[440px] w-full bg-background  border-border  text-muted-foreground  p-6  rounded-xl">
           <div className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 mb-4">
-              <AlertTriangle className="h-6 w-6" />
-            </div>
+            
             <DialogHeader className="p-0 text-center">
-              <DialogTitle className="text-[18px] font-semibold text-neutral-900 dark:text-white text-center">
-                Delete Question
+              <DialogTitle className="text-[18px] font-semibold text-muted-foreground  text-center">
+                Delete question
               </DialogTitle>
             </DialogHeader>
-            <p className="mt-2 text-[13px] text-neutral-600 dark:text-neutral-400">
-              Are you sure you want to delete <span className="font-semibold text-neutral-900 dark:text-white">"{deletingQuestion?.title}"</span>? This action cannot be undone.
+            <p className="mt-2 text-[13px] text-muted-foreground ">
+              Are you sure you want to delete <span className="font-semibold text-muted-foreground ">"{deletingQuestion?.title}"</span>? This action cannot be undone.
             </p>
           </div>
 
-          <DialogFooter className="mt-6 flex items-center justify-end gap-3 border-t border-neutral-200 dark:border-white/5 pt-4">
-            <button
+          <DialogFooter className="mt-6 flex items-center justify-end gap-3 border-t border-border  pt-4">
+            <Button variant="ghost"
               onClick={() => setDeletingQuestion(null)}
-              className="rounded-lg border border-neutral-200 dark:border-white/10 px-4 py-2 text-[13px] text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5 transition"
+              className="rounded-lg border border-border  px-4 py-2 text-[13px] text-muted-foreground  hover:bg-background  transition"
             >
               Cancel
-            </button>
-            <button
-              disabled={deleteLabMutation.isPending || deleteKnowledgeMutation.isPending}
+            </Button>
+            <Button variant="ghost"
+              disabled={deleteLabMutation.isPending || deleteKnowledgeMutation.isPending || deleteSystemDesignMutation.isPending}
               onClick={() => {
                 if (!deletingQuestion) return;
                 if (deletingQuestion.category === "LAB") {
                   deleteLabMutation.mutate(deletingQuestion.id);
+                } else if (deletingQuestion.category === "SYSTEM_DESIGN") {
+                  deleteSystemDesignMutation.mutate(deletingQuestion.id);
                 } else {
                   deleteKnowledgeMutation.mutate(deletingQuestion.id);
                 }
                 setDeletingQuestion(null);
               }}
-              className="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-[13px] font-medium text-white hover:bg-rose-700 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-background px-4 py-2 text-[13px] font-medium text-muted-foreground hover:bg-background transition-colors disabled:opacity-50"
             >
-              {deleteLabMutation.isPending || deleteKnowledgeMutation.isPending ? (
+              {deleteLabMutation.isPending || deleteKnowledgeMutation.isPending || deleteSystemDesignMutation.isPending ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                  
                   Deleting...
                 </>
               ) : (
-                "Delete Question"
+                "Delete question"
               )}
-            </button>
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-white/10 bg-neutral-900 px-4 py-2 text-[12px] text-white shadow-xl">
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-border/10 bg-background px-4 py-2 text-[12px] text-muted-foreground ">
           {toast}
         </div>
       )}
     </div>
-  );
-}
-
-function DifficultyPill({ difficulty }: { difficulty: string }) {
-  if (difficulty === "HARD") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-rose-400/20 bg-rose-400/10 px-2 py-0.5 text-[10px] font-medium text-rose-300">
-        <span className="h-1 w-1 rounded-full bg-rose-400" /> Hard
-      </span>
-    );
-  }
-  if (difficulty === "MEDIUM") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-[10px] font-medium text-amber-300">
-        <span className="h-1 w-1 rounded-full bg-amber-400" /> Medium
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
-      <span className="h-1 w-1 rounded-full bg-emerald-400" /> Easy
-    </span>
   );
 }

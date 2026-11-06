@@ -2,10 +2,13 @@ import {
   createFileRoute,
   Link,
   Outlet,
-  useMatch,
+  useLocation,
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
+import { getSystemDesignLab } from "@/lib/systemDesign";
+import { SystemDesignStudio } from "@/routes/system-design-studio";
+import { getLab } from "@/lib/adminLabs";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { EditorView } from "@codemirror/view";
 import { useTheme } from "@/hooks/use-theme";
@@ -19,7 +22,7 @@ import {
   runDatabaseQuery,
   type FileTreeNode,
 } from "@/services/workspaceService";
-import codeExecutorService from "@/services/codeExecutorService";
+import codeExecutorService, { isTaskHidden } from "@/services/codeExecutorService";
 import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
 import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { TopNav } from "@/components/TopNav";
@@ -29,7 +32,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { evaluationService } from "@/services/evaluationService";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
-import { tickets, labs } from "@/lib/dummy";
+import { tickets, labs, type Status } from "@/lib/dummy";
+import { invalidateStudentStats } from "@/lib/studentStats";
 import ExamplesPanel from "@/components/ExamplesPanel";
 import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema, getMongoSchema } from "@/lib/dbEngine";
 import { executeExternalDbQuery, fetchExternalDbSchema } from "@/services/codeExecutorService";
@@ -97,8 +101,20 @@ export type StudentPreviewOverride = {
 };
 
 function TicketEditorRoute() {
+  const location = useLocation();
+  const isReview = location.pathname.endsWith("/review");
+
+  if (isReview) {
+    return <Outlet />;
+  }
+
+  return <TicketEditorContent />;
+}
+
+function TicketEditorContent() {
   const { slug, ticketId } = useParams({ from: "/student/lab/$slug/ticket/$ticketId" });
   const [previewOverride, setPreviewOverride] = useState<StudentPreviewOverride | null>(null);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -110,6 +126,7 @@ function TicketEditorRoute() {
       /* ignore */
     }
   }, [ticketId]);
+
   return <StudentTicketView slug={slug} ticketId={ticketId} previewOverride={previewOverride} />;
 }
 
@@ -733,6 +750,111 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
   const t = (tag || "").toLowerCase();
   const s = (slug || "").toLowerCase();
 
+  if (
+    tag === "Java Spring Todo" ||
+    tag === "Spring Todo" ||
+    tag === "Java Spring Boot" ||
+    tag === "Java Spring" ||
+    s.includes("java_spring_todo") ||
+    s.includes("java_todo") ||
+    s.includes("spring_todo") ||
+    t === "spring" ||
+    t === "springboot" ||
+    ((t === "java") && (s.includes("todo") || tag?.toLowerCase()?.includes("todo")))
+  ) {
+    return {
+      name: "java",
+      rootLabel: "todo-app",
+      primary: "src/main/java/com/yuvro/todo/TodoApplication.java",
+      runtime: "Java 21 · Spring Boot",
+      fileList: [
+        "src/main/java/com/yuvro/todo/TodoApplication.java",
+        "src/main/java/com/yuvro/todo/config/SecurityConfig.java",
+        "src/main/java/com/yuvro/todo/config/JwtFilter.java",
+        "src/main/java/com/yuvro/todo/config/JwtUtil.java",
+        "src/main/java/com/yuvro/todo/controller/HealthController.java",
+        "src/main/java/com/yuvro/todo/controller/AuthController.java",
+        "src/main/java/com/yuvro/todo/controller/TaskController.java",
+        "src/main/java/com/yuvro/todo/entity/User.java",
+        "src/main/java/com/yuvro/todo/entity/Task.java",
+        "src/main/java/com/yuvro/todo/repository/UserRepository.java",
+        "src/main/java/com/yuvro/todo/repository/TaskRepository.java",
+        "src/main/resources/application.properties",
+        "pom.xml",
+        "README.md",
+      ],
+      files: {
+        "src/main/java/com/yuvro/todo/TodoApplication.java": `package com.yuvro.todo;\n\n// TODO: Ticket 1 - Add @SpringBootApplication and implement main method\npublic class TodoApplication {\n    public static void main(String[] args) {\n        // TODO: Launch application with SpringApplication.run\n    }\n}\n`,
+        "src/main/resources/application.properties": `# Server configuration\nserver.port=5000\n\n# TODO: Ticket 1 - Configure SQLite database connection\n# spring.datasource.url=jdbc:sqlite:todo.db\n`,
+        "pom.xml": `<?xml version="1.0" encoding="UTF-8"?>\n<project xmlns="http://maven.apache.org/POM/4.0.0"\n         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">\n    <modelVersion>4.0.0</modelVersion>\n    <parent>\n        <groupId>org.springframework.boot</groupId>\n        <artifactId>spring-boot-starter-parent</artifactId>\n        <version>3.2.5</version>\n        <relativePath/>\n    </parent>\n    <groupId>com.yuvro</groupId>\n    <artifactId>todo-app</artifactId>\n    <version>1.0.0</version>\n    <name>todo-app</name>\n    <description>Java Spring Boot Todo REST API</description>\n    <properties>\n        <java.version>21</java.version>\n    </properties>\n    <dependencies>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-web</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-data-jpa</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-starter-security</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>org.xerial</groupId>\n            <artifactId>sqlite-jdbc</artifactId>\n            <version>3.45.3.0</version>\n        </dependency>\n        <dependency>\n            <groupId>org.hibernate.orm</groupId>\n            <artifactId>hibernate-community-dialects</artifactId>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-api</artifactId>\n            <version>0.12.5</version>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-impl</artifactId>\n            <version>0.12.5</version>\n            <scope>runtime</scope>\n        </dependency>\n        <dependency>\n            <groupId>io.jsonwebtoken</groupId>\n            <artifactId>jjwt-jackson</artifactId>\n            <version>0.12.5</version>\n            <scope>runtime</scope>\n        </dependency>\n    </dependencies>\n</project>\n`,
+        "README.md": `# Java Spring Boot Todo REST API Lab\n`,
+      },
+    };
+  }
+  if (
+    tag === "Node.js Todo" ||
+    tag === "Node Todo" ||
+    tag === "Express Todo" ||
+    s.includes("nodejs_todo") ||
+    s.includes("node_todo") ||
+    t === "express" ||
+    t === "node" ||
+    t === "nodejs" ||
+    ((t === "javascript" || t === "js") && (s.includes("todo") || tag?.toLowerCase()?.includes("todo")))
+  ) {
+    return {
+      name: "js",
+      rootLabel: "todo-app",
+      primary: "src/app.js",
+      runtime: "Node.js 20 · Express",
+      fileList: [
+        "src/app.js",
+        "src/config.js",
+        "src/db.js",
+        "src/server.js",
+        "src/middleware/auth.js",
+        "src/models/task.js",
+        "src/models/user.js",
+        "src/routes/auth.js",
+        "src/routes/tasks.js",
+        "package.json",
+        "README.md",
+      ],
+      files: {
+        "src/app.js": `const express = require('express');\nconst config = require('./config');\nconst { initDatabase } = require('./db');\n\nfunction createApp(customConfig = {}) {\n  const app = express();\n  const dbPath = customConfig.DB_PATH || config.DB_PATH;\n\n  // TODO: Initialize database and setup routes\n  return app;\n}\n\nmodule.exports = { createApp };\n`,
+        "src/config.js": `const path = require('path');\nrequire('dotenv').config();\n\nconst config = {\n  PORT: process.env.PORT || 5000,\n  JWT_SECRET: process.env.JWT_SECRET || 'yuvro-dev-secret-key-987654321',\n  DB_PATH: process.env.DB_PATH || path.resolve(__dirname, '../todo.db'),\n  JWT_EXPIRES_IN: '1d'\n};\n\nmodule.exports = config;\n`,
+        "package.json": `{\n  "name": "todo-app",\n  "version": "1.0.0",\n  "main": "src/server.js",\n  "scripts": {\n    "start": "node src/server.js"\n  },\n  "dependencies": {\n    "bcryptjs": "^2.4.3",\n    "dotenv": "^16.4.5",\n    "express": "^4.19.2",\n    "jsonwebtoken": "^9.0.2",\n    "sqlite3": "^5.1.7"\n  }\n}\n`,
+        "README.md": `# Node.js & Express Todo REST API Lab\n`,
+      },
+    };
+  }
+  if (
+    tag === "Flask Todo" ||
+    t === "flask" ||
+    s.includes("flask_todo") ||
+    s.includes("flask")
+  ) {
+    return {
+      name: "python",
+      rootLabel: "todo-app",
+      primary: "app/__init__.py",
+      runtime: "Python 3.12 · Flask",
+      fileList: [
+        "app/__init__.py",
+        "app/models.py",
+        "config.py",
+        "run.py",
+        "requirements.txt",
+        "README.md",
+      ],
+      files: {
+        "app/__init__.py": `from flask import Flask, jsonify\nfrom flask_sqlalchemy import SQLAlchemy\nfrom config import Config\n\ndb = SQLAlchemy()\n\ndef create_app(test_config=None):\n    app = Flask(__name__)\n    return app\n`,
+        "config.py": `import os\n\nclass Config:\n    SECRET_KEY = os.environ.get('SECRET_KEY', 'yuvro-dev-secret-key-987654321')\n    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')\n`,
+        "requirements.txt": `Flask>=3.0.0\nFlask-SQLAlchemy>=3.1.1\n`,
+        "README.md": `# Flask Todo App\n`,
+      },
+    };
+  }
   if (tag === "Django Todo" || t === "django") {
     return {
       name: "django",
@@ -741,6 +863,70 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       runtime: "Python 3.12 · Django 5",
       fileList: [...DJANGO_FILES],
       files: { ...DJANGO_STARTERS },
+    };
+  }
+  if (
+    tag === "Node.js Todo" ||
+    tag === "Node Todo" ||
+    tag === "Express Todo" ||
+    s.includes("nodejs_todo") ||
+    s.includes("node_todo") ||
+    t === "express" ||
+    t === "node" ||
+    t === "nodejs" ||
+    ((t === "javascript" || t === "js") && (s.includes("todo") || tag?.toLowerCase()?.includes("todo")))
+  ) {
+    return {
+      name: "js",
+      rootLabel: "todo-app",
+      primary: "src/app.js",
+      runtime: "Node.js 20 · Express",
+      fileList: [
+        "src/app.js",
+        "src/config.js",
+        "src/db.js",
+        "src/server.js",
+        "src/middleware/auth.js",
+        "src/models/task.js",
+        "src/models/user.js",
+        "src/routes/auth.js",
+        "src/routes/tasks.js",
+        "package.json",
+        "README.md",
+      ],
+      files: {
+        "src/app.js": `const express = require('express');\nconst config = require('./config');\nconst { initDatabase } = require('./db');\n\nfunction createApp(customConfig = {}) {\n  const app = express();\n  const dbPath = customConfig.DB_PATH || config.DB_PATH;\n\n  // TODO: Initialize database and setup routes\n  return app;\n}\n\nmodule.exports = { createApp };\n`,
+        "src/config.js": `const path = require('path');\nrequire('dotenv').config();\n\nconst config = {\n  PORT: process.env.PORT || 5000,\n  JWT_SECRET: process.env.JWT_SECRET || 'yuvro-dev-secret-key-987654321',\n  DB_PATH: process.env.DB_PATH || path.resolve(__dirname, '../todo.db'),\n  JWT_EXPIRES_IN: '1d'\n};\n\nmodule.exports = config;\n`,
+        "package.json": `{\n  "name": "todo-app",\n  "version": "1.0.0",\n  "main": "src/server.js",\n  "scripts": {\n    "start": "node src/server.js"\n  },\n  "dependencies": {\n    "bcryptjs": "^2.4.3",\n    "dotenv": "^16.4.5",\n    "express": "^4.19.2",\n    "jsonwebtoken": "^9.0.2",\n    "sqlite3": "^5.1.7"\n  }\n}\n`,
+        "README.md": `# Node.js & Express Todo REST API Lab\n`,
+      },
+    };
+  }
+  if (
+    tag === "Flask Todo" ||
+    t === "flask" ||
+    s.includes("flask_todo") ||
+    s.includes("flask")
+  ) {
+    return {
+      name: "python",
+      rootLabel: "todo-app",
+      primary: "app/__init__.py",
+      runtime: "Python 3.12 · Flask",
+      fileList: [
+        "app/__init__.py",
+        "app/models.py",
+        "config.py",
+        "run.py",
+        "requirements.txt",
+        "README.md",
+      ],
+      files: {
+        "app/__init__.py": `from flask import Flask, jsonify\nfrom flask_sqlalchemy import SQLAlchemy\nfrom config import Config\n\ndb = SQLAlchemy()\n\ndef create_app(test_config=None):\n    app = Flask(__name__)\n    return app\n`,
+        "config.py": `import os\n\nclass Config:\n    SECRET_KEY = os.environ.get('SECRET_KEY', 'yuvro-dev-secret-key-987654321')\n    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')\n`,
+        "requirements.txt": `Flask>=3.0.0\nFlask-SQLAlchemy>=3.1.1\n`,
+        "README.md": `# Flask Todo App\n`,
+      },
     };
   }
   if (t === "mysql" || s.includes("mysql")) return MYSQL_KIT_DEFAULT;
@@ -764,7 +950,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
   )
     return LINUX_KIT_DEFAULT;
 
-  if (tag === "javascript" || tag === "js" || tag === "typescript" || tag === "ts" || tag === "node" || tag === "nodejs") {
+  if (t === "javascript" || t === "js" || t === "typescript" || t === "ts" || t === "node" || t === "nodejs") {
     return {
       name: "js",
       rootLabel: "project",
@@ -777,7 +963,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "python" || tag === "py") {
+  if (t === "python" || t === "py") {
     return {
       name: "python",
       rootLabel: "project",
@@ -790,7 +976,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "c") {
+  if (t === "c") {
     return {
       name: "c",
       rootLabel: "project",
@@ -803,7 +989,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "cpp" || tag === "c++") {
+  if (t === "cpp" || t === "c++") {
     return {
       name: "cpp",
       rootLabel: "project",
@@ -816,7 +1002,7 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
       },
     };
   }
-  if (tag === "java") {
+  if (t === "java") {
     return {
       name: "java",
       rootLabel: "java-101",
@@ -864,10 +1050,54 @@ function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
   };
 }
 
-type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string };
+type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string; is_hidden?: boolean };
 type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff" | "testcases";
 
-export function StudentTicketView({
+export function StudentTicketView(props: {
+  slug: string;
+  ticketId: string;
+  previewOverride?: StudentPreviewOverride | null;
+}) {
+  const [labType, setLabType] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (getSystemDesignLab(props.slug)) {
+      setLabType("SYSTEM_DESIGN");
+      return;
+    }
+    let active = true;
+    getLab(props.slug)
+      .then((lab) => {
+        if (active && lab?.type) {
+          setLabType(lab.type);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [props.slug]);
+
+  if (
+    getSystemDesignLab(props.slug) ||
+    labType === "SYSTEM_DESIGN" ||
+    props.slug.toLowerCase().includes("system-design") ||
+    props.slug.toLowerCase().includes("systemdesign")
+  ) {
+    return (
+      <SystemDesignStudio
+        key={`${props.slug}:${props.ticketId}`}
+        slug={props.slug}
+        ticketId={props.ticketId}
+        taskOverride={props.previewOverride ?? undefined}
+      />
+    );
+  }
+
+  return <CodeTicketView {...props} />;
+}
+
+function CodeTicketView({
   slug,
   ticketId,
   previewOverride,
@@ -876,11 +1106,6 @@ export function StudentTicketView({
   ticketId: string;
   previewOverride?: StudentPreviewOverride | null;
 }) {
-  const reviewMatch = useMatch({
-    from: "/student/lab/$slug/ticket/$ticketId/review",
-    shouldThrow: false,
-  });
-
   const [resolvedTicket, setResolvedTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -916,7 +1141,7 @@ export function StudentTicketView({
             xp: t.yuvro_points ?? 100,
             estMin: t.minutes_max ?? 30,
             tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "bash",
-            status: "Not Started",
+            status: "in_progress",
             startup_command: t.startup_command || t.scoring_rules?.startup_command || "",
             test_command: t.test_command || t.scoring_rules?.test_command || "",
             starter_path: t.starter_path || t.starterPath || t.scoring_rules?.starter_path || t.scoring_rules?.starterPath || "",
@@ -960,14 +1185,31 @@ export function StudentTicketView({
     };
   }, [ticketId]);
 
-  if (reviewMatch) return <Outlet />;
-
   if (loading || !resolvedTicket) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background text-muted-foreground">
         <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-primary" />
         <span className="text-sm">Loading ticket…</span>
       </div>
+    );
+  }
+
+  if (
+    resolvedTicket &&
+    (resolvedTicket.type === "SYSTEM_DESIGN" ||
+      resolvedTicket.ticket_type === "SYSTEM_DESIGN" ||
+      resolvedTicket.tag === "System Design")
+  ) {
+    return (
+      <SystemDesignStudio
+        key={`${slug}:${ticketId}`}
+        slug={slug}
+        ticketId={ticketId}
+        taskOverride={{
+          title: previewOverride?.title ?? resolvedTicket.title,
+          description: previewOverride?.description ?? resolvedTicket.description,
+        }}
+      />
     );
   }
 
@@ -1150,10 +1392,6 @@ export function TicketIDE({
   initialFiles?: Record<string, string>;
 }) {
   const navigate = useNavigate();
-  const reviewMatch = useMatch({
-    from: "/student/lab/$slug/ticket/$ticketId/review",
-    shouldThrow: false,
-  });
   const isDsaLabMatch = (str?: string) => {
     if (!str) return false;
     const s = str.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
@@ -1366,6 +1604,12 @@ export function TicketIDE({
     if (isSql || isMysql || isPostgres || fileExt === "sql") return "-- Write your query here\n";
     if (isBash || fileExt === "sh") return "#!/usr/bin/env bash\n\n# Write your solution here\n";
     if (isReal && slug !== "knowledge") {
+      if (defaultPrimaryFile && kit.files && kit.files[defaultPrimaryFile]) {
+        return kit.files[defaultPrimaryFile];
+      }
+      if (kit.primary && kit.files && kit.files[kit.primary]) {
+        return kit.files[kit.primary];
+      }
       return startersByLang[effectiveLang] || "# Write your solution here\n";
     }
     return kit.files[kit.primary] || startersByLang[effectiveLang] || "# Write your solution here\n";
@@ -1376,7 +1620,7 @@ export function TicketIDE({
   const starters: Record<string, string> = useMemo(() => {
     if (initialFiles) return initialFiles;
     if (isReal && slug !== "knowledge") {
-      const s: Record<string, string> = {};
+      const s: Record<string, string> = { ...kit.files };
       if (defaultPrimaryFile) {
         s[defaultPrimaryFile] = defaultStarterCode;
       }
@@ -1429,6 +1673,12 @@ export function TicketIDE({
     return [...initialFileList];
   });
 
+  const [ticketStatus, setTicketStatus] = useState<Status>(() => {
+    if (ticket.status === "done" || ticket.status === "in_review" || ticket.status === "backlog" || ticket.status === "in_progress") {
+      return ticket.status as Status;
+    }
+    return "in_progress";
+  });
   const [inlineAction, setInlineAction] = useState<InlineTreeAction | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -1630,7 +1880,14 @@ export function TicketIDE({
   const [bottomTab, setBottomTab] = useState<BottomTab>("terminal");
   const [uiDiffResult, setUiDiffResult] = useState<any>(null);
   const [hintLevel, setHintLevel] = useState(2);
-  const [elapsed, setElapsed] = useState(0);
+  const [elapsed, setElapsed] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`elapsed_${ticket.id}`);
+      return stored ? parseInt(stored, 10) || 0 : 0;
+    } catch {
+      return 0;
+    }
+  });
   const { theme, toggle: toggleTheme } = useTheme();
   const [showProgress, setShowProgress] = useState(true);
   const [fileTreeOpen, setFileTreeOpen] = useState(true);
@@ -1793,6 +2050,7 @@ export function TicketIDE({
       api.get<any[]>(`${submissionsEndpoint}?${submissionsIdField}=${taskId}${evalQuery}`)
         .then(async (subs) => {
           if (subs.length === 0) {
+            setTicketStatus("in_progress");
             if (creatingSubmissionRef.current) return;
             creatingSubmissionRef.current = true;
             try {
@@ -1815,6 +2073,11 @@ export function TicketIDE({
           } else {
             const sub = subs[0];
             setSubmissionId(sub.id);
+            if (sub.ticket_status) {
+              setTicketStatus(sub.ticket_status === "backlog" ? "in_progress" : (sub.ticket_status as Status));
+            } else {
+              setTicketStatus("in_progress");
+            }
             if (sub.revealed_hints) {
               setInitialRevealedHints(sub.revealed_hints);
             }
@@ -2043,9 +2306,17 @@ export function TicketIDE({
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
-    const id = setInterval(() => setElapsed((e) => e + 1), 1000);
+    const id = setInterval(() => {
+      setElapsed((e) => {
+        const next = e + 1;
+        try {
+          localStorage.setItem(`elapsed_${ticket.id}`, String(next));
+        } catch {}
+        return next;
+      });
+    }, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [ticket.id]);
 
   const onCodeChangeRef = useRef(onCodeChange);
   useEffect(() => {
@@ -2266,7 +2537,7 @@ export function TicketIDE({
           Object.keys(filesToSave).map(p => wsWriteFile(effectiveUserId, labId, sprintId, p, filesToSave[p] ?? "", evaluationId))
         );
       } catch (err) {
-        console.error("Error saving files before test run:", err);
+        console.error("Failed to save files before running tests:", err);
       }
     }
     setRunning(true);
@@ -2388,7 +2659,44 @@ export function TicketIDE({
             showToast(`Score: ${passedScore} / ${maxScore}`);
           }
         } else {
-          showToast(res.exit_code === 0 ? "Tests ran successfully" : "Execution completed with errors");
+          const ticketTasks: any[] = Array.isArray(ticket?.tasks) && ticket.tasks.length > 0 ? ticket.tasks : [];
+          if (ticketTasks.length > 0 && res.exit_code !== 0) {
+            const newEvalResult: Record<string, { passed: boolean; reason: string }> = {};
+            const nextTests: TestResult[] = [];
+            const rawError = (res.stderr?.trim() || res.stdout?.trim() || `Execution exited with code ${res.exit_code}`).slice(0, 300);
+            let totalPossibleScore = 0;
+
+            ticketTasks.forEach((tMeta, idx) => {
+              const taskKey = tMeta.id || tMeta.task_slug || `task-${idx}`;
+              const taskLabel = formatTaskTitle(tMeta.title, idx, tMeta?.original_index);
+              const taskMax = Number(tMeta.marks ?? tMeta.points ?? 10);
+              totalPossibleScore += taskMax;
+
+              newEvalResult[taskKey] = {
+                passed: false,
+                reason: rawError,
+              };
+
+              nextTests.push({
+                name: `${taskLabel} (0 pts)`,
+                pass: false,
+                time: "—",
+                expected: "Task completed successfully",
+                got: rawError,
+              });
+            });
+
+            setEvalResult(prev => ({ ...prev, ...newEvalResult }));
+            if (nextTests.length > 0) {
+              setTests(nextTests);
+              setTestsRan(true);
+            }
+            const maxScore = totalPossibleScore > 0 ? totalPossibleScore : Number(ticket?.marks ?? ticket?.points ?? 10);
+            setTicketScore({ passed: 0, total: maxScore });
+            showToast(`Score: 0 / ${maxScore} (0/${ticketTasks.length} passed)`);
+          } else {
+            showToast(res.exit_code === 0 ? "Tests ran successfully" : "Execution completed with errors");
+          }
         }
         setBottomTab("preview");
       } catch (err: any) {
@@ -2434,16 +2742,22 @@ export function TicketIDE({
         });
         setTestResults(res.test_results);
 
-        if (res.status === 'completed') {
-          showToast(`Passed ${res.test_cases_passed} of ${res.total_test_cases} tests`);
+        const hasTestResults = Boolean(res.test_results?.results && res.test_results.results.length > 0);
+        if (res.status === 'completed' || res.status === 'failed' || hasTestResults) {
+          if (res.test_cases_passed === res.total_test_cases && res.total_test_cases > 0) {
+            showToast(`All ${res.total_test_cases} tests passed!`);
+          } else {
+            showToast(`Passed ${res.test_cases_passed} of ${res.total_test_cases} tests`);
+          }
           setTestsRan(true);
 
           const newEvalResult: Record<string, { passed: boolean; reason: string }> = {};
+          const tasksToIterate = (ticket.tasks && ticket.tasks.length > 0) ? ticket.tasks : (res.test_results?.results || []);
 
-          (ticket.tasks || []).forEach((taskMeta: any, idx: number) => {
+          tasksToIterate.forEach((taskMeta: any, idx: number) => {
             const tr = res.test_results?.results?.[idx];
             const isPassed = tr ? tr.passed === true : (res.test_cases_passed > 0 && idx < res.test_cases_passed);
-            const reasonMsg = tr ? (tr.passed ? "Passed" : (tr.error || "Output mismatch")) : (isPassed ? "Passed" : "Task failed verification");
+            const reasonMsg = tr ? (tr.passed ? "Passed" : (tr.error || (tr.actual_output !== tr.expected_output ? `Expected "${tr.expected_output}", got "${tr.actual_output}"` : "Output mismatch"))) : (isPassed ? "Passed" : "Task failed verification");
 
             const itemEval = { passed: isPassed, reason: reasonMsg };
 
@@ -2458,14 +2772,16 @@ export function TicketIDE({
           setLastExecutionResult(res);
 
           if (res.test_results?.results && res.test_results.results.length > 0) {
-            setTests((ticket.tasks || []).map((tMeta: any, idx: number) => {
+            setTests(tasksToIterate.map((tMeta: any, idx: number) => {
               const tr = res.test_results?.results?.[idx];
+              const isHidden = Boolean(tr?.is_hidden || isTaskHidden(tMeta));
               return {
                 name: tMeta?.title || `Test Case ${idx + 1}`,
                 pass: tr ? tr.passed === true : false,
                 time: tr?.execution_time ? `${tr.execution_time.toFixed(2)}s` : "—",
-                expected: tr?.expected_output || "",
-                got: tr?.actual_output || tr?.error || ""
+                expected: isHidden ? "" : (tr?.expected_output || ""),
+                got: isHidden ? "" : (tr?.actual_output || tr?.error || tr?.console_output || ""),
+                is_hidden: isHidden
               };
             }));
           } else {
@@ -2865,6 +3181,22 @@ export function TicketIDE({
   };
 
   async function handleSubmit() {
+    function notifyTicketSubmitted(status = "done") {
+      try {
+        const localKanbanStr = localStorage.getItem(`kanban_${slug}`);
+        const kanban = localKanbanStr ? JSON.parse(localKanbanStr) : {};
+        kanban[ticket.id] = status;
+        localStorage.setItem(`kanban_${slug}`, JSON.stringify(kanban));
+      } catch (e) {}
+      invalidateStudentStats();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("yuvro:ticket_submission_updated", {
+          detail: { ticketId: ticket.id, status }
+        }));
+        window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
+      }
+    }
+
     const sessionStartMs = (window as any).__labSessionStartTime || Date.now();
     const elapsedSessionSecs = Math.max(1, Math.round((Date.now() - sessionStartMs) / 1000));
     const elapsedSessionMins = Math.max(1, Math.round(elapsedSessionSecs / 60));
@@ -2956,6 +3288,7 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
+            notifyTicketSubmitted(computedSqlScore > 0 ? "done" : "in_progress");
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -2971,6 +3304,7 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
+          notifyTicketSubmitted(computedSqlScore > 0 ? "done" : "in_progress");
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3019,6 +3353,7 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
+            notifyTicketSubmitted(computedUiScore > 0 ? "done" : "in_progress");
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -3034,6 +3369,7 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
+          notifyTicketSubmitted(computedUiScore > 0 ? "done" : "in_progress");
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3113,6 +3449,7 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
+            notifyTicketSubmitted(computedScore > 0 ? "done" : "in_progress");
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -3129,6 +3466,7 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
+          notifyTicketSubmitted(computedScore > 0 ? "done" : "in_progress");
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3205,6 +3543,7 @@ export function TicketIDE({
               submitted_at: submittedAtIso
             }, "*");
           } else {
+            notifyTicketSubmitted(legacyScore > 0 ? "done" : "in_progress");
             navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
           }
         });
@@ -3219,6 +3558,8 @@ export function TicketIDE({
             submitted_at: submittedAtIso
           }, "*");
         } else {
+          invalidateStudentStats();
+          if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
           navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
         }
       }
@@ -3241,12 +3582,41 @@ export function TicketIDE({
         ? `${user.github_username}@users.noreply.github.com`
         : (user?.email || `${gitName}@users.noreply.github.com`);
 
+      // 1. Try backend GitHub commit endpoint first (for all enrolled lab tickets)
+      if (isReal && ticket.id) {
+        try {
+          const { default: api } = await import("@/utils/RestApiAuthUtil");
+          const commitRes: any = await api.post(`/lab/tickets/${ticket.id}/github-commit/`, {
+            commit_message: formattedMessage,
+            files,
+            code: files[activeFile] ?? "",
+            design: ticket.system_design,
+            sprint_no: sprintNo,
+            ticket_no: ticketNo,
+          });
+          if (commitRes && (commitRes.status === "success" || commitRes.message)) {
+            showToast(commitRes.message || "Changes committed and pushed successfully");
+            setIsCommitDialogOpen(false);
+            setCommitMessage("");
+            return;
+          }
+        } catch (backendErr: any) {
+          const errMsg = backendErr?.response?.data?.error || backendErr?.message || "";
+          if (errMsg.includes("GitHub account not connected") || errMsg.includes("connect your GitHub")) {
+            showToast("Please connect your GitHub account in Profile Settings before committing.");
+            return;
+          }
+          console.warn("Backend ticket commit endpoint failed, falling back to workspace git:", backendErr);
+        }
+      }
+
+      // 2. Fallback: runCommand in workspace
       const safeName = gitName.replace(/"/g, '\\"');
       const safeEmail = gitEmail.replace(/"/g, '\\"');
       const cmd = `git config user.name "${safeName}" && git config user.email "${safeEmail}" && git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" --author="${safeName} <${safeEmail}>" && git push`;
       
       const { runCommand } = await import("@/services/workspaceService");
-      const res = await runCommand(userId, labId, sprintId, cmd, evaluationId);
+      const res = await runCommand(effectiveUserId, labId, sprintId, cmd, evaluationId);
       if (res.exit_code === 0) {
         showToast("Changes committed and pushed successfully");
         setIsCommitDialogOpen(false);
@@ -3424,8 +3794,12 @@ export function TicketIDE({
               [submissionsStatusField]: "backlog",
             }).catch(console.error);
           }
+          setTicketStatus("backlog");
           setTicketScore(null);
           setEvalResult({});
+          try {
+            localStorage.removeItem(`elapsed_${ticket.id}`);
+          } catch {}
           window.location.reload();
         } catch (e: any) {
           showToast("Failed to reset progress: " + e.message);
@@ -3433,8 +3807,6 @@ export function TicketIDE({
       },
     });
   };
-
-  if (reviewMatch) return <Outlet />;
 
   if (!wsLoaded) {
     return (
@@ -3469,10 +3841,9 @@ export function TicketIDE({
           ) : (
             <PanelLeftClose className="h-3 w-3" />
           )}
-          <span className="hidden md:inline">{leftCollapsed ? "Show" : "Hide"} panel</span>
         </button>
 
-        <StatusBadge value={ticket.status} />
+        <StatusBadge value={ticketStatus} />
         <DiffBadge value={ticket.difficulty} />
         {!isEvaluationMode && (
           <span className="text-muted-foreground inline-flex items-center gap-1">
@@ -3481,7 +3852,7 @@ export function TicketIDE({
         )}
         <span className="text-muted-foreground inline-flex items-center gap-1">
           <Clock className="h-3 w-3" />
-          Est. {ticket.estMin}m · Elapsed{" "}
+          Elapsed{" "}
           <span className="font-mono text-foreground">{timeStr}</span>
         </span>
         {savedAt && (
@@ -3796,7 +4167,7 @@ export function TicketIDE({
                 </div>
                 <div className="flex-1 overflow-auto px-1 pb-2 min-h-0">
                   <FileTree
-                    rootLabel={isReal ? ticket.title || "Project" : kit.rootLabel}
+                    rootLabel={isAlgo ? (ticket.title || kit.rootLabel || "Project") : (kit.rootLabel || "todo-app")}
                     paths={fileList}
                     activeFile={activeFile}
                     dirty={dirty}
@@ -4168,7 +4539,7 @@ export function TicketIDE({
                     <ExecutionOutputView
                       output={output}
                       executionMetrics={executionMetrics}
-                      testResults={null}
+                      testResults={testResults}
                       executionOutput={executionOutput}
                     />
                   )}
@@ -4799,7 +5170,104 @@ function FormattedResultsView({
   sprintId?: string;
   evaluationId?: string;
 }) {
-  // 1. Task-based evaluation (Django, REST API, Backend labs, or any lab with test_command or tasks or taskExecutionData)
+  // 1. Algo test cases (if testResults from code executor exists)
+  if (testResults && testResults.results && testResults.results.length > 0) {
+    const passedCount = testResults.passed ?? testResults.results.filter((r: any) => r.passed).length;
+    const totalCount = testResults.total ?? testResults.results.length;
+    const isAllPassed = passedCount === totalCount && totalCount > 0;
+
+    return (
+      <div className="space-y-4 max-w-4xl pb-4">
+        {/* Metrics Header */}
+        <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg border bg-card text-xs">
+          <div className="flex items-center gap-2">
+            <span className={`font-semibold ${isAllPassed ? "text-success" : "text-foreground"}`}>
+              {passedCount} / {totalCount} Test Cases Passed
+            </span>
+          </div>
+          {executionMetrics && (
+            <div className="flex items-center gap-3 text-muted-foreground font-mono text-[11px]">
+              {executionMetrics.execution_time !== undefined && (
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  <span>{executionMetrics.execution_time.toFixed(3)}s</span>
+                </div>
+              )}
+              {executionMetrics.memory_usage !== undefined && (
+                <div className="flex items-center gap-1">
+                  <Zap className="w-3 h-3" />
+                  <span>{executionMetrics.memory_usage.toFixed(2)}MB</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Test Cases List */}
+        <div className="space-y-2">
+          {testResults.results.map((tr: any, idx: number) => {
+            const taskMeta = ticket?.tasks?.[idx];
+            const isHidden = Boolean(tr.is_hidden || isTaskHidden(taskMeta) || isTaskHidden(tr));
+            const testNum = tr.test_case_id !== undefined ? tr.test_case_id + 1 : idx + 1;
+
+            return (
+              <div
+                key={idx}
+                className={`rounded-lg border p-3 font-mono text-xs ${tr.passed ? "border-success/30 bg-success/5" : "border-destructive/30 bg-destructive/5"}`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  {tr.passed ? <CheckCircle2 className="w-4 h-4 text-success" /> : <XCircle className="w-4 h-4 text-destructive" />}
+                  <span className={`font-semibold ${tr.passed ? "text-success" : "text-destructive"}`}>
+                    Test Case #{testNum} {isHidden ? "(Hidden) " : ""}{tr.passed ? "Passed" : "Failed"}
+                  </span>
+                  {tr.execution_time !== undefined && (
+                    <span className="text-muted-foreground ml-auto text-[10px]">{tr.execution_time.toFixed(3)}s</span>
+                  )}
+                </div>
+
+                {!tr.passed && !isHidden && (
+                  <div className="space-y-2 mt-2 text-[11px]">
+                    {tr.input !== undefined && (
+                      <div className="grid grid-cols-[80px_1fr] gap-2">
+                        <span className="text-muted-foreground font-semibold">Input:</span>
+                        <span className="font-mono text-foreground whitespace-pre-wrap break-all bg-muted/40 p-2 rounded">{tr.input || "(empty)"}</span>
+                      </div>
+                    )}
+                    {tr.expected_output !== undefined && (
+                      <div className="grid grid-cols-[80px_1fr] gap-2">
+                        <span className="text-muted-foreground font-semibold">Expected:</span>
+                        <span className="font-mono text-success whitespace-pre-wrap break-all bg-success/10 p-2 rounded">{tr.expected_output}</span>
+                      </div>
+                    )}
+                    {tr.actual_output !== undefined && (
+                      <div className="grid grid-cols-[80px_1fr] gap-2">
+                        <span className="text-muted-foreground font-semibold">Output:</span>
+                        <span className="font-mono text-destructive whitespace-pre-wrap break-all bg-destructive/10 p-2 rounded">{tr.actual_output || "(no output)"}</span>
+                      </div>
+                    )}
+                    {(tr.error || tr.console_output) && (
+                      <div className="mt-2 text-destructive font-semibold text-[11px] whitespace-pre-wrap break-all bg-destructive/10 p-2 rounded">
+                        Error: {tr.error || tr.console_output}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!tr.passed && isHidden && (
+                  <div className="mt-1.5 text-muted-foreground italic text-[11px] flex items-center gap-1.5">
+                    <Lock className="w-3 h-3 text-muted-foreground/70" />
+                    <span>Hidden test case — inputs and outputs are hidden.</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Task-based evaluation (Django, REST API, Backend labs, or any lab with test_command or tasks or taskExecutionData)
   const report = extractTasksReport(ticket, taskExecutionData, executionOutput || output, evalResult, ticketScore);
 
   if (taskExecutionData || ticket?.test_command || (!isSql && !isMongo && !isExternalDb && !isUi && report.items.length > 0)) {
@@ -5010,91 +5478,7 @@ function FormattedResultsView({
     return <UiPreview files={files} />;
   }
 
-  // 4. Algo test cases (if testResults from code executor exists)
-  if (testResults && testResults.results && testResults.results.length > 0) {
-    const passedCount = testResults.passed ?? testResults.results.filter((r: any) => r.passed).length;
-    const totalCount = testResults.total ?? testResults.results.length;
-    const isAllPassed = passedCount === totalCount && totalCount > 0;
-
-    return (
-      <div className="space-y-4 max-w-4xl pb-4">
-        {/* Metrics Header */}
-        <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg border bg-card text-xs">
-          <div className="flex items-center gap-2">
-            <span className={`font-semibold ${isAllPassed ? "text-success" : "text-foreground"}`}>
-              {passedCount} / {totalCount} Test Cases Passed
-            </span>
-          </div>
-          {executionMetrics && (
-            <div className="flex items-center gap-3 text-muted-foreground font-mono text-[11px]">
-              {executionMetrics.execution_time !== undefined && (
-                <div className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  <span>{executionMetrics.execution_time.toFixed(3)}s</span>
-                </div>
-              )}
-              {executionMetrics.memory_usage !== undefined && (
-                <div className="flex items-center gap-1">
-                  <Zap className="w-3 h-3" />
-                  <span>{executionMetrics.memory_usage.toFixed(2)}MB</span>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Test Cases List */}
-        <div className="space-y-2">
-          {testResults.results.map((tr: any, idx: number) => (
-            <div
-              key={idx}
-              className={`rounded-lg border p-3 font-mono text-xs ${tr.passed ? "border-success/30 bg-success/5" : "border-destructive/30 bg-destructive/5"}`}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                {tr.passed ? <CheckCircle2 className="w-4 h-4 text-success" /> : <XCircle className="w-4 h-4 text-destructive" />}
-                <span className={`font-semibold ${tr.passed ? "text-success" : "text-destructive"}`}>
-                  Test Case #{tr.test_case_id !== undefined ? tr.test_case_id + 1 : idx + 1} {tr.passed ? "Passed" : "Failed"}
-                </span>
-                {tr.execution_time !== undefined && (
-                  <span className="text-muted-foreground ml-auto text-[10px]">{tr.execution_time.toFixed(3)}s</span>
-                )}
-              </div>
-
-              {!tr.passed && (
-                <div className="space-y-1.5 mt-2 text-[11px]">
-                  {tr.input !== undefined && (
-                    <div className="grid grid-cols-[80px_1fr] gap-2">
-                      <span className="text-muted-foreground font-semibold">Input:</span>
-                      <span className="text-foreground truncate">{tr.input}</span>
-                    </div>
-                  )}
-                  {tr.expected_output !== undefined && (
-                    <div className="grid grid-cols-[80px_1fr] gap-2">
-                      <span className="text-muted-foreground font-semibold">Expected:</span>
-                      <span className="text-success truncate">{tr.expected_output}</span>
-                    </div>
-                  )}
-                  {tr.actual_output !== undefined && (
-                    <div className="grid grid-cols-[80px_1fr] gap-2">
-                      <span className="text-muted-foreground font-semibold">Output:</span>
-                      <span className="text-destructive truncate">{tr.actual_output || "(no output)"}</span>
-                    </div>
-                  )}
-                  {tr.error && (
-                    <div className="mt-2 text-destructive font-semibold text-[11px]">
-                      Error: {tr.error}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // 5. Empty State fallback
+  // 4. Empty State fallback
   return (
     <div className="flex h-full min-h-[160px] flex-col items-center justify-center gap-2.5 text-center p-4">
       <div className="h-10 w-10 rounded-full bg-muted/40 flex items-center justify-center text-muted-foreground mb-1">
@@ -5157,7 +5541,7 @@ function TestsView({
             <span className={t.pass ? "" : "text-destructive"}>{t.name}</span>
             <span className="ml-auto text-muted-foreground">{t.time}</span>
           </div>
-          {!t.pass && t.expected && (
+          {!t.pass && !t.is_hidden && t.expected && (
             <div className="ml-5 mt-1 rounded border border-destructive/30 bg-destructive/5 p-1.5 text-[11px] text-destructive/90">
               <div>
                 Expected: <span className="text-success">{t.expected}</span>
@@ -5996,16 +6380,20 @@ function ProblemPanel({
                               </span>
                             </div>
                           )}
-                          {!isDS && evalResult[task.task_slug || `task-${originalIdx}`] && (
-                            <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
-                              evalResult[task.task_slug || `task-${originalIdx}`].passed 
-                                ? "border-success/20 bg-success/10 text-success" 
-                                : "border-destructive/20 bg-destructive/10 text-destructive"
-                            }`}>
-                              {evalResult[task.task_slug || `task-${originalIdx}`].passed ? "✅ Passed: " : "❌ Failed: "}
-                              {evalResult[task.task_slug || `task-${originalIdx}`].reason}
-                            </div>
-                          )}
+                          {(() => {
+                            const item = evalResult[task.task_slug] || evalResult[`task-${originalIdx}`] || evalResult[`task-${idx}`] || (task.id ? evalResult[String(task.id)] : undefined);
+                            if (!item) return null;
+                            return (
+                              <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
+                                item.passed 
+                                  ? "border-success/20 bg-success/10 text-success" 
+                                  : "border-destructive/20 bg-destructive/10 text-destructive"
+                              }`}>
+                                {item.passed ? "✅ Passed: " : "❌ Failed: "}
+                                {item.reason}
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>

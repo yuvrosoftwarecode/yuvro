@@ -43,15 +43,20 @@ class PaymentService:
             },
         )
 
-        customer_response = gateway.create_customer({
-            "email": user.email,
-            "name": user.get_full_name(),
-            "metadata": metadata,
-        })
-
-        payment.gateway_customer_reference_id = customer_response.get("customer_id")
-        payment.gateway_response = {"customer_response": customer_response}
-        payment.save(update_fields=["gateway_customer_reference_id", "gateway_response"])
+        customer_id = None
+        try:
+            customer_response = gateway.create_customer({
+                "email": user.email,
+                "name": user.get_full_name() or user.email,
+                "metadata": metadata,
+            })
+            customer_id = customer_response.get("customer_id")
+            payment.gateway_customer_reference_id = customer_id
+            payment.gateway_response = {"customer_response": customer_response}
+            payment.save(update_fields=["gateway_customer_reference_id", "gateway_response"])
+        except Exception as cust_err:
+            import logging
+            logging.warning(f"Non-blocking: Failed to create gateway customer for user {user.id}: {cust_err}")
 
         if not (payment and payment.gateway_order_or_intent_id):
             payment_response = gateway.create_payment({

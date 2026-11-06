@@ -75,6 +75,9 @@ function CompletePage() {
             let meta: any = {};
             try { meta = typeof sec.description === "string" ? JSON.parse(sec.description) : {}; } catch {}
             tot += Number(meta.marks ?? meta.max_score ?? sec.marks ?? 25);
+          } else if (sec.type === "SYSTEM_DESIGN") {
+            const firstQ = (sec.questions || [])[0];
+            tot += Number(firstQ?.marks || sec.marks || 100);
           }
         });
         if (tot > 0) setMaxScore(tot);

@@ -1,7 +1,14 @@
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 
 export type LabType =
-  "DATABASE" | "BACKEND" | "FRONTEND" | "FULL_STACK" | "QUALITY_ASSURANCE" | "DEVOPS" | "AI";
+  | "DATABASE"
+  | "BACKEND"
+  | "FRONTEND"
+  | "FULL_STACK"
+  | "QUALITY_ASSURANCE"
+  | "DEVOPS"
+  | "AI"
+  | "SYSTEM_DESIGN";
 
 export type LabDifficulty = "EASY" | "MEDIUM" | "HARD";
 
@@ -35,6 +42,7 @@ export const LAB_TYPES: { value: LabType; label: string }[] = [
   { value: "QUALITY_ASSURANCE", label: "Quality Assurance" },
   { value: "DEVOPS", label: "DevOps" },
   { value: "AI", label: "AI" },
+  { value: "SYSTEM_DESIGN", label: "System Design" },
 ];
 
 export const DIFFICULTIES: { value: LabDifficulty; label: string }[] = [
@@ -81,6 +89,19 @@ export async function getLab(id: string): Promise<AdminLab | undefined> {
   try {
     return await restApiAuthUtil.get<AdminLab>(`/lab/labs/${id}/`);
   } catch (err) {
+    try {
+      const allLabs = await loadLabs();
+      const lower = id.toLowerCase();
+      const match = allLabs.find(
+        (l) =>
+          l.id === id ||
+          l.title?.toLowerCase() === lower ||
+          (lower.includes("system") &&
+            lower.includes("design") &&
+            (l.type === "SYSTEM_DESIGN" || l.title?.toLowerCase().includes("system design")))
+      );
+      if (match) return match;
+    } catch {}
     return undefined;
   }
 }

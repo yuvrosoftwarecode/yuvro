@@ -441,12 +441,126 @@ class CohereService(BaseAIService):
             raise AIServiceError(f"Cohere API error: {str(e)}")
 
 
+class DeepSeekService(BaseAIService):
+    """DeepSeek chat completion service using OpenAI-compatible API."""
+
+    def __init__(self, api_key: str, model_name: str = "deepseek-chat", base_url: str = None):
+        super().__init__(api_key, model_name)
+        try:
+            from openai import AsyncOpenAI
+
+            self.base_url = base_url or config("DEEPSEEK_BASE_URL", default="https://api.deepseek.com")
+            self.client = AsyncOpenAI(
+                api_key=api_key,
+                base_url=self.base_url,
+                timeout=20.0,
+                max_retries=1,
+            )
+        except ImportError:
+            raise AIServiceError(
+                "OpenAI library not installed. Run: pip install openai"
+            )
+
+    async def generate_response(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.6,
+        max_tokens: int = 4096,
+        stream: bool = False,
+        **kwargs,
+    ) -> Dict[str, Any]:
+        start_time = time.time()
+        messages = _apply_page_content_grounding(messages, kwargs)
+
+        try:
+            extra = kwargs.pop("extra_body", {})
+            if "thinking" not in extra:
+                extra["thinking"] = {"type": "disabled"}
+
+            try:
+                if stream:
+                    response = await self.client.chat.completions.create(
+                        model=self.model_name,
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        extra_body=extra,
+                        stream=True,
+                        **kwargs,
+                    )
+                    return {
+                        "stream": response,
+                        "metadata": {"model": self.model_name},
+                    }
+
+                response = await self.client.chat.completions.create(
+                    model=self.model_name,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    extra_body=extra,
+                    **kwargs,
+                )
+            except Exception as model_err:
+                # If model_name is deepseek-flash and provider expects deepseek-chat (or vice versa), auto-retry
+                err_str = str(model_err).lower()
+                if ("model" in err_str or "not found" in err_str) and self.model_name != "deepseek-chat":
+                    logger.warning(
+                        f"DeepSeek call with model '{self.model_name}' failed: {model_err}. "
+                        "Retrying with 'deepseek-chat'..."
+                    )
+                    if stream:
+                        response = await self.client.chat.completions.create(
+                            model="deepseek-chat",
+                            messages=messages,
+                            temperature=temperature,
+                            max_tokens=max_tokens,
+                            extra_body=extra,
+                            stream=True,
+                            **kwargs,
+                        )
+                        return {
+                            "stream": response,
+                            "metadata": {"model": "deepseek-chat"},
+                        }
+
+                    response = await self.client.chat.completions.create(
+                        model="deepseek-chat",
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        extra_body=extra,
+                        **kwargs,
+                    )
+                else:
+                    raise model_err
+
+            end_time = time.time()
+            response_time_ms = int((end_time - start_time) * 1000)
+
+            return {
+                "response": response.choices[0].message.content,
+                "tokens_used": response.usage.total_tokens if response.usage else None,
+                "response_time_ms": response_time_ms,
+                "metadata": {
+                    "model": response.model,
+                    "finish_reason": response.choices[0].finish_reason,
+                    "prompt_tokens": response.usage.prompt_tokens if response.usage else None,
+                    "completion_tokens": response.usage.completion_tokens if response.usage else None,
+                },
+            }
+        except Exception as e:
+            logger.error(f"DeepSeek API error: {str(e)}")
+            raise AIServiceError(f"DeepSeek API error: {str(e)}")
+
+
 class AIServiceFactory:
 
-
     _services = {
+        "deepseek": DeepSeekService,
         "gemini": GeminiService,
         "anthropic": AnthropicService,
+        "openai": OpenAIService,
     }
 
     @classmethod
@@ -475,26 +589,60 @@ class InterviewReportGenerator:
 
 
     def __init__(self):
+        # 1. Primary: Use existing agent whose name is 'DeepSeek Flash'
+        try:
+            from ai_assistant.models import AIAgent
+            agent = AIAgent.objects.filter(name="DeepSeek Flash").first()
+            if agent:
+                self.service = AIServiceFactory.create_service(agent.provider, agent.model_name)
+                logger.info(f"InterviewReportGenerator using existing agent: {agent.name} ({agent.provider}/{agent.model_name})")
+                return
+        except Exception as e:
+            logger.warning(f"Could not initialize with 'DeepSeek Flash' agent: {e}")
+
+        # 2. Fallback to direct DeepSeek service if agent not found in DB
+        try:
+            self.service = AIServiceFactory.create_service("deepseek", "deepseek-flash")
+            logger.info("InterviewReportGenerator using DeepSeekService via AIServiceFactory")
+            return
+        except Exception:
+            pass
+
+        # 3. Fallback: Check other active AIAgent records in DB
+        try:
+            from ai_assistant.models import AIAgent
+            active_agent = AIAgent.objects.filter(is_active=True).first()
+            if active_agent:
+                self.service = AIServiceFactory.create_service(active_agent.provider, active_agent.model_name)
+                return
+        except Exception:
+            pass
+
+        # 4. Final fallback to Gemini / Anthropic if DeepSeek is unavailable
+        gemini_key = config("GEMINI_API_KEY", default=None)
+        if gemini_key:
+            self.service = GeminiService(gemini_key, model_name="gemini-2.5-flash")
+            return
+
         self.api_key = config("ANTHROPIC_API_KEY", default=None)
-        if not self.api_key:
-            raise AIServiceError("ANTHROPIC_API_KEY not found needed for report generation.")
-        model_name = config("ANTHROPIC_REPORT_MODEL", default="claude-sonnet-4-5-20250929")
-        self.service = AnthropicService(self.api_key, model_name=model_name)
+        if self.api_key:
+            model_name = config("ANTHROPIC_REPORT_MODEL", default="claude-sonnet-4-5-20250929")
+            self.service = AnthropicService(self.api_key, model_name=model_name)
+        else:
+            raise AIServiceError("No valid AI API key found (DEEPSEEK_API_KEY, GEMINI_API_KEY, or ANTHROPIC_API_KEY required).")
 
     async def generate_report(self, conversation_text: str, resume_content: str = None) -> Dict[str, Any]:
 
 
         prompt = f"""
         You are an expert technical interviewer and career coach. 
-        Analyze the following mock interview transcript and generate a detailed performance report.
+        Analyze the following mock interview transcript and generate an objective, detailed performance report based strictly on the candidate's answers and technical performance in this interview session.
+        Do not personalize based on external background or resume. Evaluate only the demonstrated responses in the transcript.
         
         RETURN ONLY RAW JSON. DO NOT USE MARKDOWN BLOCK.
 
         TRANSCRIPT:
         {conversation_text}
-
-        RESUME CONTEXT:
-        {resume_content if resume_content else "No resume provided."}
 
         OUTPUT FORMAT (JSON):
         {{
@@ -536,24 +684,26 @@ class InterviewReportGenerator:
                 max_tokens=4000
             )
 
-            response_text = response["response"]
-            
-            response_text = response_text.replace("```json", "").replace("```", "").strip()
-            
-            try:
-                return json.loads(response_text)
-            except json.JSONDecodeError:
-                start_idx = response_text.find('{')
-                end_idx = response_text.rfind('}') + 1
-                if start_idx != -1 and end_idx != 0:
-                    response_text = response_text[start_idx:end_idx]
-                    return json.loads(response_text)
-                else:
-                    raise
+            response_text = response.get("response", "") if isinstance(response, dict) else str(response)
 
-        except json.JSONDecodeError:
-            logger.error("Failed to parse AI report JSON")
-            raise AIServiceError("Failed to generate valid report format")
+            from mockinterviews.ai_interview.json_parser import parse_json_response
+            try:
+                parsed = parse_json_response(response_text)
+                if isinstance(parsed, dict):
+                    return parsed
+            except Exception as pe:
+                logger.warning(f"parse_json_response could not parse report directly: {pe}")
+
+            # Fallback direct extraction with regex cleanups
+            start_idx = response_text.find('{')
+            end_idx = response_text.rfind('}') + 1
+            if start_idx != -1 and end_idx != 0:
+                candidate = response_text[start_idx:end_idx]
+                candidate = re.sub(r",\s*([}\]])", r"\1", candidate)
+                return json.loads(candidate, strict=False)
+
+            raise AIServiceError("Failed to extract valid report JSON structure from model response")
+
         except Exception as e:
             logger.error(f"Report generation error: {str(e)}")
             raise e

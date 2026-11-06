@@ -33,6 +33,9 @@ services:
       - ./ycode-backend-api/.env.local
       - path: ./ycode-backend-api/.env.local-secrets
         required: false
+    depends_on:
+      ycode-db:
+        condition: service_healthy
     command: >
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
@@ -61,6 +64,8 @@ services:
     volumes:
       - ./ycode-web:/app
       - /app/node_modules
+    ports:
+      - "${YCODE_FRONTEND_PORT:-3000}:${YCODE_FRONTEND_CONTAINER_PORT:-3000}"
     stdin_open: true
     tty: true
     depends_on:

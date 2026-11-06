@@ -17,12 +17,14 @@ from .models import (
     Evaluation,
     LabQuestionBank,
     KnowledgeQuestionBank,
+    SystemDesignQuestionBank,
     UserEvaluationSubmission,
     DiscussionMode,
     FollowUpConfig, 
     FollowUpCandidate,
     UserLabQuestionBankSubmission,
     UserKnowledgeAssessmentSubmission,
+    UserSystemDesignEvaluationSubmission,
     EvaluationSection,
     EvaluationSectionType,
     CandidateTimelineEvent,
@@ -32,17 +34,28 @@ from .serializers import (
     EvaluationSerializer,
     LabQuestionBankSerializer,
     KnowledgeQuestionBankSerializer,
+    SystemDesignQuestionBankSerializer,
     UserEvaluationSubmissionSerializer,
     FollowUpConfigSerializer, 
     FollowUpCandidateSerializer,
-    UserLabQuestionBankSubmissionSerializer
+    UserLabQuestionBankSubmissionSerializer,
+    UserSystemDesignEvaluationSubmissionSerializer,
+    is_valid_uuid
 )
+from django.core.exceptions import ValidationError
 from .email_utils import send_evaluation_email
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 import os
 import re
 from lab.workspace_manager import provision_evaluation_user_repo, get_repo_name_from_url
+from lab.models import SystemDesign
+from lab.system_design_utils import (
+    normalize_system_design,
+    evaluate_system_design,
+    evaluate_system_design_with_ai,
+    is_design_empty
+)
 from .utils import is_database_lab
 import json
 
@@ -627,6 +640,14 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
             )
 
+        if UserSystemDesignEvaluationSubmission.objects.filter(user=user, evaluation=evaluation).exists():
+            CandidateTimelineEvent.objects.get_or_create(
+                evaluation=evaluation,
+                candidate_email=user.email,
+                title=CandidateTimelineEventType.SYSTEM_DESIGN_SUBMITTED,
+                defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": user}
+            )
+
         auto_submitted = request.data.get('auto_submitted', False)
 
         CandidateTimelineEvent.objects.get_or_create(
@@ -647,11 +668,11 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     def start_lab(self, request, pk=None):
         evaluation = self.get_object()
         lab_id = request.data.get('lab_id')
-        if not lab_id:
-            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not lab_id or not is_valid_uuid(lab_id):
+            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
         try:
             lab = LabQuestionBank.objects.get(id=lab_id)
-        except LabQuestionBank.DoesNotExist:
+        except (LabQuestionBank.DoesNotExist, ValidationError):
             return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
 
         now = timezone.now()
@@ -672,12 +693,12 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         evaluation = self.get_object()
         lab_id = request.data.get('lab_id')
         
-        if not lab_id:
-            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not lab_id or not is_valid_uuid(lab_id):
+            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
             
         try:
             lab = LabQuestionBank.objects.get(id=lab_id)
-        except LabQuestionBank.DoesNotExist:
+        except (LabQuestionBank.DoesNotExist, ValidationError):
             return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
             
         status_val = request.data.get('status', 'in_review')
@@ -1017,6 +1038,168 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         
         return Response({"status": "success"})
 
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def submit_system_design(self, request, pk=None):
+        evaluation = self.get_object()
+        section_id = request.data.get('section_id')
+        question_id = request.data.get('question_id')
+        user_design = request.data.get('design')
+        if user_design is None:
+            user_design = {
+                'nodes': request.data.get('nodes', []),
+                'edges': request.data.get('edges', []),
+                'seq': request.data.get('seq', ''),
+                'schema': request.data.get('schema', ''),
+                'apis': request.data.get('apis', []),
+                'notes': request.data.get('notes', {}),
+            }
+
+        if not section_id:
+            return Response({"error": "section_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            section = EvaluationSection.objects.get(id=section_id, evaluation=evaluation)
+        except EvaluationSection.DoesNotExist:
+            return Response({"error": "Section not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        normalized_design = normalize_system_design(user_design)
+        action_type = request.data.get('action', 'submit')
+        status_val = request.data.get('status', 'submitted' if action_type == 'submit' else 'in_progress')
+        now = timezone.now()
+
+        existing = UserSystemDesignEvaluationSubmission.objects.filter(
+            user=request.user, evaluation=evaluation, section=section
+        ).first()
+
+        started_at = None
+        if existing and existing.started_at:
+            started_at = existing.started_at
+        elif request.data.get('started_at'):
+            from django.utils.dateparse import parse_datetime
+            started_at = parse_datetime(str(request.data.get('started_at')))
+
+        if not started_at:
+            started_at = existing.created_at if existing and existing.created_at else now
+
+        sd_question = None
+        q_meta = None
+        if question_id:
+            try:
+                if is_valid_uuid(question_id):
+                    sd_question = SystemDesignQuestionBank.objects.filter(id=question_id).first()
+                if not sd_question:
+                    sd_question = SystemDesignQuestionBank.objects.filter(system_slug=question_id).first()
+            except Exception as e:
+                logger.warning(f"Error querying SystemDesignQuestionBank for question_id {question_id}: {e}")
+                sd_question = None
+        if not sd_question and section.questions:
+            for q_item in section.questions:
+                if isinstance(q_item, dict):
+                    if question_id and str(q_item.get('id')) == str(question_id):
+                        q_meta = q_item
+                        break
+                    elif not q_meta:
+                        q_meta = q_item
+                elif isinstance(q_item, str) and not sd_question:
+                    try:
+                        if is_valid_uuid(q_item):
+                            sd_question = SystemDesignQuestionBank.objects.filter(id=q_item).first()
+                        if not sd_question:
+                            sd_question = SystemDesignQuestionBank.objects.filter(system_slug=q_item).first()
+                    except Exception as e:
+                        logger.warning(f"Error querying SystemDesignQuestionBank for q_item {q_item}: {e}")
+                        sd_question = None
+
+        ticket_context = {
+            "title": (sd_question.title if sd_question else None) or (q_meta.get('title') if q_meta else section.title) or "System Design Challenge",
+            "description": (sd_question.description if sd_question else None) or (q_meta.get('description') if q_meta else section.description) or "",
+            "tasks": (sd_question.tasks if sd_question else None) or (q_meta.get('tasks') if q_meta else None) or [],
+            "constraints": (sd_question.constraints if sd_question else None) or (q_meta.get('constraints') if q_meta else None) or [],
+            "solution": (sd_question.solution_design if sd_question else None) or (q_meta.get('solution_design') if q_meta else None) or {},
+        }
+
+        eval_result = request.data.get('solution_output')
+        score_val = request.data.get('score')
+
+        if action_type in ['evaluate', 'submit'] or status_val in ['submitted', 'done']:
+            if is_design_empty(normalized_design):
+                eval_result = evaluate_system_design(ticket_context, normalized_design)
+                score_val = 0
+            elif not eval_result or not isinstance(eval_result, dict) or ('totalScore' not in eval_result and 'percentage' not in eval_result):
+                try:
+                    eval_result = evaluate_system_design_with_ai(ticket_context, normalized_design, user=request.user)
+                except Exception as e:
+                    logger.warning(f"AI scoring failed or unreachable: {e}. Falling back to deterministic evaluation.")
+                    eval_result = evaluate_system_design(ticket_context, normalized_design)
+
+            pct = 0
+            if isinstance(eval_result, dict):
+                pct = eval_result.get('percentage', eval_result.get('totalScore', eval_result.get('overall_score', 0)))
+
+            max_marks = (sd_question.marks if sd_question else None) or (q_meta.get('marks') if q_meta else None) or getattr(section, 'marks', None) or 100
+            try:
+                max_marks = int(max_marks)
+            except (ValueError, TypeError):
+                max_marks = 100
+
+            computed_score = round((float(pct) / 100.0) * max_marks) if max_marks > 0 else int(pct)
+            if score_val is None:
+                score_val = computed_score
+        else:
+            if score_val is None:
+                score_val = existing.score if existing else 0
+            if eval_result is None:
+                eval_result = existing.solution_output if existing else {}
+
+        defaults = {
+            'design': normalized_design,
+            'status': status_val,
+            'score': int(score_val),
+            'solution_output': eval_result or {},
+            'started_at': started_at,
+            'submitted_at': now if (action_type == 'submit' or status_val in ['submitted', 'done']) else (existing.submitted_at if existing else None),
+        }
+        if sd_question:
+            defaults['system_design_question'] = sd_question
+        if question_id:
+            defaults['question_id'] = str(question_id)
+
+        submission, created = UserSystemDesignEvaluationSubmission.objects.update_or_create(
+            user=request.user,
+            evaluation=evaluation,
+            section=section,
+            defaults=defaults
+        )
+
+        try:
+            SystemDesign.objects.update_or_create(
+                user=request.user,
+                title=f"{section.title} - {evaluation.title}",
+                defaults={
+                    "design": normalized_design,
+                    "description": f"Evaluation submission for {evaluation.title}",
+                    "is_submitted": status_val in ['submitted', 'done'],
+                }
+            )
+        except Exception as e:
+            logger.debug(f"Failed to sync centralized SystemDesign: {e}")
+
+        if action_type == 'submit' or status_val in ['submitted', 'done']:
+            CandidateTimelineEvent.objects.get_or_create(
+                evaluation=evaluation,
+                candidate_email=request.user.email,
+                title=CandidateTimelineEventType.SYSTEM_DESIGN_SUBMITTED,
+                defaults={"status": "SUCCESS", "occurred_at": timezone.now(), "created_by": request.user}
+            )
+
+        serializer = UserSystemDesignEvaluationSubmissionSerializer(submission)
+        return Response({
+            "status": "success",
+            "submission": serializer.data,
+            "evaluation": eval_result,
+            "score": score_val
+        })
+
     @action(detail=True, methods=['get'], permission_classes=[AllowAny])
     def submissions(self, request, pk=None):
         evaluation = self.get_object()
@@ -1069,12 +1252,12 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         evaluation = self.get_object()
         lab_id = request.data.get('lab_id')
         
-        if not lab_id:
-            return Response({"error": "lab_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not lab_id or not is_valid_uuid(lab_id):
+            return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
             
         try:
             lab = LabQuestionBank.objects.get(id=lab_id)
-        except LabQuestionBank.DoesNotExist:
+        except (LabQuestionBank.DoesNotExist, ValidationError):
             return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
             
         starter_repo_path = None
@@ -1123,7 +1306,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 else:
                     lab_id = str(question)
 
-                if not lab_id:
+                if not lab_id or not is_valid_uuid(lab_id):
                     continue
                     
                 try:
@@ -1365,6 +1548,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         
         lab_subs = UserLabQuestionBankSubmission.objects.filter(evaluation=evaluation).select_related('user')
         ka_subs = UserKnowledgeAssessmentSubmission.objects.filter(evaluation=evaluation).select_related('user')
+        sd_subs = UserSystemDesignEvaluationSubmission.objects.filter(evaluation=evaluation).select_related('user')
         
         lab_scores_by_email = {}
         for ls in lab_subs:
@@ -1375,6 +1559,11 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         for ks in ka_subs:
             email = ks.user.email
             ka_scores_by_email[email] = ka_scores_by_email.get(email, 0) + ks.score
+
+        sd_scores_by_email = {}
+        for ss in sd_subs:
+            email = ss.user.email
+            sd_scores_by_email[email] = sd_scores_by_email.get(email, 0) + ss.score
 
         all_emails = invited_emails.union(followup_cands.keys()).union(submissions.keys())
         
@@ -1418,6 +1607,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             
             l_score = lab_scores_by_email.get(email)
             a_score = ka_scores_by_email.get(email)
+            sd_score = sd_scores_by_email.get(email)
             v_score = None
             
             total = 0
@@ -1427,6 +1617,9 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 has_score = True
             if a_score is not None:
                 total += a_score
+                has_score = True
+            if sd_score is not None:
+                total += sd_score
                 has_score = True
                 
             final_score = total if has_score else None
@@ -1456,6 +1649,7 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 "labsScore": l_score,
                 "assessmentScore": a_score,
                 "vitarkaScore": v_score,
+                "systemDesignScore": sd_score,
                 "eci": final_score,
                 "deadline": None,
                 "emailsSent": fc.emails_sent_count if fc else 0,
@@ -1715,6 +1909,36 @@ class KnowledgeQuestionBankViewSet(viewsets.ModelViewSet):
         user = self.request.user
         company = user.recruiter_profiles.first().company if hasattr(user, 'recruiter_profiles') and user.recruiter_profiles.exists() else None
         serializer.save(created_by=user, company=company)
+
+
+class SystemDesignQuestionBankViewSet(viewsets.ModelViewSet):
+    queryset = SystemDesignQuestionBank.objects.all().order_by('-created_at')
+    serializer_class = SystemDesignQuestionBankSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return SystemDesignQuestionBank.objects.all().order_by('-created_at')
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        company = user.recruiter_profiles.first().company if hasattr(user, 'recruiter_profiles') and user.recruiter_profiles.exists() else None
+        serializer.save(created_by=user, company=company)
+
+
+class UserSystemDesignEvaluationSubmissionViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSystemDesignEvaluationSubmissionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        evaluation_id = self.request.query_params.get('evaluation_id')
+        qs = UserSystemDesignEvaluationSubmission.objects.all()
+        if evaluation_id:
+            qs = qs.filter(evaluation_id=evaluation_id)
+        user = self.request.user
+        is_recruiter = hasattr(user, 'recruiter_profiles') and user.recruiter_profiles.exists()
+        if not (user.is_staff or is_recruiter):
+            qs = qs.filter(user=user)
+        return qs
 
 
 class UserLabQuestionBankSubmissionViewSet(viewsets.ModelViewSet):

@@ -54,6 +54,7 @@ class LabType(models.TextChoices):
     QUALITY_ASSURANCE = "QUALITY_ASSURANCE", "Quality Assurance"
     DEVOPS = "DEVOPS", "DevOps"
     AI = "AI", "AI"
+    SYSTEM_DESIGN = "SYSTEM_DESIGN", "System Design"
 
 
 class TicketProgressStatus(models.TextChoices):
@@ -179,6 +180,11 @@ class LabSprintTicket(BaseTimestampedAdminModel):
     hints = models.JSONField(default=list, blank=True)
     scoring_rules = models.JSONField(default=dict, blank=True)
     solution = models.JSONField(default=dict, blank=True)
+    system_design = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Single JSON containing all tabs: nodes, edges, seq, schema, apis, and notes"
+    )
     test_command = models.TextField(
         blank=True,
         default="",
@@ -216,6 +222,11 @@ class UserLabSprintTicketSubmission(BaseTimestampedModel):
     lab_sprint_ticket = models.ForeignKey(LabSprintTicket, on_delete=models.CASCADE, related_name="submissions")
     ticket_status = models.CharField(max_length=20, choices=TicketProgressStatus.choices, default=TicketProgressStatus.BACKLOG)
     solution = models.TextField(blank=True)
+    system_design = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="User's system design work containing nodes, edges, seq, schema, apis, and notes"
+    )
     solution_output = models.TextField(blank=True, help_text="Output from the last validation run (stdout/stderr, test results)")
     feedback = models.TextField(blank=True, help_text="Manual feedback from an instructor or system hints")
     yuvro_points = models.PositiveIntegerField(default=0)
@@ -240,3 +251,28 @@ class UserLabActivity(models.Model):
 
     def __str__(self):
         return f"{self.user.email} -> {self.date}"
+
+
+class SystemDesign(BaseTimestampedModel):
+    """
+    Stores a system design across all tabs in a single JSON structure:
+    nodes, edges, seq, schema, apis, and notes.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="system_designs")
+    title = models.CharField(max_length=255, blank=True)
+    description = models.TextField(blank=True)
+    lab = models.ForeignKey(Lab, on_delete=models.SET_NULL, null=True, blank=True, related_name="system_designs")
+    ticket = models.ForeignKey(LabSprintTicket, on_delete=models.SET_NULL, null=True, blank=True, related_name="system_designs")
+    design = models.JSONField(
+        default=dict,
+        help_text="Single JSON containing all tabs: nodes, edges, seq, schema, apis, and notes"
+    )
+    is_template = models.BooleanField(default=False, help_text="Whether this design is an official starter or reference template")
+    is_submitted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+    def __str__(self):
+        return f"{self.title or 'System Design'} ({self.user.email})"
+

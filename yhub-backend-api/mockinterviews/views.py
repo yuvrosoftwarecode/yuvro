@@ -2,7 +2,12 @@ import logging
 import traceback
 import random
 import asyncio
+import re
+import json
 
+from django.conf import settings
+from django.db import transaction
+from django.utils import timezone
 from django.db.models import Q
 from rest_framework import viewsets, filters, status, permissions
 from rest_framework.decorators import action
@@ -15,10 +20,26 @@ from .models import (
     MockInterviewSubmission,
     PredefinedInterviewQuestion,
     UserInterviewProgress,
+    CandidateMockInterviewQuota,
+    MockInterviewPack,
+    MockInterviewCreditLedger,
+    DEFAULT_MOCK_PACKS,
 )
-from .serializers import MockInterviewSerializer, MockInterviewSubmissionSerializer
+from .serializers import (
+    MockInterviewSerializer,
+    MockInterviewSubmissionSerializer,
+    CandidateMockInterviewQuotaSerializer,
+    MockInterviewPackSerializer,
+    MockInterviewCreditLedgerSerializer,
+)
+from payment.models import Payment, PaymentStatus, PurchasableItem, PurchasableType, UserEntitlement
+from payment.payment_service import PaymentService
+from payment.gateways.razorpay import RazorpayGateway
 
-from ai_assistant.models import AIAgent, ChatSession, InterviewSession, ChatMessage
+from ai_assistant.models import AIAgent, ChatSession, InterviewSession, ChatMessage, InterviewReport
+from ai_assistant.serializers import InterviewReportSerializer
+from ai_assistant.services import InterviewReportGenerator
+from asgiref.sync import async_to_sync
 from mockinterviews.dynamic_engine.models import (
     InterviewCreateRequest,
     InterviewMode as DynMode,
@@ -85,6 +106,214 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerOrInstructorOrAdmin]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
 
+    def get_permissions(self):
+        if self.action in ["list", "retrieve", "packs"]:
+            return [permissions.AllowAny()]
+        if self.action in ["quota", "create_order", "verify_payment", "start_interview", "get_next_question", "my_interviews"]:
+            return [permissions.IsAuthenticated()]
+        return super().get_permissions()
+
+    @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
+    def quota(self, request):
+        """
+        Returns the candidate's available mock interview quota.
+        Guarantees 3 initial free mock interviews for every candidate.
+        """
+        quota = CandidateMockInterviewQuota.get_or_create_quota(request.user)
+        serializer = CandidateMockInterviewQuotaSerializer(quota)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["get"], permission_classes=[permissions.AllowAny])
+    def packs(self, request):
+        """
+        Returns the catalog of available mock interview packs.
+        Tiers:
+          1  : ₹99/-
+          5  : ₹399/-
+          10 : ₹700/-
+        """
+        packs = list(MockInterviewPack.objects.filter(is_active=True).order_by("sort_order", "price_inr"))
+        if not packs:
+            for p_data in DEFAULT_MOCK_PACKS:
+                p_obj, _ = MockInterviewPack.objects.get_or_create(
+                    id=p_data["id"],
+                    defaults=p_data
+                )
+                packs.append(p_obj)
+        serializer = MockInterviewPackSerializer(packs, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def create_order(self, request):
+        """
+        Initiates a server-side validated Razorpay order for purchasing mock interviews.
+        """
+        pack_id = request.data.get("pack_id")
+        if not pack_id:
+            return Response({"error": "pack_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        pack = MockInterviewPack.objects.filter(id=pack_id, is_active=True).first()
+        if not pack:
+            for p_data in DEFAULT_MOCK_PACKS:
+                if p_data["id"] == pack_id:
+                    pack, _ = MockInterviewPack.objects.get_or_create(
+                        id=p_data["id"],
+                        defaults=p_data
+                    )
+                    break
+
+        if not pack:
+            return Response({"error": f"Invalid pack_id: {pack_id}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        purchasable_item, _ = PurchasableItem.objects.get_or_create(
+            item_type=PurchasableType.MOCK_INTERVIEW,
+            item_id=pack.id,
+            defaults={
+                "name": pack.name,
+                "product": "ylabs",
+                "current_price": pack.price_inr,
+                "is_active": True,
+                "metadata": {"interviews_count": pack.interviews_count},
+            }
+        )
+
+        try:
+            payment_service = PaymentService()
+            payment = payment_service.create_payment(
+                user=request.user,
+                amount=float(pack.price_inr),
+                currency="INR",
+                purpose=f"Mock Interview - {pack.name}",
+                description=pack.description or f"Purchase of {pack.interviews_count} mock interviews",
+                product="ylabs",
+                gateway_name="razorpay",
+                metadata={
+                    "pack_id": pack.id,
+                    "interviews_count": pack.interviews_count,
+                    "product": "ylabs",
+                },
+            )
+            payment.purchasable_item = purchasable_item
+            payment.save(update_fields=["purchasable_item"])
+        except Exception as e:
+            logger.error(f"Error creating Razorpay order for user {request.user.id}: {str(e)}", exc_info=True)
+            return Response(
+                {"error": f"Failed to create payment order with gateway: {str(e)}"},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
+
+        return Response({
+            "order_id": payment.gateway_order_or_intent_id,
+            "payment_id": str(payment.id),
+            "amount": pack.price_paise,
+            "currency": "INR",
+            "key_id": getattr(settings, "RAZORPAY_KEY_ID", ""),
+            "name": "Yuvro Mock Interviews",
+            "description": pack.name,
+            "pack_id": pack.id,
+            "interviews_count": pack.interviews_count,
+        }, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def verify_payment(self, request):
+        """
+        Cryptographically verifies the Razorpay payment signature and credits mock interviews.
+        """
+        gateway_order_id = request.data.get("gateway_order_id")
+        gateway_payment_id = request.data.get("gateway_payment_id")
+        signature = request.data.get("signature")
+
+        if not all([gateway_order_id, gateway_payment_id, signature]):
+            return Response(
+                {"error": "gateway_order_id, gateway_payment_id, and signature are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            payment = Payment.objects.select_related("purchasable_item", "user").get(
+                gateway_order_or_intent_id=gateway_order_id,
+                user=request.user
+            )
+        except Payment.DoesNotExist:
+            return Response({"error": "Payment order not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        gateway = RazorpayGateway()
+        is_valid = gateway.verify_signature(
+            order_id=gateway_order_id,
+            payment_id=gateway_payment_id,
+            signature=signature,
+        )
+        if not is_valid:
+            logger.error(f"Invalid Razorpay signature for mock interview order {gateway_order_id}")
+            return Response(
+                {"status": "FAILED", "error": "Invalid signature"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        quota = CandidateMockInterviewQuota.get_or_create_quota(request.user)
+
+        with transaction.atomic():
+            if payment.status in [PaymentStatus.SUCCESS_OR_CAPTURED, PaymentStatus.AUTHORIZED]:
+                serializer = CandidateMockInterviewQuotaSerializer(quota)
+                return Response({
+                    "status": "SUCCESS",
+                    "message": "Payment was already verified and credited.",
+                    "quota": serializer.data,
+                })
+
+            payment.gateway_payment_or_charge_id = gateway_payment_id
+            payment.status = PaymentStatus.SUCCESS_OR_CAPTURED
+            payment.completed_at = timezone.now()
+            payment.latest_successfull_payment = {
+                "status": payment.status,
+                "amount": float(payment.amount),
+                "signature": signature,
+                "verified_at": payment.completed_at.isoformat(),
+            }
+            payment.save(update_fields=["gateway_payment_or_charge_id", "status", "completed_at", "latest_successfull_payment"])
+
+            pack_id = payment.metadata.get("pack_id")
+            interviews_count = int(payment.metadata.get("interviews_count", 0))
+            if not interviews_count and pack_id:
+                pack = MockInterviewPack.objects.filter(id=pack_id).first()
+                if pack:
+                    interviews_count = pack.interviews_count
+
+            if not interviews_count and payment.purchasable_item and payment.purchasable_item.metadata:
+                interviews_count = int(payment.purchasable_item.metadata.get("interviews_count", 1))
+
+            if not interviews_count:
+                interviews_count = 1
+
+            quota = CandidateMockInterviewQuota.objects.select_for_update().get(id=quota.id)
+            quota.purchased_interviews += interviews_count
+            quota.save(update_fields=["purchased_interviews", "updated_at"])
+
+            MockInterviewCreditLedger.objects.create(
+                user=request.user,
+                quota=quota,
+                entry_type=MockInterviewCreditLedger.TYPE_PURCHASE,
+                delta=interviews_count,
+                balance_after=quota.available_interviews,
+                payment=payment,
+                description=f"Purchased {interviews_count} mock interview(s)",
+            )
+
+            if payment.purchasable_item:
+                UserEntitlement.objects.get_or_create(
+                    user=request.user,
+                    payment=payment,
+                    purchasable_item=payment.purchasable_item,
+                )
+
+        serializer = CandidateMockInterviewQuotaSerializer(quota)
+        return Response({
+            "status": "SUCCESS",
+            "message": f"Successfully added {interviews_count} mock interview(s) to your balance.",
+            "quota": serializer.data,
+        })
+
+
     search_fields = ["title", "description"]
     ordering_fields = ["created_at", "updated_at"]
 
@@ -94,31 +323,55 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         publish_status_param = self.request.query_params.get("publish_status")
+        product_param = self.request.query_params.get("product")
 
         q = Q()
         if publish_status_param:
             q &= Q(publish_status=publish_status_param)
+        if product_param:
+            q &= Q(products__contains=[product_param]) | Q(products__contains=[product_param.lower()])
 
         if q:
             qs = qs.filter(q)
 
-        return qs
+        return qs.prefetch_related('predefined_questions')
 
     def _analyze_intro_answer(self, text):
+        if not text or len(text.strip()) < 2:
+            return {}
+
+        clean = text.strip()
+        extracted = {}
+
+        # 1. Fast regex extraction (instant <1ms response)
+        name_match = re.search(r"(?:my name is|i am|i'm|this is|myself|call me)\s+([A-Za-z]+)", clean, re.IGNORECASE)
+        if name_match:
+            extracted["name"] = name_match.group(1).capitalize()
+
+        exp_match = re.search(r"(\d+\+?\s*(?:years?|yrs?)(?:\s+of\s+experience)?|fresher|graduate|intern)", clean, re.IGNORECASE)
+        if exp_match:
+            extracted["experience"] = exp_match.group(1)
+
+        known_skills = ["python", "javascript", "typescript", "react", "django", "node", "sql", "java", "c++", "aws", "docker"]
+        found_skills = [s.capitalize() for s in known_skills if re.search(rf"\b{s}\b", clean, re.IGNORECASE)]
+        if found_skills:
+            extracted["skills"] = ", ".join(found_skills)
+
+        # If name is extracted via regex or text is brief, return immediately without slow LLM roundtrip
+        if extracted.get("name") or len(clean.split()) <= 10:
+            return extracted
+
         from ai_assistant.services import AIServiceFactory
         from django.conf import settings
         import json
-        
-        if not text or len(text.strip()) < 2:
-            return {}
-            
+
         try:
             prompt = f"""
             Extract the following information from the user's self-introduction.
             Return ONLY valid JSON. If a detail is missing, return null for it.
-            
+
             Text: "{text}"
-            
+
             Format:
             {{
                 "name": "<string or null>",
@@ -126,13 +379,13 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 "skills": "<string or null, e.g. 'React, Python, Java'>"
             }}
             """
-            
+
             agent = AIAgent.objects.filter(is_active=True).first()
             if not agent:
-                return {}
-                
+                return extracted
+
             service = AIServiceFactory.create_service(agent.provider, agent.model_name)
-            
+
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             response = loop.run_until_complete(service.generate_response(
@@ -140,16 +393,38 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 temperature=0.1,
                 max_tokens=200
             ))
-            
+
             resp_text = response.get("response", "").replace("```json", "").replace("```", "").strip()
-            return json.loads(resp_text)
+            llm_res = json.loads(resp_text)
+            for k, v in llm_res.items():
+                if v and not extracted.get(k):
+                    extracted[k] = v
+            return extracted
         except Exception as e:
             logger.error(f"Error extracting intro details: {str(e)}")
-            return {}
+            return extracted
 
     @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def start_interview(self, request, pk=None):
         try:
+            # Determine interview source: "student" (student mock interview) vs "evaluation" (lab assessment discussion)
+            source = request.data.get('source') or request.data.get('interview_source') or request.data.get('origin')
+            if not source:
+                # If evaluation parameters are present, mark as evaluation; otherwise default to student side
+                if (
+                    request.data.get('discussion_max_score') is not None or 
+                    request.data.get('max_score') is not None or 
+                    request.data.get('candidate_context')
+                ):
+                    source = 'evaluation'
+                else:
+                    source = 'student'
+
+            # 1. Student Mock Interview -> Route to Engine 1 (AI Interview Engine)
+            if source == 'student':
+                return self.start_ai_interview(request, pk)
+
+            # 2. Evaluation Assessment Discussion -> Proceed with Engine 2 (Dynamic Question Engine)
             user = request.user
             mock_interview = self.get_object()
 
@@ -204,11 +479,11 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             if candidate_context_frontend:
                 context_text += f"\n\nCandidate Assessment & Labs Context:\n{candidate_context_frontend}"
 
-            ai_agent = AIAgent.objects.filter(provider="anthropic", is_active=True).first()
-            if not ai_agent:
-                ai_agent = AIAgent.objects.filter(provider="gemini", is_active=True).first()
-                if not ai_agent:
-                    ai_agent = AIAgent.objects.first()
+            ai_agent = (
+                AIAgent.objects.filter(name="DeepSeek Flash").first()
+                or AIAgent.objects.filter(is_active=True).first()
+                or AIAgent.objects.first()
+            )
             
             duration_mins = selected_duration or mock_interview.max_duration
             
@@ -337,7 +612,11 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             dyn_session.turn_index = 0
 
             submission.session_state = sanitize_null_bytes(dyn_session.model_dump(mode='json'))
-            submission.save(update_fields=['session_state'])
+            submission.state_data = {
+                "source": "evaluation",
+                "interview_type": "evaluation"
+            }
+            submission.save(update_fields=['session_state', 'state_data'])
             
             if chat_session:
                 ChatMessage.objects.create(
@@ -380,9 +659,39 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
             interview_session = InterviewSession.objects.filter(id=interview_session_id).first()
             if not interview_session:
+                sub = MockInterviewSubmission.objects.filter(id=interview_session_id).first()
+                if sub and sub.chat_session and hasattr(sub.chat_session, 'interview_session'):
+                    interview_session = sub.chat_session.interview_session
+            if not interview_session:
                 return Response({"error": "Session not found"}, status=status.HTTP_404_NOT_FOUND)
                 
             chat_session = interview_session.chat_session
+
+            sub = MockInterviewSubmission.objects.filter(
+                user=request.user, 
+                mock_interview=mock_interview, 
+                chat_session=chat_session
+            ).first()
+
+            # Determine whether interview is from student side or from evaluation
+            source = request.data.get('source') or request.data.get('interview_source')
+            if not source:
+                if sub and sub.state_data and sub.state_data.get('source'):
+                    source = sub.state_data.get('source')
+                elif interview_session and interview_session.state_data and interview_session.state_data.get('source'):
+                    source = interview_session.state_data.get('source')
+                elif sub and (sub.interview_type == 'full_ai' or (sub.state_data and sub.state_data.get('interview_type') == 'full_ai')):
+                    source = 'student'
+                elif sub and sub.session_state and not (sub.state_data and sub.state_data.get('interview_type')):
+                    source = 'evaluation'
+                else:
+                    source = 'student'
+
+            # 1. Student Mock Interview -> Route to Engine 1
+            if source == 'student':
+                return self.get_next_ai_question(request, pk)
+
+            # 2. Evaluation Assessment Discussion -> Proceed with Engine 2 (Dynamic Question Engine)
 
             state = interview_session.state_data or {}
 
@@ -584,26 +893,899 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             logger.error(traceback.format_exc())
             return Response({"error": "Internal server error during question progression"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def start_ai_interview(self, request, pk=None):
+        try:
+            user = request.user
+            mock_interview = self.get_object()
+
+            force = request.data.get('force', False)
+            active_session = not force and MockInterviewSubmission.objects.filter(
+                user=user,
+                status__in=[MockInterviewSubmission.STATUS_STARTED, MockInterviewSubmission.STATUS_IN_PROGRESS]
+            ).exists()
+            if active_session:
+                return Response(
+                    {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Check candidate mock interview quota
+            quota = CandidateMockInterviewQuota.get_or_create_quota(user)
+            if quota.available_interviews <= 0:
+                return Response(
+                    {
+                        "error": "You have 0 mock interviews remaining. Please purchase more mock interviews to continue.",
+                        "code": "INSUFFICIENT_MOCK_INTERVIEWS",
+                        "available_interviews": 0,
+                    },
+                    status=status.HTTP_402_PAYMENT_REQUIRED
+                )
+
+            experience_level = request.data.get('experience_level', 'Beginner')
+            selected_duration = request.data.get('selected_duration') or request.data.get('duration')
+            resume_file = request.FILES.get('resume')
+
+            progress, created = UserInterviewProgress.objects.get_or_create(
+                user=user,
+                mock_interview=mock_interview
+            )
+
+            current_cycle_step = progress.completed_count
+            is_master = current_cycle_step >= 5
+            
+            main_pool = PredefinedInterviewQuestion.objects.filter(
+                mock_interview=mock_interview,
+                level=1
+            )
+            has_predefined = main_pool.exists() and getattr(mock_interview, "interview_mode", "") != "automatic"
+
+            if is_master or not has_predefined:
+                interview_type = "full_ai"
+            else:
+                interview_type = "predefined"
+
+            context_text = ""
+            if resume_file:
+                try:
+                    from pypdf import PdfReader
+                    reader = PdfReader(resume_file)
+                    for page in reader.pages:
+                        text = page.extract_text()
+                        if text: context_text += text + "\n"
+                except Exception as e:
+                    logger.warning(f"Error parsing resume: {e}")
+
+            if not context_text.strip():
+                try:
+                    if hasattr(user, "profile"):
+                        profile = user.profile
+                        context_text += f"Name: {profile.user.get_full_name()}\n"
+                        context_text += f"Title: {getattr(profile, 'title', '')}\n"
+                        context_text += f"About: {getattr(profile, 'about', '')}\n"
+                except Exception:
+                    pass
+
+            if not context_text.strip():
+                context_text = "No specific background provided."
+
+            ai_agent = (
+                AIAgent.objects.filter(name="DeepSeek Flash").first()
+                or AIAgent.objects.filter(is_active=True).first()
+                or AIAgent.objects.first()
+            )
+
+            duration_mins = selected_duration or mock_interview.max_duration
+
+            chat_session = None
+            interview_session = None
+            if ai_agent:
+                chat_session = ChatSession.objects.create(
+                    user=user,
+                    ai_agent=ai_agent,
+                    title=f"Mock Interview - {mock_interview.title}",
+                    page="mock_interview",
+                    context={
+                        "role": mock_interview.title,
+                        "level": experience_level,
+                        "difficulty": experience_level,
+                        "duration_minutes": duration_mins,
+                        "candidate_info": context_text,
+                        "required_skills": mock_interview.required_skills
+                    }
+                )
+
+                interview_session = InterviewSession.objects.create(
+                    user=user,
+                    chat_session=chat_session,
+                    role_title=mock_interview.title,
+                    role_level=experience_level,
+                    difficulty=experience_level,
+                    duration_minutes=duration_mins,
+                    resume_file=resume_file
+                )
+
+            submission = MockInterviewSubmission.objects.create(
+                mock_interview=mock_interview,
+                user=user,
+                status=MockInterviewSubmission.STATUS_STARTED,
+                experience_level=experience_level,
+                chat_session=chat_session,
+                old_chat_session_id=str(chat_session.id) if chat_session else None,
+                interview_type=interview_type,
+                selected_duration=duration_mins or 0,
+                resume=resume_file
+            )
+
+            # Deduct 1 mock interview from quota
+            with transaction.atomic():
+                q = CandidateMockInterviewQuota.objects.select_for_update().get(id=quota.id)
+                q.used_interviews += 1
+                q.save(update_fields=["used_interviews", "updated_at"])
+                MockInterviewCreditLedger.objects.create(
+                    user=user,
+                    quota=q,
+                    entry_type=MockInterviewCreditLedger.TYPE_CONSUME,
+                    delta=-1,
+                    balance_after=q.available_interviews,
+                    submission=submission,
+                    description=f"Mock interview started: {mock_interview.title}",
+                )
+
+            is_sequential = str(request.data.get('sequential', '')).lower() in ['true', '1', 'yes']
+
+            greeting = f"Hello! I'm your AI interviewer today. We'll be discussing the {mock_interview.title} role. To start, could you please introduce yourself?"
+            if chat_session:
+                ChatMessage.objects.create(
+                    chat_session=chat_session,
+                    message_type="assistant",
+                    content=greeting
+                )
+            first_question_text = greeting
+            first_question_id = "intro"
+
+            if interview_type == "predefined":
+                if is_sequential:
+                    selected_mains = list(main_pool.order_by('created_at'))
+                else:
+                    available_pool = main_pool.exclude(id__in=progress.asked_questions)
+                    if available_pool.count() < 10:
+                        progress.asked_questions = []
+                        progress.save()
+                        available_pool = main_pool
+                    selected_mains = list(available_pool.order_by('?')[:10])
+
+                planned_ids = [str(q.id) for q in selected_mains]
+
+                state_data = {
+                    "source": "student",
+                    "interview_type": "predefined",
+                    "current_main_index": -1,
+                    "current_node_id": None,
+                    "planned_questions": planned_ids,
+                    "asked_in_session": [],
+                    "intro_details": {"name": None, "experience": None, "skills": None, "attempts": 0, "completed": False}
+                }
+            else:
+                duration_mins = int(selected_duration or mock_interview.max_duration or 30)
+                # Full AI mode: adaptive questions flow continuously for the interview duration without an artificial count ceiling
+                num_questions = None
+
+                all_skills = list(mock_interview.required_skills or [])
+                for opt in (mock_interview.optional_skills or []):
+                    if opt not in all_skills:
+                        all_skills.append(opt)
+                if not all_skills:
+                    all_skills = [mock_interview.title]
+
+                if "python" in mock_interview.title.lower():
+                    python_core_topics = [
+                        "Data Structures (Lists, Tuples, Sets, Dicts)",
+                        "Functions, Scopes & Decorators",
+                        "OOP Design & Inheritance",
+                        "Exception Handling & Debugging",
+                        "Iterators, Generators & Comprehensions",
+                        "AsyncIO & Asynchronous Programming",
+                        "Web Frameworks (FastAPI / Django)",
+                        "Unit Testing & Pytest",
+                        "Memory Management & Mutability"
+                    ]
+                    for pt in python_core_topics:
+                        if pt not in all_skills:
+                            all_skills.append(pt)
+                elif "node" in mock_interview.title.lower():
+                    node_core_topics = [
+                        "Event Loop, Libuv & Concurrency",
+                        "Asynchronous JavaScript (Promises, Async/Await, Microtasks)",
+                        "Streams, Buffers & File System",
+                        "Modules (CommonJS vs ES Modules)",
+                        "HTTP, REST APIs & Frameworks (Express / NestJS / Fastify)",
+                        "Middleware, Error Handling & Logging",
+                        "Database Integration (SQL / NoSQL / ORMs)",
+                        "Authentication & Security (JWT, CORS, OWASP, Rate Limiting)",
+                        "Performance Optimization, Clustering & Worker Threads",
+                        "Unit Testing & Integration Testing (Jest, Supertest)"
+                    ]
+                    for nt in node_core_topics:
+                        if nt not in all_skills:
+                            all_skills.append(nt)
+
+                analysis = {
+                    "candidate_name": user.get_full_name() or user.username,
+                    "experience_level": experience_level,
+                    "domain": mock_interview.title,
+                    "match_score": 80,
+                    "skills": [{"skill": s} for s in all_skills],
+                    "strengths": mock_interview.required_skills or [mock_interview.title],
+                    "gaps": [],
+                    "candidate_info": context_text
+                }
+                diff = experience_level.lower() if experience_level.lower() in ["easy", "medium", "hard"] else "medium"
+                state_data = {
+                    "source": "student",
+                    "interview_type": "full_ai",
+                    "analysis": analysis,
+                    "difficulty": diff,
+                    "num_questions": num_questions,
+                    "duration_minutes": duration_mins,
+                    "adaptive": True,
+                    "interview": [{
+                        "id": 1,
+                        "question": greeting,
+                        "topic": "Self introduction",
+                        "difficulty": "easy",
+                        "question_type": "behavioral",
+                        "expected_points": ["Professional background", "Relevant experience", "Interest in role"]
+                    }],
+                    "answers": {},
+                    "current_question_index": 0,
+                    "intro_details": {"name": None, "experience": None, "skills": None, "attempts": 0, "completed": False}
+                }
+
+            if interview_session:
+                interview_session.state_data = state_data
+                interview_session.save()
+            submission.state_data = state_data
+            submission.save(update_fields=['state_data'])
+
+            return Response({
+                'submission_id': submission.id,
+                'interview_session_id': str(interview_session.id) if interview_session else None,
+                'chat_session_id': str(chat_session.id) if chat_session else None,
+                'status': submission.status,
+                'interview_type': interview_type,
+                'first_question': first_question_text,
+                'first_question_id': first_question_id,
+                'first_question_type': 'behavioral',
+                'num_questions': state_data.get('num_questions', 5),
+                'progress': {
+                    "completed_count": current_cycle_step,
+                    "is_master": is_master
+                },
+                'available_interviews': q.available_interviews
+            })
+        except Exception as e:
+            logger.error(f"Error starting AI interview: {str(e)}")
+            logger.error(traceback.format_exc())
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def get_next_ai_question(self, request, pk=None):
+        try:
+            mock_interview = self.get_object()
+            interview_session_id = request.data.get('interview_session_id')
+            user_answer = request.data.get('user_answer', '')
+            status_code = request.data.get('status', 'normal')
+
+            if not interview_session_id:
+                return Response({"error": "No interview session ID provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+            interview_session = InterviewSession.objects.filter(id=interview_session_id).first()
+            submission = None
+            if not interview_session:
+                submission = MockInterviewSubmission.objects.filter(id=interview_session_id).first()
+                if submission and submission.chat_session and hasattr(submission.chat_session, 'interview_session'):
+                    interview_session = submission.chat_session.interview_session
+            else:
+                submission = MockInterviewSubmission.objects.filter(
+                    chat_session=interview_session.chat_session
+                ).first()
+
+            if not interview_session:
+                return Response({"error": "Session not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            chat_session = interview_session.chat_session
+
+            clean_answer = (user_answer or "").strip()
+            if clean_answer:
+                ChatMessage.objects.create(
+                    chat_session=chat_session,
+                    message_type="user",
+                    content=clean_answer
+                )
+
+            # Global Check for End Interview intent or Confirmation response across all student/ai interview routes
+            state = interview_session.state_data or {}
+            from mockinterviews.ai_interview.interview_engine import (
+                detect_end_interview_intent,
+                check_end_confirmation_response,
+            )
+
+            # 1. Already awaiting confirmation for "Do you want to end this interview?"
+            if state.get("awaiting_end_confirmation") and clean_answer:
+                confirmation = check_end_confirmation_response(clean_answer)
+                if confirmation == "yes":
+                    state["awaiting_end_confirmation"] = False
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                        submission.state_data = state
+                        submission.save(update_fields=['status', 'state_data'])
+
+                    farewell = "Thank you! That completes the interview. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    return Response({
+                        "question": farewell,
+                        "is_finished": True,
+                        "question_id": None,
+                        "proceed": True
+                    })
+                elif confirmation == "no":
+                    state["awaiting_end_confirmation"] = False
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    resume_msg = "Alright, let's continue! Whenever you're ready, please share your answer or approach."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=resume_msg
+                    )
+                    return Response({
+                        "question": resume_msg,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+                else:
+                    clarify_msg = "Do you want to end this interview? Please reply yes to end or no to continue."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=clarify_msg
+                    )
+                    return Response({
+                        "question": clarify_msg,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+
+            # 2. Check if candidate explicitly expresses intent to end/stop/quit the interview
+            if clean_answer:
+                has_end_intent, confidence = detect_end_interview_intent(clean_answer)
+                if has_end_intent and confidence >= 0.7:
+                    state["awaiting_end_confirmation"] = True
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    confirm_prompt = "Do you want to end this interview? Your report will be generated."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=confirm_prompt
+                    )
+                    return Response({
+                        "question": confirm_prompt,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+
+            state = interview_session.state_data or {}
+            interview_type = state.get("interview_type") or (submission.interview_type if submission else "predefined")
+            planned_questions = state.get('planned_questions', [])
+
+            # Fallback to full_ai if no predefined questions exist
+            if interview_type == "predefined" and not planned_questions:
+                interview_type = "full_ai"
+                state["interview_type"] = "full_ai"
+
+            # ==========================================================
+            # 1. FULL AI / ADAPTIVE ENGINE MODE
+            # ==========================================================
+            if interview_type == "full_ai":
+                from asgiref.sync import async_to_sync
+                from mockinterviews.ai_interview.interview_engine import get_next_question
+                from mockinterviews.ai_interview.evaluator import evaluate_answer
+
+                num_questions = state.get("num_questions", 5)
+                current_question_index = state.get("current_question_index", 0)
+                intro_details = state.get("intro_details", {"name": None, "experience": None, "skills": None, "attempts": 0, "completed": False})
+                answers = state.get("answers", {})
+                interview = state.get("interview", [])
+
+                if not interview:
+                    interview = [{
+                        "id": 1,
+                        "question": f"Hello! To start our interview for {mock_interview.title}, could you please introduce yourself?",
+                        "topic": "Self introduction",
+                        "difficulty": "easy",
+                        "question_type": "behavioral",
+                        "expected_points": ["Professional background", "Relevant experience", "Interest in role"]
+                    }]
+                    state["interview"] = interview
+
+                # If answering the introduction:
+                if current_question_index == 0:
+                    is_meaningful = len(clean_answer.split()) >= 2 or len(clean_answer) >= 8
+
+                    if not is_meaningful and not intro_details.get("completed"):
+                        intro_details["attempts"] = intro_details.get("attempts", 0) + 1
+                        state["intro_details"] = intro_details
+                        interview_session.state_data = state
+                        interview_session.save()
+                        if submission:
+                            submission.state_data = state
+                            submission.save(update_fields=['state_data'])
+
+                        rep = "Whenever you're ready, please share a brief introduction of yourself to get started."
+                        ChatMessage.objects.create(
+                            chat_session=chat_session,
+                            message_type="assistant",
+                            content=rep
+                        )
+                        return Response({
+                            "question": rep,
+                            "is_finished": False,
+                            "question_id": "intro"
+                        })
+
+                    # Intro answered:
+                    intro_details["completed"] = True
+                    new_details = self._analyze_intro_answer(clean_answer)
+                    if new_details.get('name'): intro_details['name'] = new_details['name']
+                    if new_details.get('experience'): intro_details['experience'] = new_details['experience']
+                    if new_details.get('skills'): intro_details['skills'] = new_details['skills']
+                    state["intro_details"] = intro_details
+
+                    answers["1"] = {
+                        "answer": clean_answer,
+                        "score": 8,
+                        "feedback": "Self-introduction completed."
+                    }
+                    state["answers"] = answers
+                    state["current_question_index"] = 1
+
+                    # Generate opening technical Question 2 dynamically based on candidate's introduction
+                    next_q = None
+                    try:
+                        next_q = async_to_sync(get_next_question)(state)
+                    except Exception as e:
+                        logger.error(f"Error in get_next_question (full_ai intro): {e}")
+
+                    first_name = (intro_details.get('name') or request.user.first_name or "there").strip().title()
+                    if not next_q:
+                        title_lower = mock_interview.title.lower()
+                        if "node" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In Node.js, can you explain how the Event Loop works and what distinguishes microtasks from macrotasks?",
+                                "topic": "Node.js Event Loop & Concurrency",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Libuv event loop phases (timers, I/O callbacks, check, close)",
+                                    "Microtask queue priority (process.nextTick, Promise callbacks)",
+                                    "Non-blocking I/O and asynchronous event-driven design"
+                                ]
+                            }
+                        elif "data structure" in title_lower or "algorithm" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: Can you explain the fundamental differences between an array and a linked list in terms of memory layout and time complexity?",
+                                "topic": "Data Structures (Arrays vs Linked Lists)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Contiguous memory vs dispersed pointer-linked nodes",
+                                    "O(1) index access in arrays vs O(N) access in linked lists",
+                                    "Insertion and deletion trade-offs"
+                                ]
+                            }
+                        else:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In Python, can you explain the difference between a list and a tuple?",
+                                "topic": "Data Structures (Lists vs Tuples)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Lists are mutable while tuples are immutable",
+                                    "Syntax differences [] vs ()",
+                                    "Use cases when to choose a tuple over a list"
+                                ]
+                            }
+
+                    if next_q not in interview:
+                        interview.append(next_q)
+                    state["interview"] = interview
+
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    final_q_text = next_q["question"]
+
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=final_q_text
+                    )
+                    return Response({
+                        "question": final_q_text,
+                        "is_finished": False,
+                        "question_id": next_q["id"],
+                        "question_type": next_q.get("question_type", "technical")
+                    })
+
+                # Candidate is answering a technical question:
+                curr_q = interview[-1] if interview else {"id": 1, "question": "", "expected_points": []}
+
+                if status_code == 'repeat':
+                    rep = f"Certainly, let me repeat the question: {curr_q.get('question')}"
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=rep
+                    )
+                    return Response({
+                        "question": rep,
+                        "is_finished": False,
+                        "question_id": curr_q.get("id")
+                    })
+
+                # Detect candidate intent to revisit, recall, or answer a previous topic
+                backtrack_patterns = [
+                    "remember about", "i remember", "can i say that", "can i answer",
+                    "which you ask", "which you asked", "ask 2 minutes before", "asked 2 minutes before",
+                    "asked before", "earlier question", "previous question", "go back to",
+                    "answer about list", "answer about tuple", "add to my answer"
+                ]
+                clean_lower = clean_answer.lower()
+                is_backtrack_request = any(p in clean_lower for p in backtrack_patterns)
+
+                # Detect candidate meta-comments, questions, or remarks on interview phrasing
+                meta_patterns = [
+                    "why are you saying", "why you are saying", "saying got it", "saying god it",
+                    "repeating", "why do you keep", "what are you getting", "are you an ai",
+                    "can you hear me", "are you listening", "what do you mean"
+                ]
+                is_meta_comment = any(p in clean_lower for p in meta_patterns)
+
+                # Detect candidate expressing unfamiliarity or requesting to skip
+                dont_know_patterns = [
+                    "don't know", "dont know", "do not know", "no idea", "not sure",
+                    "skip", "skip this", "haven't worked", "havent worked", "never used",
+                    "pass", "not aware", "no clue"
+                ]
+                is_dont_know = any(p in clean_lower for p in dont_know_patterns)
+
+                # Evaluate answer
+                evaluation = {"score": 6, "feedback": "Answer recorded."}
+                if is_backtrack_request:
+                    evaluation = {
+                        "score": 7,
+                        "feedback": f"Candidate requested to return and elaborate on an earlier question: '{clean_answer}'.",
+                        "covered_points": [],
+                        "missed_points": [],
+                        "follow_up_suggestion": "Warmly grant permission and invite the candidate to share their answer on the requested topic."
+                    }
+                elif is_meta_comment:
+                    evaluation = {
+                        "score": 6,
+                        "feedback": f"Candidate made a conversational observation/remark: '{clean_answer}'.",
+                        "covered_points": [],
+                        "missed_points": [],
+                        "follow_up_suggestion": "Address the candidate's remark naturally with poise and professional humor, avoid canned fillers, and proceed with the technical discussion."
+                    }
+                elif is_dont_know or status_code == 'skip':
+                    evaluation = {
+                        "score": 2,
+                        "feedback": f"Candidate indicated unfamiliarity with this topic: '{clean_answer}'.",
+                        "covered_points": [],
+                        "missed_points": curr_q.get("expected_points", []),
+                        "follow_up_suggestion": "Reassure the candidate warmly with empathy (e.g. 'That is completely okay, no problem at all!' or 'No worries, that is totally fine!') and smoothly transition to a more accessible foundational concept in another topic."
+                    }
+                elif clean_answer:
+                    try:
+                        evaluation = async_to_sync(evaluate_answer)(
+                            question=curr_q.get("question", ""),
+                            expected_points=curr_q.get("expected_points", []),
+                            answer=clean_answer,
+                            question_type=curr_q.get("question_type", "technical")
+                        )
+                    except Exception as e:
+                        logger.warning(f"AI answer evaluation failed: {e}")
+
+                answers[str(curr_q.get("id"))] = {
+                    "answer": clean_answer or "Candidate skipped question.",
+                    **evaluation
+                }
+                state["answers"] = answers
+
+                # Save answer in state right away so evaluated answers are permanently recorded
+                interview_session.state_data = state
+                interview_session.save()
+                if submission:
+                    submission.state_data = state
+                    submission.save(update_fields=['state_data'])
+
+                # Only conclude if user explicitly requested finish / timer ended
+                if status_code in ['finish', 'end', 'complete']:
+                    farewell = "Thank you! That concludes our interview for today. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    if submission:
+                        submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                        submission.save(update_fields=['status'])
+                    return Response({
+                        "question": farewell,
+                        "is_finished": True,
+                        "question_id": None
+                    })
+
+                # Generate next adaptive question without arbitrary count limitation
+                next_q = None
+                try:
+                    next_q = async_to_sync(get_next_question)(state)
+                except Exception as e:
+                    logger.error(f"Error in get_next_question (full_ai turn): {e}")
+
+                if not next_q:
+                    # Never conclude prematurely on question failures; fall back to deterministic unique technical question
+                    from mockinterviews.ai_interview.interview_engine import _build_fallback_question, _get_all_topics
+                    all_topics = _get_all_topics(state.get("analysis", {}))
+                    next_q = _build_fallback_question(
+                        question_id=len(interview) + 1,
+                        topics=all_topics,
+                        difficulty=state.get("difficulty", "medium"),
+                        existing_questions=interview,
+                    )
+
+                interview.append(next_q)
+                state["interview"] = interview
+                state["current_question_index"] = len(interview) - 1
+
+                interview_session.state_data = state
+                interview_session.save()
+                if submission:
+                    submission.state_data = state
+                    submission.save(update_fields=['state_data'])
+
+                final_q_text = next_q["question"]
+                ChatMessage.objects.create(
+                    chat_session=chat_session,
+                    message_type="assistant",
+                    content=final_q_text
+                )
+                return Response({
+                    "question": final_q_text,
+                    "is_finished": False,
+                    "question_id": next_q["id"],
+                    "question_type": next_q.get("question_type", "technical")
+                })
+
+            # ==========================================================
+            # 2. PREDEFINED TREE ENGINE MODE
+            # ==========================================================
+            current_main_index = state.get('current_main_index', -1)
+            current_node_id = state.get('current_node_id')
+            intro_details = state.get('intro_details', {'name': None, 'experience': None, 'skills': None, 'attempts': 0, 'completed': False})
+
+            if current_main_index == -1 and not intro_details.get('completed'):
+                is_meaningful = len(clean_answer.split()) >= 2 or len(clean_answer) >= 8
+
+                if not is_meaningful:
+                    intro_details['attempts'] = intro_details.get('attempts', 0) + 1
+                    state['intro_details'] = intro_details
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    ask_phrase = "Whenever you're ready, please share a brief introduction of yourself to get started."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=ask_phrase
+                    )
+                    return Response({
+                        "question": ask_phrase,
+                        "is_finished": False,
+                        "question_id": "intro"
+                    })
+
+                # Intro provided:
+                intro_details['completed'] = True
+                new_details = self._analyze_intro_answer(clean_answer)
+                if new_details.get('name'): intro_details['name'] = new_details['name']
+                if new_details.get('experience'): intro_details['experience'] = new_details['experience']
+                if new_details.get('skills'): intro_details['skills'] = new_details['skills']
+                state['intro_details'] = intro_details
+
+                current_main_index = 0
+                next_node_id = planned_questions[0]
+                next_node = PredefinedInterviewQuestion.objects.get(id=next_node_id)
+
+                state['current_main_index'] = 0
+                state['current_node_id'] = str(next_node.id)
+                state['asked_in_session'] = [str(next_node.id)]
+
+                interview_session.state_data = state
+                interview_session.save()
+                if submission:
+                    submission.state_data = state
+                    submission.save(update_fields=['state_data'])
+
+                first_name = intro_details.get('name') or request.user.first_name or "there"
+                transition_template = random.choice(INTERVIEW_TRANSITIONS['first_question_intro'])
+                transition = transition_template.format(name=first_name)
+                final_question_text = transition + next_node.text
+
+                ChatMessage.objects.create(
+                    chat_session=chat_session,
+                    message_type="assistant",
+                    content=final_question_text
+                )
+                return Response({
+                    "question": final_question_text,
+                    "is_finished": False,
+                    "question_id": str(next_node.id)
+                })
+
+            # Handled technical predefined turns:
+            if status_code == 'repeat' and current_node_id:
+                try:
+                    curr_node = PredefinedInterviewQuestion.objects.get(id=current_node_id)
+                    transition = random.choice(INTERVIEW_TRANSITIONS['repeat'])
+                    return Response({
+                        "question": transition + curr_node.text,
+                        "is_finished": False,
+                        "question_id": str(curr_node.id)
+                    })
+                except PredefinedInterviewQuestion.DoesNotExist:
+                    pass
+
+            next_node = None
+            is_new_main_topic = False
+            is_skip = (status_code == 'skip')
+
+            if current_node_id and status_code == 'normal':
+                try:
+                    curr_node = PredefinedInterviewQuestion.objects.get(id=current_node_id)
+                    follow_ups = curr_node.follow_ups.all().order_by('created_at')
+
+                    asked_in_session = state.get('asked_in_session', [])
+                    for fu in follow_ups:
+                        if str(fu.id) not in asked_in_session:
+                            next_node = fu
+                            break
+                except PredefinedInterviewQuestion.DoesNotExist:
+                    pass
+
+            if not next_node:
+                current_main_index += 1
+                if current_main_index < len(planned_questions):
+                    next_node_id = planned_questions[current_main_index]
+                    try:
+                        next_node = PredefinedInterviewQuestion.objects.get(id=next_node_id)
+                        is_new_main_topic = True
+                    except PredefinedInterviewQuestion.DoesNotExist:
+                        state['current_main_index'] = current_main_index
+                        interview_session.state_data = state
+                        interview_session.save()
+                        return self.get_next_ai_question(request, pk)
+                else:
+                    farewell = "Thank you! That concludes our interview for today. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    if submission:
+                        submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                        submission.save(update_fields=['status'])
+                    return Response({
+                        "question": farewell,
+                        "is_finished": True,
+                        "question_id": None
+                    })
+
+            if is_skip:
+                transition = random.choice(INTERVIEW_TRANSITIONS['skip_topic'])
+            elif is_new_main_topic:
+                transition = random.choice(INTERVIEW_TRANSITIONS['next_topic'])
+            else:
+                transition = random.choice(INTERVIEW_TRANSITIONS['acknowledgment'])
+
+            final_question_text = transition + next_node.text
+
+            asked_in_session = state.get('asked_in_session', [])
+            asked_in_session.append(str(next_node.id))
+
+            state['current_main_index'] = current_main_index
+            state['current_node_id'] = str(next_node.id)
+            state['asked_in_session'] = list(set(asked_in_session))
+
+            interview_session.state_data = state
+            interview_session.save()
+
+            if submission:
+                submission.state_data = state
+                submission.save(update_fields=['state_data'])
+
+            ChatMessage.objects.create(
+                chat_session=chat_session,
+                message_type="assistant",
+                content=final_question_text
+            )
+
+            return Response({
+                "question": final_question_text,
+                "is_finished": False,
+                "question_id": str(next_node.id),
+                "level": getattr(next_node, 'level', 1)
+            })
+        except Exception as e:
+            logger.error(f"Error in get_next_ai_question: {str(e)}")
+            logger.error(traceback.format_exc())
+            return Response({"error": "Internal server error during question progression"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
     def submissions(self, request, pk=None):
         mock_interview = self.get_object()
         user = request.user
         
-        qs = MockInterviewSubmission.objects.filter(mock_interview=mock_interview)
+        qs = MockInterviewSubmission.objects.filter(mock_interview=mock_interview).order_by('-created_at')
         is_privileged = user.is_staff or (hasattr(user, 'role') and user.role in ['admin', 'instructor'])
         
         if not is_privileged:
             qs = qs.filter(user=user)
             
-        serializer = MockInterviewSubmissionSerializer(qs, many=True)
+        serializer = MockInterviewSubmissionSerializer(qs, many=True, context={'request': request, 'view': self})
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
     def my_interviews(self, request):
         user = request.user
+        if not user or not user.is_authenticated:
+            return Response([])
         qs = MockInterviewSubmission.objects.filter(user=user).order_by('-created_at')
-        
-        serializer = MockInterviewSubmissionSerializer(qs, many=True)
+        product_param = request.query_params.get("product")
+        if product_param:
+            qs = qs.filter(
+                Q(mock_interview__products__contains=[product_param]) |
+                Q(mock_interview__products__contains=[product_param.lower()])
+            )
+        serializer = MockInterviewSubmissionSerializer(qs, many=True, context={'request': request, 'view': self})
         return Response(serializer.data)
 
 
@@ -657,9 +1839,9 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
             progress.completed_count += 1
             
             asked_ids = self.request.data.get('asked_question_ids', [])
-            if not asked_ids and instance.old_chat_session_id:
+            if not asked_ids:
                 try:
-                    chat_session = ChatSession.objects.filter(id=instance.old_chat_session_id).first()
+                    chat_session = instance.chat_session or ChatSession.objects.filter(id=instance.old_chat_session_id).first()
                     if chat_session and hasattr(chat_session, 'interview_session'):
                         state = chat_session.interview_session.state_data or {}
                         if instance.interview_type == 'predefined':
@@ -727,6 +1909,18 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 return Response(
                     {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
                     status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Check candidate mock interview quota
+            quota = CandidateMockInterviewQuota.get_or_create_quota(user)
+            if quota.available_interviews <= 0:
+                return Response(
+                    {
+                        "error": "You have 0 mock interviews remaining. Please purchase more mock interviews to continue.",
+                        "code": "INSUFFICIENT_MOCK_INTERVIEWS",
+                        "available_interviews": 0,
+                    },
+                    status=status.HTTP_402_PAYMENT_REQUIRED
                 )
             
             analysis = request.data.get('analysis')
@@ -814,6 +2008,21 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 selected_duration=30,
                 state_data=state_data
             )
+
+            # Deduct 1 mock interview from quota
+            with transaction.atomic():
+                q = CandidateMockInterviewQuota.objects.select_for_update().get(id=quota.id)
+                q.used_interviews += 1
+                q.save(update_fields=["used_interviews", "updated_at"])
+                MockInterviewCreditLedger.objects.create(
+                    user=user,
+                    quota=q,
+                    entry_type=MockInterviewCreditLedger.TYPE_CONSUME,
+                    delta=-1,
+                    balance_after=q.available_interviews,
+                    submission=submission,
+                    description=f"Mock interview started: {role_title}",
+                )
             
             # Save first question as ChatMessage
             first_question = state_data["interview"][0]
@@ -830,7 +2039,8 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 'first_question': first_question["question"],
                 'first_question_id': first_question["id"],
                 'status': submission.status,
-                'is_finished': False
+                'is_finished': False,
+                'available_interviews': q.available_interviews
             })
         except Exception as e:
             logger.error(f"Error in start_interview: {str(e)}")
@@ -944,6 +2154,105 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 message_type="user",
                 content=user_answer
             )
+
+            # Check for End Interview intent or Confirmation response
+            from mockinterviews.ai_interview.interview_engine import (
+                detect_end_interview_intent,
+                check_end_confirmation_response,
+            )
+
+            # Case A: Already asked "Do you want to end this interview?"
+            if state.get("awaiting_end_confirmation"):
+                confirmation = check_end_confirmation_response(user_answer)
+                if confirmation == "yes":
+                    state["awaiting_end_confirmation"] = False
+                    submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                    submission.state_data = state
+                    submission.save()
+
+                    farewell = "Thank you! That completes the interview. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    return Response({
+                        "is_finished": True,
+                        "proceed": True,
+                        "cue": {"message": farewell, "action": "end_assessment"},
+                        "evaluation": {
+                            "score": 10,
+                            "feedback": "Interview ended by user request.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+                elif confirmation == "no":
+                    state["awaiting_end_confirmation"] = False
+                    submission.state_data = state
+                    submission.save()
+
+                    resume_msg = "Alright, let's continue! Whenever you're ready, please share your answer or approach."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=resume_msg
+                    )
+                    return Response({
+                        "is_finished": False,
+                        "proceed": False,
+                        "cue": {"message": resume_msg, "action": "continue"},
+                        "evaluation": {
+                            "score": 0,
+                            "feedback": "Resumed interview. Awaiting candidate answer.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+                else:
+                    # Unclear: repeat confirmation question once
+                    clarify_msg = "Do you want to end this interview? Please say yes to end or no to continue."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=clarify_msg
+                    )
+                    return Response({
+                        "is_finished": False,
+                        "proceed": False,
+                        "cue": {"message": clarify_msg, "action": "confirm_end"},
+                        "evaluation": {
+                            "score": 0,
+                            "feedback": "Awaiting confirmation.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+
+            # Case B: Check if user expresses intent to end the interview
+            has_end_intent, confidence = detect_end_interview_intent(user_answer)
+            if has_end_intent and confidence >= 0.7:
+                state["awaiting_end_confirmation"] = True
+                submission.state_data = state
+                submission.save()
+
+                confirm_prompt = "Do you want to end this interview? Your report will be generated."
+                ChatMessage.objects.create(
+                    chat_session=submission.chat_session,
+                    message_type="assistant",
+                    content=confirm_prompt
+                )
+                return Response({
+                    "is_finished": False,
+                    "proceed": False,
+                    "cue": {"message": confirm_prompt, "action": "confirm_end"},
+                    "evaluation": {
+                        "score": 0,
+                        "feedback": "Candidate requested to end assessment. Confirmation requested.",
+                        "covered_points": [],
+                        "missed_points": []
+                    }
+                })
             
             # Update answers dict in state_data
             answers = state.get("answers", {})
@@ -1205,12 +2514,113 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
             logger.error(traceback.format_exc())
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    def _synthesize_report_from_state(self, submission, interview_session):
+        """Synthesize a complete, robust InterviewReport from answers evaluated during the session."""
+        state = submission.state_data or (interview_session.state_data if interview_session else {}) or {}
+        answers = state.get("answers", {})
+        interview = state.get("interview", [])
+
+        q_map = {}
+        for q in interview:
+            if isinstance(q, dict):
+                q_map[str(q.get("id"))] = q
+
+        total_score = 0.0
+        valid_count = 0
+        question_analysis = []
+        skills_covered = set()
+
+        for q_id, a_data in answers.items():
+            if not isinstance(a_data, dict):
+                continue
+            q_info = q_map.get(str(q_id), {})
+            q_text = q_info.get("question") or f"Question {q_id}"
+            q_type = q_info.get("question_type", "technical")
+            topic = q_info.get("topic", "General")
+            if topic and topic != "Self introduction":
+                skills_covered.add(topic)
+
+            ans_text = a_data.get("answer", "")
+            raw_score = a_data.get("score", 5)
+            score_100 = round(float(raw_score) * 10, 1) if float(raw_score) <= 10 else round(float(raw_score), 1)
+
+            total_score += score_100
+            valid_count += 1
+
+            feedback = a_data.get("feedback") or "Candidate response recorded and evaluated."
+            covered = a_data.get("covered_points") or []
+            missed = a_data.get("missed_points") or []
+
+            question_analysis.append({
+                "question": q_text,
+                "type": q_type,
+                "user_answer": ans_text[:400] if ans_text else "No response provided.",
+                "ai_score": int(score_100),
+                "what_went_well": covered if covered else ([feedback] if feedback else ["Attempted question."]),
+                "what_could_be_better": missed if missed else (["Provide more in-depth technical explanation."] if score_100 < 70 else ["Clear technical response."]),
+                "missing_terminologies": [p for p in missed if len(str(p).split()) <= 4],
+                "recommended_response": f"An ideal response should address the key concepts of {topic}, including practical implementation details and architectural trade-offs."
+            })
+
+        overall_score = round(total_score / max(1, valid_count), 1) if valid_count > 0 else 60.0
+
+        skill_analysis = {}
+        for skill in skills_covered:
+            skill_analysis[skill] = {
+                "score": min(10, max(1, round(overall_score / 10))),
+                "feedback": f"Demonstrated practical understanding of {skill} concepts."
+            }
+        if not skill_analysis:
+            title = submission.mock_interview.title if submission and submission.mock_interview else "Core Technical Skills"
+            skill_analysis[title] = {
+                "score": min(10, max(1, round(overall_score / 10))),
+                "feedback": "Covered core topics during interactive interview."
+            }
+
+        comm_score = min(95, max(50, int(overall_score * 0.95 + 5)))
+        tech_score = min(95, max(40, int(overall_score)))
+        ps_score = min(95, max(45, int(overall_score * 0.92 + 5)))
+
+        return {
+            "overall_score": overall_score,
+            "feedback_summary": (
+                f"Candidate completed {valid_count} interview questions. "
+                f"Demonstrated an overall evaluation score of {overall_score}/100. "
+                f"Topics assessed included {', '.join(skills_covered) if skills_covered else 'technical fundamentals'}."
+            ),
+            "performance_metrics": {
+                "Communication": comm_score,
+                "Technical Proficiency": tech_score,
+                "Problem Solving": ps_score,
+                "Adaptability": int((comm_score + ps_score) / 2)
+            },
+            "skill_analysis": skill_analysis,
+            "question_analysis": question_analysis,
+            "key_takeaways": {
+                "strengths": [
+                    "Engaged constructively in interactive voice conversation",
+                    f"Attempted {valid_count} technical discussion topics"
+                ],
+                "improvements": [
+                    "Elaborate further on core implementation details and edge cases",
+                    "Provide concrete code or architectural examples in technical explanations"
+                ]
+            },
+            "meta_stats": {
+                "questions_evaluated": valid_count,
+                "source": "state_data_synthesis"
+            }
+        }
+
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def generate_report(self, request, pk=None):
         try:
             submission = self.get_object()
 
-            if submission.session_state:
+            source = request.data.get('source') or (submission.state_data and submission.state_data.get('source'))
+            is_student = (source == 'student') or (submission.interview_type == 'full_ai' and not (submission.session_state and submission.session_state.get('questions')))
+
+            if not is_student and submission.session_state:
                 settings = get_settings()
                 dyn_session = DynamicInterviewSession.model_validate(submission.session_state)
                 dyn_session.status = DynamicInterviewStatus.COMPLETED
@@ -1242,37 +2652,109 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 submission.save(update_fields=['session_state', 'marks', 'status'])
                 return Response(response_data)
 
-            if not submission.chat_session.id if submission.chat_session else submission.old_chat_session_id:
+            chat_sess = submission.chat_session
+            if not chat_sess and submission.old_chat_session_id:
+                chat_sess = ChatSession.objects.filter(id=submission.old_chat_session_id).first()
+            if not chat_sess or not hasattr(chat_sess, 'interview_session'):
                 return Response({"error": "No active interview session associated with this submission."}, status=status.HTTP_400_BAD_REQUEST)
 
-            auth_token = str(request.auth) if request.auth else None
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-
-            # End the interview to generate the report
-            try:
-                loop.run_until_complete(AIClient.generate_interview_report(submission.old_chat_session_id, auth_token=auth_token))
-            except Exception as e:
-                # Might already be completed
-                pass
-
-            # Fetch the session and report from YHub
-            session_data = loop.run_until_complete(AIClient.get_interview_session(submission.old_chat_session_id, auth_token=auth_token))
-            report_data = session_data.get("report")
-
-            if report_data:
-                # Update submission marks and status
-                submission.marks = report_data.get("overall_score", 0.0)
-                submission.status = MockInterviewSubmission.STATUS_COMPLETED
-                submission.save()
+            interview_session = chat_sess.interview_session
+            if hasattr(interview_session, 'report') and interview_session.report:
+                serializer = InterviewReportSerializer(interview_session.report)
+                report_data = dict(serializer.data)
+                report_data["overall_score"] = interview_session.report.overall_score
+                report_data["marks"] = interview_session.report.overall_score
+                report_data["recommendation"] = "Strong Hire" if interview_session.report.overall_score >= 80 else ("Hire" if interview_session.report.overall_score >= 65 else "Needs Practice")
                 return Response(report_data)
+
+            # Generate report using InterviewReportGenerator with state_data synthesis fallback
+            report_data = None
+            try:
+                generator = InterviewReportGenerator()
+                trigger_text = "The interview is starting now. Please introduce yourself and ask the first question."
+                messages = chat_sess.messages.order_by("created_at")
+                conversation_text = ""
+                for msg in messages:
+                    if msg.content.strip() == trigger_text:
+                        continue
+                    role = "Interviewer" if msg.message_type != "user" else "Candidate"
+                    conversation_text += f"{role}: {msg.content}\n\n"
+
+                # Evaluate objectively on demonstrated transcript responses without personalization
+                report_data = async_to_sync(generator.generate_report)(conversation_text)
+            except Exception as gen_err:
+                logger.warning(f"InterviewReportGenerator failed: {gen_err}. Falling back to state_data synthesis.")
+                report_data = self._synthesize_report_from_state(submission, interview_session)
+
+            if not report_data or not isinstance(report_data, dict):
+                report_data = self._synthesize_report_from_state(submission, interview_session)
+
+            overall_score = float(report_data.get("overall_score", 0.0))
+
+            report_instance, _ = InterviewReport.objects.update_or_create(
+                interview_session=interview_session,
+                defaults={
+                    "overall_score": overall_score,
+                    "feedback_summary": report_data.get("feedback_summary", ""),
+                    "performance_metrics": report_data.get("performance_metrics", {}),
+                    "skill_analysis": report_data.get("skill_analysis", {}),
+                    "question_analysis": report_data.get("question_analysis", []),
+                    "key_takeaways": report_data.get("key_takeaways", {}),
+                    "meta_stats": report_data.get("meta_stats", {})
+                }
+            )
+
+            submission.marks = overall_score
+            submission.status = MockInterviewSubmission.STATUS_COMPLETED
+            if submission.state_data and isinstance(submission.state_data, dict):
+                submission.state_data["report"] = report_data
+                submission.save(update_fields=['marks', 'status', 'state_data'])
             else:
-                return Response({"error": "Report not yet available or failed to generate."}, status=status.HTTP_404_NOT_FOUND)
+                submission.save(update_fields=['marks', 'status'])
+
+            progress, created = UserInterviewProgress.objects.get_or_create(
+                user=submission.user,
+                mock_interview=submission.mock_interview
+            )
+            progress.completed_count += 1
+            if progress.completed_count >= 6:
+                progress.completed_count = 0
+                progress.asked_questions = []
+            progress.save()
+
+            serializer = InterviewReportSerializer(report_instance)
+            resp = dict(serializer.data)
+            resp["overall_score"] = overall_score
+            resp["marks"] = overall_score
+            resp["recommendation"] = "Strong Hire" if overall_score >= 80 else ("Hire" if overall_score >= 65 else "Needs Practice")
+            return Response(resp)
 
         except Exception as e:
             logger.error(f"Error in generate_report: {str(e)}")
             logger.error(traceback.format_exc())
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def report(self, request, pk=None):
+        submission = self.get_object()
+        if submission.session_state and isinstance(submission.session_state, dict):
+            if "report" in submission.session_state:
+                return Response(submission.session_state["report"])
+            if "report_bundle" in submission.session_state:
+                return Response(submission.session_state["report_bundle"])
+
+        chat_sess = submission.chat_session
+        if not chat_sess and submission.old_chat_session_id:
+            chat_sess = ChatSession.objects.filter(id=submission.old_chat_session_id).first()
+        if not chat_sess or not hasattr(chat_sess, 'interview_session'):
+            return Response({"error": "No interview session associated"}, status=status.HTTP_404_NOT_FOUND)
+
+        interview_session = chat_sess.interview_session
+        if not hasattr(interview_session, 'report') or not interview_session.report:
+            return Response({"error": "Report not yet generated"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = InterviewReportSerializer(interview_session.report)
+        return Response(serializer.data)
 
     @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated])
     def dynamic_coverage(self, request, pk=None):
@@ -1338,7 +2820,11 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
             event = AssessmentEvent.model_validate(request.data.get('event', {}))
             ingest_response = engine.ingest_event(dyn_session, event)
             submission.session_state = sanitize_null_bytes(dyn_session.model_dump(mode='json'))
-            submission.save(update_fields=['session_state'])
+            submission.state_data = {
+                "source": "evaluation",
+                "interview_type": "evaluation"
+            }
+            submission.save(update_fields=['session_state', 'state_data'])
             return Response({
                 "status": "success",
                 "event": ingest_response.event.model_dump(mode='json'),

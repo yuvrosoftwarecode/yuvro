@@ -24,10 +24,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Install Python dependencies (gcc only needed at build time)
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
-    apt-get update -qq && apt-get install -y --no-install-recommends gcc build-essential -qq 2>/dev/null; \
-    pip install --no-cache-dir -r requirements.txt; \
-    apt-get purge -y --auto-remove gcc build-essential 2>/dev/null || true; \
-    rm -rf /var/lib/apt/lists/*
+    apt-get update -qq && apt-get install -y --no-install-recommends gcc build-essential -qq \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get purge -y --auto-remove gcc build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # ── development ───────────────────────────────────────────────────────────────
 FROM base AS development

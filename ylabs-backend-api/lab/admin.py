@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import Lab, LabSprint, LabSprintTicket, UserLabEnrollment, UserLabSprintTicketSubmission
+from .models import (
+    Lab, LabSprint, LabSprintTicket,
+    UserLabEnrollment, UserLabSprintTicketSubmission,
+    SystemDesign,
+)
 
 @admin.register(Lab)
 class LabAdmin(admin.ModelAdmin):
@@ -30,3 +34,10 @@ class UserLabSprintTicketSubmissionAdmin(admin.ModelAdmin):
     list_display = ('user', 'lab_sprint_ticket', 'ticket_status', 'yuvro_points')
     list_filter = ('ticket_status', 'lab_sprint_ticket__sprint__lab')
     search_fields = ('user__email', 'lab_sprint_ticket__title')
+
+@admin.register(SystemDesign)
+class SystemDesignAdmin(admin.ModelAdmin):
+    list_display = ('title', 'user', 'lab', 'ticket', 'is_template', 'is_submitted', 'updated_at')
+    list_filter = ('is_template', 'is_submitted', 'lab')
+    search_fields = ('title', 'user__email', 'ticket__title')
+

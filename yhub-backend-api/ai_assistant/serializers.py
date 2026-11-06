@@ -8,6 +8,7 @@ from .models import (
     AIAgentConfiguration,
     InterviewSession,
     InterviewReport,
+    LabScoringEvaluation,
 )
 
 
@@ -298,3 +299,42 @@ class InterviewSessionSerializer(serializers.ModelSerializer):
             "report",
             "user",
         ]
+
+
+class LabScoringRequestSerializer(serializers.Serializer):
+    """Input serializer for Lab AI Scoring."""
+    lab_type = serializers.CharField(required=False, default="system_design")
+    lab_context = serializers.DictField(required=True)
+    user_submission = serializers.DictField(required=True)
+    provider = serializers.CharField(required=False, default="deepseek")
+    model_name = serializers.CharField(required=False, allow_blank=True, default="")
+    save_record = serializers.BooleanField(required=False, default=True)
+
+
+class LabScoringEvaluationSerializer(serializers.ModelSerializer):
+    """Serializer for persisted LabScoringEvaluation records."""
+    class Meta:
+        model = LabScoringEvaluation
+        fields = [
+            "id",
+            "user",
+            "lab_id",
+            "ticket_id",
+            "lab_type",
+            "provider",
+            "model_name",
+            "overall_score",
+            "passed",
+            "lab_context",
+            "user_submission",
+            "evaluation_result",
+            "tokens_used",
+            "response_time_ms",
+            "created_at",
+        ]
+        read_only_fields = [
+            "id",
+            "user",
+            "created_at",
+        ]
+

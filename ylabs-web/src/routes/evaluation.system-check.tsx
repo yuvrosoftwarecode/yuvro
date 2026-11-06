@@ -24,7 +24,7 @@ interface CheckItem {
   errorMessage?: string;
 }
 
-export function SystemCheckPage() {
+function SystemCheckPage() {
   const nav = useNavigate();
   const searchParams = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : "",

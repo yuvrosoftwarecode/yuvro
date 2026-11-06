@@ -51,6 +51,18 @@ STOP_WORDS = {
     "with",
     "you",
     "your",
+    "provided",
+    "specific",
+    "background",
+    "candidate",
+    "role",
+    "description",
+    "summary",
+    "assessment",
+    "labs",
+    "context",
+    "info",
+    "about",
 }
 
 
@@ -1966,9 +1978,9 @@ class DynamicQuestionEngine:
     def _context_keywords(self, session: InterviewSession) -> list[str]:
         text = f"{session.candidate.resume} {session.candidate.job_description}"
         words = [
-            word
+            clean_w
             for word in re.findall(r"[A-Za-z][A-Za-z0-9+#.-]{2,}", text.lower())
-            if word not in STOP_WORDS
+            if (clean_w := word.rstrip(".?!;:,").lower()) not in STOP_WORDS and len(clean_w) >= 3
         ]
         counts = Counter(words)
         return [word for word, _count in counts.most_common(8)]

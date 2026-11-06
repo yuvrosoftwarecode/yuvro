@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from assessment.ai_interview.config import settings
+from mockinterviews.ai_interview.config import settings
 
 
 def next_question_ack() -> dict:

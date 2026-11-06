@@ -1,14 +1,22 @@
 const DEVICON_BASE = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons";
 
 const ICON_MAP: { keywords: string[]; path: string }[] = [
+  // Absolute paths (leading "/") are served from ylabs-web/public.
+  { keywords: ["llm", "large language model"], path: "/icons/llm.svg" },
+  { keywords: ["fastapi"], path: "fastapi/fastapi-original.svg" },
+  { keywords: ["flask"], path: "flask/flask-original.svg" },
   {
-    keywords: ["python", "django", "flask", "fastapi", "pytorch", "numpy", "pandas"],
+    keywords: ["python", "django", "pytorch", "numpy", "pandas"],
     path: "python/python-original.svg",
   },
   { keywords: ["java", "spring", "kotlin"], path: "java/java-original.svg" },
   { keywords: ["kotlin"], path: "kotlin/kotlin-original.svg" },
   {
-    keywords: ["javascript", "js", "node", "express", "nestjs"],
+    keywords: ["node", "nodejs", "node.js", "express", "nestjs"],
+    path: "nodejs/nodejs-original.svg",
+  },
+  {
+    keywords: ["javascript", "js"],
     path: "javascript/javascript-original.svg",
   },
   { keywords: ["typescript", "ts"], path: "typescript/typescript-original.svg" },
@@ -90,8 +98,37 @@ export function getLabIconUrl(name: string): string | null {
   const lower = ` ${name.toLowerCase()} `;
   for (const { keywords, path } of ICON_MAP) {
     if (keywords.some((k) => lower.includes(k))) {
+      if (path.startsWith("/")) {
+        return path;
+      }
       return `${DEVICON_BASE}/${path}`;
     }
   }
   return null;
 }
+
+export interface LabIconOption {
+  value: string;
+  label: string;
+}
+
+export const AVAILABLE_LAB_ICONS: LabIconOption[] = [
+  { value: "", label: "Auto-detect (from title & tech)" },
+  { value: "Layers", label: "Layers (System Design & Architecture)" },
+  { value: "Boxes", label: "Boxes (Microservices & Scenarios)" },
+  { value: "Network", label: "Network (Data Structures & Distributed Systems)" },
+  { value: "Server", label: "Server (Backend APIs & Services)" },
+  { value: "Database", label: "Database (Databases, SQL & Storage)" },
+  { value: "AppWindow", label: "App Window (Frontend & Web Apps)" },
+  { value: "Terminal", label: "Terminal (Linux, Shell & DevOps)" },
+  { value: "Code", label: "Code (Programming & Logic)" },
+  { value: "GitBranch", label: "Git (Version Control & Workflows)" },
+  { value: "Zap", label: "Zap (Fast APIs & Realtime Systems)" },
+  { value: "FlaskConical", label: "Flask (Experiments & Micro-frameworks)" },
+  { value: "Cpu", label: "CPU (Algorithms & High Performance)" },
+  { value: "Briefcase", label: "Briefcase (Portfolio & Projects)" },
+  { value: "Workflow", label: "Workflow (Pipelines & CI/CD)" },
+  { value: "Shield", label: "Shield (Security & Auth)" },
+  { value: "Globe", label: "Globe (Web & Networking)" },
+];
+

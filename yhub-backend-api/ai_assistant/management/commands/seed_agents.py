@@ -71,6 +71,15 @@ class Command(BaseCommand):
                 "temperature": 0.7,
             },
             {
+                "name": "DeepSeek Flash",
+                "provider": "deepseek",
+                "model_name": "deepseek-flash",
+                "description": "DeepSeek V4.1 Flash - Fast and economical real-time conversational model for live AI interviews",
+                "is_active": True,
+                "max_tokens": 1024,
+                "temperature": 0.6,
+            },
+            {
                 "name": "Gemini 2.5 Flash",
                 "provider": "gemini",
                 "model_name": "gemini-2.5-flash",
@@ -78,6 +87,15 @@ class Command(BaseCommand):
                 "is_active": True,
                 "max_tokens": 4096,
                 "temperature": 0.7,
+            },
+            {
+                "name": "DeepSeek Chat (V3 / Flash)",
+                "provider": "deepseek",
+                "model_name": "deepseek-chat",
+                "description": "High-performance DeepSeek model with superior architectural reasoning",
+                "is_active": True,
+                "max_tokens": 4096,
+                "temperature": 0.2,
             },
             {
                 "name": "Cohere Command",

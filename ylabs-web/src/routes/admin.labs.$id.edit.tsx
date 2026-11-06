@@ -16,6 +16,7 @@ import {
 import { loadSprintsWithSeed, saveSprints, type LabSprint } from "@/lib/labSprints";
 import { SprintBuilder } from "@/components/admin/SprintBuilder";
 import { LabIcon } from "@/components/LabIcon";
+import { AVAILABLE_LAB_ICONS } from "@/lib/labIcons";
 
 export const Route = createFileRoute("/admin/labs/$id/edit")({ component: EditLab });
 
@@ -184,12 +185,22 @@ function EditLab() {
                     className="w-full bg-transparent border border-border rounded-md px-3 py-2"
                   />
                 </Field>
-                <Field label="Icon preview">
-                  <div className="flex items-center gap-3 px-3 py-2 rounded-md border border-border bg-muted/20">
-                    <LabIcon name={lab.title} icon={lab.icon} size="h-8 w-8" />
-                    <span className="text-xs text-muted-foreground">
-                      Auto-resolved from lab title
-                    </span>
+                <Field label="Icon">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center h-10 w-10 rounded-md border border-border bg-muted/20 shrink-0">
+                      <LabIcon name={lab.title} icon={lab.icon} size="h-6 w-6" />
+                    </div>
+                    <select
+                      value={lab.icon || ""}
+                      onChange={(e) => set("icon", e.target.value)}
+                      className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-xs"
+                    >
+                      {AVAILABLE_LAB_ICONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </Field>
                 <Field label="Type">

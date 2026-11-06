@@ -1,0 +1,89 @@
+{
+  "title": "Sprint 5 \u00b7 Stochastic Decoding & Autoregressive Inference",
+  "description": "Build the sequential inference rollout loop with Top-K, Top-P (Nucleus), and temperature sampling.",
+  "order_index": 5,
+  "tickets": [
+    {
+      "title": "Ticket 1 - Tail Truncation & Nucleus Filtering Engine",
+      "ticket_slug": "microgpt-s5-tail-truncation",
+      "description": "Implement top_k_filtering and top_p_filtering in micro_gpt/sampler.py to mask out low probability tokens.",
+      "difficulty": "MEDIUM",
+      "learning_objectives": [
+        "Truncate improbable tail candidates",
+        "Implement nucleus probability mass thresholding"
+      ],
+      "tasks": [
+        {
+          "title": "Implement top_k_filtering",
+          "points": 50
+        },
+        {
+          "title": "Implement top_p_filtering",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "In-place modification of input logits."
+      ],
+      "hints": [
+        "np.argsort to find rank of logits."
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/sampler.py",
+        "test_command": "python yuvro_scoring_rules/sprint_5/ticket_1/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/sampler.py": "import numpy as np\nfrom micro_gpt.activations import softmax\n\ndef top_k_filtering(logits: np.ndarray, top_k: int) -> np.ndarray:\n    if top_k <= 0 or top_k >= logits.shape[-1]:\n        return logits\n    filtered = logits.copy()\n    if logits.ndim == 1:\n        cutoff = np.partition(logits, -top_k)[-top_k]\n        filtered[logits < cutoff] = -1e9\n    else:\n        cutoff = np.partition(logits, -top_k, axis=-1)[..., -top_k, None]\n        filtered[logits < cutoff] = -1e9\n    return filtered\n\ndef top_p_filtering(logits: np.ndarray, top_p: float) -> np.ndarray:\n    if top_p <= 0.0 or top_p >= 1.0:\n        return logits\n    filtered = logits.copy()\n    sorted_indices = np.argsort(logits)[::-1]\n    sorted_logits = logits[sorted_indices]\n    probs = softmax(sorted_logits)\n    cumulative_probs = np.cumsum(probs)\n    \n    sorted_indices_to_remove = cumulative_probs > top_p\n    sorted_indices_to_remove[0] = False\n    \n    indices_to_remove = sorted_indices[sorted_indices_to_remove]\n    filtered[indices_to_remove] = -1e9\n    return filtered\n\ndef sample_next_token(\n    logits: np.ndarray,\n    temperature: float = 1.0,\n    top_k: int = 0,\n    top_p: float = 0.0\n) -> int:\n    # TODO: Implement sampling\n    pass\n\ndef generate(\n    model,\n    prompt_ids: list,\n    max_new_tokens: int = 10,\n    temperature: float = 1.0,\n    top_k: int = 0,\n    top_p: float = 0.0,\n    eos_token_id: int = None\n) -> list:\n    # TODO: Implement autoregressive generation loop\n    pass\n"
+      },
+      "yuvro_points": 75,
+      "minutes_max": 30,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 1,
+      "test_command": "python yuvro_scoring_rules/sprint_5/ticket_1/main_test.py"
+    },
+    {
+      "title": "Ticket 2 - Sequential Rollout & Token Generation Pipeline",
+      "ticket_slug": "microgpt-s5-sequential-rollout",
+      "description": "Implement generate(model, prompt_ids, max_new_tokens) in micro_gpt/sampler.py.",
+      "difficulty": "HARD",
+      "learning_objectives": [
+        "Autoregressive multi-token generation",
+        "Context sequence expansion"
+      ],
+      "tasks": [
+        {
+          "title": "Extract last token logits from forward output",
+          "points": 50
+        },
+        {
+          "title": "Iteratively append sampled token to context",
+          "points": 50
+        }
+      ],
+      "common_mistakes": [
+        "Passing 1D input instead of 2D batch array to model."
+      ],
+      "hints": [
+        "Input shape: np.array([curr[-model.max_seq_len:]])"
+      ],
+      "scoring_rules": {
+        "logic_score": 100,
+        "starter_path": "micro_gpt/sampler.py",
+        "test_command": "python yuvro_scoring_rules/sprint_5/ticket_2/main_test.py"
+      },
+      "solution": {
+        "micro_gpt/sampler.py": "import numpy as np\nfrom micro_gpt.activations import softmax\n\ndef top_k_filtering(logits: np.ndarray, top_k: int) -> np.ndarray:\n    if top_k <= 0 or top_k >= logits.shape[-1]:\n        return logits\n    filtered = logits.copy()\n    if logits.ndim == 1:\n        cutoff = np.partition(logits, -top_k)[-top_k]\n        filtered[logits < cutoff] = -1e9\n    else:\n        cutoff = np.partition(logits, -top_k, axis=-1)[..., -top_k, None]\n        filtered[logits < cutoff] = -1e9\n    return filtered\n\ndef top_p_filtering(logits: np.ndarray, top_p: float) -> np.ndarray:\n    if top_p <= 0.0 or top_p >= 1.0:\n        return logits\n    filtered = logits.copy()\n    sorted_indices = np.argsort(logits)[::-1]\n    sorted_logits = logits[sorted_indices]\n    probs = softmax(sorted_logits)\n    cumulative_probs = np.cumsum(probs)\n    \n    sorted_indices_to_remove = cumulative_probs > top_p\n    sorted_indices_to_remove[0] = False\n    \n    indices_to_remove = sorted_indices[sorted_indices_to_remove]\n    filtered[indices_to_remove] = -1e9\n    return filtered\n\ndef sample_next_token(\n    logits: np.ndarray,\n    temperature: float = 1.0,\n    top_k: int = 0,\n    top_p: float = 0.0\n) -> int:\n    filtered_logits = logits.copy()\n    if top_k > 0:\n        filtered_logits = top_k_filtering(filtered_logits, top_k)\n    if top_p > 0.0:\n        filtered_logits = top_p_filtering(filtered_logits, top_p)\n    probs = softmax(filtered_logits, temperature=temperature)\n    return int(np.random.choice(len(probs), p=probs))\n\ndef generate(\n    model,\n    prompt_ids: list,\n    max_new_tokens: int = 10,\n    temperature: float = 1.0,\n    top_k: int = 0,\n    top_p: float = 0.0,\n    eos_token_id: int = None\n) -> list:\n    current_tokens = list(prompt_ids)\n    for _ in range(max_new_tokens):\n        input_ids = np.array([current_tokens], dtype=np.int64)\n        logits = model(input_ids)\n        last_logits = logits[0, -1, :]\n        next_token = sample_next_token(last_logits, temperature=temperature, top_k=top_k, top_p=top_p)\n        current_tokens.append(next_token)\n        if eos_token_id is not None and next_token == eos_token_id:\n            break\n    return current_tokens\n"
+      },
+      "yuvro_points": 100,
+      "minutes_max": 40,
+      "accepted_programming_languages": [
+        "Python"
+      ],
+      "order_index": 2,
+      "test_command": "python yuvro_scoring_rules/sprint_5/ticket_2/main_test.py"
+    }
+  ]
+}

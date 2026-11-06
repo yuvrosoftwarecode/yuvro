@@ -1,3 +1,5 @@
+import { SYSTEM_DESIGN_LABS } from "@/lib/systemDesign";
+
 export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
 export type Status = "backlog" | "in_progress" | "in_review" | "done";
 
@@ -30,7 +32,24 @@ export interface Lab {
 }
 
 export const labs: Lab[] = [
-
+  {
+    slug: "llm",
+    name: "LLM Lab",
+    icon: "✨",
+    color: "python",
+    type: "AI",
+    difficulty: "Intermediate",
+    completed: 0,
+    total: 16,
+    hoursLeft: 16,
+    description: "Build a working generative Transformer language model from first principles with NumPy.",
+    skills: [
+      { name: "Transformers", pct: 0 },
+      { name: "Attention", pct: 0 },
+      { name: "Tokenization", pct: 0 },
+      { name: "NumPy", pct: 0 },
+    ],
+  },
   {
     slug: "python",
     name: "Python Lab",
@@ -205,24 +224,23 @@ export const labs: Lab[] = [
       { name: "Hashing", pct: 20 },
     ],
   },
-  {
-    slug: "systemdesign",
-    name: "System Design Lab",
+  ...SYSTEM_DESIGN_LABS.map((design): Lab => ({
+    slug: design.slug,
+    name: design.name,
     icon: "🏛️",
     color: "sysd",
     difficulty: "Advanced",
     completed: 0,
     total: 16,
     hoursLeft: 32,
-    description:
-      "Design scalable systems: load balancing, caching, sharding, queues and event-driven architectures.",
+    description: design.description,
     skills: [
-      { name: "Scalability", pct: 20 },
-      { name: "Caching", pct: 15 },
-      { name: "Databases", pct: 25 },
-      { name: "Messaging", pct: 10 },
+      { name: "HLD", pct: 0 },
+      { name: "Sequence Diagrams", pct: 0 },
+      { name: "DB Schema", pct: 0 },
+      { name: "LLD", pct: 0 },
     ],
-  },
+  })),
   {
     slug: "cybersecurity",
     name: "Cyber Security Lab",

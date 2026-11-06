@@ -1,0 +1,24 @@
+{
+  "labs": [
+    {
+      "title": "Java Spring Boot Todo REST API Lab",
+      "type": "BACKEND",
+      "description": "Master backend REST API development with Java 21 and Spring Boot 3. Build a production-ready Todo management API from scratch featuring SQLite database modeling with Spring Data JPA, secure JWT authentication with BCrypt password hashing, and user-isolated task CRUD endpoints without any UI.",
+      "difficulty": "EASY",
+      "icon": "FileCode",
+      "prerequisites": "Basic Java programming and understanding of HTTP methods.",
+      "skills": [
+        "Java",
+        "Spring Boot",
+        "REST API",
+        "Spring Data JPA",
+        "SQLite",
+        "JWT Authentication",
+        "Password Hashing",
+        "Data Validation"
+      ],
+      "git_repo_starter_url": "https://github.com/yuvrosoftwarecode/lab_todo_java_spring",
+      "status": "active"
+    }
+  ]
+}

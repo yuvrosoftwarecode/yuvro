@@ -13,8 +13,10 @@ class AIAgent(models.Model):
         ("openai", "OpenAI"),
         ("anthropic", "Anthropic"),
         ("gemini", "Google Gemini"),
+        ("deepseek", "DeepSeek"),
         ("cohere", "Cohere"),
         ("huggingface", "Hugging Face"),
+        ("deepseek", "DeepSeek"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -220,3 +222,36 @@ class InterviewReport(models.Model):
 
     def __str__(self):
         return f"Report for {self.interview_session}"
+
+
+class LabScoringEvaluation(models.Model):
+    """
+    Stores AI-generated evaluation results for lab submissions
+    (System Design labs, Practical labs, etc.).
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name="lab_evaluations"
+    )
+    lab_id = models.CharField(max_length=255, blank=True, null=True)
+    ticket_id = models.CharField(max_length=255, blank=True, null=True)
+    lab_type = models.CharField(max_length=50, default="system_design")
+    provider = models.CharField(max_length=50, default="deepseek")
+    model_name = models.CharField(max_length=100, default="deepseek-chat")
+    overall_score = models.FloatField(
+        default=0.0, validators=[MinValueValidator(0.0), MaxValueValidator(100.0)]
+    )
+    passed = models.BooleanField(default=False)
+    lab_context = models.JSONField(default=dict, blank=True)
+    user_submission = models.JSONField(default=dict, blank=True)
+    evaluation_result = models.JSONField(default=dict, blank=True)
+    tokens_used = models.PositiveIntegerField(null=True, blank=True)
+    response_time_ms = models.PositiveIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"LabEval {self.lab_type} - Score {self.overall_score} ({self.created_at})"
+

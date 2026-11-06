@@ -1,13 +1,11 @@
 import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth";
 import authService from "@/services/authService";
-import { ArrowRight, Github, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Github, Eye, EyeOff, Loader2, ArrowLeft, Check } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 import YuvroLogo from "@/assets/YuvroLogo.png";
-
-type Role = "student" | "job_seeker" | "recruiter";
 
 const searchSchema = z.object({
   tab: z.enum(["signin", "signup"]).default("signin").catch("signin"),
@@ -63,8 +61,9 @@ function AuthPage() {
     }
   }, [user, isAuthenticated, nav]);
 
-  const setTab = (t: "signin" | "signup") =>
+  const setTab = (t: "signin" | "signup") => {
     nav({ to: "/auth", search: (prev: any) => ({ ...prev, tab: t }) });
+  };
 
   return (
     <div
@@ -240,19 +239,87 @@ function SignUpForm() {
   const { redirect } = Route.useSearch();
   const { login } = useAuth();
   const nav = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [role, setRole] = useState<Role>("student");
   const [agree, setAgree] = useState(false);
+
+  // Email OTP inline validation state
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [otpErr, setOtpErr] = useState("");
+
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const submit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setInterval(() => {
+        setCooldown((c) => Math.max(0, c - 1));
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [cooldown]);
+
+  const handleSendOtp = async () => {
+    setErr("");
+    setOtpErr("");
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      return setErr("Please enter a valid email address.");
+    }
+
+    setSendingOtp(true);
+    try {
+      await authService.sendSignupOtp(trimmedEmail);
+      setOtpSent(true);
+      setCooldown(30);
+      setOtp("");
+    } catch (error: any) {
+      setErr(error?.message || "Failed to send verification code. Please check your email.");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setOtpErr("");
+    setErr("");
+    const code = otp.trim();
+    if (code.length !== 6) {
+      return setOtpErr("Please enter the complete 6-digit OTP.");
+    }
+
+    setVerifyingOtp(true);
+    try {
+      await authService.verifySignupOtp(email.trim(), code);
+      setIsEmailVerified(true);
+      setOtpSent(false);
+      setOtpErr("");
+    } catch (error: any) {
+      setOtpErr(error?.message || "Invalid or expired OTP. Please try again.");
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr("");
+
     if (!name.trim()) return setErr("Please enter your full name.");
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return setErr("Please enter a valid email address.");
+    }
+    if (!isEmailVerified) {
+      return setErr("Please validate your email address first.");
+    }
     if (pwd.length < 6) return setErr("Password must be at least 6 characters.");
     if (pwd !== confirm) return setErr("Passwords do not match.");
     if (!agree) return setErr("Please accept the terms and privacy policy.");
@@ -270,8 +337,9 @@ function SignUpForm() {
         last_name,
         password: pwd,
         password_confirm: confirm,
-        roles: { ylabs: role === "job_seeker" ? "student" : role },
+        roles: { ylabs: "student" },
       });
+
       if (res.user?.id) {
         localStorage.setItem(`is_first_login_${res.user.id}`, "true");
       }
@@ -292,20 +360,14 @@ function SignUpForm() {
         });
       }
     } catch (error: any) {
-      setErr(error?.message || "Registration failed.");
+      setErr(error?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const chip = (active: boolean) => ({
-    background: active ? "#EEF3FE" : "#FFFFFF",
-    borderColor: active ? "#2B5CE6" : "#E1E4EA",
-    color: active ? "#2B5CE6" : "#4B5563",
-  });
-
   return (
-    <form onSubmit={submit} className="mt-6 space-y-4">
+    <form onSubmit={handleRegister} className="mt-6 space-y-4">
       <Field label="Full Name">
         <input
           required
@@ -313,59 +375,167 @@ function SignUpForm() {
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#2B5CE6] focus:ring-2 focus:ring-[#2B5CE6]/15"
           style={{ borderColor: "#E1E4EA", color: "#0F172A" }}
-          placeholder="Ada Lovelace"
         />
       </Field>
+
       <Field label="Email Address">
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#2B5CE6] focus:ring-2 focus:ring-[#2B5CE6]/15"
-          style={{ borderColor: "#E1E4EA", color: "#0F172A" }}
-          placeholder="student@test.com"
-        />
+        <div className="relative flex items-center">
+          <input
+            type="email"
+            required
+            disabled={isEmailVerified || sendingOtp}
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setOtpSent(false);
+              setIsEmailVerified(false);
+              setErr("");
+              setOtpErr("");
+            }}
+            className={`w-full rounded-lg border bg-white px-3.5 py-2.5 pr-24 text-sm outline-none transition focus:border-[#2B5CE6] focus:ring-2 focus:ring-[#2B5CE6]/15 ${
+              isEmailVerified ? "bg-emerald-50/30 border-emerald-300" : ""
+            }`}
+            style={{
+              borderColor: isEmailVerified ? "#10B981" : "#E1E4EA",
+              color: "#0F172A",
+            }}
+          />
+          <div className="absolute right-2 flex items-center">
+            {isEmailVerified ? (
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
+                <Check className="h-3.5 w-3.5" />
+                <span>Verified</span>
+              </span>
+            ) : sendingOtp ? (
+              <span className="inline-flex items-center gap-1 text-xs text-gray-400 px-2.5 py-1">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <span>Sending...</span>
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                disabled={!email.trim() || sendingOtp}
+                className="rounded-md px-2.5 py-1 text-xs font-semibold text-[#2B5CE6] hover:bg-blue-50 transition cursor-pointer disabled:opacity-40 disabled:hover:bg-transparent"
+              >
+                {otpSent ? "Resend" : "Validate"}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {isEmailVerified && (
+          <div className="flex justify-end mt-1">
+            <button
+              type="button"
+              onClick={() => {
+                setIsEmailVerified(false);
+                setOtpSent(false);
+                setOtp("");
+              }}
+              className="text-[11px] text-gray-500 hover:text-gray-800 hover:underline cursor-pointer"
+            >
+              Change email
+            </button>
+          </div>
+        )}
       </Field>
+
+      {/* Inline OTP entry section on the same page */}
+      {otpSent && !isEmailVerified && (
+        <div className="rounded-xl border border-blue-100 bg-blue-50/40 p-3.5 space-y-2.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-medium text-blue-900">Enter verification code</span>
+            <span className="text-[11px] text-gray-500">
+              {cooldown > 0 ? (
+                `Resend in ${cooldown}s`
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSendOtp}
+                  disabled={sendingOtp}
+                  className="text-[#2B5CE6] font-medium hover:underline cursor-pointer"
+                >
+                  Resend code
+                </button>
+              )}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              autoFocus
+              inputMode="numeric"
+              maxLength={6}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (otp.length === 6 && !verifyingOtp) {
+                    handleVerifyOtp();
+                  }
+                }
+              }}
+              className="w-full rounded-lg border bg-white px-3.5 py-2 text-base text-center font-semibold tracking-[0.25em] outline-none transition focus:border-[#2B5CE6] focus:ring-2 focus:ring-[#2B5CE6]/15"
+              style={{ borderColor: "#CBD5E1", color: "#0F172A" }}
+            />
+            <button
+              type="button"
+              disabled={otp.length !== 6 || verifyingOtp}
+              onClick={handleVerifyOtp}
+              className="inline-flex items-center justify-center shrink-0 rounded-lg px-4 py-2 text-xs font-semibold text-white transition hover:brightness-110 cursor-pointer disabled:opacity-50"
+              style={{ background: "#2B5CE6" }}
+            >
+              {verifyingOtp ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                "Verify"
+              )}
+            </button>
+          </div>
+
+          {otpErr && (
+            <div className="text-[11px] text-red-600 font-medium">
+              {otpErr}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Password & Confirm Password (disabled until email is verified) */}
       <div className="grid grid-cols-2 gap-3">
         <Field label="Password">
           <input
             type="password"
             required
+            disabled={!isEmailVerified}
             value={pwd}
             onChange={(e) => setPwd(e.target.value)}
-            className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#2B5CE6] focus:ring-2 focus:ring-[#2B5CE6]/15"
+            className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#2B5CE6] focus:ring-2 focus:ring-[#2B5CE6]/15 disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
             style={{ borderColor: "#E1E4EA", color: "#0F172A" }}
-            placeholder="••••••••"
           />
         </Field>
         <Field label="Confirm Password">
           <input
             type="password"
             required
+            disabled={!isEmailVerified}
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#2B5CE6] focus:ring-2 focus:ring-[#2B5CE6]/15"
+            className="w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-[#2B5CE6] focus:ring-2 focus:ring-[#2B5CE6]/15 disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
             style={{ borderColor: "#E1E4EA", color: "#0F172A" }}
-            placeholder="••••••••"
           />
         </Field>
       </div>
-      <Field label="Role">
-        <div className="grid grid-cols-3 gap-2">
-          {(["student", "job_seeker", "recruiter"] as Role[]).map((r) => (
-            <button
-              type="button"
-              key={r}
-              onClick={() => setRole(r)}
-              style={chip(role === r)}
-              className="rounded-lg border px-2 py-2 text-xs capitalize transition cursor-pointer font-medium text-center"
-            >
-              {r.replace("_", " ")}
-            </button>
-          ))}
-        </div>
-      </Field>
+
+      {!isEmailVerified && (
+        <p className="text-[11px] text-gray-400 -mt-2">
+          Validate your email above to set your password.
+        </p>
+      )}
+
       <label className="flex cursor-pointer items-start gap-2 text-xs" style={{ color: "#4B5563" }}>
         <input
           type="checkbox"
@@ -385,18 +555,30 @@ function SignUpForm() {
           .
         </span>
       </label>
+
       {err && (
         <div className="rounded-lg px-3 py-2 text-xs" style={{ background: "#FEF2F2", color: "#DC2626" }}>
           {err}
         </div>
       )}
+
       <button
         type="submit"
-        disabled={loading}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:brightness-110 cursor-pointer disabled:opacity-70"
+        disabled={loading || !isEmailVerified}
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:brightness-110 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         style={{ background: "#2B5CE6", boxShadow: "0 10px 30px -12px rgba(43,92,230,0.6)" }}
       >
-        {loading ? "Creating Account..." : <>Create Account <ArrowRight className="h-4 w-4" /></>}
+        {loading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Creating Account...</span>
+          </>
+        ) : (
+          <>
+            <span>Create Account</span>
+            <ArrowRight className="h-4 w-4" />
+          </>
+        )}
       </button>
     </form>
   );

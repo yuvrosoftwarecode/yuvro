@@ -100,6 +100,7 @@ class TestCase(BaseModel):
     input: str
     expected_output: str
     weight: int = 1
+    is_hidden: bool = False
 
 class CodeExecutionWithTestsRequest(BaseModel):
     code: str
@@ -128,6 +129,7 @@ class TestResult(BaseModel):
     execution_time: float
     memory_usage: float = 0.0
     console_output: str = ""  # Add console output field
+    is_hidden: bool = False
 
 class CodeExecutionResponse(BaseModel):
     execution_result: ExecutionResult
@@ -861,7 +863,8 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                 actual_output='',
                 error=err_msg,
                 execution_time=0,
-                console_output=''
+                console_output='',
+                is_hidden=getattr(tc, 'is_hidden', False)
             ) for tc in (request.test_cases_basic or [])]
             
             advanced_results = [TestResult(
@@ -871,7 +874,8 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                 actual_output='',
                 error=err_msg,
                 execution_time=0,
-                console_output=''
+                console_output='',
+                is_hidden=True
             ) for tc in (request.test_cases_advanced or [])]
             
             custom_results = [TestResult(
@@ -881,7 +885,8 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                 actual_output='',
                 error=err_msg,
                 execution_time=0,
-                console_output=''
+                console_output='',
+                is_hidden=False
             ) for tc in (request.test_cases_custom or [])]
             
             all_results = basic_results + advanced_results + custom_results
@@ -977,7 +982,8 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                         actual_output='',
                         error=stderr.decode(),
                         execution_time=0,
-                        console_output=''
+                        console_output='',
+                        is_hidden=getattr(tc, 'is_hidden', False)
                     ) for tc in (request.test_cases_basic or [])]
                     
                     advanced_results = [TestResult(
@@ -987,7 +993,8 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                         actual_output='',
                         error=stderr.decode(),
                         execution_time=0,
-                        console_output=''
+                        console_output='',
+                        is_hidden=True
                     ) for tc in (request.test_cases_advanced or [])]
                     
                     custom_results = [TestResult(
@@ -997,7 +1004,8 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                         actual_output='',
                         error=stderr.decode(),
                         execution_time=0,
-                        console_output=''
+                        console_output='',
+                        is_hidden=False
                     ) for tc in (request.test_cases_custom or [])]
                     
                     all_results = basic_results + advanced_results + custom_results
@@ -1084,9 +1092,14 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                         expected_output = test_case.expected_output.strip()
                         
                         passed = actual_output == expected_output
-                        error_msg = stderr.decode() if not passed and not console_output else ""
+                        error_msg = ""
+                        if not passed:
+                            if console_output:
+                                error_msg = console_output
+                            elif actual_output != expected_output:
+                                error_msg = "Output mismatch"
 
-                        if passed and request.time_limit is not None and execution_time > request.time_limit:
+                        if request.time_limit is not None and execution_time > request.time_limit:
                             error_msg = "Time Limit Exceeded"
                             limit_warning = json.dumps({
                                 "status": "failed",
@@ -1094,7 +1107,7 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                                 "message": f"Program execution exceeded the configured time limit of {request.time_limit} seconds. Execution took {execution_time:.2f}s."
                             })
                             console_output = (console_output + "\n" + limit_warning).strip() if console_output else limit_warning
-                        elif passed and request.memory_limit is not None and memory_usage > request.memory_limit:
+                        elif request.memory_limit is not None and memory_usage > request.memory_limit:
                             error_msg = "Memory Limit Exceeded"
                             limit_warning = json.dumps({
                                 "status": "failed",
@@ -1111,7 +1124,8 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                             error=error_msg,
                             execution_time=execution_time,
                             memory_usage=memory_usage,
-                            console_output=console_output
+                            console_output=console_output,
+                            is_hidden=getattr(test_case, 'is_hidden', False)
                         )
                     except asyncio.TimeoutError:
                         if process:
@@ -1767,28 +1781,45 @@ def _build_tree(base: Path, rel: Path | None = None) -> dict:
     return {"name": name, "path": str(rel or ""), "type": "directory", "children": children}
 
 
-def _seed_from_starter_repo(ws: Path, lab_id: str, evaluation_id: Optional[str] = None) -> bool:
-    """If ws is empty, copy starter files from canonical starter repo clone if available."""
-    try:
-        starter_src = None
-        candidate_dirs = []
-        if evaluation_id:
-            candidate_dirs.append(WORKSPACES_ROOT / "evaluation" / str(evaluation_id) / "labs" / str(lab_id))
-        candidate_dirs.append(WORKSPACES_ROOT / "labs" / str(lab_id))
+def _find_starter_repo(lab_id: str, evaluation_id: Optional[str] = None) -> Optional[Path]:
+    candidate_dirs = []
+    if evaluation_id:
+        candidate_dirs.append(WORKSPACES_ROOT / "evaluation" / str(evaluation_id) / "labs" / str(lab_id))
+    candidate_dirs.append(WORKSPACES_ROOT / "labs" / str(lab_id))
 
-        for candidate in candidate_dirs:
-            if not candidate.exists():
-                continue
-            if (candidate / ".git").exists() or any(f.is_file() for f in candidate.iterdir() if f.name not in (".git", "users")):
-                starter_src = candidate
-                break
-            for child in sorted(candidate.iterdir()):
-                if child.is_dir() and child.name not in (".git", "users") and any(child.iterdir()):
-                    starter_src = child
-                    break
-            if starter_src:
-                break
-        
+    for candidate in candidate_dirs:
+        if not candidate.exists():
+            continue
+        if (candidate / ".git").exists() or any(f.is_file() for f in candidate.iterdir() if f.name not in (".git", "users")):
+            return candidate
+        for child in sorted(candidate.iterdir()):
+            if child.is_dir() and child.name not in (".git", "users") and any(child.iterdir()):
+                return child
+    return None
+
+
+def _is_workspace_incomplete(ws: Path, lab_id: str, evaluation_id: Optional[str] = None) -> bool:
+    """Check if the workspace was partially seeded (e.g. single fallback file) while a full starter repo is available."""
+    try:
+        starter_src = _find_starter_repo(lab_id, evaluation_id)
+        if not starter_src or not starter_src.exists():
+            return False
+
+        ignored_names = {'.git', 'yuvro_scoring_rules', 'problem.md', 'solution.md', 'users'}
+        expected_items = [item.name for item in starter_src.iterdir() if item.name not in ignored_names]
+        if not expected_items:
+            return False
+
+        missing = [name for name in expected_items if not (ws / name).exists()]
+        return len(missing) > 0
+    except Exception:
+        return False
+
+
+def _seed_from_starter_repo(ws: Path, lab_id: str, evaluation_id: Optional[str] = None) -> bool:
+    """If starter repo is available, copy starter files to ws."""
+    try:
+        starter_src = _find_starter_repo(lab_id, evaluation_id)
         if starter_src and starter_src.exists():
             ignore = shutil.ignore_patterns('.git', 'yuvro_scoring_rules', 'problem.md', 'solution.md')
             for item in starter_src.iterdir():
@@ -1800,7 +1831,8 @@ def _seed_from_starter_repo(ws: Path, lab_id: str, evaluation_id: Optional[str] 
                 else:
                     shutil.copy2(str(item), str(dst))
             try:
-                subprocess.run(["git", "init"], cwd=str(ws), check=True, capture_output=True)
+                if not (ws / ".git").exists():
+                    subprocess.run(["git", "init"], cwd=str(ws), check=True, capture_output=True)
                 subprocess.run(["git", "-c", "safe.directory=*", "add", "."], cwd=str(ws), check=True, capture_output=True)
                 subprocess.run(["git", "-c", "safe.directory=*", "config", "user.email", "bot@yuvro.ai"], cwd=str(ws), check=True)
                 subprocess.run(["git", "-c", "safe.directory=*", "config", "user.name", "Yuvro Bot"], cwd=str(ws), check=True)
@@ -1861,14 +1893,14 @@ async def get_file_tree(
                     fpath.write_text(content)
                 seeded = True
     else:
-        # Workspace already exists — check if it is empty (only .bash_history or .git)
+        # Workspace already exists — check if it is empty or incomplete
         user_files = [
             f for f in ws.iterdir()
             if f.name not in (".bash_history", ".git") and (f.is_file() or (f.is_dir() and any(f.rglob("*"))))
         ]
-        if not user_files:
+        if not user_files or _is_workspace_incomplete(ws, lab_id, evaluation_id):
             seeded = _seed_from_starter_repo(ws, lab_id, evaluation_id)
-            if not seeded:
+            if not seeded and not user_files:
                 seed_files = {}
                 if starters is not None:
                     try:
@@ -2147,16 +2179,70 @@ async def _setup_github_remote(ws_dir: Path, user_id: str) -> None:
         stdout, _ = await proc.communicate()
         existing_url = stdout.decode().strip()
 
+        if not existing_url:
+            # Check if this is an isolated ticket workspace like labs/<slug>_<ticket_id>/users/<user_id>
+            # and inherit remote origin from base lab workspace labs/<slug>/users/<user_id>
+            try:
+                parts = ws_dir.parts
+                if "labs" in parts and "users" in parts:
+                    lab_idx = parts.index("labs") + 1
+                    current_lab = parts[lab_idx]
+                    if "_" in current_lab:
+                        base_lab = current_lab.rsplit("_", 1)[0]
+                        candidate_dirs = [
+                            WORKSPACES_ROOT / "labs" / base_lab / "users" / user_id,
+                            WORKSPACES_ROOT / "labs" / current_lab.split("_")[0] / "users" / user_id
+                        ]
+                        for c_dir in candidate_dirs:
+                            if c_dir.exists() and (c_dir / ".git").exists():
+                                p_proc = await asyncio.create_subprocess_exec(
+                                    "git", "remote", "get-url", "origin",
+                                    cwd=str(c_dir),
+                                    stdout=asyncio.subprocess.PIPE,
+                                    stderr=asyncio.subprocess.DEVNULL,
+                                )
+                                p_stdout, _ = await p_proc.communicate()
+                                p_url = p_stdout.decode().strip()
+                                if p_url and "github.com" in p_url:
+                                    existing_url = p_url
+                                    break
+            except Exception:
+                pass
+
         if existing_url and "github.com" in existing_url:
             clean_url = _re.sub(r"https://[^@]+@github\.com/", "https://github.com/", existing_url)
             remote_url = clean_url.replace("https://github.com/", f"https://{token}@github.com/")
-            if remote_url != existing_url:
+            
+            # Check if origin is already configured in ws_dir
+            chk_proc = await asyncio.create_subprocess_exec(
+                "git", "remote", "get-url", "origin",
+                cwd=str(ws_dir),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+            has_origin = (await chk_proc.wait()) == 0
+
+            if has_origin:
                 await asyncio.create_subprocess_exec(
                     "git", "remote", "set-url", "origin", remote_url,
                     cwd=str(ws_dir),
                     stdout=asyncio.subprocess.DEVNULL,
                     stderr=asyncio.subprocess.DEVNULL,
                 )
+            else:
+                await asyncio.create_subprocess_exec(
+                    "git", "remote", "add", "origin", remote_url,
+                    cwd=str(ws_dir),
+                    stdout=asyncio.subprocess.DEVNULL,
+                    stderr=asyncio.subprocess.DEVNULL,
+                )
+
+            await asyncio.create_subprocess_exec(
+                "git", "branch", "-M", "main",
+                cwd=str(ws_dir),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
         
         # Configure git author
         if username:
@@ -2224,6 +2310,13 @@ class RunTestCommandRequest(BaseModel):
 async def run_test_command_endpoint(body: RunTestCommandRequest):
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id or "0", body.evaluation_id)
     ws.mkdir(parents=True, exist_ok=True)
+
+    user_files = [
+        f for f in ws.iterdir()
+        if f.name not in (".bash_history", ".git") and (f.is_file() or (f.is_dir() and any(f.rglob("*"))))
+    ]
+    if not user_files or _is_workspace_incomplete(ws, body.lab_id, body.evaluation_id):
+        _seed_from_starter_repo(ws, body.lab_id, body.evaluation_id)
 
     starter_scoring_rules = None
     if body.evaluation_id:

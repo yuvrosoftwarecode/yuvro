@@ -58,7 +58,7 @@ export default defineConfig({
     hmr: {
       protocol: "ws",
       host: "localhost",
-      clientPort: 3000,
+      clientPort: 3002,
       overlay: true,
     },
     watch: {
