@@ -900,3 +900,4 @@
 }
 /* Evaluation workspace (Submissions): allow main to shrink beside the fixed sidebar. */
 .recruiter-theme main:has(.evs-theme) { min-width: 0; }
+
