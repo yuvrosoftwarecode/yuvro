@@ -88,7 +88,19 @@ export function evaluateSystemDesign(
   let rawTasks: any[] = [];
   if (Array.isArray(ticketData?.tasks) && ticketData.tasks.length > 0) {
     rawTasks = ticketData.tasks;
-  } else {
+  } else if (ticketData?.description && /Requirements/i.test(ticketData.description)) {
+    const reqMatch = ticketData.description.match(/###\s*Requirements\s*([\s\S]*?)(?:###|$)/i);
+    const reqText = reqMatch ? reqMatch[1] : ticketData.description;
+    const items = reqText
+      .split(/(?:^|\n|\s+)\d+\.\s+/)
+      .map((s: string) => s.trim().replace(/^[\d.]+\s*/, ""))
+      .filter((s: string) => s.length > 5);
+    if (items.length >= 2) {
+      rawTasks = items;
+    }
+  }
+
+  if (!rawTasks.length) {
     rawTasks = [
       "Add the core architectural components required for this service.",
       "Connect the components in the correct client-server request flow.",

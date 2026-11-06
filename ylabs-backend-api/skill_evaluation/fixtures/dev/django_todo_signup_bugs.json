@@ -1,0 +1,80 @@
+{
+  "lab_questions": [
+    {
+      "title": "Django todo signup bugs",
+      "type": "BACKEND",
+      "description": "Django todo signup bugs",
+      "difficulty": "EASY",
+      "domain": "ERP",
+      "experience": "FRESHER",
+      "duration_minutes": 45,
+      "marks": 30,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/MKGandhi05/yuvrpo_eval_django",
+      "git_repo_starter_branch": "main",
+      "startup_command": "python manage.py runserver 0.0.0.0:8000",
+      "test_command": "python yuvro_scoring_rules/main_test.py",
+      "connection_url": "",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Fix user signup validation and duplicate email handling",
+          "description": "The signup endpoint currently allows duplicate emails and does not validate password strength. Fix the signup view to: 1) Ensure email is unique (case-insensitive). 2) Validate that password is at least 8 characters and contains at least one digit. Return appropriate error messages with status 400 for invalid input. The endpoint is POST /api/signup/ and expects JSON with 'email' and 'password'.",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 30,
+          "order_index": 0,
+          "scoring_rules": {
+            "parent_task_id": null
+          },
+          "expected_output": [],
+          "solution": {
+            "query.sql": "from django.contrib.auth.models import User\nfrom rest_framework.decorators import api_view\nfrom rest_framework.response import Response\nfrom rest_framework import status\nimport re\n\n@api_view(['POST'])\ndef signup(request):\n    email = request.data.get('email', '').strip().lower()\n    password = request.data.get('password', '')\n    if not email or not password:\n        return Response({'error': 'Email and password required'}, status=status.HTTP_400_BAD_REQUEST)\n    if User.objects.filter(email__iexact=email).exists():\n        return Response({'error': 'Email already registered'}, status=status.HTTP_400_BAD_REQUEST)\n    if len(password) < 8 or not re.search(r'\\d', password):\n        return Response({'error': 'Password must be at least 8 characters and contain a digit'}, status=status.HTTP_400_BAD_REQUEST)\n    user = User.objects.create_user(username=email, email=email, password=password)\n    return Response({'message': 'User created'}, status=status.HTTP_201_CREATED)"
+          }
+        },
+        {
+          "title": "Implement todo creation with proper ownership and validation",
+          "description": "The todo creation endpoint currently allows creating todos without authentication and does not validate the title. Fix the POST /api/todos/ endpoint to: 1) Require authentication (use IsAuthenticated permission). 2) Automatically assign the todo to the authenticated user. 3) Validate that title is not empty and does not exceed 200 characters. Return 400 for invalid data. The Todo model has fields: title (CharField max_length=200), completed (BooleanField default=False), user (ForeignKey to User).",
+          "difficulty": "EASY",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 1,
+          "scoring_rules": {
+            "parent_task_id": "14966924-e669-4e4f-a994-96dc8aa8e12d"
+          },
+          "expected_output": [],
+          "solution": {
+            "query.sql": "from rest_framework import generics, permissions, serializers\nfrom .models import Todo\n\nclass TodoSerializer(serializers.ModelSerializer):\n    class Meta:\n        model = Todo\n        fields = ['id', 'title', 'completed']\n        read_only_fields = ['id']\n\n    def validate_title(self, value):\n        if not value.strip():\n            raise serializers.ValidationError('Title cannot be empty')\n        if len(value) > 200:\n            raise serializers.ValidationError('Title too long')\n        return value\n\nclass TodoCreateView(generics.CreateAPIView):\n    serializer_class = TodoSerializer\n    permission_classes = [permissions.IsAuthenticated]\n\n    def perform_create(self, serializer):\n        serializer.save(user=self.request.user)"
+          }
+        },
+        {
+          "title": "Optimize todo listing with pagination and query efficiency",
+          "description": "The GET /api/todos/ endpoint currently returns all todos for the user without pagination and causes N+1 queries when serializing user information. Fix the endpoint to: 1) Use pagination with page size 10. 2) Use select_related to avoid N+1 queries (if user info is included). 3) Ensure only the authenticated user's todos are returned. The response should include 'count', 'next', 'previous', and 'results' fields.",
+          "difficulty": "MEDIUM",
+          "marks": 10,
+          "duration_minutes": 15,
+          "order_index": 2,
+          "scoring_rules": {
+            "parent_task_id": "8941522b-4e22-4c2c-b73d-896ae631274a"
+          },
+          "expected_output": [],
+          "solution": {
+            "query.sql": "from rest_framework import generics, permissions\nfrom rest_framework.pagination import PageNumberPagination\nfrom .models import Todo\nfrom .serializers import TodoSerializer\n\nclass TodoPagination(PageNumberPagination):\n    page_size = 10\n\nclass TodoListView(generics.ListAPIView):\n    serializer_class = TodoSerializer\n    permission_classes = [permissions.IsAuthenticated]\n    pagination_class = TodoPagination\n\n    def get_queryset(self):\n        return Todo.objects.filter(user=self.request.user).select_related('user').order_by('-id')"
+          }
+        }
+      ],
+      "allow_task_selection": true,
+      "solution": {}
+    }
+  ]
+}
