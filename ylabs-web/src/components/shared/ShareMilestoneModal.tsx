@@ -76,7 +76,6 @@ export function ShareMilestoneModal({
         scoreLine +
         xpLine +
         `\nTested against realistic enterprise edge cases and constraints.\n\n` +
-        `Verified milestone report: ${shareUrl}\n\n` +
         `#Yuvro #DevJourney #CareerGrowth #LearningInPublic ${tagsStr}`
       );
     }
@@ -85,7 +84,6 @@ export function ShareMilestoneModal({
       return (
         `🎓 Excited to earn the ${milestoneTitle} certificate on Yuvro Labs!\n\n` +
         `Hands-on validation of production-grade engineering practices.\n\n` +
-        `Verified credential: ${shareUrl}\n\n` +
         `#Certification #Achievement #SoftwareDevelopment #Yuvro`
       );
     }
@@ -105,7 +103,6 @@ export function ShareMilestoneModal({
       labScoreLine +
       labXpLine +
       `\nEngineered and verified against automated constraints and real-world architectures.\n\n` +
-      `View my verified telemetry & code report here: ${shareUrl}\n\n` +
       `#Yuvro #EngineeringSkills #HandsOnCoding #100DaysOfCode ${tagsStr}`
     );
   };
@@ -118,7 +115,7 @@ export function ShareMilestoneModal({
   const [bannerDataUrl, setBannerDataUrl] = useState<string | null>(null);
   const [generatingBanner, setGeneratingBanner] = useState(false);
 
-  // Generate banner on open
+  // Generate celebration GIF on open
   useEffect(() => {
     if (isOpen) {
       setCommentary(generateRichCopy());
@@ -126,17 +123,38 @@ export function ShareMilestoneModal({
       setError(null);
       setGeneratingBanner(true);
 
-      generateMilestoneBanner({
-        studentName,
-        milestoneTitle,
-        milestoneType,
-        details,
-      })
-        .then((dataUrl) => {
-          setBannerDataUrl(dataUrl);
+      const taskName = details?.sprintTitle || milestoneTitle || "Engineering Milestone";
+      const labName = details?.labTitle || "Practical Labs";
+
+      yhubApiAuthUtil
+        .post<{ data_uri: string }>("/auth/linkedin/generate-gif/", {
+          name: studentName,
+          task: taskName,
+          company: labName,
+        })
+        .then((res) => {
+          if (res?.data_uri) {
+            setBannerDataUrl(res.data_uri);
+          } else {
+            // Fallback to static banner generator if backend gif generation fails
+            return generateMilestoneBanner({
+              studentName,
+              milestoneTitle,
+              milestoneType,
+              details,
+            }).then(setBannerDataUrl);
+          }
         })
         .catch((err) => {
-          console.error("Failed to generate banner:", err);
+          console.warn("Backend GIF generation failed, falling back to static banner:", err);
+          generateMilestoneBanner({
+            studentName,
+            milestoneTitle,
+            milestoneType,
+            details,
+          })
+            .then(setBannerDataUrl)
+            .catch((e) => console.error("Static banner fallback failed:", e));
         })
         .finally(() => {
           setGeneratingBanner(false);
@@ -201,7 +219,9 @@ export function ShareMilestoneModal({
     if (!bannerDataUrl) return;
     const a = document.createElement("a");
     a.href = bannerDataUrl;
-    a.download = `yuvro-milestone-${milestoneTitle.toLowerCase().replace(/[^a-z0-9]/g, "-")}.png`;
+    const isGif = bannerDataUrl.startsWith("data:image/gif");
+    const ext = isGif ? "gif" : "png";
+    a.download = `yuvro-milestone-${milestoneTitle.toLowerCase().replace(/[^a-z0-9]/g, "-")}.${ext}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -249,7 +269,7 @@ export function ShareMilestoneModal({
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                   <ImageIcon className="h-3.5 w-3.5" />
-                  Milestone Banner Preview
+                  Milestone Celebration GIF
                 </span>
                 {bannerDataUrl && (
                   <button
@@ -258,25 +278,25 @@ export function ShareMilestoneModal({
                     className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
                   >
                     <Download className="h-3 w-3" />
-                    Download Image
+                    Download GIF
                   </button>
                 )}
               </div>
 
-              <div className="rounded-xl border border-border/80 bg-black/40 overflow-hidden relative aspect-[1200/630] flex items-center justify-center shadow-md">
+              <div className="rounded-xl border border-border/80 bg-black/40 overflow-hidden relative aspect-[800/418] flex items-center justify-center shadow-md">
                 {generatingBanner ? (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                    Generating your milestone card...
+                    Generating animated celebration GIF...
                   </div>
                 ) : bannerDataUrl ? (
                   <img
                     src={bannerDataUrl}
-                    alt="Milestone Banner"
+                    alt="Milestone Celebration GIF"
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="text-xs text-muted-foreground">Failed to render banner</div>
+                  <div className="text-xs text-muted-foreground">Failed to render GIF</div>
                 )}
               </div>
             </div>

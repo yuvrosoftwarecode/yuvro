@@ -811,6 +811,114 @@ class LinkedInShareMilestoneView(APIView):
                 asset_urn = None
 
         post_url = "https://api.linkedin.com/v2/ugcPosts"
+
+        # Determine share media category
+        if asset_urn:
+            share_media_category = "IMAGE"
+            media_item = {
+                "status": "READY",
+                "description": {
+                    "text": description or f"Achievement verified on Yuvro Labs"
+                },
+                "media": asset_urn,
+                "title": {
+                    "text": title
+                }
+            }
+        else:
+            share_media_category = "ARTICLE"
+            media_item = {
+                "status": "READY",
+                "description": {
+                    "text": description or f"Achievement verified on Yuvro Labs: {title}"
+                },
+                "originalUrl": article_url,
+                "title": {
+                    "text": title
+                }
+            }
+
+        post_payload = {
+            "author": f"urn:li:person:{connection.linkedin_sub}",
+            "lifecycleState": "PUBLISHED",
+            "specificContent": {
+                "com.linkedin.ugc.ShareContent": {
+                    "shareCommentary": {
+                        "text": commentary
+                    },
+                    "shareMediaCategory": share_media_category,
+                    "media": [media_item]
+                }
+            },
+            "visibility": {
+                "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+            }
+        }
+
+        try:
+            post_response = http_requests.post(post_url, headers=headers, json=post_payload)
+            if post_response.status_code in (200, 201):
+                post_data = post_response.json()
+                post_id = post_data.get("id")
+                return Response({
+                    "message": "Milestone posted to LinkedIn successfully!",
+                    "post_id": post_id,
+                })
+            else:
+                logger.error(f"LinkedIn UGC post failed: {post_response.status_code} {post_response.text}")
+                error_msg = "Failed to post to LinkedIn"
+                try:
+                    err_json = post_response.json()
+                    error_msg = err_json.get("message") or error_msg
+                except Exception:
+                    pass
+                return Response({"error": error_msg, "details": post_response.text}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Error publishing LinkedIn post: {e}", exc_info=True)
+            return Response({"error": f"Failed to post to LinkedIn: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class LinkedInGenerateGifView(APIView):
+    permission_classes = [IsAuthenticatedUser]
+
+    def post(self, request):
+        from .celebration_gif import generate_celebration_gif
+
+        name = request.data.get("name") or request.user.first_name or request.user.username or "Student"
+        task = request.data.get("task") or "Engineering Milestone"
+        company = request.data.get("company") or "Practical Labs"
+
+        # Locate logo.png
+        possible_logo_paths = [
+            os.path.join(os.path.dirname(__file__), "logo.png"),
+            os.path.join(settings.BASE_DIR, "authentication", "logo.png"),
+            os.path.join(settings.BASE_DIR, "..", "ylabs-web", "public", "logo.png"),
+            os.path.join(settings.BASE_DIR, "public", "logo.png"),
+            "/app/authentication/logo.png",
+            "/app/public/logo.png",
+            "d:/Yuvro - Software/yuvro/ylabs-web/public/logo.png",
+        ]
+        logo_path = None
+        for p in possible_logo_paths:
+            if os.path.exists(p):
+                logo_path = p
+                break
+
+        try:
+            gif_bytes = generate_celebration_gif(
+                name=name,
+                task=task,
+                company=company,
+                logo_path=logo_path,
+                output_fps=15,
+                duration_sec=1.6
+            )
+            b64_gif = base64.b64encode(gif_bytes).decode("utf-8")
+            data_uri = f"data:image/gif;base64,{b64_gif}"
+            return Response({"data_uri": data_uri})
+        except Exception as e:
+            logger.error(f"Failed to generate celebration GIF: {e}", exc_info=True)
+            return Response({"error": f"Failed to generate GIF: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         # Build UGC post payload
         if asset_urn:
