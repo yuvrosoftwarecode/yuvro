@@ -1,13 +1,15 @@
 from rest_framework import viewsets, mixins, status, generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
-from .models import Company, CompanyRecruiter
+from .models import Company, CompanyRecruiter, RecruiterPackage, RecruiterUserQuota
 from .serializers import (
     CompanySerializer,
     CompanyRecruiterSerializer,
     CompanyRecruiterCreateSerializer,
     CompanyRecruiterUpdateSerializer,
-    RecruiterSelfRegistrationSerializer
+    RecruiterSelfRegistrationSerializer,
+    RecruiterPackageSerializer,
+    RecruiterUserQuotaSerializer,
 )
 from .services import delete_user_in_yhub
 
@@ -340,4 +342,88 @@ class GithubAppRepositoriesView(APIView):
             return Response({"error": "Installation not found or not authorized"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RecruiterPackageListView(generics.ListAPIView):
+    """
+    Public/Authenticated list of active Recruiter Packages configured in Django Admin.
+    """
+    permission_classes = [AllowAny]
+    serializer_class = RecruiterPackageSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return RecruiterPackage.objects.filter(is_active=True).order_by("display_order", "created_at")
+
+
+class RecruiterMyQuotaView(APIView):
+    """
+    Retrieves the current recruiter's active package and usage quotas.
+    Creates a default Free Trial quota if not yet established.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        quota = RecruiterUserQuota.objects.filter(user=user).select_related("package").first()
+        
+        if not quota:
+            from datetime import timedelta
+            from django.utils import timezone
+            free_pkg = RecruiterPackage.objects.filter(code="free").first()
+            quota = RecruiterUserQuota.objects.create(
+                user=user,
+                created_by=user,
+                package=free_pkg,
+                plan_tier=free_pkg.code if free_pkg else "free",
+                billing_cycle="trial",
+                valid_from=timezone.now(),
+                valid_until=timezone.now() + timedelta(days=free_pkg.trial_days if free_pkg else 14),
+                total_submissions=free_pkg.total_submissions if free_pkg else 10,
+                used_submissions=0,
+                total_codebase_repos=free_pkg.total_codebase_repos if free_pkg else 1,
+                used_codebase_repos=0,
+                total_recruiter_logins=free_pkg.total_recruiter_logins if free_pkg else 1,
+                used_recruiter_logins=1,
+            )
+        
+        serializer = RecruiterUserQuotaSerializer(quota)
+        return Response(serializer.data)
+
+    def post(self, request):
+        """
+        Activate or update plan subscription for recruiter.
+        Accepts plan_code and billing_cycle.
+        """
+        from datetime import timedelta
+        from django.utils import timezone
+        
+        plan_code = request.data.get("plan_code") or request.data.get("item_id")
+        billing_cycle = request.data.get("billing_cycle", "monthly")
+        
+        pkg = RecruiterPackage.objects.filter(code=plan_code).first()
+        if not pkg:
+            return Response({"error": "Invalid plan package specified."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        days = 365 if billing_cycle == "yearly" else (pkg.trial_days if pkg.code == "free" else 30)
+        
+        quota, _ = RecruiterUserQuota.objects.update_or_create(
+            user=request.user,
+            defaults={
+                "created_by": request.user,
+                "package": pkg,
+                "plan_tier": pkg.code,
+                "billing_cycle": billing_cycle,
+                "valid_from": timezone.now(),
+                "valid_until": timezone.now() + timedelta(days=days),
+                "is_active": True,
+                "total_submissions": pkg.total_submissions,
+                "total_codebase_repos": pkg.total_codebase_repos,
+                "total_recruiter_logins": pkg.total_recruiter_logins,
+            }
+        )
+        
+        return Response(RecruiterUserQuotaSerializer(quota).data, status=status.HTTP_200_OK)
+
+
 

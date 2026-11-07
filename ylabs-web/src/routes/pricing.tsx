@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { StandardHeader } from "@/components/StandardHeader";
 import { useAuth } from "@/lib/auth";
-import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { yhubApiAuthUtil, restApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { loadRazorpayScript } from "@/lib/razorpay";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { getRecruiterPackages, RecruiterPackageItem } from "@/lib/recruiter";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -294,12 +295,17 @@ function StartFreeButton({
 
     setIsLoading(true);
     try {
-      await yhubApiAuthUtil.post("/payment/start_trial/", {});
+      try {
+        await yhubApiAuthUtil.post("/payment/start_trial/", {});
+      } catch (e) {
+        // Fallback / sync with local ylabs backend if needed
+      }
+      await restApiAuthUtil.post("/recruiter/my-quota/", { plan_code: "free", billing_cycle: "trial" });
       toast.success("Free trial activated successfully!");
       if (onSubscribe) {
         onSubscribe();
       } else {
-        navigate({ to: "/recruiter/evaluations" });
+        navigate({ to: "/recruiter/dashboard" });
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to start trial");
@@ -362,6 +368,52 @@ function Plans({
   onSubscribe?: () => void;
 }) {
   const [workTrailQty, setWorkTrailQty] = useState(0);
+  const [backendPackages, setBackendPackages] = useState<RecruiterPackageItem[]>([]);
+
+  useEffect(() => {
+    getRecruiterPackages().then((pkgs) => {
+      if (pkgs && pkgs.length > 0) {
+        setBackendPackages(pkgs);
+      }
+    });
+  }, []);
+
+  const startupPkg = backendPackages.find((p) => p.code === "startup");
+  const growthPkg = backendPackages.find((p) => p.code === "growth");
+  const enterprisePkg = backendPackages.find((p) => p.code === "enterprise");
+
+  const startupPlan = startupPkg
+    ? {
+        id: startupPkg.code,
+        name: startupPkg.name,
+        monthly: Number(startupPkg.monthly_price_usd),
+        yearlyTotal: Number(startupPkg.yearly_price_usd),
+        monthlyEquiv: Math.round(Number(startupPkg.yearly_price_usd) / 12),
+        submissionsMonthly: startupPkg.total_submissions,
+        submissionsYearly: startupPkg.total_submissions * 12,
+        features: startupPkg.features,
+      }
+    : STARTUP;
+
+  const growthPlan = growthPkg
+    ? {
+        id: growthPkg.code,
+        name: growthPkg.name,
+        monthly: Number(growthPkg.monthly_price_usd),
+        yearlyTotal: Number(growthPkg.yearly_price_usd),
+        monthlyEquiv: Math.round(Number(growthPkg.yearly_price_usd) / 12),
+        submissionsMonthly: growthPkg.total_submissions,
+        submissionsYearly: growthPkg.total_submissions * 12,
+        features: growthPkg.features,
+      }
+    : GROWTH;
+
+  const enterprisePlan = enterprisePkg
+    ? {
+        name: enterprisePkg.name,
+        features: enterprisePkg.features,
+      }
+    : ENTERPRISE;
 
   const workTrailTotal =
     workTrailQty > 0 ? workTrailQty * WORK_TRAIL.pricePerAssignment : 0;
@@ -379,20 +431,20 @@ function Plans({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <PlanCard
           order="order-2 lg:order-1"
-          plan={STARTUP}
+          plan={startupPlan}
           billing={billing}
           workTrailLine={workTrailLine}
           onSubscribe={onSubscribe}
         />
         <PlanCard
           order="order-1 lg:order-2"
-          plan={GROWTH}
+          plan={growthPlan}
           featured
           billing={billing}
           workTrailLine={workTrailLine}
           onSubscribe={onSubscribe}
         />
-        <PlanCard order="order-3 lg:order-3" plan={ENTERPRISE} billing={billing} />
+        <PlanCard order="order-3 lg:order-3" plan={enterprisePlan} billing={billing} />
       </div>
       <WorkTrailControls
         qty={workTrailQty}
@@ -478,6 +530,15 @@ function PlanCard({
             );
 
             if (verifyRes.status === "SUCCESS") {
+              try {
+                await restApiAuthUtil.post("/recruiter/my-quota/", {
+                  plan_code: planAny.id,
+                  billing_cycle: billing,
+                });
+              } catch (e) {
+                console.warn("Could not sync recruiter quota:", e);
+              }
+
               toast.success("Subscription activated successfully!");
               if (onSubscribe) {
                 onSubscribe();

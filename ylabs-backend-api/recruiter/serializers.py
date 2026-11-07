@@ -1,7 +1,16 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from .models import Company, CompanyRecruiter
+from .models import (
+    Company,
+    CompanyRecruiter,
+    RecruiterTeam,
+    RecruiterTeamMember,
+    RecruiterTeamSubscription,
+    RecruiterTeamQuota,
+    RecruiterPackage,
+    RecruiterUserQuota,
+)
 from .services import register_user_in_yhub, delete_user_in_yhub
 from authentication.models import Profile
 
@@ -328,3 +337,68 @@ class RecruiterTeamSerializer(serializers.ModelSerializer):
 class RecruiterTeamMemberAddSerializer(serializers.Serializer):
     email = serializers.EmailField()
     role = serializers.ChoiceField(choices=["admin", "member"], default="member")
+
+
+class RecruiterPackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecruiterPackage
+        fields = (
+            "id",
+            "code",
+            "name",
+            "badge",
+            "description",
+            "monthly_price_usd",
+            "yearly_price_usd",
+            "trial_days",
+            "total_submissions",
+            "total_codebase_repos",
+            "total_recruiter_logins",
+            "features",
+            "display_order",
+            "is_active",
+        )
+
+
+class RecruiterUserQuotaSerializer(serializers.ModelSerializer):
+    package = RecruiterPackageSerializer(read_only=True)
+    submissions_remaining = serializers.SerializerMethodField()
+    repos_remaining = serializers.SerializerMethodField()
+    logins_remaining = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RecruiterUserQuota
+        fields = (
+            "id",
+            "plan_tier",
+            "billing_cycle",
+            "package",
+            "valid_from",
+            "valid_until",
+            "is_active",
+            "total_submissions",
+            "used_submissions",
+            "submissions_remaining",
+            "total_codebase_repos",
+            "used_codebase_repos",
+            "repos_remaining",
+            "total_recruiter_logins",
+            "used_recruiter_logins",
+            "logins_remaining",
+        )
+
+    def get_submissions_remaining(self, obj):
+        if obj.total_submissions < 0:
+            return -1
+        return max(0, obj.total_submissions - obj.used_submissions)
+
+    def get_repos_remaining(self, obj):
+        if obj.total_codebase_repos < 0:
+            return -1
+        return max(0, obj.total_codebase_repos - obj.used_codebase_repos)
+
+    def get_logins_remaining(self, obj):
+        if obj.total_recruiter_logins < 0:
+            return -1
+        return max(0, obj.total_recruiter_logins - obj.used_recruiter_logins)
+
