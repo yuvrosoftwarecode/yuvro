@@ -8,7 +8,9 @@ from .views import (
     GithubAppInstallRedirectView,
     GithubAppInstallCallbackView,
     GithubAppInstallationsView,
-    GithubAppRepositoriesView
+    GithubAppRepositoriesView,
+    RecruiterPackageListView,
+    RecruiterMyQuotaView,
 )
 
 router = DefaultRouter()
@@ -17,6 +19,8 @@ router.register(r"recruiters", CompanyRecruiterViewSet, basename="recruiter")
 router.register(r"teams", RecruiterTeamViewSet, basename="team")
 
 urlpatterns = [
+    path("packages/", RecruiterPackageListView.as_view(), name="recruiter_packages"),
+    path("my-quota/", RecruiterMyQuotaView.as_view(), name="recruiter_my_quota"),
     path("register/", RecruiterSelfRegistrationAPIView.as_view(), name="self_register"),
     path("github-app/install/", GithubAppInstallRedirectView.as_view(), name="github_app_install"),
     path("github-app/callback/", GithubAppInstallCallbackView.as_view(), name="github_app_callback"),

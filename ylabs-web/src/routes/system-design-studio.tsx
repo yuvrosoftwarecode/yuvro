@@ -2,6 +2,7 @@ import { getSystemDesignLab } from "@/lib/systemDesign";
 import { labs, tickets, type Status } from "@/lib/dummy";
 import { invalidateStudentStats } from "@/lib/studentStats";
 import { Button } from "@/components/ui/button";
+import YuvroLogo from "@/assets/YuvroLogo.png";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
@@ -1684,27 +1685,21 @@ export function SystemDesignStudio({
       {/* Top Header */}
       <header className="flex flex-wrap items-center gap-2 border-b px-3 py-1.5 bg-card shrink-0">
         {isStandaloneStudio ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent font-medium transition-colors"
+              className="inline-flex items-center transition-transform hover:scale-105 mr-1"
+              aria-label="Yuvro Labs Home"
             >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to Home
+              <img src={YuvroLogo} alt="Yuvro Labs" className="h-7 w-auto object-contain" />
             </Link>
-            <div className="h-4 w-px bg-border mx-1" />
-            <span className="inline-flex items-center gap-1.5 font-semibold text-xs text-foreground">
-              <Boxes className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-xs text-foreground">
               System Design Studio
-            </span>
-            <span className="inline-flex items-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-medium font-mono uppercase tracking-wider">
-              Live Studio
             </span>
           </div>
         ) : isLandingPage ? (
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 font-semibold text-xs text-foreground">
-              <Boxes className="h-3.5 w-3.5 text-primary" />
+            <span className="font-semibold text-xs text-foreground">
               System Design Studio
             </span>
             <span className="inline-flex items-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-medium font-mono uppercase tracking-wider">
@@ -1910,7 +1905,6 @@ export function SystemDesignStudio({
           </DropdownMenu>
 
           <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowEx(true)}>
-            <Sparkles className="h-3.5 w-3.5 mr-1" />
             Examples
           </Button>
           <Button
@@ -1933,22 +1927,14 @@ export function SystemDesignStudio({
             </Link>
           )}
           {isStandaloneStudio && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                if (!commitMessage) {
-                  setCommitMessage(`Update ${tabLabel(tab)} architecture design`);
-                }
-                setIsCommitDialogOpen(true);
-              }}
-              disabled={isCommitting}
-              className="h-7 text-xs border border-border inline-flex items-center gap-1 font-medium hover:bg-accent ml-1"
-              title="Commit and push system design to GitHub"
+            <Link
+              to={user ? "/student/dashboard" : "/auth"}
+              search={user ? undefined : { tab: "signin" }}
+              className="h-7 text-xs border border-border rounded-md px-2.5 inline-flex items-center font-medium hover:bg-accent text-foreground transition-colors ml-1"
+              title="Practice in Yuvro Labs"
             >
-              {isCommitting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Github className="h-3 w-3" />}
-              <span>{isCommitting ? "Committing…" : "Commit to GitHub"}</span>
-            </Button>
+              Practice in Yuvro Labs
+            </Link>
           )}
           {!isPureStudio && (
             <>

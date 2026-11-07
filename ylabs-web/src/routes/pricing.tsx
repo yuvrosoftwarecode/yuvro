@@ -1,126 +1,287 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowRight, Check, GitCommit, Minus, Plus } from "lucide-react";
-import { plans, enterprise, topUps, usageExplainers, faqs, freeTrial, rolloverNote, topUpNote } from "@/lib/pricing";
+import { useState, useEffect } from "react";
+import { StandardHeader } from "@/components/StandardHeader";
 import { useAuth } from "@/lib/auth";
-import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { yhubApiAuthUtil, restApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { loadRazorpayScript } from "@/lib/razorpay";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { getRecruiterPackages, RecruiterPackageItem } from "@/lib/recruiter";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Pricing — Yuvro Labs Engineering Evaluation Plans" },
-      { name: "description", content: "Simple pricing for technical hiring teams. Coding assessments, Engineering Simulations and AI technical interviews from $50/month. Start with a free 15-day trial." },
-      { property: "og:title", content: "Pricing — Yuvro Labs Engineering Evaluation Plans" },
-      { property: "og:description", content: "Starter, Growth and Scale plans for engineering hiring. Usage top-ups available. No long-term contracts." },
+      { title: "Pricing — Yuvro Labs" },
+      {
+        name: "description",
+        content:
+          "Simple pricing for Yuvro Labs, the developer-hiring platform. Coding assessments, simulation labs and AI mock interviews with a shared submission pool. Start free for 14 days.",
+      },
+      { property: "og:title", content: "Pricing — Yuvro Labs" },
+      {
+        property: "og:description",
+        content:
+          "Startup, Growth and Enterprise plans. Shared submission pool, repository setups and the Work Trail add-on. Start free for 14 days.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Pricing,
+  component: PricingPage,
 });
 
-const AMBER = "#F5A623";
-const INK = "#0A0A0A";
-const MUTED = "#6B6B6B";
-const BORDER = "#E8E6E1";
+/* ============================================================
+   Pricing constants
+   ============================================================ */
+
+const BRAND = "#F7931E";
+
+const TRIAL = {
+  days: 14,
+  submissions: 10,
+  repos: 1,
+};
+
+type FeatureItem = {
+  text: string;
+  subItems?: string[];
+};
+
+const STARTUP = {
+  id: "startup",
+  name: "Startup",
+  monthly: 99,
+  yearlyTotal: 990,
+  monthlyEquiv: 83,
+  submissionsMonthly: 20,
+  submissionsYearly: 240,
+  features: [
+    { text: "20 submissions per month" },
+    {
+      text: "Company can use these across:",
+      subItems: ["Simulation Labs", "AI Mock Interviews", "Coding Assessments"],
+    },
+    { text: "2 codebase repository setups" },
+    { text: "1 recruiter login" },
+    { text: "Candidate reports" },
+    { text: "AI follow-up questions" },
+  ] as FeatureItem[],
+};
+
+const GROWTH = {
+  id: "growth",
+  name: "Growth",
+  monthly: 449,
+  yearlyTotal: 4490,
+  monthlyEquiv: 374,
+  submissionsMonthly: 100,
+  submissionsYearly: 1200,
+  features: [
+    { text: "100 submissions per month" },
+    {
+      text: "Company can use these across:",
+      subItems: ["Simulation Labs", "AI Mock Interviews", "Coding Assessments"],
+    },
+    { text: "5 codebase repository setups" },
+    { text: "3 recruiter logins" },
+    { text: "Advanced candidate reports" },
+    { text: "Custom assessments" },
+    { text: "Priority support" },
+  ] as FeatureItem[],
+};
+
+const ENTERPRISE = {
+  name: "Enterprise",
+  features: [
+    { text: "Everything in Growth" },
+    { text: "Custom submission volumes" },
+    { text: "Custom repository setups and recruiter access" },
+    { text: "API, MCP and ATS integrations" },
+    { text: "2,500+ library questions" },
+    { text: "Dedicated account manager and support" },
+  ] as FeatureItem[],
+};
+
+const WORK_TRAIL = {
+  pricePerAssignment: 30,
+  min: 1,
+  max: 100,
+  quickPicks: [1, 5, 10, 25],
+  priceList: [
+    { qty: 1, total: 30 },
+    { qty: 5, total: 150 },
+    { qty: 10, total: 300 },
+    { qty: 25, total: 750 },
+  ],
+  description:
+    "Work Trail assignments are real, mentored work tasks candidates complete on your behalf. Add them to either plan and pay per assignment.",
+};
+
+const EXTRA_SUBMISSION_PRICE = 5;
+
+const FAQS = [
+  {
+    q: "What counts as a submission?",
+    a: "Every completed candidate attempt is a submission — a coding assessment, a simulation lab task, or an AI mock interview. One candidate finishing one evaluation is one submission, no matter how long it takes them.",
+  },
+  {
+    q: "What is a repository setup?",
+    a: "A repository setup connects one of your codebases to Yuvro so candidates can be evaluated against your real code. It is configured once and can be reused across assessments. Repository setups never use submissions.",
+  },
+  {
+    q: "When do submissions reset?",
+    a: "Your submission pool resets at the start of every billing month — including on yearly plans, where you still get your monthly allotment each month rather than all at once.",
+  },
+  {
+    q: "What if I need more submissions?",
+    a: `Extra submissions are ${EXTRA_SUBMISSION_PRICE === 5 ? "$5" : `$${EXTRA_SUBMISSION_PRICE}`} each, added as you need them. Or contact us and we will size a plan for your hiring volume.`,
+  },
+  {
+    q: "How do yearly plans save money?",
+    a: "Yearly billing gives you two months free — you pay for ten months and get twelve. Startup is $990 per year and Growth is $4,490 per year.",
+  },
+  {
+    q: "Is Work Trail included in my plan?",
+    a: "Work Trail is an optional add-on on Startup and Growth plans. It is billed per assignment at $30 each, and you choose how many assignments you add. Enterprise plans can include custom Work Trail volumes.",
+  },
+];
 
 export function selectPlan(planId: string, billing: "monthly" | "yearly") {
   try {
     localStorage.setItem("yuvro-selected-plan", JSON.stringify({ planId, billing }));
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
+
+type Billing = "monthly" | "yearly";
 
 export function PricingContent({ onSubscribe }: { onSubscribe?: () => void }) {
-  const [yearly, setYearly] = useState(true);
-  const [selected, setSelected] = useState<string | null>("growth");
+  const [billing, setBilling] = useState<Billing>("monthly");
 
   return (
-    <>
-      <Header yearly={yearly} setYearly={setYearly} />
-      <FreeTrialCard onSubscribe={onSubscribe} />
-      <PlanCards yearly={yearly} selected={selected} setSelected={setSelected} onSubscribe={onSubscribe} />
-      <EnterpriseCard />
-      <TopUps />
-      <UsageWorks />
-      <Faq />
-    </>
-  );
-}
-
-function Pricing() {
-  return (
-    <div className="min-h-screen text-[#0A0A0A] antialiased selection:bg-[#0A0A0A] selection:text-white" style={{ background: "#FAFAF8" }}>
-      <PricingNav />
-      <PricingContent />
-      <FinalCTA />
-      <Footer />
+    <div className="ylp font-sans text-[#14192b] dark:text-[#f1f4fc] antialiased">
+      <style>{YLP_CSS}</style>
+      <div className="mx-auto w-full max-w-[1120px] px-6 py-6">
+        <Hero billing={billing} setBilling={setBilling} />
+        <TrialStrip onSubscribe={onSubscribe} />
+        <Plans billing={billing} onSubscribe={onSubscribe} />
+        <HowSubmissionsWork />
+        <Faq />
+        <ClosingBanner onSubscribe={onSubscribe} />
+      </div>
     </div>
   );
 }
 
+export function PricingPage() {
+  const [billing, setBilling] = useState<Billing>("monthly");
 
-function PricingNav() {
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-neutral-200">
-      <div className="mx-auto flex h-16 max-w-7xl items-center px-6">
-        <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <div className="grid h-8 w-8 place-items-center rounded-lg text-white font-mono text-sm" style={{ background: INK }}>Y</div>
-          <span className="text-base">Yuvro Labs</span>
-        </Link>
-        <nav className="ml-10 hidden md:flex items-center gap-7 text-sm text-[#6B6B6B]">
-          <Link to="/" hash="labs" className="hover:text-[#0A0A0A] transition">Labs</Link>
-          <Link to="/" hash="process" className="hover:text-[#0A0A0A] transition">How it works</Link>
-          <Link to="/pricing" className="text-[#0A0A0A] transition">Pricing</Link>
-          <Link to="/recruiter-login" className="hover:text-[#0A0A0A] transition">Recruiter Login</Link>
-        </nav>
-        <div className="ml-auto flex items-center gap-3">
-          <Link to="/auth" search={{ tab: "signin" }} className="text-sm text-[#6B6B6B] hover:text-[#0A0A0A] transition">Sign In</Link>
-          <Link to="/auth" search={{ tab: "signup" }} className="inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium text-white transition hover:brightness-95" style={{ background: AMBER }}>
-            Get Started <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
+    <div className="ylp min-h-screen bg-[#f8f9fb] dark:bg-[#0d1120] font-sans text-[#14192b] dark:text-[#f1f4fc] antialiased">
+      <style>{YLP_CSS}</style>
+      <StandardHeader />
+      <div className="mx-auto w-full max-w-[1120px] px-6 py-12">
+        <Hero billing={billing} setBilling={setBilling} />
+        <TrialStrip />
+        <Plans billing={billing} />
+        <HowSubmissionsWork />
+        <Faq />
+        <ClosingBanner />
+        <Footer />
       </div>
-    </header>
+    </div>
   );
 }
 
-function Header({ yearly, setYearly }: { yearly: boolean; setYearly: (v: boolean) => void }) {
+function Hero({
+  billing,
+  setBilling,
+}: {
+  billing: Billing;
+  setBilling: (b: Billing) => void;
+}) {
   return (
-    <section className="border-b" style={{ borderColor: BORDER }}>
-      <div className="mx-auto max-w-4xl px-6 pt-16 pb-12 text-center lg:pt-20">
-        <h1 className="text-[40px] lg:text-[58px] font-bold leading-[1.05] tracking-[-0.025em]">
-          Simple pricing. Built for growing teams.
-        </h1>
-        <p className="mx-auto mt-5 max-w-2xl text-[17px] leading-relaxed text-[#6B6B6B]">
-          Evaluate engineers with coding assessments, real-world engineering simulations, and AI technical interviews — without expensive enterprise contracts.
-        </p>
-        <div className="mt-8 flex flex-col items-center gap-3">
-          <div className="inline-flex items-center rounded-lg border bg-white p-1" style={{ borderColor: BORDER }}>
-            {(["Monthly", "Yearly"] as const).map((label) => {
-              const active = (label === "Yearly") === yearly;
-              return (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => setYearly(label === "Yearly")}
-                  className={`rounded-md px-4 py-1.5 text-sm font-medium transition ${active ? "text-white" : "text-[#6B6B6B] hover:text-[#0A0A0A]"}`}
-                  style={active ? { background: INK } : undefined}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-          <p className="text-[13px] text-[#6B6B6B]">Cancel anytime. No long-term commitment.</p>
-        </div>
-      </div>
+    <section className="pt-8 pb-12 text-center sm:pt-12">
+      <h1 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-[#14192b] dark:text-white sm:text-4xl lg:text-[44px] leading-tight">
+        Simple pricing. Built for startups and growing teams.
+      </h1>
+      <p className="mx-auto mt-4 max-w-xl text-[16px] text-[#646d84] dark:text-[#a1abc4]">
+        Choose a plan that fits your hiring needs.
+      </p>
+      <BillingToggle billing={billing} setBilling={setBilling} />
     </section>
   );
 }
 
-function FreeTrialCard({ onSubscribe }: { onSubscribe?: () => void }) {
+function BillingToggle({
+  billing,
+  setBilling,
+}: {
+  billing: Billing;
+  setBilling: (b: Billing) => void;
+}) {
+  return (
+    <div className="mt-8 flex justify-center">
+      <div className="inline-flex items-center rounded-full border border-[#646d84]/20 bg-neutral-100 dark:bg-card p-1">
+        <ToggleOption
+          active={billing === "monthly"}
+          onClick={() => setBilling("monthly")}
+          label="Monthly"
+        />
+        <ToggleOption
+          active={billing === "yearly"}
+          onClick={() => setBilling("yearly")}
+          label="Yearly"
+          hint="Save 2 months"
+        />
+      </div>
+    </div>
+  );
+}
+
+function ToggleOption({
+  active,
+  onClick,
+  label,
+  hint,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  hint?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+        active
+          ? "bg-white dark:bg-neutral-800 text-[#14192b] dark:text-white shadow-sm"
+          : "text-[#646d84] hover:text-[#14192b] dark:text-[#a1abc4] dark:hover:text-white"
+      }`}
+    >
+      {label}
+      {hint ? (
+        <span
+          className="rounded-full px-2 py-0.5 text-[11px] leading-none font-bold"
+          style={{ color: BRAND, backgroundColor: "rgba(247, 147, 30, 0.12)" }}
+        >
+          {hint}
+        </span>
+      ) : null}
+    </button>
+  );
+}
+
+function StartFreeButton({
+  className = "",
+  onSubscribe,
+}: {
+  className?: string;
+  onSubscribe?: () => void;
+}) {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -131,15 +292,20 @@ function FreeTrialCard({ onSubscribe }: { onSubscribe?: () => void }) {
       navigate({ to: "/auth", search: { tab: "signup" } });
       return;
     }
-    
+
     setIsLoading(true);
     try {
-      await yhubApiAuthUtil.post("/payment/start_trial/", {});
+      try {
+        await yhubApiAuthUtil.post("/payment/start_trial/", {});
+      } catch (e) {
+        // Fallback / sync with local ylabs backend if needed
+      }
+      await restApiAuthUtil.post("/recruiter/my-quota/", { plan_code: "free", billing_cycle: "trial" });
       toast.success("Free trial activated successfully!");
       if (onSubscribe) {
         onSubscribe();
       } else {
-        navigate({ to: "/recruiter/evaluations" });
+        navigate({ to: "/recruiter/dashboard" });
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to start trial");
@@ -148,97 +314,209 @@ function FreeTrialCard({ onSubscribe }: { onSubscribe?: () => void }) {
     }
   };
 
+  if (isAuthenticated) {
+    return (
+      <button
+        type="button"
+        onClick={handleStartTrial}
+        disabled={isLoading}
+        className={`ylp-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-50 ${className}`}
+      >
+        {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+        {isLoading ? "Starting..." : "Start free"}
+      </button>
+    );
+  }
+
   return (
-    <section className="mx-auto max-w-7xl px-6 pt-12">
-      <div className="rounded-xl border bg-white p-7 lg:p-8" style={{ borderColor: BORDER }}>
-        <div className="grid gap-8 lg:grid-cols-[0.9fr_1fr_1fr] lg:items-start">
-          <div>
-            <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6B6B6B]">Free Trial</div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-[40px] font-bold leading-none tracking-[-0.03em]">{freeTrial.price}</span>
-              <span className="text-[14px] text-[#6B6B6B]">/ {freeTrial.duration}</span>
-            </div>
-            <p className="mt-4 text-[14px] leading-relaxed text-[#6B6B6B]">
-              The natural entry point. Try the full evaluation workflow before choosing a plan.
-            </p>
-            <button
-              onClick={handleStartTrial}
-              disabled={isLoading}
-              className="mt-5 inline-flex items-center justify-center gap-1.5 rounded-md border bg-white px-4 py-2.5 text-sm font-medium transition hover:bg-[#F5F3EE] disabled:opacity-50"
-              style={{ borderColor: BORDER }}
-            >
-              {isLoading ? "Starting..." : freeTrial.cta} {!isLoading && <ArrowRight className="h-3.5 w-3.5" />}
-            </button>
-          </div>
-          <div className="border-t pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0" style={{ borderColor: BORDER }}>
-            <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6B6B6B]">Includes</div>
-            <ul className="mt-4 space-y-2.5 text-[14px]">
-              {freeTrial.includes.map((f) => (
-                <li key={f} className="flex gap-2.5">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "#1A8F5C" }} />
-                  <span>{f}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="border-t pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0" style={{ borderColor: BORDER }}>
-            <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6B6B6B]">Access includes</div>
-            <ul className="mt-4 grid gap-2.5 sm:grid-cols-2 text-[14px]">
-              {freeTrial.access.map((f) => (
-                <li key={f} className="flex gap-2.5">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "#1A8F5C" }} />
-                  <span>{f}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+    <Link
+      to="/auth"
+      search={{ tab: "signup" }}
+      className={`ylp-btn-primary inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 ${className}`}
+    >
+      Start free
+    </Link>
+  );
+}
+
+function TrialStrip({ onSubscribe }: { onSubscribe?: () => void }) {
+  return (
+    <section
+      className="mb-14 flex flex-col items-center justify-between gap-4 rounded-2xl border px-6 py-5 sm:flex-row shadow-sm"
+      style={{
+        borderColor: "rgba(247, 147, 30, 0.35)",
+        backgroundColor: "rgba(247, 147, 30, 0.07)",
+      }}
+    >
+      <div className="text-center sm:text-left">
+        <p className="text-[15px] font-bold text-[#14192b] dark:text-white">Start free. No credit card needed.</p>
+        <p className="mt-1 text-sm text-[#646d84] dark:text-[#a1abc4]">
+          {TRIAL.days} days, {TRIAL.submissions} submissions to use anywhere, and {TRIAL.repos}{" "}
+          codebase repository setup.
+        </p>
       </div>
+      <StartFreeButton className="shrink-0" onSubscribe={onSubscribe} />
     </section>
   );
 }
 
-function PlanCards({ yearly, selected, setSelected, onSubscribe }: { yearly: boolean; selected: string | null; setSelected: (id: string) => void; onSubscribe?: () => void }) {
-  const billing: "monthly" | "yearly" = yearly ? "yearly" : "monthly";
+function Plans({
+  billing,
+  onSubscribe,
+}: {
+  billing: Billing;
+  onSubscribe?: () => void;
+}) {
+  const [workTrailQty, setWorkTrailQty] = useState(0);
+  const [backendPackages, setBackendPackages] = useState<RecruiterPackageItem[]>([]);
+
+  useEffect(() => {
+    getRecruiterPackages().then((pkgs) => {
+      if (pkgs && pkgs.length > 0) {
+        setBackendPackages(pkgs);
+      }
+    });
+  }, []);
+
+  const startupPkg = backendPackages.find((p) => p.code === "startup");
+  const growthPkg = backendPackages.find((p) => p.code === "growth");
+  const enterprisePkg = backendPackages.find((p) => p.code === "enterprise");
+
+  const startupPlan = startupPkg
+    ? {
+        id: startupPkg.code,
+        name: startupPkg.name,
+        monthly: Number(startupPkg.monthly_price_usd),
+        yearlyTotal: Number(startupPkg.yearly_price_usd),
+        monthlyEquiv: Math.round(Number(startupPkg.yearly_price_usd) / 12),
+        submissionsMonthly: startupPkg.total_submissions,
+        submissionsYearly: startupPkg.total_submissions * 12,
+        features: startupPkg.features,
+      }
+    : STARTUP;
+
+  const growthPlan = growthPkg
+    ? {
+        id: growthPkg.code,
+        name: growthPkg.name,
+        monthly: Number(growthPkg.monthly_price_usd),
+        yearlyTotal: Number(growthPkg.yearly_price_usd),
+        monthlyEquiv: Math.round(Number(growthPkg.yearly_price_usd) / 12),
+        submissionsMonthly: growthPkg.total_submissions,
+        submissionsYearly: growthPkg.total_submissions * 12,
+        features: growthPkg.features,
+      }
+    : GROWTH;
+
+  const enterprisePlan = enterprisePkg
+    ? {
+        name: enterprisePkg.name,
+        features: enterprisePkg.features,
+      }
+    : ENTERPRISE;
+
+  const workTrailTotal =
+    workTrailQty > 0 ? workTrailQty * WORK_TRAIL.pricePerAssignment : 0;
+
+  const setWorkTrail = (qty: number) =>
+    setWorkTrailQty(Math.min(WORK_TRAIL.max, Math.max(0, qty)));
+
+  const workTrailLine =
+    workTrailQty > 0
+      ? `+ Work Trail: ${workTrailQty} assignment${workTrailQty === 1 ? "" : "s"} · $${workTrailTotal.toLocaleString("en-US")}`
+      : null;
+
+  return (
+    <section id="plans">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <PlanCard
+          order="order-2 lg:order-1"
+          plan={startupPlan}
+          billing={billing}
+          workTrailLine={workTrailLine}
+          onSubscribe={onSubscribe}
+        />
+        <PlanCard
+          order="order-1 lg:order-2"
+          plan={growthPlan}
+          featured
+          billing={billing}
+          workTrailLine={workTrailLine}
+          onSubscribe={onSubscribe}
+        />
+        <PlanCard order="order-3 lg:order-3" plan={enterprisePlan} billing={billing} />
+      </div>
+      <WorkTrailControls
+        qty={workTrailQty}
+        setQty={setWorkTrail}
+        total={workTrailTotal}
+      />
+    </section>
+  );
+}
+
+function PlanCard({
+  plan,
+  featured = false,
+  billing,
+  workTrailLine = null,
+  order,
+  onSubscribe,
+}: {
+  plan: typeof STARTUP | typeof GROWTH | typeof ENTERPRISE;
+  featured?: boolean;
+  billing: Billing;
+  workTrailLine?: string | null;
+  order: string;
+  onSubscribe?: () => void;
+}) {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [isPaying, setIsPaying] = useState<string | null>(null);
+  const [isPaying, setIsPaying] = useState(false);
 
-  const handleBuyPlan = async (p: any, price: number) => {
+  const isEnterprise = !("monthly" in plan);
+  const yearly = billing === "yearly";
+  const planAny = plan as typeof STARTUP;
+
+  const handleBuyPlan = async () => {
     if (!isAuthenticated) {
-      selectPlan(p.id, billing);
+      selectPlan(planAny.id, billing);
       navigate({ to: "/auth", search: { tab: "signup" } });
       return;
     }
-    
-    setIsPaying(p.id);
+
+    const price = yearly ? planAny.yearlyTotal : planAny.monthly;
+    setIsPaying(true);
     try {
       const orderRes = await yhubApiAuthUtil.post<{
         id: string;
         gateway_order_or_intent_id: string;
+        key_id?: string;
       }>("/payment/", {
         payment_gateway: "RAZORPAY",
         amount: price,
         currency: "USD",
         item_type: "plan",
-        item_id: p.id,
-        item_name: `${p.name} (${billing})`,
+        item_id: planAny.id,
+        item_name: `${planAny.name} (${billing})`,
         product: "ylabs",
       });
 
       const isLoaded = await loadRazorpayScript();
       if (!isLoaded) {
         toast.error("Razorpay SDK failed to load. Are you online?");
-        setIsPaying(null);
+        setIsPaying(false);
         return;
       }
 
+      const rzpKey = orderRes.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID;
+
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key: rzpKey,
         amount: price,
         currency: "USD",
         name: "Yuvro Labs",
-        description: `${p.name} Plan Subscription`,
+        description: `${planAny.name} Plan Subscription`,
         order_id: orderRes.gateway_order_or_intent_id,
         handler: async function (response: any) {
           try {
@@ -252,6 +530,15 @@ function PlanCards({ yearly, selected, setSelected, onSubscribe }: { yearly: boo
             );
 
             if (verifyRes.status === "SUCCESS") {
+              try {
+                await restApiAuthUtil.post("/recruiter/my-quota/", {
+                  plan_code: planAny.id,
+                  billing_cycle: billing,
+                });
+              } catch (e) {
+                console.warn("Could not sync recruiter quota:", e);
+              }
+
               toast.success("Subscription activated successfully!");
               if (onSubscribe) {
                 onSubscribe();
@@ -269,7 +556,7 @@ function PlanCards({ yearly, selected, setSelected, onSubscribe }: { yearly: boo
             console.error(error);
             toast.error(error.message || "Payment verification failed");
           } finally {
-            setIsPaying(null);
+            setIsPaying(false);
           }
         },
         prefill: {
@@ -277,11 +564,11 @@ function PlanCards({ yearly, selected, setSelected, onSubscribe }: { yearly: boo
           email: user?.email || "",
         },
         theme: {
-          color: "#0A0A0A",
+          color: BRAND,
         },
         modal: {
           ondismiss: async function () {
-            setIsPaying(null);
+            setIsPaying(false);
             toast.info("Payment cancelled");
             try {
               await yhubApiAuthUtil.post("/payment/fail/", {
@@ -298,241 +585,287 @@ function PlanCards({ yearly, selected, setSelected, onSubscribe }: { yearly: boo
       rzp.on("payment.failed", async function (response: any) {
         try {
           await yhubApiAuthUtil.post("/payment/fail/", {
-            gateway_order_id: response.error.metadata.order_id,
-            gateway_payment_id: response.error.metadata.payment_id,
-            reason: response.error.description,
+            gateway_order_id: response.error?.metadata?.order_id,
+            gateway_payment_id: response.error?.metadata?.payment_id,
+            reason: response.error?.description,
           });
         } catch (e) {}
-        toast.error(response.error.description || "Payment failed");
-        setIsPaying(null);
+        toast.error(response.error?.description || "Payment failed");
+        setIsPaying(false);
       });
 
       rzp.open();
     } catch (error: any) {
       console.error(error);
-      toast.error("Failed to initiate payment.");
-      setIsPaying(null);
+      toast.error(error?.message || "Failed to initiate payment.");
+      setIsPaying(false);
     }
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-14">
-      <div className="grid gap-6 md:grid-cols-3">
-        {plans.map((p) => {
-          const price = yearly ? p.yearly : p.monthly;
-          const isSelected = selected === p.id;
-          return (
-            <div
-              key={p.id}
-              onClick={() => setSelected(p.id)}
-              className={`relative flex cursor-pointer flex-col rounded-xl bg-white p-7 transition hover:-translate-y-0.5 ${isSelected || p.popular ? "border-2" : "border"}`}
-              style={{ borderColor: isSelected ? INK : p.popular ? INK : BORDER }}
-            >
-              {p.popular && (
-                <span className="absolute -top-3 left-7 rounded-full px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-white" style={{ background: AMBER }}>
-                  Most Popular
-                </span>
-              )}
-              <div className="flex items-center justify-between">
-                <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6B6B6B]">{p.name}</div>
-                {isSelected && (
-                  <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6B6B6B]">Selected</span>
-                )}
-              </div>
-              <div className="mt-4 flex items-baseline gap-1.5">
-                <span className="text-[48px] font-bold leading-none tracking-[-0.03em]">${price.toLocaleString()}</span>
-                <span className="text-[14px] text-[#6B6B6B]">{yearly ? "/ year" : "/ month"}</span>
-              </div>
-              <div className="mt-1.5 text-[12px] text-[#6B6B6B]">
-                {yearly ? `billed yearly · $${p.monthly}/month equivalent` : "billed monthly"}
-              </div>
-              <p className="mt-4 text-[14px] leading-relaxed text-[#6B6B6B]">{p.tagline}</p>
+    <div
+      className={`${order} flex flex-col rounded-2xl border bg-white dark:bg-card p-7 shadow-sm transition-all hover:shadow-md ${
+        featured ? "border-2 relative ring-1 ring-[#F7931E]/20" : "border-[#646d84]/15"
+      }`}
+      style={featured ? { borderColor: BRAND } : undefined}
+    >
+      <div className="flex items-baseline justify-between">
+        <h2 className="text-xl font-bold">{plan.name}</h2>
+        {featured ? (
+          <span
+            className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#f7931e]/10"
+            style={{ color: BRAND }}
+          >
+            Most popular
+          </span>
+        ) : null}
+      </div>
 
-              <div className="mt-6">
-                <button
-                  onClick={() => { setSelected(p.id); handleBuyPlan(p, price); }}
-                  disabled={isPaying === p.id}
-                  className={`mt-6 inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2.5 text-sm font-medium transition ${p.popular ? "text-white hover:brightness-95 disabled:bg-neutral-600" : "border text-[#0A0A0A] hover:bg-[#F5F3EE] disabled:opacity-50"}`}
-                  style={p.popular && isPaying !== p.id ? { background: INK } : p.popular ? undefined : { borderColor: BORDER, background: "#fff" }}
-                >
-                  {isPaying === p.id ? "Processing..." : p.cta} {isPaying !== p.id && <ArrowRight className="h-3.5 w-3.5" />}
-                </button>
-              </div>
+      <div className="mt-5">
+        {isEnterprise ? (
+          <>
+            <div className="text-3xl font-bold tracking-tight text-[#14192b] dark:text-white">Custom</div>
+            <p className="mt-1 text-sm text-[#646d84] dark:text-[#a1abc4]">Tailored to your hiring volume</p>
+          </>
+        ) : (
+          <>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-4xl font-bold tracking-tight text-[#14192b] dark:text-white">
+                ${yearly ? planAny.monthlyEquiv.toLocaleString("en-US") : planAny.monthly.toLocaleString("en-US")}
+              </span>
+              <span className="text-sm font-semibold text-[#646d84] dark:text-[#a1abc4]">/mo</span>
+            </div>
+            <p className="mt-1 text-sm text-[#646d84] dark:text-[#a1abc4]">
+              {yearly
+                ? `$${planAny.yearlyTotal.toLocaleString("en-US")} billed annually`
+                : "Billed monthly"}
+            </p>
+          </>
+        )}
+        {workTrailLine ? (
+          <p className="mt-2 text-[13px] font-semibold" style={{ color: BRAND }}>
+            {workTrailLine}
+          </p>
+        ) : null}
+      </div>
 
-              <ul className="mt-7 space-y-2.5 border-t pt-6 text-[14px]" style={{ borderColor: BORDER }}>
-                {p.features.map((f) => (
-                  <li key={f} className="flex gap-2.5">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "#1A8F5C" }} />
-                    <span className="text-[#0A0A0A]">{f}</span>
+      <ul className="mt-6 flex flex-col gap-3.5 border-t border-[#646d84]/15 pt-6 text-sm text-[#14192b] dark:text-[#f1f4fc]">
+        {plan.features.map((item, idx) => (
+          <li key={idx} className="flex flex-col gap-1.5 leading-snug">
+            <div className="flex items-start gap-2.5">
+              <span className="mt-0.5 text-[#f7931e] font-bold">✓</span>
+              <span>{item.text}</span>
+            </div>
+            {item.subItems && (
+              <ul className="ml-7 list-disc space-y-1 pl-1 text-[13px] text-[#646d84] dark:text-[#a1abc4] marker:text-[#646d84]">
+                {item.subItems.map((sub) => (
+                  <li key={sub} className="leading-snug">
+                    {sub}
                   </li>
                 ))}
               </ul>
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-8 rounded-lg border bg-white px-5 py-4 text-[13px] leading-relaxed text-[#6B6B6B]" style={{ borderColor: BORDER }}>
-        <p>{rolloverNote}</p>
-        <p className="mt-1.5">{topUpNote}</p>
-      </div>
-    </section>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-8 flex-1" />
+      {isEnterprise ? (
+        <Link
+          to="/book-demo"
+          className="ylp-btn-outline inline-flex items-center justify-center rounded-full border border-[#646d84]/25 px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
+        >
+          Contact us
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={handleBuyPlan}
+          disabled={isPaying}
+          className="ylp-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-50"
+        >
+          {isPaying && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isPaying ? "Processing..." : isAuthenticated ? "Upgrade plan" : "Start free"}
+        </button>
+      )}
+    </div>
   );
 }
 
+function WorkTrailControls({
+  qty,
+  setQty,
+  total,
+}: {
+  qty: number;
+  setQty: (n: number) => void;
+  total: number;
+}) {
+  const added = qty > 0;
 
-function EnterpriseCard() {
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-16">
-      <div className="rounded-xl border bg-white p-8 lg:p-10" style={{ borderColor: BORDER }}>
-        <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr]">
-          <div>
-            <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6B6B6B]">Enterprise</div>
-            <h2 className="mt-3 text-[26px] font-bold leading-tight tracking-[-0.02em]">{enterprise.heading}</h2>
-            <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-[#6B6B6B]">{enterprise.body}</p>
-            <div className="mt-6 flex flex-wrap items-center gap-4">
-              <span className="text-[28px] font-bold tracking-[-0.02em]">{enterprise.price}</span>
-              <a href="mailto:sales@yuvrolabs.com" className="inline-flex items-center gap-1.5 rounded-md px-4 py-2.5 text-sm font-medium text-white transition hover:brightness-95" style={{ background: INK }}>
-                {enterprise.cta} <ArrowRight className="h-3.5 w-3.5" />
-              </a>
-            </div>
+    <div className="mt-8 grid grid-cols-1 gap-6 rounded-2xl border border-[#646d84]/15 bg-white dark:bg-card p-7 lg:grid-cols-[1fr_auto] shadow-sm">
+      <div>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-lg font-bold">Work Trail</h2>
+          <span
+            className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#f7931e]/10"
+            style={{ color: BRAND }}
+          >
+            Optional add-on · ${WORK_TRAIL.pricePerAssignment} per assignment
+          </span>
+        </div>
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#646d84] dark:text-[#a1abc4]">
+          {WORK_TRAIL.description}
+        </p>
+
+        <div className="mt-5 flex flex-wrap items-center gap-4">
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold select-none">
+            <input
+              type="checkbox"
+              checked={added}
+              onChange={(e) => setQty(e.target.checked ? 5 : 0)}
+              className="ylp-checkbox h-4 w-4 rounded"
+            />
+            Add Work Trail assignments
+          </label>
+        </div>
+
+        {added ? (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-[#646d84] dark:text-[#a1abc4]">Quick picks:</span>
+            {WORK_TRAIL.quickPicks.map((count) => (
+              <button
+                key={count}
+                type="button"
+                onClick={() => setQty(count)}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                  qty === count
+                    ? "bg-[#14192b] text-white dark:bg-white dark:text-black"
+                    : "border border-[#646d84]/20 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                }`}
+              >
+                {count} {count === 1 ? "assignment" : "assignments"}
+              </button>
+            ))}
           </div>
-          <ul className="grid gap-2.5 sm:grid-cols-2 text-[14px]">
-            {enterprise.features.map((f) => (
-              <li key={f} className="flex gap-2.5">
-                <Check className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "#1A8F5C" }} />
-                <span>{f}</span>
+        ) : null}
+      </div>
+
+      <div className="flex flex-col justify-between border-t border-[#646d84]/15 pt-5 lg:border-t-0 lg:border-l lg:pl-8 lg:pt-0">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-[#646d84] dark:text-[#a1abc4]">
+            Price list
+          </span>
+          <ul className="mt-3 flex flex-col gap-2 text-sm">
+            {WORK_TRAIL.priceList.map((row) => (
+              <li key={row.qty} className="flex items-center justify-between gap-8">
+                <span className="text-[#646d84] dark:text-[#a1abc4]">
+                  {row.qty} assignment{row.qty === 1 ? "" : "s"}
+                </span>
+                <span className="font-bold">${row.total.toLocaleString("en-US")}</span>
               </li>
             ))}
           </ul>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
-function TopUps() {
+function HowSubmissionsWork() {
   return (
-    <section className="border-y bg-white" style={{ borderColor: BORDER }}>
-      <div className="mx-auto max-w-7xl px-6 py-16">
-        <h2 className="text-[30px] font-bold tracking-[-0.02em]">Need more credits?</h2>
-        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[#6B6B6B]">
-          Your subscription includes monthly usage. If your hiring increases in a particular month, simply add more capacity without changing your plan.
-        </p>
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {topUps.map((t) => (
-            <div key={t.id} className="rounded-xl border p-7 transition hover:-translate-y-0.5" style={{ borderColor: BORDER, background: "#FAFAF8" }}>
-              <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6B6B6B]">{t.title}</div>
-              <ul className="mt-5 divide-y" style={{ borderColor: BORDER }}>
-                {t.options.map((o) => (
-                  <li key={o.label} className="flex items-center justify-between py-3 text-[15px]">
-                    <span className="text-[#0A0A0A]">{o.label}</span>
-                    <span className="font-semibold">{o.price}</span>
-                  </li>
-                ))}
-              </ul>
-              <button type="button" className="mt-6 inline-flex w-full items-center justify-center gap-1.5 rounded-md border bg-white px-4 py-2.5 text-sm font-medium transition hover:bg-[#F5F3EE]" style={{ borderColor: BORDER }}>
-                {t.cta} <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ))}
+    <section className="mt-16">
+      <h2 className="text-2xl font-bold tracking-tight text-[#14192b] dark:text-white">How submissions work</h2>
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="rounded-2xl border border-[#646d84]/15 bg-white dark:bg-card p-7 shadow-sm">
+          <h3 className="text-[16px] font-bold text-[#14192b] dark:text-white">One shared pool</h3>
+          <p className="mt-2 text-sm leading-relaxed text-[#646d84] dark:text-[#a1abc4]">
+            Coding assessments, simulation labs and AI mock interviews all draw from the same
+            submission pool. Use them in any mix that suits your hiring round — the pool resets
+            every billing month, including on yearly plans.
+          </p>
         </div>
-        <p className="mt-6 text-[13px] text-[#6B6B6B]">Top-up credits remain available beyond your monthly subscription cycle.</p>
-      </div>
-    </section>
-  );
-}
-
-function UsageWorks() {
-  return (
-    <section className="mx-auto max-w-7xl px-6 py-16">
-      <h2 className="text-[30px] font-bold tracking-[-0.02em]">How usage works</h2>
-      <div className="mt-8 grid gap-8 md:grid-cols-3">
-        {usageExplainers.map((u) => (
-          <div key={u.title} className="border-t pt-6" style={{ borderColor: BORDER }}>
-            <h3 className="text-[17px] font-semibold">{u.title}</h3>
-            <p className="mt-3 text-[14px] leading-relaxed text-[#6B6B6B]">{u.body}</p>
-            {u.footnote && (
-              <p className="mt-3 font-mono text-[12px] leading-relaxed" style={{ color: MUTED }}>
-                <span className="mr-1.5 inline-block h-1.5 w-1.5 translate-y-[-1px] rounded-full align-middle" style={{ background: AMBER }} />
-                {u.footnote}
-              </p>
-            )}
-          </div>
-        ))}
+        <div className="rounded-2xl border border-[#646d84]/15 bg-white dark:bg-card p-7 shadow-sm">
+          <h3 className="text-[16px] font-bold text-[#14192b] dark:text-white">Repository setups are separate</h3>
+          <p className="mt-2 text-sm leading-relaxed text-[#646d84] dark:text-[#a1abc4]">
+            Connecting a codebase for evaluation never uses a submission. Repository setups are
+            configured once per codebase and stay available for reuse across assessments.
+          </p>
+        </div>
       </div>
     </section>
   );
 }
 
 function Faq() {
-  const [open, setOpen] = useState<number | null>(0);
   return (
-    <section className="border-y bg-white" style={{ borderColor: BORDER }}>
-      <div className="mx-auto max-w-3xl px-6 py-16">
-        <h2 className="text-[30px] font-bold tracking-[-0.02em]">Frequently asked questions</h2>
-        <div className="mt-8 border-t" style={{ borderColor: BORDER }}>
-          {faqs.map((f, i) => {
-            const isOpen = open === i;
-            return (
-              <div key={f.q} className="border-b" style={{ borderColor: BORDER }}>
-                <button
-                  type="button"
-                  onClick={() => setOpen(isOpen ? null : i)}
-                  aria-expanded={isOpen}
-                  className="flex w-full items-center justify-between gap-6 py-4 text-left text-[15px] font-medium transition hover:text-[#0A0A0A]"
-                >
-                  <span>{f.q}</span>
-                  {isOpen ? <Minus className="h-4 w-4 shrink-0 text-[#6B6B6B]" /> : <Plus className="h-4 w-4 shrink-0 text-[#6B6B6B]" />}
-                </button>
-                {isOpen && <p className="pb-5 pr-10 text-[14px] leading-relaxed text-[#6B6B6B]">{f.a}</p>}
-              </div>
-            );
-          })}
-        </div>
+    <section className="mt-16">
+      <h2 className="text-2xl font-bold tracking-tight text-[#14192b] dark:text-white">Frequently asked questions</h2>
+      <div className="mt-6 flex flex-col divide-y divide-[#646d84]/15">
+        {FAQS.map((item, i) => (
+          <details
+            key={item.q}
+            className="group py-4 cursor-pointer"
+            open={i === 0}
+          >
+            <summary className="list-none text-[16px] font-semibold text-[#14192b] dark:text-white marker:hidden flex items-center justify-between">
+              <span>{item.q}</span>
+              <span className="ml-4 text-xs font-bold text-[#646d84] group-open:rotate-180 transition-transform">
+                ▼
+              </span>
+            </summary>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[#646d84] dark:text-[#a1abc4]">
+              {item.a}
+            </p>
+          </details>
+        ))}
       </div>
     </section>
   );
 }
 
-function FinalCTA() {
+function ClosingBanner({ onSubscribe }: { onSubscribe?: () => void }) {
   return (
-    <section className="px-6 py-20">
-      <div className="mx-auto max-w-5xl rounded-2xl px-8 py-16 text-center lg:px-16" style={{ background: INK }}>
-        <h2 className="text-[34px] lg:text-[42px] font-bold leading-tight tracking-[-0.025em] text-white">
-          Start evaluating engineers differently.
-        </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-[16px] leading-relaxed text-white/70">
-          Coding assessments tell you whether candidates can solve a problem. Yuvro Labs helps you evaluate how they debug, review, reason, and work through real engineering problems.
-        </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Link to="/auth" search={{ tab: "signup" }} className="inline-flex items-center gap-1.5 rounded-md px-5 py-2.5 text-sm font-medium text-white transition hover:brightness-95" style={{ background: AMBER }}>
-            Start Free Trial <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-          <a href="mailto:sales@yuvrolabs.com" className="inline-flex items-center gap-1.5 rounded-md border border-white/25 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-white/10">
-            Talk to Sales
-          </a>
-        </div>
-        <p className="mt-5 font-mono text-[12px] text-white/50">15-day free trial · Cancel anytime</p>
-      </div>
+    <section
+      className="mt-16 flex flex-col items-center justify-between gap-4 rounded-2xl border px-8 py-6 sm:flex-row shadow-sm"
+      style={{
+        borderColor: "rgba(247, 147, 30, 0.35)",
+        backgroundColor: "rgba(247, 147, 30, 0.07)",
+      }}
+    >
+      <p className="text-[16px] font-bold text-[#14192b] dark:text-white">Try Yuvro free for {TRIAL.days} days</p>
+      <StartFreeButton className="shrink-0" onSubscribe={onSubscribe} />
     </section>
   );
 }
 
 function Footer() {
   return (
-    <footer className="border-t bg-white" style={{ borderColor: BORDER }}>
-      <div className="mx-auto max-w-7xl px-6 py-10 flex flex-wrap items-center justify-between gap-4 font-mono text-[12px] text-[#6B6B6B]">
-        <div className="flex items-center gap-2">
-          <GitCommit className="h-3.5 w-3.5" />
-          <span>© {new Date().getFullYear()} Yuvro Labs · Engineering Capability Verification</span>
-        </div>
+    <footer className="mt-16 border-t border-[#646d84]/15 py-8">
+      <div className="flex flex-col items-center justify-between gap-4 text-sm text-[#646d84] dark:text-[#a1abc4] sm:flex-row">
+        <span>© {new Date().getFullYear()} Yuvro Labs. All rights reserved.</span>
         <div className="flex items-center gap-6">
-          <a href="#" className="hover:text-[#0A0A0A]">Privacy</a>
-          <a href="#" className="hover:text-[#0A0A0A]">Terms</a>
-          <a href="#" className="hover:text-[#0A0A0A]">Security</a>
-          <a href="#" className="hover:text-[#0A0A0A]">Contact</a>
+          <Link to="/" className="hover:text-[#14192b] dark:hover:text-white transition-colors">
+            Home
+          </Link>
+          <Link to="/book-demo" className="hover:text-[#14192b] dark:hover:text-white transition-colors">
+            Book a demo
+          </Link>
+          <a href="mailto:contact@yuvrolabs.com" className="hover:text-[#14192b] dark:hover:text-white transition-colors">
+            contact@yuvrolabs.com
+          </a>
         </div>
       </div>
     </footer>
   );
 }
+
+const YLP_CSS = `
+.ylp-btn-primary { background-color: ${BRAND}; }
+.ylp-btn-outline:hover { background-color: rgba(0, 0, 0, 0.04); }
+.ylp details summary::-webkit-details-marker { display: none; }
+.ylp-checkbox { accent-color: ${BRAND}; }
+`;
+
+export default PricingPage;

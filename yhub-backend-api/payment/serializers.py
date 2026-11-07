@@ -20,6 +20,8 @@ class PaymentCreateSerializer(serializers.ModelSerializer):
 
 
 class PaymentSerializer(serializers.ModelSerializer):
+    key_id = serializers.SerializerMethodField()
+
     class Meta:
         model = Payment
         fields = [
@@ -36,9 +38,14 @@ class PaymentSerializer(serializers.ModelSerializer):
             "gateway_customer_reference_id",
             "gateway_session_reference_id",
             "gateway_response",
+            "key_id",
             "created_at",
             "updated_at",
         ]
+
+    def get_key_id(self, obj):
+        from django.conf import settings
+        return getattr(settings, "RAZORPAY_KEY_ID", "")
 
 
 class RefundSerializer(serializers.ModelSerializer):

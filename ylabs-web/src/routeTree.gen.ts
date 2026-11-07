@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as YuvrolabsPricingRouteImport } from './routes/yuvrolabs-pricing'
+import { Route as YuvrolabsRouteImport } from './routes/yuvrolabs'
 import { Route as SystemDesignStudioRouteImport } from './routes/system-design-studio'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as RecruiterSignupRouteImport } from './routes/recruiter-signup'
@@ -19,6 +21,7 @@ import { Route as MockInterviewsRouteImport } from './routes/mock-interviews'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as EvaluationRouteImport } from './routes/evaluation'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as BookDemoRouteImport } from './routes/book-demo'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -74,6 +77,16 @@ import { Route as StudentCollaborationSprintIdReportIndividualRouteImport } from
 import { Route as AdminUsersIdLabsSlugReportRouteImport } from './routes/admin.users.$id.labs.$slug.report'
 import { Route as AdminStudentReportUserIdLabIdTicketTicketIdReviewRouteImport } from './routes/admin.student-report.$userId.$labId.ticket.$ticketId.review'
 
+const YuvrolabsPricingRoute = YuvrolabsPricingRouteImport.update({
+  id: '/yuvrolabs-pricing',
+  path: '/yuvrolabs-pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const YuvrolabsRoute = YuvrolabsRouteImport.update({
+  id: '/yuvrolabs',
+  path: '/yuvrolabs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SystemDesignStudioRoute = SystemDesignStudioRouteImport.update({
   id: '/system-design-studio',
   path: '/system-design-studio',
@@ -122,6 +135,11 @@ const EvaluationRoute = EvaluationRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookDemoRoute = BookDemoRouteImport.update({
+  id: '/book-demo',
+  path: '/book-demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -414,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/book-demo': typeof BookDemoRoute
   '/dashboard': typeof DashboardRoute
   '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
@@ -424,6 +443,8 @@ export interface FileRoutesByFullPath {
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
+  '/yuvrolabs': typeof YuvrolabsRoute
+  '/yuvrolabs-pricing': typeof YuvrolabsPricingRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
@@ -479,6 +500,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/book-demo': typeof BookDemoRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/mock-interviews': typeof MockInterviewsRoute
@@ -487,6 +509,8 @@ export interface FileRoutesByTo {
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
+  '/yuvrolabs': typeof YuvrolabsRoute
+  '/yuvrolabs-pricing': typeof YuvrolabsPricingRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
@@ -543,6 +567,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/book-demo': typeof BookDemoRoute
   '/dashboard': typeof DashboardRoute
   '/evaluation': typeof EvaluationRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
@@ -553,6 +578,8 @@ export interface FileRoutesById {
   '/recruiter-signup': typeof RecruiterSignupRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
+  '/yuvrolabs': typeof YuvrolabsRoute
+  '/yuvrolabs-pricing': typeof YuvrolabsPricingRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
@@ -611,6 +638,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/auth'
+    | '/book-demo'
     | '/dashboard'
     | '/evaluation'
     | '/forgot-password'
@@ -621,6 +649,8 @@ export interface FileRouteTypes {
     | '/recruiter-signup'
     | '/student'
     | '/system-design-studio'
+    | '/yuvrolabs'
+    | '/yuvrolabs-pricing'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
@@ -676,6 +706,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/book-demo'
     | '/dashboard'
     | '/forgot-password'
     | '/mock-interviews'
@@ -684,6 +715,8 @@ export interface FileRouteTypes {
     | '/recruiter-signup'
     | '/student'
     | '/system-design-studio'
+    | '/yuvrolabs'
+    | '/yuvrolabs-pricing'
     | '/admin/questions'
     | '/admin/recruiters'
     | '/evaluation/complete'
@@ -739,6 +772,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/auth'
+    | '/book-demo'
     | '/dashboard'
     | '/evaluation'
     | '/forgot-password'
@@ -749,6 +783,8 @@ export interface FileRouteTypes {
     | '/recruiter-signup'
     | '/student'
     | '/system-design-studio'
+    | '/yuvrolabs'
+    | '/yuvrolabs-pricing'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
@@ -806,6 +842,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
+  BookDemoRoute: typeof BookDemoRoute
   DashboardRoute: typeof DashboardRoute
   EvaluationRoute: typeof EvaluationRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -816,6 +853,8 @@ export interface RootRouteChildren {
   RecruiterSignupRoute: typeof RecruiterSignupRoute
   StudentRoute: typeof StudentRouteWithChildren
   SystemDesignStudioRoute: typeof SystemDesignStudioRoute
+  YuvrolabsRoute: typeof YuvrolabsRoute
+  YuvrolabsPricingRoute: typeof YuvrolabsPricingRoute
   GithubCallbackRoute: typeof GithubCallbackRoute
   MockInterviewSlugRoute: typeof MockInterviewSlugRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
@@ -824,6 +863,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/yuvrolabs-pricing': {
+      id: '/yuvrolabs-pricing'
+      path: '/yuvrolabs-pricing'
+      fullPath: '/yuvrolabs-pricing'
+      preLoaderRoute: typeof YuvrolabsPricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/yuvrolabs': {
+      id: '/yuvrolabs'
+      path: '/yuvrolabs'
+      fullPath: '/yuvrolabs'
+      preLoaderRoute: typeof YuvrolabsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/system-design-studio': {
       id: '/system-design-studio'
       path: '/system-design-studio'
@@ -892,6 +945,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book-demo': {
+      id: '/book-demo'
+      path: '/book-demo'
+      fullPath: '/book-demo'
+      preLoaderRoute: typeof BookDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -1507,6 +1567,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
+  BookDemoRoute: BookDemoRoute,
   DashboardRoute: DashboardRoute,
   EvaluationRoute: EvaluationRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
@@ -1517,6 +1578,8 @@ const rootRouteChildren: RootRouteChildren = {
   RecruiterSignupRoute: RecruiterSignupRoute,
   StudentRoute: StudentRouteWithChildren,
   SystemDesignStudioRoute: SystemDesignStudioRoute,
+  YuvrolabsRoute: YuvrolabsRoute,
+  YuvrolabsPricingRoute: YuvrolabsPricingRoute,
   GithubCallbackRoute: GithubCallbackRoute,
   MockInterviewSlugRoute: MockInterviewSlugRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
