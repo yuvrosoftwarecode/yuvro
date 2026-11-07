@@ -380,97 +380,62 @@
    Only overrides visuals inside .recruiter-theme.
    ============================================================ */
 .recruiter-theme {
-  --rec-bg: #fdfdfb;
+  --rec-bg: #ffffff;
   --rec-surface: #ffffff;
   --rec-surface-2: #ffffff;
-  --rec-fg: #0f1115;
-  --rec-fg-soft: #2b2e35;
-  --rec-muted: #565a63;
-  --rec-muted-2: #7a7e87;
-  --rec-border: rgba(17, 20, 26, 0.08);
-  --rec-border-strong: rgba(17, 20, 26, 0.16);
-  --rec-overlay-1: rgba(17, 20, 26, 0.025);
-  --rec-overlay-2: rgba(17, 20, 26, 0.045);
-  --rec-overlay-3: rgba(17, 20, 26, 0.07);
-  --rec-accent: #0f1115;
-  --rec-accent-fg: #fafaf7;
-  --rec-success: #2f7a4d;
-  --rec-success-soft: rgba(47, 122, 77, 0.1);
-  --rec-warning: #9a5b16;
-  --rec-warning-soft: rgba(154, 91, 22, 0.1);
-  --rec-danger: #a83232;
+  --rec-fg: #171717;
+  --rec-fg-soft: #4d4d4d;
+  --rec-muted: #4d4d4d;
+  --rec-muted-2: #6b6b6b;
+  --rec-border: #e5e5e5;
+  --rec-border-strong: #e5e5e5;
+  --rec-overlay-1: #fffdfb;
+  --rec-overlay-2: #fffbf6;
+  --rec-overlay-3: #ffebd1;
+  --rec-accent: #f7931e;
+  --rec-accent-hover: #e5820f;
+  --rec-accent-fg: #ffffff;
+  --rec-active: #ffebd1;
+  --rec-link-hover: #b45f06;
+  --rec-success: #6b6b6b;
+  --rec-success-soft: transparent;
+  --rec-warning: #6b6b6b;
+  --rec-warning-soft: transparent;
+  --rec-danger: #dc2626;
   --rec-menu-bg: #ffffff;
 
-  font-family:
-    "Inter",
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
-  font-feature-settings: "cv02", "cv03", "cv11";
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 22px;
   background-color: var(--rec-bg) !important;
   color: var(--rec-fg) !important;
 }
 
-.dark .recruiter-theme {
-  --rec-bg: #0a0a0b;
-  --rec-surface: rgba(0, 0, 0, 0.4);
-  --rec-surface-2: rgba(0, 0, 0, 0.6);
-  --rec-fg: #f5f5f5;
-  --rec-fg-soft: #d4d4d4;
-  --rec-muted: #a3a3a3;
-  --rec-muted-2: #a3a3a3;
-  --rec-border: rgba(255, 255, 255, 0.05);
-  --rec-border-strong: rgba(255, 255, 255, 0.1);
-  --rec-overlay-1: rgba(255, 255, 255, 0.02);
-  --rec-overlay-2: rgba(255, 255, 255, 0.06);
-  --rec-overlay-3: rgba(255, 255, 255, 0.1);
-  --rec-accent: #ffffff;
-  --rec-accent-fg: #000000;
-  --rec-success: #34d399;
-  --rec-success-soft: rgba(52, 211, 153, 0.1);
-  --rec-warning: #fbbf24;
-  --rec-warning-soft: rgba(251, 191, 36, 0.1);
-  --rec-danger: #f87171;
-  --rec-menu-bg: #0a0a0b;
-}
+/* Unified recruiter system: Inter only, sentence case, no shadows */
+.recruiter-theme, .recruiter-theme * { font-family: "Inter", ui-sans-serif, system-ui, sans-serif !important; }
+.recruiter-theme .uppercase, .recruiter-theme .capitalize { text-transform: none !important; }
+.recruiter-theme [class*="tracking-"] { letter-spacing: normal !important; }
+.recruiter-theme [class*="shadow"] { box-shadow: none !important; }
+.recruiter-theme h1 { font-size: 24px !important; line-height: 32px !important; font-weight: 600 !important; letter-spacing: normal; }
+.recruiter-theme h2 { font-size: 20px !important; line-height: 28px !important; font-weight: 600 !important; }
+.recruiter-theme .rounded-2xl, .recruiter-theme .rounded-xl { border-radius: 12px !important; }
+.recruiter-theme button.rounded-lg, .recruiter-theme input, .recruiter-theme select, .recruiter-theme textarea { border-radius: 8px; }
+.recruiter-theme :focus-visible { outline: 2px solid var(--rec-accent); outline-offset: 2px; }
 
-.dark .recruiter-theme .recruiter-glow {
-  display: block;
-}
-
-/* Serif display for headings + oversized numerals */
-.recruiter-theme h1,
-.recruiter-theme h2,
-.recruiter-theme .text-\[26px\],
-.recruiter-theme .text-\[28px\],
-.recruiter-theme .text-\[32px\],
-.recruiter-theme .text-\[34px\],
-.recruiter-theme .text-\[42px\] {
-  font-family: "Fraunces", "Instrument Serif", ui-serif, Georgia, serif;
-  font-weight: 500 !important;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  color: var(--rec-fg);
-  font-optical-sizing: auto;
-}
-.recruiter-theme .text-\[42px\] {
-  font-size: 30px !important;
-}
-.recruiter-theme .text-\[34px\] {
-  font-size: 26px !important;
-}
-.recruiter-theme .text-\[32px\] {
-  font-size: 26px !important;
-}
-.recruiter-theme .text-\[28px\] {
-  font-size: 24px !important;
-}
-.recruiter-theme .text-\[26px\] {
-  font-size: 22px !important;
-}
+/* Semantic recruiter utilities */
+.rec-btn { display:inline-flex; align-items:center; justify-content:center; border-radius:8px; background:var(--rec-accent); color:var(--rec-accent-fg) !important; padding:10px 16px; font-size:15px; line-height:20px; font-weight:500; transition:background-color .15s; }
+.rec-btn:hover { background:var(--rec-accent-hover); }
+.rec-card { background:var(--rec-surface); border:1px solid var(--rec-border); border-radius:12px; }
+.rec-nav { display:block; border-radius:8px; padding:8px 12px; font-size:15px; line-height:20px; color:var(--rec-fg-soft); white-space: nowrap; }
+.rec-nav:hover { background:var(--rec-overlay-2); color:var(--rec-fg); }
+.rec-nav-active, .rec-nav-active:hover { background:var(--rec-active); color:var(--rec-fg); font-weight:500; }
+.rec-row:hover { background:var(--rec-overlay-1); }
+.rec-link { color:var(--rec-fg); text-decoration:underline; text-underline-offset:3px; font-size:15px; }
+.rec-link:hover { color:var(--rec-link-hover); }
+.rec-logout { color:var(--rec-muted-2); text-decoration:underline; text-underline-offset:3px; font-size:14px; }
+.rec-logout:hover { color:var(--rec-fg); }
+.rec-fg { color:var(--rec-fg); } .rec-soft { color:var(--rec-fg-soft); } .rec-muted { color:var(--rec-muted-2); } .rec-accent { color:var(--rec-accent); }
+.rec-border { border-color:var(--rec-border); }
 
 /* Hide the ambient neon glow (belongs to the old dark identity) */
 .recruiter-theme .recruiter-glow {
@@ -818,3 +783,77 @@
 .sd-flow { animation: sd-dash 1.2s linear infinite; }
 @keyframes sd-dash { to { stroke-dashoffset: -20; } }
 @media (prefers-reduced-motion: reduce) { .sd-flow { animation: none; } }
+
+/* Recruiter unified system — final precedence */
+.recruiter-theme .rec-btn { background-color: var(--rec-accent) !important; color: var(--rec-accent-fg) !important; }
+.recruiter-theme .rec-btn:hover { background-color: var(--rec-accent-hover) !important; }
+.recruiter-theme .rec-accent { color: var(--rec-accent) !important; }
+.recruiter-theme main, .recruiter-theme.min-h-screen { background-color: #ffffff !important; }
+
+/* Question bank: semantic roles scoped to this page and its dialogs. */
+.qb-theme {
+  --background: var(--rec-bg);
+  --foreground: var(--rec-fg);
+  --card: var(--rec-surface);
+  --card-foreground: var(--rec-fg);
+  --primary: var(--rec-accent);
+  --primary-foreground: var(--rec-accent-fg);
+  --secondary-foreground: var(--rec-fg-soft);
+  --muted-foreground: var(--rec-muted-2);
+  --accent: #fffdfa;
+  --accent-foreground: var(--rec-fg);
+  --border: var(--rec-border);
+  --input: var(--rec-border);
+  --ring: var(--rec-accent);
+  --destructive: var(--rec-danger);
+  color-scheme: light;
+}
+.recruiter-theme main:has(.qb-theme) { min-width: 0; }
+.qb-theme .qb-tab { background: transparent; border-radius: 0 !important; }
+.qb-theme .qb-action { height: auto; padding: 0; color: var(--muted-foreground); font-size: 14px; font-weight: 400; text-decoration: underline; }
+.qb-theme .qb-action:hover { color: var(--foreground); }
+.qb-theme .qb-action.hover\:text-destructive:hover { color: var(--destructive); }
+.qb-theme .qb-filters input { flex-basis: 260px; }
+.qb-theme .qb-filters select { flex: 1 1 140px; width: 140px; }
+.qb-theme .qb-filter:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.qb-dialog { max-width: calc(100vw - 32px); }
+.qb-dialog > button:last-child { font-size: 0; }
+.qb-dialog > button:last-child svg { display: none; }
+.qb-dialog > button:last-child::after { content: "Close"; font-size: 14px; }
+.qb-dialog > button:last-child .sr-only { display: none; }
+@media (min-width: 1280px) {
+  .qb-theme .qb-filters { flex-wrap: nowrap; }
+}
+@media (max-width: 639px) {
+  .recruiter-theme:has(main > .qb-theme) > .flex { flex-direction: column; }
+  .recruiter-theme:has(main > .qb-theme) aside { position: static; width: 100%; border-right: 0; border-bottom: 1px solid var(--rec-border); }
+  .recruiter-theme:has(main > .qb-theme) aside nav { display: flex; flex-wrap: wrap; gap: 4px; padding-bottom: 12px; }
+  .recruiter-theme:has(main > .qb-theme) aside > div:last-child { display: none; }
+  .recruiter-theme main:has(> .qb-theme) { margin-left: 0; width: 100%; }
+}
+
+/* GitHub and repositories: semantic roles scoped to this page. */
+.gh-theme {
+  --background: var(--rec-bg);
+  --foreground: var(--rec-fg);
+  --card: var(--rec-surface);
+  --card-foreground: var(--rec-fg);
+  --primary: var(--rec-accent);
+  --primary-foreground: var(--rec-accent-fg);
+  --secondary-foreground: var(--rec-fg-soft);
+  --muted-foreground: var(--rec-muted-2);
+  --accent: var(--rec-overlay-1);
+  --accent-foreground: var(--rec-fg);
+  --border: var(--rec-border);
+  --input: var(--rec-border);
+  --ring: var(--rec-accent);
+  --destructive: var(--rec-danger);
+  color-scheme: light;
+}
+.gh-link { color: var(--rec-fg); text-underline-offset: 3px; }
+.gh-link:hover { color: var(--rec-link-hover); }
+.gh-theme .gh-repo-row:hover { background: var(--rec-overlay-1); }
+.rec-btn-danger { display:inline-flex; align-items:center; justify-content:center; border-radius:8px; background:var(--rec-danger); color:var(--rec-accent-fg); padding:10px 16px; font-size:15px; line-height:20px; font-weight:500; transition:background-color .15s; }
+.rec-btn-danger:hover { background:#b91c1c; }
+
+

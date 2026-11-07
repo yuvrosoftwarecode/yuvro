@@ -532,11 +532,11 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         // ONLY process if we are in listening state
         if (interviewStateRef.current !== 'listening') return;
 
-        // Reset silence timer on every speech result
+        // Reset silence timer on every speech result with natural human pause tolerance (4.0s)
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = setTimeout(() => {
           handleAutoSubmit();
-        }, 1800);
+        }, 4000);
 
         let final = '';
         let interim = '';
@@ -673,6 +673,21 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         const cueText = response.cue.message;
         const proceed = response.proceed;
         
+        if (response.is_finished) {
+          console.log("[InterviewEngine] Custom mode: interview completed via response");
+          const endMsg: Message = {
+            type: 'ai',
+            content: cueText,
+            timestamp: new Date().toLocaleTimeString(),
+            relativeTime: Math.floor((Date.now() - startTimeRef.current) / 1000),
+          };
+          setConversation(prev => [...prev, endMsg]);
+          speakText(cueText);
+          setIsAITyping(false);
+          setTimeout(() => handleEndInterview(), 4000);
+          return;
+        }
+
         if (response.cue.action === 'offer_hint') {
           setIsHintAvailable(true);
         } else {
@@ -773,6 +788,12 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         // --- FULL AI MODE ---
         console.log("[InterviewEngine] Fetching AI response...");
         let combinedAnswer = cleanAnswer + (isEditorActive && latestCode ? `\n\n[Code Submission]:\n${latestCode}` : '');
+        
+        // Client-side end interview intent check if in Full AI mode
+        const cleanLower = cleanAnswer.toLowerCase().replace(/['"]/g, '').trim();
+        const endKeywords = ["stop the interview", "end the interview", "stop the test", "end the test", "quit the interview", "quit", "stop", "end", "close the test", "i am done", "im done", "lets wrap up", "enough for today"];
+        const isEndRequest = endKeywords.some(k => cleanLower === k || cleanLower.includes(k));
+        
         const aiResp = await aiAssistantService.sendMessage(effectiveChatId, combinedAnswer);
         const aiText = aiResp.response;
         
@@ -792,6 +813,19 @@ const InterviewScreen: React.FC<InterviewScreenProps> = ({
         speakText(aiText);
         checkCodingQuestion(aiText);
         setIsAITyping(false);
+
+        // Check if AI response confirmed interview completion or farewell
+        const aiLower = aiText.toLowerCase();
+        if (
+          aiLower.includes("completes the interview") ||
+          aiLower.includes("concludes our interview") ||
+          aiLower.includes("finalize your performance report") ||
+          aiLower.includes("interview is now completed") ||
+          aiLower.includes("report will now be generated")
+        ) {
+          console.log("[InterviewEngine] AI farewell detected, wrapping up interview session...");
+          setTimeout(() => handleEndInterview(), 4000);
+        }
       }
     } catch (err) {
       console.error('[InterviewEngine] Dialogue error:', err);
