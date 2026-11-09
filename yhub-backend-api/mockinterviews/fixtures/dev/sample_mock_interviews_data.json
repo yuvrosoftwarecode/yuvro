@@ -2872,7 +2872,7 @@
     },
     {
       "title": "Data Structures & Algorithms",
-      "description": "Comprehensive adaptive technical interview assessing problem-solving abilities, core data structures, algorithm design, and computational complexity analysis in real-time.",
+      "description": "Comprehensive adaptive technical interview assessing problem-solving abilities, core  , algorithm design, and computational complexity analysis in real-time.",
       "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine assesses your algorithmic thinking, data structure selection, edge-case handling, and time/space complexity optimization.",
       "max_duration": 45,
       "interview_mode": "automatic",
@@ -2928,6 +2928,128 @@
         "Docker",
         "Authentication (JWT/OAuth)",
         "Jest & Supertest"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
+    },
+    {
+      "title": "AI Engineer",
+      "description": "Comprehensive adaptive technical interview assessing artificial intelligence fundamentals, machine learning architectures, deep learning, LLMs, prompt engineering, RAG pipelines, and vector databases.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs",
+        "ycode",
+        "ycampus"
+      ],
+      "required_skills": [
+        "Machine Learning",
+        "Deep Learning",
+        "Large Language Models (LLMs)",
+        "Retrieval-Augmented Generation (RAG)",
+        "Prompt Engineering",
+        "Vector Databases",
+        "Python",
+        "PyTorch / TensorFlow"
+      ],
+      "optional_skills": [
+        "LangChain & LlamaIndex",
+        "Fine-Tuning (LoRA / QLoRA)",
+        "Hugging Face",
+        "Model Evaluation & Guardrails",
+        "MLOps & Model Deployment",
+        "Embeddings & Semantic Search"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
+    },
+    {
+      "title": "React.js Development",
+      "description": "Adaptive AI-powered dynamic React.js technical interview. Evaluates core React concepts, JSX, component lifecycle, hooks, state management, Virtual DOM, rendering optimization, and modern frontend architecture in real-time.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs",
+        "ycode",
+        "ycampus"
+      ],
+      "required_skills": [
+        "React.js",
+        "JavaScript (ES6+)",
+        "React Hooks",
+        "State Management & Context API",
+        "Component Lifecycle & Virtual DOM",
+        "Frontend Architecture & Performance Optimization"
+      ],
+      "optional_skills": [
+        "Next.js & SSR/SSG",
+        "TypeScript",
+        "Redux Toolkit / Zustand",
+        "React Query / TanStack Query",
+        "Tailwind CSS",
+        "Jest & React Testing Library"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
+    },
+    {
+      "title": "MySQL Development",
+      "description": "Adaptive AI-powered dynamic MySQL technical interview. Assesses relational schema design, SQL querying, indexing internals (B-Tree, Clustered vs Secondary), InnoDB storage engine, transactions, ACID isolation levels, query execution planning (EXPLAIN), and database performance tuning in real-time.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs",
+        "ycode",
+        "ycampus"
+      ],
+      "required_skills": [
+        "MySQL",
+        "Relational Database Management (RDBMS)",
+        "SQL Query Optimization & Indexing",
+        "Database Normalization & Schema Design",
+        "Transactions & ACID Isolation Levels (InnoDB)",
+        "Joins, Subqueries & Aggregations"
+      ],
+      "optional_skills": [
+        "Query Execution Plans (EXPLAIN)",
+        "Stored Procedures & Triggers",
+        "Replication & High Availability",
+        "Sharding & Partitioning",
+        "Database Security & Backup/Recovery",
+        "Redis Caching Integration"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
+    },
+    {
+      "title": "PostgreSQL Development",
+      "description": "Adaptive AI-powered dynamic PostgreSQL technical interview. Assesses relational schema design, advanced SQL querying (CTEs, Window Functions), indexing mechanisms (B-Tree, GiST, GIN, BRIN), MVCC internals, VACUUM and AUTOVACUUM, transaction isolation levels, query planning (EXPLAIN ANALYZE), JSONB operations, and high-performance database tuning in real-time.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs",
+        "ycode",
+        "ycampus"
+      ],
+      "required_skills": [
+        "PostgreSQL",
+        "Relational Database Management (RDBMS)",
+        "Advanced SQL & Window Functions (CTEs)",
+        "MVCC & Concurrency Control (VACUUM)",
+        "PostgreSQL Indexing (B-Tree, GIN, GiST, BRIN)",
+        "Transactions, ACID & Locking Mechanisms"
+      ],
+      "optional_skills": [
+        "Query Planning & Performance Tuning (EXPLAIN ANALYZE)",
+        "JSONB Data Types & Indexing",
+        "Stored Procedures & PL/pgSQL",
+        "Streaming Replication & High Availability (WAL)",
+        "Connection Pooling (PgBouncer)",
+        "Partitioning & Sharding (Citus)"
       ],
       "publish_status": "active",
       "predefined_tree": []
@@ -8629,6 +8751,35 @@
         "ycode",
         "ycampus"
       ]
+    },
+    {
+      "title": "MongoDB Development",
+      "description": "Adaptive AI-powered MongoDB technical interview. Evaluates document schema design, aggregation pipelines, indexing, replica sets, sharding, and query performance in real-time.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs",
+        "ycode",
+        "ycampus"
+      ],
+      "required_skills": [
+        "MongoDB",
+        "NoSQL",
+        "Aggregation Pipeline",
+        "Indexing & Query Optimization",
+        "Schema Design",
+        "Replica Sets & Sharding"
+      ],
+      "optional_skills": [
+        "Mongoose",
+        "MongoDB Atlas",
+        "WiredTiger",
+        "Transactions",
+        "Data Modeling"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
     }
   ]
 }

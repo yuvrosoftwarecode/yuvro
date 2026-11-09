@@ -1,5 +1,5 @@
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
-import { type Category, type Diff, type Interview } from "@/lib/mockInterviews";
+import { type Category, type Diff, type Interview, INTERVIEWS } from "@/lib/mockInterviews";
 
 export interface BackendQuestionNode {
   id: string;
@@ -155,6 +155,8 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("python") && !titleLower.includes("machine learning")) {
     category = "Backend";
   } else if (
+    titleLower.includes("ai engineer") ||
+    titleLower.includes("artificial intelligence") ||
     titleLower.includes("machine learning") ||
     titleLower.includes("deep learning") ||
     skills.includes("machine learning") ||
@@ -183,7 +185,9 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
     allText.includes("data") ||
     allText.includes("sql") ||
     allText.includes("database") ||
-    allText.includes("postgres")
+    allText.includes("postgres") ||
+    allText.includes("mongodb") ||
+    allText.includes("nosql")
   ) {
     category = "Data";
   } else if (
@@ -209,6 +213,18 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("python")) {
     icon = "🐍";
     color = "info";
+  } else if (titleLower.includes("mongodb") || titleLower.includes("mongo")) {
+    icon = "🍃";
+    color = "success";
+  } else if (titleLower.includes("react")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg";
+    color = "info";
+  } else if (titleLower.includes("mysql")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg";
+    color = "primary";
+  } else if (titleLower.includes("postgres")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg";
+    color = "primary";
   } else if (category === "AI/ML" || titleLower.includes("machine learning")) {
     icon = "🤖";
     color = "info";
@@ -335,10 +351,27 @@ export async function fetchBackendMockInterviews(
         : rawList;
 
       const mapped = filteredList.map(mapBackendToInterview);
+
+      // Ensure default featured ylabs interviews like MongoDB Development are present
+      if (product.toLowerCase().trim() === "ylabs") {
+        const hasMongo = mapped.some(
+          (m) => m.name.toLowerCase().includes("mongodb") || m.slug.includes("mongodb")
+        );
+        if (!hasMongo) {
+          const mongoFallback = INTERVIEWS.find((i) => i.slug === "mongodb-development");
+          if (mongoFallback) {
+            mapped.push(mongoFallback);
+          }
+        }
+      }
+
       interviewCache.set(cacheKey, { data: mapped, timestamp: Date.now() });
       return mapped;
     } catch (err) {
       console.error("Failed to load real mock interviews from backend:", err);
+      if (product.toLowerCase().trim() === "ylabs") {
+        return INTERVIEWS.filter((i) => (i.products || []).includes("ylabs"));
+      }
       return [];
     } finally {
       inFlightInterviews.delete(cacheKey);
@@ -566,3 +599,26 @@ export async function verifyMockInterviewPayment(
     payload
   );
 }
+
+export async function polishDictatedQuery(
+  text: string,
+  language: string = "sql",
+  context: string = ""
+): Promise<string> {
+  if (!text || !text.trim()) return text;
+  try {
+    const res = await yhubApiAuthUtil.post<{ polished_code?: string }>("/mock-interviews/polish_query/", {
+      text,
+      language,
+      context,
+    });
+    if (res && res.polished_code) {
+      return res.polished_code;
+    }
+    return text;
+  } catch (err) {
+    console.warn("Could not polish query with backend AI:", err);
+    return text;
+  }
+}
+

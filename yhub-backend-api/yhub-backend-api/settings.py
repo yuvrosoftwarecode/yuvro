@@ -304,5 +304,13 @@ GITHUB_APP_NAME = config("GITHUB_APP_NAME", default=os.environ.get("GITHUB_APP_N
 GITHUB_APP_ID = config("GITHUB_APP_ID", default=os.environ.get("GITHUB_APP_ID", ""))
 GITHUB_APP_PRIVATE_KEY = config("GITHUB_APP_PRIVATE_KEY", default=os.environ.get("GITHUB_APP_PRIVATE_KEY", ""))
 GITHUB_SYSTEM_PAT = config("GITHUB_SYSTEM_PAT", default=os.environ.get("GITHUB_SYSTEM_PAT", ""))
+# ── GitHub & LinkedIn OAuth ──────────────────────────────────────
+GITHUB_CLIENT_ID = config("GITHUB_CLIENT_ID", default=os.environ.get("GITHUB_CLIENT_ID", ""))
+GITHUB_CLIENT_SECRET = config("GITHUB_CLIENT_SECRET", default=os.environ.get("GITHUB_CLIENT_SECRET", ""))
+GITHUB_REDIRECT_URI = config("GITHUB_REDIRECT_URI", default=os.environ.get("GITHUB_REDIRECT_URI", ""))
+
+LINKEDIN_CLIENT_ID = config("LINKEDIN_CLIENT_ID", default=os.environ.get("LINKEDIN_CLIENT_ID", ""))
+LINKEDIN_CLIENT_SECRET = config("LINKEDIN_CLIENT_SECRET", default=os.environ.get("LINKEDIN_CLIENT_SECRET", ""))
+LINKEDIN_REDIRECT_URI = config("LINKEDIN_REDIRECT_URI", default=os.environ.get("LINKEDIN_REDIRECT_URI", ""))
 
 

@@ -28,9 +28,11 @@ const load = (): string[] => {
     const raw =
       localStorage.getItem(KEY) ||
       localStorage.getItem("yuvro_real_mock_interviews_enrolled");
-    return raw ? JSON.parse(raw) : ["java-backend", "react-frontend"];
+    const parsed: string[] = raw ? JSON.parse(raw) : [];
+    const defaults = ["java-backend", "react-frontend", "mongodb-development"];
+    return Array.from(new Set([...(Array.isArray(parsed) ? parsed : []), ...defaults]));
   } catch {
-    return ["java-backend", "react-frontend"];
+    return ["java-backend", "react-frontend", "mongodb-development"];
   }
 };
 
