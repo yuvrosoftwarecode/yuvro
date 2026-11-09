@@ -360,6 +360,7 @@ class RecruiterMyQuotaView(APIView):
     """
     Retrieves the current recruiter's active package and usage quotas.
     Creates a default Free Trial quota if not yet established.
+    Computes accurate live counts for candidate submissions and codebase repositories.
     """
     permission_classes = [IsAuthenticated]
 
@@ -387,6 +388,39 @@ class RecruiterMyQuotaView(APIView):
                 used_recruiter_logins=1,
             )
         
+        # Calculate live candidate submissions across evaluations created by this recruiter
+        try:
+            from skill_evaluation.models import UserEvaluationSubmission, Evaluation, LabQuestionBank
+            eval_ids = Evaluation.objects.filter(created_by=user).values_list("id", flat=True)
+            live_submissions = UserEvaluationSubmission.objects.filter(
+                evaluation_id__in=eval_ids,
+                completed_at__isnull=False,
+            ).count()
+            if live_submissions == 0:
+                # If completed_at is not set on older submissions, count all submissions under user's evaluations
+                live_submissions = UserEvaluationSubmission.objects.filter(evaluation_id__in=eval_ids).count()
+            
+            # Calculate live codebase repository setups:
+            # 1. Distinct GitHub app installations granted to this recruiter
+            # 2. Distinct custom git_repo_starter_url / github_repo_id configured on LabQuestionBanks by this user
+            distinct_grants = GithubAppInstallationGrant.objects.filter(recruiter=user, installation__is_active=True).values("installation").distinct().count()
+            custom_repos = LabQuestionBank.objects.filter(created_by=user).exclude(git_repo_starter_url="").values("git_repo_starter_url").distinct().count()
+            live_repos = max(distinct_grants, custom_repos)
+
+            # Update cached usage counts if they differ
+            quota_updated = False
+            if quota.used_submissions != live_submissions:
+                quota.used_submissions = live_submissions
+                quota_updated = True
+            if quota.used_codebase_repos != live_repos:
+                quota.used_codebase_repos = live_repos
+                quota_updated = True
+            if quota_updated:
+                quota.save(update_fields=["used_submissions", "used_codebase_repos"])
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Error calculating live quota usage: {e}")
+
         serializer = RecruiterUserQuotaSerializer(quota)
         return Response(serializer.data)
 
