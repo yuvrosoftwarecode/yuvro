@@ -75,8 +75,8 @@ export function TopNav({
           to="/student/dashboard"
           className="flex items-center gap-2 font-semibold tracking-tight"
         >
-          <img src={YuvroLogo} alt="Yuvro" className="h-7 w-auto object-contain" />
-          <span>Yuvro</span>
+          <img src={YuvroLogo} alt="Yuvro Labs" className="h-7 w-auto object-contain" />
+          <span>Yuvro Labs</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm">
           {primaryLinks.map((l) => {
