@@ -313,6 +313,49 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             "quota": serializer.data,
         })
 
+    @action(detail=False, methods=["post"], permission_classes=[permissions.AllowAny])
+    def polish_query(self, request):
+        """
+        Takes raw spoken database query / code dictation and polishes it into
+        clean, syntactically correct, properly formatted code using the LLM.
+        """
+        raw_text = request.data.get("text", "")
+        language = request.data.get("language", "sql")
+        context = request.data.get("context", "")
+
+        if not raw_text or not raw_text.strip():
+            return Response({"polished_code": ""}, status=status.HTTP_200_OK)
+
+        system_prompt = (
+            f"You are an expert database software engineer and SQL formatter. "
+            f"Your job is to take raw, unedited speech-to-text voice dictation of a {language.upper()} database query or code snippet "
+            f"and convert it into clean, syntactically correct, professionally formatted and indented {language.upper()} code.\n"
+            f"Rules:\n"
+            f"1. Fix obvious speech recognition phonetic mishearings (e.g. 'solid' -> 'sold', 'Order 0' -> 'orders o', 'is =' -> '=', 'some' -> 'SUM').\n"
+            f"2. Resolve speech stumbles or duplicates (e.g. 'total under score quant. Quantity under score solid' -> 'total_quantity_sold').\n"
+            f"3. Return ONLY the raw code itself. Do NOT enclose in markdown code fences (no ```sql or ```). Do NOT include any explanations or conversational chatter."
+        )
+
+        user_prompt = f"Raw dictated transcript:\n{raw_text}"
+        if context:
+            user_prompt = f"Interview Question Context:\n{context}\n\n{user_prompt}"
+
+        try:
+            from mockinterviews.ai_interview.llm_client import get_llm_client
+            llm = get_llm_client()
+            from asgiref.sync import async_to_sync
+            polished = async_to_sync(llm.generate)(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                max_tokens=600,
+                temperature=0.1,
+            )
+            clean_code = re.sub(r"^```[a-zA-Z]*\n?", "", polished.strip())
+            clean_code = re.sub(r"\n?```$", "", clean_code).strip()
+            return Response({"polished_code": clean_code}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.warning(f"Error polishing query with LLM: {e}")
+            return Response({"polished_code": raw_text, "error": str(e)}, status=status.HTTP_200_OK)
 
     search_fields = ["title", "description"]
     ordering_fields = ["created_at", "updated_at"]
@@ -1141,6 +1184,22 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for rt in react_core_topics:
                         if rt not in all_skills:
                             all_skills.append(rt)
+                elif "postgres" in mock_interview.title.lower() or "postgresql" in mock_interview.title.lower():
+                    postgres_core_topics = [
+                        "Relational Modeling & Schema Design in PostgreSQL",
+                        "Advanced SQL Queries, Window Functions & Common Table Expressions (CTEs)",
+                        "MVCC Architecture, Tuple Versioning, VACUUM & AUTOVACUUM Tuning",
+                        "PostgreSQL Indexing Mechanisms (B-Tree, GIN, GiST, BRIN, Partial & Expression Indexes)",
+                        "Query Performance Optimization & EXPLAIN ANALYZE Execution Plans",
+                        "Transactions, ACID Isolation Levels & PostgreSQL Lock Modes",
+                        "JSON / JSONB Storage, Query Operators & GIN Indexing",
+                        "PostgreSQL Extensions (pg_stat_statements, PostGIS, pgcrypto)",
+                        "Replication, Write-Ahead Logging (WAL) & High Availability (Patroni, PgBouncer)",
+                        "Database Backup (pg_dump, pg_basebackup) & Point-in-Time Recovery (PITR)"
+                    ]
+                    for pt in postgres_core_topics:
+                        if pt not in all_skills:
+                            all_skills.append(pt)
                 elif "mysql" in mock_interview.title.lower() or "sql" in mock_interview.title.lower():
                     mysql_core_topics = [
                         "Relational Modeling & Schema Normalization (1NF to BCNF)",
@@ -1476,6 +1535,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Virtual DOM as an in-memory representation synchronized with the real DOM",
                                     "Diffing algorithm and batched updates to minimize DOM operations",
                                     "React Fiber incremental rendering and prioritized concurrent work"
+                                ]
+                            }
+                        elif "postgres" in title_lower or "postgresql" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In PostgreSQL, can you explain how Multi-Version Concurrency Control (MVCC) works under the hood, how dead tuples accumulate, and what role VACUUM and AUTOVACUUM play in maintaining database health?",
+                                "topic": "PostgreSQL MVCC Internals & VACUUM Architecture",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "MVCC allows readers and writers not to block each other by maintaining multiple tuple versions with xmin and xmax",
+                                    "Updates and deletes create dead tuples that consume disk space and degrade query performance over time",
+                                    "VACUUM reclaims dead tuple storage for reuse, and AUTOVACUUM automatically triggers vacuum and analyze operations based on update/delete thresholds"
                                 ]
                             }
                         elif "mysql" in title_lower or "sql" in title_lower:

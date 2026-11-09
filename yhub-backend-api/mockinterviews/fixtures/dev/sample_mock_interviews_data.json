@@ -3025,6 +3025,36 @@
       "predefined_tree": []
     },
     {
+      "title": "PostgreSQL Development",
+      "description": "Adaptive AI-powered dynamic PostgreSQL technical interview. Assesses relational schema design, advanced SQL querying (CTEs, Window Functions), indexing mechanisms (B-Tree, GiST, GIN, BRIN), MVCC internals, VACUUM and AUTOVACUUM, transaction isolation levels, query planning (EXPLAIN ANALYZE), JSONB operations, and high-performance database tuning in real-time.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs",
+        "ycode",
+        "ycampus"
+      ],
+      "required_skills": [
+        "PostgreSQL",
+        "Relational Database Management (RDBMS)",
+        "Advanced SQL & Window Functions (CTEs)",
+        "MVCC & Concurrency Control (VACUUM)",
+        "PostgreSQL Indexing (B-Tree, GIN, GiST, BRIN)",
+        "Transactions, ACID & Locking Mechanisms"
+      ],
+      "optional_skills": [
+        "Query Planning & Performance Tuning (EXPLAIN ANALYZE)",
+        "JSONB Data Types & Indexing",
+        "Stored Procedures & PL/pgSQL",
+        "Streaming Replication & High Availability (WAL)",
+        "Connection Pooling (PgBouncer)",
+        "Partitioning & Sharding (Citus)"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
+    },
+    {
       "title": "Frontend Development",
       "description": "Comprehensive assessment of frontend development skills, including HTML, CSS, JavaScript, React, browser behavior, performance optimization, and frontend architecture.",
       "instructions": "HTML semantics, CSS layouts, JavaScript fundamentals and advanced concepts, React hooks and state management, performance optimization, and frontend security.",
