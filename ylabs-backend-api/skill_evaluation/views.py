@@ -1924,19 +1924,40 @@ class LabQuestionBankViewSet(viewsets.ModelViewSet):
             if quota and quota.total_codebase_repos >= 0:
                 instance = getattr(self, 'instance', None) or (self.get_object() if hasattr(self, 'get_object') and self.kwargs.get('pk') else None)
                 is_same_repo = False
+                new_starter = (validated_data.get('git_repo_starter_url') or '').strip()
+                new_github_id = str(validated_data.get('github_repo_id') or '').strip()
+
                 if instance:
                     existing_starter = (instance.git_repo_starter_url or '').strip()
                     existing_github_id = str(instance.github_repo_id or '').strip()
-                    new_starter = (validated_data.get('git_repo_starter_url') or '').strip()
-                    new_github_id = str(validated_data.get('github_repo_id') or '').strip()
                     if (existing_github_id and existing_github_id == new_github_id) or (existing_starter and existing_starter == new_starter):
+                        is_same_repo = True
+                else:
+                    # On creation, check if the user has already created a question using this exact repo
+                    from skill_evaluation.models import LabQuestionBank
+                    already_used_qs = LabQuestionBank.objects.filter(created_by=user)
+                    if new_github_id:
+                        already_used = already_used_qs.filter(github_repo_id=new_github_id).exists()
+                    elif new_starter:
+                        already_used = already_used_qs.filter(git_repo_starter_url=new_starter).exists()
+                    else:
+                        already_used = False
+                    if already_used:
                         is_same_repo = True
 
                 if not is_same_repo:
-                    current_used = quota.used_codebase_repos
-                    if current_used >= quota.total_codebase_repos:
+                    # Current count of distinct custom repos used by user
+                    from skill_evaluation.models import LabQuestionBank
+                    current_distinct_repos = (
+                        LabQuestionBank.objects.filter(created_by=user)
+                        .exclude(git_repo_starter_url="")
+                        .values("git_repo_starter_url")
+                        .distinct()
+                        .count()
+                    )
+                    if current_distinct_repos >= quota.total_codebase_repos:
                         raise ValidationError(
-                            f"Codebase repository quota reached ({current_used}/{quota.total_codebase_repos}). "
+                            f"Codebase repository quota reached ({current_distinct_repos}/{quota.total_codebase_repos}). "
                             "Please upgrade your plan to connect more codebases."
                         )
 

@@ -2,6 +2,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useMemo, memo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { questionBankService } from "@/services/questionBankService";
 import { fetchCourses, fetchQuestions, fetchQuestionDetails, getRecruiterMyQuota } from "@/lib/recruiter";
 import { ycodeApiAuthUtil } from "@/utils/RestApiAuthUtil";
@@ -761,11 +762,12 @@ function RecruiterQuestionBankPage() {
     }
   };
 
-  const [toast, setToast] = useState<string | null>(null);
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2500);
+  const showToast = (msg: string, isError = false) => {
+    if (isError) {
+      toast.error(msg);
+    } else {
+      toast.success(msg);
+    }
   };
 
   // Lab Mutations
@@ -773,11 +775,12 @@ function RecruiterQuestionBankPage() {
     mutationFn: (data: any) => questionBankService.createLabQuestion(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["labQuestions"] });
+      queryClient.invalidateQueries({ queryKey: ["recruiterMyQuota"] });
       closeLabModal();
-      showToast("Engineering Lab Question created successfully");
+      toast.success("Engineering Lab Question created successfully");
     },
     onError: (err: any) => {
-      showToast(err?.message || "Failed to create lab question");
+      toast.error(err?.response?.data?.error || err?.response?.data?.detail || err?.message || "Failed to create lab question");
     },
   });
 
@@ -785,11 +788,12 @@ function RecruiterQuestionBankPage() {
     mutationFn: ({ id, data }: { id: string; data: any }) => questionBankService.updateLabQuestion(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["labQuestions"] });
+      queryClient.invalidateQueries({ queryKey: ["recruiterMyQuota"] });
       closeLabModal();
-      showToast("Engineering Lab Question updated successfully");
+      toast.success("Engineering Lab Question updated successfully");
     },
     onError: (err: any) => {
-      showToast(err?.message || "Failed to update lab question");
+      toast.error(err?.response?.data?.error || err?.response?.data?.detail || err?.message || "Failed to update lab question");
     },
   });
 
@@ -997,6 +1001,11 @@ function RecruiterQuestionBankPage() {
   } | null>(null);
 
   const handleSaveLab = () => {
+    if (!labFormData.title || !labFormData.title.trim()) {
+      toast.error("Please enter a question title");
+      return;
+    }
+
     const preparedTasks = (labFormData.tasks || []).map((t: any, index: number) => {
       let solutionObj = t.solution;
       if (typeof t.solution === "string") {
@@ -1045,23 +1054,35 @@ function RecruiterQuestionBankPage() {
     );
 
     if (isCustomRepo && recruiterQuota && recruiterQuota.total_codebase_repos >= 0) {
-      const isQuotaExceeded = recruiterQuota.repos_remaining <= 0 || recruiterQuota.used_codebase_repos >= recruiterQuota.total_codebase_repos;
-      if (isQuotaExceeded) {
-        let isSameRepo = false;
-        if (editingLabId) {
-          const currentEditing = (labQuestions || []).find((q: any) => q.id === editingLabId);
-          if (currentEditing) {
-            const oldStarter = (currentEditing.git_repo_starter_url || "").trim();
-            const oldGId = String(currentEditing.github_repo_id || "").trim();
-            const newStarter = (labFormData.git_repo_starter_url || "").trim();
-            const newGId = String(labFormData.github_repo_id || "").trim();
-            if ((oldGId && oldGId === newGId) || (oldStarter && oldStarter === newStarter)) {
-              isSameRepo = true;
-            }
+      let isSameRepo = false;
+      const newStarter = (labFormData.git_repo_starter_url || "").trim();
+      const newGId = String(labFormData.github_repo_id || "").trim();
+
+      if (editingLabId) {
+        const currentEditing = (labQuestions || []).find((q: any) => q.id === editingLabId);
+        if (currentEditing) {
+          const oldStarter = (currentEditing.git_repo_starter_url || "").trim();
+          const oldGId = String(currentEditing.github_repo_id || "").trim();
+          if ((oldGId && oldGId === newGId) || (oldStarter && oldStarter === newStarter)) {
+            isSameRepo = true;
           }
         }
-        if (!isSameRepo) {
-          showToast(`Codebase repository quota reached (${recruiterQuota.used_codebase_repos}/${recruiterQuota.total_codebase_repos}). Upgrade your plan to connect more repositories.`);
+      } else {
+        // When creating a question, check if user has already created a question with this repo
+        const alreadyUsed = (labQuestions || []).some((q: any) => {
+          const qStarter = (q.git_repo_starter_url || "").trim();
+          const qGId = String(q.github_repo_id || "").trim();
+          return (newGId && qGId === newGId) || (newStarter && qStarter === newStarter);
+        });
+        if (alreadyUsed) {
+          isSameRepo = true;
+        }
+      }
+
+      if (!isSameRepo) {
+        const isQuotaExceeded = recruiterQuota.repos_remaining <= 0 || recruiterQuota.used_codebase_repos >= recruiterQuota.total_codebase_repos;
+        if (isQuotaExceeded) {
+          toast.error(`Codebase repository quota reached (${recruiterQuota.used_codebase_repos}/${recruiterQuota.total_codebase_repos}). Upgrade your plan to connect more repositories.`);
           return;
         }
       }

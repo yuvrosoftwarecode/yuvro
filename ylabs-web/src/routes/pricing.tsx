@@ -530,20 +530,29 @@ function PlanCard({
             );
 
             if (verifyRes.status === "SUCCESS") {
+              const targetPlanCode = planAny.id || "startup";
               try {
                 await restApiAuthUtil.post("/recruiter/my-quota/", {
-                  plan_code: planAny.id,
+                  plan_code: targetPlanCode,
                   billing_cycle: billing,
                 });
               } catch (e) {
-                console.warn("Could not sync recruiter quota:", e);
+                console.warn("Retrying sync of recruiter quota:", e);
+                try {
+                  await restApiAuthUtil.post("/recruiter/my-quota/", {
+                    plan_code: targetPlanCode,
+                    billing_cycle: billing,
+                  });
+                } catch (retryErr) {
+                  console.error("Could not sync recruiter quota:", retryErr);
+                }
               }
 
               toast.success("Subscription activated successfully!");
               if (onSubscribe) {
                 onSubscribe();
               } else {
-                navigate({ to: "/recruiter/evaluations" });
+                navigate({ to: "/recruiter/dashboard" });
               }
             } else {
               await yhubApiAuthUtil.post("/payment/fail/", {

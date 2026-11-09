@@ -361,6 +361,121 @@ class GithubAppRepositoriesView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+DEFAULT_RECRUITER_PACKAGES = [
+    {
+        "code": "free",
+        "name": "Free Trial",
+        "badge": None,
+        "monthly_price_usd": 0,
+        "yearly_price_usd": 0,
+        "trial_days": 14,
+        "total_submissions": 10,
+        "total_codebase_repos": 1,
+        "total_recruiter_logins": 1,
+        "features": [
+            {"text": "10 candidate submissions"},
+            {"text": "1 codebase repository setup"},
+            {"text": "1 recruiter login"},
+            {"text": "14-day validity"},
+        ],
+        "display_order": 0,
+    },
+    {
+        "code": "startup",
+        "name": "Startup",
+        "badge": None,
+        "monthly_price_usd": 99,
+        "yearly_price_usd": 990,
+        "trial_days": 0,
+        "total_submissions": 20,
+        "total_codebase_repos": 2,
+        "total_recruiter_logins": 1,
+        "features": [
+            {"text": "20 submissions per month"},
+            {
+                "text": "Company can use these across:",
+                "subItems": ["Simulation Labs", "AI Mock Interviews", "Coding Assessments"],
+            },
+            {"text": "2 codebase repository setups"},
+            {"text": "1 recruiter login"},
+            {"text": "Candidate reports"},
+            {"text": "AI follow-up questions"},
+        ],
+        "display_order": 1,
+    },
+    {
+        "code": "growth",
+        "name": "Growth",
+        "badge": "MOST POPULAR",
+        "monthly_price_usd": 449,
+        "yearly_price_usd": 4490,
+        "trial_days": 0,
+        "total_submissions": 100,
+        "total_codebase_repos": 5,
+        "total_recruiter_logins": 3,
+        "features": [
+            {"text": "100 submissions per month"},
+            {
+                "text": "Company can use these across:",
+                "subItems": ["Simulation Labs", "AI Mock Interviews", "Coding Assessments"],
+            },
+            {"text": "5 codebase repository setups"},
+            {"text": "3 recruiter logins"},
+            {"text": "Advanced candidate reports"},
+            {"text": "Custom assessments"},
+            {"text": "Priority support"},
+        ],
+        "display_order": 2,
+    },
+    {
+        "code": "enterprise",
+        "name": "Enterprise",
+        "badge": None,
+        "monthly_price_usd": 0,
+        "yearly_price_usd": 0,
+        "trial_days": 0,
+        "total_submissions": -1,
+        "total_codebase_repos": -1,
+        "total_recruiter_logins": -1,
+        "features": [
+            {"text": "Everything in Growth"},
+            {"text": "Custom submission volumes"},
+            {"text": "Custom repository setups and recruiter access"},
+            {"text": "API, MCP and ATS integrations"},
+            {"text": "2,500+ library questions"},
+            {"text": "Dedicated account manager and support"},
+        ],
+        "display_order": 3,
+    },
+]
+
+
+def ensure_default_recruiter_packages(user=None):
+    """
+    Ensures default packages exist in DB so that subscriptions and quotas always resolve
+    proper package limits, pricing, and features.
+    """
+    for pkg_data in DEFAULT_RECRUITER_PACKAGES:
+        code = pkg_data["code"]
+        RecruiterPackage.objects.get_or_create(
+            code=code,
+            defaults={
+                "name": pkg_data["name"],
+                "badge": pkg_data["badge"],
+                "monthly_price_usd": pkg_data["monthly_price_usd"],
+                "yearly_price_usd": pkg_data["yearly_price_usd"],
+                "trial_days": pkg_data["trial_days"],
+                "total_submissions": pkg_data["total_submissions"],
+                "total_codebase_repos": pkg_data["total_codebase_repos"],
+                "total_recruiter_logins": pkg_data["total_recruiter_logins"],
+                "features": pkg_data["features"],
+                "display_order": pkg_data["display_order"],
+                "is_active": True,
+                "created_by": user,
+            },
+        )
+
+
 class RecruiterPackageListView(generics.ListAPIView):
     """
     Public/Authenticated list of active Recruiter Packages configured in Django Admin.
@@ -370,6 +485,8 @@ class RecruiterPackageListView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
+        user = self.request.user if (self.request.user and self.request.user.is_authenticated) else None
+        ensure_default_recruiter_packages(user)
         return RecruiterPackage.objects.filter(is_active=True).order_by("display_order", "created_at")
 
 
@@ -383,6 +500,7 @@ class RecruiterMyQuotaView(APIView):
 
     def get(self, request):
         user = request.user
+        ensure_default_recruiter_packages(user)
         quota = RecruiterUserQuota.objects.filter(user=user).select_related("package").first()
         
         if not quota:
@@ -404,6 +522,12 @@ class RecruiterMyQuotaView(APIView):
                 total_recruiter_logins=free_pkg.total_recruiter_logins if free_pkg else 1,
                 used_recruiter_logins=1,
             )
+        elif not quota.package:
+            # Associate package if missing
+            matching_pkg = RecruiterPackage.objects.filter(code=quota.plan_tier).first()
+            if matching_pkg:
+                quota.package = matching_pkg
+                quota.save(update_fields=["package"])
         
         # Calculate live candidate submissions across evaluations created by this recruiter
         try:
@@ -418,11 +542,15 @@ class RecruiterMyQuotaView(APIView):
                 live_submissions = UserEvaluationSubmission.objects.filter(evaluation_id__in=eval_ids).count()
             
             # Calculate live codebase repository setups:
-            # 1. Distinct GitHub app installations granted to this recruiter
-            # 2. Distinct custom git_repo_starter_url / github_repo_id configured on LabQuestionBanks by this user
-            distinct_grants = GithubAppInstallationGrant.objects.filter(recruiter=user, installation__is_active=True).values("installation").distinct().count()
-            custom_repos = LabQuestionBank.objects.filter(created_by=user).exclude(git_repo_starter_url="").values("git_repo_starter_url").distinct().count()
-            live_repos = max(distinct_grants, custom_repos)
+            # Count distinct custom repositories configured on questions by this user
+            custom_repos_count = (
+                LabQuestionBank.objects.filter(created_by=user)
+                .exclude(git_repo_starter_url="")
+                .values("git_repo_starter_url")
+                .distinct()
+                .count()
+            )
+            live_repos = custom_repos_count
 
             # Update cached usage counts if they differ
             quota_updated = False
@@ -444,15 +572,32 @@ class RecruiterMyQuotaView(APIView):
     def post(self, request):
         """
         Activate or update plan subscription for recruiter.
-        Accepts plan_code and billing_cycle.
+        Accepts plan_code (e.g. 'startup', 'growth', 'recruiter_starter_monthly') and billing_cycle.
         """
         from datetime import timedelta
         from django.utils import timezone
         
-        plan_code = request.data.get("plan_code") or request.data.get("item_id")
+        raw_code = request.data.get("plan_code") or request.data.get("item_id") or ""
         billing_cycle = request.data.get("billing_cycle", "monthly")
-        
+
+        # Normalize plan code (handle both 'startup' and 'recruiter_starter_monthly' etc.)
+        norm = str(raw_code).lower().strip()
+        if "growth" in norm:
+            plan_code = "growth"
+        elif "start" in norm: # startup, starter
+            plan_code = "startup"
+        elif "enterprise" in norm or "scale" in norm:
+            plan_code = "enterprise"
+        elif "free" in norm or "trial" in norm:
+            plan_code = "free"
+        else:
+            plan_code = norm
+
+        ensure_default_recruiter_packages(request.user)
         pkg = RecruiterPackage.objects.filter(code=plan_code).first()
+        if not pkg:
+            pkg = RecruiterPackage.objects.filter(code="startup").first()
+            
         if not pkg:
             return Response({"error": "Invalid plan package specified."}, status=status.HTTP_400_BAD_REQUEST)
             
