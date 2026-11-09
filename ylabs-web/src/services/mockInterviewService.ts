@@ -185,7 +185,9 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
     allText.includes("data") ||
     allText.includes("sql") ||
     allText.includes("database") ||
-    allText.includes("postgres")
+    allText.includes("postgres") ||
+    allText.includes("mongodb") ||
+    allText.includes("nosql")
   ) {
     category = "Data";
   } else if (
@@ -211,6 +213,9 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("python")) {
     icon = "🐍";
     color = "info";
+  } else if (titleLower.includes("mongodb") || titleLower.includes("mongo")) {
+    icon = "🍃";
+    color = "success";
   } else if (titleLower.includes("react")) {
     icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg";
     color = "info";
@@ -346,10 +351,27 @@ export async function fetchBackendMockInterviews(
         : rawList;
 
       const mapped = filteredList.map(mapBackendToInterview);
+
+      // Ensure default featured ylabs interviews like MongoDB Development are present
+      if (product.toLowerCase().trim() === "ylabs") {
+        const hasMongo = mapped.some(
+          (m) => m.name.toLowerCase().includes("mongodb") || m.slug.includes("mongodb")
+        );
+        if (!hasMongo) {
+          const mongoFallback = INTERVIEWS.find((i) => i.slug === "mongodb-development");
+          if (mongoFallback) {
+            mapped.push(mongoFallback);
+          }
+        }
+      }
+
       interviewCache.set(cacheKey, { data: mapped, timestamp: Date.now() });
       return mapped;
     } catch (err) {
       console.error("Failed to load real mock interviews from backend:", err);
+      if (product.toLowerCase().trim() === "ylabs") {
+        return INTERVIEWS.filter((i) => (i.products || []).includes("ylabs"));
+      }
       return [];
     } finally {
       inFlightInterviews.delete(cacheKey);

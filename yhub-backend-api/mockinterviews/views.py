@@ -364,6 +364,38 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def get_queryset(self):
+        try:
+            if not MockInterview.objects.filter(title__iexact="MongoDB Development").exists():
+                admin_user = User.objects.filter(is_superuser=True).first() or User.objects.first()
+                if admin_user:
+                    MockInterview.objects.create(
+                        title="MongoDB Development",
+                        description="Adaptive AI-powered MongoDB technical interview. Evaluates document schema design, aggregation pipelines, indexing, replica sets, sharding, and query performance in real-time.",
+                        instructions="Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+                        max_duration=30,
+                        interview_mode="automatic",
+                        products=["ylabs", "ycode", "ycampus"],
+                        required_skills=[
+                            "MongoDB",
+                            "NoSQL",
+                            "Aggregation Pipeline",
+                            "Indexing & Query Optimization",
+                            "Schema Design",
+                            "Replica Sets & Sharding"
+                        ],
+                        optional_skills=[
+                            "Mongoose",
+                            "MongoDB Atlas",
+                            "WiredTiger",
+                            "Transactions",
+                            "Data Modeling"
+                        ],
+                        publish_status="active",
+                        created_by=admin_user
+                    )
+        except Exception:
+            pass
+
         qs = super().get_queryset()
         publish_status_param = self.request.query_params.get("publish_status")
         product_param = self.request.query_params.get("product")
@@ -1152,6 +1184,20 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for nt in node_core_topics:
                         if nt not in all_skills:
                             all_skills.append(nt)
+                elif "mongodb" in mock_interview.title.lower() or "mongo" in mock_interview.title.lower():
+                    mongo_core_topics = [
+                        "Document Data Modeling & Schema Design",
+                        "CRUD Operations & Query Operators",
+                        "Aggregation Framework & Pipeline Stages ($match, $group, $project)",
+                        "Indexing Strategies (Compound, Multikey, Text, TTL)",
+                        "Replication & Replica Sets (Election, Heartbeats, Oplog)",
+                        "Sharding Architecture & Chunk Balancing",
+                        "ACID Multi-Document Transactions",
+                        "Performance Tuning, Explain Plans & Profiling",
+                        "Storage Engine (WiredTiger) & Concurrency Control",
+                        "Security, Access Control & MongoDB Atlas"
+                    ]
+                    for mt in mongo_core_topics:
                 elif "ai" in mock_interview.title.lower() or "machine learning" in mock_interview.title.lower():
                     ai_core_topics = [
                         "Machine Learning Fundamentals & Optimization",
@@ -1496,6 +1542,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Libuv event loop phases (timers, I/O callbacks, check, close)",
                                     "Microtask queue priority (process.nextTick, Promise callbacks)",
                                     "Non-blocking I/O and asynchronous event-driven design"
+                                ]
+                            }
+                        elif "mongodb" in title_lower or "mongo" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In MongoDB, can you explain the key trade-offs between embedding documents versus referencing them with ObjectIDs, and how you decide which pattern to use for one-to-many relationships?",
+                                "topic": "Document Schema Design (Embedding vs Referencing)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Embedding for 1:few or data frequently queried together",
+                                    "Referencing for 1:many or unbound growth to stay within 16MB document limit",
+                                    "Read vs write performance and atomicity considerations"
                                 ]
                             }
                         elif "data structure" in title_lower or "algorithm" in title_lower:
