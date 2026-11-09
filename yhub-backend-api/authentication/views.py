@@ -20,6 +20,8 @@ from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 import random
 import string
+from datetime import timedelta
+from django.utils import timezone
 from django.core.cache import cache
 
 
@@ -825,6 +827,352 @@ class GithubConnectView(APIView):
             return Response({"message": "GitHub disconnected successfully"}, status=status.HTTP_200_OK)
         except GithubConnection.DoesNotExist:
             return Response({"error": "GitHub connection not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class LinkedInConnectView(APIView):
+    permission_classes = [IsAuthenticatedUser]
+
+    def get(self, request):
+        import urllib.parse
+        client_id = getattr(settings, 'LINKEDIN_CLIENT_ID', os.environ.get('LINKEDIN_CLIENT_ID'))
+        redirect_uri = getattr(settings, 'LINKEDIN_REDIRECT_URI', os.environ.get('LINKEDIN_REDIRECT_URI'))
+        
+        if not client_id:
+            return Response({"error": "LinkedIn client ID not configured"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        params = {
+            "response_type": "code",
+            "client_id": client_id,
+            "scope": "openid profile email w_member_social",
+        }
+        if redirect_uri:
+            params["redirect_uri"] = redirect_uri
+
+        linkedin_url = f"https://www.linkedin.com/oauth/v2/authorization?{urllib.parse.urlencode(params)}"
+        return Response({"authorization_url": linkedin_url})
+
+    def post(self, request):
+        code = request.data.get("code")
+        
+        if not code:
+            return Response({"error": "Authorization code is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        client_id = getattr(settings, 'LINKEDIN_CLIENT_ID', os.environ.get('LINKEDIN_CLIENT_ID'))
+        client_secret = getattr(settings, 'LINKEDIN_CLIENT_SECRET', os.environ.get('LINKEDIN_CLIENT_SECRET'))
+        redirect_uri = getattr(settings, 'LINKEDIN_REDIRECT_URI', os.environ.get('LINKEDIN_REDIRECT_URI'))
+        
+        token_url = "https://www.linkedin.com/oauth/v2/accessToken"
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        data = {
+            "grant_type": "authorization_code",
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": code,
+        }
+        if redirect_uri:
+            data["redirect_uri"] = redirect_uri
+        
+        response = http_requests.post(token_url, headers=headers, data=data)
+        if response.status_code != 200:
+            logger.error(f"LinkedIn token exchange failed: {response.status_code} {response.text}")
+            return Response({"error": "Failed to exchange token with LinkedIn"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        token_data = response.json()
+        access_token = token_data.get("access_token")
+        expires_in = token_data.get("expires_in")
+        scopes = token_data.get("scope", "")
+        
+        if not access_token:
+            return Response({"error": f"No access token in LinkedIn response: {token_data}"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user_url = "https://api.linkedin.com/v2/userinfo"
+        user_headers = {"Authorization": f"Bearer {access_token}"}
+        user_response = http_requests.get(user_url, headers=user_headers)
+        
+        if user_response.status_code != 200:
+            logger.error(f"LinkedIn user info failed: {user_response.status_code} {user_response.text}")
+            return Response({"error": "Failed to get user profile from LinkedIn"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        user_info = user_response.json()
+        linkedin_sub = user_info.get("sub")
+        linkedin_name = user_info.get("name", "")
+        linkedin_email = user_info.get("email")
+        
+        from .models import LinkedInConnection
+        encrypted_token = base64.b64encode(access_token.encode()).decode()
+        
+        expires_at = None
+        if expires_in:
+            expires_at = timezone.now() + timedelta(seconds=int(expires_in))
+        
+        connection, _ = LinkedInConnection.objects.update_or_create(
+            user=request.user,
+            defaults={
+                "linkedin_sub": linkedin_sub,
+                "linkedin_name": linkedin_name,
+                "linkedin_email": linkedin_email,
+                "access_token": encrypted_token,
+                "scopes": scopes,
+                "expires_at": expires_at,
+            }
+        )
+        
+        return Response({"message": "LinkedIn connected successfully", "linkedin_name": linkedin_name})
+
+    def delete(self, request):
+        from .models import LinkedInConnection
+        try:
+            connection = LinkedInConnection.objects.get(user=request.user)
+            connection.delete()
+            return Response({"message": "LinkedIn disconnected successfully"}, status=status.HTTP_200_OK)
+        except LinkedInConnection.DoesNotExist:
+            return Response({"error": "LinkedIn connection not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class LinkedInShareMilestoneView(APIView):
+    permission_classes = [IsAuthenticatedUser]
+
+    def post(self, request):
+        from .models import LinkedInConnection
+        connection = LinkedInConnection.objects.filter(user=request.user).first()
+        if not connection:
+            return Response({"error": "LinkedIn account is not connected", "code": "NOT_CONNECTED"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            raw_token = base64.b64decode(connection.access_token.encode()).decode()
+        except Exception:
+            raw_token = connection.access_token
+
+        commentary = request.data.get("commentary") or "I just reached a new milestone on Yuvro!"
+        article_url = request.data.get("url") or "https://yuvro.com"
+        title = request.data.get("title") or "Yuvro Milestone"
+        description = request.data.get("description", "")
+        banner_base64 = request.data.get("image")  # data:image/png;base64,...
+
+        headers = {
+            "Authorization": f"Bearer {raw_token}",
+            "X-Restli-Protocol-Version": "2.0.0",
+            "Content-Type": "application/json"
+        }
+
+        asset_urn = None
+        if banner_base64:
+            try:
+                # Strip header if data URL
+                if "base64," in banner_base64:
+                    banner_base64 = banner_base64.split("base64,")[1]
+                image_bytes = base64.b64decode(banner_base64)
+
+                # Step 1: Register upload with LinkedIn
+                register_url = "https://api.linkedin.com/v2/assets?action=registerUpload"
+                register_payload = {
+                    "registerUploadRequest": {
+                        "recipes": ["urn:li:digitalmediaRecipe:feedshare-image"],
+                        "owner": f"urn:li:person:{connection.linkedin_sub}",
+                        "serviceRelationships": [
+                            {
+                                "relationshipType": "OWNER",
+                                "identifier": "urn:li:userGeneratedContent"
+                            }
+                        ],
+                        "supportedUploadMechanism": ["SYNCHRONOUS_UPLOAD"]
+                    }
+                }
+                reg_resp = http_requests.post(register_url, headers=headers, json=register_payload)
+                if reg_resp.status_code == 200:
+                    reg_data = reg_resp.json()
+                    upload_mechanism = reg_data.get("value", {}).get("uploadMechanism", {})
+                    media_upload_request = upload_mechanism.get("com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest", {})
+                    upload_url = media_upload_request.get("uploadUrl")
+                    asset_urn = reg_data.get("value", {}).get("asset")
+
+                    # Step 2: Upload raw image binary to upload_url
+                    if upload_url and asset_urn:
+                        upload_headers = {
+                            "Authorization": f"Bearer {raw_token}",
+                            "Content-Type": "application/octet-stream"
+                        }
+                        upload_resp = http_requests.put(upload_url, headers=upload_headers, data=image_bytes)
+                        if upload_resp.status_code not in (200, 201):
+                            logger.warning(f"Failed to upload image binary to LinkedIn: {upload_resp.status_code} {upload_resp.text}")
+                            asset_urn = None
+                        else:
+                            logger.info(f"Successfully uploaded banner binary to LinkedIn: {asset_urn}")
+                else:
+                    logger.warning(f"LinkedIn registerUpload failed: {reg_resp.status_code} {reg_resp.text}")
+            except Exception as e:
+                logger.error(f"Error handling LinkedIn banner upload: {e}", exc_info=True)
+                asset_urn = None
+
+        post_url = "https://api.linkedin.com/v2/ugcPosts"
+
+        # Determine share media category
+        if asset_urn:
+            share_media_category = "IMAGE"
+            media_item = {
+                "status": "READY",
+                "description": {
+                    "text": description or f"Achievement verified on Yuvro Labs"
+                },
+                "media": asset_urn,
+                "title": {
+                    "text": title
+                }
+            }
+        else:
+            share_media_category = "ARTICLE"
+            media_item = {
+                "status": "READY",
+                "description": {
+                    "text": description or f"Achievement verified on Yuvro Labs: {title}"
+                },
+                "originalUrl": article_url,
+                "title": {
+                    "text": title
+                }
+            }
+
+        post_payload = {
+            "author": f"urn:li:person:{connection.linkedin_sub}",
+            "lifecycleState": "PUBLISHED",
+            "specificContent": {
+                "com.linkedin.ugc.ShareContent": {
+                    "shareCommentary": {
+                        "text": commentary
+                    },
+                    "shareMediaCategory": share_media_category,
+                    "media": [media_item]
+                }
+            },
+            "visibility": {
+                "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+            }
+        }
+
+        try:
+            post_response = http_requests.post(post_url, headers=headers, json=post_payload)
+            if post_response.status_code in (200, 201):
+                post_data = post_response.json()
+                post_id = post_data.get("id")
+                return Response({
+                    "message": "Milestone posted to LinkedIn successfully!",
+                    "post_id": post_id,
+                })
+            else:
+                logger.error(f"LinkedIn UGC post failed: {post_response.status_code} {post_response.text}")
+                error_msg = "Failed to post to LinkedIn"
+                try:
+                    err_json = post_response.json()
+                    error_msg = err_json.get("message") or error_msg
+                except Exception:
+                    pass
+                return Response({"error": error_msg, "details": post_response.text}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Error publishing LinkedIn post: {e}", exc_info=True)
+            return Response({"error": f"Failed to post to LinkedIn: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class LinkedInGenerateGifView(APIView):
+    permission_classes = [IsAuthenticatedUser]
+
+    def post(self, request):
+        from .celebration_gif import generate_celebration_gif
+
+        name = request.data.get("name") or request.user.first_name or request.user.username or "Student"
+        task = request.data.get("task") or "Engineering Milestone"
+        company = request.data.get("company") or "Practical Labs"
+        badge = request.data.get("badge") or "TICKET CLEARED"
+
+        # Locate logo.png
+        possible_logo_paths = [
+            os.path.join(os.path.dirname(__file__), "logo.png"),
+            os.path.join(settings.BASE_DIR, "authentication", "logo.png"),
+            os.path.join(settings.BASE_DIR, "..", "ylabs-web", "public", "logo.png"),
+            os.path.join(settings.BASE_DIR, "public", "logo.png"),
+            "/app/authentication/logo.png",
+            "/app/public/logo.png",
+            "d:/Yuvro - Software/yuvro/ylabs-web/public/logo.png",
+        ]
+        logo_path = None
+        for p in possible_logo_paths:
+            if os.path.exists(p):
+                logo_path = p
+                break
+
+        try:
+            gif_bytes = generate_celebration_gif(
+                name=name,
+                task=task,
+                company=company,
+                badge=badge,
+                logo_path=logo_path,
+                output_fps=15,
+                duration_sec=1.6
+            )
+            b64_gif = base64.b64encode(gif_bytes).decode("utf-8")
+            data_uri = f"data:image/gif;base64,{b64_gif}"
+            return Response({"data_uri": data_uri})
+        except Exception as e:
+            logger.error(f"Failed to generate celebration GIF: {e}", exc_info=True)
+            return Response({"error": f"Failed to generate GIF: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # Build UGC post payload
+        if asset_urn:
+            payload = {
+                "author": f"urn:li:person:{connection.linkedin_sub}",
+                "lifecycleState": "PUBLISHED",
+                "specificContent": {
+                    "com.linkedin.ugc.ShareContent": {
+                        "shareCommentary": {
+                            "text": commentary
+                        },
+                        "shareMediaCategory": "IMAGE",
+                        "media": [
+                            {
+                                "status": "READY",
+                                "description": {"text": description or "Verified Milestone on Yuvro Labs"},
+                                "media": asset_urn,
+                                "title": {"text": title}
+                            }
+                        ]
+                    }
+                },
+                "visibility": {
+                    "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+                }
+            }
+        else:
+            payload = {
+                "author": f"urn:li:person:{connection.linkedin_sub}",
+                "lifecycleState": "PUBLISHED",
+                "specificContent": {
+                    "com.linkedin.ugc.ShareContent": {
+                        "shareCommentary": {
+                            "text": commentary
+                        },
+                        "shareMediaCategory": "ARTICLE" if article_url else "NONE"
+                    }
+                },
+                "visibility": {
+                    "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+                }
+            }
+            if article_url:
+                payload["specificContent"]["com.linkedin.ugc.ShareContent"]["media"] = [
+                    {
+                        "status": "READY",
+                        "description": {"text": description},
+                        "originalUrl": article_url,
+                        "title": {"text": title}
+                    }
+                ]
+
+        resp = http_requests.post(post_url, headers=headers, json=payload)
+        if resp.status_code not in (200, 201):
+            logger.error(f"LinkedIn UGC post error: {resp.status_code} {resp.text}")
+            return Response({"error": f"Failed to post to LinkedIn: {resp.text}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"message": "Successfully posted milestone banner to LinkedIn!", "data": resp.json(), "with_banner": bool(asset_urn)})
 
 
 

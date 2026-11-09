@@ -3,11 +3,13 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft, ArrowRight, Activity, Cpu, Gauge, CheckCircle2, XCircle, AlertTriangle, Code2,
   Sparkles, Timer, RefreshCcw, HelpCircle, BookOpen, Zap, TrendingUp, Layers,
-  Ticket, LayoutDashboard, ChevronDown, ChevronUp, Loader2
+  Ticket, LayoutDashboard, ChevronDown, ChevronUp, Loader2, Linkedin
 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { type AdminLab } from "@/lib/adminLabs";
 import { type LabSprint } from "@/lib/labSprints";
+import { ShareMilestoneModal, type MilestoneDetails } from "@/components/shared/ShareMilestoneModal";
+import { useAuth } from "@/lib/auth";
 
 export interface LabReportViewProps {
   realLab: AdminLab | null;
@@ -21,7 +23,14 @@ export interface LabReportViewProps {
 }
 
 export function LabReportView({ realLab, realSprints, statusOverrides, slug, backLinkTo, backLinkParams, loading, adminUserId }: LabReportViewProps) {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<"lab" | "sprint" | "ticket">("lab");
+  const [shareMilestone, setShareMilestone] = useState<{
+    title: string;
+    type?: "sprint" | "lab";
+    details?: MilestoneDetails;
+    shareUrl?: string;
+  } | null>(null);
 
   const allTickets = useMemo(() => {
     if (!realLab) return [];
@@ -56,6 +65,18 @@ export function LabReportView({ realLab, realSprints, statusOverrides, slug, bac
   const attemptedTickets = useMemo(() => {
     return allTickets.filter(t => t.status !== "backlog");
   }, [allTickets]);
+
+  const totalEarnedXp = useMemo(() => {
+    return allTickets.reduce((acc, t) => acc + (t.earnedXp || 0), 0);
+  }, [allTickets]);
+
+  const totalMaxXp = useMemo(() => {
+    return allTickets.reduce((acc, t) => acc + (t.xp || 0), 0);
+  }, [allTickets]);
+
+  const overallScore = useMemo(() => {
+    return totalMaxXp > 0 ? Math.round((totalEarnedXp / totalMaxXp) * 100) : 0;
+  }, [totalEarnedXp, totalMaxXp]);
 
   const sprintReports = useMemo(() => {
     return realSprints.map(s => {
@@ -120,14 +141,45 @@ export function LabReportView({ realLab, realSprints, statusOverrides, slug, bac
               Deep-dive metrics on your algorithmic efficiency, behavioral grit, and code quality.
             </p>
           </div>
-          <Link
-            to={backLinkTo}
-            params={backLinkParams}
-            className="rounded-md border bg-card px-4 py-2 text-sm hover:bg-accent flex items-center gap-2 font-medium"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Lab
-          </Link>
+          <div className="flex items-center gap-3">
+            {!adminUserId && (
+              <button
+                onClick={() => {
+                  const pubUrl = typeof window !== "undefined" && user?.id
+                    ? `${window.location.origin}/public/milestone/${slug}/${user.id}`
+                    : typeof window !== "undefined" ? window.location.href : "https://yuvrolabs.com";
+
+                  setShareMilestone({
+                    title: realLab?.title || "Engineering Lab",
+                    type: "lab",
+                    shareUrl: pubUrl,
+                    details: {
+                      labTitle: realLab?.title || "Engineering Lab",
+                      sprintsCount: realSprints.length,
+                      completedTickets: attemptedTickets.filter((t) => t.status === "done").length,
+                      totalTickets: allTickets.length,
+                      score: overallScore,
+                      earnedXp: totalEarnedXp,
+                      language: realLab?.language,
+                      tags: realLab?.tags,
+                    },
+                  });
+                }}
+                className="rounded-md bg-[#0A66C2] text-white px-4 py-2 text-sm hover:bg-[#0A66C2]/90 flex items-center gap-2 font-medium shadow-sm transition-transform active:scale-95"
+              >
+                <Linkedin className="h-4 w-4 fill-current" />
+                Share Lab to LinkedIn
+              </button>
+            )}
+            <Link
+              to={backLinkTo}
+              params={backLinkParams}
+              className="rounded-md border bg-card px-4 py-2 text-sm hover:bg-accent flex items-center gap-2 font-medium"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Lab
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -172,11 +224,47 @@ export function LabReportView({ realLab, realSprints, statusOverrides, slug, bac
         ) : (
           <>
             {activeTab === "lab" && <LabOverallView lab={realLab} tickets={allTickets} />}
-            {activeTab === "sprint" && <SprintWiseView sprints={sprintReports} />}
+            {activeTab === "sprint" && (
+              <SprintWiseView
+                sprints={sprintReports}
+                adminUserId={adminUserId}
+                onShareSprint={(sprint) => {
+                  const pubUrl = typeof window !== "undefined" && user?.id
+                    ? `${window.location.origin}/public/milestone/${slug}/${user.id}`
+                    : typeof window !== "undefined" ? window.location.href : "https://yuvrolabs.com";
+
+                  setShareMilestone({
+                    title: `${sprint.name} Sprint`,
+                    type: "sprint",
+                    shareUrl: pubUrl,
+                    details: {
+                      labTitle: realLab?.title || "Engineering Lab",
+                      sprintTitle: sprint.name,
+                      completedTickets: sprint.tickets,
+                      score: sprint.score,
+                      earnedXp: sprint.score > 0 ? Math.round(sprint.score * 1.5) : 50,
+                      language: realLab?.language,
+                      tags: realLab?.tags,
+                    },
+                  });
+                }}
+              />
+            )}
             {activeTab === "ticket" && <TicketWiseView tickets={attemptedTickets} slug={slug} adminUserId={adminUserId} />}
           </>
         )}
       </div>
+
+      {shareMilestone && (
+        <ShareMilestoneModal
+          isOpen={!!shareMilestone}
+          onClose={() => setShareMilestone(null)}
+          milestoneTitle={shareMilestone.title}
+          milestoneType={shareMilestone.type || "lab"}
+          shareUrl={shareMilestone.shareUrl}
+          details={shareMilestone.details}
+        />
+      )}
     </main>
   );
 }
@@ -247,7 +335,15 @@ function LabOverallView({ lab, tickets }: { lab: AdminLab | null, tickets: any[]
 // ============================================================================
 // 2. SPRINT-WISE VIEW
 // ============================================================================
-function SprintWiseView({ sprints }: { sprints: any[] }) {
+function SprintWiseView({
+  sprints,
+  adminUserId,
+  onShareSprint,
+}: {
+  sprints: any[];
+  adminUserId?: string;
+  onShareSprint?: (sprint: any) => void;
+}) {
   if (sprints.length === 0) {
     return <div className="text-center py-12 text-muted-foreground bg-card rounded-xl border">No sprints found.</div>;
   }
@@ -255,7 +351,7 @@ function SprintWiseView({ sprints }: { sprints: any[] }) {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {sprints.map((sprint) => (
-          <div key={sprint.id} className="border rounded-xl bg-card p-5 flex flex-col hover:border-primary/50 transition-colors cursor-pointer group">
+          <div key={sprint.id} className="border rounded-xl bg-card p-5 flex flex-col hover:border-primary/50 transition-colors group">
             <div className="flex justify-between items-start mb-4">
               <h3 className="font-semibold text-base leading-tight group-hover:text-primary transition-colors">{sprint.name}</h3>
               <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
@@ -294,6 +390,20 @@ function SprintWiseView({ sprints }: { sprints: any[] }) {
                 }`}>{sprint.efficiency}</span>
               </div>
             </div>
+
+            {!adminUserId && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShareSprint?.(sprint);
+                }}
+                className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border/70 py-1.5 text-xs font-medium text-[#0A66C2] hover:bg-[#0A66C2]/10 transition-colors"
+              >
+                <Linkedin className="h-3.5 w-3.5 fill-current" />
+                Share Sprint to LinkedIn
+              </button>
+            )}
           </div>
         ))}
       </div>

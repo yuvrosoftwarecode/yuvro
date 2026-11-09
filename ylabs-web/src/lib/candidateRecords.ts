@@ -29,6 +29,7 @@ export interface CandidateRecord {
   labsScore: number | null;
   assessmentScore: number | null;
   vitarkaScore: number | null;
+  systemDesignScore?: number | null;
   eci: number | null;
   totalEarned?: number | null;
   totalPossible?: number | null;

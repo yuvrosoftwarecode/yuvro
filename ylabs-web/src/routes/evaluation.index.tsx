@@ -59,6 +59,9 @@ function EvaluationInvite() {
             let meta: any = {};
             try { meta = typeof sec.description === "string" ? JSON.parse(sec.description) : {}; } catch {}
             total += Number(meta.duration || meta.duration_minutes || sec.duration_minutes || sec.duration || 15);
+          } else if (sec.type === "SYSTEM_DESIGN") {
+            const firstQ = (sec.questions || [])[0];
+            total += Number(firstQ?.duration_minutes || sec.duration_minutes || 45);
           }
         });
         if (total > 0) setEstMinutes(total);

@@ -5,7 +5,9 @@ from .views import (
     EvaluationViewSet,
     LabQuestionBankViewSet,
     KnowledgeQuestionBankViewSet,
+    SystemDesignQuestionBankViewSet,
     UserLabQuestionBankSubmissionViewSet,
+    UserSystemDesignEvaluationSubmissionViewSet,
     CandidateNoteViewSet,
     CandidateTimelineEventViewSet,
     RecruiterActivityLogViewSet,
@@ -17,7 +19,9 @@ router = DefaultRouter()
 router.register(r'evaluations', EvaluationViewSet, basename='evaluation')
 router.register(r'lab-questions', LabQuestionBankViewSet, basename='labquestionbank')
 router.register(r'knowledge-questions', KnowledgeQuestionBankViewSet, basename='knowledgequestionbank')
+router.register(r'system-design-questions', SystemDesignQuestionBankViewSet, basename='systemdesignquestionbank')
 router.register(r'lab-submissions', UserLabQuestionBankSubmissionViewSet, basename='labsubmission')
+router.register(r'system-design-submissions', UserSystemDesignEvaluationSubmissionViewSet, basename='systemdesignsubmission')
 router.register(r'notes', CandidateNoteViewSet, basename='candidatenote')
 router.register(r'timeline-events', CandidateTimelineEventViewSet, basename='candidatetimelineevent')
 router.register(r'activity-logs', RecruiterActivityLogViewSet, basename='recruiteractivitylog')

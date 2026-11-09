@@ -117,6 +117,13 @@ function InstructionsPage() {
         discDuration = durationMinutes;
         discTitle = sec.title || "Engineering Discussion";
         subtitle = `AI-led technical discussion · ${marks} marks · ~${durationMinutes} min`;
+      } else if (sec.type === "SYSTEM_DESIGN") {
+        const qList = sec.questions || [];
+        const firstQ = qList.length > 0 ? (typeof qList[0] === 'object' ? qList[0] : null) : null;
+        marks = firstQ?.marks || sec.marks || 100;
+        durationMinutes = firstQ?.duration_minutes || sec.duration_minutes || 45;
+        const qTitle = firstQ?.title || sec.title || "System Design Challenge";
+        subtitle = `HLD, Sequence, DBML & REST APIs · ${marks} marks · ~${durationMinutes} min`;
       } else {
         marks = sec.marks || 0;
         durationMinutes = sec.duration_minutes || 0;
@@ -125,7 +132,7 @@ function InstructionsPage() {
 
       return {
         id: sec.id || `sec-${idx}`,
-        title: sec.title || (sec.type === "LAB" ? "Engineering Labs" : sec.type === "KNOWLEDGE_ASSESSMENT" ? "Knowledge Assessment" : "Engineering Discussion"),
+        title: sec.title || (sec.type === "LAB" ? "Engineering Labs" : sec.type === "KNOWLEDGE_ASSESSMENT" ? "Knowledge Assessment" : sec.type === "SYSTEM_DESIGN" ? "System Design" : "Engineering Discussion"),
         type: sec.type,
         marks,
         durationMinutes,

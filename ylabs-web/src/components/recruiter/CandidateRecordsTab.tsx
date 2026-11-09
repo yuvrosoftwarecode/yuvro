@@ -26,7 +26,7 @@ const SORTS: { v: SortKey; l: string }[] = [
 
 type ColKey =
   | "candidate" | "email" | "source" | "sent" | "status" | "submitted" | "score" | "result" | "followup"
-  | "phone" | "candidateId" | "labs" | "assessment" | "vitarka" | "eci" | "deadline" | "emails" | "aicall" | "last";
+  | "phone" | "candidateId" | "labs" | "assessment" | "vitarka" | "system_design" | "eci" | "deadline" | "emails" | "aicall" | "last";
 
 const COLUMNS: { key: ColKey; label: string; optional?: boolean }[] = [
   { key: "candidate", label: "Candidate" },
@@ -43,6 +43,7 @@ const COLUMNS: { key: ColKey; label: string; optional?: boolean }[] = [
   { key: "labs", label: "Engineering Labs", optional: true },
   { key: "assessment", label: "Assessment", optional: true },
   { key: "vitarka", label: "Vitarka AI", optional: true },
+  { key: "system_design", label: "System Design", optional: true },
   { key: "eci", label: "Total", optional: true },
   { key: "deadline", label: "Deadline", optional: true },
   { key: "emails", label: "Follow-up Emails Sent", optional: true },
@@ -517,6 +518,7 @@ function cellText(r: CandidateRecord, k: ColKey): string {
     case "labs": return r.labsScore == null ? "—" : String(r.labsScore);
     case "assessment": return r.assessmentScore == null ? "—" : String(r.assessmentScore);
     case "vitarka": return r.vitarkaScore == null ? "—" : String(r.vitarkaScore);
+    case "system_design": return r.systemDesignScore == null ? "—" : String(r.systemDesignScore);
     case "eci": return r.totalEarned != null ? String(r.totalEarned) : (r.eci == null ? "—" : String(r.eci));
     case "deadline": return fmtDate(r.deadline);
     case "emails": return String(r.emailsSent);
