@@ -138,6 +138,17 @@ class EvaluationViewSet(viewsets.ModelViewSet):
         if user:
             submission = UserEvaluationSubmission.objects.filter(evaluation=instance, user=user).first()
             if not submission and instance.created_by_id != user.id and request.user and request.user.is_authenticated:
+                # Quota validation for candidate submissions
+                from recruiter.models import RecruiterUserQuota
+                creator = instance.created_by
+                if creator:
+                    quota = RecruiterUserQuota.objects.filter(user=creator).first()
+                    if quota and quota.total_submissions >= 0 and quota.used_submissions >= quota.total_submissions:
+                        return Response(
+                            {"error": f"Candidate submissions quota reached for this evaluation ({quota.used_submissions}/{quota.total_submissions}). Please contact the recruiter."},
+                            status=status.HTTP_403_FORBIDDEN
+                        )
+
                 submission = UserEvaluationSubmission.objects.create(
                     evaluation=instance,
                     user=user,
@@ -317,6 +328,16 @@ class EvaluationViewSet(viewsets.ModelViewSet):
                 submission.phone = phone
                 submission.save(update_fields=['phone'])
         else:
+            from recruiter.models import RecruiterUserQuota
+            creator = evaluation.created_by
+            if creator:
+                quota = RecruiterUserQuota.objects.filter(user=creator).first()
+                if quota and quota.total_submissions >= 0 and quota.used_submissions >= quota.total_submissions:
+                    return Response(
+                        {"error": f"Candidate submissions quota reached for this evaluation ({quota.used_submissions}/{quota.total_submissions}). Please contact the recruiter."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
             UserEvaluationSubmission.objects.create(
                 evaluation=evaluation, 
                 user=user,
@@ -361,6 +382,18 @@ class EvaluationViewSet(viewsets.ModelViewSet):
             
         if evaluation.expiry_datetime and timezone.now() > evaluation.expiry_datetime:
             return Response({"is_expired": True, "error": "This evaluation has expired and is no longer accepting submissions.", "registered": False}, status=status.HTTP_200_OK)
+
+        # Quota validation for candidate submissions
+        from recruiter.models import RecruiterUserQuota
+        creator = evaluation.created_by
+        if creator:
+            quota = RecruiterUserQuota.objects.filter(user=creator).first()
+            if quota and quota.total_submissions >= 0 and quota.used_submissions >= quota.total_submissions:
+                return Response({
+                    "is_expired": True,
+                    "error": f"Candidate submissions quota has been reached for this evaluation ({quota.used_submissions}/{quota.total_submissions}). Please contact the recruiter.",
+                    "registered": False
+                }, status=status.HTTP_200_OK)
             
         if not email:
             return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -1873,10 +1906,40 @@ class LabQuestionBankViewSet(viewsets.ModelViewSet):
         
     def _validate_github_app_access(self, validated_data):
         from skill_evaluation.models import RepoSourceType
-        from recruiter.models import GithubAppInstallationGrant
+        from recruiter.models import GithubAppInstallationGrant, RecruiterUserQuota
         from rest_framework.exceptions import ValidationError
         
         repo_source_type = validated_data.get('repo_source_type')
+        user = self.request.user if (self.request.user and self.request.user.is_authenticated) else None
+
+        # Check codebase repository quota if adding a custom codebase (GitHub App or custom starter URL)
+        is_custom_repo = (
+            repo_source_type == RepoSourceType.RECRUITER_GITHUB_APP or
+            bool(validated_data.get('github_repo_id')) or
+            bool((validated_data.get('git_repo_starter_url') or '').strip())
+        )
+
+        if user and is_custom_repo:
+            quota = RecruiterUserQuota.objects.filter(user=user).first()
+            if quota and quota.total_codebase_repos >= 0:
+                instance = getattr(self, 'instance', None) or (self.get_object() if hasattr(self, 'get_object') and self.kwargs.get('pk') else None)
+                is_same_repo = False
+                if instance:
+                    existing_starter = (instance.git_repo_starter_url or '').strip()
+                    existing_github_id = str(instance.github_repo_id or '').strip()
+                    new_starter = (validated_data.get('git_repo_starter_url') or '').strip()
+                    new_github_id = str(validated_data.get('github_repo_id') or '').strip()
+                    if (existing_github_id and existing_github_id == new_github_id) or (existing_starter and existing_starter == new_starter):
+                        is_same_repo = True
+
+                if not is_same_repo:
+                    current_used = quota.used_codebase_repos
+                    if current_used >= quota.total_codebase_repos:
+                        raise ValidationError(
+                            f"Codebase repository quota reached ({current_used}/{quota.total_codebase_repos}). "
+                            "Please upgrade your plan to connect more codebases."
+                        )
+
         if repo_source_type == RepoSourceType.RECRUITER_GITHUB_APP:
             installation = validated_data.get('github_app_installation')
             github_repo_id = validated_data.get('github_repo_id')

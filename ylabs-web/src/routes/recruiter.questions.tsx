@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useMemo, memo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { questionBankService } from "@/services/questionBankService";
-import { fetchCourses, fetchQuestions, fetchQuestionDetails } from "@/lib/recruiter";
+import { fetchCourses, fetchQuestions, fetchQuestionDetails, getRecruiterMyQuota } from "@/lib/recruiter";
 import { ycodeApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { CreateQuestionForm } from "@/components/evaluation/CreateQuestionForm";
@@ -672,6 +672,11 @@ function RecruiterQuestionBankPage() {
   }, []);
 
   // Fetch Lab Questions
+  const { data: recruiterQuota } = useQuery({
+    queryKey: ["recruiterMyQuota"],
+    queryFn: () => getRecruiterMyQuota(),
+  });
+
   const { data: labQuestions = [], isLoading: isLoadingLabs } = useQuery({
     queryKey: ["labQuestions"],
     queryFn: () => questionBankService.getLabQuestions(),
@@ -1032,6 +1037,35 @@ function RecruiterQuestionBankPage() {
     const sanitizedBackendFrameworks = (labFormData.backend_frameworks || []).map((f: string) =>
       f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f
     );
+
+    const isCustomRepo = Boolean(
+      labFormData.repo_source_type === "RECRUITER_GITHUB_APP" ||
+      labFormData.github_repo_id ||
+      (labFormData.git_repo_starter_url || "").trim()
+    );
+
+    if (isCustomRepo && recruiterQuota && recruiterQuota.total_codebase_repos >= 0) {
+      const isQuotaExceeded = recruiterQuota.repos_remaining <= 0 || recruiterQuota.used_codebase_repos >= recruiterQuota.total_codebase_repos;
+      if (isQuotaExceeded) {
+        let isSameRepo = false;
+        if (editingLabId) {
+          const currentEditing = (labQuestions || []).find((q: any) => q.id === editingLabId);
+          if (currentEditing) {
+            const oldStarter = (currentEditing.git_repo_starter_url || "").trim();
+            const oldGId = String(currentEditing.github_repo_id || "").trim();
+            const newStarter = (labFormData.git_repo_starter_url || "").trim();
+            const newGId = String(labFormData.github_repo_id || "").trim();
+            if ((oldGId && oldGId === newGId) || (oldStarter && oldStarter === newStarter)) {
+              isSameRepo = true;
+            }
+          }
+        }
+        if (!isSameRepo) {
+          showToast(`Codebase repository quota reached (${recruiterQuota.used_codebase_repos}/${recruiterQuota.total_codebase_repos}). Upgrade your plan to connect more repositories.`);
+          return;
+        }
+      }
+    }
 
     const payload = {
       ...labFormData,

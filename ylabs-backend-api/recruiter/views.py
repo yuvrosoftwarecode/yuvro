@@ -56,9 +56,26 @@ class CompanyRecruiterViewSet(viewsets.ModelViewSet):
         return CompanyRecruiterSerializer
 
     def create(self, request, *args, **kwargs):
+        # Enforce recruiter logins / seat quota check
+        from rest_framework.exceptions import ValidationError
+        quota = RecruiterUserQuota.objects.filter(user=request.user).first()
+        if not quota:
+            company_id = request.data.get("company") or request.data.get("company_id")
+            if company_id:
+                owner_cr = CompanyRecruiter.objects.filter(company_id=company_id).select_related("user").order_by("created_at").first()
+                if owner_cr and owner_cr.user:
+                    quota = RecruiterUserQuota.objects.filter(user=owner_cr.user).first()
+
+        if quota and quota.total_recruiter_logins >= 0 and quota.used_recruiter_logins >= quota.total_recruiter_logins:
+            raise ValidationError({
+                "detail": f"Recruiter logins limit reached ({quota.used_recruiter_logins}/{quota.total_recruiter_logins}). Upgrade plan to add more team members."
+            })
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         company_recruiter = serializer.save(created_by=request.user)
+        if quota:
+            quota.increment_usage("recruiter_logins")
 
         # Return the standard serialized format of the new object
         response_serializer = CompanyRecruiterSerializer(company_recruiter)
