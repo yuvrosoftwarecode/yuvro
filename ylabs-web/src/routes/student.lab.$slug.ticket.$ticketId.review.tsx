@@ -28,6 +28,8 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { TicketSolutionViewer } from "@/components/TicketSolutionViewer";
+import { ShareMilestoneModal } from "@/components/shared/ShareMilestoneModal";
+import { Linkedin } from "lucide-react";
 
 export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId/review")({
   component: Review,
@@ -40,6 +42,7 @@ function Review() {
   const [ticket, setTicket] = useState<any>(null);
   const [submission, setSubmission] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -197,7 +200,16 @@ function Review() {
                 {ticket?.id} · {lab?.name} ·{" "}
                 {isPassed ? "✅ Completed" : "❌ Unresolved (Needs Revision)"}
               </div>
-              <h1 className="text-2xl sm:text-3xl font-semibold mt-0.5">{ticket?.title}</h1>
+              <div className="flex flex-wrap items-center gap-3 mt-0.5">
+                <h1 className="text-2xl sm:text-3xl font-semibold">{ticket?.title}</h1>
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0A66C2] text-white text-xs font-medium hover:bg-[#0A66C2]/90 shadow-sm transition-colors"
+                >
+                  <Linkedin className="h-3.5 w-3.5 fill-current" />
+                  Share to LinkedIn
+                </button>
+              </div>
               <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
                   <Clock className="h-4 w-4" />
@@ -321,6 +333,18 @@ function Review() {
             </Link>
           </div>
         )}
+              <ShareMilestoneModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          milestoneTitle={ticket?.title || "Ticket Cleared"}
+          milestoneType="ticket"
+          details={{
+            labTitle: lab?.title || lab?.name || "Practical Labs",
+            score: percentage,
+            earnedXp: earnedXp,
+            tags: lab?.tags || [],
+          }}
+        />
       </main>
     </div>
   );

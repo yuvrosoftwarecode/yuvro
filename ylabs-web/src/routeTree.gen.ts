@@ -37,6 +37,7 @@ import { Route as RecruiterGithubRouteImport } from './routes/recruiter.github'
 import { Route as RecruiterDashboardRouteImport } from './routes/recruiter.dashboard'
 import { Route as RecruiterBillingRouteImport } from './routes/recruiter.billing'
 import { Route as MockInterviewSlugRouteImport } from './routes/mock-interview.$slug'
+import { Route as LinkedinCallbackRouteImport } from './routes/linkedin.callback'
 import { Route as GithubCallbackRouteImport } from './routes/github.callback'
 import { Route as EvaluationWorkspaceRouteImport } from './routes/evaluation.workspace'
 import { Route as EvaluationSystemCheckRouteImport } from './routes/evaluation.system-check'
@@ -59,6 +60,7 @@ import { Route as AdminLabsNewRouteImport } from './routes/admin.labs.new'
 import { Route as StudentLabSlugReportRouteImport } from './routes/student.lab.$slug.report'
 import { Route as StudentCollaborationSprintIdRouteImport } from './routes/student.collaboration.sprint.$id'
 import { Route as RecruiterEvaluationsIdWorkspaceRouteImport } from './routes/recruiter.evaluations.$id.workspace'
+import { Route as PublicMilestoneSlugUserIdRouteImport } from './routes/public.milestone.$slug.$userId'
 import { Route as AdminStudentReportUserIdLabIdRouteImport } from './routes/admin.student-report.$userId.$labId'
 import { Route as AdminLabsIdSprintsRouteImport } from './routes/admin.labs.$id.sprints'
 import { Route as AdminLabsIdEditRouteImport } from './routes/admin.labs.$id.edit'
@@ -214,6 +216,11 @@ const MockInterviewSlugRoute = MockInterviewSlugRouteImport.update({
   path: '/mock-interview/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LinkedinCallbackRoute = LinkedinCallbackRouteImport.update({
+  id: '/linkedin/callback',
+  path: '/linkedin/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GithubCallbackRoute = GithubCallbackRouteImport.update({
   id: '/github/callback',
   path: '/github/callback',
@@ -328,6 +335,12 @@ const RecruiterEvaluationsIdWorkspaceRoute =
     path: '/workspace',
     getParentRoute: () => RecruiterEvaluationsIdRoute,
   } as any)
+const PublicMilestoneSlugUserIdRoute =
+  PublicMilestoneSlugUserIdRouteImport.update({
+    id: '/public/milestone/$slug/$userId',
+    path: '/public/milestone/$slug/$userId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminStudentReportUserIdLabIdRoute =
   AdminStudentReportUserIdLabIdRouteImport.update({
     id: '/student-report/$userId/$labId',
@@ -434,6 +447,7 @@ export interface FileRoutesByFullPath {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/linkedin/callback': typeof LinkedinCallbackRoute
   '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
@@ -462,6 +476,7 @@ export interface FileRoutesByFullPath {
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
   '/admin/student-report/$userId/$labId': typeof AdminStudentReportUserIdLabIdRouteWithChildren
+  '/public/milestone/$slug/$userId': typeof PublicMilestoneSlugUserIdRoute
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
   '/student/lab/$slug/report': typeof StudentLabSlugReportRoute
@@ -496,6 +511,7 @@ export interface FileRoutesByTo {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/linkedin/callback': typeof LinkedinCallbackRoute
   '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
@@ -524,6 +540,7 @@ export interface FileRoutesByTo {
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
   '/admin/student-report/$userId/$labId': typeof AdminStudentReportUserIdLabIdRouteWithChildren
+  '/public/milestone/$slug/$userId': typeof PublicMilestoneSlugUserIdRoute
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
   '/student/lab/$slug/report': typeof StudentLabSlugReportRoute
@@ -563,6 +580,7 @@ export interface FileRoutesById {
   '/evaluation/system-check': typeof EvaluationSystemCheckRoute
   '/evaluation/workspace': typeof EvaluationWorkspaceRoute
   '/github/callback': typeof GithubCallbackRoute
+  '/linkedin/callback': typeof LinkedinCallbackRoute
   '/mock-interview/$slug': typeof MockInterviewSlugRoute
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
@@ -591,6 +609,7 @@ export interface FileRoutesById {
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
   '/admin/student-report/$userId/$labId': typeof AdminStudentReportUserIdLabIdRouteWithChildren
+  '/public/milestone/$slug/$userId': typeof PublicMilestoneSlugUserIdRoute
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
   '/student/lab/$slug/report': typeof StudentLabSlugReportRoute
@@ -631,6 +650,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/linkedin/callback'
     | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
@@ -659,6 +679,7 @@ export interface FileRouteTypes {
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
     | '/admin/student-report/$userId/$labId'
+    | '/public/milestone/$slug/$userId'
     | '/recruiter/evaluations/$id/workspace'
     | '/student/collaboration/sprint/$id'
     | '/student/lab/$slug/report'
@@ -693,6 +714,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/linkedin/callback'
     | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
@@ -721,6 +743,7 @@ export interface FileRouteTypes {
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
     | '/admin/student-report/$userId/$labId'
+    | '/public/milestone/$slug/$userId'
     | '/recruiter/evaluations/$id/workspace'
     | '/student/collaboration/sprint/$id'
     | '/student/lab/$slug/report'
@@ -759,6 +782,7 @@ export interface FileRouteTypes {
     | '/evaluation/system-check'
     | '/evaluation/workspace'
     | '/github/callback'
+    | '/linkedin/callback'
     | '/mock-interview/$slug'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
@@ -787,6 +811,7 @@ export interface FileRouteTypes {
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
     | '/admin/student-report/$userId/$labId'
+    | '/public/milestone/$slug/$userId'
     | '/recruiter/evaluations/$id/workspace'
     | '/student/collaboration/sprint/$id'
     | '/student/lab/$slug/report'
@@ -817,9 +842,11 @@ export interface RootRouteChildren {
   StudentRoute: typeof StudentRouteWithChildren
   SystemDesignStudioRoute: typeof SystemDesignStudioRoute
   GithubCallbackRoute: typeof GithubCallbackRoute
+  LinkedinCallbackRoute: typeof LinkedinCallbackRoute
   MockInterviewSlugRoute: typeof MockInterviewSlugRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
   SharedReportTokenRoute: typeof SharedReportTokenRoute
+  PublicMilestoneSlugUserIdRoute: typeof PublicMilestoneSlugUserIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1020,6 +1047,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MockInterviewSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/linkedin/callback': {
+      id: '/linkedin/callback'
+      path: '/linkedin/callback'
+      fullPath: '/linkedin/callback'
+      preLoaderRoute: typeof LinkedinCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/github/callback': {
       id: '/github/callback'
       path: '/github/callback'
@@ -1173,6 +1207,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/recruiter/evaluations/$id/workspace'
       preLoaderRoute: typeof RecruiterEvaluationsIdWorkspaceRouteImport
       parentRoute: typeof RecruiterEvaluationsIdRoute
+    }
+    '/public/milestone/$slug/$userId': {
+      id: '/public/milestone/$slug/$userId'
+      path: '/public/milestone/$slug/$userId'
+      fullPath: '/public/milestone/$slug/$userId'
+      preLoaderRoute: typeof PublicMilestoneSlugUserIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/student-report/$userId/$labId': {
       id: '/admin/student-report/$userId/$labId'
@@ -1518,9 +1559,11 @@ const rootRouteChildren: RootRouteChildren = {
   StudentRoute: StudentRouteWithChildren,
   SystemDesignStudioRoute: SystemDesignStudioRoute,
   GithubCallbackRoute: GithubCallbackRoute,
+  LinkedinCallbackRoute: LinkedinCallbackRoute,
   MockInterviewSlugRoute: MockInterviewSlugRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
   SharedReportTokenRoute: SharedReportTokenRoute,
+  PublicMilestoneSlugUserIdRoute: PublicMilestoneSlugUserIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
