@@ -263,7 +263,7 @@ export interface ProctoringConfig {
   tabSwitchAllowed?: boolean;
 }
 
-export type SectionType = "labs" | "assessment" | "discussion";
+export type SectionType = "labs" | "assessment" | "discussion" | "system_design";
 
 export interface LabsSection {
   id: string;
@@ -299,7 +299,36 @@ export interface DiscussionSection {
   marks?: number;
   max_score?: number;
 }
-export type Section = LabsSection | AssessmentSection | DiscussionSection;
+
+export interface SystemDesignChallengeItem {
+  id: string;
+  title: string;
+  description?: string;
+  system_slug?: string;
+  scenario_type?: string;
+  company?: string;
+  difficulty?: Difficulty;
+  domain?: Domain;
+  duration_minutes?: number;
+  marks?: number;
+  tasks?: any[];
+  constraints?: string[];
+  starter_design?: any;
+  solution_design?: any;
+}
+
+export interface SystemDesignSection {
+  id: string;
+  kind: "system_design";
+  title: string;
+  duration: number;
+  marks: number;
+  challenges?: SystemDesignChallengeItem[];
+  questions?: SystemDesignChallengeItem[];
+  proctoring?: ProctoringConfig;
+}
+
+export type Section = LabsSection | AssessmentSection | DiscussionSection | SystemDesignSection;
 
 export function mapDomainToBackend(domain?: string): string {
   if (!domain) return "OTHER";
@@ -427,6 +456,24 @@ function mapBackendToFrontend(be: any): Evaluation {
           max_score: marks,
           proctoring
         };
+      } else if (s.type === "SYSTEM_DESIGN") {
+        let meta: any = {};
+        try {
+          meta = typeof s.description === "string" ? JSON.parse(s.description || "{}") : (s.description || {});
+        } catch {}
+        const firstQ = (s.questions && s.questions[0]) || {};
+        const duration = Number(meta.duration || firstQ.duration_minutes || s.duration_minutes || 45);
+        const marks = Number(meta.marks || firstQ.marks || s.marks || 30);
+        return {
+          id: s.id || newUid(),
+          kind: "system_design",
+          title: s.title || "System Design",
+          duration,
+          marks,
+          challenges: s.questions || [],
+          questions: s.questions || [],
+          proctoring
+        };
       } else {
         return {
           id: s.id || newUid(),
@@ -525,6 +572,17 @@ function mapFrontendToBackend(fe: Evaluation): any {
           marks,
           max_score: marks,
           discussionMaxScore: marks,
+        });
+      } else if (s.kind === "system_design") {
+        type = "SYSTEM_DESIGN";
+        qs = s.challenges || s.questions || [];
+        const firstQ = qs[0] || {};
+        const duration = s.duration != null ? s.duration : (firstQ.duration_minutes || 45);
+        const marks = s.marks != null ? s.marks : (firstQ.marks || 30);
+        desc = JSON.stringify({
+          duration,
+          marks,
+          system_slug: firstQ.system_slug || "systemdesign-url-shortener",
         });
       }
 
@@ -1027,6 +1085,11 @@ export function evaluationTotals(e: Evaluation) {
       const dur = s.duration != null ? s.duration : calcDur;
       const m = s.marks != null ? s.marks : (s.max_score != null ? s.max_score : calcMarks);
       discussion += dur;
+      minutes += dur;
+      marks += m;
+    } else if (s.kind === "system_design") {
+      const dur = s.duration != null ? s.duration : 45;
+      const m = s.marks != null ? s.marks : 30;
       minutes += dur;
       marks += m;
     }

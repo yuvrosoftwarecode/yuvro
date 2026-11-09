@@ -10,10 +10,12 @@ from .models import (
     EvaluationSection,
     LabQuestionBank,
     KnowledgeQuestionBank,
+    SystemDesignQuestionBank,
     QuestionDomain,
     ExperienceLevel,
     Difficulty,
     UserEvaluationSubmission,
+    UserSystemDesignEvaluationSubmission,
     EvaluationSectionType,
     FollowUpConfig,
     FollowUpCandidate
@@ -24,6 +26,17 @@ from lab.workspace_manager import provision_evaluation_lab_starter_repo
 logger = logging.getLogger(__name__)
 
 import re
+import uuid
+from django.core.exceptions import ValidationError
+
+def is_valid_uuid(val):
+    if not val:
+        return False
+    try:
+        uuid.UUID(str(val))
+        return True
+    except (ValueError, AttributeError, TypeError):
+        return False
 
 def provision_evaluation_labs(evaluation):
     for section in evaluation.sections.all():
@@ -41,7 +54,7 @@ def provision_evaluation_labs(evaluation):
                 else:
                     q_id = str(question_data)
                     
-                if not q_id:
+                if not q_id or not is_valid_uuid(q_id):
                     continue
                     
                 try:
@@ -53,8 +66,8 @@ def provision_evaluation_labs(evaluation):
                             lab.git_repo_starter_url, 
                             branch=lab.git_repo_starter_branch
                         )
-                except LabQuestionBank.DoesNotExist:
-                    logger.warning(f"LabQuestionBank with id {q_id} not found.")
+                except (LabQuestionBank.DoesNotExist, ValidationError):
+                    logger.warning(f"LabQuestionBank with id {q_id} not found or invalid UUID.")
                 except Exception as e:
                     logger.error(f"Error provisioning lab for evaluation {evaluation.id}: {e}")
 
@@ -82,6 +95,7 @@ class UserEvaluationSubmissionSerializer(serializers.ModelSerializer):
 
     lab_submissions = serializers.SerializerMethodField()
     knowledge_submissions = serializers.SerializerMethodField()
+    system_design_submissions = serializers.SerializerMethodField()
 
     class Meta:
         model = UserEvaluationSubmission
@@ -98,6 +112,12 @@ class UserEvaluationSubmissionSerializer(serializers.ModelSerializer):
         from .serializers import UserKnowledgeAssessmentSubmissionSerializer
         subs = UserKnowledgeAssessmentSubmission.objects.filter(evaluation=obj.evaluation, user=obj.user)
         return UserKnowledgeAssessmentSubmissionSerializer(subs, many=True).data
+
+    def get_system_design_submissions(self, obj):
+        from .models import UserSystemDesignEvaluationSubmission
+        from .serializers import UserSystemDesignEvaluationSubmissionSerializer
+        subs = UserSystemDesignEvaluationSubmission.objects.filter(evaluation=obj.evaluation, user=obj.user)
+        return UserSystemDesignEvaluationSubmissionSerializer(subs, many=True).data
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -180,13 +200,48 @@ class EvaluationSectionSerializer(serializers.ModelSerializer):
             enriched = []
             for q in ret['questions']:
                 if isinstance(q, dict) and q.get('id'):
-                    lab = LabQuestionBank.objects.filter(id=q['id']).first()
+                    lab = None
+                    try:
+                        if is_valid_uuid(q['id']):
+                            lab = LabQuestionBank.objects.filter(id=q['id']).first()
+                    except Exception as e:
+                        logger.warning(f"Error resolving LabQuestionBank: {e}")
+                        lab = None
                     if lab and lab.solution:
                         q_copy = dict(q)
                         if not q_copy.get('solution'):
                             q_copy['solution'] = lab.solution
                         if not q_copy.get('solution_files') and isinstance(lab.solution, dict):
                             q_copy['solution_files'] = [{'path': k, 'code': v} for k, v in lab.solution.items()]
+                        enriched.append(q_copy)
+                        continue
+                enriched.append(q)
+            ret['questions'] = enriched
+        elif instance.type == EvaluationSectionType.SYSTEM_DESIGN and isinstance(ret.get('questions'), list):
+            enriched = []
+            for q in ret['questions']:
+                if isinstance(q, dict) and q.get('id'):
+                    sd_q = None
+                    try:
+                        if is_valid_uuid(q['id']):
+                            sd_q = SystemDesignQuestionBank.objects.filter(id=q['id']).first()
+                        if not sd_q and q.get('system_slug'):
+                            sd_q = SystemDesignQuestionBank.objects.filter(system_slug=q['system_slug']).first()
+                        if not sd_q and isinstance(q.get('id'), str):
+                            sd_q = SystemDesignQuestionBank.objects.filter(system_slug=q['id']).first()
+                    except Exception as e:
+                        logger.warning(f"Error resolving SystemDesignQuestionBank: {e}")
+                        sd_q = None
+                    if sd_q:
+                        q_copy = dict(q)
+                        if not q_copy.get('starter_design') and sd_q.starter_design:
+                            q_copy['starter_design'] = sd_q.starter_design
+                        if not q_copy.get('solution_design') and sd_q.solution_design:
+                            q_copy['solution_design'] = sd_q.solution_design
+                        if not q_copy.get('tasks') and sd_q.tasks:
+                            q_copy['tasks'] = sd_q.tasks
+                        if not q_copy.get('constraints') and sd_q.constraints:
+                            q_copy['constraints'] = sd_q.constraints
                         enriched.append(q_copy)
                         continue
                 enriched.append(q)
@@ -616,4 +671,30 @@ class CandidateEvaluationFeedbackSerializer(serializers.ModelSerializer):
         model = CandidateEvaluationFeedback
         fields = ['id', 'evaluation', 'candidate', 'candidate_name', 'candidate_email', 'rating', 'description', 'created_at']
         read_only_fields = ['id', 'candidate', 'created_at']
+
+
+class SystemDesignQuestionBankSerializer(serializers.ModelSerializer):
+    created_by_email = serializers.SerializerMethodField()
+    company_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SystemDesignQuestionBank
+        fields = '__all__'
+        read_only_fields = ('created_by', 'company')
+
+    def get_created_by_email(self, obj):
+        return obj.created_by.email if obj.created_by else None
+
+    def get_company_name(self, obj):
+        return obj.company.name if obj.company else None
+
+
+class UserSystemDesignEvaluationSubmissionSerializer(serializers.ModelSerializer):
+    time_taken = serializers.ReadOnlyField()
+
+    class Meta:
+        model = UserSystemDesignEvaluationSubmission
+        fields = '__all__'
+        read_only_fields = ('user',)
+
 

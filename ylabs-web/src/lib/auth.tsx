@@ -18,6 +18,8 @@ export interface User {
   last_login?: string;
   github_connected?: boolean;
   github_username?: string;
+  linkedin_connected?: boolean;
+  linkedin_name?: string;
   profile_image?: string;
   cover_image?: string;
   resume_file?: string;
