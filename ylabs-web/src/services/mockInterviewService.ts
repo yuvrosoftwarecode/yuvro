@@ -155,6 +155,8 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("python") && !titleLower.includes("machine learning")) {
     category = "Backend";
   } else if (
+    titleLower.includes("ai engineer") ||
+    titleLower.includes("artificial intelligence") ||
     titleLower.includes("machine learning") ||
     titleLower.includes("deep learning") ||
     skills.includes("machine learning") ||
@@ -209,6 +211,12 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("python")) {
     icon = "🐍";
     color = "info";
+  } else if (titleLower.includes("react")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg";
+    color = "info";
+  } else if (titleLower.includes("mysql")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg";
+    color = "primary";
   } else if (category === "AI/ML" || titleLower.includes("machine learning")) {
     icon = "🤖";
     color = "info";

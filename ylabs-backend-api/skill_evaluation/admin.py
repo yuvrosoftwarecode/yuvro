@@ -12,6 +12,8 @@ from .models import (
     UserLabQuestionBankSubmission,
     UserKnowledgeAssessmentSubmission,
     KnowledgeQuestionBank,
+    SystemDesignQuestionBank,
+    UserSystemDesignEvaluationSubmission,
     FollowUpConfig,
     FollowUpCandidate,
 )
@@ -70,6 +72,20 @@ class KnowledgeQuestionBankAdmin(admin.ModelAdmin):
         "backend_frameworks",
         "frontend_frameworks",
     )
+
+@admin.register(SystemDesignQuestionBank)
+class SystemDesignQuestionBankAdmin(admin.ModelAdmin):
+    list_display = ("id", "title", "system_slug", "difficulty", "domain", "experience", "duration_minutes", "marks", "created_at")
+    list_filter = ("system_slug", "domain", "experience", "difficulty")
+    search_fields = ("title", "description", "system_slug")
+    ordering = ("-created_at",)
+
+@admin.register(UserSystemDesignEvaluationSubmission)
+class UserSystemDesignEvaluationSubmissionAdmin(admin.ModelAdmin):
+    list_display = [f.name for f in UserSystemDesignEvaluationSubmission._meta.fields]
+    list_filter = ("status", "evaluation")
+    search_fields = ("user__email", "evaluation__title")
+    ordering = ("-created_at",)
 
 @admin.register(CandidateNote)
 class CandidateNoteAdmin(admin.ModelAdmin):

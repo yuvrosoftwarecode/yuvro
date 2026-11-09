@@ -6,6 +6,8 @@ from django.contrib.auth import get_user_model
 from skill_evaluation.models import (
     LabQuestionBank,
     LabQuestionBankTask,
+    KnowledgeQuestionBank,
+    SystemDesignQuestionBank,
 )
 
 User = get_user_model()
@@ -35,6 +37,7 @@ class Command(BaseCommand):
             self.stdout.write("Clearing existing skill evaluation data...")
             LabQuestionBankTask.objects.all().delete()
             LabQuestionBank.objects.all().delete()
+            SystemDesignQuestionBank.objects.all().delete()
             self.stdout.write(self.style.SUCCESS("Existing skill evaluation data cleared."))
 
         fixtures_dir = Path(os.path.dirname(__file__)) / "../../fixtures" / deploy_env
@@ -45,6 +48,8 @@ class Command(BaseCommand):
                 data = self._load_json(lq_file)
                 if data:
                     self._load_lab_questions(data)
+                    self._load_assessment_questions(data)
+                    self._load_system_design_questions(data)
             else:
                 self.stdout.write(self.style.WARNING(f"File not found: {lq_file}"))
 
@@ -86,6 +91,33 @@ class Command(BaseCommand):
                     "duration_minutes": q_data.get("duration_minutes", 30),
                     "marks": q_data.get("marks", 10),
                     "format": q_data.get("format", "MCQ"),
+                    "programming_languages": q_data.get("programming_languages", []),
+                    "databases": q_data.get("databases", []),
+                    "backend_frameworks": q_data.get("backend_frameworks", []),
+                    "frontend_frameworks": q_data.get("frontend_frameworks", []),
+                    "created_by": admin_user,
+                },
+            )
+
+    def _load_system_design_questions(self, data):
+        admin_user = self._get_admin_user()
+        for q_data in data.get("system_design_questions", []):
+            self.stdout.write(f'Loading System Design Question: {q_data["title"]}')
+            SystemDesignQuestionBank.objects.update_or_create(
+                title=q_data["title"],
+                defaults={
+                    "description": q_data.get("description", ""),
+                    "difficulty": q_data.get("difficulty", "MEDIUM"),
+                    "domain": q_data.get("domain", "OTHER"),
+                    "experience": q_data.get("experience", "FRESHER"),
+                    "duration_minutes": q_data.get("duration_minutes", 45),
+                    "marks": q_data.get("marks", 50),
+                    "system_slug": q_data.get("system_slug", "systemdesign-url-shortener"),
+                    "scenario_type": q_data.get("scenario_type", "Distributed System"),
+                    "starter_design": q_data.get("starter_design", {}),
+                    "solution_design": q_data.get("solution_design", {}),
+                    "tasks": q_data.get("tasks", []),
+                    "constraints": q_data.get("constraints", []),
                     "programming_languages": q_data.get("programming_languages", []),
                     "databases": q_data.get("databases", []),
                     "backend_frameworks": q_data.get("backend_frameworks", []),

@@ -106,7 +106,7 @@ const TAB_LABELS: Record<
   overview: "Overview",
   candidates: "Submissions",
   followups: "Follow-ups",
-  records: "Candidate Records",
+  records: "Candidate records",
   feedback: "Feedback",
   intelligence: "Hiring Intelligence",
   settings: "Settings",
@@ -399,86 +399,65 @@ function Workspace() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="evs-theme min-h-screen">
       {/* Top header */}
-      <header className="sticky top-0 z-30 border-b border-white/5 bg-white backdrop-blur">
-        <div className="w-full px-8 pt-6 pb-4">
+      <header className="border-b border-[var(--rec-border)] bg-[var(--rec-bg)]">
+        <div className="w-full px-8 pt-6">
           <Link
             to="/recruiter/evaluations"
-            className="inline-flex items-center gap-1.5 text-[12px] text-neutral-500 hover:text-white"
+            className="text-sm text-[var(--rec-muted-2)] underline underline-offset-2 hover:text-[var(--rec-fg)]"
           >
-            <ChevronLeft className="h-3.5 w-3.5" /> All evaluations
+            All evaluations
           </Link>
-          <div className="mt-4 flex flex-nowrap items-start justify-between gap-6">
+          <div className="mb-7 mt-5 flex flex-wrap items-start justify-between gap-6">
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <StatusBadge status={ev.status} />
-                <span className="text-[11px] uppercase tracking-widest text-neutral-500">
-                  {ev.domain || "Uncategorized"} · Domain
-                </span>
-              </div>
-              <h1 className="mt-2 text-[32px] font-medium leading-tight tracking-tight text-white">
+              <h1>
                 {ev.title}
+                <span className="ml-2 text-[15px] font-normal text-[var(--rec-muted-2)]">
+                  {ev.status === "published" ? "Published" : "Draft"}
+                </span>
               </h1>
-              <dl className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-[12px] text-neutral-500">
-                <span>
-                  Created <b className="font-normal text-neutral-300">{fmtDate(ev.createdAt)}</b>
-                </span>
-                <span>
-                  Last modified{" "}
-                  <b className="font-normal text-neutral-300">{fmtRel(ev.createdAt)}</b>
-                </span>
-                <span>
-                  Created by <b className="font-normal text-neutral-300">{ev.createdBy || "Recruiter"}</b>
-                </span>
-                <span>
-                  Duration <b className="font-normal text-neutral-300">{totals.minutes} min</b>
-                </span>
-                <span>
-                  Marks <b className="font-normal text-neutral-300">{totals.marks}</b>
-                </span>
-
-              </dl>
+              <p className="mt-1 text-sm leading-5 text-[var(--rec-muted-2)]">
+                Created {fmtDate(ev.createdAt)} · Last modified {fmtDate(ev.createdAt)} · {totals.minutes} min · {totals.marks} marks
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-5 text-[15px]">
+              <button
+                onClick={copyLink}
+                className="font-medium text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)]"
+              >
+                Copy link
+              </button>
+              <button
+                onClick={handleGenerateReports}
+                className="font-medium text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)]"
+              >
+                {generating ? "Generating..." : "Generate reports"}
+              </button>
+              <button onClick={() => setInviteOpen(true)} className="rec-btn">
+                Invite candidates
+              </button>
             </div>
           </div>
 
-          {/* Tabs & Actions */}
-          <div className="mt-6 flex items-center justify-between">
-            <nav className="flex items-center gap-1">
-              {(["overview", "candidates", "followups", "records", "feedback"] as const).map(
-                (t) => (
-                  <button
-                    key={t}
-                    onClick={() => goto(t)}
-                    className={`relative whitespace-nowrap px-3 py-2 text-[13px] transition ${tab === t ? "text-white" : "text-neutral-500 hover:text-neutral-300"}`}
-                  >
-                    {TAB_LABELS[t]}
-                    {tab === t && (
-                      <span className="absolute inset-x-3 -bottom-[13px] h-px bg-white" />
-                    )}
-                  </button>
-                ),
-              )}
-            </nav>
-            <div className="flex flex-shrink-0 flex-nowrap items-center gap-2 pb-2">
-              <HeaderBtn
-                onClick={() => setInviteOpen(true)}
-                icon={<Mail className="h-3.5 w-3.5" />}
-              >
-                Invite Candidates
-              </HeaderBtn>
-              <HeaderBtn onClick={copyLink} icon={<CopyIcon className="h-3.5 w-3.5" />}>
-                Copy Link
-              </HeaderBtn>
-              <HeaderBtn 
-                onClick={handleGenerateReports} 
-                icon={<FileText className={`h-3.5 w-3.5 ${generating ? "animate-pulse" : ""}`} />}
-              >
-                {generating ? "Generating..." : "Generate Reports"}
-              </HeaderBtn>
-
-            </div>
-          </div>
+          {/* Tabs */}
+          <nav className="flex gap-7 border-t border-transparent">
+            {(["overview", "candidates", "followups", "records", "feedback"] as const).map(
+              (t) => (
+                <button
+                  key={t}
+                  onClick={() => goto(t)}
+                  className={`-mb-px whitespace-nowrap border-b-2 pb-3 text-[15px] transition ${
+                    tab === t
+                      ? "border-[var(--rec-accent)] font-medium text-[var(--rec-fg)]"
+                      : "border-transparent text-[var(--rec-muted-2)] hover:text-[var(--rec-fg)]"
+                  }`}
+                >
+                  {TAB_LABELS[t]}
+                </button>
+              ),
+            )}
+          </nav>
         </div>
       </header>
 
@@ -1063,7 +1042,7 @@ const PIPELINE: { id: PipelineId; label: string; match: (c: Candidate) => boolea
   { id: "all", label: "All", match: () => true },
   {
     id: "pending",
-    label: "Pending Review",
+    label: "Pending review",
     match: (c) =>
       c.hiringStatus === "Pending Review" && (c.status === "Submitted" || c.status === "Completed"),
   },
@@ -1080,6 +1059,7 @@ type ColKey =
   | "labs"
   | "assessment"
   | "vitarka"
+  | "system_design"
   | "eci"
   | "recommendation"
   | "submitted"
@@ -1091,6 +1071,7 @@ const ALL_COLS: { key: ColKey; label: string; always?: boolean }[] = [
   { key: "labs", label: "Engineering Labs", always: true },
   { key: "assessment", label: "Knowledge Assessment", always: true },
   { key: "vitarka", label: "Vitarka", always: true },
+  { key: "system_design", label: "System Design", always: true },
   { key: "eci", label: "Total Score", always: true },
   { key: "recommendation", label: "AI Recommendation", always: true },
   { key: "submitted", label: "Submitted On", always: true },
@@ -1143,15 +1124,17 @@ function CandidatesTab({
   const hasLabs = hasSections ? sections.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") : false;
   const hasAssessment = hasSections ? sections.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT") : false;
   const hasVitarka = hasSections ? sections.some((s: any) => s.kind === "discussion" || s.kind === "vitarka" || s.type === "VITARKA_AI_INTERVIEW") : false;
+  const hasSystemDesign = hasSections ? sections.some((s: any) => s.kind === "system_design" || s.type === "SYSTEM_DESIGN") : false;
 
   const defaultColsSet = useMemo(() => {
     const list: ColKey[] = ["candidate"];
     if (hasLabs) list.push("labs");
     if (hasAssessment) list.push("assessment");
     if (hasVitarka) list.push("vitarka");
+    if (hasSystemDesign) list.push("system_design");
     list.push("eci", "recommendation", "submitted", "status");
     return new Set(list);
-  }, [hasLabs, hasAssessment, hasVitarka]);
+  }, [hasLabs, hasAssessment, hasVitarka, hasSystemDesign]);
 
   const [cols, setCols] = useState<Set<ColKey>>(defaultColsSet);
 
@@ -1308,12 +1291,14 @@ function CandidatesTab({
           labsMaxScore: c.labsMaxScore ?? 80,
           assessmentMaxScore: c.assessmentMaxScore ?? 30,
           discussionMaxScore: c.discussionMaxScore ?? 25,
+          systemDesignScore: c.systemDesignScore,
+          systemDesignMaxScore: c.systemDesignMaxScore,
           strengths: detail.strengths,
           weaknesses: detail.weaknesses,
           aiSummary: detail.aiSummary,
           nextStep: detail.nextStep,
           evaluationTitle: ev?.title || "Evaluation Report",
-          summary: buildEvaluationSummary(c, hasLabs, hasAssessment, hasVitarka),
+          summary: buildEvaluationSummary(c, hasLabs, hasAssessment, hasVitarka, hasSystemDesign),
         });
         notify("Report downloaded");
       } catch (err) {
@@ -1365,55 +1350,31 @@ function CandidatesTab({
 
   return (
     <div className="space-y-3">
-      {/* Row 1 — Full-width search */}
-      <div className="relative flex items-center">
-        <Search className="pointer-events-none absolute left-3 h-4 w-4 text-neutral-400" />
-        <input
-          value={filters.search}
-          onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
-          placeholder="Search candidates by name, email, phone, company, college or candidate ID..."
-          className="w-full rounded-lg border border-neutral-200 bg-white py-2 pl-9 pr-9 text-[13px] text-neutral-900 placeholder-neutral-400 outline-none focus:border-neutral-400"
-        />
-        {filters.search && (
+      {/* Row 1 — Search + tools on a single row */}
+      <div className="mb-4 mt-7 flex flex-wrap items-center gap-8">
+        <div className="relative flex-1 min-w-[240px]">
+          <input
+            value={filters.search}
+            onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+            placeholder="Search by name, email, phone, company, college or candidate ID"
+            className="h-10 w-full border-0 border-b border-[var(--rec-border)] bg-transparent text-[15px] text-[var(--rec-fg)] placeholder:text-[var(--rec-muted-2)] focus:border-[var(--rec-accent)] focus:outline-none"
+          />
+          {filters.search && (
+            <button
+              onClick={() => setFilters((f) => ({ ...f, search: "" }))}
+              className="absolute right-0 top-1/2 -translate-y-1/2 text-[13px] text-[var(--rec-muted-2)] underline underline-offset-2 hover:text-[var(--rec-fg)]"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-6 text-[15px] font-medium">
           <button
-            onClick={() => setFilters((f) => ({ ...f, search: "" }))}
-            className="absolute right-2 rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
-      </div>
-
-      {/* Row 2 — Pipeline nav (left) + toolbar actions (right) on a single row */}
-      <div className="flex items-center justify-between gap-4 overflow-x-auto">
-        <nav className="flex items-center gap-1">
-          {PIPELINE.map((p) => {
-            const active = pipeline === p.id;
-            const count = pipelineCounts[p.id] ?? 0;
-            return (
-              <button
-                key={p.id}
-                onClick={() => setPipeline(p.id)}
-                className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[12.5px] transition ${active ? "bg-neutral-900 !text-white dark:bg-white dark:!text-neutral-900 font-medium" : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-white"}`}
-              >
-                <span>{p.label}</span>
-                <span
-                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium tabular-nums ${active ? "bg-white/20 !text-white dark:bg-black/10 dark:!text-neutral-900" : "bg-neutral-100 dark:bg-white/10 text-neutral-600 dark:text-neutral-400"}`}
-                >
-                  {count.toLocaleString()}
-                </span>
-              </button>
-            );
-          })}
-        </nav>
-        <div className="flex items-center gap-2">
-          <ToolbarBtn
             onClick={() => setDrawerOpen(true)}
-            icon={<SlidersHorizontal className="h-3.5 w-3.5" />}
-            count={activeFilterCount(filters)}
+            className="text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)]"
           >
-            Advanced Filters
-          </ToolbarBtn>
+            Advanced filters{activeFilterCount(filters) > 0 ? ` (${activeFilterCount(filters)})` : ""}
+          </button>
           <SortMenu value={sort} onChange={setSort} />
           <ExportMenu
             candidates={filtered}
@@ -1423,22 +1384,36 @@ function CandidatesTab({
         </div>
       </div>
 
-      {/* Active filter chips (only when applied) */}
-      {activeChips.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          <span className="text-[11px] uppercase tracking-widest text-neutral-500">Applied</span>
-          {activeChips.map((chip) => (
-            <span
-              key={chip.key}
-              className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-0.5 text-[11px] text-neutral-800"
+      {/* Row 2 — Status filters */}
+      <div className="mb-3 flex flex-wrap gap-6 text-[15px] text-[var(--rec-muted-2)]">
+        {PIPELINE.map((p) => {
+          const active = pipeline === p.id;
+          const count = pipelineCounts[p.id] ?? 0;
+          return (
+            <button
+              key={p.id}
+              onClick={() => setPipeline(p.id)}
+              className={active ? "font-medium text-[var(--rec-fg)]" : "hover:text-[var(--rec-fg)]"}
             >
-              <span className="text-neutral-500">{chip.group}</span>
+              {p.label} ({count.toLocaleString()})
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Active filters (only when applied) */}
+      {activeChips.length > 0 && (
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 pb-2 text-[13px]">
+          <span className="text-[var(--rec-muted-2)]">Applied:</span>
+          {activeChips.map((chip) => (
+            <span key={chip.key} className="text-[var(--rec-fg)]">
+              <span className="text-[var(--rec-muted-2)]">{chip.group}: </span>
               <span className="font-medium">{chip.value}</span>
               <button
                 onClick={() => setFilters((f) => chip.remove(f))}
-                className="ml-0.5 rounded-full p-0.5 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-700"
+                className="ml-1.5 text-[var(--rec-muted-2)] underline underline-offset-2 hover:text-[var(--rec-fg)]"
               >
-                <X className="h-3 w-3" />
+                Remove
               </button>
             </span>
           ))}
@@ -1447,27 +1422,23 @@ function CandidatesTab({
               setFilters(emptyFilters());
               setActiveSavedView(null);
             }}
-            className="text-[11px] font-medium text-neutral-700 hover:text-neutral-900 hover:underline"
+            className="font-medium text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)]"
           >
             Clear all
           </button>
         </div>
       )}
 
-      {/* Subtle divider before table */}
-      <div className="border-t border-neutral-200" />
-
       {/* Bulk actions */}
       {selected.size > 0 && (
-        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2">
-          <div className="text-[12px] font-medium text-neutral-900">{selected.size} selected</div>
-          <div className="mx-2 h-4 w-px bg-neutral-200" />
-          <BulkBtn onClick={() => bulk("Moved to Hold", "Hold")}>Hold</BulkBtn>
-          <BulkBtn onClick={() => bulk("Shortlisted", "Shortlisted")}>Shortlist</BulkBtn>
-          <BulkBtn onClick={() => bulk("Rejected", "Rejected")}>Reject</BulkBtn>
+        <div className="flex flex-wrap items-center gap-5 border-y border-[var(--rec-border)] py-2.5 text-[14px]">
+          <div className="font-medium text-[var(--rec-fg)]">{selected.size} selected</div>
+          <button onClick={() => bulk("Moved to Hold", "Hold")} className="text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)]">Hold</button>
+          <button onClick={() => bulk("Shortlisted", "Shortlisted")} className="text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)]">Shortlist</button>
+          <button onClick={() => bulk("Rejected", "Rejected")} className="text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)]">Reject</button>
           <button
             onClick={() => setSelected(new Set())}
-            className="ml-auto text-[11px] text-neutral-500 hover:text-neutral-900"
+            className="ml-auto text-[var(--rec-muted-2)] underline underline-offset-2 hover:text-[var(--rec-fg)]"
           >
             Clear
           </button>
@@ -1499,6 +1470,7 @@ function CandidatesTab({
             hasLabs={hasLabs}
             hasAssessment={hasAssessment}
             hasVitarka={hasVitarka}
+            hasSystemDesign={hasSystemDesign}
           />
         ) : (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -1514,6 +1486,7 @@ function CandidatesTab({
                 hasLabs={hasLabs}
                 hasAssessment={hasAssessment}
                 hasVitarka={hasVitarka}
+                hasSystemDesign={hasSystemDesign}
               />
             ))}
           </div>
@@ -1522,21 +1495,21 @@ function CandidatesTab({
 
       {/* Pagination */}
       {filtered.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[12px] text-neutral-600">
+        <div className="flex flex-wrap items-center justify-between gap-3 py-4 text-[14px] text-[var(--rec-muted-2)]">
           <div>
-            Showing <b className="text-neutral-900 tabular-nums">{(page - 1) * perPage + 1}</b>–
-            <b className="text-neutral-900 tabular-nums">
+            Showing <span className="font-medium text-[var(--rec-fg)] tabular-nums">{(page - 1) * perPage + 1}</span>–
+            <span className="font-medium text-[var(--rec-fg)] tabular-nums">
               {Math.min(page * perPage, filtered.length)}
-            </b>{" "}
-            of <b className="text-neutral-900 tabular-nums">{filtered.length.toLocaleString()}</b>
+            </span>{" "}
+            of <span className="font-medium text-[var(--rec-fg)] tabular-nums">{filtered.length.toLocaleString()}</span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5">
-              <span className="text-neutral-500">Per page</span>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span>Per page</span>
               <select
                 value={perPage}
                 onChange={(e) => setPerPage(parseInt(e.target.value))}
-                className="rounded-md border border-neutral-200 bg-white px-2 py-1 text-neutral-800 outline-none focus:border-neutral-400"
+                className="border-0 border-b border-[var(--rec-border)] bg-transparent py-0.5 text-[var(--rec-fg)] outline-none focus:border-[var(--rec-accent)]"
               >
                 {[25, 50, 100, 250, 500].map((n) => (
                   <option key={n} value={n}>
@@ -1545,21 +1518,21 @@ function CandidatesTab({
                 ))}
               </select>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-5">
               <button
                 disabled={page === 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="rounded-md border border-neutral-200 px-2.5 py-1 text-neutral-800 disabled:opacity-30 hover:bg-neutral-50"
+                className="font-medium text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)] disabled:opacity-40 disabled:no-underline"
               >
                 Prev
               </button>
-              <div className="px-2 tabular-nums">
+              <div className="tabular-nums">
                 Page {page} / {totalPages}
               </div>
               <button
                 disabled={page === totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="rounded-md border border-neutral-200 px-2.5 py-1 text-neutral-800 disabled:opacity-30 hover:bg-neutral-50"
+                className="font-medium text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)] disabled:opacity-40 disabled:no-underline"
               >
                 Next
               </button>
@@ -1746,8 +1719,8 @@ function ExportMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-medium text-neutral-800 transition hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none">
-          <Download className="h-3.5 w-3.5" /> Export
+        <button className="text-[15px] font-medium text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)] focus:outline-none">
+          Export
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48 p-0 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg">
@@ -1799,6 +1772,7 @@ function CandidateTable({
   hasLabs = true,
   hasAssessment = true,
   hasVitarka = true,
+  hasSystemDesign = true,
 }: {
   rows: Candidate[];
   cols: Set<ColKey>;
@@ -1813,120 +1787,113 @@ function CandidateTable({
   hasLabs?: boolean;
   hasAssessment?: boolean;
   hasVitarka?: boolean;
+  hasSystemDesign?: boolean;
 }) {
   const show = (k: ColKey) => {
     if (k === "labs" && !hasLabs) return false;
     if (k === "assessment" && !hasAssessment) return false;
     if (k === "vitarka" && !hasVitarka) return false;
+    if (k === "system_design" && !hasSystemDesign) return false;
     return cols.has(k);
   };
 
+  const sections: { key: ColKey; label: string; max: (c: Candidate) => number | undefined; val: (c: Candidate) => number }[] = [];
+  if (show("labs")) sections.push({ key: "labs", label: "Eng. labs", max: (c) => c.labsMaxScore, val: (c) => c.labsScore });
+  if (show("assessment")) sections.push({ key: "assessment", label: "Knowledge", max: (c) => c.assessmentMaxScore, val: (c) => c.assessmentScore });
+  if (show("vitarka")) sections.push({ key: "vitarka", label: "Vitarka", max: (c) => c.discussionMaxScore, val: (c) => c.vitarkaScore });
+  if (show("system_design")) sections.push({ key: "system_design", label: "Sys. design", max: (c) => c.systemDesignMaxScore, val: (c) => c.systemDesignScore || 0 });
+  const maxOf = (fn: (c: Candidate) => number | undefined) => {
+    const m = rows.reduce((acc, c) => Math.max(acc, fn(c) || 0), 0);
+    return m > 0 ? m : undefined;
+  };
+  const sectionMaxes = sections.map((s) => maxOf(s.max));
+  const totalMax = rows.reduce((acc, c) => Math.max(acc, c.totalPossible || 0), 0) || undefined;
+
+  const GRID = "grid items-center gap-3";
+  const gridTemplate = `20px minmax(0,1fr) repeat(${sections.length + 1},72px) 152px 76px 124px 24px`;
+
+  const Score = ({ value, bold }: { value: number; bold?: boolean }) => (
+    <div
+      className={`text-right tabular-nums ${
+        value === 0 ? "text-[var(--rec-muted-2)]" : "text-[var(--rec-fg)]"
+      } ${bold ? "font-semibold" : ""}`}
+    >
+      {value}
+    </div>
+  );
+
   return (
-    <div className="-mx-1 overflow-x-auto">
-      <table className="w-full min-w-[960px] border-collapse text-left text-[12.5px]">
-        <thead className="sticky top-0 z-10 bg-white">
-          <tr className="border-b border-neutral-200 text-[10.5px] uppercase tracking-widest text-neutral-500">
-            <Th className="w-8">
-              <input type="checkbox" checked={allChecked} onChange={onToggleAll} />
-            </Th>
-            {show("candidate") && <Th className="min-w-[280px]">Candidate</Th>}
-            {show("email") && <Th>Email</Th>}
-            {show("phone") && <Th>Phone</Th>}
-            {show("labs") && <Th className="w-[84px] text-right">Eng. Labs</Th>}
-            {show("assessment") && <Th className="w-[104px] text-right">Knowledge</Th>}
-            {show("vitarka") && <Th className="w-[84px] text-right">Vitarka</Th>}
-            {show("eci") && <Th className="w-[84px] text-right">Total</Th>}
-            {show("recommendation") && <Th className="w-[150px]">AI Recommendation</Th>}
-            {show("submitted") && <Th className="w-[120px]">Submitted</Th>}
-            {show("status") && <Th className="w-[130px]">Review Status</Th>}
-            <Th className="w-8"></Th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((c) => (
-            <tr
-              key={c.id}
-              onClick={() => onOpen(c)}
-              className={`cursor-pointer border-b border-neutral-100 dark:border-white/5 text-neutral-900 dark:text-neutral-100 transition hover:bg-neutral-50 dark:hover:bg-white/5 ${selected.has(c.id) ? "bg-neutral-50 dark:bg-white/[0.04]" : ""}`}
-            >
-              <Td onClick={(e) => e.stopPropagation()}>
-                <input
-                  type="checkbox"
-                  checked={selected.has(c.id)}
-                  onChange={() => onToggle(c.id)}
-                />
-              </Td>
-              {show("candidate") && (
-                <Td>
-                  <div className="flex items-center gap-2.5">
-                    <Avatar name={c.name} hue={c.avatarHue} />
-                    <div className="min-w-0">
-                      <div className="truncate font-medium text-neutral-900">
-                        {highlightText(c.name, highlight || "")}
-                      </div>
-                      <div className="truncate text-[11px] text-neutral-500">
-                        {highlightText(c.email, highlight || "")}
-                      </div>
-                    </div>
-                  </div>
-                </Td>
-              )}
-              {show("email") && (
-                <Td className="text-neutral-700">{highlightText(c.email, highlight || "")}</Td>
-              )}
-              {show("phone") && <Td className="text-neutral-700">{c.phone || "—"}</Td>}
-              {show("labs") && (
-                <Td className="text-right tabular-nums text-neutral-900">
-                  <div className="font-medium">{c.labsScore}</div>
-                  <div className="text-[10.5px] text-neutral-500">
-                    {c.labsMaxScore ? `of ${c.labsMaxScore}` : ""}
-                  </div>
-                </Td>
-              )}
-              {show("assessment") && (
-                <Td className="text-right tabular-nums text-neutral-900">
-                  <div className="font-medium">{c.assessmentScore}</div>
-                  <div className="text-[10.5px] text-neutral-500">
-                    {c.assessmentMaxScore ? `of ${c.assessmentMaxScore}` : ""}
-                  </div>
-                </Td>
-              )}
-              {show("vitarka") && (
-                <Td className="text-right tabular-nums text-neutral-900">
-                  <div className="font-medium">{c.vitarkaScore}</div>
-                  <div className="text-[10.5px] text-neutral-500">
-                    {c.discussionMaxScore ? `of ${c.discussionMaxScore}` : ""}
-                  </div>
-                </Td>
-              )}
-              {show("eci") && (
-                <Td className="text-right tabular-nums text-neutral-900">
-                  <div className="font-medium">{c.totalEarned != null ? c.totalEarned : c.eci}</div>
-                  <div className="text-[10.5px] text-neutral-500">
-                    {c.totalPossible ? `of ${c.totalPossible}` : eciLabel(c.eci)}
-                  </div>
-                </Td>
-              )}
-              {show("recommendation") && (
-                <Td>
-                  <NeutralBadge>{c.recommendation}</NeutralBadge>
-                </Td>
-              )}
-              {show("submitted") && <Td className="text-neutral-700">{fmtRel(c.submittedAt)}</Td>}
-              {show("status") && (
-                <Td>
-                  <NeutralBadge>
-                    {c.hiringStatus === "Interview Scheduled" ? "Pending Review" : c.hiringStatus}
-                  </NeutralBadge>
-                </Td>
-              )}
-              <Td onClick={(e) => e.stopPropagation()}>
-                <RowMenu onOpen={() => onOpen(c)} onAction={(l, d) => onAction(c, l, d)} />
-              </Td>
-            </tr>
+    <div className="overflow-x-auto">
+      <div className="min-w-[1040px]">
+        {/* header */}
+        <div style={{ gridTemplateColumns: gridTemplate }} className={`${GRID} items-start border-y border-[var(--rec-border)] pb-3 pt-3.5 text-sm font-medium leading-5 text-[var(--rec-muted-2)]`}>
+          <input
+            type="checkbox"
+            className="h-4 w-4 [accent-color:var(--rec-accent)]"
+            checked={allChecked}
+            onChange={onToggleAll}
+          />
+          <div>Candidate</div>
+          {sections.map((s, i) => (
+            <div key={s.key} className="whitespace-nowrap text-right">
+              {s.label}
+              {sectionMaxes[i] != null && <span className="block font-normal">of {sectionMaxes[i]}</span>}
+            </div>
           ))}
-        </tbody>
-      </table>
+          <div className="whitespace-nowrap text-right">
+            Total
+            {totalMax != null && <span className="block font-normal">of {totalMax}</span>}
+          </div>
+          <div className="whitespace-nowrap pl-4">AI recommendation</div>
+          <div>Submitted</div>
+          <div>Review status</div>
+          <div />
+        </div>
+
+        {/* rows */}
+        {rows.map((c) => (
+          <div
+            key={c.id}
+            onClick={() => onOpen(c)}
+            style={{ gridTemplateColumns: gridTemplate }}
+            className={`${GRID} cursor-pointer border-b border-[var(--rec-border)] py-4 text-[15px] text-[var(--rec-fg)] transition hover:bg-[var(--rec-overlay-1)] ${selected.has(c.id) ? "bg-[var(--rec-overlay-1)]" : ""}`}
+          >
+            <input
+              type="checkbox"
+              className="h-4 w-4 [accent-color:var(--rec-accent)]"
+              checked={selected.has(c.id)}
+              onClick={(e) => e.stopPropagation()}
+              onChange={() => onToggle(c.id)}
+            />
+
+            <div className="min-w-0">
+              <div className="truncate font-medium">{highlightText(c.name, highlight || "")}</div>
+              <div className="truncate text-sm leading-5 text-[var(--rec-muted-2)]" title={c.email}>
+                {highlightText(c.email, highlight || "")}
+              </div>
+            </div>
+
+            {sections.map((s) => (
+              <Score key={s.key} value={s.val(c)} />
+            ))}
+            <Score value={c.totalEarned != null ? c.totalEarned : c.eci} bold />
+
+            <div className="whitespace-nowrap pl-4">{c.recommendation}</div>
+            <div className="text-sm text-[var(--rec-muted-2)]">{fmtRel(c.submittedAt)}</div>
+            <div className="truncate">
+              {sentenceCase(c.hiringStatus === "Interview Scheduled" ? "Pending review" : c.hiringStatus)}
+            </div>
+
+            <div onClick={(e) => e.stopPropagation()} className="text-right">
+              <RowMenu onOpen={() => onOpen(c)} onAction={(l, d) => onAction(c, l, d)} />
+            </div>
+          </div>
+        ))}
+
+        {rows.length === 0 && (
+          <p className="py-12 text-center text-[var(--rec-muted-2)]">No candidates match your filters</p>
+        )}
+      </div>
     </div>
   );
 }
@@ -1947,9 +1914,10 @@ function RowMenu({ onOpen, onAction }: { onOpen: () => void; onAction: (l: strin
       <DropdownMenuTrigger asChild>
         <button
           onClick={(e) => e.stopPropagation()}
-          className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none"
+          aria-label="Row actions"
+          className="tracking-[2px] text-[var(--rec-muted-2)] hover:text-[var(--rec-fg)] focus:outline-none"
         >
-          <MoreHorizontal className="h-3.5 w-3.5" />
+          ···
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48 overflow-hidden rounded-xl border border-neutral-200 bg-white p-0 shadow-lg">
@@ -1980,6 +1948,7 @@ function CandidateCard({
   hasLabs = true,
   hasAssessment = true,
   hasVitarka = true,
+  hasSystemDesign = true,
 }: {
   c: Candidate;
   selected: boolean;
@@ -1990,6 +1959,7 @@ function CandidateCard({
   hasLabs?: boolean;
   hasAssessment?: boolean;
   hasVitarka?: boolean;
+  hasSystemDesign?: boolean;
 }) {
   return (
     <div
@@ -2019,6 +1989,7 @@ function CandidateCard({
           {hasLabs && <MiniScore label="Labs" v={c.labsScore} />}
           {hasAssessment && <MiniScore label="Assess" v={c.assessmentScore} />}
           {hasVitarka && <MiniScore label="Vitarka" v={c.vitarkaScore} />}
+          {hasSystemDesign && <MiniScore label="Sys Design" v={c.systemDesignScore || 0} />}
           <MiniScore label="Total" v={c.totalEarned != null ? c.totalEarned : c.eci} highlight />
         </div>
         <div className="mt-3 flex items-center justify-between text-[11px] text-neutral-600">
@@ -2619,9 +2590,8 @@ function SortMenu({ value, onChange }: { value: SortKey; onChange: (v: SortKey) 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[12px] font-medium text-neutral-800 transition hover:border-neutral-300 hover:bg-neutral-50 focus:outline-none">
-          <ArrowUpDown className="h-3.5 w-3.5" /> {opts.find((o) => o[0] === value)?.[1]}
-          <ChevronDown className="h-3.5 w-3.5 text-neutral-400" />
+        <button className="text-[15px] font-medium text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)] focus:outline-none">
+          {opts.find((o) => o[0] === value)?.[1]}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52 p-0 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg">
@@ -2978,14 +2948,11 @@ function Avatar({ name, hue, size = "md" }: { name: string; hue: number; size?: 
 }
 function EmptyState({ hasFilters, onReset }: { hasFilters: boolean; onReset: () => void }) {
   return (
-    <div className="rounded-2xl border border-dashed border-neutral-200 bg-white p-16 text-center">
-      <div className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-neutral-200 text-neutral-500">
-        <Users className="h-5 w-5" />
+    <div className="py-16 text-center">
+      <div className="text-[15px] font-medium text-[var(--rec-fg)]">
+        {hasFilters ? "No candidates match your filters" : "No candidates yet"}
       </div>
-      <div className="mt-4 text-[15px] font-medium text-neutral-900">
-        {hasFilters ? "No candidates match these filters" : "No candidates yet"}
-      </div>
-      <div className="mt-1 text-[12px] text-neutral-500">
+      <div className="mt-1 text-sm text-[var(--rec-muted-2)]">
         {hasFilters
           ? "Try loosening a filter or clearing your search."
           : "Invite candidates from the header to get started."}
@@ -2993,7 +2960,7 @@ function EmptyState({ hasFilters, onReset }: { hasFilters: boolean; onReset: () 
       {hasFilters && (
         <button
           onClick={onReset}
-          className="mt-4 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-[12px] text-neutral-800 hover:bg-neutral-50"
+          className="mt-4 text-[15px] font-medium text-[var(--rec-fg)] underline underline-offset-2 hover:text-[var(--rec-link-hover)]"
         >
           Reset filters
         </button>
@@ -3015,6 +2982,9 @@ function SimplePane({ title, desc }: { title: string; desc: string }) {
 
 function cap(s: string) {
   return s[0].toUpperCase() + s.slice(1);
+}
+function sentenceCase(s: string) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
 }
 function fmtDate(t: number) {
   return new Date(t).toLocaleDateString(undefined, {
@@ -3334,7 +3304,8 @@ function AnalyticsTab({ evId, candidates: mockCandidates }: { evId?: string, can
           sections: {
             labs: { score: subScore, timeSpent: durationMins, events: allEvents.filter(e => e.severity > 0) },
             assessment: { score: 0, timeSpent: 0, events: [] },
-            vitarka: { score: 0, timeSpent: 0, events: [] }
+            vitarka: { score: 0, timeSpent: 0, events: [] },
+            system_design: { score: 0, timeSpent: 0, events: [] }
           }
         }
       } as Candidate;

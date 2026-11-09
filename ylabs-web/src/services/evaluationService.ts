@@ -137,6 +137,18 @@ export const evaluationService = {
     });
   },
 
+  async submitSystemDesign(evaluationId: string, payload: {
+    section_id: string;
+    question_id?: string;
+    design?: any;
+    action?: "save" | "submit" | "evaluate";
+    status?: string;
+    started_at?: string;
+    [key: string]: any;
+  }): Promise<any> {
+    return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/submit_system_design/`, payload);
+  },
+
   async provisionLabs(evaluationId: string): Promise<any> {
     return restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/provision_labs/`, {});
   },

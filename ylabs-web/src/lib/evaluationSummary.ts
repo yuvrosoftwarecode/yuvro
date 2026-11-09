@@ -21,11 +21,13 @@ export function buildEvaluationSummary(
     labsScore: number;
     assessmentScore: number;
     vitarkaScore: number;
+    systemDesignScore?: number;
     eci: number;
   },
   hasLabs: boolean = true,
   hasAssessment: boolean = true,
-  hasVitarka: boolean = true
+  hasVitarka: boolean = true,
+  hasSystemDesign: boolean = false
 ): EvaluationSummaryData {
   const first = candidate.name.split(" ")[0];
   const overall = candidate.eci;
@@ -81,6 +83,24 @@ export function buildEvaluationSummary(
       explore: candidate.vitarkaScore === 0
         ? "Technical communication and problem articulation"
         : "Deep architecture trade-offs",
+    });
+  }
+  if (hasSystemDesign) {
+    const sdScore = candidate.systemDesignScore || 0;
+    blocks.push({
+      title: "System Design",
+      score: sdScore,
+      summary: sdScore === 0
+        ? `${first} did not submit architecture diagrams, database schemas, or API contracts for the system design challenge.`
+        : `${first} designed a distributed architecture solution with an evaluated score of ${sdScore}/100.`,
+      strengths: sdScore === 0
+        ? []
+        : sdScore >= 75
+          ? ["Scalable architecture design", "Clear data modeling and API contracts", "System bottleneck identification"]
+          : ["High-level component breakdown", "Basic database schema design"],
+      explore: sdScore === 0
+        ? "Distributed system architecture, data modeling, and API contract design"
+        : "High-throughput failover mechanisms and concurrency bottlenecks",
     });
   }
 

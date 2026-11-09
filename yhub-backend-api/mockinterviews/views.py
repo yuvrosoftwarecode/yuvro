@@ -1109,6 +1109,54 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for nt in node_core_topics:
                         if nt not in all_skills:
                             all_skills.append(nt)
+                elif "ai" in mock_interview.title.lower() or "machine learning" in mock_interview.title.lower():
+                    ai_core_topics = [
+                        "Machine Learning Fundamentals & Optimization",
+                        "Deep Neural Networks & Transformer Architectures",
+                        "Large Language Models (LLMs) & Tokenization",
+                        "Retrieval-Augmented Generation (RAG) & Embedding Models",
+                        "Vector Search & Vector Databases (Chroma / Pinecone / Milvus)",
+                        "Prompt Engineering, Few-shot Learning & Chain-of-Thought",
+                        "Model Fine-Tuning (PEFT, LoRA, QLoRA)",
+                        "AI Frameworks (PyTorch, Hugging Face, LangChain, LlamaIndex)",
+                        "Model Evaluation, Hallucination Detection & Safety Guardrails",
+                        "MLOps & Model Serving (vLLM, TensorRT, Quantization, CI/CD)"
+                    ]
+                    for at in ai_core_topics:
+                        if at not in all_skills:
+                            all_skills.append(at)
+                elif "react" in mock_interview.title.lower():
+                    react_core_topics = [
+                        "Virtual DOM, Reconciliation & Fiber Architecture",
+                        "React Component Lifecycle & Rendering Phases",
+                        "React Hooks (useState, useEffect, useMemo, useCallback, useRef, custom hooks)",
+                        "Hook Rules & Stale Closure Pitfalls",
+                        "State Management (Context API vs Redux Toolkit / Zustand)",
+                        "Performance Optimization (React.memo, code splitting, lazy loading)",
+                        "Error Boundaries & React Suspense",
+                        "Controlled vs Uncontrolled Components & Form Handling",
+                        "SSR, SSG & Next.js Architecture Principles",
+                        "Unit Testing React Components (Jest & React Testing Library)"
+                    ]
+                    for rt in react_core_topics:
+                        if rt not in all_skills:
+                            all_skills.append(rt)
+                elif "mysql" in mock_interview.title.lower() or "sql" in mock_interview.title.lower():
+                    mysql_core_topics = [
+                        "Relational Modeling & Schema Normalization (1NF to BCNF)",
+                        "Advanced SQL Queries, Subqueries & Complex Joins",
+                        "Indexing Architecture (B-Tree, Clustered vs Secondary Indexes, Covering Indexes)",
+                        "Query Performance Tuning & EXPLAIN Query Plan Analysis",
+                        "Transactions, ACID Properties & Concurrency Control (MVCC, Lock Modes)",
+                        "Transaction Isolation Levels (Read Committed, Repeatable Read, Serializable)",
+                        "Storage Engines (InnoDB vs MyISAM architecture and row-level locking)",
+                        "Database Constraints, Keys, Cascading & Data Integrity",
+                        "High Availability, Replication Strategies & Failover",
+                        "Database Backup, Point-in-Time Recovery & Security Best Practices"
+                    ]
+                    for mt in mysql_core_topics:
+                        if mt not in all_skills:
+                            all_skills.append(mt)
 
                 analysis = {
                     "candidate_name": user.get_full_name() or user.username,
@@ -1203,6 +1251,95 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     message_type="user",
                     content=clean_answer
                 )
+
+            # Global Check for End Interview intent or Confirmation response across all student/ai interview routes
+            state = interview_session.state_data or {}
+            from mockinterviews.ai_interview.interview_engine import (
+                detect_end_interview_intent,
+                check_end_confirmation_response,
+            )
+
+            # 1. Already awaiting confirmation for "Do you want to end this interview?"
+            if state.get("awaiting_end_confirmation") and clean_answer:
+                confirmation = check_end_confirmation_response(clean_answer)
+                if confirmation == "yes":
+                    state["awaiting_end_confirmation"] = False
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                        submission.state_data = state
+                        submission.save(update_fields=['status', 'state_data'])
+
+                    farewell = "Thank you! That completes the interview. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    return Response({
+                        "question": farewell,
+                        "is_finished": True,
+                        "question_id": None,
+                        "proceed": True
+                    })
+                elif confirmation == "no":
+                    state["awaiting_end_confirmation"] = False
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    resume_msg = "Alright, let's continue! Whenever you're ready, please share your answer or approach."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=resume_msg
+                    )
+                    return Response({
+                        "question": resume_msg,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+                else:
+                    clarify_msg = "Do you want to end this interview? Please reply yes to end or no to continue."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=clarify_msg
+                    )
+                    return Response({
+                        "question": clarify_msg,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+
+            # 2. Check if candidate explicitly expresses intent to end/stop/quit the interview
+            if clean_answer:
+                has_end_intent, confidence = detect_end_interview_intent(clean_answer)
+                if has_end_intent and confidence >= 0.7:
+                    state["awaiting_end_confirmation"] = True
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    confirm_prompt = "Do you want to end this interview? Your report will be generated."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=confirm_prompt
+                    )
+                    return Response({
+                        "question": confirm_prompt,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
 
             state = interview_session.state_data or {}
             interview_type = state.get("interview_type") or (submission.interview_type if submission else "predefined")
@@ -1313,6 +1450,45 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Contiguous memory vs dispersed pointer-linked nodes",
                                     "O(1) index access in arrays vs O(N) access in linked lists",
                                     "Insertion and deletion trade-offs"
+                                ]
+                            }
+                        elif "ai" in title_lower or "machine learning" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: Can you explain the fundamental architectural differences between fine-tuning a Large Language Model and implementing a Retrieval-Augmented Generation (RAG) system, and in what scenarios would you choose one over the other?",
+                                "topic": "Generative AI Systems (Fine-Tuning vs RAG)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "RAG grounds models dynamically on external knowledge bases without updating weights",
+                                    "Fine-tuning modifies model parameters to specialize in tone, format, or niche domains",
+                                    "Latency, computational cost, data freshness, and maintenance trade-offs"
+                                ]
+                            }
+                        elif "react" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In React, can you explain how the Virtual DOM and the reconciliation process work, and how the React Fiber architecture optimizes component rendering?",
+                                "topic": "React Virtual DOM & Fiber Reconciliation",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Virtual DOM as an in-memory representation synchronized with the real DOM",
+                                    "Diffing algorithm and batched updates to minimize DOM operations",
+                                    "React Fiber incremental rendering and prioritized concurrent work"
+                                ]
+                            }
+                        elif "mysql" in title_lower or "sql" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In MySQL, can you explain the architectural difference between a Clustered Index and a Secondary Index in the InnoDB storage engine, and how index selection impacts query performance?",
+                                "topic": "MySQL Indexing & InnoDB Architecture (Clustered vs Secondary Indexes)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "In InnoDB, the primary key forms the clustered index where leaf nodes store the actual row data",
+                                    "Secondary indexes store the column value and point to the primary key, requiring a bookmark lookup unless covering",
+                                    "Impact of index selection on write amplification, memory footprint, and query execution speed with EXPLAIN"
                                 ]
                             }
                         else:
@@ -2065,6 +2241,105 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 message_type="user",
                 content=user_answer
             )
+
+            # Check for End Interview intent or Confirmation response
+            from mockinterviews.ai_interview.interview_engine import (
+                detect_end_interview_intent,
+                check_end_confirmation_response,
+            )
+
+            # Case A: Already asked "Do you want to end this interview?"
+            if state.get("awaiting_end_confirmation"):
+                confirmation = check_end_confirmation_response(user_answer)
+                if confirmation == "yes":
+                    state["awaiting_end_confirmation"] = False
+                    submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                    submission.state_data = state
+                    submission.save()
+
+                    farewell = "Thank you! That completes the interview. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    return Response({
+                        "is_finished": True,
+                        "proceed": True,
+                        "cue": {"message": farewell, "action": "end_assessment"},
+                        "evaluation": {
+                            "score": 10,
+                            "feedback": "Interview ended by user request.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+                elif confirmation == "no":
+                    state["awaiting_end_confirmation"] = False
+                    submission.state_data = state
+                    submission.save()
+
+                    resume_msg = "Alright, let's continue! Whenever you're ready, please share your answer or approach."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=resume_msg
+                    )
+                    return Response({
+                        "is_finished": False,
+                        "proceed": False,
+                        "cue": {"message": resume_msg, "action": "continue"},
+                        "evaluation": {
+                            "score": 0,
+                            "feedback": "Resumed interview. Awaiting candidate answer.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+                else:
+                    # Unclear: repeat confirmation question once
+                    clarify_msg = "Do you want to end this interview? Please say yes to end or no to continue."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=clarify_msg
+                    )
+                    return Response({
+                        "is_finished": False,
+                        "proceed": False,
+                        "cue": {"message": clarify_msg, "action": "confirm_end"},
+                        "evaluation": {
+                            "score": 0,
+                            "feedback": "Awaiting confirmation.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+
+            # Case B: Check if user expresses intent to end the interview
+            has_end_intent, confidence = detect_end_interview_intent(user_answer)
+            if has_end_intent and confidence >= 0.7:
+                state["awaiting_end_confirmation"] = True
+                submission.state_data = state
+                submission.save()
+
+                confirm_prompt = "Do you want to end this interview? Your report will be generated."
+                ChatMessage.objects.create(
+                    chat_session=submission.chat_session,
+                    message_type="assistant",
+                    content=confirm_prompt
+                )
+                return Response({
+                    "is_finished": False,
+                    "proceed": False,
+                    "cue": {"message": confirm_prompt, "action": "confirm_end"},
+                    "evaluation": {
+                        "score": 0,
+                        "feedback": "Candidate requested to end assessment. Confirmation requested.",
+                        "covered_points": [],
+                        "missed_points": []
+                    }
+                })
             
             # Update answers dict in state_data
             answers = state.get("answers", {})

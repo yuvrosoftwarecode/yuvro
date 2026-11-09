@@ -9,6 +9,7 @@ import { TicketIDE } from "@/routes/student.lab.$slug.ticket.$ticketId";
 import ProctoringGate, { ProctoringData } from "@/components/evaluation/ProctoringGate";
 import { useProctoring } from "@/hooks/useProctoring";
 import { getGlobalProctoringData, setGlobalProctoringData, clearGlobalProctoringData } from "@/utils/proctoringStore";
+import { EvaluationSystemDesignSection } from "@/components/evaluation/EvaluationSystemDesignSection";
 // Extracted from route file to fix code-split warning
 
 
@@ -27,6 +28,7 @@ interface KnowledgeQuestion {
 type AppSection = 
   | { type: "LAB", id: string, title: string, labs: RealLab[], proctoring: any }
   | { type: "KNOWLEDGE_ASSESSMENT", id: string, title: string, questions: KnowledgeQuestion[], proctoring: any }
+  | { type: "SYSTEM_DESIGN", id: string, title: string, description?: string, duration_minutes?: number, marks?: number, challenge: any, questions?: any[], proctoring: any }
   | { type: "VITARKA_AI_INTERVIEW", id: string, title: string, description?: string, proctoring: any };
 
 interface RealLab {
@@ -279,6 +281,31 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                 };
               })
             } as any);
+          } else if (sec.type === "SYSTEM_DESIGN") {
+            const qList = sec.questions || [];
+            const primaryChallenge = qList.length > 0 && typeof qList[0] === 'object' ? qList[0] : null;
+            const challengeMarks = primaryChallenge?.marks || sec.marks || 100;
+            const challengeDuration = primaryChallenge?.duration_minutes || sec.duration_minutes || 45;
+
+            mappedSections.push({
+              type: "SYSTEM_DESIGN",
+              id: sec.id,
+              title: sec.title || (primaryChallenge?.title ? `System Design: ${primaryChallenge.title}` : "System Design Challenge"),
+              description: sec.description || primaryChallenge?.description || "",
+              duration_minutes: challengeDuration,
+              marks: challengeMarks,
+              challenge: primaryChallenge || {
+                id: sec.id,
+                title: sec.title || "System Design Challenge",
+                description: sec.description || "",
+                tasks: [],
+                constraints: [],
+                starter_design: null,
+              },
+              questions: qList,
+              proctoring: pc,
+            });
+            durationMinutes += challengeDuration;
           } else if (sec.type === "VITARKA_AI_INTERVIEW") {
             mappedSections.push({ type: "VITARKA_AI_INTERVIEW", id: sec.id, title: sec.title || "Engineering Discussion", description: sec.description, proctoring: pc });
             if (sec.questions && Array.isArray(sec.questions) && sec.questions.length > 0) {
@@ -420,7 +447,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     subTitle?: string;
     durationSeconds: number;
     isSubmitted: boolean;
-    type: "LAB_ITEM" | "LAB_SECTION" | "KNOWLEDGE_ASSESSMENT" | "VITARKA_AI_INTERVIEW" | "UNKNOWN";
+    type: "LAB_ITEM" | "LAB_SECTION" | "KNOWLEDGE_ASSESSMENT" | "SYSTEM_DESIGN" | "VITARKA_AI_INTERVIEW" | "UNKNOWN";
     labId?: string;
     sectionId?: string;
   }
@@ -457,6 +484,19 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
         durationSeconds: durationMinutes * 60,
         isSubmitted: isSub,
         type: "KNOWLEDGE_ASSESSMENT",
+        sectionId: activeSection.id,
+      };
+    }
+
+    if (activeSection.type === "SYSTEM_DESIGN") {
+      const isSub = submittedSections.has(activeSection.id);
+      const durationMinutes = (activeSection as any).duration_minutes || (activeSection as any).challenge?.duration_minutes || 45;
+      return {
+        key: `eval_${evalPrefix}_timer_sec_${activeSection.id}`,
+        title: activeSection.title || "System Design",
+        durationSeconds: durationMinutes * 60,
+        isSubmitted: isSub,
+        type: "SYSTEM_DESIGN",
         sectionId: activeSection.id,
       };
     }
@@ -556,6 +596,13 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
             submitEvaluation(false);
           }
         } else if (activeTimerInfo.type === "KNOWLEDGE_ASSESSMENT" && activeTimerInfo.sectionId) {
+          const idx = appSections.findIndex(s => s.id === activeTimerInfo.sectionId);
+          if (idx !== -1 && idx + 1 === appSections.length) {
+            submitEvaluation(false);
+          } else {
+            confirmSubmitSection(activeTimerInfo.sectionId);
+          }
+        } else if (activeTimerInfo.type === "SYSTEM_DESIGN" && activeTimerInfo.sectionId) {
           const idx = appSections.findIndex(s => s.id === activeTimerInfo.sectionId);
           if (idx !== -1 && idx + 1 === appSections.length) {
             submitEvaluation(false);
@@ -962,6 +1009,23 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
             console.error("Auto submitting knowledge section error:", e);
           }
         }
+        if (sec.type === "SYSTEM_DESIGN" && !submittedSections.has(sec.id)) {
+          try {
+            const rawSaved = getStorageItem(`eval_${evalPrefix}_system_design_${sec.id}`);
+            if (rawSaved) {
+              const parsed = JSON.parse(rawSaved);
+              await restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/submit_system_design/`, {
+                section_id: sec.id,
+                question_id: (sec as any).challenge?.id,
+                design: parsed,
+                action: "submit",
+                status: "submitted",
+              });
+            }
+          } catch (e) {
+            console.error("Auto submitting system design section error:", e);
+          }
+        }
       }
       await evaluationService.finishEvaluation?.(evaluationId, autoSubmit);
     } catch (e) {
@@ -1106,8 +1170,24 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
             });
           }
         });
+        await evaluationService.submitKnowledgeAnswers?.(evaluationId, secId, richAnswers);
+      } else if (sec && sec.type === "SYSTEM_DESIGN") {
+        try {
+          const rawSaved = getStorageItem(`eval_${evalPrefix}_system_design_${sec.id}`);
+          if (rawSaved) {
+            const parsed = JSON.parse(rawSaved);
+            await restApiAuthUtil.post(`/skill_evaluation/evaluations/${evaluationId}/submit_system_design/`, {
+              section_id: sec.id,
+              question_id: (sec as any).challenge?.id,
+              design: parsed,
+              action: "submit",
+              status: "submitted",
+            });
+          }
+        } catch (e) {
+          console.error("Submitting system design section error:", e);
+        }
       }
-      await evaluationService.submitKnowledgeAnswers?.(evaluationId, secId, richAnswers);
     } catch (e) {}
     setSubmittedSections(prev => new Set(prev).add(secId));
     setActiveQuestionId(null);
@@ -1264,6 +1344,29 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
           }
         }
         contextParts.push(labDetails);
+      }
+      if (sec.type === "SYSTEM_DESIGN") {
+        let sdDetails = `System Design Challenge in section '${sec.title}':\n`;
+        try {
+          const rawSaved = getStorageItem(`eval_${evalPrefix}_system_design_${sec.id}`);
+          if (rawSaved) {
+            const parsed = JSON.parse(rawSaved);
+            const nodeCount = parsed.nodes?.length || 0;
+            const nodesList = (parsed.nodes || []).map((n: any) => n.label).join(", ");
+            const hasSeq = Boolean(parsed.seq?.trim());
+            const hasSchema = Boolean(parsed.schema?.trim());
+            const apiCount = parsed.apis?.length || 0;
+            sdDetails += `- Components (${nodeCount}): ${nodesList}\n`;
+            sdDetails += `- Sequence Flow: ${hasSeq ? "Provided in Mermaid" : "None"}\n`;
+            sdDetails += `- DB Schema: ${hasSchema ? "Defined in DBML" : "None"}\n`;
+            sdDetails += `- REST API Endpoints (${apiCount})\n`;
+            if (parsed.notes) {
+              const noteSummary = Object.entries(parsed.notes).filter(([_, v]) => Boolean(v)).map(([k, v]) => `${k.toUpperCase()} notes: ${String(v).slice(0, 150)}...`).join("; ");
+              if (noteSummary) sdDetails += `- Architecture Notes: ${noteSummary}\n`;
+            }
+          }
+        } catch {}
+        contextParts.push(sdDetails);
       }
       if (sec.type === "VITARKA_AI_INTERVIEW") {
         let meta: any = {};
@@ -1500,6 +1603,31 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
                     }
                   }}
                   isRecruiterPreview={isRecruiterPreview}
+                />
+              );
+            } else if (sec.type === "SYSTEM_DESIGN") {
+              const nextSec = appSections.findIndex(s => s.id === sec.id) + 1 < appSections.length
+                ? appSections[appSections.findIndex(s => s.id === sec.id) + 1].title
+                : undefined;
+              return (
+                <EvaluationSystemDesignSection
+                  key={sec.id}
+                  evaluationId={evaluationId}
+                  section={sec as any}
+                  isRecruiterPreview={isRecruiterPreview}
+                  isSubmitted={submittedSections.has(sec.id)}
+                  nextSectionTitle={nextSec}
+                  onFinishSection={() => {
+                    setSubmittedSections(prev => new Set(prev).add(sec.id));
+                    const idx = appSections.findIndex(s => s.id === sec.id);
+                    if (idx + 1 < appSections.length) {
+                      setSection(appSections[idx + 1].id);
+                      setOpenLab(null);
+                      setQIndex(0);
+                    } else {
+                      setModal({ kind: "submit-evaluation" });
+                    }
+                  }}
                 />
               );
             } else if (sec.type === "VITARKA_AI_INTERVIEW") {
@@ -1834,6 +1962,7 @@ function Sidebar({
 }) {
   const labSections = appSections.filter(s => s.type === "LAB");
   const knowledgeSections = appSections.filter(s => s.type === "KNOWLEDGE_ASSESSMENT");
+  const systemDesignSections = appSections.filter(s => s.type === "SYSTEM_DESIGN");
   const discussionSection = appSections.find(s => s.type === "VITARKA_AI_INTERVIEW");
 
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
@@ -1915,6 +2044,7 @@ function Sidebar({
   let sectionCount = 0;
   if (labSections.length > 0) sectionCount++;
   if (knowledgeSections.length > 0) sectionCount++;
+  if (systemDesignSections.length > 0) sectionCount += systemDesignSections.length;
   if (discussionSection) sectionCount++;
 
   const firstKnowSec = knowledgeSections[0];
@@ -2056,6 +2186,31 @@ function Sidebar({
             )}
           </SectionItem>
         )}
+
+        {systemDesignSections.map((sec) => {
+          const secIdx = appSections.findIndex(s => s.id === sec.id);
+          const isUnlocked = isSectionUnlocked(secIdx);
+          const isDone = submittedSections.has(sec.id);
+          const status: Status = !isUnlocked
+            ? "locked"
+            : isDone
+            ? "complete"
+            : section === sec.id
+            ? "current"
+            : "not-started";
+
+          return (
+            <SectionItem
+              key={sec.id}
+              n={getNum()}
+              label={sec.title}
+              status={status}
+              hint={status === "locked" ? "Unlock by completing prior sections" : isDone ? "Submitted" : `${(sec as any).duration_minutes || 45} min · ${(sec as any).marks || 100} marks`}
+              onClick={() => onSelectSection(sec.id)}
+              disabled={status === "locked" || status === "complete"}
+            />
+          );
+        })}
 
         {discussionSection && (
           <SectionItem

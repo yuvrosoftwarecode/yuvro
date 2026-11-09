@@ -14,9 +14,11 @@ export interface ReportInput {
   labsScore: number;
   assessmentScore: number;
   vitarkaScore: number;
+  systemDesignScore?: number;
   labsMaxScore?: number;
   assessmentMaxScore?: number;
   discussionMaxScore?: number;
+  systemDesignMaxScore?: number;
   strengths: string[];
   weaknesses: string[];
   aiSummary: string;
@@ -82,6 +84,9 @@ export function buildCandidateReportPdf(d: ReportInput) {
     ["Assessment", `${d.assessmentScore}/${d.assessmentMaxScore ?? 30}`],
     ["Vitarka AI", `${d.vitarkaScore}/${d.discussionMaxScore ?? 25}`],
   ];
+  if (d.systemDesignMaxScore || d.systemDesignScore != null) {
+    cards.push(["System Design", `${d.systemDesignScore ?? 0}/${d.systemDesignMaxScore ?? 30}`]);
+  }
   const gap = 12;
   const cw = (W - M * 2 - gap * (cards.length - 1)) / cards.length;
   cards.forEach(([label, value], i) => {

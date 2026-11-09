@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
-import { ArrowLeft, Code2, File, FileCode2, GitCompareArrows } from "lucide-react";
+import { ArrowLeft, Code2, File, FileCode2, GitCompareArrows, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TopNav } from "@/components/TopNav";
 import { tickets } from "@/lib/dummy";
 import { invalidateStudentStats } from "@/lib/studentStats";
 import { parseSolutionPatch } from "@/lib/solutionParser";
+import { ShareMilestoneModal } from "@/components/shared/ShareMilestoneModal";
 
 export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId/review")({
   component: Review,
@@ -72,6 +73,7 @@ function Review() {
   const [loading, setLoading] = useState(true);
   const [showDiff, setShowDiff] = useState(false);
   const [activeFile, setActiveFile] = useState<string>("");
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const sessionSubmission = useMemo(() => readSubmission(slug, ticketId), [slug, ticketId]);
 
@@ -253,10 +255,17 @@ function Review() {
             Back to Reports
           </Link>
         </Button>
-        <header className="pb-4 pt-2">
+        <header className="flex flex-wrap items-center justify-between gap-3 pb-4 pt-2">
           <h1 className="text-lg font-semibold tracking-tight sm:text-xl">
             {displayTicketId}: {title}
           </h1>
+          <button
+            onClick={() => setShowShareModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0A66C2] text-white text-xs font-medium hover:bg-[#0A66C2]/90 shadow-sm transition-colors"
+          >
+            <Linkedin className="h-3.5 w-3.5 fill-current" />
+            Share to LinkedIn
+          </button>
         </header>
 
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,264px)_minmax(0,1fr)] lg:gap-10">
@@ -374,6 +383,18 @@ function Review() {
             </div>
           </section>
         ) : null}
+        <ShareMilestoneModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          milestoneTitle={ticket?.title || "Ticket Cleared"}
+          milestoneType="ticket"
+          details={{
+            labTitle: lab?.title || lab?.name || "Practical Labs",
+            score: percentage,
+            earnedXp: earnedXp,
+            tags: lab?.tags || [],
+          }}
+        />
       </main>
     </div>
   );
