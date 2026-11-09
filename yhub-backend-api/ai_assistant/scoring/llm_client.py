@@ -120,14 +120,24 @@ class ScoringLLMClient:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        response = await asyncio.to_thread(
-            client.chat.completions.create,
-            model=model,
-            messages=messages,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            response_format={"type": "json_object"} if hasattr(client.chat.completions, "create") else None,
-        )
+        try:
+            response = await asyncio.to_thread(
+                client.chat.completions.create,
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                response_format={"type": "json_object"},
+            )
+        except Exception as e:
+            logger.warning(f"DeepSeek call with response_format json_object failed ({e}). Retrying standard call...")
+            response = await asyncio.to_thread(
+                client.chat.completions.create,
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
 
         content = response.choices[0].message.content or ""
         tokens = response.usage.total_tokens if hasattr(response, "usage") and response.usage else None

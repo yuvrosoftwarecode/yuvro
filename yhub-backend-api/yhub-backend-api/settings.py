@@ -7,6 +7,35 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Pre-populate os.environ from local env files so decouple.config & os.environ have full access
+def _load_env_files():
+    search_dirs = [
+        BASE_DIR,
+        Path("/app"),
+        BASE_DIR.parent,
+        BASE_DIR.parent / "ylabs-backend-api",
+    ]
+    for sdir in search_dirs:
+        if not sdir or not os.path.exists(sdir):
+            continue
+        for fname in [".env.local-secrets", ".env.local", ".env", ".env.dev"]:
+            fpath = Path(sdir) / fname
+            if fpath.exists():
+                try:
+                    with open(fpath, "r", encoding="utf-8") as f:
+                        for line in f:
+                            line = line.strip()
+                            if line and not line.startswith("#") and "=" in line:
+                                k, v = line.split("=", 1)
+                                k = k.strip()
+                                v = v.strip().strip("'\"")
+                                if k not in os.environ or not os.environ[k]:
+                                    os.environ[k] = v
+                except Exception:
+                    pass
+
+_load_env_files()
+
 SECRET_KEY = config("SECRET_KEY", default="change-me-in-production-use-env-dev-secrets")
 DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = ["*"]
@@ -270,6 +299,11 @@ AI_CREDITS_DEFAULT_RESERVATION = config("AI_CREDITS_DEFAULT_RESERVATION", defaul
 AI_CREDITS_MAX_RESERVATION = config("AI_CREDITS_MAX_RESERVATION", default=16384, cast=int)
 AI_CREDITS_RESERVATION_EXPIRY_SECONDS = config("AI_CREDITS_RESERVATION_EXPIRY_SECONDS", default=300, cast=int)
 
+# ── GitHub App / PAT Integration ────────────────────────────────
+GITHUB_APP_NAME = config("GITHUB_APP_NAME", default=os.environ.get("GITHUB_APP_NAME", "yuvro-labs-app"))
+GITHUB_APP_ID = config("GITHUB_APP_ID", default=os.environ.get("GITHUB_APP_ID", ""))
+GITHUB_APP_PRIVATE_KEY = config("GITHUB_APP_PRIVATE_KEY", default=os.environ.get("GITHUB_APP_PRIVATE_KEY", ""))
+GITHUB_SYSTEM_PAT = config("GITHUB_SYSTEM_PAT", default=os.environ.get("GITHUB_SYSTEM_PAT", ""))
 # ── GitHub & LinkedIn OAuth ──────────────────────────────────────
 GITHUB_CLIENT_ID = config("GITHUB_CLIENT_ID", default=os.environ.get("GITHUB_CLIENT_ID", ""))
 GITHUB_CLIENT_SECRET = config("GITHUB_CLIENT_SECRET", default=os.environ.get("GITHUB_CLIENT_SECRET", ""))

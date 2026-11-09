@@ -6,10 +6,9 @@ import { questionBankService } from "@/services/questionBankService";
 import { fetchCourses, fetchQuestions, fetchQuestionDetails } from "@/lib/recruiter";
 import { ycodeApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { CreateQuestionForm } from "@/components/evaluation/CreateQuestionForm";
 import LoadingSkeleton from "@/components/common/LoadingSkeleton";
 import { Button } from "@/components/ui/button";
-import { GithubAppIntegration } from "@/components/recruiter/GithubAppIntegration";
+import { QuestionBuilder } from "@/components/recruiter/QuestionBuilder";
 
 export const Route = createFileRoute("/recruiter/questions")({
   head: () => ({
@@ -48,32 +47,6 @@ const SCENARIOS = [
   "TESTING",
   "PRODUCTION_INCIDENT",
 ];
-
-const DEFAULT_LAB_FORM = {
-  title: "",
-  description: "",
-  difficulty: "EASY",
-  domain: "ERP",
-  type: "BACKEND",
-  experience: "FRESHER",
-  scenario: "FEATURE_DEVELOPMENT",
-  marks: 10,
-  duration_minutes: 30,
-  git_repo_starter_url: "",
-  git_repo_starter_branch: "main",
-  repo_source_type: "ADMIN_SYSTEM",
-  github_app_installation: null,
-  github_repo_id: "",
-  startup_command: "",
-  test_command: "",
-  connection_url: "",
-  allow_task_selection: true,
-  programming_languages: [],
-  databases: [],
-  backend_frameworks: [],
-  frontend_frameworks: [],
-  tasks: [],
-};
 
 const BUILTIN_SYSTEM_DESIGN_CHALLENGES = [
   {
@@ -225,69 +198,6 @@ const BUILTIN_SYSTEM_DESIGN_CHALLENGES = [
     ],
   },
 ];
-
-const DEFAULT_SYSTEM_DESIGN_FORM = {
-  title: "",
-  description: "",
-  difficulty: "MEDIUM",
-  marks: 30,
-  duration_minutes: 45,
-  scenario_type: "Distributed System",
-  system_slug: "systemdesign-url-shortener",
-  domain: "BACKEND",
-  company: "",
-  constraints: "",
-  tasks: [
-    { id: "t1", title: "HLD Architecture Canvas", description: "Design client DNS, API Gateway, caching layer, and database cluster with replication.", marks: 10 },
-    { id: "t2", title: "Database Schema (DBML)", description: "Define relational or NoSQL schema with keys, relationships, and telemetry tables.", marks: 10 },
-    { id: "t3", title: "REST API Contracts", description: "Specify endpoints, request schemas, status codes, and error responses.", marks: 5 },
-    { id: "t4", title: "Sequence Diagrams", description: "Model the end-to-end request lifecycle and async operations.", marks: 5 },
-  ],
-};
-
-const PROGRAMMING_LANGUAGES = ["C", "C++", "Python", "Java", "SQL", "Bash", "JavaScript", "TypeScript"];
-const DATABASES = ["SQLite", "PostgreSQL", "MySQL", "MongoDB", "Redis", "Elasticsearch"];
-const BACKEND_FRAMEWORKS = ["Django", "Django REST Framework", "FastAPI", "Flask", "Spring Boot", "NodeJS", "Express", "NestJS"];
-const FRONTEND_FRAMEWORKS = ["React", "NextJS", "Vue", "Angular", "Svelte"];
-
-function MultiSelectPills({ label, options, value, onChange }: { label: string, options: string[], value: string[], onChange: (v: string[]) => void }) {
-  const toggle = (opt: string) => {
-    let mappedVal = opt.toUpperCase().replace(/ /g, "_").replace(/\+/g, "P");
-    if (opt === "C++") mappedVal = "C++";
-    
-    if (value.includes(mappedVal)) {
-      onChange(value.filter(v => v !== mappedVal));
-    } else {
-      onChange([...value, mappedVal]);
-    }
-  };
-  return (
-    <div className="col-span-full">
-      <label className="text-[11px]   text-muted-foreground">{label}</label>
-      <div className="flex flex-wrap gap-2 mt-1.5">
-        {options.map(opt => {
-          let mappedVal = opt.toUpperCase().replace(/ /g, "_").replace(/\+/g, "P");
-          if (opt === "C++") mappedVal = "C++";
-          const selected = value.includes(mappedVal);
-          return (
-            <Button variant="ghost"
-              key={opt}
-              type="button"
-              onClick={() => toggle(opt)}
-              className={`rounded-full px-3 py-1 text-[11px] font-medium border transition ${
-                selected 
-                  ? "border-border bg-background text-muted-foreground " 
-                  : "border-border  bg-background  text-muted-foreground  hover:border-border "
-              }`}
-            >
-              {opt}
-            </Button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 const getSolutionString = (solution: any) => {
   if (!solution) return "";
@@ -725,15 +635,12 @@ function RecruiterQuestionBankPage() {
     setCurrentPage(1);
   }, [debouncedSearch, selectedDomain, selectedDifficulty, selectedScenario, selectedFormat, selectedCourse, activeTab]);
 
-  // Modal Visibility States
-  const [isAddTypeModalOpen, setIsAddTypeModalOpen] = useState(false);
-  const [isLabModalOpen, setIsLabModalOpen] = useState(false);
-  const [isKnowledgeModalOpen, setIsKnowledgeModalOpen] = useState(false);
-
-  // Edit States
-  const [editingLabId, setEditingLabId] = useState<string | null>(null);
-  const [labFormData, setLabFormData] = useState<any>(DEFAULT_LAB_FORM);
-  const [editingKnowledgeQuestion, setEditingKnowledgeQuestion] = useState<any | null>(null);
+  // Full Page Multi-step Builder State
+  const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+  const [builderCategory, setBuilderCategory] = useState<"LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE">("LAB");
+  const [builderEditingId, setBuilderEditingId] = useState<string | null>(null);
+  const [builderInitialData, setBuilderInitialData] = useState<any>(null);
+  const [loadingEditId, setLoadingEditId] = useState<string | null>(null);
 
   // Preview State
   const [previewQuestion, setPreviewQuestion] = useState<any | null>(null);
@@ -763,31 +670,7 @@ function RecruiterQuestionBankPage() {
     setTimeout(() => setToast(null), 2500);
   };
 
-  // Lab Mutations
-  const createLabMutation = useMutation({
-    mutationFn: (data: any) => questionBankService.createLabQuestion(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["labQuestions"] });
-      closeLabModal();
-      showToast("Engineering Lab Question created successfully");
-    },
-    onError: (err: any) => {
-      showToast(err?.message || "Failed to create lab question");
-    },
-  });
-
-  const updateLabMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => questionBankService.updateLabQuestion(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["labQuestions"] });
-      closeLabModal();
-      showToast("Engineering Lab Question updated successfully");
-    },
-    onError: (err: any) => {
-      showToast(err?.message || "Failed to update lab question");
-    },
-  });
-
+  // Delete Mutations (for Delete Confirmation Modal)
   const deleteLabMutation = useMutation({
     mutationFn: (id: string) => questionBankService.deleteLabQuestion(id),
     onSuccess: () => {
@@ -822,165 +705,42 @@ function RecruiterQuestionBankPage() {
     },
   });
 
-  // System Design Form State & Mutations
-  const [isSystemDesignModalOpen, setIsSystemDesignModalOpen] = useState(false);
-  const [editingSystemDesignId, setEditingSystemDesignId] = useState<string | null>(null);
-  const [systemDesignFormData, setSystemDesignFormData] = useState<any>(DEFAULT_SYSTEM_DESIGN_FORM);
-
-  const createSystemDesignMutation = useMutation({
-    mutationFn: (data: any) => questionBankService.createSystemDesignQuestion(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["systemDesignQuestions"] });
-      showToast("System design challenge created");
-      setIsSystemDesignModalOpen(false);
-    },
-    onError: (err: any) => {
-      showToast(err?.message || "Failed to create system design challenge");
-    },
-  });
-
-  const updateSystemDesignMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
-      questionBankService.updateSystemDesignQuestion(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["systemDesignQuestions"] });
-      showToast("System design challenge updated");
-      setIsSystemDesignModalOpen(false);
-    },
-    onError: (err: any) => {
-      showToast(err?.message || "Failed to update system design challenge");
-    },
-  });
-
-  const handleSelectSystemDesignType = () => {
-    setIsAddTypeModalOpen(false);
-    setEditingSystemDesignId(null);
-    setSystemDesignFormData(DEFAULT_SYSTEM_DESIGN_FORM);
-    setIsSystemDesignModalOpen(true);
-  };
-
-  const closeSystemDesignModal = () => {
-    setIsSystemDesignModalOpen(false);
-    setEditingSystemDesignId(null);
-  };
-
-  const openEditSystemDesignModal = (q: any) => {
-    setEditingSystemDesignId(q.id);
-    setSystemDesignFormData({
-      title: q.title || "",
-      description: q.description || q.problem || "",
-      difficulty: (q.difficulty || "MEDIUM").toUpperCase(),
-      marks: q.marks || 30,
-      duration_minutes: q.duration_minutes || 45,
-      scenario_type: q.scenario_type || "Distributed System",
-      system_slug: q.system_slug || "systemdesign-url-shortener",
-      domain: q.domain || "BACKEND",
-      company: q.company || "",
-      constraints: Array.isArray(q.constraints) ? q.constraints.join("\n") : (q.constraints || ""),
-      tasks: Array.isArray(q.tasks) && q.tasks.length > 0 ? q.tasks : DEFAULT_SYSTEM_DESIGN_FORM.tasks,
-    });
-    setIsSystemDesignModalOpen(true);
-  };
-
-  const handleSaveSystemDesign = () => {
-    const rawConstraints = typeof systemDesignFormData.constraints === "string"
-      ? systemDesignFormData.constraints.split("\n").map((s: string) => s.trim()).filter(Boolean)
-      : systemDesignFormData.constraints || [];
-
-    const payload = {
-      ...systemDesignFormData,
-      constraints: rawConstraints,
-      tasks: (systemDesignFormData.tasks || []).map((t: any, index: number) => ({
-        id: t.id || `t${index + 1}`,
-        title: t.title,
-        description: t.description || "",
-        marks: Number(t.marks) || 10,
-      })),
-      marks: Number(systemDesignFormData.marks) || 30,
-      duration_minutes: Number(systemDesignFormData.duration_minutes) || 45,
-    };
-
-    if (editingSystemDesignId) {
-      updateSystemDesignMutation.mutate({ id: editingSystemDesignId, data: payload });
-    } else {
-      createSystemDesignMutation.mutate(payload);
-    }
-  };
-
-  // Handlers for Add Button
+  // Handlers for Add Button & Edit Button
   const handleOpenAddModal = () => {
-    setIsAddTypeModalOpen(true);
+    let defaultCat: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE" = "LAB";
+    if (activeTab === "SYSTEM_DESIGN") defaultCat = "SYSTEM_DESIGN";
+    else if (activeTab === "KNOWLEDGE") defaultCat = "KNOWLEDGE";
+    setBuilderCategory(defaultCat);
+    setBuilderEditingId(null);
+    setBuilderInitialData(null);
+    setIsBuilderOpen(true);
   };
 
-  const handleSelectLabType = () => {
-    setIsAddTypeModalOpen(false);
-    setEditingLabId(null);
-    setLabFormData(DEFAULT_LAB_FORM);
-    setIsLabModalOpen(true);
-  };
-
-  const handleSelectKnowledgeType = () => {
-    setIsAddTypeModalOpen(false);
-    setEditingKnowledgeQuestion(null);
-    setIsKnowledgeModalOpen(true);
-  };
-
-  const closeLabModal = () => {
-    setIsLabModalOpen(false);
-    setEditingLabId(null);
-  };
-
-  const closeKnowledgeModal = () => {
-    setIsKnowledgeModalOpen(false);
-    setEditingKnowledgeQuestion(null);
-  };
-
-  const openEditLabModal = (q: any) => {
-    setEditingLabId(q.id);
-    setLabFormData({
-      title: q.title || "",
-      description: q.description || "",
-      domain: q.domain || "OTHER",
-      difficulty: q.difficulty || "EASY",
-      type: q.type || "BACKEND",
-      experience: q.experience || "FRESHER",
-      scenario: q.scenario || "FEATURE_DEVELOPMENT",
-      marks: q.marks || 10,
-      duration_minutes: q.duration_minutes || 30,
-      git_repo_starter_url: q.git_repo_starter_url || "",
-      git_repo_starter_branch: q.git_repo_starter_branch || "main",
-      repo_source_type: q.repo_source_type || "ADMIN_SYSTEM",
-      github_app_installation: q.github_app_installation || null,
-      github_repo_id: q.github_repo_id || "",
-      startup_command: q.startup_command || "",
-      test_command: q.test_command || "",
-      programming_languages: q.programming_languages || [],
-      databases: q.databases || [],
-      backend_frameworks: (q.backend_frameworks || []).map((f: string) => f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f),
-      frontend_frameworks: q.frontend_frameworks || [],
-      tasks: (q.tasks || []).map((t: any, i: number) => ({
-        ...t,
-        id: t.id || `task_${i}`,
-        parent_task_id: t.parent_task_id || t.scoring_rules?.parent_task_id || (typeof t.parent_task === "string" ? t.parent_task : t.parent_task?.id) || null,
-      })),
-    });
-    setIsLabModalOpen(true);
-  };
-
-  const [loadingEditId, setLoadingEditId] = useState<string | null>(null);
-
-  const openEditKnowledgeModal = async (q: any) => {
-    setLoadingEditId(q.id);
-    try {
-      const details = await fetchQuestionDetails(q.id);
-      setEditingKnowledgeQuestion(details || q);
-      setIsKnowledgeModalOpen(true);
-    } catch (err) {
-      console.error("Failed to fetch knowledge question details for edit:", err);
-      setEditingKnowledgeQuestion(q);
-      setIsKnowledgeModalOpen(true);
-    } finally {
-      setLoadingEditId(null);
+  const handleEditQuestion = async (q: any) => {
+    setBuilderEditingId(q.id);
+    if (q.questionCategory === "LAB") {
+      setBuilderCategory("LAB");
+      setBuilderInitialData(q);
+      setIsBuilderOpen(true);
+    } else if (q.questionCategory === "SYSTEM_DESIGN") {
+      setBuilderCategory("SYSTEM_DESIGN");
+      setBuilderInitialData(q);
+      setIsBuilderOpen(true);
+    } else {
+      setLoadingEditId(q.id);
+      try {
+        const details = await fetchQuestionDetails(q.id);
+        setBuilderCategory("KNOWLEDGE");
+        setBuilderInitialData(details || q);
+        setIsBuilderOpen(true);
+      } catch (err) {
+        console.error("Failed to fetch knowledge question details for edit:", err);
+        setBuilderCategory("KNOWLEDGE");
+        setBuilderInitialData(q);
+        setIsBuilderOpen(true);
+      } finally {
+        setLoadingEditId(null);
+      }
     }
   };
 
@@ -990,93 +750,6 @@ function RecruiterQuestionBankPage() {
     title: string;
     category: "LAB" | "KNOWLEDGE" | "SYSTEM_DESIGN";
   } | null>(null);
-
-  const handleSaveLab = () => {
-    const preparedTasks = (labFormData.tasks || []).map((t: any, index: number) => {
-      let solutionObj = t.solution;
-      if (typeof t.solution === "string") {
-        const trimmed = t.solution.trim();
-        if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
-          try {
-            solutionObj = JSON.parse(trimmed);
-          } catch (e) {
-            solutionObj = { code: trimmed };
-          }
-        } else if (trimmed) {
-          const dbs = labFormData.databases || [];
-          if (dbs.includes("MONGODB")) {
-            solutionObj = { "query.js": trimmed };
-          } else if (dbs.includes("MYSQL") || dbs.includes("POSTGRESQL") || dbs.includes("SQLITE")) {
-            solutionObj = { "query.sql": trimmed };
-          } else {
-            solutionObj = { code: trimmed };
-          }
-        } else {
-          solutionObj = {};
-        }
-      }
-      const pId = t.parent_task_id || (typeof t.parent_task === "string" ? t.parent_task : t.parent_task?.id) || null;
-      return {
-        ...t,
-        order_index: index,
-        solution: solutionObj,
-        parent_task_id: pId,
-        parent_task: pId,
-        scoring_rules: {
-          ...(typeof t.scoring_rules === "object" ? t.scoring_rules : {}),
-          parent_task_id: pId,
-        },
-      };
-    });
-
-    const sanitizedBackendFrameworks = (labFormData.backend_frameworks || []).map((f: string) =>
-      f === "DJANGO_REST_FRAMEWOR" ? "DJANGO_REST_FRAMEWORK" : f
-    );
-
-    const payload = {
-      ...labFormData,
-      backend_frameworks: sanitizedBackendFrameworks,
-      tasks: preparedTasks,
-      domain: labFormData.domain || "OTHER",
-    };
-
-    if (editingLabId) {
-      updateLabMutation.mutate({ id: editingLabId, data: payload });
-    } else {
-      createLabMutation.mutate(payload);
-    }
-  };
-
-  const updateLabTask = (index: number, field: string, value: any) => {
-    const newTasks = [...labFormData.tasks];
-    newTasks[index] = { ...newTasks[index], [field]: value };
-    setLabFormData({ ...labFormData, tasks: newTasks });
-  };
-
-  const removeLabTask = (index: number) => {
-    const newTasks = labFormData.tasks.filter((_: any, i: number) => i !== index);
-    setLabFormData({ ...labFormData, tasks: newTasks });
-  };
-
-  const addLabTask = () => {
-    setLabFormData({
-      ...labFormData,
-      tasks: [
-        ...labFormData.tasks,
-        {
-          id: `task_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-          title: "",
-          description: "",
-          solution: "",
-          difficulty: "EASY",
-          marks: 10,
-          duration_minutes: 15,
-          order_index: labFormData.tasks.length,
-          parent_task_id: null,
-        },
-      ],
-    });
-  };
 
   // Combine questions with type tags
   const combinedQuestions = useMemo(() => {
@@ -1237,6 +910,26 @@ function RecruiterQuestionBankPage() {
     return filteredQuestions.slice(start, start + pageSize);
   }, [filteredQuestions, currentPage, pageSize]);
 
+  // Full Page Multi-step Builder View
+  if (isBuilderOpen) {
+    return (
+      <QuestionBuilder
+        initialCategory={builderCategory}
+        editingId={builderEditingId}
+        initialData={builderInitialData}
+        courses={courses}
+        onClose={() => {
+          setIsBuilderOpen(false);
+          setBuilderEditingId(null);
+          setBuilderInitialData(null);
+        }}
+        onSuccess={(msg) => {
+          showToast(msg);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="qb-theme min-w-0 px-5 py-8 lg:px-10">
       <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -1300,13 +993,7 @@ function RecruiterQuestionBankPage() {
                 loadingEditId={loadingEditId}
                 onPreview={handleOpenPreview}
                 onEdit={(item) => {
-                  if (item.questionCategory === "LAB") {
-                    openEditLabModal(item);
-                  } else if (item.questionCategory === "SYSTEM_DESIGN") {
-                    openEditSystemDesignModal(item);
-                  } else {
-                    openEditKnowledgeModal(item);
-                  }
+                  handleEditQuestion(item);
                 }}
                 onDelete={(item) => {
                   setDeletingQuestion({
@@ -1390,627 +1077,6 @@ function RecruiterQuestionBankPage() {
           )}
         </>
       )}
-
-      {/* 1. SELECTION MODAL: "What kind of question?" */}
-      <Dialog open={isAddTypeModalOpen} onOpenChange={setIsAddTypeModalOpen}>
-        <DialogContent className="recruiter-theme qb-theme qb-dialog sm:max-w-[540px] w-full bg-background  border-border  text-muted-foreground  p-6   rounded-xl">
-          <DialogHeader className="p-0 text-left">
-            <div className="text-[10px] font-semibold   text-muted-foreground">
-              Add question
-            </div>
-            <DialogTitle className="text-[18px] font-semibold text-muted-foreground  mt-1">
-              What kind of question?
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="mt-5 grid gap-2.5">
-            {/* Option 1: Engineering labs */}
-            <Button variant="ghost"
-              onClick={handleSelectLabType}
-              className="group flex items-center gap-4 rounded-xl border border-border  bg-background  p-4 text-left transition hover:border-border  hover:bg-background  w-full"
-            >
-              
-              <div className="flex-1 min-w-0">
-                <div className="text-[14px] font-medium text-muted-foreground ">
-                  Engineering labs
-                </div>
-                <div className="text-[11px] text-muted-foreground mt-0.5">
-                  Real workspaces with terminal, editor and tasks.
-                </div>
-              </div>
-              
-            </Button>
-
-            {/* Option 2: System design challenge */}
-            <Button variant="ghost"
-              onClick={handleSelectSystemDesignType}
-              className="group flex items-center gap-4 rounded-xl border border-border  bg-background  p-4 text-left transition hover:border-border  hover:bg-background  w-full"
-            >
-              
-              <div className="flex-1 min-w-0">
-                <div className="text-[14px] font-medium text-muted-foreground ">
-                  System design challenge
-                </div>
-                <div className="text-[11px] text-muted-foreground mt-0.5">
-                  High-level architecture, DBML, REST API & sequence flows.
-                </div>
-              </div>
-              
-            </Button>
-
-            {/* Option 3: Knowledge assessment */}
-            <Button variant="ghost"
-              onClick={handleSelectKnowledgeType}
-              className="group flex items-center gap-4 rounded-xl border border-border  bg-background  p-4 text-left transition hover:border-border  hover:bg-background  w-full"
-            >
-              
-              <div className="flex-1 min-w-0">
-                <div className="text-[14px] font-medium text-muted-foreground ">
-                  Knowledge assessment
-                </div>
-                <div className="text-[11px] text-muted-foreground mt-0.5">
-                  MCQ, multi-select and scenario questions.
-                </div>
-              </div>
-              
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* 2. ENGINEERING LAB QUESTION FORM MODAL */}
-      <Dialog open={isLabModalOpen} onOpenChange={setIsLabModalOpen}>
-        <DialogContent className="recruiter-theme qb-theme qb-dialog sm:max-w-[780px] w-full bg-background  border-border  text-muted-foreground  max-h-[85vh] flex flex-col p-0 overflow-hidden  rounded-xl">
-          <DialogHeader className="p-6 border-b border-border ">
-            <DialogTitle className="text-[18px] font-semibold text-muted-foreground ">
-              {editingLabId ? "Edit engineering lab question" : "New engineering lab question"}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="flex-1 overflow-y-auto p-6 space-y-5 hide-scrollbar">
-            <div>
-              <label className="text-[11px]   text-muted-foreground">Title</label>
-              <input
-                value={labFormData.title}
-                onChange={(e) => setLabFormData({ ...labFormData, title: e.target.value })}
-                placeholder="e.g. Build a High-Throughput Order Queue"
-                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-              />
-            </div>
-
-            <div>
-              <label className="text-[11px]   text-muted-foreground">Description</label>
-              <textarea
-                rows={3}
-                value={labFormData.description}
-                onChange={(e) => setLabFormData({ ...labFormData, description: e.target.value })}
-                placeholder="Problem overview, background, and expectations..."
-                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Domain / Industry</label>
-                <select
-                  value={labFormData.domain || "OTHER"}
-                  onChange={(e) => setLabFormData({ ...labFormData, domain: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                >
-                  {DOMAINS.map((d) => (
-                    <option key={d.value} value={d.value} className="bg-background  text-muted-foreground ">
-                      {d.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Difficulty</label>
-                <select
-                  value={labFormData.difficulty}
-                  onChange={(e) => setLabFormData({ ...labFormData, difficulty: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                >
-                  <option value="EASY" className="bg-background  text-muted-foreground ">Easy</option>
-                  <option value="MEDIUM" className="bg-background  text-muted-foreground ">Medium</option>
-                  <option value="HARD" className="bg-background  text-muted-foreground ">Hard</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Lab Role / Type</label>
-                <select
-                  value={labFormData.type}
-                  onChange={(e) => setLabFormData({ ...labFormData, type: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                >
-                  {LAB_TYPES.map((d) => (
-                    <option key={d} value={d} className="bg-background  text-muted-foreground ">
-                      {d.replace("_", " ")}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Experience</label>
-                <select
-                  value={labFormData.experience}
-                  onChange={(e) => setLabFormData({ ...labFormData, experience: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                >
-                  <option value="FRESHER" className="bg-background  text-muted-foreground ">Fresher</option>
-                  <option value="MID_LEVEL" className="bg-background  text-muted-foreground ">Mid Level</option>
-                  <option value="SENIOR" className="bg-background  text-muted-foreground ">Senior</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Scenario</label>
-                <select
-                  value={labFormData.scenario}
-                  onChange={(e) => setLabFormData({ ...labFormData, scenario: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                >
-                  {SCENARIOS.map((s) => (
-                    <option key={s} value={s} className="bg-background  text-muted-foreground ">
-                      {s.replace(/_/g, " ")}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Marks</label>
-                <input
-                  type="number"
-                  value={labFormData.marks}
-                  onChange={(e) => setLabFormData({ ...labFormData, marks: parseInt(e.target.value) || 0 })}
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Duration (minutes)</label>
-                <input
-                  type="number"
-                  value={labFormData.duration_minutes}
-                  onChange={(e) =>
-                    setLabFormData({ ...labFormData, duration_minutes: parseInt(e.target.value) || 0 })
-                  }
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2.5 rounded-lg border border-border  bg-background  p-3">
-              <input
-                type="checkbox"
-                id="allow_task_selection"
-                checked={labFormData.allow_task_selection !== false}
-                onChange={(e) => setLabFormData({ ...labFormData, allow_task_selection: e.target.checked })}
-                className="h-4 w-4 rounded border-border text-muted-foreground focus:ring-ring cursor-pointer"
-              />
-              <label htmlFor="allow_task_selection" className="text-[12px] text-muted-foreground  cursor-pointer select-none">
-                <span className="font-medium text-muted-foreground ">Allow Task Selection:</span> Enable recruiters to select specific tasks from this question when building evaluations.
-              </label>
-            </div>
-
-            {/* GitHub App Repository Selection */}
-            <GithubAppIntegration
-              value={{
-                github_repo_id: labFormData.github_repo_id,
-                git_repo_starter_url: labFormData.git_repo_starter_url,
-                repo_source_type: labFormData.repo_source_type,
-                github_app_installation: labFormData.github_app_installation,
-              }}
-              onChange={(val: any) => {
-                setLabFormData({
-                  ...labFormData,
-                  ...val,
-                });
-              }}
-              onBranchChange={(branch: string) => {
-                setLabFormData((prev: any) => ({
-                  ...prev,
-                  git_repo_starter_branch: branch,
-                }));
-              }}
-            />
-
-            <div className="grid grid-cols-3 gap-3">
-              <div className="col-span-2">
-                <label className="text-[11px]   text-muted-foreground">
-                  Starter Repository URL
-                </label>
-                <input
-                  value={labFormData.git_repo_starter_url}
-                  onChange={(e) =>
-                    setLabFormData({
-                      ...labFormData,
-                      git_repo_starter_url: e.target.value,
-                      repo_source_type: labFormData.github_repo_id ? labFormData.repo_source_type : "ADMIN_SYSTEM",
-                    })
-                  }
-                  placeholder="https://github.com/..."
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                />
-              </div>
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Branch</label>
-                <input
-                  value={labFormData.git_repo_starter_branch}
-                  onChange={(e) => setLabFormData({ ...labFormData, git_repo_starter_branch: e.target.value })}
-                  placeholder="main"
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Startup Command</label>
-                <input
-                  value={labFormData.startup_command}
-                  onChange={(e) => setLabFormData({ ...labFormData, startup_command: e.target.value })}
-                  placeholder="npm start or python main.py"
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                />
-              </div>
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Test Command</label>
-                <input
-                  value={labFormData.test_command || ""}
-                  onChange={(e) => setLabFormData({ ...labFormData, test_command: e.target.value })}
-                  placeholder="npm test or pytest"
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                />
-              </div>
-            </div>
-
-            <MultiSelectPills
-              label="Programming Languages"
-              options={PROGRAMMING_LANGUAGES as any}
-              value={labFormData.programming_languages || []}
-              onChange={(v) => setLabFormData({ ...labFormData, programming_languages: v })}
-            />
-
-            <MultiSelectPills
-              label="Databases"
-              options={DATABASES as any}
-              value={labFormData.databases || []}
-              onChange={(v) => setLabFormData({ ...labFormData, databases: v })}
-            />
-
-            {labFormData.databases?.some((d: string) => ["MySQL", "PostgreSQL", "MongoDB", "MYSQL", "POSTGRESQL", "MONGODB"].includes(d)) && (
-              <div className="grid gap-2 border p-3 rounded-md bg-muted/20">
-                <label className="text-sm font-semibold flex items-center gap-1.5 text-foreground">
-                  
-                  Evaluation Database Connection URL (e.g. Aiven MySQL)
-                </label>
-                <input
-                  type="text"
-                  placeholder="mysql://avnadmin:password@mysql-xyz.aivencloud.com:24128/defaultdb"
-                  value={labFormData.connection_url || ""}
-                  onChange={(e) => setLabFormData({ ...labFormData, connection_url: e.target.value })}
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm  transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Candidates will automatically execute queries against this database without needing credentials.
-                </p>
-              </div>
-            )}
-
-            <MultiSelectPills
-              label="Backend Frameworks"
-              options={BACKEND_FRAMEWORKS}
-              value={labFormData.backend_frameworks || []}
-              onChange={(v) => setLabFormData({ ...labFormData, backend_frameworks: v })}
-            />
-
-            <MultiSelectPills
-              label="Frontend Frameworks"
-              options={FRONTEND_FRAMEWORKS}
-              value={labFormData.frontend_frameworks || []}
-              onChange={(v) => setLabFormData({ ...labFormData, frontend_frameworks: v })}
-            />
-
-            {/* Dynamic Tasks Section */}
-            <div className="border-t border-border  pt-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[13px] font-medium text-muted-foreground ">Tasks / Sub-questions</span>
-                <Button variant="ghost"
-                  type="button"
-                  onClick={addLabTask}
-                  className="inline-flex items-center gap-1 text-[11px] rounded-md border border-border  bg-background  px-2.5 py-1 text-muted-foreground  hover:bg-background  transition"
-                >
-                   Add task
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                {labFormData.tasks.map((task: any, index: number) => (
-                  <div key={index} className="rounded-xl border border-border  bg-background  p-4 relative">
-                    <Button variant="ghost"
-                      type="button"
-                      onClick={() => removeLabTask(index)}
-                      className="absolute top-3 right-3 text-muted-foreground hover:text-muted-foreground  transition"
-                      title="Remove task"
-                    >
-                      Remove
-                    </Button>
-                    <div className="space-y-3 pr-6">
-                      <div>
-                        <label className="text-[10px]   text-muted-foreground">
-                          Task title
-                        </label>
-                        <input
-                          value={task.title}
-                          onChange={(e) => updateLabTask(index, "title", e.target.value)}
-                          placeholder="e.g. Implement GET /api/orders endpoint"
-                          className="mt-1 w-full rounded-md border border-border  bg-background  px-3 py-1.5 text-[12px] text-muted-foreground  outline-none focus:border-border"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px]   text-muted-foreground">
-                          Description
-                        </label>
-                        <textarea
-                          rows={2}
-                          value={task.description}
-                          onChange={(e) => updateLabTask(index, "description", e.target.value)}
-                          placeholder="Input parameters, constraints, and requirements..."
-                          className="mt-1 w-full rounded-md border border-border  bg-background  px-3 py-1.5 text-[12px] text-muted-foreground  outline-none focus:border-border"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px]   text-muted-foreground">
-                          Reference Solution / Query
-                        </label>
-                        <textarea
-                          rows={2}
-                          value={getSolutionString(task.solution)}
-                          onChange={(e) => updateLabTask(index, "solution", e.target.value)}
-                          placeholder="Reference solution code or SQL query..."
-                          className="mt-1 w-full font-mono rounded-md border border-border  bg-background  px-3 py-1.5 text-[11px] text-muted-foreground  outline-none focus:border-border"
-                        />
-                      </div>
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <label className="text-[10px]   text-muted-foreground">
-                            Difficulty
-                          </label>
-                          <select
-                            value={task.difficulty}
-                            onChange={(e) => updateLabTask(index, "difficulty", e.target.value)}
-                            className="mt-1 w-full rounded-md border border-border  bg-background  px-2 py-1 text-[12px] text-muted-foreground  outline-none"
-                          >
-                            <option value="EASY" className="bg-background  text-muted-foreground ">Easy</option>
-                            <option value="MEDIUM" className="bg-background  text-muted-foreground ">Medium</option>
-                            <option value="HARD" className="bg-background  text-muted-foreground ">Hard</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="text-[10px]   text-muted-foreground">Marks</label>
-                          <input
-                            type="number"
-                            value={task.marks}
-                            onChange={(e) => updateLabTask(index, "marks", parseInt(e.target.value) || 0)}
-                            className="mt-1 w-full rounded-md border border-border  bg-background  px-2 py-1 text-[12px] text-muted-foreground  outline-none"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px]   text-muted-foreground">
-                            Duration (min)
-                          </label>
-                          <input
-                            type="number"
-                            value={task.duration_minutes}
-                            onChange={(e) =>
-                              updateLabTask(index, "duration_minutes", parseInt(e.target.value) || 0)
-                            }
-                            className="mt-1 w-full rounded-md border border-border  bg-background  px-2 py-1 text-[12px] text-muted-foreground  outline-none"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-[10px]   text-muted-foreground flex items-center gap-1">
-                           Linked Task / Dependency
-                        </label>
-                        <select
-                          value={task.parent_task_id || task.parent_task || ""}
-                          onChange={(e) => updateLabTask(index, "parent_task_id", e.target.value || null)}
-                          className="mt-1 w-full rounded-md border border-border  bg-background  px-2 py-1.5 text-[12px] text-muted-foreground  outline-none focus:border-border"
-                        >
-                          <option value="" className="bg-background  text-muted-foreground ">None (Independent Task)</option>
-                          {labFormData.tasks.map((otherTask: any, otherIdx: number) => {
-                            if (otherIdx === index) return null;
-                            const otherId = otherTask.id || `task_idx_${otherIdx}`;
-                            return (
-                              <option key={otherId} value={otherId} className="bg-background  text-muted-foreground ">
-                                Task {otherIdx + 1}: {otherTask.title || `Task ${otherIdx + 1}`}
-                              </option>
-                            );
-                          })}
-                        </select>
-                        <p className="mt-0.5 text-[10px] text-muted-foreground">
-                          Selecting this task when creating an evaluation will automatically select the linked task.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {labFormData.tasks.length === 0 && (
-                  <p className="text-[12px] text-muted-foreground text-center py-3">No tasks added yet.</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter className="p-4 border-t border-border  bg-background  flex items-center justify-end gap-3">
-            <Button variant="ghost"
-              onClick={closeLabModal}
-              className="rounded-lg border border-border  px-4 py-2 text-[13px] text-muted-foreground  hover:bg-background  transition"
-            >
-              Cancel
-            </Button>
-            <Button variant="ghost"
-              className="rec-btn" onClick={handleSaveLab}
-              disabled={createLabMutation.isPending || updateLabMutation.isPending}
-              
-            >
-              {createLabMutation.isPending || updateLabMutation.isPending ? "Saving..." : "Save lab question"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* SYSTEM DESIGN QUESTION FORM MODAL */}
-      <Dialog open={isSystemDesignModalOpen} onOpenChange={setIsSystemDesignModalOpen}>
-        <DialogContent className="recruiter-theme qb-theme qb-dialog sm:max-w-[780px] w-full bg-background  border-border  text-muted-foreground  max-h-[85vh] flex flex-col p-0 overflow-hidden  rounded-xl">
-          <DialogHeader className="p-6 border-b border-border ">
-            <DialogTitle className="text-[18px] font-semibold text-muted-foreground ">
-              {editingSystemDesignId ? "Edit System design challenge" : "New System design challenge"}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="flex-1 overflow-y-auto p-6 space-y-5 hide-scrollbar">
-            <div>
-              <label className="text-[11px]   text-muted-foreground">Title</label>
-              <input
-                value={systemDesignFormData.title}
-                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, title: e.target.value })}
-                placeholder="e.g. Design a High-Throughput URL Shortener (TinyURL)"
-                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-              />
-            </div>
-
-            <div>
-              <label className="text-[11px]   text-muted-foreground">Description / Problem Statement</label>
-              <textarea
-                rows={3}
-                value={systemDesignFormData.description}
-                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, description: e.target.value })}
-                placeholder="Architect an end-to-end distributed system capable of handling high loads..."
-                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Scenario Type</label>
-                <input
-                  value={systemDesignFormData.scenario_type}
-                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, scenario_type: e.target.value })}
-                  placeholder="e.g. Distributed Storage, High Concurrency"
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Difficulty</label>
-                <select
-                  value={systemDesignFormData.difficulty}
-                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, difficulty: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-                >
-                  <option value="EASY" className="bg-background  text-muted-foreground ">Easy</option>
-                  <option value="MEDIUM" className="bg-background  text-muted-foreground ">Medium</option>
-                  <option value="HARD" className="bg-background  text-muted-foreground ">Hard</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Marks</label>
-                <input
-                  type="number"
-                  value={systemDesignFormData.marks}
-                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, marks: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border font-mono"
-                />
-              </div>
-              <div>
-                <label className="text-[11px]   text-muted-foreground">Duration (Minutes)</label>
-                <input
-                  type="number"
-                  value={systemDesignFormData.duration_minutes}
-                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, duration_minutes: e.target.value })}
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border font-mono"
-                />
-              </div>
-              <div>
-                <label className="text-[11px]   text-muted-foreground">System Slug</label>
-                <input
-                  value={systemDesignFormData.system_slug}
-                  onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, system_slug: e.target.value })}
-                  placeholder="systemdesign-url-shortener"
-                  className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border font-mono"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-[11px]   text-muted-foreground">Company (Optional)</label>
-              <input
-                value={systemDesignFormData.company || ""}
-                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, company: e.target.value })}
-                placeholder="e.g. Uber, Amazon, BookMyShow"
-                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border"
-              />
-            </div>
-
-            <div>
-              <label className="text-[11px]   text-muted-foreground">Constraints & Scale Targets (One per line)</label>
-              <textarea
-                rows={3}
-                value={systemDesignFormData.constraints}
-                onChange={(e) => setSystemDesignFormData({ ...systemDesignFormData, constraints: e.target.value })}
-                placeholder="100M daily active requests&#10;Sub-15ms p99 latency&#10;99.999% availability"
-                className="mt-1.5 w-full rounded-md border border-border  bg-background  px-3 py-2 text-[13px] text-muted-foreground  outline-none transition focus:border-border font-mono text-[12px]"
-              />
-            </div>
-          </div>
-
-          <DialogFooter className="p-4 border-t border-border  bg-background  flex items-center justify-end gap-3">
-            <Button variant="ghost"
-              onClick={closeSystemDesignModal}
-              className="rounded-lg border border-border  px-4 py-2 text-[13px] text-muted-foreground  hover:bg-background  transition"
-            >
-              Cancel
-            </Button>
-            <Button variant="ghost"
-              className="rec-btn" onClick={handleSaveSystemDesign}
-              disabled={createSystemDesignMutation.isPending || updateSystemDesignMutation.isPending || !systemDesignFormData.title}
-              
-            >
-              {createSystemDesignMutation.isPending || updateSystemDesignMutation.isPending ? "Saving..." : "Save System design challenge"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* 3. KNOWLEDGE ASSESSMENT QUESTION FORM MODAL */}
-      <Dialog open={isKnowledgeModalOpen} onOpenChange={setIsKnowledgeModalOpen}>
-        <DialogContent className="recruiter-theme qb-theme qb-dialog sm:max-w-[800px] w-full bg-background  border-border  text-muted-foreground  h-[85vh] max-h-[85vh] flex flex-col p-0 overflow-hidden  rounded-xl">
-          <CreateQuestionForm
-            initialData={editingKnowledgeQuestion}
-            courses={courses}
-            onClose={closeKnowledgeModal}
-            onSuccess={() => {
-              closeKnowledgeModal();
-              queryClient.invalidateQueries({ queryKey: ["knowledgeQuestions"] });
-              showToast(
-                editingKnowledgeQuestion
-                  ? "Knowledge assessment Question updated"
-                  : "Knowledge assessment Question created"
-              );
-            }}
-          />
-        </DialogContent>
-      </Dialog>
 
       {/* 4. PREVIEW QUESTION MODAL (Matches Engineering Lab Library & Assessment Question Bank Preview UI) */}
       <Dialog open={!!previewQuestion} onOpenChange={(open) => !open && setPreviewQuestion(null)}>

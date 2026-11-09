@@ -1,4 +1,4 @@
-import { getSystemDesignLab } from "@/lib/systemDesign";
+import { getSystemDesignLab, getSystemDesignCriteria, SYSTEM_DESIGN_SPRINTS } from "@/lib/systemDesign";
 import { labs, tickets, type Status } from "@/lib/dummy";
 import { invalidateStudentStats } from "@/lib/studentStats";
 import { Button } from "@/components/ui/button";
@@ -71,7 +71,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { evaluateSystemDesign, type SystemDesignEvaluationResult } from "@/lib/systemDesignEvaluator";
+import {
+  evaluateSystemDesign,
+  convertResultToReport,
+  type DesignEvaluation,
+} from "@/lib/systemDesignEvaluation";
+import {
+  evaluateSystemDesign as evaluateSystemDesignRules,
+  type SystemDesignEvaluationResult,
+} from "@/lib/systemDesignEvaluator";
+import { EvaluationResults } from "@/components/sysdesign/EvaluationResults";
 import { ApiDesigner, ApiDocs, type ApiEndpoint } from "@/components/sysdesign/ApiDesigner";
 import { ErdBoard } from "@/components/sysdesign/ErdBoard";
 import { NotesPanel, MarkdownPreview } from "@/components/sysdesign/MarkdownNotes";
@@ -419,267 +428,7 @@ function ExamplesDialog({ tab, scenario, subject, onClose, onUseTab, onLoadAll }
   );
 }
 
-function EvaluationModal({
-  result,
-  loading = false,
-  onClose,
-  onSubmit,
-  submitting,
-}: {
-  result: SystemDesignEvaluationResult | null;
-  loading?: boolean;
-  onClose: () => void;
-  onSubmit: () => void;
-  submitting: boolean;
-}) {
-  const isPassed = result ? result.percentage >= 70 : false;
-  const radius = 24;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = result ? circumference - (result.percentage / 100) * circumference : circumference;
 
-  return (
-    <div
-      className="fixed inset-0 z-50 grid place-items-center bg-background/80 p-4 backdrop-blur-xs animate-in fade-in duration-150"
-      onClick={loading ? undefined : onClose}
-    >
-      <div
-        className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b px-5 py-3.5 bg-muted/20">
-          <div className="flex items-center gap-2">
-            <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary">
-              {loading ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : <Sparkles className="h-4 w-4" />}
-            </div>
-            <div>
-              <h3 className="font-semibold text-sm text-foreground">
-                {loading ? "AI Evaluation in Progress" : "System Design Evaluation"}
-              </h3>
-              <p className="text-[11px] text-muted-foreground">
-                {loading ? "Analyzing architecture against ticket requirements…" : "Automated structural & requirement checks"}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-50"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-12 px-4 text-center space-y-5 animate-in fade-in duration-200">
-              <div className="relative">
-                <div className="h-16 w-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-xs">
-                  <Sparkles className="h-8 w-8 animate-spin" style={{ animationDuration: "3s" }} />
-                </div>
-                <span className="absolute -bottom-1 -right-1 flex h-4 w-4">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500"></span>
-                </span>
-              </div>
-
-              <div className="space-y-1.5">
-                <h4 className="text-base font-semibold text-foreground">Evaluating Architecture with AI…</h4>
-                <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
-                  DeepSeek AI is analyzing your High-Level Design, Sequence Flows, Database Schema, and REST APIs against ticket requirements.
-                </p>
-              </div>
-
-              <div className="w-full max-w-sm space-y-2 pt-2 text-[11px] text-muted-foreground">
-                <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/40 border border-border/60">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-500 shrink-0" />
-                  <span className="text-foreground font-medium">Analyzing component tiers and connection routing</span>
-                </div>
-                <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/40 border border-border/60">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-500 shrink-0" />
-                  <span className="text-foreground font-medium">Validating sequence diagram and branching logic</span>
-                </div>
-                <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/40 border border-border/60">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-purple-500 shrink-0" />
-                  <span className="text-foreground font-medium">Grading database schema and REST API endpoints</span>
-                </div>
-              </div>
-            </div>
-          ) : result ? (
-            <>
-          {/* Top Score Banner */}
-          <div className="rounded-xl border bg-muted/30 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              {/* Circular Gauge */}
-              <div className="relative grid h-16 w-16 shrink-0 place-items-center">
-                <svg className="h-16 w-16 -rotate-90">
-                  <circle
-                    cx="32"
-                    cy="32"
-                    r={radius}
-                    className="stroke-muted"
-                    strokeWidth="4"
-                    fill="transparent"
-                  />
-                  <circle
-                    cx="32"
-                    cy="32"
-                    r={radius}
-                    className={
-                      isPassed
-                        ? "stroke-emerald-500"
-                        : result.percentage > 0
-                        ? "stroke-amber-500"
-                        : "stroke-muted-foreground/30"
-                    }
-                    strokeWidth="4"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={strokeDashoffset}
-                    strokeLinecap="round"
-                    fill="transparent"
-                    style={{ transition: "stroke-dashoffset 0.6s ease" }}
-                  />
-                </svg>
-                <span className="absolute text-sm font-bold text-foreground">
-                  {result.percentage}%
-                </span>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm sm:text-base text-foreground">
-                    {isPassed ? "Ready for Submission" : result.percentage > 0 ? "Design In Progress" : "Design Not Started"}
-                  </span>
-                  <span
-                    className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${
-                      isPassed
-                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                        : result.percentage > 0
-                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                        : "bg-muted text-muted-foreground border-border"
-                    }`}
-                  >
-                    {isPassed ? "Passed" : "Needs Work"}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  <strong className="text-foreground">{result.totalScore} / 100 pts</strong> · {result.passedCount} of {result.totalCount} criteria satisfied
-                </p>
-              </div>
-            </div>
-
-            {/* Architecture Metrics in neat chips */}
-            <div className="grid grid-cols-2 gap-1.5 w-full sm:w-auto text-[11px]">
-              <span className="rounded-md bg-background border px-2 py-1 font-medium text-muted-foreground">
-                🖥️ <strong className="text-foreground">{result.metrics.nodeCount}</strong> Nodes
-              </span>
-              <span className="rounded-md bg-background border px-2 py-1 font-medium text-muted-foreground">
-                🔗 <strong className="text-foreground">{result.metrics.edgeCount}</strong> Edges
-              </span>
-              <span className="rounded-md bg-background border px-2 py-1 font-medium text-muted-foreground">
-                📜 Seq: <strong className="text-foreground">{result.metrics.hasSequence ? "✓" : "—"}</strong>
-              </span>
-              <span className="rounded-md bg-background border px-2 py-1 font-medium text-muted-foreground">
-                🗄️ DBML: <strong className="text-foreground">{result.metrics.hasSchema ? "✓" : "—"}</strong>
-              </span>
-            </div>
-          </div>
-
-          {/* Task Breakdown */}
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              <span>Acceptance Criteria & Tasks</span>
-              <span className="font-mono text-[11px] normal-case">
-                {result.passedCount} of {result.totalCount} passed
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {result.tasks.map((t, idx) => (
-                <div
-                  key={t.id || idx}
-                  className={`rounded-xl border p-3.5 transition-all ${
-                    t.passed
-                      ? "border-emerald-500/30 bg-emerald-500/[0.03] dark:bg-emerald-500/[0.06]"
-                      : "border-border/80 bg-card hover:border-border"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 min-w-0 flex-1">
-                      <div
-                        className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-semibold ${
-                          t.passed
-                            ? "bg-emerald-500 text-white shadow-xs"
-                            : "bg-muted text-muted-foreground border border-border"
-                        }`}
-                      >
-                        {t.passed ? <Check className="h-3.5 w-3.5 stroke-[3]" /> : idx + 1}
-                      </div>
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <div className="text-xs font-semibold text-foreground leading-snug">
-                          {t.title}
-                        </div>
-                        {t.description && (
-                          <p className="text-[11px] text-muted-foreground leading-relaxed">
-                            {t.description}
-                          </p>
-                        )}
-                        <div
-                          className={`mt-1.5 flex items-start gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] leading-relaxed ${
-                            t.passed
-                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20"
-                              : "bg-muted/50 text-muted-foreground border border-border/50"
-                          }`}
-                        >
-                          <span className="shrink-0">{t.passed ? "✓" : "💡"}</span>
-                          <span>{t.feedback}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <span
-                      className={`shrink-0 font-mono text-xs font-semibold px-2 py-0.5 rounded-md border ${
-                        t.passed
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                          : "border-border bg-muted/30 text-muted-foreground"
-                      }`}
-                    >
-                      {t.score} / {t.maxScore} pts
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-            </>
-          ) : null}
-        </div>
-
-        {/* Footer Actions */}
-        <div className="flex items-center justify-between border-t px-5 py-3 bg-muted/20">
-          <span className="text-[11px] text-muted-foreground hidden sm:inline">
-            {loading ? "Analyzing architecture with AI in real time…" : "Tip: Press Run anytime to re-evaluate"}
-          </span>
-          <div className="flex items-center gap-2 ml-auto">
-            <Button variant="outline" size="sm" onClick={onClose} disabled={loading} className="h-8 text-xs">
-              Continue Designing
-            </Button>
-            <Button
-              size="sm"
-              onClick={onSubmit}
-              disabled={loading || submitting}
-              className="h-8 text-xs bg-primary text-primary-foreground font-medium shadow-xs inline-flex items-center gap-1.5"
-            >
-              <Send className="h-3 w-3" />
-              {submitting ? "Submitting…" : "Submit Ticket"}
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function Studio() {
   return <SystemDesignStudio slug="systemdesign-url-shortener" isStandaloneStudio={true} />;
@@ -983,8 +732,27 @@ export function SystemDesignStudio({
   const [referenceDesign, setReferenceDesign] = useState<Design | null>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [running, setRunning] = useState(false);
-  const [evalResult, setEvalResult] = useState<SystemDesignEvaluationResult | null>(null);
-  const [showEvalModal, setShowEvalModal] = useState(false);
+  const [evaluation, setEvaluation] = useState<DesignEvaluation | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const sprintName = useMemo(() => {
+    return (
+      SYSTEM_DESIGN_SPRINTS.find(s => s.tags.some(tag => tag === (task?.tag ?? ticketData?.tag)))?.name ??
+      (ticketData?.sprint?.title || "Sprint 1 · Fundamentals")
+    );
+  }, [task?.tag, ticketData?.tag, ticketData?.sprint?.title]);
+
+  const evaluationContext = useMemo(() => ({
+    project: lab?.name ?? realLabTitle ?? subject,
+    projectDescription: lab?.description,
+    labType: "system-design",
+    sprint: sprintName,
+    ticketId: ticketId ?? "sandbox",
+    title: taskTitle,
+    description: taskDescription ?? design?.description ?? taskTitle,
+    acceptanceCriteria: Array.isArray(ticketData?.tasks) && ticketData.tasks.length ? ticketData.tasks.map((t: any) => typeof t === "string" ? t : t.title || t.description) : undefined,
+    evaluationCriteria: taskOverride ? undefined : getSystemDesignCriteria(ticketId ?? "sandbox", taskTitle, taskDescription ?? design?.description ?? taskTitle),
+  }), [lab?.name, lab?.description, realLabTitle, subject, sprintName, ticketId, taskTitle, taskDescription, design?.description, ticketData?.tasks, taskOverride]);
 
   const [ticketStatus, setTicketStatus] = useState<Status>(() => {
     const raw = ticket?.status || ticketData?.status;
@@ -1080,7 +848,7 @@ export function SystemDesignStudio({
   // Run evaluation
   const handleRun = async () => {
     setRunning(true);
-    setShowEvalModal(true);
+    setIsDrawerOpen(true);
     const designPayload = { nodes, edges, seq, schema, apis, notes };
 
     try {
@@ -1130,21 +898,24 @@ export function SystemDesignStudio({
             },
           };
         } else {
-          finalResult = evaluateSystemDesign(designPayload, ticketData);
+          finalResult = evaluateSystemDesignRules(designPayload, ticketData);
         }
 
-        setEvalResult(finalResult);
-        toast.success(`Design evaluated: ${finalResult.percentage}% (${finalResult.passedCount}/${finalResult.totalCount} tasks passed)`);
+        const report = convertResultToReport(finalResult, evaluationContext);
+        setEvaluation(report);
+        toast.success(`Design evaluated: ${report.completion}% (${report.passed}/${report.checks.length} checks passed)`);
       } else {
-        const localResult = evaluateSystemDesign(designPayload, ticketData);
-        setEvalResult(localResult);
-        toast.success(`Design evaluated: ${localResult.percentage}% (${localResult.passedCount}/${localResult.totalCount} tasks passed)`);
+        const localResult = evaluateSystemDesignRules(designPayload, ticketData);
+        const report = convertResultToReport(localResult, evaluationContext);
+        setEvaluation(report);
+        toast.success(`Design evaluated: ${report.completion}% (${report.passed}/${report.checks.length} checks passed)`);
       }
     } catch (e) {
       console.error("Evaluation request error:", e);
-      const fallbackResult = evaluateSystemDesign(designPayload, ticketData);
-      setEvalResult(fallbackResult);
-      toast.success(`Design evaluated: ${fallbackResult.percentage}% (${fallbackResult.passedCount}/${fallbackResult.totalCount} tasks passed)`);
+      const fallbackResult = evaluateSystemDesignRules(designPayload, ticketData);
+      const report = convertResultToReport(fallbackResult, evaluationContext);
+      setEvaluation(report);
+      toast.success(`Design evaluated: ${report.completion}% (${report.passed}/${report.checks.length} checks passed)`);
     } finally {
       setRunning(false);
     }
@@ -1154,18 +925,23 @@ export function SystemDesignStudio({
   const handleSubmit = async () => {
     setSubmitting(true);
     const designPayload = { nodes, edges, seq, schema, apis, notes };
-    const result = evalResult || evaluateSystemDesign(designPayload, ticketData);
-    setEvalResult(result);
+    let report = evaluation;
+    if (!report) {
+      const localResult = evaluateSystemDesignRules(designPayload, ticketData);
+      report = convertResultToReport(localResult, evaluationContext);
+      setEvaluation(report);
+    }
 
-    const isPassed = (result?.percentage ?? 0) >= 70;
+    const isPassed = report.status === "Passed" || (report.score !== null && report.score >= 70);
 
     try {
       if (ticketId) {
         const resp = await restApiAuthUtil.post<any>(`/lab/tickets/${ticketId}/system-design/`, {
           ...designPayload,
+          action: "submit",
           is_submitted: true,
           status: isPassed ? "done" : "in_progress",
-          solution_output: result,
+          solution_output: report,
         });
         setTicketStatus(isPassed ? "done" : "in_progress");
         setTicketData((prev: any) =>
@@ -1175,7 +951,7 @@ export function SystemDesignStudio({
       if (isPassed) {
         toast.success("Ticket submitted and passed successfully!");
       } else {
-        toast.error(`Submission incomplete: scored ${result?.percentage ?? 0}% (needs 70% to pass)`);
+        toast.info("Ticket progress saved.");
       }
 
       invalidateStudentStats();
@@ -1270,8 +1046,10 @@ export function SystemDesignStudio({
         if (res.solution_output) {
           try {
             const parsed = typeof res.solution_output === "string" ? JSON.parse(res.solution_output) : res.solution_output;
-            if (parsed && typeof parsed.percentage === "number") {
-              setEvalResult(parsed);
+            if (parsed && Array.isArray(parsed.checks)) {
+              setEvaluation(parsed);
+            } else if (parsed && (parsed.tasks || typeof parsed.percentage === "number")) {
+              setEvaluation(convertResultToReport(parsed, evaluationContext));
             }
           } catch {}
         }
@@ -1634,7 +1412,8 @@ export function SystemDesignStudio({
       setElapsed(0);
       apply(EMPTY);
       setTicketStatus("backlog");
-      setEvalResult(null);
+      setEvaluation(null);
+      setIsDrawerOpen(false);
       if (ticketId && !isLandingPage) {
         restApiAuthUtil
           .post(`/lab/tickets/${ticketId}/system-design/`, {
@@ -1755,18 +1534,18 @@ export function SystemDesignStudio({
         )}
 
         <div className="ml-auto flex items-center gap-1.5 text-xs">
-          {!isPureStudio && evalResult && (
+          {!isPureStudio && evaluation && (
             <button
-              onClick={() => setShowEvalModal(true)}
+              onClick={() => setIsDrawerOpen(true)}
               title="Click to view evaluation details"
               className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold border transition-colors ${
-                evalResult.percentage >= 70
+                evaluation.score !== null && evaluation.score >= 70
                   ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
                   : "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20"
               }`}
             >
               <CheckCircle2 className="h-3 w-3" />
-              Score: {evalResult.percentage}%
+              Score: {evaluation.score === null ? "Pending" : `${Math.round(evaluation.score)}%`}
             </button>
           )}
 
@@ -2117,31 +1896,31 @@ export function SystemDesignStudio({
                     </div>
 
                     {/* Tasks / Acceptance Criteria */}
-                    {Array.isArray(ticketData?.tasks) && ticketData.tasks.length > 0 && (
+                    {((Array.isArray(ticketData?.tasks) && ticketData.tasks.length > 0) || (evaluation?.checks && evaluation.checks.length > 0)) && (
                       <div className="border-t pt-3 space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                             Acceptance Criteria & Tasks
                           </div>
-                          {evalResult && (
+                          {evaluation && (
                             <span className="text-[10px] font-mono font-medium text-muted-foreground">
-                              {evalResult.passedCount}/{evalResult.totalCount} passed
+                              {evaluation.passed}/{evaluation.checks.length} passed
                             </span>
                           )}
                         </div>
                         <div className="space-y-2">
-                          {ticketData.tasks.map((taskItem: any, idx: number) => {
+                          {(ticketData?.tasks?.length ? ticketData.tasks : (evaluation?.checks || [])).map((taskItem: any, idx: number) => {
                             const tTitle =
                               typeof taskItem === "string" ? taskItem : (taskItem.title || `Task ${idx + 1}`);
                             const tDesc = typeof taskItem === "object" ? taskItem.description : null;
-                            const taskEval = evalResult?.tasks?.[idx];
-                            const isPassed = taskEval?.passed;
+                            const check = evaluation?.checks?.[idx];
+                            const isPassed = check?.status === "passed";
 
                             return (
                               <div
                                 key={idx}
                                 className={`rounded-md border p-2.5 transition-colors ${
-                                  taskEval
+                                  check
                                     ? isPassed
                                       ? "border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-500/10"
                                       : "border-border bg-muted/20"
@@ -2151,19 +1930,19 @@ export function SystemDesignStudio({
                                 <div className="flex items-start gap-2">
                                   <span
                                     className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded text-[10px] font-bold ${
-                                      taskEval
+                                      check
                                         ? isPassed
                                           ? "bg-emerald-500 text-white"
                                           : "bg-muted text-muted-foreground"
                                         : "bg-primary/10 text-primary"
                                     }`}
                                   >
-                                    {taskEval && isPassed ? "✓" : idx + 1}
+                                    {check && isPassed ? "✓" : idx + 1}
                                   </span>
                                   <div className="min-w-0 flex-1">
                                     <div className="flex items-center justify-between gap-1">
                                       <div className="font-medium text-foreground">{tTitle}</div>
-                                      {taskEval && (
+                                      {check && (
                                         <span
                                           className={`shrink-0 font-mono text-[10px] font-semibold px-1.5 py-0.2 rounded border ${
                                             isPassed
@@ -2171,7 +1950,7 @@ export function SystemDesignStudio({
                                               : "border-muted bg-muted/40 text-muted-foreground"
                                           }`}
                                         >
-                                          {taskEval.score}/{taskEval.maxScore} pts
+                                          {check.marks === null ? "Pending" : `${check.marks}/${check.maxMarks} pts`}
                                         </span>
                                       )}
                                     </div>
@@ -2180,7 +1959,7 @@ export function SystemDesignStudio({
                                         {tDesc}
                                       </p>
                                     )}
-                                    {taskEval && (
+                                    {check && (
                                       <p
                                         className={`mt-1 text-[11px] font-mono leading-tight ${
                                           isPassed
@@ -2189,7 +1968,7 @@ export function SystemDesignStudio({
                                         }`}
                                       >
                                         {isPassed ? "✓ " : "• "}
-                                        {taskEval.feedback}
+                                        {check.feedback}
                                       </p>
                                     )}
                                   </div>
@@ -2411,18 +2190,15 @@ export function SystemDesignStudio({
 
       {showEx && <ExamplesDialog tab={tab} scenario={scenarioExample(slug)} subject={subject} onClose={() => setShowEx(false)}
         onUseTab={useTab} onLoadAll={d => { apply(d); setShowEx(false); }} />}
-      {showEvalModal && (
-        <EvaluationModal
-          result={evalResult}
-          loading={running}
-          onClose={() => setShowEvalModal(false)}
-          onSubmit={() => {
-            setShowEvalModal(false);
-            handleSubmit();
-          }}
-          submitting={submitting}
-        />
-      )}
+      <EvaluationResults
+        report={evaluation}
+        loading={running}
+        open={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        context={evaluationContext}
+        onSubmit={handleSubmit}
+        submitting={submitting}
+      />
 
       {/* Clear Workspace Dialog */}
       <AlertDialog open={showClearWorkspaceDialog} onOpenChange={setShowClearWorkspaceDialog}>
