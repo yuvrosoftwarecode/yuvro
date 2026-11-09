@@ -31,6 +31,7 @@ class EvaluationSectionType(models.TextChoices):
     LAB = "LAB", "Lab"
     KNOWLEDGE_ASSESSMENT = "KNOWLEDGE_ASSESSMENT", "Knowledge Assessment"
     VITARKA_AI_INTERVIEW = "VITARKA_AI_INTERVIEW", "Vitarka AI Interview"
+    SYSTEM_DESIGN = "SYSTEM_DESIGN", "System Design"
 
 
 class LabScenario(models.TextChoices):
@@ -324,6 +325,42 @@ class KnowledgeQuestionBank(QuestionBank):
         return f"[{self.format}] {self.title}"
 
 
+class SystemDesignQuestionBank(QuestionBank):
+    company = models.ForeignKey(
+        "recruiter.Company",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="system_design_questions",
+        help_text="Company owning this system design question",
+    )
+    scenario_type = models.CharField(max_length=100, default="Distributed System", blank=True)
+    system_slug = models.CharField(max_length=100, default="systemdesign-url-shortener", blank=True)
+    starter_design = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Initial starter canvas: nodes, edges, seq, schema, apis, notes",
+    )
+    solution_design = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Golden reference architecture for AI grading",
+    )
+    tasks = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Task criteria list [{id, title, description, marks}]",
+    )
+    constraints = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Design constraints and scale requirements",
+    )
+
+    def __str__(self):
+        return f"[System Design] {self.title}"
+
+
 class UserLabQuestionBankSubmission(BaseTimestampedModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="evaluation_lab_submissions"
@@ -380,6 +417,54 @@ class UserKnowledgeAssessmentSubmission(BaseTimestampedModel):
 
     def __str__(self):
         return f"{self.user} -> {self.section.title} ({self.evaluation.title})"
+
+
+class UserSystemDesignEvaluationSubmission(BaseTimestampedModel):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="evaluation_system_design_submissions"
+    )
+    evaluation = models.ForeignKey(
+        Evaluation, on_delete=models.CASCADE, related_name="system_design_submissions"
+    )
+    section = models.ForeignKey(
+        EvaluationSection, on_delete=models.CASCADE, related_name="system_design_submissions"
+    )
+    system_design_question = models.ForeignKey(
+        SystemDesignQuestionBank, on_delete=models.SET_NULL, null=True, blank=True, related_name="submissions"
+    )
+    question_id = models.CharField(max_length=255, blank=True, null=True)
+    status = models.CharField(max_length=20, default="SUBMITTED")
+    design = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Single JSON containing all tabs: nodes, edges, seq, schema, apis, and notes",
+    )
+    solution_output = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Evaluation result: totalScore, percentage, tasks feedback, metrics, summary",
+    )
+    score = models.PositiveIntegerField(default=0)
+    started_at = models.DateTimeField(null=True, blank=True, help_text="Timestamp when candidate opened/started this system design section")
+    submitted_at = models.DateTimeField(null=True, blank=True, help_text="Timestamp when candidate submitted this system design section")
+
+    @property
+    def time_taken(self):
+        start = self.started_at or self.created_at
+        end = self.submitted_at or self.updated_at
+        if start and end and end > start:
+            total_seconds = max(0, round((end - start).total_seconds()))
+        else:
+            total_seconds = 0
+        minutes = total_seconds // 60
+        seconds = total_seconds % 60
+        return f"{minutes}m {seconds}s"
+
+    class Meta:
+        unique_together = ("user", "evaluation", "section")
+
+    def __str__(self):
+        return f"{self.user} -> {self.section.title} ({self.score} pts)"
 
 
 class FollowUpConfig(BaseTimestampedAdminModel):
@@ -466,6 +551,7 @@ class CandidateTimelineEventType(models.TextChoices):
     LABS_SUBMITTED = "Engineering Labs submitted", "Engineering Labs submitted"
     ASSESSMENT_SUBMITTED = "Knowledge Assessment submitted", "Knowledge Assessment submitted"
     VITARKA_COMPLETED = "Vitarka discussion completed", "Vitarka discussion completed"
+    SYSTEM_DESIGN_SUBMITTED = "System Design submitted", "System Design submitted"
     EVALUATION_FINISHED = "Evaluation finished", "Evaluation finished"
     AUTO_SUBMITTED = "Auto submitted", "Auto submitted"
     RECRUITER_VIEWED = "Recruiter viewed profile", "Recruiter viewed profile"

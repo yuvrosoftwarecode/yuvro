@@ -32,6 +32,9 @@ import {
   Shuffle,
   Sliders,
   AlertTriangle,
+  Network,
+  Layers,
+  Cpu,
 } from "lucide-react";
 import {
   getEvaluation,
@@ -53,6 +56,8 @@ import {
   LabsSection,
   AssessmentSection,
   DiscussionSection,
+  SystemDesignSection,
+  SystemDesignChallengeItem,
   LabItem,
   QuestionItem,
   CourseItem,
@@ -71,6 +76,7 @@ import { CreateQuestionForm } from "@/components/evaluation/CreateQuestionForm";
 import { Workspace } from "@/components/evaluation/WorkspaceApp";
 import { createPortal } from "react-dom";
 import ProctoringSettingsCard from "@/components/evaluation/ProctoringSettingsCard";
+import { questionBankService } from "@/services/questionBankService";
 
 const search = z.object({
   view: z.enum(["edit", "preview", "publish", "publish-done"]).default("edit").catch("edit"),
@@ -228,6 +234,7 @@ function EvaluationWorkspace() {
   const [addSectionOpen, setAddSectionOpen] = useState(false);
   const [labDrawerFor, setLabDrawerFor] = useState<{ sectionId: string; labId?: string } | null>(null);
   const [qDrawerFor, setQDrawerFor] = useState<{ sectionId: string } | null>(null);
+  const [sdDrawerFor, setSdDrawerFor] = useState<{ sectionId: string } | null>(null);
   const [depConfirm, setDepConfirm] = useState<{
     taskTitle: string;
     dependentTasks: any[];
@@ -449,6 +456,7 @@ function EvaluationWorkspace() {
                 onAddLab={() => setLabDrawerFor({ sectionId: s.id })}
                 onConfigureLab={(lab) => setLabDrawerFor({ sectionId: s.id, labId: lab.id })}
                 onAddQuestions={() => setQDrawerFor({ sectionId: s.id })}
+                onPickSystemDesignChallenge={() => setSdDrawerFor({ sectionId: s.id })}
               />
             ))}
 
@@ -491,7 +499,40 @@ function EvaluationWorkspace() {
                   questions: [],
                   proctoring: { enableProctoring: true, enableCopyPaste: false, tabSwitchAllowed: false, tabSwitchLimit: 3 },
                 });
-              else {
+              else if (kind === "system_design") {
+                const defaultSDChallenge: SystemDesignChallengeItem = {
+                  id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "sd-url-shortener",
+                  title: "URL Shortener System Design",
+                  description: "Design a high-scale, low-latency URL shortener service with sub-50ms p99 redirects, caching, and analytics.",
+                  system_slug: "systemdesign-url-shortener",
+                  scenario_type: "Distributed System",
+                  difficulty: "Medium",
+                  domain: "Other",
+                  duration_minutes: 45,
+                  marks: 30,
+                  tasks: [
+                    { id: "sd_task_1", title: "Add core architectural components", description: "Place API Gateway, URL Service, relational database, Redis cache, and analytics worker on the canvas.", marks: 8 },
+                    { id: "sd_task_2", title: "Connect request routing & cache-aside flow", description: "Route client requests through gateway to URL service, and configure cache read-aside in front of PostgreSQL.", marks: 8 },
+                    { id: "sd_task_3", title: "Model database schema & indexing", description: "Define DBML schema for URLs table with unique short_code index, original_url, user_id, and click_count.", marks: 7 },
+                    { id: "sd_task_4", title: "Define REST API contracts & architecture notes", description: "Specify POST /api/v1/urls and GET /{short_code}, and document caching trade-offs in notes.", marks: 7 },
+                  ],
+                  constraints: [
+                    "100M new URLs shortened per month",
+                    "Read to write ratio 100:1 (4,000 reads/sec)",
+                    "Redirect latency p99 < 50ms"
+                  ]
+                };
+                x.sections.push({
+                  id: newUid(),
+                  kind: "system_design",
+                  title: "System Design",
+                  duration: 45,
+                  marks: 30,
+                  challenges: [defaultSDChallenge],
+                  questions: [defaultSDChallenge],
+                  proctoring: { enableProctoring: true, enableCopyPaste: false, tabSwitchAllowed: false, tabSwitchLimit: 3 },
+                });
+              } else {
                 const { marks, duration } = getVitarkaDiscussionConfig(x.sections);
                 x.sections.push({
                   id: newUid(),
@@ -723,6 +764,32 @@ function EvaluationWorkspace() {
         />
       )}
 
+      {sdDrawerFor && (
+        <SystemDesignDrawer
+          sectionId={sdDrawerFor.sectionId}
+          currentChallenges={
+            (
+              ev.sections.find((s) => s.id === sdDrawerFor.sectionId) as
+                SystemDesignSection | undefined
+            )?.challenges ?? []
+          }
+          onClose={() => setSdDrawerFor(null)}
+          onSelectChallenge={(challenge) => {
+            update((x) => {
+              const sec = x.sections.find((s) => s.id === sdDrawerFor.sectionId) as
+                SystemDesignSection | undefined;
+              if (sec) {
+                sec.challenges = [challenge];
+                sec.questions = [challenge];
+                if (challenge.duration_minutes) sec.duration = challenge.duration_minutes;
+                if (challenge.marks) sec.marks = challenge.marks;
+              }
+            });
+            setSdDrawerFor(null);
+          }}
+        />
+      )}
+
       {depConfirm && (
         <TaskDependencyConfirmModal
           isOpen={!!depConfirm}
@@ -750,6 +817,7 @@ function SectionBlock({
   onAddLab,
   onConfigureLab,
   onAddQuestions,
+  onPickSystemDesignChallenge,
   allSections,
 }: {
   section: Section;
@@ -762,19 +830,28 @@ function SectionBlock({
   onAddLab: () => void;
   onConfigureLab?: (lab: LabItem) => void;
   onAddQuestions: () => void;
+  onPickSystemDesignChallenge?: () => void;
   allSections?: Section[];
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [renaming, setRenaming] = useState(false);
 
   const icon =
-    section.kind === "labs" ? Beaker : section.kind === "assessment" ? BookOpen : MessageSquare;
+    section.kind === "labs"
+      ? Beaker
+      : section.kind === "assessment"
+        ? BookOpen
+        : section.kind === "system_design"
+          ? Network
+          : MessageSquare;
   const tone =
     section.kind === "labs"
       ? "from-emerald-400 to-cyan-400"
       : section.kind === "assessment"
         ? "from-violet-400 to-fuchsia-400"
-        : "from-amber-400 to-orange-400";
+        : section.kind === "system_design"
+          ? "from-blue-400 to-indigo-500"
+          : "from-amber-400 to-orange-400";
 
   return (
     <div className="group overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02]">
@@ -848,6 +925,13 @@ function SectionBlock({
           )}
           {section.kind === "discussion" && (
             <DiscussionSectionBody section={section} onChange={onChange} allSections={allSections} />
+          )}
+          {section.kind === "system_design" && (
+            <SystemDesignSectionBody
+              section={section}
+              onChange={onChange}
+              onOpenChallengePicker={onPickSystemDesignChallenge || (() => {})}
+            />
           )}
         </div>
       )}
@@ -1656,6 +1740,172 @@ function QuestionTreeBuilder({
   );
 }
 
+function SystemDesignSectionBody({
+  section,
+  onChange,
+  onOpenChallengePicker,
+}: {
+  section: SystemDesignSection;
+  onChange: (s: Section) => void;
+  onOpenChallengePicker: () => void;
+}) {
+  const challenges = section.challenges || section.questions || [];
+  const selectedChallenge = challenges[0];
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3 rounded-lg border border-white/5 bg-black/20 p-3 text-[11px]">
+        <Stat label="Duration" value={`${section.duration || 45} min`} />
+        <Stat label="Total Marks" value={section.marks || 30} />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <div className="text-[11px] uppercase tracking-widest text-neutral-500">Section Duration (min)</div>
+          <input
+            type="number"
+            min={15}
+            max={180}
+            value={section.duration || 45}
+            onChange={(e) => {
+              const val = Math.max(1, parseInt(e.target.value) || 0);
+              onChange({ ...section, duration: val });
+            }}
+            className="mt-1.5 h-9 w-full rounded-md border border-white/10 bg-black/40 px-3 text-[13px] text-white outline-none focus:border-blue-400/50"
+          />
+        </div>
+        <div>
+          <div className="text-[11px] uppercase tracking-widest text-neutral-500">Section Total Marks</div>
+          <input
+            type="number"
+            min={5}
+            max={100}
+            value={section.marks || 30}
+            onChange={(e) => {
+              const val = Math.max(1, parseInt(e.target.value) || 0);
+              onChange({ ...section, marks: val });
+            }}
+            className="mt-1.5 h-9 w-full rounded-md border border-white/10 bg-black/40 px-3 text-[13px] text-white outline-none focus:border-blue-400/50"
+          />
+        </div>
+      </div>
+
+      {selectedChallenge ? (
+        <div className="rounded-xl border border-white/10 bg-black/20 p-4 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-white text-[14px]">{selectedChallenge.title}</span>
+                {selectedChallenge.company && (
+                  <span className="rounded bg-white/10 px-2 py-0.5 text-[10px] text-neutral-300 font-medium">
+                    {selectedChallenge.company}
+                  </span>
+                )}
+                {selectedChallenge.difficulty && (
+                  <span
+                    className={`rounded px-2 py-0.5 text-[10px] font-medium ${
+                      selectedChallenge.difficulty === "Hard"
+                        ? "bg-rose-500/20 text-rose-300"
+                        : selectedChallenge.difficulty === "Medium"
+                        ? "bg-amber-500/20 text-amber-300"
+                        : "bg-emerald-500/20 text-emerald-300"
+                    }`}
+                  >
+                    {selectedChallenge.difficulty}
+                  </span>
+                )}
+              </div>
+              {selectedChallenge.description && (
+                <p className="text-[12px] text-neutral-400 line-clamp-2">
+                  {selectedChallenge.description}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={onOpenChallengePicker}
+                className="rounded-md border border-white/10 px-2.5 py-1 text-[11px] text-neutral-300 hover:bg-white/5 hover:text-white"
+              >
+                Change Challenge
+              </button>
+              <ToolBtn
+                title="Remove Challenge"
+                onClick={() =>
+                  onChange({
+                    ...section,
+                    challenges: [],
+                    questions: [],
+                  })
+                }
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </ToolBtn>
+            </div>
+          </div>
+
+          {/* Constraints & Scale */}
+          {selectedChallenge.constraints && selectedChallenge.constraints.length > 0 && (
+            <div className="pt-2 border-t border-white/5">
+              <div className="text-[10px] uppercase tracking-wider text-neutral-500 mb-1.5 font-medium">
+                Scale & Requirements
+              </div>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+                {selectedChallenge.constraints.slice(0, 4).map((c: string, idx: number) => (
+                  <li key={idx} className="flex items-start gap-1.5 text-[11px] text-neutral-300">
+                    <span className="text-blue-400 mt-0.5">•</span>
+                    <span className="truncate">{c}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Rubric / Tasks */}
+          {selectedChallenge.tasks && selectedChallenge.tasks.length > 0 && (
+            <div className="pt-2 border-t border-white/5 flex flex-wrap gap-2 items-center">
+              <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-medium">
+                Evaluation Deliverables:
+              </span>
+              {selectedChallenge.tasks.map((t: any, idx: number) => (
+                <span
+                  key={t.id || idx}
+                  className="inline-flex items-center gap-1 rounded-md border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[10px] text-blue-300"
+                >
+                  <Layers className="h-2.5 w-2.5" />
+                  <span>{t.title || `Task ${idx + 1}`}</span>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.01] p-6 text-center">
+          <Network className="mx-auto h-8 w-8 text-neutral-500" />
+          <div className="mt-2 text-[13px] font-medium text-neutral-300">No System Design Challenge Selected</div>
+          <p className="mt-1 text-[11px] text-neutral-500">
+            Select an architecture problem from the question bank to evaluate high-level diagrams, schemas, APIs, and sequence flows.
+          </p>
+          <button
+            type="button"
+            onClick={onOpenChallengePicker}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-1.5 text-[12px] font-medium text-white hover:bg-blue-500 shadow-sm transition"
+          >
+            <Plus className="h-3.5 w-3.5" /> Choose Challenge
+          </button>
+        </div>
+      )}
+
+      <div className="mt-6 border-t border-white/5 pt-4">
+        <ProctoringSettingsCard
+          proctoring={section.proctoring || {}}
+          onChange={(p) => onChange({ ...section, proctoring: p })}
+        />
+      </div>
+    </div>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <div>
@@ -1686,10 +1936,13 @@ function SummarySidebar({
   const discussion = ev.sections
     .filter((s) => s.kind === "discussion")
     .reduce((a, s: any) => a + s.duration, 0);
+  const systemDesign = ev.sections
+    .filter((s) => s.kind === "system_design")
+    .reduce((a, s: any) => a + (s.challenges?.length || 0), 0);
   const score = Math.min(
     5,
     Math.round(
-      (labs > 0 ? 2 : 0) + (questions >= 10 ? 2 : questions > 0 ? 1 : 0) + (discussion > 0 ? 1 : 0),
+      (labs > 0 ? 2 : 0) + (questions >= 10 ? 2 : questions > 0 ? 1 : 0) + (discussion > 0 ? 1 : 0) + (systemDesign > 0 ? 1 : 0),
     ),
   );
 
@@ -1703,6 +1956,9 @@ function SummarySidebar({
         <SumRow label="Labs" value={labs} />
         <SumRow label="Assessment" value={`${questions} Q`} />
         <SumRow label="Discussion" value={`${discussion} min`} />
+        {systemDesign > 0 && (
+          <SumRow label="System Design" value={`${systemDesign} Challenge${systemDesign > 1 ? "s" : ""}`} />
+        )}
         <div className="my-3 h-px bg-white/5" />
         <SumRow label="Total Duration" value={`${t.minutes} min`} strong />
         <SumRow label="Total Marks" value={t.marks} strong />
@@ -1757,7 +2013,7 @@ function AddSectionModal({
   onPick,
 }: {
   onClose: () => void;
-  onPick: (k: "labs" | "assessment" | "discussion") => void;
+  onPick: (k: "labs" | "assessment" | "discussion" | "system_design") => void;
 }) {
   const options = [
     {
@@ -1766,6 +2022,13 @@ function AddSectionModal({
       desc: "Real workspaces with terminal, editor and tasks.",
       icon: Beaker,
       tone: "from-emerald-400 to-cyan-400",
+    },
+    {
+      key: "system_design",
+      title: "System Design",
+      desc: "Interactive canvas: HLD topology, sequence flows, DBML schema & REST APIs.",
+      icon: Network,
+      tone: "from-blue-400 to-indigo-500",
     },
     {
       key: "assessment",
@@ -1782,7 +2045,7 @@ function AddSectionModal({
       tone: "from-amber-400 to-orange-400",
     },
   ] as const;
-  const later = ["Coding Challenge", "Take Home Assignment", "System Design"];
+  const later = ["Coding Challenge", "Take Home Assignment"];
   return (
     <Overlay onClose={onClose}>
       <div className="w-[560px] rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-950 p-6 shadow-xl dark:shadow-none">
@@ -2823,6 +3086,462 @@ function Drawer({
   return typeof document !== "undefined" ? createPortal(content, document.body) : content;
 }
 
+const BUILTIN_SYSTEM_DESIGN_CHALLENGES: SystemDesignChallengeItem[] = [
+  {
+    id: "builtin-sd-url-shortener",
+    title: "Design a High-Throughput URL Shortener (TinyURL)",
+    description:
+      "Architect a resilient, distributed URL shortening service capable of creating billions of aliases and serving high-frequency redirects with sub-millisecond response times, low latency CDN caching, and custom analytics tracking.",
+    company: "Uber",
+    scenario_type: "Distributed Storage & Routing",
+    difficulty: "Medium",
+    domain: "FINANCE",
+    duration_minutes: 45,
+    marks: 30,
+    system_slug: "systemdesign-url-shortener",
+    constraints: [
+      "100M new URLs shortened per month (10:1 read-to-write ratio)",
+      "URL redirects must respond in < 15ms at p99",
+      "99.999% availability for resolution endpoints",
+      "Shortened keys must be 7-8 base62 alphanumeric characters",
+      "Protect against malicious redirects and rate-limit abusive IP ranges",
+    ],
+    tasks: [
+      {
+        id: "t1",
+        title: "HLD Architecture Canvas",
+        description:
+          "Design client DNS, API Gateway, Key Generation Service (KGS), cache layer, and database cluster with replication.",
+      },
+      {
+        id: "t2",
+        title: "Database Schema (DBML)",
+        description:
+          "Define relational or NoSQL schema for URLs, users, expiration timestamps, and analytics telemetry.",
+      },
+      {
+        id: "t3",
+        title: "REST API Contracts",
+        description:
+          "Specify endpoints for POST /api/v1/shorten, GET /{shortCode}, and GET /api/v1/analytics.",
+      },
+      {
+        id: "t4",
+        title: "Sequence Diagrams",
+        description:
+          "Model the end-to-end request lifecycle for URL creation and cached redirection lookup.",
+      },
+    ],
+  },
+  {
+    id: "builtin-sd-ecommerce",
+    title: "Design a Flash-Sale E-Commerce Platform",
+    description:
+      "Design an ultra-high concurrency e-commerce checkout and inventory system capable of handling surges of 100,000+ orders per second during limited-time flash sales without double bookings or overselling.",
+    company: "Amazon",
+    scenario_type: "High Concurrency & Transactions",
+    difficulty: "Hard",
+    domain: "FINANCE",
+    duration_minutes: 60,
+    marks: 40,
+    system_slug: "systemdesign",
+    constraints: [
+      "Peak throughput: 100k requests/sec during drop window",
+      "Zero overselling: strict inventory reservation guarantees",
+      "Eventual consistency for order fulfillment and payment webhook processing",
+      "Cart reservations expire after 10 minutes if unpurchased",
+    ],
+    tasks: [
+      {
+        id: "t1",
+        title: "HLD Architecture Canvas",
+        description:
+          "Draw CDN, Edge Rate Limiter, Inventory Cache with Redis Lua scripts, Kafka Order Queue, and Payment Orchestrator.",
+      },
+      {
+        id: "t2",
+        title: "Database Schema (DBML)",
+        description:
+          "Model inventory balances, lock states, order records, and idempotent transaction logs.",
+      },
+      {
+        id: "t3",
+        title: "REST API Contracts",
+        description:
+          "Define endpoints for product catalog, inventory lock, and order placement.",
+      },
+      {
+        id: "t4",
+        title: "Sequence Diagrams",
+        description:
+          "Trace the distributed lock acquisition, payment confirmation, and async inventory reconciliation flow.",
+      },
+    ],
+  },
+  {
+    id: "builtin-sd-bookmyshow",
+    title: "Design a Real-Time Ticket & Seat Booking Engine",
+    description:
+      "Build a distributed movie and concert seat reservation platform with interactive venue seat maps, pessimistic seat locking, and live websocket seat availability updates.",
+    company: "BookMyShow",
+    scenario_type: "Real-time Event Streaming & Locking",
+    difficulty: "Hard",
+    domain: "FINANCE",
+    duration_minutes: 60,
+    marks: 40,
+    system_slug: "systemdesign-bookmysystem",
+    constraints: [
+      "Concurrent seat locking by tens of thousands of users per showtime",
+      "Seat held for max 8 minutes during checkout before releasing back to the pool",
+      "Real-time websocket broadcast of seat occupancy status to active viewers",
+      "Multi-region data isolation per theatre/cinema chain",
+    ],
+    tasks: [
+      {
+        id: "t1",
+        title: "HLD Architecture Canvas",
+        description:
+          "Diagram load balancers, WebSocket gateways, Distributed Locking Service, and Show Booking Workers.",
+      },
+      {
+        id: "t2",
+        title: "Database Schema (DBML)",
+        description:
+          "Design theatres, screens, shows, seats, seat reservations, and booking tickets tables.",
+      },
+      {
+        id: "t3",
+        title: "REST API Contracts",
+        description:
+          "Create contracts for seat map queries, seat reservation requests, and payment settlement.",
+      },
+      {
+        id: "t4",
+        title: "Sequence Diagrams",
+        description:
+          "Illustrate concurrent seat conflict handling and automatic release on timeout.",
+      },
+    ],
+  },
+];
+
+function SystemDesignDrawer({
+  sectionId,
+  currentChallenges,
+  onClose,
+  onSelectChallenge,
+}: {
+  sectionId: string;
+  currentChallenges: SystemDesignChallengeItem[];
+  onClose: () => void;
+  onSelectChallenge: (challenge: SystemDesignChallengeItem) => void;
+}) {
+  const [challenges, setChallenges] = useState<SystemDesignChallengeItem[]>(
+    BUILTIN_SYSTEM_DESIGN_CHALLENGES
+  );
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("ALL");
+  const [previewChallenge, setPreviewChallenge] = useState<SystemDesignChallengeItem | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const data = await questionBankService.getSystemDesignQuestions();
+        if (mounted && Array.isArray(data) && data.length > 0) {
+          const normalized: SystemDesignChallengeItem[] = data.map((item: any) => ({
+            id: String(item.id),
+            title: item.title || item.name || "Untitled System Design Challenge",
+            description: item.description || item.content || "",
+            company: item.company || "General",
+            scenario_type: item.scenario_type || "Distributed Systems",
+            difficulty: item.difficulty || "Medium",
+            domain: item.domain || "FINANCE",
+            duration_minutes: item.duration_minutes || 45,
+            marks: item.marks || 30,
+            system_slug: item.system_slug || "systemdesign-url-shortener",
+            tasks: Array.isArray(item.tasks) ? item.tasks : [],
+            constraints: Array.isArray(item.constraints) ? item.constraints : [],
+            starter_design: item.starter_design || {},
+            solution_design: item.solution_design || {},
+          }));
+          setChallenges(normalized);
+          if (normalized.length > 0) {
+            setPreviewChallenge(normalized[0]);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch system design questions:", err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const filteredChallenges = useMemo(() => {
+    return challenges.filter((c) => {
+      if (difficultyFilter !== "ALL" && c.difficulty?.toUpperCase() !== difficultyFilter) {
+        return false;
+      }
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        const matchesTitle = c.title?.toLowerCase().includes(q);
+        const matchesDesc = c.description?.toLowerCase().includes(q);
+        const matchesCompany = c.company?.toLowerCase().includes(q);
+        if (!matchesTitle && !matchesDesc && !matchesCompany) return false;
+      }
+      return true;
+    });
+  }, [challenges, search, difficultyFilter]);
+
+  const activePreview = previewChallenge || filteredChallenges[0] || challenges[0] || null;
+  const isSelected = (c: SystemDesignChallengeItem) =>
+    currentChallenges.some(
+      (cc) => String(cc.id) === String(c.id) || (cc.system_slug && cc.system_slug === c.system_slug)
+    );
+
+  const leftPanel = activePreview ? (
+    <div className="flex h-full flex-col">
+      <div className="border-b border-neutral-200 dark:border-white/10 p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="rounded bg-blue-500/10 px-2 py-0.5 text-[11px] font-semibold text-blue-600 dark:text-blue-400">
+              {activePreview.company || "General"}
+            </span>
+            <span
+              className={`rounded px-2 py-0.5 text-[11px] font-medium ${
+                activePreview.difficulty === "Hard"
+                  ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                  : activePreview.difficulty === "Medium"
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                  : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+              }`}
+            >
+              {activePreview.difficulty || "Medium"}
+            </span>
+            <span className="text-[11px] text-neutral-500">
+              {activePreview.duration_minutes || 45} min &middot; {activePreview.marks || 30} marks
+            </span>
+          </div>
+          <button
+            onClick={() => onSelectChallenge(activePreview)}
+            className="rounded-lg bg-blue-600 px-4 py-1.5 text-[12px] font-medium text-white hover:bg-blue-500 transition shadow"
+          >
+            {isSelected(activePreview) ? "Selected" : "Select Challenge"}
+          </button>
+        </div>
+        <h3 className="mt-2 text-[16px] font-semibold text-neutral-900 dark:text-white">
+          {activePreview.title}
+        </h3>
+        {activePreview.scenario_type && (
+          <p className="text-[11px] text-neutral-500 mt-0.5">{activePreview.scenario_type}</p>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar text-[13px]">
+        {activePreview.description && (
+          <div>
+            <div className="font-semibold text-neutral-800 dark:text-neutral-200 mb-1 text-[12px] uppercase tracking-wider">
+              Problem Overview
+            </div>
+            <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed whitespace-pre-line">
+              {activePreview.description}
+            </p>
+          </div>
+        )}
+
+        {activePreview.constraints && activePreview.constraints.length > 0 && (
+          <div>
+            <div className="font-semibold text-neutral-800 dark:text-neutral-200 mb-2 text-[12px] uppercase tracking-wider">
+              Scale & Constraints
+            </div>
+            <ul className="space-y-1.5">
+              {activePreview.constraints.map((c: string, idx: number) => (
+                <li
+                  key={idx}
+                  className="flex items-start gap-2 rounded-md bg-neutral-50 dark:bg-white/[0.02] border border-neutral-200 dark:border-white/5 p-2 text-[12px] text-neutral-700 dark:text-neutral-300"
+                >
+                  <span className="text-blue-500 font-bold">•</span>
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {activePreview.tasks && activePreview.tasks.length > 0 && (
+          <div>
+            <div className="font-semibold text-neutral-800 dark:text-neutral-200 mb-2 text-[12px] uppercase tracking-wider">
+              Evaluation Deliverables ({activePreview.tasks.length})
+            </div>
+            <div className="space-y-2">
+              {activePreview.tasks.map((task: any, idx: number) => (
+                <div
+                  key={task.id || idx}
+                  className="rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/[0.02] p-3"
+                >
+                  <div className="flex items-center justify-between text-[12px] font-medium text-neutral-900 dark:text-white">
+                    <span>
+                      {idx + 1}. {task.title}
+                    </span>
+                    {task.marks && (
+                      <span className="text-[11px] text-blue-500 font-mono">{task.marks}m</span>
+                    )}
+                  </div>
+                  {task.description && (
+                    <p className="mt-1 text-[11px] text-neutral-600 dark:text-neutral-400">
+                      {task.description}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 4 Studio Tabs Indicator */}
+        <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
+          <div className="text-[11px] font-semibold text-blue-400 uppercase tracking-wider mb-1.5">
+            4-Tab Studio Environment Included
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-[11px] text-neutral-300">
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+              <span>1. Architecture Canvas</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
+              <span>2. Sequence Diagrams</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
+              <span>3. Database Schema (DBML)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+              <span>4. REST API Contracts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  return (
+    <Drawer
+      title="System Design Challenges"
+      subtitle="Select a distributed system architecture problem for candidate evaluation"
+      onClose={onClose}
+      leftPanel={leftPanel}
+    >
+      <div className="flex flex-col h-full">
+        {/* Filters and search */}
+        <div className="border-b border-neutral-200 dark:border-white/10 p-4 space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+            <input
+              type="text"
+              placeholder="Search challenges, systems, companies..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-black/40 pl-9 pr-4 py-2 text-[12px] text-neutral-900 dark:text-white placeholder:text-neutral-500 outline-none focus:border-blue-500"
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            {(["ALL", "EASY", "MEDIUM", "HARD"] as const).map((diff) => (
+              <button
+                key={diff}
+                onClick={() => setDifficultyFilter(diff)}
+                className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition ${
+                  difficultyFilter === diff
+                    ? "bg-blue-600 text-white"
+                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-white/5 dark:text-neutral-400 dark:hover:bg-white/10"
+                }`}
+              >
+                {diff === "ALL" ? "All Levels" : diff.charAt(0) + diff.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Challenges list */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-2.5 custom-scrollbar">
+          {loading && (
+            <div className="flex items-center justify-center py-10 text-neutral-500">
+              <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              <span className="text-[12px]">Loading challenges...</span>
+            </div>
+          )}
+          {!loading && filteredChallenges.length === 0 && (
+            <div className="py-12 text-center text-[12px] text-neutral-500">
+              No matching challenges found.
+            </div>
+          )}
+          {!loading &&
+            filteredChallenges.map((c) => {
+              const selected = isSelected(c);
+              const isCurrentPreview = activePreview?.id === c.id;
+              return (
+                <div
+                  key={c.id}
+                  onClick={() => setPreviewChallenge(c)}
+                  className={`group relative cursor-pointer rounded-xl border p-3.5 transition ${
+                    isCurrentPreview
+                      ? "border-blue-500/50 bg-blue-500/5"
+                      : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-white/5 dark:bg-white/[0.02] dark:hover:border-white/15"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[13px] font-medium text-neutral-900 dark:text-white group-hover:text-blue-500 transition-colors">
+                          {c.title}
+                        </span>
+                        {selected && (
+                          <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[9.5px] font-semibold text-emerald-400 flex items-center gap-1">
+                            <Check className="h-2.5 w-2.5" /> Added
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-[11px] text-neutral-500">
+                        {c.company && <span>{c.company}</span>}
+                        <span>&middot;</span>
+                        <span>{c.difficulty}</span>
+                        <span>&middot;</span>
+                        <span>{c.duration_minutes || 45} min</span>
+                        <span>&middot;</span>
+                        <span>{c.marks || 30} marks</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectChallenge(c);
+                      }}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition shrink-0 ${
+                        selected
+                          ? "border border-neutral-300 text-neutral-600 dark:border-white/10 dark:text-neutral-400"
+                          : "bg-blue-600 text-white hover:bg-blue-500"
+                      }`}
+                    >
+                      {selected ? "Selected" : "Select"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      </div>
+    </Drawer>
+  );
+}
+
 // ---------------- Preview / Publish screens ----------------
 
 function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
@@ -2852,6 +3571,16 @@ function PreviewScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
               type: "VITARKA_AI_INTERVIEW",
               id: s.id,
               title: s.title,
+              proctoring_config: s.proctoring || {},
+            };
+          } else if (s.kind === "system_design") {
+            return {
+              type: "SYSTEM_DESIGN",
+              id: s.id,
+              title: s.title,
+              questions: (s as any).challenges || (s as any).questions || [],
+              duration_minutes: (s as any).duration || 45,
+              marks: (s as any).marks || 30,
               proctoring_config: s.proctoring || {},
             };
           }

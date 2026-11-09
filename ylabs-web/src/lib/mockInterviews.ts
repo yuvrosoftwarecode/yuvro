@@ -32,6 +32,7 @@ export interface Interview {
 }
 
 export const INTERVIEWS: Interview[] = [
+  { slug: "mongodb-development", name: "MongoDB Development", icon: "🍃", color: "success", description: "Document data modeling, aggregation pipelines, indexing, replica sets, sharding, and query performance in real-time.", category: "Data", difficulty: "Intermediate", role: "SDE I", questions: 10, minutes: 30, completed: 0, featured: true, interviewMode: "automatic", products: ["ylabs", "ycode", "ycampus"], requiredSkills: ["MongoDB", "NoSQL", "Aggregation Pipeline", "Indexing & Performance", "Schema Design", "Transactions & Replication"], optionalSkills: ["Mongoose", "MongoDB Atlas", "WiredTiger", "Sharding", "Data Modeling"] },
   { slug: "java-backend", name: "Java Backend Engineer", icon: "☕", color: "warning", description: "Core Java, Spring Boot, REST APIs and JVM tuning questions with follow-ups.", category: "Backend", difficulty: "Intermediate", role: "SDE I", questions: 12, minutes: 30, completed: 1, featured: true },
   { slug: "python-django", name: "Python & Django", icon: "🐍", color: "info", description: "ORM, middleware, async views and Python internals.", category: "Backend", difficulty: "Intermediate", role: "SDE I", questions: 10, minutes: 25, completed: 0 },
   { slug: "node-api", name: "Node.js API Developer", icon: "🟩", color: "success", description: "Event loop, streams, Express design and API security.", category: "Backend", difficulty: "Intermediate", role: "SDE II", questions: 10, minutes: 25, completed: 0 },

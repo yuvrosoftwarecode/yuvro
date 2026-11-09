@@ -364,6 +364,38 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def get_queryset(self):
+        try:
+            if not MockInterview.objects.filter(title__iexact="MongoDB Development").exists():
+                admin_user = User.objects.filter(is_superuser=True).first() or User.objects.first()
+                if admin_user:
+                    MockInterview.objects.create(
+                        title="MongoDB Development",
+                        description="Adaptive AI-powered MongoDB technical interview. Evaluates document schema design, aggregation pipelines, indexing, replica sets, sharding, and query performance in real-time.",
+                        instructions="Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+                        max_duration=30,
+                        interview_mode="automatic",
+                        products=["ylabs", "ycode", "ycampus"],
+                        required_skills=[
+                            "MongoDB",
+                            "NoSQL",
+                            "Aggregation Pipeline",
+                            "Indexing & Query Optimization",
+                            "Schema Design",
+                            "Replica Sets & Sharding"
+                        ],
+                        optional_skills=[
+                            "Mongoose",
+                            "MongoDB Atlas",
+                            "WiredTiger",
+                            "Transactions",
+                            "Data Modeling"
+                        ],
+                        publish_status="active",
+                        created_by=admin_user
+                    )
+        except Exception:
+            pass
+
         qs = super().get_queryset()
         publish_status_param = self.request.query_params.get("publish_status")
         product_param = self.request.query_params.get("product")
@@ -1152,6 +1184,20 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for nt in node_core_topics:
                         if nt not in all_skills:
                             all_skills.append(nt)
+                elif "mongodb" in mock_interview.title.lower() or "mongo" in mock_interview.title.lower():
+                    mongo_core_topics = [
+                        "Document Data Modeling & Schema Design",
+                        "CRUD Operations & Query Operators",
+                        "Aggregation Framework & Pipeline Stages ($match, $group, $project)",
+                        "Indexing Strategies (Compound, Multikey, Text, TTL)",
+                        "Replication & Replica Sets (Election, Heartbeats, Oplog)",
+                        "Sharding Architecture & Chunk Balancing",
+                        "ACID Multi-Document Transactions",
+                        "Performance Tuning, Explain Plans & Profiling",
+                        "Storage Engine (WiredTiger) & Concurrency Control",
+                        "Security, Access Control & MongoDB Atlas"
+                    ]
+                    for mt in mongo_core_topics:
                 elif "ai" in mock_interview.title.lower() or "machine learning" in mock_interview.title.lower():
                     ai_core_topics = [
                         "Machine Learning Fundamentals & Optimization",
@@ -1184,6 +1230,22 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for rt in react_core_topics:
                         if rt not in all_skills:
                             all_skills.append(rt)
+                elif "postgres" in mock_interview.title.lower() or "postgresql" in mock_interview.title.lower():
+                    postgres_core_topics = [
+                        "Relational Modeling & Schema Design in PostgreSQL",
+                        "Advanced SQL Queries, Window Functions & Common Table Expressions (CTEs)",
+                        "MVCC Architecture, Tuple Versioning, VACUUM & AUTOVACUUM Tuning",
+                        "PostgreSQL Indexing Mechanisms (B-Tree, GIN, GiST, BRIN, Partial & Expression Indexes)",
+                        "Query Performance Optimization & EXPLAIN ANALYZE Execution Plans",
+                        "Transactions, ACID Isolation Levels & PostgreSQL Lock Modes",
+                        "JSON / JSONB Storage, Query Operators & GIN Indexing",
+                        "PostgreSQL Extensions (pg_stat_statements, PostGIS, pgcrypto)",
+                        "Replication, Write-Ahead Logging (WAL) & High Availability (Patroni, PgBouncer)",
+                        "Database Backup (pg_dump, pg_basebackup) & Point-in-Time Recovery (PITR)"
+                    ]
+                    for pt in postgres_core_topics:
+                        if pt not in all_skills:
+                            all_skills.append(pt)
                 elif "mysql" in mock_interview.title.lower() or "sql" in mock_interview.title.lower():
                     mysql_core_topics = [
                         "Relational Modeling & Schema Normalization (1NF to BCNF)",
@@ -1295,6 +1357,95 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     content=clean_answer
                 )
 
+            # Global Check for End Interview intent or Confirmation response across all student/ai interview routes
+            state = interview_session.state_data or {}
+            from mockinterviews.ai_interview.interview_engine import (
+                detect_end_interview_intent,
+                check_end_confirmation_response,
+            )
+
+            # 1. Already awaiting confirmation for "Do you want to end this interview?"
+            if state.get("awaiting_end_confirmation") and clean_answer:
+                confirmation = check_end_confirmation_response(clean_answer)
+                if confirmation == "yes":
+                    state["awaiting_end_confirmation"] = False
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                        submission.state_data = state
+                        submission.save(update_fields=['status', 'state_data'])
+
+                    farewell = "Thank you! That completes the interview. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    return Response({
+                        "question": farewell,
+                        "is_finished": True,
+                        "question_id": None,
+                        "proceed": True
+                    })
+                elif confirmation == "no":
+                    state["awaiting_end_confirmation"] = False
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    resume_msg = "Alright, let's continue! Whenever you're ready, please share your answer or approach."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=resume_msg
+                    )
+                    return Response({
+                        "question": resume_msg,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+                else:
+                    clarify_msg = "Do you want to end this interview? Please reply yes to end or no to continue."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=clarify_msg
+                    )
+                    return Response({
+                        "question": clarify_msg,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+
+            # 2. Check if candidate explicitly expresses intent to end/stop/quit the interview
+            if clean_answer:
+                has_end_intent, confidence = detect_end_interview_intent(clean_answer)
+                if has_end_intent and confidence >= 0.7:
+                    state["awaiting_end_confirmation"] = True
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    confirm_prompt = "Do you want to end this interview? Your report will be generated."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=confirm_prompt
+                    )
+                    return Response({
+                        "question": confirm_prompt,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+
             state = interview_session.state_data or {}
             interview_type = state.get("interview_type") or (submission.interview_type if submission else "predefined")
             planned_questions = state.get('planned_questions', [])
@@ -1393,6 +1544,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Non-blocking I/O and asynchronous event-driven design"
                                 ]
                             }
+                        elif "mongodb" in title_lower or "mongo" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In MongoDB, can you explain the key trade-offs between embedding documents versus referencing them with ObjectIDs, and how you decide which pattern to use for one-to-many relationships?",
+                                "topic": "Document Schema Design (Embedding vs Referencing)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Embedding for 1:few or data frequently queried together",
+                                    "Referencing for 1:many or unbound growth to stay within 16MB document limit",
+                                    "Read vs write performance and atomicity considerations"
+                                ]
+                            }
                         elif "data structure" in title_lower or "algorithm" in title_lower:
                             next_q = {
                                 "id": 2,
@@ -1430,6 +1594,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Virtual DOM as an in-memory representation synchronized with the real DOM",
                                     "Diffing algorithm and batched updates to minimize DOM operations",
                                     "React Fiber incremental rendering and prioritized concurrent work"
+                                ]
+                            }
+                        elif "postgres" in title_lower or "postgresql" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In PostgreSQL, can you explain how Multi-Version Concurrency Control (MVCC) works under the hood, how dead tuples accumulate, and what role VACUUM and AUTOVACUUM play in maintaining database health?",
+                                "topic": "PostgreSQL MVCC Internals & VACUUM Architecture",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "MVCC allows readers and writers not to block each other by maintaining multiple tuple versions with xmin and xmax",
+                                    "Updates and deletes create dead tuples that consume disk space and degrade query performance over time",
+                                    "VACUUM reclaims dead tuple storage for reuse, and AUTOVACUUM automatically triggers vacuum and analyze operations based on update/delete thresholds"
                                 ]
                             }
                         elif "mysql" in title_lower or "sql" in title_lower:
@@ -2195,6 +2372,105 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 message_type="user",
                 content=user_answer
             )
+
+            # Check for End Interview intent or Confirmation response
+            from mockinterviews.ai_interview.interview_engine import (
+                detect_end_interview_intent,
+                check_end_confirmation_response,
+            )
+
+            # Case A: Already asked "Do you want to end this interview?"
+            if state.get("awaiting_end_confirmation"):
+                confirmation = check_end_confirmation_response(user_answer)
+                if confirmation == "yes":
+                    state["awaiting_end_confirmation"] = False
+                    submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                    submission.state_data = state
+                    submission.save()
+
+                    farewell = "Thank you! That completes the interview. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    return Response({
+                        "is_finished": True,
+                        "proceed": True,
+                        "cue": {"message": farewell, "action": "end_assessment"},
+                        "evaluation": {
+                            "score": 10,
+                            "feedback": "Interview ended by user request.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+                elif confirmation == "no":
+                    state["awaiting_end_confirmation"] = False
+                    submission.state_data = state
+                    submission.save()
+
+                    resume_msg = "Alright, let's continue! Whenever you're ready, please share your answer or approach."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=resume_msg
+                    )
+                    return Response({
+                        "is_finished": False,
+                        "proceed": False,
+                        "cue": {"message": resume_msg, "action": "continue"},
+                        "evaluation": {
+                            "score": 0,
+                            "feedback": "Resumed interview. Awaiting candidate answer.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+                else:
+                    # Unclear: repeat confirmation question once
+                    clarify_msg = "Do you want to end this interview? Please say yes to end or no to continue."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=clarify_msg
+                    )
+                    return Response({
+                        "is_finished": False,
+                        "proceed": False,
+                        "cue": {"message": clarify_msg, "action": "confirm_end"},
+                        "evaluation": {
+                            "score": 0,
+                            "feedback": "Awaiting confirmation.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+
+            # Case B: Check if user expresses intent to end the interview
+            has_end_intent, confidence = detect_end_interview_intent(user_answer)
+            if has_end_intent and confidence >= 0.7:
+                state["awaiting_end_confirmation"] = True
+                submission.state_data = state
+                submission.save()
+
+                confirm_prompt = "Do you want to end this interview? Your report will be generated."
+                ChatMessage.objects.create(
+                    chat_session=submission.chat_session,
+                    message_type="assistant",
+                    content=confirm_prompt
+                )
+                return Response({
+                    "is_finished": False,
+                    "proceed": False,
+                    "cue": {"message": confirm_prompt, "action": "confirm_end"},
+                    "evaluation": {
+                        "score": 0,
+                        "feedback": "Candidate requested to end assessment. Confirmation requested.",
+                        "covered_points": [],
+                        "missed_points": []
+                    }
+                })
             
             # Update answers dict in state_data
             answers = state.get("answers", {})

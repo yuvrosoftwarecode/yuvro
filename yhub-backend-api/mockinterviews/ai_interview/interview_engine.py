@@ -85,6 +85,223 @@ async def generate_questions(
     return all_questions
 
 
+
+
+
+
+def detect_end_interview_intent(user_text: str) -> tuple[bool, float]:
+    """Detect if the candidate's message indicates an intent to end or quit the interview.
+
+    Rules:
+    - End assessment intent: 'stop the test', 'close the test', 'close /test', 'I am done',
+      'let's wrap up', 'quit', 'end it', 'enough for today', 'exit', 'end the interview',
+      'I want to leave', 'can we finish now', 'terminate test', etc.
+    - Explicitly excludes question-level skips ('skip this question', 'stop this question', 'next question').
+
+    Returns:
+        (is_end_intent, confidence)
+    """
+    if not user_text:
+        return False, 0.0
+
+    text = user_text.lower().strip()
+    clean = text.replace("'", "").replace('"', '')
+    clean = re.sub(r"[^a-z0-9\s/]", " ", clean)
+    clean = re.sub(r"\s+", " ", clean).strip()
+
+    # Question-level skip phrases (NOT interview-level ends)
+    skip_phrases = [
+        "skip this question", "skip the question", "stop this question",
+        "skip question", "next question", "move to next question",
+        "don't know this question", "pass this question", "skip to next"
+    ]
+    for sp in skip_phrases:
+        if sp in clean:
+            return False, 0.0
+
+    # High-confidence interview termination phrases
+    end_exact_or_substring = [
+        "stop the test", "stop the interview", "stop test", "stop interview",
+        "close the test", "close the interview", "close test", "close interview",
+        "close /test", "/test close", "end the interview", "end this interview",
+        "end the test", "end this test", "end interview", "end test",
+        "i want to end", "want to end the interview", "i want to stop the interview",
+        "i want to quit", "quit the interview", "quit interview", "quit test",
+        "let's wrap up", "lets wrap up", "wrap up the interview", "wrap up test",
+        "enough for today", "i am done with the interview", "i'm done with the interview",
+        "done with the interview", "exit the interview", "exit test", "exit interview",
+        "can we end here", "can we stop here", "can we wrap up here",
+        "i don't want to continue", "i dont want to continue", "leave the interview",
+        "finish the interview now", "terminate the interview"
+    ]
+    for ep in end_exact_or_substring:
+        if ep in clean:
+            return True, 0.95
+
+    # Check any phrasing containing "end the interview", "end this interview", "stop the interview", etc.
+    # or general phrases having both ("end" or "stop" or "quit" or "close" or "terminate" or "finish") AND ("interview" or "test" or "session")
+    action_words = {"end", "stop", "quit", "close", "terminate", "finish", "wrap"}
+    target_words = {"interview", "test", "session"}
+    words_set = set(clean.split())
+    if words_set & action_words and words_set & target_words and "question" not in words_set:
+        return True, 0.95
+
+    # Short exact or near-exact end phrases
+    short_exact = {"quit", "exit", "end it", "stop it", "terminate", "close", "end", "stop", "please end", "can we end"}
+    if clean in short_exact:
+        return True, 0.90
+
+    words = clean.split()
+    if len(words) <= 4 and any(w in {"quit", "exit", "end", "terminate"} for w in words) and "question" not in words:
+        return True, 0.85
+
+    # Check phrases with 'done' where it means done with whole test
+    if clean in {"i am done", "i'm done", "i am done for today", "i'm done for today", "we are done", "done for today", "im done"}:
+        return True, 0.85
+
+    return False, 0.0
+
+
+def check_end_confirmation_response(user_text: str) -> str:
+    """Evaluate response when interviewer asked 'Do you want to end this interview?'.
+
+    Returns:
+        'yes' -> Confirmed, end the interview.
+        'no'  -> Declined, continue the interview.
+        'unclear' -> Needs another check.
+    """
+    if not user_text:
+        return "unclear"
+
+    text = user_text.lower().strip()
+    clean = text.replace("'", "").replace('"', '')
+    clean = re.sub(r"[^a-z0-9\s]", " ", clean)
+    clean = re.sub(r"\s+", " ", clean).strip()
+    words = clean.split()
+
+    yes_tokens = {
+        "yes", "yeah", "yep", "sure", "confirm", "end", "quit", "stop", "finish",
+        "please", "definitely", "absolutely", "yes please", "yes i want to end"
+    }
+    no_tokens = {
+        "no", "nope", "nah", "continue", "resume", "stay", "nevermind", "wait"
+    }
+    no_phrases = [
+        "keep going", "dont end", "not now", "lets continue", "let us continue",
+        "never mind", "carry on", "go on", "no thanks", "no i want to continue", "no continue"
+    ]
+
+    # Affirmative check
+    if any(phrase in clean for phrase in ["yes please", "yes i do", "yes end it", "yes end this", "yeah end it", "i want to end"]):
+        return "yes"
+    if any(w in yes_tokens for w in words) and not any(w in no_tokens for w in words):
+        return "yes"
+
+    # Negative check
+    if any(phrase in clean for phrase in no_phrases):
+        return "no"
+    if any(w in no_tokens for w in words):
+        return "no"
+
+    return "unclear"
+
+
+def determine_adaptive_difficulty(
+    scores: list[float],
+    questions_asked: int,
+    base_difficulty: str = "medium",
+) -> tuple[str, str, str]:
+    """Calculate adaptive target difficulty and scaffolding instruction based on performance.
+
+    Rules:
+    - Calibration across first 3 questions (affecting Q4 onward):
+      * If user average >= 7.0 (70%-80%+): increase level slightly from Q4 onward (little by little).
+      * If user average < 7.0 (< 70%-80%): decrease difficulty and explain by deconstructing/breaking down.
+    - Subsequent questions: progressive small-step tuning.
+    """
+    levels = ["easy", "medium", "hard"]
+    base_norm = base_difficulty.lower() if base_difficulty else "medium"
+    base_idx = levels.index(base_norm) if base_norm in levels else 1
+
+    if not scores:
+        return base_norm, "ESTABLISH_BASELINE", "Ask an accessible foundational question to establish candidate comfort."
+
+    early_scores = scores[:3]
+    early_avg = sum(early_scores) / len(early_scores)
+    latest_score = scores[-1]
+
+    # CASE A: First 3 questions calibration -> impact on Question 4+
+    if questions_asked <= 3:
+        # Candidate is on Q1, Q2, or Q3
+        if early_avg >= 7.5:
+            return (
+                "medium" if base_idx == 0 else "medium",
+                "SLIGHT_INCREASE_FOUNDATION",
+                "Candidate is performing well above 70%-80%. Keep questions clear and foundational, preparing to step up slightly."
+            )
+        elif early_avg < 7.0:
+            return (
+                "easy",
+                "DECREASE_AND_SCAFFOLD",
+                "Candidate scored below 70%-80%. Lower difficulty immediately. Break down the question into simpler parts, explain the core premise clearly, and ask for a simple first step."
+            )
+        else:
+            return base_norm, "STEADY_CALIBRATION", "Maintain comfortable foundational pacing."
+
+    # CASE B: Question 4 and onward
+    if questions_asked >= 4:
+        if early_avg >= 7.0:
+            # Candidate did well in first 3 questions (70-80%+) -> increase difficulty a bit
+            # Now adjust based on overall and recent trajectory
+            rolling_avg = sum(scores) / len(scores)
+            if rolling_avg >= 8.0 and latest_score >= 8.0:
+                target_idx = min(len(levels) - 1, base_idx + 1)
+                directive = "STEP_UP_INCREMENTALLY"
+                instruction = (
+                    "Candidate maintained strong performance (>= 70%-80%+). "
+                    "Increase difficulty slightly (one small step). Probe deeper into edge cases, internals, or trade-offs. "
+                    "Do NOT jump to overly advanced or unrelated complex architecture—increase little by little."
+                )
+            elif rolling_avg < 7.0:
+                # Performance dropped after early strength
+                target_idx = max(0, base_idx - 1)
+                directive = "STEP_DOWN_AND_SCAFFOLD"
+                instruction = (
+                    "Recent performance dropped below 70%. Lower difficulty. "
+                    "Break the question into smaller, intuitive pieces with a clear, guided explanation."
+                )
+            else:
+                target_idx = min(len(levels) - 1, base_idx + 1 if base_idx == 0 else base_idx)
+                directive = "MODERATE_DEPTH"
+                instruction = (
+                    "Candidate is solid above 70%. Deepen the concept slightly while keeping it accessible and clear."
+                )
+            return levels[target_idx], directive, instruction
+        else:
+            # Candidate responded below 70-80% for the first 3 questions
+            # Decrease difficulty and explain question by dividing it clearly
+            rolling_avg = sum(scores) / len(scores)
+            if rolling_avg < 7.0 or latest_score < 7.0:
+                target_idx = 0  # easy
+                directive = "DECREASE_AND_DIVIDE_QUESTION"
+                instruction = (
+                    "CRITICAL: Candidate responded below 70%-80% on early questions. "
+                    "DECREASE difficulty to foundational concepts. Do NOT ask broad or multi-part questions. "
+                    "EXPLAIN AND DIVIDE: Break the question down into 1-2 small, bite-sized components, "
+                    "explain what is being asked in plain words with a quick example, and ask for an easy first step."
+                )
+            else:
+                # Candidate is recovering
+                target_idx = min(1, base_idx)
+                directive = "GENTLE_RECOVERY_SCAFFOLDING"
+                instruction = (
+                    "Candidate is improving. Maintain gentle scaffolding and clear step-by-step questions without jumping ahead."
+                )
+            return levels[target_idx], directive, instruction
+
+    return base_norm, "STANDARD_PACING", "Maintain natural interview pacing."
+
+
 async def get_next_question(
     session: dict[str, Any],
     num_total_questions: int | None = None,
@@ -249,6 +466,18 @@ async def get_next_question(
         last_score,
     )
 
+    target_diff, diff_directive, scaffolding_inst = determine_adaptive_difficulty(
+        scores=scores,
+        questions_asked=questions_asked,
+        base_difficulty=session.get("difficulty", "medium"),
+    )
+    logger.info(
+        "Adaptive difficulty calculation: questions_asked=%d, target_difficulty=%s, directive=%s",
+        questions_asked,
+        target_diff,
+        diff_directive,
+    )
+
     for attempt in range(1, settings.MAX_QUESTION_GENERATION_ATTEMPTS + 1):
         try:
             prompt = ADAPTIVE_QUESTION_PROMPT.format(
@@ -260,6 +489,9 @@ async def get_next_question(
                 topics_remaining=", ".join(topics_remaining),
                 trend=trend,
                 base_difficulty=session.get("difficulty", "medium"),
+                target_difficulty=target_diff,
+                difficulty_directive=diff_directive,
+                scaffolding_instruction=scaffolding_inst,
                 dialogue_history=dialogue_history,
                 last_answer=last_answer,
                 previous_questions=_format_previous_questions(avoid_questions),
@@ -282,7 +514,7 @@ async def get_next_question(
             question = _normalize_question(
                 question=question,
                 question_id=next_id,
-                default_difficulty=session.get("difficulty", "medium"),
+                default_difficulty=target_diff,
             )
 
             if question and not _is_duplicate_question(question, questions):
@@ -589,3 +821,277 @@ def _format_dialogue_history(
         return "No prior dialogue turns."
     recent = turns[-max_turns:] if len(turns) > max_turns else turns
     return "\n\n".join(recent)
+
+
+
+# ───────────────────────────────────────────────────────────
+# Master System Prompt Engine Implementation (Alex)
+# ───────────────────────────────────────────────────────────
+
+from mockinterviews.ai_interview.schemas.master_interviewer import (
+    InterviewPhase,
+    CandidateIntent,
+    NextAction,
+    CodingAction,
+    AnswerRating,
+    InterviewState,
+    CodeRunResult,
+    TurnEvents,
+    InterviewerTurnOutput,
+)
+from mockinterviews.ai_interview.prompts import (
+    MASTER_INTERVIEWER_SYSTEM_PROMPT,
+    MASTER_INTERVIEWER_TURN_PROMPT,
+)
+
+# Phase time specifications in seconds (Total 60m = 3600s)
+PHASE_TIME_SPECS = {
+    InterviewPhase.P1: {"target": 180, "soft": 240, "hard": 300},      # 3m
+    InterviewPhase.P2: {"target": 600, "soft": 720, "hard": 840},      # 10m
+    InterviewPhase.P3: {"target": 420, "soft": 540, "hard": 600},      # 7m
+    InterviewPhase.P4: {"target": 720, "soft": 840, "hard": 960},      # 12m target, 14m soft, 16m hard
+    InterviewPhase.P5: {"target": 240, "soft": 300, "hard": 360},      # 4m target, 5m soft, 6m hard
+    InterviewPhase.P6: {"target": 240, "soft": 300, "hard": 360},      # 4m target, 5m soft, 6m hard
+    InterviewPhase.P7: {"target": 360, "soft": 420, "hard": 480},      # 6m
+    InterviewPhase.P8: {"target": 240, "soft": 300, "hard": 360},      # 4m
+    InterviewPhase.P9: {"target": 180, "soft": 240, "hard": 300},      # 3m
+    InterviewPhase.P10: {"target": 240, "soft": 300, "hard": 360},     # 4m
+    InterviewPhase.P11: {"target": 180, "soft": 240, "hard": 300},     # 3m
+}
+
+PHASE_ORDER = [
+    InterviewPhase.P1,
+    InterviewPhase.P2,
+    InterviewPhase.P3,
+    InterviewPhase.P4,
+    InterviewPhase.P5,
+    InterviewPhase.P6,
+    InterviewPhase.P7,
+    InterviewPhase.P8,
+    InterviewPhase.P9,
+    InterviewPhase.P10,
+    InterviewPhase.P11,
+]
+
+
+def sanitize_candidate_profile_for_fairness(profile: dict[str, Any]) -> dict[str, Any]:
+    """Strip college, university, institute, tier, and company names for fairness compliance."""
+    sanitized = dict(profile)
+    disallowed_keys = {
+        "college", "university", "institute", "school", "tier",
+        "company", "employer", "organization", "company_brand"
+    }
+    for k in list(sanitized.keys()):
+        if any(d in k.lower() for d in disallowed_keys):
+            sanitized.pop(k, None)
+    return sanitized
+
+
+def init_interview_state(
+    role: str = "Software Engineer",
+    stack: list[str] | None = None,
+    experience_years: float | None = None,
+    candidate_profile: dict[str, Any] | None = None,
+) -> InterviewState:
+    """Initialize interview state with starting prior per the Master Prompt."""
+    stack = stack or ["python"]
+    # Starting prior: fresher or intern D1-D2; 1-3 years D2; 3-6 years D3; 6+ years D3-D4; unknown D2.
+    if experience_years is None:
+        exp_desc = "unknown"
+        initial_d = 2
+    elif experience_years < 1:
+        exp_desc = "fresher"
+        initial_d = 1
+    elif experience_years < 3:
+        exp_desc = f"{experience_years} years"
+        initial_d = 2
+    elif experience_years < 6:
+        exp_desc = f"{experience_years} years"
+        initial_d = 3
+    else:
+        exp_desc = f"{experience_years} years"
+        initial_d = 4
+
+    topic_levels = {tech.lower(): initial_d for tech in stack}
+    if "python_basics" not in topic_levels:
+        topic_levels["python_basics"] = initial_d
+
+    p1_specs = PHASE_TIME_SPECS[InterviewPhase.P1]
+
+    return InterviewState(
+        role=role,
+        stack=stack,
+        experience=exp_desc,
+        experience_years=experience_years,
+        phase=InterviewPhase.P1,
+        time_remaining=3600,
+        phase_time_used=0,
+        phase_target=p1_specs["target"],
+        phase_soft_cap=p1_specs["soft"],
+        phase_hard_cap=p1_specs["hard"],
+        topic_levels=topic_levels,
+        strong_streak=0,
+        weak_streak=0,
+        calibration_done=False,
+    )
+
+
+def update_state_for_turn(
+    state: InterviewState,
+    turn_output: InterviewerTurnOutput,
+    elapsed_seconds: int = 0,
+) -> InterviewState:
+    """Update state per the difficulty engine rules and phase discipline in code."""
+    state.time_remaining = max(0, state.time_remaining - elapsed_seconds)
+    state.phase_time_used += elapsed_seconds
+
+    # Apply updates returned by model
+    updates = turn_output.state_updates or {}
+    if "topic_levels" in updates and isinstance(updates["topic_levels"], dict):
+        state.topic_levels.update(updates["topic_levels"])
+    if "claims_verified" in updates and isinstance(updates["claims_verified"], dict):
+        state.claims_verified.update(updates["claims_verified"])
+    if "ai_usage_maturity" in updates:
+        state.ai_usage_maturity = updates["ai_usage_maturity"]
+    if "calibration_done" in updates:
+        state.calibration_done = bool(updates["calibration_done"])
+
+    # Difficulty engine enforcement in code as backstop
+    topic = turn_output.topic or "python_basics"
+    current_lvl = state.topic_levels.get(topic, 2)
+    rating = turn_output.answer_rating
+
+    if rating == AnswerRating.STRONG:
+        state.strong_streak += 1
+        state.weak_streak = 0
+        if not state.calibration_done:
+            # First 3 questions calibration: strong and confident goes up, 2 strong jumps +2
+            bonus = 2 if state.strong_streak >= 2 else 1
+            current_lvl = min(5, current_lvl + bonus)
+        else:
+            if state.strong_streak >= 2:
+                current_lvl = min(5, current_lvl + 1)
+                state.strong_streak = 0
+    elif rating == AnswerRating.WEAK:
+        state.weak_streak += 1
+        state.strong_streak = 0
+        # Weak answer drops ONE level on that topic only
+        current_lvl = max(1, current_lvl - 1)
+    elif rating == AnswerRating.PARTIAL:
+        state.strong_streak = 0
+        state.weak_streak = 0
+
+    state.topic_levels[topic] = current_lvl
+
+    # Coding / Hints tracking
+    if turn_output.coding_action == CodingAction.GUIDE_HINT:
+        state.hint_level_given = min(3, state.hint_level_given + 1)
+    elif turn_output.coding_action in (CodingAction.WRAP_UP, CodingAction.COMPLETE_REVIEW, CodingAction.SKIP_AND_MOVE_ON):
+        state.hint_level_given = 0
+        state.followups_used = 0
+        state.idle_prompts_used = 0
+
+    if turn_output.phase == InterviewPhase.P5 and turn_output.next_action == NextAction.SWITCH_PHASE:
+        state.debug_done = True
+    if turn_output.phase == InterviewPhase.P6 and turn_output.next_action == NextAction.SWITCH_PHASE:
+        state.optimise_done = True
+
+    # Phase advancement & Time Rules
+    # 1. 3 minutes or less left: straight to P11
+    if state.time_remaining <= 180 and state.phase != InterviewPhase.P11:
+        state.phase = InterviewPhase.P11
+        state.phase_time_used = 0
+    # 2. 8 minutes or less left: skip unfinished middle phases and jump to P10
+    elif state.time_remaining <= 480 and state.phase in [
+        InterviewPhase.P2, InterviewPhase.P3, InterviewPhase.P7, InterviewPhase.P8, InterviewPhase.P9
+    ]:
+        state.phase = InterviewPhase.P10
+        state.phase_time_used = 0
+    # 3. Model requests switch_phase or hard cap reached
+    elif turn_output.next_action == NextAction.SWITCH_PHASE or state.phase_time_used >= state.phase_hard_cap:
+        try:
+            curr_idx = PHASE_ORDER.index(state.phase)
+            if curr_idx < len(PHASE_ORDER) - 1:
+                state.phase = PHASE_ORDER[curr_idx + 1]
+                state.phase_time_used = 0
+        except ValueError:
+            state.phase = InterviewPhase.P11
+
+    # Update caps for current phase
+    specs = PHASE_TIME_SPECS.get(state.phase, {"target": 180, "soft": 240, "hard": 300})
+    state.phase_target = specs["target"]
+    state.phase_soft_cap = specs["soft"]
+    state.phase_hard_cap = specs["hard"]
+
+    return state
+
+
+async def execute_interviewer_turn(
+    session_state: InterviewState,
+    events: TurnEvents,
+    dialogue_history: list[dict[str, str]] | None = None,
+    elapsed_seconds: int = 15,
+) -> tuple[InterviewerTurnOutput, InterviewState]:
+    """Run one turn of Alex (The Master AI Mock Interviewer)."""
+    import json
+    dialogue_history = dialogue_history or []
+
+    # App-level time signal generation
+    if session_state.phase_time_used + elapsed_seconds >= session_state.phase_hard_cap:
+        events.time_signal = "hard_cap"
+    elif session_state.phase_time_used + elapsed_seconds >= session_state.phase_soft_cap:
+        events.time_signal = "soft_cap"
+    elif session_state.phase_time_used + elapsed_seconds >= session_state.phase_target:
+        events.time_signal = "target_reached"
+
+    # Format dialogue turns
+    recent_dialogue_text = "\n\n".join(
+        f"{turn.get('speaker', 'Candidate')}: {turn.get('text', '')}"
+        for turn in dialogue_history[-4:]
+    ) or "No prior turns in this session."
+
+    state_dict = session_state.model_dump()
+    events_dict = events.model_dump(exclude_none=True)
+
+    turn_prompt = MASTER_INTERVIEWER_TURN_PROMPT.format(
+        interview_state_json=json.dumps(state_dict, indent=2),
+        events_json=json.dumps(events_dict, indent=2),
+        recent_dialogue=recent_dialogue_text,
+    )
+
+    client = get_llm_client()
+    response = await client.generate(
+        prompt=turn_prompt,
+        system_prompt=MASTER_INTERVIEWER_SYSTEM_PROMPT,
+        temperature=0.3,
+        max_tokens=800,
+    )
+
+    raw_output = parse_json_response(response)
+    if not isinstance(raw_output, dict):
+        raw_output = {
+            "intent": "answer",
+            "intent_confidence": 0.8,
+            "say": "Understood. Let's move forward.",
+            "next_action": "next_question",
+            "coding_action": "none",
+            "phase": session_state.phase.value,
+            "topic": list(session_state.topic_levels.keys())[0] if session_state.topic_levels else "general",
+            "difficulty_level": 2,
+            "answer_rating": "partial",
+            "evaluation_note": "Fallback parsing applied",
+            "state_updates": {},
+        }
+
+    turn_output = InterviewerTurnOutput(**raw_output)
+
+    # Precedence Rule 1: Never end without confirmation
+    if turn_output.intent == CandidateIntent.END_ASSESSMENT:
+        if turn_output.intent_confidence >= 0.7 and turn_output.next_action != NextAction.CONFIRM_END:
+            turn_output.say = "Do you want to end the interview now? Your report will be generated."
+            turn_output.next_action = NextAction.CONFIRM_END
+
+    # Update state
+    updated_state = update_state_for_turn(session_state, turn_output, elapsed_seconds=elapsed_seconds)
+
+    return turn_output, updated_state
