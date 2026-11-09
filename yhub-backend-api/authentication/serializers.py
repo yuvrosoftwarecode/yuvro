@@ -26,6 +26,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserSerializer(serializers.ModelSerializer):
     github_connected = serializers.SerializerMethodField()
     github_username = serializers.SerializerMethodField()
+    linkedin_connected = serializers.SerializerMethodField()
+    linkedin_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -51,8 +53,18 @@ class UserSerializer(serializers.ModelSerializer):
             "last_login",
             "github_connected",
             "github_username",
+            "linkedin_connected",
+            "linkedin_name",
         ]
-        read_only_fields = ["id", "date_joined", "last_login", "github_connected", "github_username"]
+        read_only_fields = [
+            "id",
+            "date_joined",
+            "last_login",
+            "github_connected",
+            "github_username",
+            "linkedin_connected",
+            "linkedin_name",
+        ]
 
     def get_github_connected(self, obj):
         from .models import GithubConnection
@@ -62,6 +74,15 @@ class UserSerializer(serializers.ModelSerializer):
         from .models import GithubConnection
         conn = GithubConnection.objects.filter(user=obj).first()
         return conn.github_username if conn else None
+
+    def get_linkedin_connected(self, obj):
+        from .models import LinkedInConnection
+        return LinkedInConnection.objects.filter(user=obj).exists()
+
+    def get_linkedin_name(self, obj):
+        from .models import LinkedInConnection
+        conn = LinkedInConnection.objects.filter(user=obj).first()
+        return conn.linkedin_name if conn else None
 
 
 class UserLoginSerializer(serializers.Serializer):

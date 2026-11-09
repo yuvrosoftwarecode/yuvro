@@ -148,20 +148,28 @@ export function selectPlan(planId: string, billing: "monthly" | "yearly") {
 
 type Billing = "monthly" | "yearly";
 
-export function PricingPage() {
+export function PricingContent({ onSubscribe }: { onSubscribe?: () => void } = {}) {
   const [billing, setBilling] = useState<Billing>("monthly");
 
   return (
-    <div className="ylp min-h-screen bg-[#f8f9fb] dark:bg-[#0d1120] font-sans text-[#14192b] dark:text-[#f1f4fc] antialiased">
+    <div className="mx-auto w-full max-w-[1120px] px-6 py-12">
       <style>{YLP_CSS}</style>
+      <Hero billing={billing} setBilling={setBilling} />
+      <TrialStrip onSubscribe={onSubscribe} />
+      <Plans billing={billing} onSubscribe={onSubscribe} />
+      <HowSubmissionsWork />
+      <Faq />
+      <ClosingBanner />
+    </div>
+  );
+}
+
+export function PricingPage() {
+  return (
+    <div className="ylp min-h-screen bg-[#f8f9fb] dark:bg-[#0d1120] font-sans text-[#14192b] dark:text-[#f1f4fc] antialiased">
       <StandardHeader />
-      <div className="mx-auto w-full max-w-[1120px] px-6 py-12">
-        <Hero billing={billing} setBilling={setBilling} />
-        <TrialStrip />
-        <Plans billing={billing} />
-        <HowSubmissionsWork />
-        <Faq />
-        <ClosingBanner />
+      <PricingContent />
+      <div className="mx-auto w-full max-w-[1120px] px-6">
         <Footer />
       </div>
     </div>
@@ -249,7 +257,24 @@ function ToggleOption({
   );
 }
 
-function StartFreeButton({ className = "" }: { className?: string }) {
+function StartFreeButton({
+  className = "",
+  onSubscribe,
+}: {
+  className?: string;
+  onSubscribe?: () => void;
+}) {
+  if (onSubscribe) {
+    return (
+      <button
+        type="button"
+        onClick={onSubscribe}
+        className={`ylp-btn-primary inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 ${className}`}
+      >
+        Start free
+      </button>
+    );
+  }
   return (
     <Link
       to="/auth"
@@ -261,7 +286,7 @@ function StartFreeButton({ className = "" }: { className?: string }) {
   );
 }
 
-function TrialStrip() {
+function TrialStrip({ onSubscribe }: { onSubscribe?: () => void }) {
   return (
     <section
       className="mb-14 flex flex-col items-center justify-between gap-4 rounded-2xl border px-6 py-5 sm:flex-row shadow-sm"
@@ -277,12 +302,18 @@ function TrialStrip() {
           codebase repository setup.
         </p>
       </div>
-      <StartFreeButton className="shrink-0" />
+      <StartFreeButton className="shrink-0" onSubscribe={onSubscribe} />
     </section>
   );
 }
 
-function Plans({ billing }: { billing: Billing }) {
+function Plans({
+  billing,
+  onSubscribe,
+}: {
+  billing: Billing;
+  onSubscribe?: () => void;
+}) {
   const [workTrailQty, setWorkTrailQty] = useState(0);
 
   const workTrailTotal =
@@ -304,6 +335,7 @@ function Plans({ billing }: { billing: Billing }) {
           plan={STARTUP}
           billing={billing}
           workTrailLine={workTrailLine}
+          onSubscribe={onSubscribe}
         />
         <PlanCard
           order="order-1 lg:order-2"
@@ -311,6 +343,7 @@ function Plans({ billing }: { billing: Billing }) {
           featured
           billing={billing}
           workTrailLine={workTrailLine}
+          onSubscribe={onSubscribe}
         />
         <PlanCard order="order-3 lg:order-3" plan={ENTERPRISE} billing={billing} />
       </div>
@@ -329,12 +362,14 @@ function PlanCard({
   billing,
   workTrailLine = null,
   order,
+  onSubscribe,
 }: {
   plan: typeof STARTUP | typeof GROWTH | typeof ENTERPRISE;
   featured?: boolean;
   billing: Billing;
   workTrailLine?: string | null;
   order: string;
+  onSubscribe?: () => void;
 }) {
   const isEnterprise = !("monthly" in plan);
   const yearly = billing === "yearly";
@@ -416,7 +451,7 @@ function PlanCard({
           Contact us
         </Link>
       ) : (
-        <StartFreeButton />
+        <StartFreeButton onSubscribe={onSubscribe} />
       )}
     </div>
   );

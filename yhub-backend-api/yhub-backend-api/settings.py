@@ -270,3 +270,13 @@ AI_CREDITS_DEFAULT_RESERVATION = config("AI_CREDITS_DEFAULT_RESERVATION", defaul
 AI_CREDITS_MAX_RESERVATION = config("AI_CREDITS_MAX_RESERVATION", default=16384, cast=int)
 AI_CREDITS_RESERVATION_EXPIRY_SECONDS = config("AI_CREDITS_RESERVATION_EXPIRY_SECONDS", default=300, cast=int)
 
+# ── GitHub & LinkedIn OAuth ──────────────────────────────────────
+GITHUB_CLIENT_ID = config("GITHUB_CLIENT_ID", default=os.environ.get("GITHUB_CLIENT_ID", ""))
+GITHUB_CLIENT_SECRET = config("GITHUB_CLIENT_SECRET", default=os.environ.get("GITHUB_CLIENT_SECRET", ""))
+GITHUB_REDIRECT_URI = config("GITHUB_REDIRECT_URI", default=os.environ.get("GITHUB_REDIRECT_URI", ""))
+
+LINKEDIN_CLIENT_ID = config("LINKEDIN_CLIENT_ID", default=os.environ.get("LINKEDIN_CLIENT_ID", ""))
+LINKEDIN_CLIENT_SECRET = config("LINKEDIN_CLIENT_SECRET", default=os.environ.get("LINKEDIN_CLIENT_SECRET", ""))
+LINKEDIN_REDIRECT_URI = config("LINKEDIN_REDIRECT_URI", default=os.environ.get("LINKEDIN_REDIRECT_URI", ""))
+
+

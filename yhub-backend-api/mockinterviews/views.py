@@ -313,6 +313,49 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             "quota": serializer.data,
         })
 
+    @action(detail=False, methods=["post"], permission_classes=[permissions.AllowAny])
+    def polish_query(self, request):
+        """
+        Takes raw spoken database query / code dictation and polishes it into
+        clean, syntactically correct, properly formatted code using the LLM.
+        """
+        raw_text = request.data.get("text", "")
+        language = request.data.get("language", "sql")
+        context = request.data.get("context", "")
+
+        if not raw_text or not raw_text.strip():
+            return Response({"polished_code": ""}, status=status.HTTP_200_OK)
+
+        system_prompt = (
+            f"You are an expert database software engineer and SQL formatter. "
+            f"Your job is to take raw, unedited speech-to-text voice dictation of a {language.upper()} database query or code snippet "
+            f"and convert it into clean, syntactically correct, professionally formatted and indented {language.upper()} code.\n"
+            f"Rules:\n"
+            f"1. Fix obvious speech recognition phonetic mishearings (e.g. 'solid' -> 'sold', 'Order 0' -> 'orders o', 'is =' -> '=', 'some' -> 'SUM').\n"
+            f"2. Resolve speech stumbles or duplicates (e.g. 'total under score quant. Quantity under score solid' -> 'total_quantity_sold').\n"
+            f"3. Return ONLY the raw code itself. Do NOT enclose in markdown code fences (no ```sql or ```). Do NOT include any explanations or conversational chatter."
+        )
+
+        user_prompt = f"Raw dictated transcript:\n{raw_text}"
+        if context:
+            user_prompt = f"Interview Question Context:\n{context}\n\n{user_prompt}"
+
+        try:
+            from mockinterviews.ai_interview.llm_client import get_llm_client
+            llm = get_llm_client()
+            from asgiref.sync import async_to_sync
+            polished = async_to_sync(llm.generate)(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                max_tokens=600,
+                temperature=0.1,
+            )
+            clean_code = re.sub(r"^```[a-zA-Z]*\n?", "", polished.strip())
+            clean_code = re.sub(r"\n?```$", "", clean_code).strip()
+            return Response({"polished_code": clean_code}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.warning(f"Error polishing query with LLM: {e}")
+            return Response({"polished_code": raw_text, "error": str(e)}, status=status.HTTP_200_OK)
 
     search_fields = ["title", "description"]
     ordering_fields = ["created_at", "updated_at"]
@@ -321,6 +364,38 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def get_queryset(self):
+        try:
+            if not MockInterview.objects.filter(title__iexact="MongoDB Development").exists():
+                admin_user = User.objects.filter(is_superuser=True).first() or User.objects.first()
+                if admin_user:
+                    MockInterview.objects.create(
+                        title="MongoDB Development",
+                        description="Adaptive AI-powered MongoDB technical interview. Evaluates document schema design, aggregation pipelines, indexing, replica sets, sharding, and query performance in real-time.",
+                        instructions="Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+                        max_duration=30,
+                        interview_mode="automatic",
+                        products=["ylabs", "ycode", "ycampus"],
+                        required_skills=[
+                            "MongoDB",
+                            "NoSQL",
+                            "Aggregation Pipeline",
+                            "Indexing & Query Optimization",
+                            "Schema Design",
+                            "Replica Sets & Sharding"
+                        ],
+                        optional_skills=[
+                            "Mongoose",
+                            "MongoDB Atlas",
+                            "WiredTiger",
+                            "Transactions",
+                            "Data Modeling"
+                        ],
+                        publish_status="active",
+                        created_by=admin_user
+                    )
+        except Exception:
+            pass
+
         qs = super().get_queryset()
         publish_status_param = self.request.query_params.get("publish_status")
         product_param = self.request.query_params.get("product")
@@ -1109,6 +1184,84 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for nt in node_core_topics:
                         if nt not in all_skills:
                             all_skills.append(nt)
+                elif "mongodb" in mock_interview.title.lower() or "mongo" in mock_interview.title.lower():
+                    mongo_core_topics = [
+                        "Document Data Modeling & Schema Design",
+                        "CRUD Operations & Query Operators",
+                        "Aggregation Framework & Pipeline Stages ($match, $group, $project)",
+                        "Indexing Strategies (Compound, Multikey, Text, TTL)",
+                        "Replication & Replica Sets (Election, Heartbeats, Oplog)",
+                        "Sharding Architecture & Chunk Balancing",
+                        "ACID Multi-Document Transactions",
+                        "Performance Tuning, Explain Plans & Profiling",
+                        "Storage Engine (WiredTiger) & Concurrency Control",
+                        "Security, Access Control & MongoDB Atlas"
+                    ]
+                    for mt in mongo_core_topics:
+                elif "ai" in mock_interview.title.lower() or "machine learning" in mock_interview.title.lower():
+                    ai_core_topics = [
+                        "Machine Learning Fundamentals & Optimization",
+                        "Deep Neural Networks & Transformer Architectures",
+                        "Large Language Models (LLMs) & Tokenization",
+                        "Retrieval-Augmented Generation (RAG) & Embedding Models",
+                        "Vector Search & Vector Databases (Chroma / Pinecone / Milvus)",
+                        "Prompt Engineering, Few-shot Learning & Chain-of-Thought",
+                        "Model Fine-Tuning (PEFT, LoRA, QLoRA)",
+                        "AI Frameworks (PyTorch, Hugging Face, LangChain, LlamaIndex)",
+                        "Model Evaluation, Hallucination Detection & Safety Guardrails",
+                        "MLOps & Model Serving (vLLM, TensorRT, Quantization, CI/CD)"
+                    ]
+                    for at in ai_core_topics:
+                        if at not in all_skills:
+                            all_skills.append(at)
+                elif "react" in mock_interview.title.lower():
+                    react_core_topics = [
+                        "Virtual DOM, Reconciliation & Fiber Architecture",
+                        "React Component Lifecycle & Rendering Phases",
+                        "React Hooks (useState, useEffect, useMemo, useCallback, useRef, custom hooks)",
+                        "Hook Rules & Stale Closure Pitfalls",
+                        "State Management (Context API vs Redux Toolkit / Zustand)",
+                        "Performance Optimization (React.memo, code splitting, lazy loading)",
+                        "Error Boundaries & React Suspense",
+                        "Controlled vs Uncontrolled Components & Form Handling",
+                        "SSR, SSG & Next.js Architecture Principles",
+                        "Unit Testing React Components (Jest & React Testing Library)"
+                    ]
+                    for rt in react_core_topics:
+                        if rt not in all_skills:
+                            all_skills.append(rt)
+                elif "postgres" in mock_interview.title.lower() or "postgresql" in mock_interview.title.lower():
+                    postgres_core_topics = [
+                        "Relational Modeling & Schema Design in PostgreSQL",
+                        "Advanced SQL Queries, Window Functions & Common Table Expressions (CTEs)",
+                        "MVCC Architecture, Tuple Versioning, VACUUM & AUTOVACUUM Tuning",
+                        "PostgreSQL Indexing Mechanisms (B-Tree, GIN, GiST, BRIN, Partial & Expression Indexes)",
+                        "Query Performance Optimization & EXPLAIN ANALYZE Execution Plans",
+                        "Transactions, ACID Isolation Levels & PostgreSQL Lock Modes",
+                        "JSON / JSONB Storage, Query Operators & GIN Indexing",
+                        "PostgreSQL Extensions (pg_stat_statements, PostGIS, pgcrypto)",
+                        "Replication, Write-Ahead Logging (WAL) & High Availability (Patroni, PgBouncer)",
+                        "Database Backup (pg_dump, pg_basebackup) & Point-in-Time Recovery (PITR)"
+                    ]
+                    for pt in postgres_core_topics:
+                        if pt not in all_skills:
+                            all_skills.append(pt)
+                elif "mysql" in mock_interview.title.lower() or "sql" in mock_interview.title.lower():
+                    mysql_core_topics = [
+                        "Relational Modeling & Schema Normalization (1NF to BCNF)",
+                        "Advanced SQL Queries, Subqueries & Complex Joins",
+                        "Indexing Architecture (B-Tree, Clustered vs Secondary Indexes, Covering Indexes)",
+                        "Query Performance Tuning & EXPLAIN Query Plan Analysis",
+                        "Transactions, ACID Properties & Concurrency Control (MVCC, Lock Modes)",
+                        "Transaction Isolation Levels (Read Committed, Repeatable Read, Serializable)",
+                        "Storage Engines (InnoDB vs MyISAM architecture and row-level locking)",
+                        "Database Constraints, Keys, Cascading & Data Integrity",
+                        "High Availability, Replication Strategies & Failover",
+                        "Database Backup, Point-in-Time Recovery & Security Best Practices"
+                    ]
+                    for mt in mysql_core_topics:
+                        if mt not in all_skills:
+                            all_skills.append(mt)
 
                 analysis = {
                     "candidate_name": user.get_full_name() or user.username,
@@ -1203,6 +1356,95 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     message_type="user",
                     content=clean_answer
                 )
+
+            # Global Check for End Interview intent or Confirmation response across all student/ai interview routes
+            state = interview_session.state_data or {}
+            from mockinterviews.ai_interview.interview_engine import (
+                detect_end_interview_intent,
+                check_end_confirmation_response,
+            )
+
+            # 1. Already awaiting confirmation for "Do you want to end this interview?"
+            if state.get("awaiting_end_confirmation") and clean_answer:
+                confirmation = check_end_confirmation_response(clean_answer)
+                if confirmation == "yes":
+                    state["awaiting_end_confirmation"] = False
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                        submission.state_data = state
+                        submission.save(update_fields=['status', 'state_data'])
+
+                    farewell = "Thank you! That completes the interview. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    return Response({
+                        "question": farewell,
+                        "is_finished": True,
+                        "question_id": None,
+                        "proceed": True
+                    })
+                elif confirmation == "no":
+                    state["awaiting_end_confirmation"] = False
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    resume_msg = "Alright, let's continue! Whenever you're ready, please share your answer or approach."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=resume_msg
+                    )
+                    return Response({
+                        "question": resume_msg,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+                else:
+                    clarify_msg = "Do you want to end this interview? Please reply yes to end or no to continue."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=clarify_msg
+                    )
+                    return Response({
+                        "question": clarify_msg,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
+
+            # 2. Check if candidate explicitly expresses intent to end/stop/quit the interview
+            if clean_answer:
+                has_end_intent, confidence = detect_end_interview_intent(clean_answer)
+                if has_end_intent and confidence >= 0.7:
+                    state["awaiting_end_confirmation"] = True
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+
+                    confirm_prompt = "Do you want to end this interview? Your report will be generated."
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=confirm_prompt
+                    )
+                    return Response({
+                        "question": confirm_prompt,
+                        "is_finished": False,
+                        "question_id": None,
+                        "proceed": False
+                    })
 
             state = interview_session.state_data or {}
             interview_type = state.get("interview_type") or (submission.interview_type if submission else "predefined")
@@ -1302,6 +1544,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Non-blocking I/O and asynchronous event-driven design"
                                 ]
                             }
+                        elif "mongodb" in title_lower or "mongo" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In MongoDB, can you explain the key trade-offs between embedding documents versus referencing them with ObjectIDs, and how you decide which pattern to use for one-to-many relationships?",
+                                "topic": "Document Schema Design (Embedding vs Referencing)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Embedding for 1:few or data frequently queried together",
+                                    "Referencing for 1:many or unbound growth to stay within 16MB document limit",
+                                    "Read vs write performance and atomicity considerations"
+                                ]
+                            }
                         elif "data structure" in title_lower or "algorithm" in title_lower:
                             next_q = {
                                 "id": 2,
@@ -1313,6 +1568,58 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Contiguous memory vs dispersed pointer-linked nodes",
                                     "O(1) index access in arrays vs O(N) access in linked lists",
                                     "Insertion and deletion trade-offs"
+                                ]
+                            }
+                        elif "ai" in title_lower or "machine learning" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: Can you explain the fundamental architectural differences between fine-tuning a Large Language Model and implementing a Retrieval-Augmented Generation (RAG) system, and in what scenarios would you choose one over the other?",
+                                "topic": "Generative AI Systems (Fine-Tuning vs RAG)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "RAG grounds models dynamically on external knowledge bases without updating weights",
+                                    "Fine-tuning modifies model parameters to specialize in tone, format, or niche domains",
+                                    "Latency, computational cost, data freshness, and maintenance trade-offs"
+                                ]
+                            }
+                        elif "react" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In React, can you explain how the Virtual DOM and the reconciliation process work, and how the React Fiber architecture optimizes component rendering?",
+                                "topic": "React Virtual DOM & Fiber Reconciliation",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Virtual DOM as an in-memory representation synchronized with the real DOM",
+                                    "Diffing algorithm and batched updates to minimize DOM operations",
+                                    "React Fiber incremental rendering and prioritized concurrent work"
+                                ]
+                            }
+                        elif "postgres" in title_lower or "postgresql" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In PostgreSQL, can you explain how Multi-Version Concurrency Control (MVCC) works under the hood, how dead tuples accumulate, and what role VACUUM and AUTOVACUUM play in maintaining database health?",
+                                "topic": "PostgreSQL MVCC Internals & VACUUM Architecture",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "MVCC allows readers and writers not to block each other by maintaining multiple tuple versions with xmin and xmax",
+                                    "Updates and deletes create dead tuples that consume disk space and degrade query performance over time",
+                                    "VACUUM reclaims dead tuple storage for reuse, and AUTOVACUUM automatically triggers vacuum and analyze operations based on update/delete thresholds"
+                                ]
+                            }
+                        elif "mysql" in title_lower or "sql" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In MySQL, can you explain the architectural difference between a Clustered Index and a Secondary Index in the InnoDB storage engine, and how index selection impacts query performance?",
+                                "topic": "MySQL Indexing & InnoDB Architecture (Clustered vs Secondary Indexes)",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "In InnoDB, the primary key forms the clustered index where leaf nodes store the actual row data",
+                                    "Secondary indexes store the column value and point to the primary key, requiring a bookmark lookup unless covering",
+                                    "Impact of index selection on write amplification, memory footprint, and query execution speed with EXPLAIN"
                                 ]
                             }
                         else:
@@ -2065,6 +2372,105 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 message_type="user",
                 content=user_answer
             )
+
+            # Check for End Interview intent or Confirmation response
+            from mockinterviews.ai_interview.interview_engine import (
+                detect_end_interview_intent,
+                check_end_confirmation_response,
+            )
+
+            # Case A: Already asked "Do you want to end this interview?"
+            if state.get("awaiting_end_confirmation"):
+                confirmation = check_end_confirmation_response(user_answer)
+                if confirmation == "yes":
+                    state["awaiting_end_confirmation"] = False
+                    submission.status = MockInterviewSubmission.STATUS_COMPLETED
+                    submission.state_data = state
+                    submission.save()
+
+                    farewell = "Thank you! That completes the interview. I'll now finalize your performance report."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=farewell
+                    )
+                    return Response({
+                        "is_finished": True,
+                        "proceed": True,
+                        "cue": {"message": farewell, "action": "end_assessment"},
+                        "evaluation": {
+                            "score": 10,
+                            "feedback": "Interview ended by user request.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+                elif confirmation == "no":
+                    state["awaiting_end_confirmation"] = False
+                    submission.state_data = state
+                    submission.save()
+
+                    resume_msg = "Alright, let's continue! Whenever you're ready, please share your answer or approach."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=resume_msg
+                    )
+                    return Response({
+                        "is_finished": False,
+                        "proceed": False,
+                        "cue": {"message": resume_msg, "action": "continue"},
+                        "evaluation": {
+                            "score": 0,
+                            "feedback": "Resumed interview. Awaiting candidate answer.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+                else:
+                    # Unclear: repeat confirmation question once
+                    clarify_msg = "Do you want to end this interview? Please say yes to end or no to continue."
+                    ChatMessage.objects.create(
+                        chat_session=submission.chat_session,
+                        message_type="assistant",
+                        content=clarify_msg
+                    )
+                    return Response({
+                        "is_finished": False,
+                        "proceed": False,
+                        "cue": {"message": clarify_msg, "action": "confirm_end"},
+                        "evaluation": {
+                            "score": 0,
+                            "feedback": "Awaiting confirmation.",
+                            "covered_points": [],
+                            "missed_points": []
+                        }
+                    })
+
+            # Case B: Check if user expresses intent to end the interview
+            has_end_intent, confidence = detect_end_interview_intent(user_answer)
+            if has_end_intent and confidence >= 0.7:
+                state["awaiting_end_confirmation"] = True
+                submission.state_data = state
+                submission.save()
+
+                confirm_prompt = "Do you want to end this interview? Your report will be generated."
+                ChatMessage.objects.create(
+                    chat_session=submission.chat_session,
+                    message_type="assistant",
+                    content=confirm_prompt
+                )
+                return Response({
+                    "is_finished": False,
+                    "proceed": False,
+                    "cue": {"message": confirm_prompt, "action": "confirm_end"},
+                    "evaluation": {
+                        "score": 0,
+                        "feedback": "Candidate requested to end assessment. Confirmation requested.",
+                        "covered_points": [],
+                        "missed_points": []
+                    }
+                })
             
             # Update answers dict in state_data
             answers = state.get("answers", {})
