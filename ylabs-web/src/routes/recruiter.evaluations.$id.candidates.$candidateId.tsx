@@ -46,7 +46,16 @@ import {
   RefreshCw,
   ArrowLeft,
   X,
+  Network,
+  Database,
+  FileCode,
+  Check,
 } from "lucide-react";
+import { DiagramBoard, type SDNode, type SDEdge } from "@/components/sysdesign/DesignCanvas";
+import { ErdBoard, parseDbml } from "@/components/sysdesign/ErdBoard";
+import { ApiDocs, type ApiEndpoint } from "@/components/sysdesign/ApiDesigner";
+import { MarkdownPreview } from "@/components/sysdesign/MarkdownNotes";
+import { MermaidPreview } from "@/components/sysdesign/MermaidPreview";
 import { getCandidates, type Recommendation } from "@/lib/recruiterCandidates";
 import { buildEvaluationSummary } from "@/lib/evaluationSummary";
 import { CandidateAnalyticsViewer } from "@/components/evaluation/CandidateAnalyticsViewer";
@@ -205,7 +214,16 @@ export const Route = createFileRoute("/recruiter/evaluations/$id/candidates/$can
 });
 
 type Tab =
-  "overview" | "labs" | "assessment" | "vitarka" | "resume" | "timeline" | "notes" | "activity" | "proctoring";
+  | "overview"
+  | "labs"
+  | "assessment"
+  | "vitarka"
+  | "system_design"
+  | "resume"
+  | "timeline"
+  | "notes"
+  | "activity"
+  | "proctoring";
 
 function CandidateWorkspace() {
   const { id, candidateId } = Route.useParams();
@@ -247,6 +265,7 @@ function CandidateWorkspace() {
     loadDecision(id, candidateId, candidate?.hiringStatus ?? "Pending Review"),
   );
   const [openLab, setOpenLab] = useState<{ section: any, labSub: any, candidate: any, labsReport?: any } | null>(null);
+  const [openSystemDesign, setOpenSystemDesign] = useState<{ challenge: any; userSub: any; candidate: any; sdMaxScore: number } | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [activity, setActivity] = useState<ActivityEvent[]>([]);
@@ -441,6 +460,7 @@ function CandidateWorkspace() {
   const hasLabs = hasSections ? ev.sections.some((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS") : false;
   const hasAssessment = hasSections ? ev.sections.some((s: any) => s.kind === "assessment" || s.kind === "knowledge" || s.type === "KNOWLEDGE_ASSESSMENT") : false;
   const hasVitarka = hasSections ? ev.sections.some((s: any) => s.kind === "discussion" || s.kind === "vitarka" || s.type === "VITARKA_AI_INTERVIEW") : false;
+  const hasSystemDesign = hasSections ? ev.sections.some((s: any) => s.kind === "system_design" || s.type === "SYSTEM_DESIGN") : false;
 
   const labsSec = ev?.sections?.find((s: any) => s.kind === "labs" || s.kind === "lab" || s.type === "LAB" || s.type === "ENGINEERING_LABS");
   const labsMaxScore = hasLabs
@@ -469,6 +489,10 @@ function CandidateWorkspace() {
     } catch {}
   }
   const discussionMaxScore = hasVitarka ? (discSec?.marks ?? discSec?.max_score ?? discMetaMarks ?? 25) : 0;
+
+  const sdSec = ev?.sections?.find((s: any) => s.kind === "system_design" || s.type === "SYSTEM_DESIGN");
+  const systemDesignMaxScore = hasSystemDesign ? (sdSec?.marks ?? 30) : 0;
+  const liveSystemDesignScore = hasSystemDesign ? (candidate?.systemDesignScore || 0) : 0;
 
   const liveBundle = hasVitarka ? (vitarkaSubmission?.report_bundle || vitarkaSubmission?.session_state?.report_bundle) : null;
   const liveVitarkaReport = hasVitarka ? (liveBundle?.vitarka_report || vitarkaSubmission?.report || vitarkaSubmission?.session_state?.report) : null;
@@ -631,15 +655,27 @@ function CandidateWorkspace() {
                   : Math.round(((candidate?.vitarkaScore || 0) / 100) * discussionMaxScore))))
   );
 
-  const rawTotalEarned = (hasLabs ? liveLabsScore : 0) + (hasAssessment ? liveAssessmentScore : 0) + (hasVitarka ? liveVitarkaScore : 0);
+  const rawTotalEarned =
+    (hasLabs ? liveLabsScore : 0) +
+    (hasAssessment ? liveAssessmentScore : 0) +
+    (hasVitarka ? liveVitarkaScore : 0) +
+    (hasSystemDesign ? liveSystemDesignScore : 0);
   const totalEarned = Math.abs(Math.round(rawTotalEarned) - rawTotalEarned) < 0.15
     ? Math.round(rawTotalEarned)
     : Math.round(rawTotalEarned * 10) / 10;
-  const totalPossible = (hasLabs ? labsMaxScore : 0) + (hasAssessment ? assessmentMaxScore : 0) + (hasVitarka ? discussionMaxScore : 0);
+  const totalPossible =
+    (hasLabs ? labsMaxScore : 0) +
+    (hasAssessment ? assessmentMaxScore : 0) +
+    (hasVitarka ? discussionMaxScore : 0) +
+    (hasSystemDesign ? systemDesignMaxScore : 0);
   const computedEci = totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : 0;
-  const liveOverallScore = (liveLabsScore === 0 && liveAssessmentScore === 0 && liveVitarkaScore === 0)
-    ? 0
-    : totalEarned;
+  const liveOverallScore =
+    liveLabsScore === 0 &&
+    liveAssessmentScore === 0 &&
+    liveVitarkaScore === 0 &&
+    liveSystemDesignScore === 0
+      ? 0
+      : totalEarned;
 
   // Normalize AI recommendation from report or calculate from overall score
   const scorePct = totalPossible > 0 ? (totalEarned / totalPossible) * 100 : (candidate?.eci ?? 0);
@@ -780,6 +816,7 @@ function CandidateWorkspace() {
   if (hasLabs) tabsToDisplay.push("labs");
   if (hasAssessment) tabsToDisplay.push("assessment");
   if (hasVitarka) tabsToDisplay.push("vitarka");
+  if (hasSystemDesign) tabsToDisplay.push("system_design");
   tabsToDisplay.push("resume", "timeline", "notes", "activity", "proctoring");
 
   return (
@@ -896,12 +933,15 @@ function CandidateWorkspace() {
               reportBundle={liveBundle}
               onGotoLabs={() => setTab("labs")}
               onGotoVit={() => setTab("vitarka")}
+              onGotoSystemDesign={() => setTab("system_design")}
               hasLabs={hasLabs}
               hasAssessment={hasAssessment}
               hasVitarka={hasVitarka}
+              hasSystemDesign={hasSystemDesign}
               labsMaxScore={labsMaxScore}
               assessmentMaxScore={assessmentMaxScore}
               discussionMaxScore={discussionMaxScore}
+              systemDesignMaxScore={systemDesignMaxScore}
               ev={ev}
             />
           )}
@@ -921,6 +961,14 @@ function CandidateWorkspace() {
                 act("download", "Downloaded Vitarka transcript");
                 notify("Transcript downloaded");
               }}
+            />
+          )}
+          {tab === "system_design" && (
+            <SystemDesignReportPane
+              ev={ev}
+              candidate={displayCandidate}
+              sdMaxScore={systemDesignMaxScore}
+              onOpenStudio={setOpenSystemDesign}
             />
           )}
           {tab === "proctoring" && <CandidateAnalyticsViewer candidate={candidate} evaluation={ev} vitarkaSubmission={vitarkaSubmission} />}
@@ -958,6 +1006,13 @@ function CandidateWorkspace() {
 
       {openLab && <LabDrawer data={openLab} evaluationId={id} onClose={() => setOpenLab(null)} />}
 
+      {openSystemDesign && (
+        <SystemDesignDrawer
+          data={openSystemDesign}
+          onClose={() => setOpenSystemDesign(null)}
+        />
+      )}
+
       <MissingVitarkaSessionModal
         isOpen={showMissingSessionModal}
         onClose={() => setShowMissingSessionModal(false)}
@@ -982,12 +1037,15 @@ export function OverviewPane({
   reportBundle,
   onGotoLabs,
   onGotoVit,
+  onGotoSystemDesign,
   hasLabs,
   hasAssessment,
   hasVitarka,
+  hasSystemDesign,
   labsMaxScore = 80,
   assessmentMaxScore = 30,
   discussionMaxScore = 25,
+  systemDesignMaxScore = 30,
   ev,
 }: {
   candidate: ReturnType<typeof getCandidates>[number];
@@ -997,23 +1055,26 @@ export function OverviewPane({
   reportBundle?: any;
   onGotoLabs: () => void;
   onGotoVit: () => void;
+  onGotoSystemDesign?: () => void;
   hasLabs: boolean;
   hasAssessment: boolean;
   hasVitarka: boolean;
+  hasSystemDesign?: boolean;
   labsMaxScore?: number;
   assessmentMaxScore?: number;
   discussionMaxScore?: number;
+  systemDesignMaxScore?: number;
   ev?: any;
 }) {
-  const activeCount = [hasLabs, hasAssessment, hasVitarka].filter(Boolean).length;
-  const gridClass = activeCount === 3 ? "grid-cols-3" : activeCount === 2 ? "grid-cols-2" : "grid-cols-1";
+  const activeCount = [hasLabs, hasAssessment, hasVitarka, hasSystemDesign].filter(Boolean).length;
+  const gridClass = activeCount === 4 ? "grid-cols-4" : activeCount === 3 ? "grid-cols-3" : activeCount === 2 ? "grid-cols-2" : "grid-cols-1";
 
   const rawTotalEarnedVal = candidate.totalEarned ?? candidate.eci;
   const numTotalEarned = Number(rawTotalEarnedVal);
   const displayTotalEarned = Number.isFinite(numTotalEarned)
     ? (Math.abs(Math.round(numTotalEarned) - numTotalEarned) < 0.15 ? Math.round(numTotalEarned) : Number(numTotalEarned.toFixed(1)))
     : rawTotalEarnedVal;
-  const maxTotalScore = candidate.totalPossible ?? (labsMaxScore + assessmentMaxScore + discussionMaxScore);
+  const maxTotalScore = candidate.totalPossible ?? (labsMaxScore + assessmentMaxScore + discussionMaxScore + (hasSystemDesign ? systemDesignMaxScore : 0));
 
   return (
     <div className="space-y-6">
@@ -1064,6 +1125,7 @@ export function OverviewPane({
             {hasLabs && <SubMetric label="Engineering Labs" value={candidate.labsScore} maxScore={labsMaxScore} onClick={onGotoLabs} />}
             {hasAssessment && <SubMetric label="Knowledge Assessment" value={candidate.assessmentScore} maxScore={assessmentMaxScore} />}
             {hasVitarka && <SubMetric label="Vitarka Discussion" value={candidate.vitarkaScore} maxScore={discussionMaxScore} onClick={onGotoVit} />}
+            {hasSystemDesign && <SubMetric label="System Design" value={candidate.systemDesignScore} maxScore={systemDesignMaxScore} onClick={onGotoSystemDesign} />}
           </div>
         )}
       </div>
@@ -2519,6 +2581,870 @@ export function AssessmentPane({ ev, candidate, knowledgeReport, timelineEvents 
           </div>
         );
       })}
+    </div>
+  );
+}
+
+export function SystemDesignStudioViewer({
+  design,
+  onOpenStudio,
+  isExpanded = false,
+}: {
+  design: any;
+  onOpenStudio?: () => void;
+  isExpanded?: boolean;
+}) {
+  const [activeTab, setActiveTab] = useState<"canvas" | "sequence" | "schema" | "api" | "notes">("canvas");
+  const [viewMode, setViewMode] = useState<"visual" | "code">("visual");
+  const [copiedCode, setCopiedCode] = useState(false);
+
+  const canvasNodes = Array.isArray(design?.nodes)
+    ? design.nodes
+    : Array.isArray(design?.canvas?.nodes)
+    ? design.canvas.nodes
+    : [];
+
+  const canvasEdges = Array.isArray(design?.edges)
+    ? design.edges
+    : Array.isArray(design?.canvas?.edges)
+    ? design.canvas.edges
+    : [];
+
+  const normalizedNodes: SDNode[] = useMemo(() => {
+    return canvasNodes.map((n: any, idx: number) => ({
+      id: String(n.id || `node-${idx}`),
+      kind: String(n.kind || n.type || "component"),
+      label: String(n.label || n.name || `Component ${idx + 1}`),
+      icon: String(n.icon || (n.type ? n.type.toLowerCase() : "server")),
+      tag: n.tag || n.type || undefined,
+      x: typeof n.x === "number" && !isNaN(n.x) ? n.x : 60 + (idx % 4) * 200,
+      y: typeof n.y === "number" && !isNaN(n.y) ? n.y : 80 + Math.floor(idx / 4) * 120,
+    }));
+  }, [canvasNodes]);
+
+  const normalizedEdges: SDEdge[] = useMemo(() => {
+    return canvasEdges.map((e: any, idx: number) => ({
+      id: String(e.id || `edge-${idx}`),
+      from: String(e.from || e.source || ""),
+      to: String(e.to || e.target || ""),
+      label: e.label || undefined,
+    }));
+  }, [canvasEdges]);
+
+  const sequenceCode =
+    typeof design?.seq === "string" && design.seq.trim()
+      ? design.seq
+      : typeof design?.sequence === "string" && design.sequence.trim()
+      ? design.sequence
+      : (design?.sequence?.code || "");
+
+  const schemaCode =
+    typeof design?.schema === "string" && design.schema.trim()
+      ? design.schema
+      : (design?.schema?.code || "");
+
+  const parsedTablesCount = useMemo(() => {
+    if (!schemaCode.trim()) return 0;
+    try {
+      const parsed = parseDbml(schemaCode);
+      return parsed.tables?.length || 0;
+    } catch {
+      return 0;
+    }
+  }, [schemaCode]);
+
+  const rawApis = Array.isArray(design?.apis)
+    ? design.apis
+    : Array.isArray(design?.api)
+    ? design.api
+    : [];
+
+  const normalizedApis: ApiEndpoint[] = useMemo(() => {
+    return rawApis.map((ep: any, idx: number) => ({
+      id: String(ep.id || `api-${idx}`),
+      method: String(ep.method || "GET").toUpperCase(),
+      path: String(ep.path || "/api"),
+      summary: ep.summary || ep.description || "",
+      request: ep.request || ep.req || "",
+      response: ep.response || ep.res || "",
+      status: ep.status || (String(ep.method || "").toUpperCase() === "POST" ? "201 Created" : "200 OK"),
+    }));
+  }, [rawApis]);
+
+  const candidateNotes =
+    typeof design?.notes === "string" && design.notes.trim()
+      ? design.notes
+      : typeof design?.notes === "object" && design?.notes
+      ? Object.entries(design.notes)
+          .filter(([_, v]) => typeof v === "string" && (v as string).trim())
+          .map(([k, v]) => `### ${k.toUpperCase()}\n${v}`)
+          .join("\n\n")
+      : "";
+
+  const handleCopy = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
+
+  return (
+    <div className={`rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none overflow-hidden ${isExpanded ? "flex flex-col h-[740px]" : ""}`}>
+      {/* Studio Header & Tab Navigation */}
+      <div className="flex flex-wrap items-center justify-between border-b border-neutral-200 dark:border-white/10 px-4 py-2 bg-neutral-50/80 dark:bg-white/[0.02]">
+        <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab("canvas")}
+            className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-medium transition ${
+              activeTab === "canvas"
+                ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-sm"
+                : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+            }`}
+          >
+            <Network className="h-3.5 w-3.5 text-blue-500" />
+            <span>HLD Architecture</span>
+            <span className="rounded-full bg-neutral-200 dark:bg-white/10 px-1.5 py-0.2 text-[10px] font-mono text-neutral-600 dark:text-neutral-300">
+              {normalizedNodes.length} nodes
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("sequence")}
+            className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-medium transition ${
+              activeTab === "sequence"
+                ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-sm"
+                : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+            }`}
+          >
+            <Layers className="h-3.5 w-3.5 text-purple-500" />
+            <span>Sequence Diagram</span>
+            <span className="rounded-full bg-neutral-200 dark:bg-white/10 px-1.5 py-0.2 text-[10px] font-mono text-neutral-600 dark:text-neutral-300">
+              Mermaid
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("schema")}
+            className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-medium transition ${
+              activeTab === "schema"
+                ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-sm"
+                : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+            }`}
+          >
+            <Database className="h-3.5 w-3.5 text-emerald-500" />
+            <span>DB Schema</span>
+            <span className="rounded-full bg-neutral-200 dark:bg-white/10 px-1.5 py-0.2 text-[10px] font-mono text-neutral-600 dark:text-neutral-300">
+              DBML · {parsedTablesCount} tables
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("api")}
+            className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-medium transition ${
+              activeTab === "api"
+                ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-sm"
+                : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+            }`}
+          >
+            <FileCode className="h-3.5 w-3.5 text-amber-500" />
+            <span>REST APIs</span>
+            <span className="rounded-full bg-neutral-200 dark:bg-white/10 px-1.5 py-0.2 text-[10px] font-mono text-neutral-600 dark:text-neutral-300">
+              {normalizedApis.length} endpoints
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("notes")}
+            className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] font-medium transition ${
+              activeTab === "notes"
+                ? "bg-white dark:bg-white/10 text-neutral-900 dark:text-white shadow-sm"
+                : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+            }`}
+          >
+            <FileText className="h-3.5 w-3.5 text-neutral-500" />
+            <span>Architecture Notes</span>
+            <span className="rounded-full bg-neutral-200 dark:bg-white/10 px-1.5 py-0.2 text-[10px] font-mono text-neutral-600 dark:text-neutral-300">
+              Markdown
+            </span>
+          </button>
+        </div>
+
+        {/* Studio Actions */}
+        <div className="flex items-center gap-2 py-1">
+          {(activeTab === "sequence" || activeTab === "schema") && (
+            <div className="inline-flex rounded-lg border border-neutral-200 dark:border-white/10 p-0.5 bg-neutral-100 dark:bg-white/5">
+              <button
+                type="button"
+                onClick={() => setViewMode("visual")}
+                className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition ${
+                  viewMode === "visual"
+                    ? "bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-sm"
+                    : "text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
+                }`}
+              >
+                Visual Diagram
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("code")}
+                className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition ${
+                  viewMode === "code"
+                    ? "bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-sm"
+                    : "text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
+                }`}
+              >
+                Source Code
+              </button>
+            </div>
+          )}
+
+          {(activeTab === "sequence" || activeTab === "schema") && (
+            <button
+              type="button"
+              onClick={() => handleCopy(activeTab === "sequence" ? sequenceCode : schemaCode)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/5 px-2.5 py-1 text-[11px] text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-white/10 transition"
+            >
+              {copiedCode ? <Check className="h-3 w-3 text-emerald-500" /> : <CopyIcon className="h-3 w-3" />}
+              <span>{copiedCode ? "Copied" : "Copy Source"}</span>
+            </button>
+          )}
+
+          {onOpenStudio && !isExpanded && (
+            <button
+              type="button"
+              onClick={onOpenStudio}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/5 px-2.5 py-1 text-[11px] text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-white/10 transition"
+              title="Expand Studio to Full Screen"
+            >
+              <Maximize2 className="h-3 w-3" />
+              <span>Expand</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Studio Body */}
+      <div className={`relative ${isExpanded ? "flex-1 min-h-0" : "min-h-[560px]"}`}>
+        {/* Tab 1: HLD Architecture */}
+        {activeTab === "canvas" && (
+          <div className={`${isExpanded ? "h-full" : "h-[560px]"} w-full flex flex-col`}>
+            <div className="flex-1 w-full relative overflow-hidden bg-background">
+              <DiagramBoard
+                nodes={normalizedNodes}
+                edges={normalizedEdges}
+                readOnly={true}
+                emptyHint={
+                  <div>
+                    <Network className="h-8 w-8 mx-auto mb-2 text-muted-foreground/60" />
+                    <p className="font-medium text-foreground">No architecture components placed</p>
+                    <p className="mt-1 text-xs text-muted-foreground">The candidate did not place components on the canvas.</p>
+                  </div>
+                }
+              />
+            </div>
+            {normalizedNodes.length > 0 && (
+              <div className="border-t border-neutral-200 dark:border-white/10 bg-neutral-50/80 dark:bg-neutral-900/40 p-3">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500 mb-2">
+                  Architectural Topology Components ({normalizedNodes.length})
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {normalizedNodes.map((node, i) => (
+                    <div
+                      key={node.id || i}
+                      className="flex items-center gap-2 rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-neutral-800/80 px-2.5 py-1 text-[11px]"
+                    >
+                      <span className="text-neutral-400 font-mono">#{i + 1}</span>
+                      <span className="font-medium text-neutral-900 dark:text-white">{node.label}</span>
+                      {node.tag && (
+                        <span className="rounded bg-neutral-100 dark:bg-white/10 px-1 py-0.2 text-[9px] uppercase tracking-wider text-neutral-500">
+                          {node.tag}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 2: Sequence Diagrams */}
+        {activeTab === "sequence" && (
+          <div className={`${isExpanded ? "h-full" : "h-[560px]"} w-full flex flex-col`}>
+            {!sequenceCode.trim() ? (
+              <div className="grid h-full place-items-center p-12 text-center text-neutral-500">
+                <div>
+                  <Layers className="h-8 w-8 mx-auto mb-2 text-neutral-400 dark:text-neutral-600" />
+                  <p className="text-[14px] font-medium text-neutral-700 dark:text-neutral-300">No sequence diagrams provided</p>
+                  <p className="text-[12px] mt-1 text-neutral-400">The candidate did not submit any Mermaid sequence flow diagrams.</p>
+                </div>
+              </div>
+            ) : viewMode === "visual" ? (
+              <div className="flex-1 w-full overflow-auto bg-background p-6">
+                <MermaidPreview code={sequenceCode} />
+              </div>
+            ) : (
+              <div className="flex-1 w-full overflow-auto bg-neutral-900 p-4 font-mono text-[12px] text-neutral-200">
+                <pre className="whitespace-pre leading-relaxed">
+                  <code>{sequenceCode}</code>
+                </pre>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 3: Database Schema (DBML) */}
+        {activeTab === "schema" && (
+          <div className={`${isExpanded ? "h-full" : "h-[560px]"} w-full flex flex-col`}>
+            {!schemaCode.trim() ? (
+              <div className="grid h-full place-items-center p-12 text-center text-neutral-500">
+                <div>
+                  <Database className="h-8 w-8 mx-auto mb-2 text-neutral-400 dark:text-neutral-600" />
+                  <p className="text-[14px] font-medium text-neutral-700 dark:text-neutral-300">No database schema defined</p>
+                  <p className="text-[12px] mt-1 text-neutral-400">The candidate did not submit a DBML entity-relationship schema.</p>
+                </div>
+              </div>
+            ) : viewMode === "visual" ? (
+              <div className="flex-1 w-full relative overflow-hidden bg-background">
+                <ErdBoard src={schemaCode} />
+              </div>
+            ) : (
+              <div className="flex-1 w-full overflow-auto bg-neutral-900 p-4 font-mono text-[12px] text-neutral-200">
+                <pre className="whitespace-pre leading-relaxed">
+                  <code>{schemaCode}</code>
+                </pre>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 4: REST API Contracts */}
+        {activeTab === "api" && (
+          <div className={`${isExpanded ? "h-full" : "h-[560px]"} w-full overflow-y-auto p-4 bg-background`}>
+            {normalizedApis.length === 0 ? (
+              <div className="grid h-full place-items-center p-12 text-center text-neutral-500">
+                <div>
+                  <FileCode className="h-8 w-8 mx-auto mb-2 text-neutral-400 dark:text-neutral-600" />
+                  <p className="text-[14px] font-medium text-neutral-700 dark:text-neutral-300">No REST API contracts defined</p>
+                  <p className="text-[12px] mt-1 text-neutral-400">The candidate did not specify any HTTP API endpoints or request/response payloads.</p>
+                </div>
+              </div>
+            ) : (
+              <ApiDocs apis={normalizedApis} />
+            )}
+          </div>
+        )}
+
+        {/* Tab 5: Architecture Notes */}
+        {activeTab === "notes" && (
+          <div className={`${isExpanded ? "h-full" : "h-[560px]"} w-full overflow-y-auto p-6 bg-background`}>
+            {!candidateNotes.trim() ? (
+              <div className="grid h-full place-items-center p-12 text-center text-neutral-500">
+                <div>
+                  <FileText className="h-8 w-8 mx-auto mb-2 text-neutral-400 dark:text-neutral-600" />
+                  <p className="text-[14px] font-medium text-neutral-700 dark:text-neutral-300">No architecture notes written</p>
+                  <p className="text-[12px] mt-1 text-neutral-400">The candidate did not document architectural trade-offs or rationale.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="max-w-4xl mx-auto prose dark:prose-invert text-[13px] leading-relaxed">
+                <MarkdownPreview src={candidateNotes} />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function SystemDesignReportPane({
+  ev,
+  candidate,
+  sdMaxScore = 30,
+  onOpenStudio,
+}: {
+  ev: any;
+  candidate: any;
+  sdMaxScore?: number;
+  onOpenStudio?: (data: { challenge: any; userSub: any; candidate: any; sdMaxScore: number }) => void;
+}) {
+  const sdSections = ev?.sections?.filter(
+    (s: any) => s.kind === "system_design" || s.type === "SYSTEM_DESIGN"
+  ) || [];
+  const activeSection = sdSections[0];
+  const challenge =
+    activeSection?.challenges?.[0] ||
+    activeSection?.questions?.[0] ||
+    (candidate?.rawSubmission?.system_design_submissions?.[0]?.system_design_question) ||
+    {
+      title: "Distributed System Design Challenge",
+      description: "Candidate architecture submission for distributed system challenge.",
+      constraints: [
+        "High availability and fault tolerance guarantees",
+        "Sub-100ms response latency requirements",
+        "Horizontal scaling across multiple availability zones",
+      ],
+      tasks: [
+        { title: "HLD Architecture Canvas", marks: 10 },
+        { title: "Sequence Diagrams", marks: 8 },
+        { title: "Database Schema (DBML)", marks: 6 },
+        { title: "REST API Contracts", marks: 6 },
+      ],
+    };
+
+  const rawSubmissions: any[] = candidate?.rawSubmission?.system_design_submissions || [];
+  const userSub = rawSubmissions[0] || candidate?.rawSubmission?.system_design_submission || null;
+  const design = userSub?.design || {};
+
+  const canvasNodes = Array.isArray(design.nodes)
+    ? design.nodes
+    : Array.isArray(design.canvas?.nodes)
+    ? design.canvas.nodes
+    : [];
+
+  const sequenceCode =
+    typeof design.seq === "string" && design.seq.trim()
+      ? design.seq
+      : typeof design.sequence === "string" && design.sequence.trim()
+      ? design.sequence
+      : (design.sequence?.code || "");
+
+  const schemaCode =
+    typeof design.schema === "string" && design.schema.trim()
+      ? design.schema
+      : (design.schema?.code || "");
+
+  const parsedTablesCount = useMemo(() => {
+    if (!schemaCode.trim()) return 0;
+    try {
+      return parseDbml(schemaCode).tables?.length || 0;
+    } catch {
+      return 0;
+    }
+  }, [schemaCode]);
+
+  const rawApis = Array.isArray(design.apis)
+    ? design.apis
+    : Array.isArray(design.api)
+    ? design.api
+    : [];
+
+  const candidateNotes =
+    typeof design.notes === "string" && design.notes.trim()
+      ? design.notes
+      : typeof design.notes === "object" && design.notes
+      ? Object.entries(design.notes)
+          .filter(([_, v]) => typeof v === "string" && (v as string).trim())
+          .map(([k, v]) => `### ${k.toUpperCase()}\n${v}`)
+          .join("\n\n")
+      : "";
+
+  const hasAttempted = Boolean(
+    userSub && (
+      canvasNodes.length > 0 ||
+      Boolean(sequenceCode.trim()) ||
+      Boolean(schemaCode.trim()) ||
+      rawApis.length > 0 ||
+      Boolean(candidateNotes.trim())
+    )
+  );
+
+  const scoreEarned =
+    userSub?.score != null
+      ? Number(userSub.score)
+      : candidate.systemDesignScore != null
+      ? Number(candidate.systemDesignScore)
+      : 0;
+
+  const scorePct = sdMaxScore > 0 ? Math.round((scoreEarned / sdMaxScore) * 100) : 0;
+
+  const evaluationOutput = userSub?.solution_output || {};
+  const aiFeedback =
+    evaluationOutput.ai_feedback ||
+    (Array.isArray(evaluationOutput.summary) ? evaluationOutput.summary.join(" ") : null) ||
+    (!hasAttempted
+      ? "The candidate did not submit an architectural design or solutions for this section."
+      : "System design submission recorded and reviewed.");
+
+  const rawTasks = Array.isArray(evaluationOutput.tasks) ? evaluationOutput.tasks : [];
+  const rawBreakdown = Array.isArray(evaluationOutput.breakdown) ? evaluationOutput.breakdown : [];
+
+  const breakdown =
+    rawBreakdown.length > 0
+      ? rawBreakdown
+      : rawTasks.length > 0
+      ? rawTasks.map((t: any) => ({
+          task: t.title || t.id,
+          score: t.score ?? 0,
+          max_score: t.max_score ?? 0,
+          feedback: t.feedback || "",
+        }))
+      : (challenge.tasks || []).map((t: any) => ({
+          task: t.title || t.description || "Task",
+          score: hasAttempted ? Math.round((t.marks || 10) * (scorePct / 100)) : 0,
+          max_score: t.marks || 10,
+          feedback: hasAttempted ? "" : "Not attempted.",
+        }));
+
+  const timeTakenDisplay = typeof userSub?.time_taken === "string"
+    ? userSub.time_taken
+    : typeof userSub?.time_taken === "number"
+    ? formatDurationSecs(userSub.time_taken)
+    : userSub?.started_at && userSub?.submitted_at
+    ? formatDurationSecs(Math.round((new Date(userSub.submitted_at).getTime() - new Date(userSub.started_at).getTime()) / 1000))
+    : null;
+
+  return (
+    <div className="space-y-4">
+      {/* Top Header matching LabsPane */}
+      <div className="flex items-center justify-between">
+        <SectionHeading>System Design</SectionHeading>
+        <span className="text-[12px] font-medium text-emerald-400 font-mono">
+          Section Score: {scoreEarned}/{sdMaxScore}
+        </span>
+      </div>
+
+      {/* Summary Metrics Bar matching LabsPane */}
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-5 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-[12px]">
+          <div className="flex items-center gap-4 text-neutral-600 dark:text-neutral-300">
+            <span>
+              HLD Nodes: <strong className="text-neutral-900 dark:text-white">{canvasNodes.length}</strong>
+            </span>
+            <span>
+              Sequence Diagram: <strong className="text-neutral-900 dark:text-white">{sequenceCode.trim() ? "Provided" : "None"}</strong>
+            </span>
+            <span>
+              DB Tables: <strong className="text-neutral-900 dark:text-white">{parsedTablesCount}</strong>
+            </span>
+            <span>
+              REST APIs: <strong className="text-neutral-900 dark:text-white">{rawApis.length}</strong>
+            </span>
+            {timeTakenDisplay && (
+              <span>
+                Time: <strong className="text-neutral-900 dark:text-white">{timeTakenDisplay}</strong>
+              </span>
+            )}
+          </div>
+          {scoreEarned > 0 && (
+            <span className="text-emerald-400 text-[11px]">
+              ✓ {scorePct >= 75 ? "Production-grade distributed design" : "System design evaluation complete"}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Challenge Card matching Labs card style */}
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 grid h-9 w-9 place-items-center rounded-lg border border-neutral-200 dark:border-white/10 text-[11px] font-mono font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-50 dark:bg-white/5">
+              SD
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[15px] font-semibold text-neutral-900 dark:text-white">
+                  {challenge.title}
+                </span>
+                {challenge.difficulty && (
+                  <span className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+                    {challenge.difficulty}
+                  </span>
+                )}
+                {challenge.domain && (
+                  <span className="rounded bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400">
+                    {challenge.domain}
+                  </span>
+                )}
+              </div>
+              <div className="mt-0.5 text-[12px] text-neutral-500">
+                {challenge.domain || "Distributed Systems"} · {timeTakenDisplay || `${challenge.duration_minutes || 45}m allowed`}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className={`text-[24px] font-semibold leading-none ${eciColor(scorePct)}`}>
+                {scorePct}
+                <span className="text-[12px] text-neutral-500">%</span>
+              </div>
+              <div className="mt-1 text-[11px] text-neutral-400 font-mono">
+                {scoreEarned}/{sdMaxScore} marks
+              </div>
+            </div>
+            {onOpenStudio && (
+              <button
+                type="button"
+                onClick={() => onOpenStudio({ challenge, userSub, candidate, sdMaxScore })}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-white/10 bg-neutral-100 dark:bg-white/5 px-3 py-1.5 text-[12px] font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-white/10 transition"
+                title="Open Full System Design Studio"
+              >
+                <Maximize2 className="h-3.5 w-3.5" />
+                <span>Open Full Studio</span>
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+          <div
+            className={`h-full ${scorePct >= 70 ? "bg-emerald-400" : scorePct >= 55 ? "bg-amber-400" : "bg-red-400"}`}
+            style={{ width: `${scorePct}%` }}
+          />
+        </div>
+        {challenge.description && (
+          <p className="mt-3 text-[12.5px] text-neutral-600 dark:text-neutral-400 leading-relaxed">
+            {challenge.description}
+          </p>
+        )}
+      </div>
+
+      {/* AI Architectural Evaluation */}
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none p-5 space-y-4">
+        <div className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+          <Sparkles className="h-4 w-4" /> AI Architectural Evaluation
+        </div>
+        <p className="text-[13px] text-neutral-700 dark:text-neutral-300 leading-relaxed">
+          {aiFeedback}
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+          {breakdown.map((item: any, idx: number) => {
+            const pct = item.max_score > 0 ? Math.round((item.score / item.max_score) * 100) : 100;
+            return (
+              <div
+                key={idx}
+                className="rounded-xl border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/[0.02] p-3.5"
+              >
+                <div className="flex items-center justify-between text-[12px] font-medium">
+                  <span className="text-neutral-900 dark:text-white">{item.task}</span>
+                  <span className="font-mono text-neutral-500 dark:text-neutral-400">
+                    {item.score} / {item.max_score}m
+                  </span>
+                </div>
+                <div className="mt-2 h-1.5 w-full rounded-full bg-neutral-200 dark:bg-white/5 overflow-hidden">
+                  <div
+                    className={`h-full ${item.score >= item.max_score ? "bg-emerald-400" : item.score > 0 ? "bg-blue-400" : "bg-neutral-400/40"}`}
+                    style={{ width: `${Math.min(100, pct)}%` }}
+                  />
+                </div>
+                {item.feedback && (
+                  <p className="mt-2 text-[11px] text-neutral-500 leading-normal">{item.feedback}</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* The System Design Studio Viewer */}
+      <div className="space-y-2 pt-2">
+        <div className="flex items-center justify-between px-1">
+          <SectionHeading>Candidate System Design Studio Deliverables</SectionHeading>
+          <span className="text-[11px] text-neutral-500">Interactive Visual Architecture</span>
+        </div>
+        <SystemDesignStudioViewer
+          design={design}
+          onOpenStudio={onOpenStudio ? () => onOpenStudio({ challenge, userSub, candidate, sdMaxScore }) : undefined}
+        />
+      </div>
+    </div>
+  );
+}
+
+export function SystemDesignDrawer({
+  data,
+  onClose,
+}: {
+  data: { challenge: any; userSub: any; candidate: any; sdMaxScore: number };
+  onClose: () => void;
+}) {
+  const { challenge, userSub, candidate, sdMaxScore } = data;
+  const design = userSub?.design || {};
+  const scoreEarned =
+    userSub?.score != null
+      ? Number(userSub.score)
+      : candidate?.systemDesignScore != null
+      ? Number(candidate.systemDesignScore)
+      : 0;
+  const scorePct = sdMaxScore > 0 ? Math.round((scoreEarned / sdMaxScore) * 100) : 0;
+  const evaluationOutput = userSub?.solution_output || {};
+  const aiFeedback =
+    evaluationOutput.ai_feedback ||
+    (Array.isArray(evaluationOutput.summary) ? evaluationOutput.summary.join(" ") : null) ||
+    "System design submission recorded.";
+
+  const timeTaken = typeof userSub?.time_taken === "string"
+    ? userSub.time_taken
+    : typeof userSub?.time_taken === "number"
+    ? formatDurationSecs(userSub.time_taken)
+    : userSub?.started_at && userSub?.submitted_at
+    ? formatDurationSecs(Math.round((new Date(userSub.submitted_at).getTime() - new Date(userSub.started_at).getTime()) / 1000))
+    : `${challenge?.duration_minutes || 45}m allowed`;
+
+  const rawTasks = Array.isArray(evaluationOutput.tasks) ? evaluationOutput.tasks : [];
+  const rawBreakdown = Array.isArray(evaluationOutput.breakdown) ? evaluationOutput.breakdown : [];
+  const breakdown =
+    rawBreakdown.length > 0
+      ? rawBreakdown
+      : rawTasks.length > 0
+      ? rawTasks.map((t: any) => ({
+          task: t.title || t.id,
+          score: t.score ?? 0,
+          max_score: t.max_score ?? 0,
+          feedback: t.feedback || "",
+        }))
+      : (challenge.tasks || []).map((t: any) => ({
+          task: t.title || t.description || "Task",
+          score: Math.round((t.marks || 10) * (scorePct / 100)),
+          max_score: t.marks || 10,
+          feedback: "",
+        }));
+
+  const canvasNodes = Array.isArray(design.nodes)
+    ? design.nodes
+    : Array.isArray(design.canvas?.nodes)
+    ? design.canvas.nodes
+    : [];
+
+  const schemaCode =
+    typeof design.schema === "string" && design.schema.trim()
+      ? design.schema
+      : (design.schema?.code || "");
+
+  const parsedTablesCount = useMemo(() => {
+    if (!schemaCode.trim()) return 0;
+    try {
+      return parseDbml(schemaCode).tables?.length || 0;
+    } catch {
+      return 0;
+    }
+  }, [schemaCode]);
+
+  const rawApis = Array.isArray(design.apis)
+    ? design.apis
+    : Array.isArray(design.api)
+    ? design.api
+    : [];
+
+  return (
+    <div className="fixed inset-0 z-50 h-full w-full overflow-y-auto bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+      {/* Sticky top bar matching LabDrawer */}
+      <div className="sticky top-0 z-10 border-b border-neutral-200 dark:border-white/10 bg-white/95 dark:bg-neutral-950/95 px-6 py-4 backdrop-blur shadow-sm">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-[11px] font-mono uppercase tracking-widest text-neutral-500">
+              {challenge.domain || "Distributed Systems"} · System Design Studio
+            </div>
+            <div className="mt-1 text-[20px] font-semibold text-neutral-900 dark:text-white">
+              {challenge.title}
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className={`text-[26px] font-semibold leading-none ${eciColor(scorePct)}`}>
+                {scorePct}
+                <span className="text-[12px] text-neutral-500">%</span>
+              </div>
+              <div className="mt-1 text-[11px] font-mono text-neutral-500">
+                {scoreEarned}/{sdMaxScore} marks
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="rounded-lg border border-neutral-200 dark:border-white/10 p-2 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-white transition"
+              title="Close"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-6 px-6 py-6 max-w-7xl mx-auto">
+        {/* Problem Statement */}
+        {challenge.description && (
+          <Block title="Problem statement">
+            <p className="text-[13px] leading-relaxed text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap">
+              {challenge.description}
+            </p>
+          </Block>
+        )}
+
+        {/* Quick stats metrics */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <StatMini
+            label="Time Taken"
+            value={timeTaken}
+            sub={challenge.duration_minutes ? `of ${challenge.duration_minutes}m` : undefined}
+          />
+          <StatMini
+            label="HLD Components"
+            value={String(canvasNodes.length)}
+            sub={canvasNodes.length === 1 ? "1 node placed" : `${canvasNodes.length} nodes placed`}
+          />
+          <StatMini
+            label="DB Tables (DBML)"
+            value={String(parsedTablesCount)}
+            sub={parsedTablesCount === 1 ? "1 table modeled" : `${parsedTablesCount} tables modeled`}
+          />
+          <StatMini
+            label="REST Endpoints"
+            value={String(rawApis.length)}
+            sub={rawApis.length === 1 ? "1 endpoint defined" : `${rawApis.length} endpoints defined`}
+          />
+        </div>
+
+        {/* AI Review & Feedback */}
+        <Block title="AI Architectural Review & Rubric" icon={<Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />}>
+          <div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50/70 dark:bg-white/[0.02] p-4 space-y-3">
+            <p className="text-[13px] text-neutral-700 dark:text-neutral-300 leading-relaxed">
+              {aiFeedback}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+              {breakdown.map((item: any, idx: number) => {
+                const pct = item.max_score > 0 ? Math.round((item.score / item.max_score) * 100) : 100;
+                return (
+                  <div key={idx} className="rounded-lg border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/[0.02] p-3">
+                    <div className="flex items-center justify-between text-[12px] font-medium">
+                      <span>{item.task}</span>
+                      <span className="font-mono text-neutral-500">
+                        {item.score} / {item.max_score}m
+                      </span>
+                    </div>
+                    <div className="mt-2 h-1.5 w-full rounded-full bg-neutral-200 dark:bg-white/5 overflow-hidden">
+                      <div
+                        className={`h-full ${item.score >= item.max_score ? "bg-emerald-400" : item.score > 0 ? "bg-blue-400" : "bg-neutral-400/40"}`}
+                        style={{ width: `${Math.min(100, pct)}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Block>
+
+        {/* The System Design Studio */}
+        <Block title="Candidate System Design Studio Deliverables" icon={<Network className="h-3.5 w-3.5 text-blue-500" />}>
+          <SystemDesignStudioViewer design={design} isExpanded={true} />
+        </Block>
+
+        {/* Final Score Card */}
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 dark:border-emerald-500/20 dark:bg-emerald-500/10 p-4 text-center">
+          <div className="text-[10px] uppercase tracking-widest text-emerald-700 dark:text-emerald-400 font-semibold">
+            Final System Design Score
+          </div>
+          <div className={`mt-1 text-[36px] font-semibold ${eciColor(scorePct)}`}>
+            {scoreEarned}
+            <span className="text-[16px] text-neutral-500">/{sdMaxScore} marks</span>
+            <span className="ml-2 text-[14px] text-neutral-500">({scorePct}%)</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -4335,9 +5261,11 @@ export function tabLabel(t: Tab) {
       ? "Knowledge Assessment"
       : t === "vitarka"
         ? "Vitarka Discussion"
-        : t === "proctoring"
-          ? "Proctoring Analytics"
-          : t[0].toUpperCase() + t.slice(1);
+        : t === "system_design"
+          ? "System Design"
+          : t === "proctoring"
+            ? "Proctoring Analytics"
+            : t[0].toUpperCase() + t.slice(1);
 }
 function eciColor(v: number) {
   return v >= 70 ? "text-emerald-300" : v >= 55 ? "text-amber-300" : "text-red-300";

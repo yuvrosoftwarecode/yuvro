@@ -1,0 +1,138 @@
+{
+  "system_design_questions": [
+    {
+      "title": "URL Shortener System Design",
+      "description": "Design a high-scale, low-latency URL shortener service like Bitly or TinyURL. The system must support generating unique short codes, instant redirects with sub-50ms p99 latency, caching layer, and analytical click tracking.",
+      "difficulty": "MEDIUM",
+      "domain": "OTHER",
+      "experience": "MID_LEVEL",
+      "duration_minutes": 45,
+      "marks": 30,
+      "system_slug": "systemdesign-url-shortener",
+      "scenario_type": "Distributed System",
+      "constraints": [
+        "100M new URLs shortened per month",
+        "Read to write ratio of 100:1 (4,000 reads/sec, 40 writes/sec)",
+        "Redirect latency p99 < 50ms",
+        "URLs must be active for 5 years by default"
+      ],
+      "tasks": [
+        {
+          "id": "sd_task_1",
+          "title": "Add core architectural components",
+          "description": "Place API Gateway / Load Balancer, URL Service, relational database, Redis cache, and analytics worker on the canvas.",
+          "marks": 8
+        },
+        {
+          "id": "sd_task_2",
+          "title": "Connect request routing & cache-aside flow",
+          "description": "Route client requests through the gateway/balancer to the URL service, and configure cache read-aside in front of PostgreSQL.",
+          "marks": 8
+        },
+        {
+          "id": "sd_task_3",
+          "title": "Model database schema & indexing",
+          "description": "Define DBML schema for URLs table with unique short_code index, original_url, user_id, and click_count.",
+          "marks": 7
+        },
+        {
+          "id": "sd_task_4",
+          "title": "Define REST API contracts & architecture notes",
+          "description": "Specify POST /api/v1/urls (create short link) and GET /{short_code} (redirect), and document caching trade-offs in notes.",
+          "marks": 7
+        }
+      ],
+      "databases": ["POSTGRESQL", "REDIS"],
+      "backend_frameworks": ["NODEJS", "FASTAPI"]
+    },
+    {
+      "title": "E-Commerce Checkout & Order Architecture",
+      "description": "Design an e-commerce checkout and order processing platform. The platform must prevent overselling and race conditions on high-demand flash sales, support idempotent order placements, and decouple payment processing via message queues.",
+      "difficulty": "HARD",
+      "domain": "RETAIL",
+      "experience": "SENIOR",
+      "duration_minutes": 45,
+      "marks": 30,
+      "system_slug": "systemdesign",
+      "scenario_type": "Distributed System",
+      "constraints": [
+        "Peak traffic: 50,000 concurrent checkout attempts per second during flash sales",
+        "Zero inventory overselling guarantee",
+        "Idempotent payment capture with third-party payment gateways",
+        "Asynchronous email/SMS confirmation notifications"
+      ],
+      "tasks": [
+        {
+          "id": "sd_task_1",
+          "title": "Decouple services with message queue & worker tiers",
+          "description": "Place API Gateway, Order Service, Inventory Service, Message Queue (Kafka/RabbitMQ), and asynchronous Payment Worker.",
+          "marks": 8
+        },
+        {
+          "id": "sd_task_2",
+          "title": "Configure inventory reservation & data isolation",
+          "description": "Route checkout transactions through Redis distributed locks or ACID transactional database to prevent double allocation.",
+          "marks": 8
+        },
+        {
+          "id": "sd_task_3",
+          "title": "Design schema for Orders, Order Items & Payments",
+          "description": "Define DBML tables for orders, order_items, and payments with foreign keys and status tracking.",
+          "marks": 7
+        },
+        {
+          "id": "sd_task_4",
+          "title": "Define idempotent order creation API & trade-offs",
+          "description": "Define POST /api/v1/orders contract with idempotency-key header, and document distributed transaction trade-offs in architecture notes.",
+          "marks": 7
+        }
+      ],
+      "databases": ["POSTGRESQL", "REDIS"],
+      "backend_frameworks": ["SPRING_BOOT", "DJANGO"]
+    },
+    {
+      "title": "Ticket Booking & Seat Hold System",
+      "description": "Design a high-concurrency event seat reservation platform like BookMyShow or Ticketmaster. Support real-time seat availability maps, temporary 10-minute seat holds during checkout, and automatic hold expiration using TTL caching.",
+      "difficulty": "HARD",
+      "domain": "OTHER",
+      "experience": "SENIOR",
+      "duration_minutes": 45,
+      "marks": 30,
+      "system_slug": "systemdesign-bookmysystem",
+      "scenario_type": "Distributed System",
+      "constraints": [
+        "100,000 users attempting to reserve seats in the first 60 seconds of ticket drop",
+        "Temporary hold lasts strictly 10 minutes before releasing back to available pool",
+        "Prevent duplicate bookings for the exact same seat across concurrent requests"
+      ],
+      "tasks": [
+        {
+          "id": "sd_task_1",
+          "title": "Place core booking & seat reservation components",
+          "description": "Place Client, Load Balancer, Booking Service, Redis Cache with TTL, Relational DB, and Background Expiry Worker.",
+          "marks": 8
+        },
+        {
+          "id": "sd_task_2",
+          "title": "Sequence flow for temporary seat hold & payment expiry",
+          "description": "Model Mermaid sequence diagram detailing client hold request, atomic Redis seat lock, checkout redirect, and timeout release.",
+          "marks": 8
+        },
+        {
+          "id": "sd_task_3",
+          "title": "Data model for Events, Shows, Seats, and Bookings",
+          "description": "Define DBML schema with seats (event_id, row, seat_number, status) and bookings with hold expiry timestamps.",
+          "marks": 7
+        },
+        {
+          "id": "sd_task_4",
+          "title": "API contracts for seat hold & reservation confirmation",
+          "description": "Define GET /api/v1/events/{id}/seats and POST /api/v1/bookings/hold, and document high-concurrency consistency trade-offs.",
+          "marks": 7
+        }
+      ],
+      "databases": ["POSTGRESQL", "REDIS"],
+      "backend_frameworks": ["NODEJS", "FASTAPI"]
+    }
+  ]
+}

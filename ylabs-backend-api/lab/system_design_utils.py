@@ -142,6 +142,51 @@ KNOWN_COMPONENTS = [
 ]
 
 
+def is_design_empty(design):
+    if not isinstance(design, dict):
+        return True
+    nodes = design.get("nodes") or []
+    edges = design.get("edges") or []
+    seq = (design.get("seq") or "").strip()
+    schema = (design.get("schema") or "").strip()
+    apis = design.get("apis") or []
+    notes = design.get("notes") or {}
+    notes_str = " ".join(notes.values()) if isinstance(notes, dict) else str(notes)
+
+    # Check if anything meaningful was added, ignoring commented placeholder lines
+    cleaned_seq = "\n".join([line for line in seq.splitlines() if not line.strip().startswith("//") and line.strip()])
+    cleaned_schema = "\n".join([line for line in schema.splitlines() if not line.strip().startswith("//") and line.strip()])
+    has_real_seq = bool(cleaned_seq and len(cleaned_seq) > 15)
+    has_real_schema = bool(cleaned_schema and len(cleaned_schema) > 15)
+    dummy_notes_snippets = [
+        "component decoupling and tier isolation",
+        "critical write/read paths and error responses",
+        "primary keys, foreign key relations, and indexing strategy",
+        "rest conventions, payload structure, and idempotency",
+    ]
+    notes_lower = notes_str.lower()
+    has_dummy_notes = any(snippet in notes_lower for snippet in dummy_notes_snippets)
+    has_real_notes = bool(notes_str.strip() and len(notes_str.strip()) > 10 and not has_dummy_notes)
+
+    # Detect legacy boilerplate dummy nodes/apis/schema/seq
+    is_dummy_nodes = (
+        len(nodes) == 4
+        and {n.get("id") for n in nodes if isinstance(n, dict)} == {"client", "gateway", "service", "db"}
+        and {e.get("id") for e in edges if isinstance(e, dict)} == {"client-gateway", "gateway-service", "service-db"}
+    )
+    is_dummy_schema = "table items" in schema.lower() and "table users" in schema.lower()
+    is_dummy_apis = len(apis) == 2 and {a.get("id") for a in apis if isinstance(a, dict)} == {"api_1", "api_2"}
+    is_dummy_seq = "user as user / client" in seq.lower() and "gw as api gateway" in seq.lower()
+
+    if len(nodes) == 0 and len(edges) == 0 and not has_real_seq and not has_real_schema and len(apis) == 0 and not has_real_notes:
+        return True
+
+    if (is_dummy_nodes or len(nodes) == 0) and (is_dummy_schema or not has_real_schema) and (is_dummy_apis or len(apis) == 0) and (is_dummy_seq or not has_real_seq) and not has_real_notes:
+        return True
+
+    return False
+
+
 def evaluate_system_design(ticket_data, user_design):
     """
     Evaluates a student's system design against a ticket's tasks and requirements.
@@ -174,10 +219,42 @@ def evaluate_system_design(ticket_data, user_design):
             "Document key architectural decisions, trade-offs, or schemas.",
         ]
 
-    task_evaluations = []
     total_tasks = len(tasks)
     max_per_task = round(100.0 / total_tasks) if total_tasks > 0 else 25
 
+    if is_design_empty(design):
+        task_evaluations = [
+            {
+                "id": f"task_{idx + 1}",
+                "title": t if isinstance(t, str) else (t.get("title") or t.get("description") or f"Task {idx + 1}"),
+                "passed": False,
+                "score": 0,
+                "max_score": t.get("marks", max_per_task) if isinstance(t, dict) else max_per_task,
+                "feedback": "Not attempted. No architectural components or solution deliverables submitted.",
+            }
+            for idx, t in enumerate(tasks)
+        ]
+        return {
+            "total_score": 0,
+            "max_possible_score": 100,
+            "percentage": 0,
+            "passed_count": 0,
+            "total_count": len(tasks),
+            "status": "not_attempted",
+            "tasks": task_evaluations,
+            "summary": ["Not attempted: Candidate did not provide an architectural design."],
+            "ai_feedback": "The candidate did not submit an architectural design or solutions for this section.",
+            "metrics": {
+                "node_count": len(nodes),
+                "edge_count": len(edges),
+                "has_sequence": False,
+                "has_schema": False,
+                "api_count": len(apis),
+                "has_notes": False,
+            }
+        }
+
+    task_evaluations = []
     for idx, t in enumerate(tasks):
         t_title = t if isinstance(t, str) else (t.get("title") or t.get("description") or f"Task {idx + 1}")
         t_marks = t.get("marks", max_per_task) if isinstance(t, dict) else max_per_task
@@ -400,6 +477,8 @@ def evaluate_system_design_with_ai(ticket, user_design, user=None):
     Falls back gracefully to deterministic rule-based evaluation if YHub is unreachable.
     """
     clean_design = normalize_system_design(user_design)
+    if is_design_empty(clean_design):
+        return evaluate_system_design(ticket, clean_design)
 
     try:
         from django.conf import settings

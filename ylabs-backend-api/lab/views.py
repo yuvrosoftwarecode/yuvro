@@ -975,6 +975,109 @@ def student_stats_view(request):
     })
 
 
+@api_view(["GET"])
+@permission_classes([])
+def public_milestone_view(request, slug, user_id):
+    """
+    Public milestone showcase endpoint for LinkedIn viewers.
+    No auth required. Returns verified details of student's achievement.
+    """
+    try:
+        lab = Lab.objects.get(slug=slug)
+    except Lab.DoesNotExist:
+        return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    from django.contrib.auth import get_user_model
+    UserModel = get_user_model()
+    try:
+        student = UserModel.objects.get(id=user_id)
+    except (UserModel.DoesNotExist, ValueError):
+        return Response({"error": "Student not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Gather lab sprints and tickets
+    sprints = lab.sprints.all().prefetch_related("tasks")
+    all_ticket_ids = [t.id for s in sprints for t in s.tasks.all()]
+
+    submissions = UserLabSprintTicketSubmission.objects.filter(
+        user=student,
+        lab_sprint_ticket_id__in=all_ticket_ids
+    ).select_related("lab_sprint_ticket")
+
+    sub_map = {str(s.lab_sprint_ticket_id): s for s in submissions}
+
+    completed_tickets_count = 0
+    total_earned_yp = 0
+    total_max_yp = 0
+
+    sprint_data = []
+    for s in sprints:
+        s_tasks = s.tasks.all()
+        s_completed = 0
+        s_score_sum = 0
+        for t in s_tasks:
+            total_max_yp += t.yuvro_points
+            sub = sub_map.get(str(t.id))
+            if sub and sub.ticket_status == TicketProgressStatus.DONE:
+                s_completed += 1
+                completed_tickets_count += 1
+                earned = sub.yuvro_points if sub.yuvro_points is not None else t.yuvro_points
+                total_earned_yp += earned
+                test_score = 100
+                if sub.solution_output:
+                    try:
+                        import json
+                        parsed = json.loads(sub.solution_output) if isinstance(sub.solution_output, str) else sub.solution_output
+                        test_score = parsed.get("percentage") or parsed.get("total_score") or 100
+                    except Exception:
+                        test_score = 100
+                s_score_sum += test_score
+            elif sub and sub.ticket_status == TicketProgressStatus.IN_REVIEW:
+                s_completed += 1
+                s_score_sum += 75
+
+        s_pct = round(s_score_sum / len(s_tasks)) if s_tasks else 0
+        sprint_data.append({
+            "id": str(s.id),
+            "name": s.title,
+            "tickets_total": len(s_tasks),
+            "tickets_completed": s_completed,
+            "is_completed": s_completed == len(s_tasks) and len(s_tasks) > 0,
+            "score": s_pct,
+        })
+
+    total_tickets = len(all_ticket_ids)
+    overall_progress = round((completed_tickets_count / total_tickets) * 100) if total_tickets else 0
+
+    first_name = student.first_name or ""
+    last_name = student.last_name or ""
+    display_name = f"{first_name} {last_name}".strip() or student.username
+
+    return Response({
+        "student": {
+            "name": display_name,
+            "username": student.username,
+            "profile_image": getattr(student, "profile_image", None),
+        },
+        "lab": {
+            "id": str(lab.id),
+            "slug": lab.slug,
+            "title": lab.title,
+            "description": lab.description,
+            "difficulty": lab.difficulty,
+            "language": lab.language,
+            "tags": lab.tags,
+            "total_sprints": len(sprints),
+            "total_tickets": total_tickets,
+        },
+        "achievement": {
+            "completed_tickets": completed_tickets_count,
+            "total_tickets": total_tickets,
+            "overall_progress": overall_progress,
+            "earned_yp": total_earned_yp,
+            "max_yp": total_max_yp,
+            "sprints": sprint_data,
+        }
+    })
 class SystemDesignViewSet(viewsets.ModelViewSet):
     serializer_class = SystemDesignSerializer
     permission_classes = [IsAuthenticated]
