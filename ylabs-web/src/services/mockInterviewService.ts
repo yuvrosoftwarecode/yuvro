@@ -155,6 +155,8 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("python") && !titleLower.includes("machine learning")) {
     category = "Backend";
   } else if (
+    titleLower.includes("ai engineer") ||
+    titleLower.includes("artificial intelligence") ||
     titleLower.includes("machine learning") ||
     titleLower.includes("deep learning") ||
     skills.includes("machine learning") ||
