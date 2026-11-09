@@ -131,6 +131,21 @@ class GithubConnection(models.Model):
     def __str__(self):
         return f"{self.user.email} -> {self.github_username}"
 
+class LinkedInConnection(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="linkedin_connection")
+    linkedin_sub = models.CharField(max_length=150, help_text="LinkedIn Member ID / URN sub")
+    linkedin_name = models.CharField(max_length=255, blank=True)
+    linkedin_email = models.EmailField(blank=True, null=True)
+    access_token = models.CharField(max_length=3000, help_text="Encrypted or base64 LinkedIn Access Token")
+    scopes = models.CharField(max_length=255, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    connected_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.email} -> LinkedIn ({self.linkedin_name or self.linkedin_sub})"
+
 class RegistrationOTP(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField()

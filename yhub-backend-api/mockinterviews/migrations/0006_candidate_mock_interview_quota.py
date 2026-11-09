@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("payment", "0001_initial"),
-        ("mockinterviews", "0006_add_nodejs_mock_interview"),
+        ("mockinterviews", "0005_mockinterview_products"),
     ]
 
     operations = [

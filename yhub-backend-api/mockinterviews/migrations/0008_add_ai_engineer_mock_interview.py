@@ -2,7 +2,7 @@ from django.db import migrations
 from django.conf import settings
 
 
-def add_nodejs_interview(apps, schema_editor):
+def add_ai_engineer_interview(apps, schema_editor):
     user_model_str = getattr(settings, "AUTH_USER_MODEL", "authentication.User")
     app_label, model_name = user_model_str.split(".")
     User = apps.get_model(app_label, model_name)
@@ -13,50 +13,49 @@ def add_nodejs_interview(apps, schema_editor):
         return
 
     MockInterview.objects.update_or_create(
-        title="Node.js Development (Automatic)",
+        title="AI Engineer",
         defaults={
-            "description": "Adaptive AI-powered dynamic Node.js technical interview. Evaluates asynchronous programming, event loop mechanics, Express/Nest frameworks, REST APIs, and backend scalability in real-time.",
+            "description": "Comprehensive adaptive technical interview assessing artificial intelligence fundamentals, machine learning architectures, deep learning, LLMs, prompt engineering, RAG pipelines, and vector databases.",
             "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
             "max_duration": 30,
             "interview_mode": "automatic",
             "products": ["ylabs", "ycode", "ycampus"],
             "required_skills": [
-                "Node.js",
-                "JavaScript",
-                "Event Loop & Asynchronous Architecture",
-                "Express.js",
-                "RESTful APIs",
-                "Backend Engineering"
+                "Machine Learning",
+                "Deep Learning",
+                "Large Language Models (LLMs)",
+                "Retrieval-Augmented Generation (RAG)",
+                "Prompt Engineering",
+                "Vector Databases",
+                "Python",
+                "PyTorch / TensorFlow",
             ],
             "optional_skills": [
-                "NestJS",
-                "Fastify",
-                "MongoDB",
-                "PostgreSQL",
-                "Redis",
-                "Streams & Buffers",
-                "Docker",
-                "Authentication (JWT/OAuth)",
-                "Jest & Supertest"
+                "LangChain & LlamaIndex",
+                "Fine-Tuning (LoRA / QLoRA)",
+                "Hugging Face",
+                "Model Evaluation & Guardrails",
+                "MLOps & Model Deployment",
+                "Embeddings & Semantic Search",
             ],
             "publish_status": "active",
             "created_by": user,
-        }
+        },
     )
 
 
-def remove_nodejs_interview(apps, schema_editor):
+def remove_ai_engineer_interview(apps, schema_editor):
     MockInterview = apps.get_model("mockinterviews", "MockInterview")
-    MockInterview.objects.filter(title="Node.js Development (Automatic)").delete()
+    MockInterview.objects.filter(title="AI Engineer").delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ("mockinterviews", "0005_mockinterview_products"),
+        ("mockinterviews", "0007_candidate_mock_interview_quota"),
     ]
 
     operations = [
-        migrations.RunPython(add_nodejs_interview, remove_nodejs_interview),
+        migrations.RunPython(add_ai_engineer_interview, remove_ai_engineer_interview),
     ]
