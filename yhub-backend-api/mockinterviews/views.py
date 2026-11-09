@@ -1198,6 +1198,8 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                         "Security, Access Control & MongoDB Atlas"
                     ]
                     for mt in mongo_core_topics:
+                        if mt not in all_skills:
+                            all_skills.append(mt)
                 elif "ai" in mock_interview.title.lower() or "machine learning" in mock_interview.title.lower():
                     ai_core_topics = [
                         "Machine Learning Fundamentals & Optimization",
