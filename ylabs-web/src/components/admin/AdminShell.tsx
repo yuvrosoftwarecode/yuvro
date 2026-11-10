@@ -28,6 +28,7 @@ const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[
     items: [
       { to: "/admin/labs", label: "Labs", icon: FlaskConical },
       { to: "/admin/questions", label: "Question Bank", icon: Database },
+      { to: "/admin/research", label: "AI Research Papers", icon: Sparkles },
     ],
   },
 ];
@@ -239,10 +240,12 @@ export function AdminShell({
             </button>
             <div className="flex items-center gap-2 text-sm">
               <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-ui text-primary-foreground text-xs font-semibold">
-                {user?.name?.[0] ?? "A"}
+                {((user as any)?.name?.[0] || (user as any)?.first_name?.[0] || user?.username?.[0] || "A").toUpperCase()}
               </div>
               <div className="hidden sm:block">
-                <div className="text-xs font-medium leading-tight">{user?.name ?? "Admin"}</div>
+                <div className="text-xs font-medium leading-tight">
+                  {(user as any)?.name || (user as any)?.first_name || user?.username || "Admin"}
+                </div>
                 <div className="text-[10px] text-muted-foreground">Platform Admin</div>
               </div>
             </div>

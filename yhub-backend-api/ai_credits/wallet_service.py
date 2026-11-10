@@ -879,3 +879,87 @@ class WalletService:
                 f"Deficit reconciliation complete: Wallet {wallet.id}, {resolve_amount:,} credits resolved by {admin_user.email}. Remaining deficit: {wallet.uncollected_deficit:,}"
             )
             return resolution, wallet
+
+    @classmethod
+    def deduct_credits(
+        cls,
+        user,
+        amount: int = 1,
+        description: str = "AI research paper summary",
+        idempotency_key: Optional[str] = None,
+        metadata: Optional[dict] = None,
+    ) -> Tuple[CreditWallet, CreditLedgerEntry]:
+        """
+        Atomically deducts credits from a user's wallet without a prior reservation hold.
+        Consumes bonus credits first, then purchased credits.
+        Completely idempotent: if the idempotency_key was already processed, returns the existing ledger entry.
+        """
+        if amount <= 0:
+            raise ValueError(f"Deduct amount must be positive, got {amount}")
+
+        if idempotency_key:
+            existing = CreditLedgerEntry.objects.filter(idempotency_key=idempotency_key).first()
+            if existing:
+                return existing.wallet, existing
+
+        with transaction.atomic():
+            if idempotency_key:
+                existing = CreditLedgerEntry.objects.filter(idempotency_key=idempotency_key).first()
+                if existing:
+                    return existing.wallet, existing
+
+            wallet, _ = CreditWallet.objects.select_for_update().get_or_create(user=user)
+
+            if wallet.reconciliation_status == "deficit_pending_reconciliation":
+                raise InsufficientCreditsError(
+                    f"Account has an uncollected deficit of {wallet.uncollected_deficit:,} credits. Please purchase credits to resolve.",
+                    available=wallet.total_available,
+                    required=wallet.uncollected_deficit,
+                )
+
+            total_available = wallet.bonus_balance + wallet.purchased_balance
+            if total_available < amount:
+                raise InsufficientCreditsError(
+                    f"Insufficient credits: available {total_available}, required {amount}",
+                    available=total_available,
+                    required=amount,
+                )
+
+            deduct_bonus = min(wallet.bonus_balance, amount)
+            deduct_purchased = amount - deduct_bonus
+
+            wallet.bonus_balance -= deduct_bonus
+            wallet.purchased_balance -= deduct_purchased
+            wallet.save(
+                update_fields=[
+                    "bonus_balance",
+                    "purchased_balance",
+                    "updated_at",
+                ]
+            )
+
+            idem = idempotency_key or f"deduct:{user.id}:{uuid.uuid4().hex}"
+            bucket = CreditBucket.BONUS if deduct_bonus >= deduct_purchased else CreditBucket.PURCHASED
+
+            entry = CreditLedgerEntry.objects.create(
+                wallet=wallet,
+                user=user,
+                entry_type=CreditEntryType.USAGE_SETTLEMENT,
+                bucket=bucket,
+                delta=-amount,
+                balance_after_bonus=wallet.bonus_balance,
+                balance_after_purchased=wallet.purchased_balance,
+                reserved_after_bonus=wallet.reserved_bonus,
+                reserved_after_purchased=wallet.reserved_purchased,
+                idempotency_key=idem,
+                description=description,
+                metadata={
+                    **(metadata or {}),
+                    "deducted_bonus": deduct_bonus,
+                    "deducted_purchased": deduct_purchased,
+                },
+            )
+
+            logger.info(f"Deducted {amount} credits from user {user.id} ({description})")
+            return wallet, entry
+

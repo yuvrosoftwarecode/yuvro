@@ -46,6 +46,7 @@ import { Route as EvaluationProctoringRouteImport } from './routes/evaluation.pr
 import { Route as EvaluationOtpRouteImport } from './routes/evaluation.otp'
 import { Route as EvaluationInstructionsRouteImport } from './routes/evaluation.instructions'
 import { Route as EvaluationCompleteRouteImport } from './routes/evaluation.complete'
+import { Route as AdminResearchRouteImport } from './routes/admin.research'
 import { Route as AdminRecruitersRouteImport } from './routes/admin.recruiters'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminLabsRouteImport } from './routes/admin.labs'
@@ -261,6 +262,11 @@ const EvaluationCompleteRoute = EvaluationCompleteRouteImport.update({
   path: '/complete',
   getParentRoute: () => EvaluationRoute,
 } as any)
+const AdminResearchRoute = AdminResearchRouteImport.update({
+  id: '/research',
+  path: '/research',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminRecruitersRoute = AdminRecruitersRouteImport.update({
   id: '/recruiters',
   path: '/recruiters',
@@ -440,6 +446,7 @@ export interface FileRoutesByFullPath {
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
+  '/admin/research': typeof AdminResearchRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -504,6 +511,7 @@ export interface FileRoutesByTo {
   '/system-design-studio': typeof SystemDesignStudioRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
+  '/admin/research': typeof AdminResearchRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -573,6 +581,7 @@ export interface FileRoutesById {
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
+  '/admin/research': typeof AdminResearchRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -643,6 +652,7 @@ export interface FileRouteTypes {
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
+    | '/admin/research'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -707,6 +717,7 @@ export interface FileRouteTypes {
     | '/system-design-studio'
     | '/admin/questions'
     | '/admin/recruiters'
+    | '/admin/research'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -775,6 +786,7 @@ export interface FileRouteTypes {
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
+    | '/admin/research'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -1108,6 +1120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EvaluationCompleteRouteImport
       parentRoute: typeof EvaluationRoute
     }
+    '/admin/research': {
+      id: '/admin/research'
+      path: '/research'
+      fullPath: '/admin/research'
+      preLoaderRoute: typeof AdminResearchRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/recruiters': {
       id: '/admin/recruiters'
       path: '/recruiters'
@@ -1376,6 +1395,7 @@ interface AdminRouteChildren {
   AdminLabsRoute: typeof AdminLabsRouteWithChildren
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminRecruitersRoute: typeof AdminRecruitersRoute
+  AdminResearchRoute: typeof AdminResearchRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminUsersIdRoute: typeof AdminUsersIdRouteWithChildren
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
@@ -1386,6 +1406,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLabsRoute: AdminLabsRouteWithChildren,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminRecruitersRoute: AdminRecruitersRoute,
+  AdminResearchRoute: AdminResearchRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminUsersIdRoute: AdminUsersIdRouteWithChildren,
   AdminUsersIndexRoute: AdminUsersIndexRoute,

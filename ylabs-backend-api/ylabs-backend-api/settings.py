@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "recruiter",
     "skill_evaluation",
     "mock_apis",
+    "research",
 ]
 
 MIDDLEWARE = [

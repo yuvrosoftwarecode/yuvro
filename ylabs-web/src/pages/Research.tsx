@@ -1,44 +1,34 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Route } from "@/routes/research";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { TopNav } from "@/components/TopNav";
 import { Button } from "@/components/ui/button";
 import PaperCard from "@/components/research/PaperCard";
-import { TOPICS, getPapers, type Paper, type Source, type Topic } from "@/data/papers";
+import {
+  researchService,
+  type ResearchPaperItem,
+  type ResearchTopicItem,
+} from "@/services/researchService";
+import { useAuth } from "@/lib/auth";
+import { Loader2, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 type View = "latest" | "following" | "topics";
 type Period = "today" | "week" | "month";
-type Sort = "newest" | "cited";
+type Sort = "newest" | "cited" | "upvoted";
 
 const STORAGE_KEY = "yuvro-research-followed";
 
-function useFollowedTopics() {
-  const [followed, setFollowed] = useState<Topic[]>(() => {
-    try {
-      const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-      return Array.isArray(stored) ? TOPICS.map(t => t.name).filter(t => stored.includes(t)) : [];
-    } catch {
-      return [];
-    }
-  });
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(followed));
-    } catch {
-      /* ignore */
-    }
-  }, [followed]);
-  const toggle = (t: Topic) =>
-    setFollowed((f) => (f.includes(t) ? f.filter((x) => x !== t) : [...f, t]));
-  return { followed, toggle };
-}
-
 const dayDiff = (iso: string) => {
-  const a = new Date();
-  a.setHours(0, 0, 0, 0);
-  const b = new Date(iso);
-  b.setHours(0, 0, 0, 0);
-  return Math.round((a.getTime() - b.getTime()) / 86400000);
+  if (!iso) return 999;
+  try {
+    const a = new Date();
+    a.setHours(0, 0, 0, 0);
+    const b = new Date(iso);
+    b.setHours(0, 0, 0, 0);
+    return Math.round((a.getTime() - b.getTime()) / 86400000);
+  } catch {
+    return 999;
+  }
 };
 
 const groupLabel = (iso: string) => {
@@ -72,59 +62,184 @@ function FilterRow({
   );
 }
 
-export default function Research() {
-  const { view } = Route.useSearch();
-  const navigate = Route.useNavigate();
-  const setView = (v: View) => { setLimit(6); void navigate({ search: { view: v } }); };
+export default function Research({ embedded = false }: { embedded?: boolean }) {
+  const { user } = useAuth();
+  const searchParams = useSearch({ strict: false }) as Record<string, any>;
+  const view: View =
+    searchParams?.view === "following" || searchParams?.view === "topics"
+      ? searchParams.view
+      : "latest";
+  const navigate = useNavigate();
+  const setView = (v: View) => {
+    setLimit(6);
+    void navigate({ search: (prev: any) => ({ ...prev, view: v }) as any });
+  };
 
-  const { followed, toggle } = useFollowedTopics();
+  const [topics, setTopics] = useState<ResearchTopicItem[]>([]);
+  const [followed, setFollowed] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    } catch {
+      return [];
+    }
+  });
 
-  const [topic, setTopic] = useState<Topic | "All">("All");
-  const [source, setSource] = useState<Source | "All">("All");
+  const [topic, setTopic] = useState<string | "All">("All");
+  const [source, setSource] = useState<string | "All">("All");
   const [period, setPeriod] = useState<Period>("month");
   const [sort, setSort] = useState<Sort>("newest");
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [limit, setLimit] = useState(6);
 
-  const all = getPapers();
-  useEffect(() => setLimit(6), [view, topic, source, period, sort, query]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query]);
 
-  const papers = useMemo(() => {
-    const maxDays = period === "today" ? 0 : period === "week" ? 6 : 30;
-    let list = all.filter((p) => dayDiff(p.date) <= maxDays);
-    if (view === "following") list = list.filter((p) => followed.includes(p.topic));
-    if (topic !== "All") list = list.filter((p) => p.topic === topic);
-    if (source !== "All") list = list.filter((p) => p.source === source);
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      list = list.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.authors.join(" ").toLowerCase().includes(q)
-      );
+  const [papers, setPapers] = useState<ResearchPaperItem[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
+  // Load Topics
+  const loadTopics = async () => {
+    try {
+      const data = await researchService.getTopics();
+      if (Array.isArray(data) && data.length > 0) {
+        setTopics(data);
+        if (user) {
+          const serverFollowed = data.filter((t) => t.is_followed).map((t) => t.name);
+          if (serverFollowed.length > 0) {
+            setFollowed(serverFollowed);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to load topics:", err);
     }
-    return [...list].sort((a, b) =>
-      sort === "cited" ? b.citations - a.citations : +new Date(b.date) - +new Date(a.date)
-    );
-  }, [all, view, followed, topic, source, period, sort, query]);
+  };
+
+  // Load Papers when filters change
+  const loadPapers = async () => {
+    setLoading(true);
+    setLimit(6);
+    try {
+      const res = await researchService.getPapers({
+        view,
+        topic,
+        source,
+        period,
+        sort,
+        search: debouncedQuery,
+        limit: 6,
+        followed_topics: followed,
+      });
+      setPapers(res.results || []);
+      setTotalCount(res.count || 0);
+    } catch (err) {
+      console.error("Failed to load research papers:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLoadMore = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const nextLimit = limit + 6;
+    setLimit(nextLimit);
+    setLoadingMore(true);
+    try {
+      const res = await researchService.getPapers({
+        view,
+        topic,
+        source,
+        period,
+        sort,
+        search: debouncedQuery,
+        limit: nextLimit,
+        followed_topics: followed,
+      });
+      setPapers(res.results || []);
+      setTotalCount(res.count || 0);
+    } catch (err) {
+      console.error("Failed to load more papers:", err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTopics();
+  }, [user]);
+
+  const followedFilterKey = view === "following" ? followed.join(",") : "";
+
+  useEffect(() => {
+    loadPapers();
+  }, [view, topic, source, period, sort, debouncedQuery, followedFilterKey]);
+
+  const toggleFollow = async (topicName: string) => {
+    const isCurrentlyFollowed = followed.includes(topicName);
+    const updated = isCurrentlyFollowed
+      ? followed.filter((x) => x !== topicName)
+      : [...followed, topicName];
+
+    setFollowed(updated);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch {}
+
+    if (user) {
+      try {
+        await researchService.toggleFollowTopic(topicName);
+      } catch (err) {
+        console.warn("Failed to sync topic follow to server:", err);
+      }
+    }
+  };
+
+  const handleSyncLivePapers = async () => {
+    setSyncing(true);
+    try {
+      const count = res.new_papers_ingested ?? 0;
+      toast.success(
+        count > 0
+          ? `Synced ${count} new research papers to database`
+          : "Research papers are up to date"
+      );
+      await loadPapers();
+      await loadTopics();
+    } catch (err: any) {
+      toast.error(err?.message || "Sync failed");
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const groups = useMemo(() => {
-    if (sort === "cited") return [["Most cited", papers.slice(0, limit)]] as const;
+    if (sort === "cited") return [["Most cited", papers]] as const;
+    if (sort === "upvoted") return [["Trending & Most Upvoted", papers]] as const;
     const order = ["Today", "Yesterday", "This week", "Earlier"];
-    const map = new Map<string, Paper[]>();
-    papers.slice(0, limit).forEach((p) => {
-      const g = groupLabel(p.date);
+    const map = new Map<string, ResearchPaperItem[]>();
+    papers.forEach((p) => {
+      const g = groupLabel(p.date || p.published_date);
       map.set(g, [...(map.get(g) || []), p]);
     });
     return order.filter((o) => map.has(o)).map((o) => [o, map.get(o) ?? []] as const);
-  }, [papers, limit, sort]);
+  }, [papers, sort]);
 
-  const newThisWeek = (t: Topic) =>
-    all.filter((p) => p.topic === t && dayDiff(p.date) < 7).length;
+  const newThisWeek = (topicName: string) => {
+    const t = topics.find((item) => item.name.toLowerCase() === topicName.toLowerCase());
+    return t?.new_this_week ?? 0;
+  };
 
   const subTab = (v: View, label: string) => (
-    <Button variant="link"
+    <Button
+      variant="link"
       key={v}
       onClick={() => setView(v)}
       aria-current={view === v ? "page" : undefined}
@@ -139,21 +254,43 @@ export default function Research() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <TopNav />
-      <main className="mx-auto max-w-[1200px] px-4 pb-16 sm:px-6">
-        <h1 className="mt-9 text-2xl font-semibold tracking-normal text-foreground">AI Research</h1>
-        <p className="mt-1.5 text-base text-muted-foreground">
-          Explore RAG, agents, LLMs and AI coding. Sample papers from arXiv, OpenAlex and Semantic Scholar.
-        </p>
+    <div className={embedded ? "w-full" : "min-h-screen bg-background"}>
+      {!embedded && <TopNav />}
+      <main className={embedded ? "w-full" : "mx-auto max-w-[1200px] px-4 pb-16 sm:px-6"}>
+        {!embedded && (
+          <div className="mt-9">
+            <h1 className="text-2xl font-semibold tracking-normal text-foreground">AI Research</h1>
+            <p className="mt-1.5 text-base text-muted-foreground">
+              Explore RAG, agents, LLMs, and AI coding. Trending papers from Hugging Face, arXiv, and open-source GitHub code.
+            </p>
+          </div>
+        )}
 
-        <nav aria-label="Research sections" className="mb-5 mt-7 flex gap-8 border-b border-border">
+        {embedded && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">
+              Explore RAG, agents, LLMs, and AI coding. Trending papers from Hugging Face, arXiv, and open-source GitHub code.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSyncLivePapers}
+              disabled={syncing}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${syncing ? "animate-spin" : ""}`} />
+              {syncing ? "Syncing Trending Papers..." : "Sync Trending Papers"}
+            </Button>
+          </div>
+        )}
+
+        <nav aria-label="Research sections" className={`mb-5 ${embedded ? "mt-2" : "mt-7"} flex gap-8 border-b border-border`}>
           {subTab("latest", "Latest")}
           {subTab("following", "Following")}
           {subTab("topics", "Topics")}
         </nav>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_230px]">
+        <div className={embedded ? "w-full" : "grid gap-8 lg:grid-cols-[minmax(0,1fr)_230px]"}>
           {/* MAIN COLUMN */}
           <div className="overflow-hidden rounded-lg border border-border bg-card">
             {view === "topics" ? (
@@ -162,7 +299,7 @@ export default function Research() {
                   Choose the topics you want to follow. New papers in these topics appear in your
                   Following feed.
                 </p>
-                {TOPICS.map((t) => {
+                {topics.map((t) => {
                   const isF = followed.includes(t.name);
                   return (
                     <div
@@ -170,21 +307,23 @@ export default function Research() {
                       className="flex items-center justify-between gap-6 border-b border-border px-5 sm:px-8 py-5 last:border-b-0"
                     >
                       <div>
-                        <Button variant="link"
+                        <Button
+                          variant="link"
                           onClick={() => {
                             setTopic(t.name);
                             setView("latest");
                           }}
                           className="h-auto rounded-none p-0 text-base font-medium text-foreground hover:underline underline-offset-4"
                         >
-                          {t.name}
+                          {t.display_name || t.name}
                         </Button>
                         <p className="text-sm text-muted-foreground">
-                          {t.description} · {t.count} papers this month
+                          {t.description} · {t.papers_count} papers
                         </p>
                       </div>
-                      <Button variant="link"
-                        onClick={() => toggle(t.name)}
+                      <Button
+                        variant="link"
+                        onClick={() => toggleFollow(t.name)}
                         className={`h-auto rounded-none p-0 font-normal text-sm ${
                           isF
                             ? "text-muted-foreground hover:text-foreground"
@@ -201,18 +340,26 @@ export default function Research() {
               <>
                 <div className="border-b border-border px-5 sm:px-8 py-5">
                   <FilterRow label="Topic">
-                    {(["All", ...TOPICS.map((t) => t.name)] as (Topic | "All")[]).map((t) => (
-                      <Button variant="link" key={t} onClick={() => setTopic(t)} aria-pressed={topic === t} className={filterBtn(topic === t)}>
+                    {(["All", ...topics.map((t) => t.name)]).map((t) => (
+                      <Button
+                        variant="link"
+                        key={t}
+                        onClick={() => setTopic(t)}
+                        aria-pressed={topic === t}
+                        className={filterBtn(topic === t)}
+                      >
                         {t}
                       </Button>
                     ))}
                   </FilterRow>
                   <FilterRow label="Sort">
-                    <Button variant="link" onClick={() => setSort("newest")} aria-pressed={sort === "newest"} className={filterBtn(sort === "newest")}>
+                    <Button
+                      variant="link"
+                      onClick={() => setSort("newest")}
+                      aria-pressed={sort === "newest"}
+                      className={filterBtn(sort === "newest")}
+                    >
                       Newest
-                    </Button>
-                    <Button variant="link" onClick={() => setSort("cited")} aria-pressed={sort === "cited"} className={filterBtn(sort === "cited")}>
-                      Most cited
                     </Button>
                   </FilterRow>
                   <FilterRow label="Period">
@@ -223,14 +370,26 @@ export default function Research() {
                         ["month", "This month"],
                       ] as [Period, string][]
                     ).map(([k, l]) => (
-                      <Button variant="link" key={k} onClick={() => setPeriod(k)} aria-pressed={period === k} className={filterBtn(period === k)}>
+                      <Button
+                        variant="link"
+                        key={k}
+                        onClick={() => setPeriod(k)}
+                        aria-pressed={period === k}
+                        className={filterBtn(period === k)}
+                      >
                         {l}
                       </Button>
                     ))}
                   </FilterRow>
                   <FilterRow label="Source">
-                    {(["All", "arXiv", "OpenAlex", "Semantic Scholar"] as (Source | "All")[]).map((s) => (
-                      <Button variant="link" key={s} onClick={() => setSource(s)} aria-pressed={source === s} className={filterBtn(source === s)}>
+                    {["All", "Hugging Face", "arXiv", "OpenAlex"].map((s) => (
+                      <Button
+                        variant="link"
+                        key={s}
+                        onClick={() => setSource(s)}
+                        aria-pressed={source === s}
+                        className={filterBtn(source === s)}
+                      >
                         {s}
                       </Button>
                     ))}
@@ -249,10 +408,16 @@ export default function Research() {
                   </div>
                 </div>
 
-                {view === "following" && followed.length === 0 ? (
+                {loading ? (
+                  <div className="px-5 sm:px-8 py-16 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <span>Loading papers from database...</span>
+                  </div>
+                ) : view === "following" && followed.length === 0 ? (
                   <p className="px-5 sm:px-8 py-10 text-[15px] text-muted-foreground">
                     You are not following any topics yet.{" "}
-                    <Button variant="link"
+                    <Button
+                      variant="link"
                       onClick={() => setView("topics")}
                       className="h-auto rounded-none p-0 font-medium text-primary hover:underline underline-offset-4"
                     >
@@ -268,27 +433,37 @@ export default function Research() {
                   groups.map(([label, list]) => (
                     <section key={label}>
                       <h2 className="px-5 sm:px-8 pt-7 text-xs font-medium uppercase tracking-normal text-muted-foreground">
-                        {label}
+                        {label} ({list.length})
                       </h2>
                       {list.map((p) => (
                         <PaperCard
                           key={p.id}
                           paper={p}
                           followed={followed.includes(p.topic)}
-                          onToggleFollow={toggle}
+                          onToggleFollow={toggleFollow}
                         />
                       ))}
                     </section>
                   ))
                 )}
 
-                {papers.length > limit && (
-                  <div className="px-5 sm:px-8 py-5">
-                    <Button variant="link"
-                      onClick={() => setLimit((l) => l + 6)}
-                      className="h-auto rounded-none p-0 text-sm text-muted-foreground hover:text-foreground hover:underline underline-offset-4"
+                {totalCount > limit && (
+                  <div className="px-5 sm:px-8 py-5 border-t border-border">
+                    <Button
+                      type="button"
+                      variant="link"
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      className="h-auto rounded-none p-0 text-sm font-medium text-primary hover:underline underline-offset-4 flex items-center gap-2"
                     >
-                      Load more
+                      {loadingMore ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <span>Loading more papers...</span>
+                        </>
+                      ) : (
+                        <span>Load more ({papers.length} of {totalCount} shown)</span>
+                      )}
                     </Button>
                   </div>
                 )}
@@ -296,48 +471,62 @@ export default function Research() {
             )}
           </div>
 
-          {/* RIGHT COLUMN */}
-          <aside className="text-foreground">
-            <h2 className="mb-2.5 text-xs font-medium uppercase tracking-normal text-muted-foreground">
-              Your topics
-            </h2>
-            {followed.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No topics followed yet.</p>
-            ) : (
-              followed.map((t) => (
-                <Button variant="link"
-                  key={t}
-                  onClick={() => {
-                    setTopic(t);
-                    setView("latest");
-                  }}
-                  className="h-auto rounded-none px-0 font-normal flex w-full items-baseline justify-between border-b border-border py-2 text-left text-[15px] hover:underline underline-offset-4"
-                >
-                  {t}
-                  <span className="text-[13px] text-muted-foreground">{newThisWeek(t)} new</span>
-                </Button>
-              ))
-            )}
-            <Button variant="link"
-              onClick={() => setView("topics")}
-              className="mt-3 h-auto rounded-none p-0 text-sm font-medium text-primary hover:underline underline-offset-4"
-            >
-              Edit topics
-            </Button>
+          {/* RIGHT COLUMN (Student view only) */}
+          {!embedded && (
+            <aside className="text-foreground">
+              <h2 className="mb-2.5 text-xs font-medium uppercase tracking-normal text-muted-foreground">
+                Your topics
+              </h2>
+              {followed.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No topics followed yet.</p>
+              ) : (
+                followed.map((t) => (
+                  <Button
+                    variant="link"
+                    key={t}
+                    onClick={() => {
+                      setTopic(t);
+                      setView("latest");
+                    }}
+                    className="h-auto rounded-none px-0 font-normal flex w-full items-baseline justify-between border-b border-border py-2 text-left text-[15px] hover:underline underline-offset-4"
+                  >
+                    {t}
+                    <span className="text-[13px] text-muted-foreground">{newThisWeek(t)} new</span>
+                  </Button>
+                ))
+              )}
+              <Button
+                variant="link"
+                onClick={() => setView("topics")}
+                className="mt-3 h-auto rounded-none p-0 text-sm font-medium text-primary hover:underline underline-offset-4"
+              >
+                Edit topics
+              </Button>
 
-            <h2 className="mb-2.5 mt-10 text-xs font-medium uppercase tracking-normal text-muted-foreground">
-              Practice what you read
-            </h2>
-            <p className="mb-1.5 text-[13px] text-muted-foreground">Related labs on Yuvro</p>
-            <Link to="/mock-interview/$slug" params={{ slug: "genai-llm" }} search={{ report: false }} className="block border-b border-border py-2 text-[15px] hover:underline underline-offset-4">
-              LLM mock interview
-            </Link>
-            <Link to="/student/lab/$slug" params={{ slug: "systemdesign" }} className="block border-b border-border py-2 text-[15px] hover:underline underline-offset-4">
-              System Design Lab
-            </Link>
-          </aside>
+              <h2 className="mb-2.5 mt-10 text-xs font-medium uppercase tracking-normal text-muted-foreground">
+                Practice what you read
+              </h2>
+              <p className="mb-1.5 text-[13px] text-muted-foreground">Related labs on Yuvro</p>
+              <Link
+                to="/mock-interview/$slug"
+                params={{ slug: "genai-llm" }}
+                search={{ report: false }}
+                className="block border-b border-border py-2 text-[15px] hover:underline underline-offset-4"
+              >
+                LLM mock interview
+              </Link>
+              <Link
+                to="/student/lab/$slug"
+                params={{ slug: "systemdesign" }}
+                className="block border-b border-border py-2 text-[15px] hover:underline underline-offset-4"
+              >
+                System Design Lab
+              </Link>
+            </aside>
+          )}
         </div>
       </main>
     </div>
   );
 }
+
