@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { TopNav } from "@/components/TopNav";
 import { forumThreads } from "@/lib/dummy";
 import { MessagesSquare, Plus, Search } from "lucide-react";
 
@@ -10,7 +9,6 @@ export const Route = createFileRoute("/student/forum")({
 function Forum() {
   return (
     <div className="min-h-screen">
-      <TopNav />
       <main className="mx-auto max-w-[1100px] px-4 py-8">
         <header className="flex items-center justify-between mb-6">
           <div>

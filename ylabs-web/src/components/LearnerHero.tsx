@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef } from "react";
 
 const CSS = `
 .lh{--page:#f8f9fb;--card:#ffffff;--ink:#14192b;--muted:#666e84;--line:#e4e8f0;--brand:#4a7bdc;--sun:#ffd54a;--mug:#4a7bdc;--mugdark:#3a63b8;--steam:#aab4cc;--tag:#fff6c9;--tagink:#4a3c00}
-@media (prefers-color-scheme:dark){.lh{--page:#0d1120;--card:#151b30;--ink:#f1f4fc;--muted:#a1abc4;--line:#252d48;--steam:#6c7898;--tag:#3b3410;--tagink:#ffe9a0;--mug:#5c8ae6;--mugdark:#4572cf}}
 .dark .lh{--page:#0d1120;--card:#151b30;--ink:#f1f4fc;--muted:#a1abc4;--line:#252d48;--steam:#6c7898;--tag:#3b3410;--tagink:#ffe9a0;--mug:#5c8ae6;--mugdark:#4572cf}
 .lh,.lh *{box-sizing:border-box}
 .lh-hero{width:100%;background:var(--card);color:var(--ink);font-family:inherit;border:1px solid var(--line);border-radius:24px;display:grid;grid-template-columns:1.2fr .8fr;align-items:center;gap:20px;padding:48px 52px;overflow:hidden}
@@ -25,7 +24,6 @@ const CSS = `
 @keyframes lh-up{from{transform:translateY(100%);opacity:0}to{transform:none;opacity:1}}
 @keyframes lh-away{to{transform:translateY(-60%);opacity:0}}
 .lh mark{color:inherit;padding:0 3px;background:linear-gradient(transparent 52%,rgba(255,213,74,.75) 52%) no-repeat;background-size:0 100%;animation:lh-hl .8s .45s ease-out forwards}
-@media (prefers-color-scheme:dark){.lh mark{background-image:linear-gradient(transparent 52%,rgba(255,213,74,.4) 52%)}}
 .dark .lh mark{background-image:linear-gradient(transparent 52%,rgba(255,213,74,.4) 52%)}
 @keyframes lh-hl{to{background-size:100% 100%}}
 .lh-cta{display:inline-flex;align-items:center;gap:8px;font:inherit;font-weight:600;font-size:14px;background:#4a7bdc;color:#fff;border:0;border-radius:10px;padding:11px 20px;cursor:pointer;transition:transform .15s,box-shadow .15s}

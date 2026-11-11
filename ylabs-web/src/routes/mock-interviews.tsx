@@ -1,9 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { Button } from "@/components/ui/button";
-import { hasCompletedInterview } from "@/lib/mockInterviewReports";
-import { INTERVIEWS, type Interview } from "@/lib/mockInterviews";
+import { Skeleton } from "@/components/ui/skeleton";
+import { type Interview } from "@/lib/mockInterviews";
 import {
   fetchBackendMockInterviews,
   fetchUserInterviewSubmissions,
@@ -22,44 +22,33 @@ export const Route = createFileRoute("/mock-interviews")({
   component: MockHub,
 });
 
-const KEY = "yuvro-mock-interviews-enrolled";
-const load = (): string[] => {
-  try {
-    const raw =
-      localStorage.getItem(KEY) ||
-      localStorage.getItem("yuvro_real_mock_interviews_enrolled");
-    const parsed: string[] = raw ? JSON.parse(raw) : [];
-    const defaults = ["java-backend", "react-frontend", "mongodb-development"];
-    return Array.from(new Set([...(Array.isArray(parsed) ? parsed : []), ...defaults]));
-  } catch {
-    return ["java-backend", "react-frontend", "mongodb-development"];
-  }
-};
-
 function MockHub() {
-  const [interviews, setInterviews] = useState<Interview[]>(() => {
-    const enrolled = load();
-    return INTERVIEWS.filter((i) => enrolled.includes(i.slug));
-  });
+  const [interviews, setInterviews] = useState<Interview[]>([]);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [quota, setQuota] = useState<CandidateMockInterviewQuota | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
   const [buyModalNote, setBuyModalNote] = useState<string | null>(null);
 
   useEffect(() => {
+    // Purge any stale legacy dummy data or cached enrolled slugs from localStorage
+    try {
+      localStorage.removeItem("yuvro-mock-interviews-enrolled");
+      localStorage.removeItem("yuvro_real_mock_interviews_enrolled");
+    } catch {}
+
+    let cancelled = false;
     Promise.all([
       fetchBackendMockInterviews("ylabs"),
       fetchUserInterviewSubmissions("ylabs"),
       fetchMockInterviewQuota(),
     ])
       .then(([backendData, userSubmissions, userQuota]) => {
-        if (backendData && backendData.length > 0) {
+        if (cancelled) return;
+        if (backendData && Array.isArray(backendData)) {
           setInterviews(backendData);
-          try {
-            const allSlugs = backendData.map((b) => b.slug);
-            localStorage.setItem(KEY, JSON.stringify(allSlugs));
-            localStorage.setItem("yuvro_real_mock_interviews_enrolled", JSON.stringify(allSlugs));
-          } catch {}
+        } else {
+          setInterviews([]);
         }
         if (userSubmissions && Array.isArray(userSubmissions)) {
           setSubmissions(userSubmissions);
@@ -70,10 +59,22 @@ function MockHub() {
       })
       .catch((err) => {
         console.error("Failed to load mock interview data:", err);
+        if (!cancelled) {
+          setInterviews([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const availableCount = quota ? quota.available_interviews : 3;
+  const availableCount = quota ? quota.available_interviews : 0;
 
   const handleRequireBuy = () => {
     setBuyModalNote("You have 0 mock interviews remaining. Please choose a pack to start your interview.");
@@ -91,13 +92,21 @@ function MockHub() {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold">My interviews</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">{countText}</p>
+              {isLoading ? (
+                <Skeleton className="mt-1 h-3.5 w-16" />
+              ) : (
+                <p className="text-xs text-muted-foreground mt-0.5">{countText}</p>
+              )}
             </div>
             <div className="flex items-center gap-3">
-              <p className="text-sm text-muted-foreground">
-                Available mock interview:{" "}
-                <span className="font-medium text-foreground">{availableCount}</span>
-              </p>
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <span>Available mock interview:</span>
+                {isLoading || quota === null ? (
+                  <Skeleton className="h-4 w-6 rounded" />
+                ) : (
+                  <span className="font-medium text-foreground">{availableCount}</span>
+                )}
+              </div>
               <Button
                 size="sm"
                 onClick={() => {
@@ -109,12 +118,30 @@ function MockHub() {
               </Button>
             </div>
           </div>
-          {interviews.length === 0 ? (
+          {isLoading ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((idx) => (
+                <div
+                  key={idx}
+                  className="flex min-w-0 flex-col rounded-lg bg-card p-6 border border-border/40"
+                >
+                  <Skeleton className="mb-3 h-3 w-20" />
+                  <Skeleton className="h-5 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-full mb-1" />
+                  <Skeleton className="h-4 w-4/5 mb-4" />
+                  <Skeleton className="mb-6 mt-4 h-3 w-20" />
+                  <div className="mt-auto flex gap-3">
+                    <Skeleton className="h-8 w-28 rounded-md" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : interviews.length === 0 ? (
             <div className="rounded-xl border border-dashed bg-card/40 p-10 text-center text-sm text-muted-foreground">
               You haven't added any mock interview yet.
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:max-w-[850px]">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {interviews.map((i) => (
                 <MineCard
                   key={i.slug}
@@ -143,7 +170,6 @@ function MockHub() {
 }
 
 function checkCompleted(i: Interview, submissions: any[]): boolean {
-  if (hasCompletedInterview(i.slug, i.completed)) return true;
   if (i.completed && i.completed > 0) return true;
   if (i.userProgress && i.userProgress.completed_count > 0) return true;
   return submissions.some((s) => {

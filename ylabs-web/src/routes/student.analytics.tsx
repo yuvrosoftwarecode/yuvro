@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { TopNav } from "@/components/TopNav";
 import { labs, me } from "@/lib/dummy";
 import { TrendingUp, Clock, Target, Flame } from "lucide-react";
 
@@ -13,7 +12,6 @@ const max = Math.max(...weekly);
 function Analytics() {
   return (
     <div className="min-h-screen">
-      <TopNav />
       <main className="mx-auto max-w-[1400px] px-4 py-8 space-y-6">
         <header>
           <h1 className="text-2xl font-semibold">Analytics & Progress</h1>

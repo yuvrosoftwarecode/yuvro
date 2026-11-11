@@ -5,6 +5,8 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from datetime import timedelta
 
+from django.db.models.functions import Lower
+
 YCODE_ROLE_CHOICES = [
     ("student", "Student"),
     ("instructor", "Instructor"),
@@ -35,13 +37,16 @@ class User(AbstractUser):
     is_otp_login = models.BooleanField(default=False)
     is_guest_user = models.BooleanField(default=False)
     
-    profile_image = models.URLField(blank=True, null=True)
-    cover_image = models.URLField(blank=True, null=True)
-    resume_file = models.URLField(blank=True, null=True)
+    profile_image = models.TextField(blank=True, null=True)
+    cover_image = models.TextField(blank=True, null=True)
+    resume_file = models.TextField(blank=True, null=True)
     
     roles = models.JSONField(default=dict, blank=True)
     education = models.JSONField(default=list, blank=True)
     employment = models.JSONField(default=list, blank=True)
+    projects = models.JSONField(default=list, blank=True)
+    skills = models.JSONField(default=list, blank=True)
+    headline = models.CharField(max_length=255, blank=True, null=True)
     phone = models.CharField(max_length=30, blank=True, null=True)
     location = models.CharField(max_length=150, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
@@ -116,6 +121,18 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
+
+    class Meta(AbstractUser.Meta):
+        constraints = [
+            models.UniqueConstraint(
+                Lower("username"),
+                name="unique_lower_username",
+            ),
+            models.UniqueConstraint(
+                Lower("email"),
+                name="unique_lower_email",
+            ),
+        ]
 
 
 class GithubConnection(models.Model):

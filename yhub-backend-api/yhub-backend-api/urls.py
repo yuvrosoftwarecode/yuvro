@@ -8,6 +8,7 @@ from drf_spectacular.views import (
 )
 from django.conf import settings
 from django.conf.urls.static import static
+from authentication.views import check_username_view, check_email_view
 
 
 def health_check(request):
@@ -20,6 +21,8 @@ urlpatterns = [
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("api/auth/", include("authentication.urls")),
+    path("api/users/check-username/", check_username_view, name="check_username_users"),
+    path("api/users/check-email/", check_email_view, name="check_email_users"),
     path("api/", include("ai_assistant.urls")),
     path("api/", include("mockinterviews.urls")),
     path("api/payment/", include("payment.urls")),

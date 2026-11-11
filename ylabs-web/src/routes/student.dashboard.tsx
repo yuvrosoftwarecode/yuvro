@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { TopNav } from "@/components/TopNav";
 import LearnerHero from "@/components/LearnerHero";
 import UpcomingLabsCarousel, { type Lab as UpcomingLabItem } from "@/components/UpcomingLabsCarousel";
 import { ProgressRing } from "@/components/ProgressRing";
 import { useAuth } from "@/lib/auth";
 import { loadLabs } from "@/lib/adminLabs";
+import { invalidateStudentStats } from "@/lib/studentStats";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 import {
   ArrowRight,
@@ -71,6 +71,7 @@ function Hub() {
   const [enrollLoading, setEnrollLoading] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
+    invalidateStudentStats();
     loadLabs()
       .catch((err) => {
         console.error(err);
@@ -542,7 +543,6 @@ function Hub() {
 
   return (
     <div className="min-h-screen" onClickCapture={handleGlobalClick}>
-      <TopNav />
       <main className="mx-auto max-w-[1200px] px-4 py-8">
         {/* Hero Section with Welcome Badge, Quotes, SVG Scenes, and Continue Lab CTA */}
         <LearnerHero
@@ -560,15 +560,20 @@ function Hub() {
                 <div className="min-w-0">
                   <h2 className="text-xl font-semibold">My labs</h2>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {enrolledLabs.length} enrolled ·{" "}
-                    {enrolledLabs.reduce((a, l) => a + l.completed, 0)} tickets solved
+                    {labsLoading ? (
+                      <span className="inline-block h-3 w-32 bg-muted/70 rounded animate-pulse" />
+                    ) : (
+                      `${enrolledLabs.length} enrolled · ${enrolledLabs.reduce((a, l) => a + l.completed, 0)} tickets solved`
+                    )}
                   </p>
                 </div>
               </div>
               {labsLoading ? (
-                <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Loading your labs...
-                </div>
+                <HScroll>
+                  {[1, 2, 3, 4].map((i) => (
+                    <LabCardSkeleton key={i} width="w-[300px]" />
+                  ))}
+                </HScroll>
               ) : enrolledLabs.length === 0 ? (
                 <div className="rounded-xl border border-dashed bg-card/40 p-10 text-center">
                   <p className="text-sm text-muted-foreground">
@@ -588,7 +593,7 @@ function Hub() {
           )}
 
           {/* Featured labs — horizontal scroll with open labs not yet enrolled */}
-          {availableFeaturedLabs.length > 0 && (
+          {(labsLoading || availableFeaturedLabs.length > 0) && (
             <section id="featured-labs">
               <div className="mb-4 flex items-end justify-between">
                 <div className="min-w-0">
@@ -599,22 +604,32 @@ function Hub() {
                     All open simulation labs available for enrollment.
                   </p>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {availableFeaturedLabs.length} labs
-                </span>
+                {!labsLoading && (
+                  <span className="text-xs text-muted-foreground">
+                    {availableFeaturedLabs.length} labs
+                  </span>
+                )}
               </div>
-              <HScroll>
-                {availableFeaturedLabs.map((lab) => (
-                  <div key={lab.id} className="w-[320px] shrink-0 flex flex-col">
-                    <FeaturedCard
-                      lab={lab}
-                      isEnrolled={false}
-                      isLoading={Boolean(enrollLoading[lab.id])}
-                      onToggle={() => toggle(lab.id)}
-                    />
-                  </div>
-                ))}
-              </HScroll>
+              {labsLoading ? (
+                <HScroll>
+                  {[1, 2, 3, 4].map((i) => (
+                    <LabCardSkeleton key={i} width="w-[320px]" />
+                  ))}
+                </HScroll>
+              ) : (
+                <HScroll>
+                  {availableFeaturedLabs.map((lab) => (
+                    <div key={lab.id} className="w-[320px] shrink-0 flex flex-col">
+                      <FeaturedCard
+                        lab={lab}
+                        isEnrolled={false}
+                        isLoading={Boolean(enrollLoading[lab.id])}
+                        onToggle={() => toggle(lab.id)}
+                      />
+                    </div>
+                  ))}
+                </HScroll>
+              )}
             </section>
           )}
         </div>
@@ -642,6 +657,31 @@ function HScroll({ children }: { children: React.ReactNode }) {
   return (
     <div className="-mx-4 px-4 overflow-x-auto scrollbar-thin">
       <div className="flex gap-4 pb-2 items-stretch">{children}</div>
+    </div>
+  );
+}
+
+function LabCardSkeleton({ width = "w-[300px]" }: { width?: string }) {
+  return (
+    <div className={`${width} shrink-0 flex flex-col justify-between h-[185px] overflow-hidden rounded-xl border border-border/70 bg-card p-5 animate-pulse`}>
+      <div>
+        <div className="flex items-start justify-between">
+          <div className="space-y-2 flex-1 pr-3">
+            <div className="h-2.5 w-14 bg-muted/80 rounded" />
+            <div className="h-4 w-3/4 bg-muted rounded" />
+            <div className="h-3 w-full bg-muted/60 rounded" />
+            <div className="h-3 w-4/5 bg-muted/60 rounded" />
+          </div>
+          <div className="h-10 w-10 rounded-full bg-muted/70 shrink-0" />
+        </div>
+      </div>
+      <div className="mt-auto pt-3">
+        <div className="flex items-center justify-between mb-3">
+          <div className="h-2.5 w-24 bg-muted/60 rounded" />
+          <div className="h-2.5 w-10 bg-muted/60 rounded" />
+        </div>
+        <div className="h-7 w-full bg-muted/80 rounded-md" />
+      </div>
     </div>
   );
 }

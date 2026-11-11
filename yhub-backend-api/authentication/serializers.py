@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.db.models.functions import Lower
 
 from .models import User
+from .validators import validate_username_format
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):    
@@ -43,6 +45,9 @@ class UserSerializer(serializers.ModelSerializer):
             "roles",
             "education",
             "employment",
+            "projects",
+            "skills",
+            "headline",
             "phone",
             "location",
             "website",
@@ -124,19 +129,35 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "roles",
+            "phone",
         ]
 
     def validate_email(self, value):
-        user = User.objects.filter(email=value).first()
-        if user and not getattr(user, 'is_guest_user', False):
-            raise serializers.ValidationError("User with this email already exists.")
-        return value
+        val = value.strip()
+        user = (
+            User.objects.annotate(email_lower=Lower("email"))
+            .filter(email_lower=val.lower())
+            .first()
+        )
+        if user and not getattr(user, "is_guest_user", False):
+            raise serializers.ValidationError(
+                "The email you have provided is already associated with an account."
+            )
+        return val
 
     def validate_username(self, value):
-        user = User.objects.filter(username=value).first()
-        if user and not getattr(user, 'is_guest_user', False):
+        val = value.strip()
+        is_valid, err_msg = validate_username_format(val)
+        if not is_valid:
+            raise serializers.ValidationError(err_msg)
+        user = (
+            User.objects.annotate(uname_lower=Lower("username"))
+            .filter(uname_lower=val.lower())
+            .first()
+        )
+        if user and not getattr(user, "is_guest_user", False):
             raise serializers.ValidationError("A user with that username already exists.")
-        return value
+        return val
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password_confirm"]:
@@ -171,10 +192,30 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "last_name",
             "education",
             "employment",
+            "projects",
+            "skills",
+            "headline",
             "phone",
             "location",
             "website",
             "about",
         ]
         read_only_fields = ["email"]
+
+    def validate_username(self, value):
+        if not value:
+            raise serializers.ValidationError("Username cannot be empty.")
+        val = value.strip()
+        is_valid, err_msg = validate_username_format(val)
+        if not is_valid:
+            raise serializers.ValidationError(err_msg)
+        qs = (
+            User.objects.annotate(uname_lower=Lower("username"))
+            .filter(uname_lower=val.lower(), is_guest_user=False)
+        )
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError("A user with that username already exists.")
+        return val
 

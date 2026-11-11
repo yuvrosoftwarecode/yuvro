@@ -8,6 +8,16 @@ export interface LoginResponse {
   user: User;
 }
 
+export interface CheckUsernameResponse {
+  available: boolean;
+  message: string;
+}
+
+export interface CheckEmailResponse {
+  available: boolean;
+  message: string;
+}
+
 export interface RegisterRequest {
   email: string;
   username: string;
@@ -15,6 +25,8 @@ export interface RegisterRequest {
   password_confirm: string;
   first_name?: string;
   last_name?: string;
+  phone?: string;
+  country_code?: string;
   roles?: Record<string, string>;
 }
 
@@ -79,15 +91,28 @@ class AuthService {
     return response;
   }
 
+  async checkUsername(username: string, signal?: AbortSignal): Promise<CheckUsernameResponse> {
+    const encoded = encodeURIComponent(username.trim());
+    return await yhubApiAuthUtil.get<CheckUsernameResponse>(
+      `/auth/check-username/?username=${encoded}`,
+      { signal }
+    );
+  }
+
+  async checkEmail(email: string, signal?: AbortSignal): Promise<CheckEmailResponse> {
+    const encoded = encodeURIComponent(email.trim());
+    return await yhubApiAuthUtil.get<CheckEmailResponse>(
+      `/auth/check-email/?email=${encoded}`,
+      { signal }
+    );
+  }
+
   async fetchCompanies(): Promise<any[]> {
     return await restApiUtil.get<any[]>("/recruiter/companies/");
   }
 
   async registerRecruiter(data: any): Promise<LoginResponse> {
-    const response = await restApiUtil.post<LoginResponse>(
-      "/recruiter/register/",
-      data,
-    );
+    const response = await restApiUtil.post<LoginResponse>("/recruiter/register/", data);
 
     localStorage.setItem("access", response.access);
     localStorage.setItem("refresh", response.refresh);
@@ -139,13 +164,25 @@ class AuthService {
     return response;
   }
 
+  private syncUser(user: User): User {
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(user));
+        window.dispatchEvent(new CustomEvent("yuvro_auth_user_updated", { detail: user }));
+      }
+    } catch {}
+    return user;
+  }
+
   async getCurrentUser(): Promise<User> {
     // Fetch from YHub so profile_image / cover_image are always present
-    return await yhubApiAuthUtil.get<User>("/auth/user/");
+    const user = await yhubApiAuthUtil.get<User>("/auth/user/");
+    return this.syncUser(user);
   }
 
   async updateUser(userData: Partial<User>): Promise<User> {
-    return await yhubApiAuthUtil.put<User>("/auth/user/", userData);
+    const user = await yhubApiAuthUtil.put<User>("/auth/user/", userData);
+    return this.syncUser(user);
   }
 
   async uploadProfileImage(
@@ -155,24 +192,30 @@ class AuthService {
     const formData = new FormData();
     formData.append("image", file);
     formData.append("field", field);
-    return await yhubApiAuthUtil.post<User>("/auth/profile/upload-image/", formData);
+    const user = await yhubApiAuthUtil.post<User>("/auth/profile/upload-image/", formData);
+    return this.syncUser(user);
   }
 
   async uploadResume(file: File): Promise<User> {
     const formData = new FormData();
     formData.append("image", file);
     formData.append("field", "resume_file");
-    return await yhubApiAuthUtil.post<User>("/auth/profile/upload-image/", formData);
+    const user = await yhubApiAuthUtil.post<User>("/auth/profile/upload-image/", formData);
+    return this.syncUser(user);
   }
 
   async removeProfileImage(
     field: "profile_image" | "cover_image" = "profile_image",
   ): Promise<User> {
-    return await yhubApiAuthUtil.post<User>("/auth/profile/remove-image/", { field });
+    const user = await yhubApiAuthUtil.post<User>("/auth/profile/remove-image/", { field });
+    return this.syncUser(user);
   }
 
   async removeResume(): Promise<User> {
-    return await yhubApiAuthUtil.post<User>("/auth/profile/remove-image/", { field: "resume_file" });
+    const user = await yhubApiAuthUtil.post<User>("/auth/profile/remove-image/", {
+      field: "resume_file",
+    });
+    return this.syncUser(user);
   }
 
   async logoutUser(): Promise<void> {
@@ -203,8 +246,121 @@ class AuthService {
     return await yhubApiAuthUtil.post("/auth/forgot-password/", { email });
   }
 
-  async resetPassword(uidb64: string, token: string, password: string): Promise<any> {
-    return await yhubApiAuthUtil.post(`/auth/reset-password/${uidb64}/${token}/`, { password });
+  // TODO(backend): Implement POST /auth/phone/send-otp/ for SMS OTP dispatching
+  async sendPhoneSignupOtp(
+    phone: string,
+    countryCode: string = "+91",
+  ): Promise<{ message: string; cooldown?: number }> {
+    return await yhubApiAuthUtil.post("/auth/phone/send-otp/", {
+      phone,
+      country_code: countryCode,
+      resource_type: "signup",
+    });
+  }
+
+  // TODO(backend): Implement POST /auth/signup/verify/ for atomic dual email + phone OTP verification and account creation
+  async verifySignupEmailAndPhone(payload: {
+    email: string;
+    username?: string;
+    phone: string;
+    countryCode: string;
+    emailOtp: string;
+    phoneOtp: string;
+    name: string;
+    password: string;
+  }): Promise<LoginResponse> {
+    const names = payload.name.trim().split(/\s+/);
+    const firstName = names.shift() || "";
+    const lastName = names.join(" ");
+
+    const response = await yhubApiAuthUtil.post<LoginResponse>(
+      "/auth/signup/verify/?product=ylabs",
+      {
+        email: payload.email.trim(),
+        username: (payload.username || payload.email).trim(),
+        first_name: firstName,
+        last_name: lastName,
+        phone: `${payload.countryCode} ${payload.phone}`,
+        email_otp: payload.emailOtp,
+        phone_otp: payload.phoneOtp,
+        password: payload.password,
+        password_confirm: payload.password,
+        roles: { ylabs: "student" },
+      },
+    );
+
+    localStorage.setItem("access", response.access);
+    localStorage.setItem("refresh", response.refresh);
+    restApiAuthUtil.setAuthToken(response.access);
+    yhubApiAuthUtil.setAuthToken(response.access);
+    ycodeApiAuthUtil.setAuthToken(response.access);
+
+    return response;
+  }
+
+  // Sends 6-digit email reset code for forgot password
+  async sendForgotPasswordCode(email: string): Promise<{ status?: string; message: string; cooldown?: number }> {
+    return await yhubApiAuthUtil.post("/auth/forgot-password/send-code/", {
+      email: email.trim(),
+    });
+  }
+
+  // Verifies the 6-digit code for password reset and returns signed token
+  async verifyForgotPasswordCode(
+    email: string,
+    code: string,
+  ): Promise<{ status?: string; token?: string; uidb64?: string; message?: string }> {
+    return await yhubApiAuthUtil.post("/auth/forgot-password/verify-code/", {
+      email: email.trim(),
+      code: code.trim(),
+    });
+  }
+
+  // Resets password using verified 6-digit code or reset token, returning logged in session
+  async resetPasswordWithCode(
+    email: string,
+    code: string,
+    password: string,
+    token?: string,
+    uidb64?: string,
+  ): Promise<LoginResponse> {
+    const response = await yhubApiAuthUtil.post<LoginResponse>(
+      "/auth/forgot-password/reset-with-code/?product=ylabs",
+      {
+        email: email.trim(),
+        code: code.trim(),
+        password,
+        token,
+        uidb64,
+      },
+    );
+
+    if (response?.access && response?.refresh) {
+      localStorage.setItem("access", response.access);
+      localStorage.setItem("refresh", response.refresh);
+      restApiAuthUtil.setAuthToken(response.access);
+      yhubApiAuthUtil.setAuthToken(response.access);
+      ycodeApiAuthUtil.setAuthToken(response.access);
+    }
+
+    return response;
+  }
+
+  async resetPassword(uidb64: string, token: string, password: string): Promise<LoginResponse> {
+    const response = await yhubApiAuthUtil.post<LoginResponse>(
+      `/auth/reset-password/${uidb64}/${token}/?product=ylabs`,
+      { password },
+    );
+
+    if (response?.access && response?.refresh) {
+      localStorage.setItem("access", response.access);
+      localStorage.setItem("refresh", response.refresh);
+      restApiAuthUtil.setAuthToken(response.access);
+      yhubApiAuthUtil.setAuthToken(response.access);
+      ycodeApiAuthUtil.setAuthToken(response.access);
+    }
+
+    return response;
   }
 
   async sendChangePasswordOtp(): Promise<{ status: string; message: string }> {

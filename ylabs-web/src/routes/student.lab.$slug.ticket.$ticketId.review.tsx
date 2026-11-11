@@ -2,7 +2,6 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { ArrowLeft, Code2, File, FileCode2, GitCompareArrows, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TopNav } from "@/components/TopNav";
 import { tickets } from "@/lib/dummy";
 import { invalidateStudentStats } from "@/lib/studentStats";
 import { parseSolutionPatch } from "@/lib/solutionParser";
@@ -244,16 +243,27 @@ function Review() {
 
   return (
     <div className="min-h-screen bg-card text-card-foreground">
-      <TopNav />
       <main className="w-full px-6 py-6 sm:px-10 sm:py-8">
         <Button asChild variant="ghost" className="-ml-3 text-muted-foreground">
-          <Link
-            to={from === "report" ? "/student/lab/$slug/report" : "/student/lab/$slug"}
-            params={{ slug }}
-          >
-            <ArrowLeft />
-            Back to Reports
-          </Link>
+          {from === "report" ? (
+            <Link to="/student/lab/$slug/report" params={{ slug }}>
+              <ArrowLeft />
+              Back to Reports
+            </Link>
+          ) : (typeof window !== "undefined" && sessionStorage.getItem(`last_sprint_${slug}`)) ? (
+            <Link
+              to="/student/lab/$slug/sprint/$sprintId"
+              params={{ slug, sprintId: sessionStorage.getItem(`last_sprint_${slug}`)! }}
+            >
+              <ArrowLeft />
+              Back to Sprint
+            </Link>
+          ) : (
+            <Link to="/student/lab/$slug" params={{ slug }}>
+              <ArrowLeft />
+              Back to Lab
+            </Link>
+          )}
         </Button>
         <header className="flex flex-wrap items-center justify-between gap-3 pb-4 pt-2">
           <h1 className="text-lg font-semibold tracking-tight sm:text-xl">

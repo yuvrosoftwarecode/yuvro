@@ -25,6 +25,7 @@ import {
 import codeExecutorService, { isTaskHidden } from "@/services/codeExecutorService";
 import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
 import { ExecutionOutputView } from "@/components/ExecutionOutputView";
+import { formatSourceCode } from "@/lib/codeFormatter";
 import { TopNav } from "@/components/TopNav";
 import useAIChat from "@/components/common/ai-buddy/useAIChat";
 import { WalletBalanceBadge } from "@/components/credits/WalletBalanceBadge";
@@ -1657,6 +1658,13 @@ export function TicketIDE({
     () => Object.keys(files).filter(k => Boolean(k && k.trim()) && !isInternalOrHiddenFile(k)),
     [files]
   );
+  const allWorkspaceFiles = useMemo(() => {
+    const set = new Set<string>(fileList);
+    Object.keys(files || {}).forEach((f) => {
+      if (f && !isInternalOrHiddenFile(f)) set.add(f);
+    });
+    return Array.from(set);
+  }, [fileList, files]);
   
   const [activeFile, setActiveFile] = useState<FileName>(() => {
     if (initialFiles) {
@@ -1700,8 +1708,8 @@ export function TicketIDE({
     setActiveFile(path);
   }
 
-  function closeTab(path: string, e: React.MouseEvent) {
-    e.stopPropagation();
+  function closeTab(path: string, e?: React.MouseEvent) {
+    e?.stopPropagation();
     setOpenTabs((prev) => {
       const next = prev.filter((p) => p !== path);
       if (activeFile === path) {
@@ -1876,7 +1884,8 @@ export function TicketIDE({
   }, [activeFile, isReal, wsLoaded, effectiveUserId]);
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss" | "solution">("problem");
-  const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const [activeSidebarView, setActiveSidebarView] = useState<"problem" | "explorer" | "search" | "git" | "debug" | "containers" | null>("problem");
+  const [sidebarWidth, setSidebarWidth] = useState<number>(360);
   const [bottomTab, setBottomTab] = useState<BottomTab>("terminal");
   const [uiDiffResult, setUiDiffResult] = useState<any>(null);
   const [hintLevel, setHintLevel] = useState(2);
@@ -1890,48 +1899,32 @@ export function TicketIDE({
   });
   const { theme, toggle: toggleTheme } = useTheme();
   const [showProgress, setShowProgress] = useState(true);
-  const [fileTreeOpen, setFileTreeOpen] = useState(true);
+  const [searchInFilesQuery, setSearchInFilesQuery] = useState("");
+  const [searchMatchCase, setSearchMatchCase] = useState(false);
+  const [searchMatchWord, setSearchMatchWord] = useState(false);
+  const [debugWatchExprs, setDebugWatchExprs] = useState<string[]>(["ticket.id", "activeFile"]);
+  const [newWatchInput, setNewWatchInput] = useState("");
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
   const toggleFolder = (k: string) => setOpenFolders((o) => ({ ...o, [k]: !(o[k] ?? true) }));
   const isFolderOpen = (k: string) => openFolders[k] ?? true;
   const [sidePanel, setSidePanel] = useState<null | "preview" | "mentor">(null);
   const [previewDevice, setPreviewDevice] = useState<"Mobile" | "Tablet" | "Desktop">("Desktop");
   const [sideWidth, setSideWidth] = useState<number | null>(null);
-  const [leftWidth, setLeftWidth] = useState<number>(360);
-  const [explorerWidth, setExplorerWidth] = useState<number>(240);
   const [bottomHeight, setBottomHeight] = useState<number>(240);
   const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false);
   const [quickSearchQuery, setQuickSearchQuery] = useState("");
+  const [quickSearchSelectedIndex, setQuickSearchSelectedIndex] = useState(0);
+  const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
   const splitContainerRef = useRef<HTMLDivElement>(null);
   const mainIdeRef = useRef<HTMLDivElement>(null);
 
-  function startLeftResize(e: React.MouseEvent) {
+  function startSidebarResize(e: React.MouseEvent) {
     e.preventDefault();
     const startX = e.clientX;
-    const startWidth = leftWidth;
+    const startWidth = sidebarWidth;
     const onMove = (ev: MouseEvent) => {
       const next = startWidth + (ev.clientX - startX);
-      setLeftWidth(Math.min(650, Math.max(260, next)));
-    };
-    const onUp = () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-  }
-
-  function startExplorerResize(e: React.MouseEvent) {
-    e.preventDefault();
-    const startX = e.clientX;
-    const startWidth = explorerWidth;
-    const onMove = (ev: MouseEvent) => {
-      const next = startWidth + (ev.clientX - startX);
-      setExplorerWidth(Math.min(480, Math.max(160, next)));
+      setSidebarWidth(Math.min(650, Math.max(240, next)));
     };
     const onUp = () => {
       window.removeEventListener("mousemove", onMove);
@@ -2329,14 +2322,66 @@ export function TicketIDE({
     }
   }, [files]);
 
-  // Keyboard: Ctrl/Cmd+Enter to run, Ctrl/Cmd+S to save, Ctrl/Cmd+P to quick-open files
+  // Keyboard: VS Code shortcuts
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleRun(); }
-      if ((e.metaKey || e.ctrlKey) && e.key === "s") { e.preventDefault(); handleSave(false); }
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        handleRun();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        handleSave(false);
+      }
       if ((e.metaKey || e.ctrlKey) && (e.key === "p" || e.key === "P")) {
         e.preventDefault();
         setQuickSwitcherOpen((prev) => !prev);
+      }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "b" || e.key === "B")) {
+        e.preventDefault();
+        setActiveSidebarView((prev) => (prev ? null : "problem"));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === "f" || e.key === "F")) {
+        e.preventDefault();
+        setActiveSidebarView((prev) => (prev === "search" ? null : "search"));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === "e" || e.key === "E")) {
+        e.preventDefault();
+        setActiveSidebarView((prev) => (prev === "explorer" ? null : "explorer"));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === "g" || e.key === "G")) {
+        e.preventDefault();
+        setActiveSidebarView((prev) => (prev === "git" ? null : "git"));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === "d" || e.key === "D")) {
+        e.preventDefault();
+        setActiveSidebarView((prev) => (prev === "debug" ? null : "debug"));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === "x" || e.key === "X")) {
+        e.preventDefault();
+        setActiveSidebarView((prev) => (prev === "containers" ? null : "containers"));
+      }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "`" || e.key === "~")) {
+        e.preventDefault();
+        setBottomHeight((prev) => (prev > 40 ? 36 : 240));
+      }
+      if (e.key === "F1") {
+        e.preventDefault();
+        setShortcutsModalOpen((prev) => !prev);
+      }
+      if (e.key === "F5") {
+        e.preventDefault();
+        handleRun();
+      }
+      if (e.shiftKey && e.altKey && (e.key === "F" || e.key === "f")) {
+        e.preventDefault();
+        handleFormatCode();
+      }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "w" || e.key === "W")) {
+        if (activeFile && openTabs.length > 1) {
+          e.preventDefault();
+          closeTab(activeFile);
+        }
       }
     };
     window.addEventListener("keydown", fn);
@@ -3092,7 +3137,7 @@ export function TicketIDE({
         setOutput(
           "$ javac Main.java\n❌ Main.java:1: error: class or main method missing\n1 error",
         );
-        setBottomTab("errors");
+        setBottomTab("output");
       } else {
         const out: string[] = [];
         const re = /System\.out\.println\("([^"]*)"\s*\+\s*([^)]+)\)/g;
@@ -3718,6 +3763,21 @@ export function TicketIDE({
     if (!silent) showToast("Saved");
   }
 
+  function handleFormatCode() {
+    if (!activeFile) return;
+    const currentCode = files[activeFile] ?? "";
+    if (!currentCode.trim()) return;
+    const ext = activeFile.split(".").pop() || progLang || "py";
+    const res = formatSourceCode(currentCode, ext, activeFile);
+    if (res.changed) {
+      setFiles((prev) => ({ ...prev, [activeFile]: res.formatted }));
+      setDirty((prev) => ({ ...prev, [activeFile]: true }));
+      showToast("Code formatted");
+    } else {
+      showToast("Already formatted");
+    }
+  }
+
   function handleReset() {
     setConfirmDialog({
       isOpen: true,
@@ -3822,26 +3882,29 @@ export function TicketIDE({
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {!previewOverride && !isEvaluationMode && (
-          <Link
-            to="/student/lab/$slug"
-            params={{ slug }}
-            className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent"
-          >
-            <ArrowLeft className="h-3 w-3" />
-            Exit
-          </Link>
-        )}
-        <button
-          onClick={() => setLeftCollapsed((v) => !v)}
-          title="Toggle panel"
-          className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent"
-        >
-          {leftCollapsed ? (
-            <PanelLeftOpen className="h-3 w-3" />
+          ((ticket as any)?.sprint_id || (ticket as any)?.sprint || (typeof window !== "undefined" ? sessionStorage.getItem(`last_sprint_${slug}`) : null)) ? (
+            <Link
+              to="/student/lab/$slug/sprint/$sprintId"
+              params={{
+                slug,
+                sprintId: String((ticket as any)?.sprint_id || (ticket as any)?.sprint || (typeof window !== "undefined" ? sessionStorage.getItem(`last_sprint_${slug}`) : "")),
+              }}
+              className="inline-flex items-center justify-center h-7 w-7 rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+              title="Back"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           ) : (
-            <PanelLeftClose className="h-3 w-3" />
-          )}
-        </button>
+            <Link
+              to="/student/lab/$slug"
+              params={{ slug }}
+              className="inline-flex items-center justify-center h-7 w-7 rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+              title="Back"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          )
+        )}
 
         <StatusBadge value={ticketStatus} />
         <DiffBadge value={ticket.difficulty} />
@@ -3870,12 +3933,27 @@ export function TicketIDE({
           Reset
         </button>
 
+        <button
+          onClick={() => {
+            setQuickSwitcherOpen(true);
+            setQuickSearchSelectedIndex(0);
+          }}
+          className="hidden md:inline-flex items-center gap-2 rounded-md border border-border/70 bg-muted/30 px-2.5 py-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          title="Quick open file (⌘P)"
+        >
+          <Search className="h-3 w-3" />
+          <span>Find files...</span>
+          <kbd className="rounded bg-muted px-1.5 py-0.2 text-[9px] font-mono text-muted-foreground border">
+            ⌘P
+          </kbd>
+        </button>
+
         <div className="ml-auto flex items-center gap-1.5">
           <button
             onClick={() => {
               if (sidePanel !== "preview") {
                 setSidePanel("preview");
-                setLeftCollapsed(true);
+                setActiveSidebarView(null);
               } else {
                 setSidePanel(null);
               }
@@ -3949,87 +4027,88 @@ export function TicketIDE({
       {/* MAIN IDE */}
       <div className="flex flex-1 min-h-0">
         {/* Activity bar */}
-        <div className="flex w-11 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
+        <div className="flex w-12 flex-col items-center gap-1 border-r border-border bg-editor-panel py-2 text-muted-foreground shrink-0 z-20">
+          {/* Problem button (top of Explorer) */}
           <button
-            onClick={() => setFileTreeOpen((v) => !v)}
-            title={fileTreeOpen ? "Hide Explorer" : "Show Explorer"}
-            className={`grid h-9 w-9 place-items-center rounded ${fileTreeOpen ? "text-foreground bg-accent" : "hover:text-foreground"}`}
+            onClick={() => setActiveSidebarView((v) => (v === "problem" ? null : "problem"))}
+            title={activeSidebarView === "problem" ? "Hide Problem (⌘B)" : "Show Problem (⌘B)"}
+            className={`grid h-9 w-9 place-items-center rounded transition-colors ${
+              activeSidebarView === "problem"
+                ? "text-foreground bg-accent"
+                : "hover:text-foreground hover:bg-accent/40"
+            }`}
+          >
+            <BookOpen className="h-4 w-4" />
+          </button>
+
+          {/* Explorer button */}
+          <button
+            onClick={() => setActiveSidebarView((v) => (v === "explorer" ? null : "explorer"))}
+            title={activeSidebarView === "explorer" ? "Hide Explorer (⌘⇧E)" : "Show Explorer (⌘⇧E)"}
+            className={`grid h-9 w-9 place-items-center rounded transition-colors ${
+              activeSidebarView === "explorer"
+                ? "text-foreground bg-accent"
+                : "hover:text-foreground hover:bg-accent/40"
+            }`}
           >
             <FileCode2 className="h-4 w-4" />
           </button>
-          {[Search, GitBranch, Bug, Package].map((I, i) => (
+          {[
+            { id: "search", icon: Search, label: "Search in Files (⌘⇧F)" },
+            { id: "git", icon: GitBranch, label: "Source Control / Diff (⌘⇧G)" },
+            { id: "debug", icon: Bug, label: "Run & Debug (⌘⇧D)" },
+            { id: "containers", icon: Package, label: "Containers & Environment (⌘⇧X)" },
+          ].map((act) => (
             <button
-              key={i}
-              className="grid h-9 w-9 place-items-center rounded hover:text-foreground"
+              key={act.id}
+              onClick={() => setActiveSidebarView((v) => (v === act.id ? null : (act.id as any)))}
+              title={act.label}
+              className={`grid h-9 w-9 place-items-center rounded transition-colors ${
+                activeSidebarView === act.id
+                  ? "text-foreground bg-accent"
+                  : "hover:text-foreground hover:bg-accent/40"
+              }`}
             >
-              <I className="h-4 w-4" />
+              <act.icon className="h-4 w-4" />
             </button>
           ))}
-          <Settings className="mt-auto h-4 w-4" />
+          <button
+            type="button"
+            onClick={() => setShortcutsModalOpen(true)}
+            title="Keyboard Shortcuts (F1)"
+            className="mt-auto grid h-9 w-9 place-items-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/40"
+          >
+            <Settings className="h-4 w-4" />
+          </button>
         </div>
 
-        {/* Left panel (collapsible & resizable) */}
-        {leftCollapsed ? (
-          <aside className="hidden md:flex w-10 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
-            {[
-              { k: "problem", I: BookOpen, label: "Problem" },
-                ...(!isEvaluationMode || isRecruiterPreview ? [
-                  { k: "hints", I: Lightbulb, label: "Hints" },
-                  // { k: "discuss", I: MessageSquare, label: "Discuss" },
-                  { k: "solution", I: Key, label: "Solution" },
-                ] : []),
-              ].map(({ k, I, label }) => (
-              <button
-                key={k}
-                title={label}
-                onClick={() => {
-                  setLeftCollapsed(false);
-                  setTab(k as typeof tab);
-                }}
-                className="grid h-9 w-9 place-items-center rounded hover:text-foreground hover:bg-accent"
-              >
-                <I className="h-4 w-4" />
-              </button>
-            ))}
-            <button
-              onClick={() => setLeftCollapsed(false)}
-              title="Expand panel"
-              className="mt-auto grid h-9 w-9 place-items-center rounded hover:text-foreground hover:bg-accent"
-            >
-              <PanelLeftOpen className="h-4 w-4" />
-            </button>
-          </aside>
-        ) : (
+        {/* Single Left Sidebar Panel - only ONE open at a time */}
+        {activeSidebarView !== null && (
           <>
             <aside
-              style={{ width: `${leftWidth}px`, flexShrink: 0 }}
-              className="hidden md:flex flex-col border-r bg-editor-panel max-w-[55vw] min-w-[260px]"
+              style={{ width: `${sidebarWidth}px`, flexShrink: 0 }}
+              className={`hidden md:flex flex-col border-r bg-editor-panel max-w-[55vw] min-w-[240px] text-xs ${activeSidebarView === "explorer" && (isAnySql || isMongo) ? "font-mono text-[13px]" : ""}`}
             >
-              <div className="flex items-center border-b text-xs">
-                {[
-                  { k: "problem", label: "Problem" },
-                  ...(!isEvaluationMode || isRecruiterPreview ? [
-                    { k: "hints", label: "Hints" },
-                    // { k: "discuss", label: "Discuss" },
-                    { k: "solution", label: "Solution" },
-                  ] : []),
-                ].map((t) => (
-                  <button
-                    key={t.k}
-                    onClick={() => setTab(t.k as typeof tab)}
-                    className={`px-3 py-2 ${tab === t.k ? "bg-editor-bg text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-                <button
-                  onClick={() => setLeftCollapsed(true)}
-                  title="Collapse panel"
-                  className="ml-auto mr-2 grid h-7 w-7 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
-                >
-                  <PanelLeftClose className="h-3.5 w-3.5" />
-                </button>
-              </div>
+              {activeSidebarView === "problem" && (
+                <>
+                  <div className="flex items-center border-b text-xs">
+                    {[
+                      { k: "problem", label: "Problem" },
+                      ...(!isEvaluationMode || isRecruiterPreview ? [
+                        { k: "hints", label: "Hints" },
+                        // { k: "discuss", label: "Discuss" },
+                        { k: "solution", label: "Solution" },
+                      ] : []),
+                    ].map((t) => (
+                      <button
+                        key={t.k}
+                        onClick={() => setTab(t.k as typeof tab)}
+                        className={`px-3 py-2 ${tab === t.k ? "bg-editor-bg text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
               <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
                 {tab === "problem" && (
                   <ProblemPanel 
@@ -4101,28 +4180,13 @@ export function TicketIDE({
                 )}
                 {/* {tab === "discuss" && <DiscussPanel />} */}
               </div>
-            </aside>
-            <div
-              role="separator"
-              onMouseDown={startLeftResize}
-              className="hidden md:block w-1 cursor-col-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
-              title="Drag to resize problem panel"
-            />
-          </>
-        )}
+            </>
+          )}
 
-        {/* Center editor */}
-        <section className="flex flex-1 min-w-0 flex-col relative">
-          <div ref={splitContainerRef} className="flex flex-1 min-h-0">
-            {/* File tree */}
-            {fileTreeOpen && (
-              <>
-                <div
-                  style={{ width: `${explorerWidth}px`, flexShrink: 0 }}
-                  className={`flex flex-col border-r bg-editor-panel text-xs ${isAnySql || isMongo ? "font-mono text-[13px]" : ""}`}
-                >
-                <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-                  <span>Explorer</span>
+          {activeSidebarView === "explorer" && (
+                    <>
+                      <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+                        <span>Explorer</span>
                   <div className="flex items-center gap-1 normal-case">
                     <button
                       title="New File"
@@ -4372,21 +4436,312 @@ export function TicketIDE({
                     )}
                   </div>
                 )}
-                <div className="mt-auto border-t px-3 py-2 text-[11px] text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <GitBranch className="h-3 w-3" /> main
+                  <div className="mt-auto border-t px-3 py-2 text-[11px] text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <GitBranch className="h-3 w-3" /> main
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Search in Files view */}
+              {activeSidebarView === "search" && (
+                <div className="flex flex-col h-full min-h-0">
+                  <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
+                    <span>Search in Files</span>
+                  </div>
+                  <div className="p-3 border-b border-border/40 space-y-2">
+                    <input
+                      type="text"
+                      value={searchInFilesQuery}
+                      onChange={(e) => setSearchInFilesQuery(e.target.value)}
+                      placeholder="Search keywords..."
+                      className="w-full rounded bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground border border-border focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                    <div className="flex items-center gap-1 text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => setSearchMatchCase((v) => !v)}
+                        className={`px-1.5 py-0.5 rounded border text-[10px] font-mono ${searchMatchCase ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
+                        title="Match Case"
+                      >
+                        Aa
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSearchMatchWord((v) => !v)}
+                        className={`px-1.5 py-0.5 rounded border text-[10px] font-mono ${searchMatchWord ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
+                        title="Match Whole Word"
+                      >
+                        \b
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-auto p-2 space-y-2 min-h-0">
+                    {(() => {
+                      if (!searchInFilesQuery.trim()) {
+                        return (
+                          <div className="p-4 text-center text-xs text-muted-foreground">
+                            Type a query above to search across workspace files.
+                          </div>
+                        );
+                      }
+                      const results: { file: string; matches: { line: number; text: string }[] }[] = [];
+                      allWorkspaceFiles.forEach((f: string) => {
+                        const content = files[f] || "";
+                        const lines = content.split("\n");
+                        const fileMatches: { line: number; text: string }[] = [];
+                        lines.forEach((l: string, idx: number) => {
+                          const hay = searchMatchCase ? l : l.toLowerCase();
+                          const needle = searchMatchCase ? searchInFilesQuery : searchInFilesQuery.toLowerCase();
+                          let matched = false;
+                          if (searchMatchWord) {
+                            const reg = new RegExp(`\\b${needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, searchMatchCase ? "" : "i");
+                            matched = reg.test(l);
+                          } else {
+                            matched = hay.includes(needle);
+                          }
+                          if (matched && fileMatches.length < 5) {
+                            fileMatches.push({ line: idx + 1, text: l.trim() });
+                          }
+                        });
+                        if (fileMatches.length > 0) {
+                          results.push({ file: f, matches: fileMatches });
+                        }
+                      });
+                      if (results.length === 0) {
+                        return (
+                          <div className="p-4 text-center text-xs text-muted-foreground">
+                            No results found for "{searchInFilesQuery}"
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="space-y-3">
+                          <div className="text-[11px] text-muted-foreground px-1 font-mono">
+                            {results.reduce((a, b) => a + b.matches.length, 0)} results in {results.length} files
+                          </div>
+                          {results.map(({ file, matches }) => (
+                            <div key={file} className="rounded border border-border/50 bg-background/50 overflow-hidden">
+                              <button
+                                onClick={() => openFile(file)}
+                                className="flex w-full items-center justify-between px-2.5 py-1.5 text-xs font-mono font-medium text-foreground bg-muted/30 hover:bg-muted/60 text-left border-b border-border/30"
+                              >
+                                <span className="truncate">{file}</span>
+                                <span className="text-[10px] rounded bg-primary/10 text-primary px-1.5 py-0.2">
+                                  {matches.length}
+                                </span>
+                              </button>
+                              <div className="divide-y divide-border/20 text-[11px] font-mono">
+                                {matches.map((m, mIdx) => (
+                                  <button
+                                    key={mIdx}
+                                    onClick={() => openFile(file)}
+                                    className="flex w-full items-start gap-2 px-2.5 py-1 text-left text-muted-foreground hover:bg-accent/40 hover:text-foreground transition-colors"
+                                  >
+                                    <span className="text-primary/70 shrink-0 w-5 text-right">{m.line}:</span>
+                                    <span className="truncate">{m.text}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
-              </div>
-              <div
-                role="separator"
-                onMouseDown={startExplorerResize}
-                className="w-1 cursor-col-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
-                title="Drag to resize explorer"
-              />
-            </>
-          )}
+              )}
 
+              {/* Source Control view */}
+              {activeSidebarView === "git" && (
+                <div className="flex flex-col h-full min-h-0">
+                  <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
+                    <span>Source Control</span>
+                    <span className="rounded bg-primary/10 text-primary px-1.5 py-0.2 text-[10px] font-semibold">
+                      git
+                    </span>
+                  </div>
+                  <div className="p-3 border-b border-border/40 space-y-2">
+                    <button
+                      onClick={() => setIsCommitDialogOpen(true)}
+                      className="w-full flex items-center justify-center gap-1.5 rounded-md bg-primary py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+                    >
+                      <GitBranch className="h-3.5 w-3.5" />
+                      <span>Commit Changes</span>
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-auto p-2 space-y-1 min-h-0">
+                    <div className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider px-2 py-1 flex items-center justify-between">
+                      <span>Changes</span>
+                      <span>{Object.keys(dirty).filter((k) => dirty[k]).length}</span>
+                    </div>
+                    {Object.keys(dirty).filter((k) => dirty[k]).length === 0 ? (
+                      <div className="p-4 text-center text-xs text-muted-foreground">
+                        No uncommitted changes in workspace.
+                      </div>
+                    ) : (
+                      Object.keys(dirty)
+                        .filter((k) => dirty[k])
+                        .map((f) => (
+                          <button
+                            key={f}
+                            onClick={() => openFile(f)}
+                            className="flex w-full items-center justify-between rounded px-2.5 py-1.5 text-xs font-mono text-left hover:bg-accent/60 transition-colors"
+                          >
+                            <div className="flex items-center gap-2 truncate">
+                              <FileCode2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                              <span className="truncate text-foreground">{f}</span>
+                            </div>
+                            <span className="text-[10px] font-bold text-warning ml-2 shrink-0">M</span>
+                          </button>
+                        ))
+                    )}
+                  </div>
+                  <div className="mt-auto border-t px-3 py-2 text-[11px] text-muted-foreground flex items-center justify-between">
+                    <div className="flex items-center gap-1 font-mono">
+                      <GitBranch className="h-3 w-3" /> main
+                    </div>
+                    <span>Clean index</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Run & Debug view */}
+              {activeSidebarView === "debug" && (
+                <div className="flex flex-col h-full min-h-0">
+                  <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
+                    <span>Run & Debug</span>
+                  </div>
+                  <div className="p-3 border-b border-border/40 space-y-2">
+                    <button
+                      onClick={handleRun}
+                      disabled={running}
+                      className="w-full flex items-center justify-center gap-1.5 rounded-md bg-success/20 text-success border border-success/40 py-1.5 text-xs font-medium hover:bg-success/30 transition-colors disabled:opacity-50"
+                    >
+                      <Play className="h-3.5 w-3.5 fill-current" />
+                      <span>{running ? "Debugging…" : "Start Debugging (F5)"}</span>
+                    </button>
+                    <div className="text-[11px] text-muted-foreground flex items-center justify-between pt-1 font-mono">
+                      <span>Target:</span>
+                      <span className="text-foreground truncate max-w-[140px]">{activeFile || "None"}</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-auto p-2 space-y-3 min-h-0">
+                    <div>
+                      <div className="flex items-center justify-between px-1 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <span>Watch</span>
+                      </div>
+                      <div className="space-y-1">
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            if (newWatchInput.trim() && !debugWatchExprs.includes(newWatchInput.trim())) {
+                              setDebugWatchExprs((prev) => [...prev, newWatchInput.trim()]);
+                              setNewWatchInput("");
+                            }
+                          }}
+                          className="flex items-center gap-1 mb-1.5"
+                        >
+                          <input
+                            type="text"
+                            value={newWatchInput}
+                            onChange={(e) => setNewWatchInput(e.target.value)}
+                            placeholder="+ Expression"
+                            className="w-full rounded bg-background px-2 py-1 text-[11px] font-mono text-foreground border border-border focus:outline-none focus:ring-1 focus:ring-primary"
+                          />
+                        </form>
+                        {debugWatchExprs.map((expr) => {
+                          let val = "undefined";
+                          if (expr === "activeFile") val = `"${activeFile}"`;
+                          else if (expr === "ticket.id") val = `"${ticket.id}"`;
+                          else if (expr === "running") val = String(running);
+                          else if (expr === "status") val = `"${ticketStatus}"`;
+                          else if (expr === "files.length") val = String(Object.keys(files).length);
+                          return (
+                            <div key={expr} className="flex items-center justify-between px-2 py-1 rounded bg-muted/30 font-mono text-[11px]">
+                              <span className="text-foreground truncate">{expr}:</span>
+                              <span className="text-primary truncate ml-2">{val}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="px-1 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <span>Call Stack</span>
+                      </div>
+                      <div className="px-2 py-1 text-[11px] font-mono text-muted-foreground bg-muted/20 rounded">
+                        {running ? "● Active Execution Frame" : "No active call stack"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Containers & Environment view */}
+              {activeSidebarView === "containers" && (
+                <div className="flex flex-col h-full min-h-0">
+                  <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
+                    <span>Containers & Env</span>
+                  </div>
+                  <div className="p-3 border-b border-border/40 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
+                      <span className="text-xs font-semibold text-foreground">Sandbox Online</span>
+                    </div>
+                    <div className="text-[11px] text-muted-foreground space-y-1 font-mono">
+                      <div className="flex justify-between">
+                        <span>Stack:</span>
+                        <span className="text-foreground">{progLang || "Node / Python"}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Port 3000:</span>
+                        <span className="text-success font-medium">Mapped (Web)</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Memory:</span>
+                        <span className="text-foreground">512MB limit</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-3 space-y-2">
+                    <button
+                      onClick={() => {
+                        loadWorkspaceFiles(true);
+                        showToast("Sandbox reloaded");
+                      }}
+                      className="w-full flex items-center justify-center gap-1.5 rounded-md border border-border bg-muted/30 py-1.5 text-xs font-medium text-foreground hover:bg-muted/60 transition-colors"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      <span>Restart Sandbox</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setBottomTab("terminal");
+                        setBottomHeight(280);
+                      }}
+                      className="w-full flex items-center justify-center gap-1.5 rounded-md border border-border bg-muted/30 py-1.5 text-xs font-medium text-foreground hover:bg-muted/60 transition-colors"
+                    >
+                      <TerminalIcon className="h-3.5 w-3.5" />
+                      <span>Open Terminal</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </aside>
+            <div
+              role="separator"
+              onMouseDown={startSidebarResize}
+              className="hidden md:block w-1 cursor-col-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
+              title="Drag to resize sidebar"
+            />
+          </>
+        )}
+
+        {/* Center editor */}
+        <section className="flex flex-1 min-w-0 flex-col relative">
+          <div ref={splitContainerRef} className="flex flex-1 min-h-0">
             <div className="flex flex-1 min-w-0 flex-col">
               {/* Tabs row */}
               <div className="flex items-center border-b bg-editor-panel text-xs overflow-x-auto">
@@ -4433,32 +4788,14 @@ export function TicketIDE({
                       </select>
                     </label>
                   )}
+                  {isJava && <CompileBadge state={compileState} />}
                   <button
-                    title="Quick Open File (Ctrl+P)"
-                    onClick={() => setQuickSwitcherOpen(true)}
+                    title="Format Document (Shift+Alt+F)"
+                    onClick={handleFormatCode}
                     className="flex items-center gap-1.5 rounded border border-border bg-background px-2 py-0.5 font-medium hover:bg-accent text-foreground transition-colors"
                   >
-                    <Search className="h-3 w-3 text-muted-foreground" />
-                    <span>Find File</span>
-                    <kbd className="hidden sm:inline-block rounded bg-muted px-1 py-0.2 text-[9px] font-mono text-muted-foreground border">
-                      Ctrl+P
-                    </kbd>
-                  </button>
-                  {isJava && <CompileBadge state={compileState} />}
-                  {!isEvaluationMode && (
-                    <button
-                      onClick={toggleTheme}
-                      className="rounded border px-2 py-0.5 hover:bg-accent"
-                    >
-                      {theme === "dark" ? "☀ Light" : "🌙 Dark"}
-                    </button>
-                  )}
-                  <button
-                    title="Format"
-                    onClick={() => showToast("Code formatted")}
-                    className="rounded border px-2 py-0.5 hover:bg-accent"
-                  >
-                    <Wand2 className="h-3 w-3" />
+                    <Wand2 className="h-3 w-3 text-primary" />
+                    <span>Format</span>
                   </button>
                 </div>
               </div>
@@ -4515,9 +4852,8 @@ export function TicketIDE({
                   {[
                     { k: "terminal", label: "Terminal", icon: TerminalIcon },
                     ...(isAlgo ? [{ k: "testcases", label: "Test Cases", icon: FlaskConical }] : []),
-                    { k: "preview", label: "Results", icon: Globe },
+                    { k: "preview", label: "Results", icon: CheckCircle2 },
                     { k: "output", label: "Console", icon: TerminalIcon },
-                    { k: "errors", label: "Errors", icon: AlertTriangle },
                   ].map((t) => (
                     <button
                       key={t.k}
@@ -4538,13 +4874,20 @@ export function TicketIDE({
                   {bottomTab === "output" && (
                     <ExecutionOutputView
                       output={output}
+                      onClear={() => setOutput("")}
+                      durationMs={elapsed ? elapsed * 1000 : undefined}
                       executionMetrics={executionMetrics}
                       testResults={testResults}
                       executionOutput={executionOutput}
                     />
                   )}
-                  {bottomTab === "errors" && <ErrorsView state={compileState} file={activeFile} />}
-                  {bottomTab === "testcases" && <CustomTestCaseManager customTestCases={customTestCases} onTestCasesChange={setCustomTestCases} />}
+                  {bottomTab === "testcases" && (
+                    <CustomTestCaseManager
+                      customTestCases={customTestCases}
+                      onTestCasesChange={setCustomTestCases}
+                      ticketTasks={ticket.tasks}
+                    />
+                  )}
                   {bottomTab === "preview" && (
                     <FormattedResultsView
                       ticket={ticket}
@@ -4781,7 +5124,12 @@ export function TicketIDE({
         </AlertDialogContent>
       </AlertDialog>
       {/* Quick Open File Switcher Modal (Ctrl+P / Command+P) */}
-      <Dialog open={quickSwitcherOpen} onOpenChange={setQuickSwitcherOpen}>
+      <Dialog open={quickSwitcherOpen} onOpenChange={(open) => {
+        setQuickSwitcherOpen(open);
+        if (open) {
+          setQuickSearchSelectedIndex(0);
+        }
+      }}>
         <DialogContent className="max-w-lg p-0 overflow-hidden border border-border shadow-2xl bg-card">
           <div className="flex items-center gap-2 border-b px-4 py-3 bg-muted/30">
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -4789,19 +5137,33 @@ export function TicketIDE({
               type="text"
               autoFocus
               value={quickSearchQuery}
-              onChange={(e) => setQuickSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setQuickSearchQuery(e.target.value);
+                setQuickSearchSelectedIndex(0);
+              }}
               placeholder="Search files by name (e.g. tests.py, views.py, main.py)..."
               className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  const filtered = fileList.filter((f) =>
-                    f.toLowerCase().includes(quickSearchQuery.toLowerCase())
-                  );
-                  if (filtered.length > 0) {
-                    openFile(filtered[0]);
+                const matches = allWorkspaceFiles.filter((f: string) =>
+                  f.toLowerCase().includes(quickSearchQuery.toLowerCase())
+                );
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setQuickSearchSelectedIndex((i: number) => Math.min(matches.length - 1, i + 1));
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setQuickSearchSelectedIndex((i: number) => Math.max(0, i - 1));
+                } else if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (matches.length > 0) {
+                    const picked = matches[quickSearchSelectedIndex] || matches[0];
+                    openFile(picked);
                     setQuickSwitcherOpen(false);
                     setQuickSearchQuery("");
                   }
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  setQuickSwitcherOpen(false);
                 }
               }}
             />
@@ -4811,7 +5173,7 @@ export function TicketIDE({
           </div>
           <div className="max-h-72 overflow-y-auto p-2">
             {(() => {
-              const matches = fileList.filter((f) =>
+              const matches = allWorkspaceFiles.filter((f: string) =>
                 f.toLowerCase().includes(quickSearchQuery.toLowerCase())
               );
               if (matches.length === 0) {
@@ -4821,11 +5183,12 @@ export function TicketIDE({
                   </div>
                 );
               }
-              return matches.map((f) => {
+              return matches.map((f: string, idx: number) => {
                 const parts = f.split("/");
                 const fileName = parts.pop() || f;
                 const dirPath = parts.join("/");
                 const isCurrent = activeFile === f;
+                const isSelected = idx === quickSearchSelectedIndex;
                 return (
                   <button
                     key={f}
@@ -4835,9 +5198,11 @@ export function TicketIDE({
                       setQuickSearchQuery("");
                     }}
                     className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs transition-colors ${
-                      isCurrent
+                      isSelected
+                        ? "bg-accent text-foreground border-l-2 border-primary"
+                        : isCurrent
                         ? "bg-primary/10 text-primary font-medium"
-                        : "text-foreground hover:bg-accent"
+                        : "text-foreground hover:bg-accent/60"
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
@@ -4859,6 +5224,86 @@ export function TicketIDE({
               });
             })()}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Keyboard Shortcuts Cheatsheet Modal */}
+      <Dialog open={shortcutsModalOpen} onOpenChange={setShortcutsModalOpen}>
+        <DialogContent className="max-w-md border border-border shadow-2xl bg-card">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base font-semibold">
+              <Settings className="h-4 w-4 text-primary" />
+              Keyboard Shortcuts
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              VS Code compatible shortcuts in this workspace.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-80 overflow-y-auto space-y-4 py-2 text-xs">
+            <div>
+              <div className="font-semibold text-muted-foreground uppercase tracking-wider text-[10px] mb-1.5">
+                Navigation & Views
+              </div>
+              <div className="space-y-1.5">
+                {[
+                  { keys: ["⌘", "P"], label: "Quick Open / Find File" },
+                  { keys: ["⌘", "B"], label: "Toggle Left Problem Panel" },
+                  { keys: ["⌘", "Shift", "F"], label: "Search in Files" },
+                  { keys: ["⌘", "Shift", "E"], label: "File Explorer" },
+                  { keys: ["⌘", "Shift", "G"], label: "Source Control / Diff" },
+                  { keys: ["⌘", "Shift", "D"], label: "Run & Debug" },
+                  { keys: ["⌘", "Shift", "X"], label: "Containers & Environment" },
+                  { keys: ["⌘", "`"], label: "Toggle Bottom Panel / Terminal" },
+                ].map((s, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-1 border-b border-border/30">
+                    <span className="text-foreground">{s.label}</span>
+                    <div className="flex items-center gap-1">
+                      {s.keys.map((k, kIdx) => (
+                        <kbd key={kIdx} className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground border border-border/60">
+                          {k}
+                        </kbd>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="font-semibold text-muted-foreground uppercase tracking-wider text-[10px] mb-1.5">
+                Editor Actions
+              </div>
+              <div className="space-y-1.5">
+                {[
+                  { keys: ["⌘", "S"], label: "Save File" },
+                  { keys: ["⌘", "↵"], label: "Run Code / Tests" },
+                  { keys: ["Shift", "⌥", "F"], label: "Format Document" },
+                  { keys: ["⌘", "W"], label: "Close Active Tab" },
+                  { keys: ["F5"], label: "Run / Debug Code" },
+                  { keys: ["F1"], label: "Show Keyboard Shortcuts" },
+                ].map((s, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-1 border-b border-border/30">
+                    <span className="text-foreground">{s.label}</span>
+                    <div className="flex items-center gap-1">
+                      {s.keys.map((k, kIdx) => (
+                        <kbd key={kIdx} className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground border border-border/60">
+                          {k}
+                        </kbd>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setShortcutsModalOpen(false)}
+              className="px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground text-xs font-medium hover:bg-secondary/80"
+            >
+              Close
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -5179,23 +5624,27 @@ function FormattedResultsView({
     return (
       <div className="space-y-4 max-w-4xl pb-4">
         {/* Metrics Header */}
-        <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg border bg-card text-xs">
+        <div className={`flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg border text-xs ${isAllPassed ? "bg-success/5 border-success/30" : "bg-card border-border"}`}>
           <div className="flex items-center gap-2">
+            {isAllPassed ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
             <span className={`font-semibold ${isAllPassed ? "text-success" : "text-foreground"}`}>
               {passedCount} / {totalCount} Test Cases Passed
+            </span>
+            <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${isAllPassed ? "bg-success/15 text-success border border-success/30" : "bg-destructive/15 text-destructive border border-destructive/30"}`}>
+              {isAllPassed ? "ALL PASSED" : "FAILED"}
             </span>
           </div>
           {executionMetrics && (
             <div className="flex items-center gap-3 text-muted-foreground font-mono text-[11px]">
               {executionMetrics.execution_time !== undefined && (
                 <div className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
+                  <Clock className="w-3.5 h-3.5" />
                   <span>{executionMetrics.execution_time.toFixed(3)}s</span>
                 </div>
               )}
               {executionMetrics.memory_usage !== undefined && (
                 <div className="flex items-center gap-1">
-                  <Zap className="w-3 h-3" />
+                  <Zap className="w-3.5 h-3.5" />
                   <span>{executionMetrics.memory_usage.toFixed(2)}MB</span>
                 </div>
               )}
@@ -6230,39 +6679,6 @@ function ProgressTile({
   );
 }
 
-function parseDPMarkdown(text: string) {
-  if (!text) return "";
-
-  // Remove duplicate 'Examples' section at the bottom
-  const redundantExamplesIndex = text.search(/\n#{1,3}\s+Examples?\b/i);
-  if (redundantExamplesIndex !== -1) {
-    text = text.substring(0, redundantExamplesIndex);
-  }
-
-  const codeBlocks: string[] = [];
-  let processed = text.replace(/```([\s\S]*?)```/g, (match, p1) => {
-    codeBlocks.push(p1);
-    return `___CODE_BLOCK_${codeBlocks.length - 1}___`;
-  });
-
-  processed = processed
-    .replace(/###\s+([^\n]+)/g, '<h3 class="text-base font-bold mt-5 mb-2 text-foreground">$1</h3>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
-    .replace(/`([^`]+)`/g, '<code class="bg-accent px-1.5 py-0.5 rounded text-[11px] font-mono text-foreground">$1</code>')
-    .replace(/\n/g, '<br/>');
-
-  processed = processed.replace(/___CODE_BLOCK_(\d+)___/g, (match, idx) => {
-    let block = codeBlocks[Number(idx)].trim();
-    block = block.replace(/Input:\s*/gi, 'Input:\n')
-                 .replace(/Output:\s*/gi, '\nOutput:\n')
-                 .replace(/\n{2,}/g, '\n')
-                 .trim();
-    return `<div class="bg-editor-bg border border-border rounded-md p-3 my-3 font-mono text-xs overflow-x-auto text-foreground"><div class="whitespace-pre-wrap">${block}</div></div>`;
-  });
-
-  return processed;
-}
-
 function Minimap({ code }: { code: string }) {
   const lines = code.split("\n");
   return (
@@ -6311,20 +6727,58 @@ function ProblemPanel({
   return (
     <>
       <div>
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
-          {ticket.tag}
+        <div className="flex flex-wrap items-center gap-2 mb-2">
+          {ticket.tag && (
+            <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+              {ticket.tag}
+            </span>
+          )}
+          {ticket.difficulty && (
+            <DiffBadge value={ticket.difficulty} />
+          )}
+          {ticket.xp && (
+            <span className="text-[11px] font-mono text-muted-foreground flex items-center gap-1">
+              <Zap className="h-3 w-3 text-primary" /> +{ticket.xp} YP
+            </span>
+          )}
         </div>
-        <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
-        {isAlgo && isReal ? (
-          <div className="mt-3 text-sm text-muted-foreground leading-relaxed DS-Markdown"
-               dangerouslySetInnerHTML={{ __html: parseDPMarkdown(ticket.description) }} />
-        ) : (
-          <div className="mt-3 text-sm text-muted-foreground leading-relaxed prose prose-sm dark:prose-invert max-w-none [&>h3]:text-foreground [&>h3]:font-semibold [&>h3]:text-base [&>h3]:mt-4 [&>h3]:mb-2 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-3 [&>ol]:list-decimal [&>ol]:pl-5 [&>ol]:mb-3 [&_code]:bg-accent/50 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono [&_li]:my-0.5">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {isReal ? (ticket.description || "") : "📋 Create a program demonstrating Java variables and data types."}
-            </ReactMarkdown>
-          </div>
-        )}
+        <h2 className="text-xl font-bold tracking-tight text-foreground">{ticket.title}</h2>
+        <div className="mt-3 text-sm text-foreground/90 leading-relaxed space-y-3">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              h1: ({ children }) => <h1 className="text-lg font-bold text-foreground mt-4 mb-2">{children}</h1>,
+              h2: ({ children }) => <h2 className="text-base font-bold text-foreground mt-4 mb-2 pb-1 border-b border-border/40">{children}</h2>,
+              h3: ({ children }) => <h3 className="text-sm font-semibold text-foreground mt-3 mb-1.5">{children}</h3>,
+              p: ({ children }) => <p className="text-sm leading-relaxed text-muted-foreground my-2">{children}</p>,
+              ul: ({ children }) => <ul className="list-disc pl-5 my-2 space-y-1 text-sm text-muted-foreground">{children}</ul>,
+              ol: ({ children }) => <ol className="list-decimal pl-5 my-2 space-y-1 text-sm text-muted-foreground">{children}</ol>,
+              li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+              blockquote: ({ children }) => <blockquote className="border-l-4 border-primary/60 bg-muted/30 px-3 py-2 rounded-r my-3 text-xs italic text-muted-foreground">{children}</blockquote>,
+              code: ({ inline, children, ...props }: any) => {
+                if (inline) {
+                  return (
+                    <code className="bg-muted/70 text-foreground font-mono text-xs px-1.5 py-0.5 rounded border border-border/40" {...props}>
+                      {children}
+                    </code>
+                  );
+                }
+                return (
+                  <div className="my-3 rounded-lg border border-border bg-editor-bg overflow-hidden font-mono text-xs">
+                    <pre className="p-3 overflow-x-auto text-foreground whitespace-pre-wrap">
+                      <code>{children}</code>
+                    </pre>
+                  </div>
+                );
+              },
+              table: ({ children }) => <div className="overflow-x-auto my-3"><table className="w-full text-xs border border-border rounded overflow-hidden">{children}</table></div>,
+              th: ({ children }) => <th className="border-b border-border bg-muted/50 p-2 text-left font-semibold text-foreground">{children}</th>,
+              td: ({ children }) => <td className="border-b border-border/40 p-2 text-muted-foreground">{children}</td>,
+            }}
+          >
+            {isReal ? (ticket.description || "No description provided.") : "📋 Create a program demonstrating Java variables and data types."}
+          </ReactMarkdown>
+        </div>
       </div>
 
       {isReal ? (
@@ -6613,8 +7067,8 @@ function HintsPanel({
           ticket_id: ticket.id,
           hint_index: index,
         });
-        if (res?.revealed_hints) {
-          setRevealedHints(res.revealed_hints);
+        if ((res as any)?.revealed_hints) {
+          setRevealedHints((res as any).revealed_hints);
         } else {
           setRevealedHints([...revealedHints, index]);
         }

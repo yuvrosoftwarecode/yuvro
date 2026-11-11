@@ -971,7 +971,8 @@ def student_stats_view(request):
     return Response({
         'day_streak': streak,
         'total_yp': total_yp,
-        'rank': rank
+        'rank': rank,
+        'activity_dates': [d.isoformat() for d in sorted_dates],
     })
 
 

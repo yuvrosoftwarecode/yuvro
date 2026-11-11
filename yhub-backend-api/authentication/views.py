@@ -10,6 +10,8 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 
 from django.contrib.auth import login, authenticate, get_user_model
+from django.db import IntegrityError
+from django.db.models.functions import Lower
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -43,7 +45,8 @@ from .serializers import (
     UserLoginSerializer,
     UserUpdateSerializer,
 )
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from .validators import validate_username_format
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -250,7 +253,13 @@ class UserRegistrationView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        try:
+            user = serializer.save()
+        except IntegrityError:
+            return Response(
+                {"username": ["A user with that username or email already exists."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # Automatically initialize credit wallet and grant welcome signup bonus
         try:
@@ -645,7 +654,264 @@ class ResetPasswordView(generics.GenericAPIView):
         user.set_password(password)
         user.save()
 
-        return Response({"message": "Password reset successful. You may now login."})
+        try:
+            if hasattr(request, "session"):
+                login(request, user)
+                record_user_session(request, user, reactivate=True)
+        except Exception as e:
+            logger.debug(f"Session login skipped: {e}")
+
+        token_serializer = CustomTokenObtainPairSerializer()
+        refresh = token_serializer.get_token(user)
+
+        product = request.query_params.get("product") or request.data.get("product")
+        if product:
+            refresh["products"] = [product]
+        else:
+            refresh["products"] = ["ycode", "ylabs", "ycampus", "marketplace"]
+
+        return Response(
+            {
+                "status": "success",
+                "message": "Password reset successful.",
+                "user": UserSerializer(user).data,
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def send_forgot_password_code_view(request):
+    raw_email = request.data.get("email", "")
+    email = raw_email.strip()
+    if not email:
+        return Response(
+            {"error": "A valid email address is required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    from django.core.validators import validate_email as django_validate_email
+
+    try:
+        django_validate_email(email)
+    except ValidationError:
+        return Response(
+            {"error": "A valid email address is required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user = (
+        User.objects.annotate(email_lower=Lower("email"))
+        .filter(email_lower=email.lower())
+        .first()
+    )
+    if not user or getattr(user, "is_guest_user", False):
+        return Response(
+            {
+                "status": "success",
+                "message": "If an account exists with this email, a 6-digit verification code has been sent.",
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    otp = str(random.randint(100000, 999999))
+
+    RegistrationOTP.objects.update_or_create(
+        email=user.email,
+        resource_id="forgot_password",
+        resource_type="password_reset",
+        defaults={
+            "otp": otp,
+            "expires_at": timezone.now() + timedelta(minutes=5),
+        },
+    )
+
+    user_name = user.get_full_name() or user.first_name or user.username or "there"
+    context = {
+        "user_name": user_name,
+        "otp": otp,
+        "frontend_url": settings.FRONTEND_URL,
+        "resource_title": "Password Reset",
+        "resource_type": "password reset",
+    }
+
+    try:
+        html_message = render_to_string("emails/otp_verification.html", context)
+    except Exception as e:
+        logger.warning(f"Failed to render OTP HTML email: {e}")
+        html_message = f"Hello {user_name},<br><br>Your 6-digit password reset verification code is: <b>{otp}</b>.<br>It is valid for 5 minutes."
+
+    plain_message = (
+        f"Hello {user_name},\n\n"
+        f"We received a request to reset your password for your Yuvro account.\n\n"
+        f"Your 6-digit verification code is:\n\n{otp}\n\n"
+        f"This code is valid for 5 minutes. If you did not request a password reset, you can safely ignore this email.\n\n"
+        f"- The Yuvro Team"
+    )
+
+    try:
+        send_mail(
+            subject="Your Yuvro Password Reset Code",
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+    except Exception as e:
+        logger.error(f"Failed to send forgot-password OTP email: {e}")
+        if getattr(settings, "DEBUG", False):
+            logger.info(f"[DEV] Forgot password OTP for {user.email}: {otp}")
+
+    return Response(
+        {
+            "status": "success",
+            "message": "A 6-digit verification code has been sent to your email.",
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def verify_forgot_password_code_view(request):
+    raw_email = request.data.get("email", "")
+    code = str(request.data.get("code", "")).strip()
+    email = raw_email.strip()
+
+    if not email or not code:
+        return Response(
+            {"error": "Email and 6-digit code are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user = (
+        User.objects.annotate(email_lower=Lower("email"))
+        .filter(email_lower=email.lower())
+        .first()
+    )
+    if not user:
+        return Response(
+            {"error": "That code isn’t correct or has expired. Please check and try again."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    otp_record = RegistrationOTP.objects.filter(
+        email=user.email,
+        resource_id="forgot_password",
+        resource_type="password_reset",
+    ).first()
+
+    if not otp_record or str(otp_record.otp).strip() != code or not otp_record.is_valid():
+        return Response(
+            {"error": "That code isn’t correct or has expired. Please check and try again."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    token = PasswordResetTokenGenerator().make_token(user)
+    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+
+    return Response(
+        {
+            "status": "success",
+            "message": "Code verified successfully.",
+            "token": token,
+            "uidb64": uidb64,
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def reset_password_with_code_view(request):
+    raw_email = request.data.get("email", "")
+    code = str(request.data.get("code", "")).strip()
+    password = request.data.get("password", "")
+    token = request.data.get("token", "")
+    email = raw_email.strip()
+
+    if not email or not password:
+        return Response(
+            {"error": "Email and new password are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user = (
+        User.objects.annotate(email_lower=Lower("email"))
+        .filter(email_lower=email.lower())
+        .first()
+    )
+    if not user:
+        return Response({"error": "Invalid request"}, status=status.HTTP_400_BAD_REQUEST)
+
+    is_authorized = False
+    if token:
+        if PasswordResetTokenGenerator().check_token(user, token):
+            is_authorized = True
+
+    if not is_authorized and code:
+        otp_record = RegistrationOTP.objects.filter(
+            email=user.email,
+            resource_id="forgot_password",
+            resource_type="password_reset",
+        ).first()
+        if otp_record and str(otp_record.otp).strip() == code and otp_record.is_valid():
+            is_authorized = True
+
+    if not is_authorized:
+        return Response(
+            {"error": "Reset session or verification code has expired. Please request a new code."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        validate_password(password, user)
+    except ValidationError as e:
+        error_msgs = e.messages if hasattr(e, "messages") else [str(e)]
+        return Response(
+            {"error": error_msgs[0] if error_msgs else "Password does not meet requirements"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    user.set_password(password)
+    user.save()
+
+    RegistrationOTP.objects.filter(
+        email=user.email,
+        resource_id="forgot_password",
+        resource_type="password_reset",
+    ).delete()
+
+    try:
+        if hasattr(request, "session"):
+            login(request, user)
+            record_user_session(request, user, reactivate=True)
+    except Exception as e:
+        logger.debug(f"Session login skipped: {e}")
+
+    token_serializer = CustomTokenObtainPairSerializer()
+    refresh = token_serializer.get_token(user)
+
+    product = request.query_params.get("product") or request.data.get("product")
+    if product:
+        refresh["products"] = [product]
+    else:
+        refresh["products"] = ["ycode", "ylabs", "ycampus", "marketplace"]
+
+    return Response(
+        {
+            "status": "success",
+            "message": "Password reset successful.",
+            "user": UserSerializer(user).data,
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        },
+        status=status.HTTP_200_OK,
+    )
 
 
 @api_view(["POST"])
@@ -1396,3 +1662,130 @@ def revoke_other_sessions_view(request):
     UserSession.objects.filter(user=user).exclude(session_key=session_key).update(is_active=False)
 
     return Response({"status": "success", "message": "Logged out of all other sessions."})
+
+
+@extend_schema(
+    summary="Check username availability",
+    description="Check whether a username is available, invalid, or taken in real-time.",
+    parameters=[
+        {
+            "name": "username",
+            "in": "query",
+            "required": True,
+            "type": "string",
+            "description": "The username to verify",
+        }
+    ],
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "available": {"type": "boolean"},
+                "message": {"type": "string"},
+            },
+        }
+    },
+)
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def check_username_view(request):
+    raw_username = request.query_params.get("username", "")
+    username = raw_username.strip()
+
+    if not username:
+        return Response(
+            {"available": False, "message": "Invalid username"},
+            status=status.HTTP_200_OK,
+        )
+
+    is_valid, _ = validate_username_format(username)
+    if not is_valid:
+        return Response(
+            {"available": False, "message": "Invalid username"},
+            status=status.HTTP_200_OK,
+        )
+
+    # Exclude self if authenticated. Use Lower() to match unique_lower_username index
+    lower_username = username.lower()
+    qs = User.objects.annotate(uname_lower=Lower("username")).filter(
+        uname_lower=lower_username, is_guest_user=False
+    )
+    if request.user and request.user.is_authenticated:
+        qs = qs.exclude(pk=request.user.pk)
+
+    if qs.exists():
+        return Response(
+            {"available": False, "message": "Username is already taken"},
+            status=status.HTTP_200_OK,
+        )
+
+    return Response(
+        {"available": True, "message": "Username is available"},
+        status=status.HTTP_200_OK,
+    )
+
+
+@extend_schema(
+    summary="Check Email Availability",
+    description="Check whether an email address is available for registration",
+    parameters=[
+        OpenApiParameter(
+            name="email",
+            description="Email address to check",
+            required=True,
+            type=str,
+            location=OpenApiParameter.QUERY,
+        )
+    ],
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "available": {"type": "boolean"},
+                "message": {"type": "string"},
+            },
+        }
+    },
+)
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def check_email_view(request):
+    raw_email = request.query_params.get("email", "")
+    email = raw_email.strip()
+
+    if not email:
+        return Response(
+            {"available": False, "message": "Please enter a valid email address."},
+            status=status.HTTP_200_OK,
+        )
+
+    from django.core.validators import validate_email as django_validate_email
+    try:
+        django_validate_email(email)
+    except ValidationError:
+        return Response(
+            {"available": False, "message": "Please enter a valid email address."},
+            status=status.HTTP_200_OK,
+        )
+
+    lower_email = email.lower()
+    qs = User.objects.annotate(email_lower=Lower("email")).filter(
+        email_lower=lower_email, is_guest_user=False
+    )
+    if request.user and request.user.is_authenticated:
+        qs = qs.exclude(pk=request.user.pk)
+
+    if qs.exists():
+        return Response(
+            {
+                "available": False,
+                "message": "The email you have provided is already associated with an account.",
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    return Response(
+        {"available": True, "message": "Email is available"},
+        status=status.HTTP_200_OK,
+    )
+

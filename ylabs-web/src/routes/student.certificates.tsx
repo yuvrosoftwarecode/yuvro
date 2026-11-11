@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { TopNav } from "@/components/TopNav";
 import { certificates, me } from "@/lib/dummy";
 import { Award, Download, Share2, Linkedin } from "lucide-react";
 import { useAuth } from "@/lib/auth";
@@ -15,7 +14,6 @@ function Certificates() {
   const [selectedCertificate, setSelectedCertificate] = useState<{ title: string; id: string } | null>(null);
   return (
     <div className="min-h-screen">
-      <TopNav />
       <main className="mx-auto max-w-[1100px] px-4 py-8">
         <header className="mb-6">
           <h1 className="text-2xl font-semibold flex items-center gap-2">
