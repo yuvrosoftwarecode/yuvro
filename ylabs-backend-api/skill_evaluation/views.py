@@ -1742,7 +1742,7 @@ def filter_question_queryset(qs, user, source=None):
     if user and (user.is_superuser or user.is_staff):
         if source == "yuvro":
             return qs.filter(company__isnull=True)
-        elif source == "self":
+        elif source == "recruiter":
             company = get_user_company(user)
             if company:
                 return qs.filter(company=company)
@@ -1753,7 +1753,7 @@ def filter_question_queryset(qs, user, source=None):
 
     if source == "yuvro":
         return qs.filter(company__isnull=True)
-    elif source == "self":
+    elif source == "recruiter":
         if not company:
             return qs.none()
         return qs.filter(company=company)

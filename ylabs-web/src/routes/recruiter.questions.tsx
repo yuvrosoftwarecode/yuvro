@@ -10,6 +10,7 @@ import LoadingSkeleton from "@/components/common/LoadingSkeleton";
 import { Button } from "@/components/ui/button";
 import { QuestionBuilder } from "@/components/recruiter/QuestionBuilder";
 import { Sparkles, User } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/recruiter/questions")({
   head: () => ({
@@ -612,10 +613,10 @@ const QuestionCardItem = memo(function QuestionCardItem({
 function RecruiterQuestionBankPage() {
   const queryClient = useQueryClient();
 
-  // Source State: "yuvro" (library) | "self" (recruiter's company questions)
-  const [questionSource, setQuestionSource] = useState<"yuvro" | "self">("yuvro");
+  // Source State: "yuvro" (library) | "recruiter" (recruiter's company questions)
+  const [questionSource, setQuestionSource] = useState<"yuvro" | "recruiter">("yuvro");
 
-  const handleSourceChange = (newSource: "yuvro" | "self") => {
+  const handleSourceChange = (newSource: "yuvro" | "recruiter") => {
     setQuestionSource(newSource);
     setCurrentPage(1);
   };
@@ -981,8 +982,8 @@ function RecruiterQuestionBankPage() {
         }}
         onSuccess={(msg) => {
           showToast(msg);
-          // Auto switch to "self" so recruiter immediately sees their newly created question
-          setQuestionSource("self");
+          // Auto switch to "recruiter" so recruiter immediately sees their newly created question
+          setQuestionSource("recruiter");
           queryClient.invalidateQueries({ queryKey: ["labQuestions"] });
           queryClient.invalidateQueries({ queryKey: ["knowledgeQuestions"] });
           queryClient.invalidateQueries({ queryKey: ["systemDesignQuestions"] });
@@ -1017,32 +1018,29 @@ function RecruiterQuestionBankPage() {
           ))}
         </div>
 
-        {/* Source Toggle: Yuvro Library vs Self (Company) */}
-        <div className="mb-2 flex items-center gap-1 rounded-lg border border-border bg-muted/40 p-1">
-          <button
-            type="button"
-            onClick={() => handleSourceChange("yuvro")}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
-              questionSource === "yuvro"
-                ? "bg-background text-foreground shadow-sm font-semibold"
-                : "text-muted-foreground hover:text-foreground"
+        {/* Source Toggle: Yuvro Library vs Recruiter (Company) */}
+        <div className="mb-2 flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2">
+          <span
+            className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
+              questionSource === "yuvro" ? "text-foreground" : "text-muted-foreground"
             }`}
           >
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             Yuvro
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSourceChange("self")}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
-              questionSource === "self"
-                ? "bg-background text-foreground shadow-sm font-semibold"
-                : "text-muted-foreground hover:text-foreground"
+          </span>
+          <Switch
+            aria-label="Show recruiter questions"
+            checked={questionSource === "recruiter"}
+            onCheckedChange={(checked) => handleSourceChange(checked ? "recruiter" : "yuvro")}
+          />
+          <span
+            className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
+              questionSource === "recruiter" ? "text-foreground" : "text-muted-foreground"
             }`}
           >
             <User className="h-3.5 w-3.5 text-primary" />
             Recruiter
-          </button>
+          </span>
         </div>
       </div>
 
