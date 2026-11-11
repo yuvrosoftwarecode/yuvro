@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { TopNav } from "@/components/TopNav";
 import { Button } from "@/components/ui/button";
@@ -28,11 +28,44 @@ import {
   Briefcase,
   X,
   ChevronDown,
+  Share2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/student/profile")({
-  component: Profile,
+  component: StudentProfileRedirect,
 });
+
+/**
+ * The student's own profile lives at `/u/<userId>` (same URL that is shared
+ * publicly). This legacy route forwards the logged-in user there.
+ */
+function StudentProfileRedirect() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && user?.id) {
+      navigate({
+        to: "/u/$userId",
+        params: { userId: String(user.id) },
+        replace: true,
+      });
+    }
+  }, [mounted, user?.id, navigate]);
+
+  if (mounted && !user?.id) {
+    return <Profile />;
+  }
+  return (
+    <div className="min-h-screen grid place-items-center">
+      <Loader2 className="size-6 animate-spin text-muted-foreground" />
+    </div>
+  );
+}
 
 const PROFILE_KEY = "yuvro-profile-overrides";
 const EDUCATION_KEY = "yuvro-education";
@@ -154,7 +187,7 @@ function parseUserAgent(): { browser: string; os: string; isMobile: boolean } {
   return { browser, os, isMobile };
 }
 
-function Profile() {
+export function Profile() {
   const { user, updateUser } = useAuth();
   const deviceInfo = useMemo(() => parseUserAgent(), []);
 
@@ -246,6 +279,35 @@ function Profile() {
       if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current);
     };
   }, []);
+
+  /* ── Public profile sharing ────────────────────────────── */
+  const [copiedLink, setCopiedLink] = useState(false);
+  const handleShareProfile = async () => {
+    if (!user?.id) {
+      showNotice("Unable to generate profile link: User ID missing.");
+      return;
+    }
+    const origin = typeof window !== "undefined" && window.location.origin ? window.location.origin : "https://yuvrolabs.com";
+    const profileUrl = `${origin}/u/${user.id}`;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(profileUrl);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = profileUrl;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      setCopiedLink(true);
+      showNotice(`Profile link copied to clipboard! (${profileUrl})`);
+      setTimeout(() => setCopiedLink(false), 2500);
+    } catch (e) {
+      console.warn("Clipboard copy failed:", e);
+      showNotice(`Profile link: ${profileUrl}`);
+    }
+  };
 
   /* ── Active sessions state ──────────────────────────────── */
   const [sessions, setSessions] = useState<ActiveSession[]>([]);
@@ -801,8 +863,9 @@ function Profile() {
             <div className="absolute inset-0 bg-black/45 rounded-2xl pointer-events-none" />
           )}
 
-          {/* Cover Action Button (Top-Right) */}
-          <div className="absolute top-4 right-4 z-20">
+          {/* Header Action Buttons (Top-Right) */}
+          <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+            {/* Cover Action Button */}
             {!coverImage ? (
               <Button
                 type="button"
@@ -946,13 +1009,32 @@ function Profile() {
 
             {/* Display Name and Level */}
             <div className="min-w-0">
-              <h1
-                className={`break-words text-2xl sm:text-3xl font-semibold tracking-tight ${
-                  coverImage ? "text-white" : "text-foreground"
-                }`}
-              >
-                {displayName || "Your name"}
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1
+                  className={`break-words text-2xl sm:text-3xl font-semibold tracking-tight ${
+                    coverImage ? "text-white" : "text-foreground"
+                  }`}
+                >
+                  {displayName || "Your name"}
+                </h1>
+                <button
+                  type="button"
+                  onClick={handleShareProfile}
+                  title="Copy profile link"
+                  aria-label="Copy profile link"
+                  className={`size-8 rounded-full grid place-items-center transition-colors cursor-pointer shrink-0 ${
+                    coverImage
+                      ? "text-white/85 hover:text-white bg-black/25 hover:bg-black/40"
+                      : "text-muted-foreground hover:text-foreground bg-accent/60 hover:bg-accent"
+                  }`}
+                >
+                  {copiedLink ? (
+                    <Check className="size-4 text-emerald-400" />
+                  ) : (
+                    <Share2 className="size-4" />
+                  )}
+                </button>
+              </div>
               <p
                 className={`mt-0.5 text-sm ${
                   coverImage ? "text-white/80" : "text-muted-foreground"

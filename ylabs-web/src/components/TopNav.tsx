@@ -185,6 +185,7 @@ export function TopNav({
                   : user.username
               }
               userEmail={user.email}
+              userId={user.id}
               profileImage={user.profile_image}
             />
           ) : (
@@ -206,11 +207,13 @@ function ProfileMenu({
   onLogout,
   userName,
   userEmail,
+  userId,
   profileImage,
 }: {
   onLogout: () => void;
   userName: string;
   userEmail?: string;
+  userId: string;
   profileImage?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -254,7 +257,8 @@ function ProfileMenu({
             )}
           </div>
           <Link
-            to="/student/profile"
+            to="/u/$userId"
+            params={{ userId: String(userId) }}
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/60"
           >

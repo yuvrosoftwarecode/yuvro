@@ -29,6 +29,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecruiterIndexRouteImport } from './routes/recruiter.index'
 import { Route as EvaluationIndexRouteImport } from './routes/evaluation.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as UUserIdRouteImport } from './routes/u.$userId'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentLeaderboardRouteImport } from './routes/student.leaderboard'
 import { Route as StudentForumRouteImport } from './routes/student.forum'
@@ -180,6 +181,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const UUserIdRoute = UUserIdRouteImport.update({
+  id: '/u/$userId',
+  path: '/u/$userId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const StudentProfileRoute = StudentProfileRouteImport.update({
   id: '/profile',
@@ -495,6 +501,7 @@ export interface FileRoutesByFullPath {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRoute
+  '/u/$userId': typeof UUserIdRoute
   '/admin/': typeof AdminIndexRoute
   '/evaluation/': typeof EvaluationIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
@@ -564,6 +571,7 @@ export interface FileRoutesByTo {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRoute
+  '/u/$userId': typeof UUserIdRoute
   '/admin': typeof AdminIndexRoute
   '/evaluation': typeof EvaluationIndexRoute
   '/recruiter': typeof RecruiterIndexRoute
@@ -638,6 +646,7 @@ export interface FileRoutesById {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRoute
+  '/u/$userId': typeof UUserIdRoute
   '/admin/': typeof AdminIndexRoute
   '/evaluation/': typeof EvaluationIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
@@ -713,6 +722,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/u/$userId'
     | '/admin/'
     | '/evaluation/'
     | '/recruiter/'
@@ -782,6 +792,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/u/$userId'
     | '/admin'
     | '/evaluation'
     | '/recruiter'
@@ -855,6 +866,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/u/$userId'
     | '/admin/'
     | '/evaluation/'
     | '/recruiter/'
@@ -908,6 +920,7 @@ export interface RootRouteChildren {
   GithubCallbackRoute: typeof GithubCallbackRoute
   LinkedinCallbackRoute: typeof LinkedinCallbackRoute
   MockInterviewSlugRoute: typeof MockInterviewSlugRoute
+  UUserIdRoute: typeof UUserIdRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
   SharedReportTokenRoute: typeof SharedReportTokenRoute
   PublicMilestoneSlugUserIdRoute: typeof PublicMilestoneSlugUserIdRoute
@@ -1054,6 +1067,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/u/$userId': {
+      id: '/u/$userId'
+      path: '/u/$userId'
+      fullPath: '/u/$userId'
+      preLoaderRoute: typeof UUserIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/student/profile': {
       id: '/student/profile'
@@ -1666,6 +1686,7 @@ const rootRouteChildren: RootRouteChildren = {
   GithubCallbackRoute: GithubCallbackRoute,
   LinkedinCallbackRoute: LinkedinCallbackRoute,
   MockInterviewSlugRoute: MockInterviewSlugRoute,
+  UUserIdRoute: UUserIdRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
   SharedReportTokenRoute: SharedReportTokenRoute,
   PublicMilestoneSlugUserIdRoute: PublicMilestoneSlugUserIdRoute,

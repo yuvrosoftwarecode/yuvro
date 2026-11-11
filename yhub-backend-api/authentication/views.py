@@ -1202,6 +1202,49 @@ def internal_github_token_view(request, user_id):
     })
 
 
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def internal_user_profile_view(request, user_id):
+    internal_secret = getattr(settings, 'INTERNAL_API_SECRET', os.environ.get('INTERNAL_API_SECRET', 'dev-secret-key'))
+    provided_secret = request.headers.get('X-Internal-Secret')
+
+    if not provided_secret or provided_secret != internal_secret:
+        return Response({"error": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        user = User.objects.get(id=user_id)
+    except (User.DoesNotExist, ValueError):
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    github_conn = getattr(user, "github_connection", None)
+    github_username = github_conn.github_username if github_conn else None
+
+    linkedin_conn = getattr(user, "linkedin_connection", None)
+    linkedin_name = linkedin_conn.linkedin_name if linkedin_conn else getattr(user, "linkedin_name", None)
+
+    return Response({
+        "id": str(user.id),
+        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "name": f"{user.first_name} {user.last_name}".strip() or user.username,
+        "email": user.email,
+        "profile_image": user.profile_image,
+        "cover_image": user.cover_image,
+        "resume_file": user.resume_file,
+        "phone": user.phone,
+        "location": user.location,
+        "website": user.website,
+        "about": user.about,
+        "education": user.education if isinstance(user.education, list) else [],
+        "employment": user.employment if isinstance(user.employment, list) else [],
+        "roles": user.roles,
+        "date_joined": user.date_joined,
+        "github_username": github_username,
+        "linkedin_name": linkedin_name,
+    })
+
+
 @extend_schema(
     summary="Upload a profile image",
     description=(

@@ -2,7 +2,7 @@ import json
 import re
 import shutil
 from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from authentication.permissions import IsAdminUser
@@ -24,10 +24,11 @@ from .system_design_utils import (
     evaluate_system_design,
     evaluate_system_design_with_ai,
 )
-from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.decorators import api_view, permission_classes, action, authentication_classes
 from django.utils import timezone
 from datetime import timedelta
-from django.db.models import Sum
+from django.db.models import Sum, Q
+import requests as http_requests
 import threading
 import logging
 from .github_client import GithubClient
@@ -976,15 +977,22 @@ def student_stats_view(request):
 
 
 @api_view(["GET"])
-@permission_classes([])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def public_milestone_view(request, slug, user_id):
     """
     Public milestone showcase endpoint for LinkedIn viewers.
     No auth required. Returns verified details of student's achievement.
     """
+    lab = None
     try:
-        lab = Lab.objects.get(slug=slug)
-    except Lab.DoesNotExist:
+        lab = Lab.objects.filter(id=slug).first()
+    except Exception:
+        pass
+    if not lab:
+        norm_title = str(slug).replace("-", " ")
+        lab = Lab.objects.filter(Q(slug=slug) | Q(title__iexact=norm_title) | Q(title__iexact=slug)).first()
+    if not lab:
         return Response({"error": "Lab not found"}, status=status.HTTP_404_NOT_FOUND)
 
     from django.contrib.auth import get_user_model
@@ -1051,6 +1059,7 @@ def public_milestone_view(request, slug, user_id):
     first_name = student.first_name or ""
     last_name = student.last_name or ""
     display_name = f"{first_name} {last_name}".strip() or student.username
+    lab_slug = getattr(lab, "slug", None) or lab.title.lower().replace(" ", "-")
 
     return Response({
         "student": {
@@ -1060,12 +1069,12 @@ def public_milestone_view(request, slug, user_id):
         },
         "lab": {
             "id": str(lab.id),
-            "slug": lab.slug,
+            "slug": lab_slug,
             "title": lab.title,
             "description": lab.description,
             "difficulty": lab.difficulty,
-            "language": lab.language,
-            "tags": lab.tags,
+            "language": getattr(lab, "language", ""),
+            "tags": getattr(lab, "tags", lab.skills if isinstance(lab.skills, list) else []),
             "total_sprints": len(sprints),
             "total_tickets": total_tickets,
         },
@@ -1077,6 +1086,239 @@ def public_milestone_view(request, slug, user_id):
             "max_yp": total_max_yp,
             "sprints": sprint_data,
         }
+    })
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def public_student_profile_view(request, user_id):
+    """
+    Public single-page student profile endpoint.
+    Accessible by anyone with the link (/u/<uuid>).
+    Returns student details, streak, total YP, platform rank, currently active labs,
+    completed labs with achievements, verified skills, and activity heatmap dates.
+    """
+    from django.contrib.auth import get_user_model
+    UserModel = get_user_model()
+    student = UserModel.objects.filter(id=user_id).first()
+
+    # Attempt to fetch profile details from YHub securely
+    yhub_url = getattr(settings, 'YHUB_INTERNAL_URL', os.environ.get('YHUB_INTERNAL_URL', 'http://yhub-backend:8000')).rstrip('/')
+    internal_secret = getattr(settings, 'INTERNAL_API_SECRET', os.environ.get('INTERNAL_API_SECRET', 'dev-secret-key'))
+    headers = {"X-Internal-Secret": internal_secret}
+    yhub_profile = {}
+    try:
+        resp = http_requests.get(f"{yhub_url}/api/auth/internal/user-profile/{user_id}/", headers=headers, timeout=2.5)
+        if resp.status_code == 200:
+            yhub_profile = resp.json()
+    except Exception as e:
+        logger.warning(f"Failed to query YHub for student profile {user_id}: {e}")
+
+    if not student and not yhub_profile:
+        return Response({"error": "Student profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    local_profile = getattr(student, "profile", None) if student else None
+
+    first_name = yhub_profile.get("first_name") or (student.first_name if student else "") or ""
+    last_name = yhub_profile.get("last_name") or (student.last_name if student else "") or ""
+    student_username = student.username if student else str(user_id)
+    display_name = yhub_profile.get("name") or f"{first_name} {last_name}".strip() or student_username
+    username = yhub_profile.get("username") or student_username
+
+    def _resolve_img_url(val):
+        if not val:
+            return None
+        if hasattr(val, 'url'):
+            try:
+                return val.url
+            except Exception:
+                pass
+        s = str(val).strip()
+        return s if s else None
+
+    profile_image = _resolve_img_url(yhub_profile.get("profile_image")) or _resolve_img_url(getattr(local_profile, "profile_image", None)) or (_resolve_img_url(getattr(student, "profile_image", None)) if student else None)
+    cover_image = _resolve_img_url(yhub_profile.get("cover_image")) or _resolve_img_url(getattr(local_profile, "cover_image", None)) or (_resolve_img_url(getattr(student, "cover_image", None)) if student else None)
+
+    about = yhub_profile.get("about") or getattr(local_profile, "about", "") or ""
+    location = yhub_profile.get("location") or getattr(local_profile, "location", "") or ""
+    website = yhub_profile.get("website") or getattr(local_profile, "website", "") or ""
+    title = getattr(local_profile, "title", "") or ""
+
+    college_name = ""
+    if local_profile:
+        college_name = local_profile.college.name if local_profile.college else (local_profile.college_other or "")
+    department_name = ""
+    if local_profile:
+        department_name = local_profile.department.name if local_profile.department else (local_profile.department_other or "")
+
+    education = yhub_profile.get("education") or []
+    employment = yhub_profile.get("employment") or []
+    github_username = yhub_profile.get("github_username") or (getattr(student, "github_username", None) if student else None)
+    linkedin_name = yhub_profile.get("linkedin_name") or (getattr(student, "linkedin_name", None) if student else None)
+    date_joined = yhub_profile.get("date_joined") or (student.date_joined if student else timezone.now())
+
+    total_yp = 0
+    rank = 1
+    streak = 0
+    total_solved_tickets = 0
+    completed_labs = []
+    active_labs = []
+    skills_set = set()
+    formatted_activities = []
+
+    if student:
+        # Calculate YP
+        done_submissions = UserLabSprintTicketSubmission.objects.filter(
+            user=student,
+            ticket_status__in=['in_review', 'done']
+        ).select_related('lab_sprint_ticket', 'lab_sprint_ticket__sprint', 'lab_sprint_ticket__sprint__lab')
+
+        total_yp = done_submissions.aggregate(total_yp=Sum('yuvro_points'))['total_yp'] or 0
+
+        # Calculate Rank
+        rank_count = UserLabSprintTicketSubmission.objects.filter(
+            ticket_status__in=['in_review', 'done']
+        ).values('user').annotate(
+            user_total_yp=Sum('yuvro_points')
+        ).filter(user_total_yp__gt=total_yp).count()
+        rank = rank_count + 1
+
+        # Calculate Streak
+        activities = UserLabActivity.objects.filter(user=student).values_list('date', flat=True)
+        sorted_dates = sorted(list(activities), reverse=True)
+        today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+        if sorted_dates and sorted_dates[0] == today:
+            streak = 1
+            curr = yesterday
+            for d in sorted_dates[1:]:
+                if d == curr:
+                    streak += 1
+                    curr -= timedelta(days=1)
+                else:
+                    break
+        elif sorted_dates and sorted_dates[0] == yesterday:
+            streak = 1
+            curr = yesterday - timedelta(days=1)
+            for d in sorted_dates[1:]:
+                if d == curr:
+                    streak += 1
+                    curr -= timedelta(days=1)
+                else:
+                    break
+
+        all_user_submissions = UserLabSprintTicketSubmission.objects.filter(user=student).select_related('lab_sprint_ticket')
+        sub_map = {str(s.lab_sprint_ticket_id): s for s in all_user_submissions}
+        total_solved_tickets = sum(1 for s in all_user_submissions if s.ticket_status in ['done', 'in_review'])
+
+        enrollments = UserLabEnrollment.objects.filter(user=student).select_related('lab').order_by('-updated_at')
+
+        processed_lab_ids = set()
+
+        for enrollment in enrollments:
+            lab = enrollment.lab
+            if str(lab.id) in processed_lab_ids:
+                continue
+            processed_lab_ids.add(str(lab.id))
+
+            if lab.skills and isinstance(lab.skills, list):
+                for sk in lab.skills:
+                    skills_set.add(sk)
+
+            sprints = lab.sprints.all().prefetch_related('tasks').order_by('order_index')
+            all_tasks = [t for s in sprints for t in s.tasks.all()]
+            total_tickets = len(all_tasks)
+
+            completed_in_lab = 0
+            earned_in_lab = 0
+            current_active_sprint = None
+            current_active_ticket = None
+
+            for s in sprints:
+                for t in s.tasks.all():
+                    sub = sub_map.get(str(t.id))
+                    if sub and sub.ticket_status == TicketProgressStatus.DONE:
+                        completed_in_lab += 1
+                        earned_in_lab += sub.yuvro_points if sub.yuvro_points is not None else t.yuvro_points
+                    elif sub and sub.ticket_status == TicketProgressStatus.IN_REVIEW:
+                        completed_in_lab += 1
+                        earned_in_lab += sub.yuvro_points if sub.yuvro_points is not None else round(t.yuvro_points * 0.75)
+                    elif not current_active_ticket:
+                        current_active_sprint = s.title
+                        current_active_ticket = t.title
+
+            progress = round((completed_in_lab / total_tickets) * 100) if total_tickets else 0
+            lab_slug = getattr(lab, "slug", None) or lab.title.lower().replace(" ", "-")
+
+            lab_item = {
+                "id": str(lab.id),
+                "slug": lab_slug,
+                "title": lab.title,
+                "description": lab.description,
+                "type": lab.type,
+                "difficulty": lab.difficulty,
+                "icon": lab.icon,
+                "skills": lab.skills if isinstance(lab.skills, list) else [],
+                "total_tickets": total_tickets,
+                "completed_tickets": completed_in_lab,
+                "earned_yp": earned_in_lab,
+                "progress": progress,
+                "updated_at": enrollment.updated_at.isoformat() if enrollment.updated_at else None,
+            }
+
+            if progress >= 100 or (total_tickets > 0 and completed_in_lab >= total_tickets):
+                lab_item["milestone_url"] = f"/public/milestone/{lab_slug}/{student.id}"
+                completed_labs.append(lab_item)
+            else:
+                lab_item["current_sprint"] = current_active_sprint or (sprints[0].title if sprints else "Sprint 1")
+                lab_item["current_ticket"] = current_active_ticket or "Getting Started"
+                active_labs.append(lab_item)
+
+        # Activity Heatmap
+        activity_dates = list(UserLabActivity.objects.filter(user=student).order_by('-date').values('date')[:180])
+        activity_map = {}
+        for a in activity_dates:
+            d_str = str(a['date'])
+            activity_map[d_str] = activity_map.get(d_str, 0) + 1
+        for s in all_user_submissions:
+            if s.updated_at:
+                d_str = s.updated_at.strftime('%Y-%m-%d')
+                activity_map[d_str] = activity_map.get(d_str, 0) + 1
+
+        formatted_activities = [{"date": k, "count": v} for k, v in sorted(activity_map.items())]
+
+    return Response({
+        "student": {
+            "id": str(student.id if student else user_id),
+            "name": display_name,
+            "username": username,
+            "profile_image": profile_image,
+            "cover_image": cover_image,
+            "about": about,
+            "title": title,
+            "location": location,
+            "website": website,
+            "college": college_name,
+            "department": department_name,
+            "education": education,
+            "employment": employment,
+            "github_username": github_username,
+            "linkedin_name": linkedin_name,
+            "date_joined": date_joined.isoformat() if hasattr(date_joined, 'isoformat') else str(date_joined),
+        },
+        "stats": {
+            "day_streak": streak,
+            "total_yp": total_yp,
+            "rank": rank,
+            "solved_tickets_count": total_solved_tickets,
+            "completed_labs_count": len(completed_labs),
+            "active_labs_count": len(active_labs),
+        },
+        "currently_doing": active_labs,
+        "completed_labs": completed_labs,
+        "skills": sorted(list(skills_set)),
+        "activities": formatted_activities,
     })
 class SystemDesignViewSet(viewsets.ModelViewSet):
     serializer_class = SystemDesignSerializer

@@ -1,6 +1,7 @@
 import { RestApiUtil, ApiError } from "./RestApiUtil";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
+const API_BASE_URL =
+  import.meta.env.VITE_BACKEND_API_BASE_URL || "http://localhost:8002/api";
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string>;
