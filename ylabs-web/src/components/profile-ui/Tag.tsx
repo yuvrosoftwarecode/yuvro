@@ -1,7 +1,6 @@
 import React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { X } from "lucide-react";
 
 export interface TagProps {
   label: string;
@@ -49,9 +48,9 @@ export const Tag: React.FC<TagProps> = ({
             onRemove();
           }}
           aria-label={`Remove ${label}`}
-          className="rounded p-0.5 hover:bg-black/10 dark:hover:bg-white/10 text-muted hover:text-ink focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary transition-colors"
+          className="rounded p-0.5 hover:bg-black/10 dark:hover:bg-white/10 text-muted hover:text-ink focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary transition-colors text-xs font-semibold leading-none"
         >
-          <X className="h-3 w-3" aria-hidden="true" />
+          <span aria-hidden="true">&times;</span>
         </button>
       )}
     </span>

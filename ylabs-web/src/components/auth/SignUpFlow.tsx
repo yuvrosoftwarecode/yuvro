@@ -74,7 +74,7 @@ function StatusIcon({
         />
         <img
           src={YuvroLogo}
-          alt="Yuvro"
+          alt="Yuvro Labs"
           style={{
             width: 11,
             height: 11,
@@ -470,7 +470,9 @@ export function SignUpFlow({ redirectUrl, onNavigateTab }: SignUpFlowProps) {
   // Step 4: Continue action after registration
   const handleContinue = () => {
     const defaultDest = "/student/dashboard";
-    const target = redirectUrl || defaultDest;
+    const isSafeRedirect =
+      redirectUrl && redirectUrl !== "/" && !redirectUrl.startsWith("/auth");
+    const target = isSafeRedirect ? redirectUrl : defaultDest;
     window.location.href = target;
   };
 
@@ -485,7 +487,7 @@ export function SignUpFlow({ redirectUrl, onNavigateTab }: SignUpFlowProps) {
       <SuccessView
         title="Account created"
         message={`Welcome, ${firstName}. Your account has been verified and created successfully.`}
-        buttonText="Continue to Yuvro"
+        buttonText="Continue to Yuvro Labs"
         onButtonClick={handleContinue}
       />
     );
@@ -896,28 +898,24 @@ export function SignUpFlow({ redirectUrl, onNavigateTab }: SignUpFlowProps) {
           />
           <StatusIcon status={usernameStatus} label="Username" hasValue={username.length > 0} />
         </div>
-        {usernameStatus !== "idle" && (
-          <div className={`un-msg ${usernameStatus}`}>
-            {usernameStatus === "checking" && <span>Checking availability…</span>}
-            {usernameStatus === "available" && (
-              <span>
-                <span className="un-dot" /> {username} is available.
-              </span>
-            )}
-            {usernameStatus === "taken" && (
-              <span>
-                <span className="un-dot" /> Username {username} is not available.
-              </span>
-            )}
-            {usernameStatus === "invalid" && (
-              <span>
-                {usernameMsg ||
-                  "Username may only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen."}
-              </span>
-            )}
-            {usernameStatus === "error" && (
-              <span>{usernameMsg || "Unable to verify username. Check connection."}</span>
-            )}
+        {usernameStatus === "taken" && (
+          <div className="un-msg taken">
+            <span>
+              <span className="un-dot" /> Username {username} is not available.
+            </span>
+          </div>
+        )}
+        {usernameStatus === "invalid" && (
+          <div className="un-msg invalid">
+            <span>
+              {usernameMsg ||
+                "Username may only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen."}
+            </span>
+          </div>
+        )}
+        {usernameStatus === "error" && (
+          <div className="un-msg error">
+            <span>{usernameMsg || "Unable to verify username. Check connection."}</span>
           </div>
         )}
         {usernameStatus === "idle" && !usernameErr && (

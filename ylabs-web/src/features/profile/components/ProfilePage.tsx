@@ -1,44 +1,54 @@
 import React from "react";
+import { OverviewContributionCard } from "./OverviewContributionCard";
 import { AboutSection } from "./AboutSection";
-import { WorkSection } from "./WorkSection";
-import { ProjectsSection } from "./ProjectsSection";
-import { EducationSection } from "./EducationSection";
 import { SkillsSection } from "./SkillsSection";
+import { ProjectsSection } from "./ProjectsSection";
+import { WorkSection } from "./WorkSection";
+import { EducationSection } from "./EducationSection";
 import { ResumeSection } from "./ResumeSection";
-import { ProfileRail } from "./ProfileRail";
 
 interface ProfilePageProps {
-  onNavigateTab?: (tab: "profile" | "performance" | "settings", section?: string) => void;
+  onNavigateTab?: (tab: string) => void;
 }
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigateTab }) => {
   return (
-    <div className="animate-fade-in">
-      <div className="grid grid-cols-1 gap-6 min-[860px]:grid-cols-[minmax(0,1fr)_300px] items-start">
-        {/* Main Column */}
-        <div className="space-y-6 min-w-0">
-          <div id="about-section">
-            <AboutSection />
-          </div>
-          <div id="work-section">
-            <WorkSection />
-          </div>
-          <div id="projects-section">
-            <ProjectsSection />
-          </div>
-          <div id="education-section">
-            <EducationSection />
-          </div>
-          <div id="skills-section">
-            <SkillsSection />
-          </div>
-          <div id="resume-section">
-            <ResumeSection />
-          </div>
-        </div>
+    <div className="space-y-5 min-w-0">
+      {/* 1. Contribution Activity Card */}
+      <div id="contributions-section">
+        <OverviewContributionCard
+          onSeePerformance={() => onNavigateTab?.("performance")}
+        />
+      </div>
 
-        {/* Right Rail (300px) */}
-        <ProfileRail onNavigateTab={onNavigateTab} />
+      {/* 2. About Card */}
+      <div id="about-section">
+        <AboutSection />
+      </div>
+
+      {/* 3. Skills Card */}
+      <div id="skills-section">
+        <SkillsSection />
+      </div>
+
+      {/* 4. Projects Card */}
+      <div id="projects-section">
+        <ProjectsSection />
+      </div>
+
+      {/* 5. Work Experience Card */}
+      <div id="work-section">
+        <WorkSection />
+      </div>
+
+      {/* 6. Education Card */}
+      <div id="education-section">
+        <EducationSection />
+      </div>
+
+      {/* 7. Resume Card */}
+      <div id="resume-section">
+        <ResumeSection />
       </div>
     </div>
   );

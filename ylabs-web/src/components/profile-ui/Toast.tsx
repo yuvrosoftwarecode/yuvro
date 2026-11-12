@@ -1,6 +1,5 @@
 import React from "react";
 import { useToastStore } from "@/lib/toastStore";
-import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 import { clsx } from "clsx";
 
 export const ToastContainer: React.FC = () => {
@@ -31,24 +30,30 @@ export const ToastContainer: React.FC = () => {
           >
             <div className="flex items-center gap-2.5">
               {isSuccess && (
-                <CheckCircle2 className="h-5 w-5 text-success shrink-0" aria-hidden="true" />
+                <span className="font-semibold text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-success-subtle text-success shrink-0">
+                  Done
+                </span>
               )}
               {isError && (
-                <AlertCircle className="h-5 w-5 text-danger shrink-0" aria-hidden="true" />
+                <span className="font-semibold text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-danger-subtle text-danger shrink-0">
+                  Error
+                </span>
               )}
               {!isSuccess && !isError && (
-                <Info className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />
+                <span className="font-semibold text-[11px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary-subtle text-primary shrink-0">
+                  Notice
+                </span>
               )}
-              <span className="font-medium">{toast.message}</span>
+              <span className="font-medium text-ink">{toast.message}</span>
             </div>
 
             <button
               type="button"
               onClick={() => removeToast(toast.id)}
               aria-label="Close notification"
-              className="text-muted hover:text-ink p-1 rounded-md transition-colors"
+              className="text-muted hover:text-ink px-1.5 py-0.5 rounded text-xs font-semibold leading-none transition-colors"
             >
-              <X className="h-4 w-4" aria-hidden="true" />
+              <span aria-hidden="true">&times;</span>
             </button>
           </div>
         );

@@ -22,21 +22,19 @@ export const Route = createFileRoute("/auth")({
       const token = localStorage.getItem("access");
       if (token) {
         const userStr = localStorage.getItem("user");
+        let dest = "/student/dashboard";
         if (userStr) {
-          let user: { roles?: Record<string, string>; role?: string } | null = null;
           try {
-            user = JSON.parse(userStr);
-          } catch {
-            user = null;
-          }
-          if (user) {
-            const role = user.roles?.ylabs || user.roles?.ycode || user.role;
+            const user = JSON.parse(userStr);
+            const role = user?.roles?.ylabs || user?.roles?.ycode || user?.role;
             const r = role?.toLowerCase();
-            if (r === "admin") throw redirect({ to: "/admin" });
-            else if (r === "recruiter") throw redirect({ to: "/recruiter/dashboard" });
-            else throw redirect({ to: "/student/dashboard" });
+            if (r === "admin") dest = "/admin";
+            else if (r === "recruiter") dest = "/recruiter/dashboard";
+          } catch {
+            // ignore
           }
         }
+        throw redirect({ to: dest });
       }
     }
   },
@@ -51,17 +49,26 @@ function AuthPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("access");
-      if (token && isAuthenticated && user) {
-        const role = user.roles?.ylabs || user.roles?.ycode || user.role;
+      if (token || (isAuthenticated && user)) {
+        let dest = "/student/dashboard";
+        const role = user?.roles?.ylabs || user?.roles?.ycode || user?.role;
         const r = role?.toLowerCase();
-        nav({
-          to:
-            r === "admin"
-              ? "/admin"
-              : r === "recruiter"
-                ? "/recruiter/dashboard"
-                : "/student/dashboard",
-        });
+        if (r === "admin") dest = "/admin";
+        else if (r === "recruiter") dest = "/recruiter/dashboard";
+        else {
+          const userStr = localStorage.getItem("user");
+          if (userStr) {
+            try {
+              const u = JSON.parse(userStr);
+              const r2 = (u?.roles?.ylabs || u?.roles?.ycode || u?.role)?.toLowerCase();
+              if (r2 === "admin") dest = "/admin";
+              else if (r2 === "recruiter") dest = "/recruiter/dashboard";
+            } catch {
+              // ignore
+            }
+          }
+        }
+        nav({ to: dest });
       }
     }
   }, [user, isAuthenticated, nav]);

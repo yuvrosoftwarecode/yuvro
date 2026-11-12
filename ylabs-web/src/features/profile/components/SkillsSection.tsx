@@ -1,22 +1,27 @@
 import React, { useState } from "react";
-import { Card } from "@/components/profile-ui/Card";
+import { Section } from "@/components/profile-ui/Section";
 import { useProfileStore } from "../store/profileStore";
 import { SkillLevel } from "../types";
+import { EmptyState } from "@/components/profile-ui/EmptyState";
+import { Button } from "@/components/profile-ui/Button";
+
+const SUGGESTED_SKILLS = ["React", "TypeScript", "Node.js", "Python", "SQL", "Docker", "Git"];
 
 export const SkillsSection: React.FC = () => {
   const { profile, addSkill, removeSkill } = useProfileStore();
   const [newSkill, setNewSkill] = useState("");
   const [skillError, setSkillError] = useState("");
+  const [showAllSkills, setShowAllSkills] = useState(false);
 
   const verifiedSkills = profile?.verifiedSkills || [];
   const userSkills = profile?.userSkills || [];
 
-  const handleAddSkill = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = newSkill.trim();
+  const handleAddSkill = async (skillToAdd?: string) => {
+    const raw = skillToAdd !== undefined ? skillToAdd : newSkill;
+    const trimmed = raw.trim();
     if (!trimmed) return;
 
-    // Duplicate check (case-insensitive)
+    // Case-insensitive duplicate check
     const exists = userSkills.some(
       (s) => s.toLowerCase() === trimmed.toLowerCase()
     );
@@ -27,7 +32,7 @@ export const SkillsSection: React.FC = () => {
 
     setSkillError("");
     const ok = await addSkill(trimmed);
-    if (ok) {
+    if (ok && skillToAdd === undefined) {
       setNewSkill("");
     }
   };
@@ -43,8 +48,8 @@ export const SkillsSection: React.FC = () => {
             key={seg}
             className={`h-full rounded-full transition-colors ${
               seg <= activeSegments
-                ? "bg-[#3558c8]"
-                : "bg-[#e4e7ec] dark:bg-[#242c38]"
+                ? "bg-primary"
+                : "bg-line"
             }`}
           />
         ))}
@@ -52,99 +57,165 @@ export const SkillsSection: React.FC = () => {
     );
   };
 
+  const displayedSkills = showAllSkills ? userSkills : userSkills.slice(0, 16);
+  const remainingCount = userSkills.length - 16;
+
   return (
-    <Card className="p-6 space-y-5">
-      <h2 className="text-base font-semibold text-ink">Skills</h2>
-
-      {/* Verified in Yuvro Labs */}
-      <div className="space-y-3">
-        <p className="text-xs text-muted">Verified in Yuvro labs</p>
-
-        {verifiedSkills.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {verifiedSkills.map((v) => (
-              <div
-                key={v.id}
-                className="rounded-lg border border-line bg-card p-3.5 space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-sm text-ink">{v.name}</span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#eef4ff] text-[#3558c8] font-medium">
-                    {v.level}
-                  </span>
-                </div>
-
-                {renderLevelBar(v.level)}
-
-                <div className="flex items-center gap-1.5 text-xs text-muted">
-                  <span className="text-[#12b76a] font-bold">✓</span>
-                  <span>{v.tasksCount} verified tasks</span>
-                </div>
-              </div>
-            ))}
+    <Section title="Skills" eyebrow="Competencies">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column: Verified in Yuvro Labs */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[12px] font-semibold uppercase tracking-[0.05em] text-muted">
+              Verified in Yuvro labs
+            </span>
+            <span className="text-[11px] text-muted">Earned in simulation</span>
           </div>
-        ) : (
-          <p className="text-xs text-muted italic">
-            No verified lab skills yet. Complete tasks in simulation labs to earn verified badges.
-          </p>
-        )}
-      </div>
 
-      {/* Other skills */}
-      <div className="space-y-3 pt-2">
-        <p className="text-xs text-muted">Other skills</p>
-
-        {userSkills.length > 0 ? (
-          <div className="flex flex-wrap gap-2 items-center">
-            {userSkills.map((skill) => (
-              <span
-                key={skill}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md border border-line bg-card text-sub text-xs"
-              >
-                <span>{skill}</span>
-                <button
-                  type="button"
-                  onClick={() => removeSkill(skill)}
-                  className="text-muted hover:text-ink cursor-pointer ml-0.5"
-                  aria-label={`Remove ${skill}`}
+          {verifiedSkills.length > 0 ? (
+            <div
+              className={`grid gap-3 ${
+                verifiedSkills.length === 1
+                  ? "grid-cols-1"
+                  : "grid-cols-1 sm:grid-cols-2"
+              }`}
+            >
+              {verifiedSkills.map((v) => (
+                <div
+                  key={v.id}
+                  className="rounded-card border border-line bg-card p-3.5 space-y-2 hover:border-primary/40 transition-colors"
                 >
-                  ✕
-                </button>
-              </span>
-            ))}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-sm text-ink truncate">
+                      {v.name}
+                    </span>
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary-subtle text-primary font-medium shrink-0">
+                      {v.level}
+                    </span>
+                  </div>
+
+                  {renderLevelBar(v.level)}
+
+                  <div className="flex items-center justify-between text-xs text-muted">
+                    <span className="font-medium text-ink">
+                      {v.tasksCount} {v.tasksCount === 1 ? "verified task" : "verified tasks"}
+                    </span>
+                    <span className="text-[11px] text-success font-semibold">Verified</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No verified skills yet"
+              description="Complete simulation labs and challenges in Yuvro Labs to prove your skills with verifiable evidence."
+              action={
+                <a
+                  href="/student/dashboard"
+                  className="inline-flex items-center px-3 py-1.5 rounded-input bg-primary text-white text-xs font-medium hover:bg-primary-hover transition-colors"
+                >
+                  Browse simulation labs &rarr;
+                </a>
+              }
+            />
+          )}
+        </div>
+
+        {/* Right Column: Other Skills */}
+        <div className="space-y-3 lg:border-l lg:border-line lg:pl-6">
+          <div className="text-[12px] font-semibold uppercase tracking-[0.05em] text-muted">
+            Other skills
           </div>
-        ) : (
-          <p className="text-xs text-muted italic">
-            No skills added yet. Add technologies or tools below.
-          </p>
-        )}
 
-        {/* Add skill form */}
-        <form onSubmit={handleAddSkill} className="flex items-center gap-2 max-w-sm pt-1">
-          <input
-            type="text"
-            value={newSkill}
-            onChange={(e) => {
-              setNewSkill(e.target.value);
-              if (skillError) setSkillError("");
+          {userSkills.length > 0 ? (
+            <div className="space-y-2.5">
+              <div className="flex flex-wrap gap-1.5 items-center">
+                {displayedSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="group inline-flex items-center gap-1.5 h-7 px-3 rounded-full border border-line bg-card text-sub text-xs font-medium transition-colors hover:border-primary/40"
+                  >
+                    <span>{skill}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeSkill(skill)}
+                      className="text-muted hover:text-danger text-xs font-bold leading-none cursor-pointer -mr-1 px-1"
+                      aria-label={`Remove ${skill}`}
+                    >
+                      &times;
+                    </button>
+                  </span>
+                ))}
+
+                {!showAllSkills && remainingCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllSkills(true)}
+                    className="h-7 px-2.5 text-xs hover:text-primary font-medium hover:underline cursor-pointer transition-colors"
+                  >
+                    +{remainingCount} more
+                  </button>
+                )}
+
+                {showAllSkills && userSkills.length > 16 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllSkills(false)}
+                    className="h-7 px-2.5 text-xs hover:text-primary font-medium hover:underline cursor-pointer transition-colors"
+                  >
+                    Show less
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-muted">Add technologies, frameworks, and tools you use:</p>
+              <div className="flex flex-wrap gap-1.5 items-center">
+                {SUGGESTED_SKILLS.map((suggested) => (
+                  <button
+                    key={suggested}
+                    type="button"
+                    onClick={() => handleAddSkill(suggested)}
+                    className="h-7 px-3 rounded-full border border-dashed border-line bg-card hover:bg-primary-subtle hover:text-primary hover:border-primary text-muted text-xs font-medium transition-colors cursor-pointer"
+                  >
+                    + {suggested}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Add skill input */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAddSkill();
             }}
-            placeholder="Add a skill, e.g. Docker"
-            className="flex-1 rounded-[8px] border border-line bg-card px-3 py-1.5 text-sm text-ink placeholder:text-muted focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="rounded-[8px] border border-line bg-card px-4 py-1.5 text-sm font-medium text-sub hover:bg-gray-50 transition-colors cursor-pointer"
+            className="flex items-center gap-2 max-w-sm pt-2"
           >
-            Add
-          </button>
-        </form>
+            <input
+              type="text"
+              value={newSkill}
+              onChange={(e) => {
+                setNewSkill(e.target.value);
+                if (skillError) setSkillError("");
+              }}
+              placeholder="Add a skill, e.g. Docker"
+              className="flex-1 h-9 rounded-input border border-line bg-card px-3 text-xs sm:text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/22"
+            />
+            <Button type="submit" size="sm" variant="primary">
+              Add
+            </Button>
+          </form>
 
-        {skillError && (
-          <p className="text-xs text-danger" role="alert">
-            {skillError}
-          </p>
-        )}
+          {skillError && (
+            <p className="text-xs text-danger" role="alert">
+              {skillError}
+            </p>
+          )}
+        </div>
       </div>
-    </Card>
+    </Section>
   );
 };

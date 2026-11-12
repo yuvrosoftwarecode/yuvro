@@ -51,6 +51,16 @@ class User(AbstractUser):
     location = models.CharField(max_length=150, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
     about = models.TextField(blank=True, null=True)
+    email_public = models.BooleanField(default=True)
+    phone_public = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                Lower("username"),
+                name="unique_lower_username",
+            ),
+        ]
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
@@ -153,6 +163,7 @@ class LinkedInConnection(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="linkedin_connection")
     linkedin_sub = models.CharField(max_length=150, help_text="LinkedIn Member ID / URN sub")
     linkedin_name = models.CharField(max_length=255, blank=True)
+    linkedin_handle = models.CharField(max_length=255, blank=True, null=True, help_text="LinkedIn vanity handle/slug")
     linkedin_email = models.EmailField(blank=True, null=True)
     access_token = models.CharField(max_length=3000, help_text="Encrypted or base64 LinkedIn Access Token")
     scopes = models.CharField(max_length=255, blank=True)

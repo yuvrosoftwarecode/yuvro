@@ -96,6 +96,8 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
           about: authUser.about || authUser.profile?.about || current.about,
           avatarUrl: authUser.profile_image || authUser.avatar || current.avatarUrl,
           coverUrl: authUser.cover_image || current.coverUrl,
+          emailPublic: authUser.email_public !== undefined ? Boolean(authUser.email_public) : current.emailPublic ?? true,
+          phonePublic: authUser.phone_public !== undefined ? Boolean(authUser.phone_public) : current.phonePublic ?? false,
           userSkills: Array.isArray(authUser.skills) && authUser.skills.length > 0 ? authUser.skills : current.userSkills,
           projects: Array.isArray(authUser.projects) && authUser.projects.length > 0 ? authUser.projects : current.projects,
           work: updatedWork,
@@ -131,6 +133,14 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
       toast.success("Profile changes saved");
       return true;
     } catch (err: any) {
+      if (
+        err?.status === 409 ||
+        err?.details?.code === "taken" ||
+        err?.details?.field === "username" ||
+        err?.message?.includes("taken")
+      ) {
+        throw err;
+      }
       toast.error(err.message || "Failed to save profile changes");
       return false;
     }

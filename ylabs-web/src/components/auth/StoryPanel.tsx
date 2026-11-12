@@ -35,10 +35,10 @@ export function StoryPanel() {
   }, []);
 
   return (
-    <section className="left" aria-label="How Yuvro works">
-      <Link to="/" className="logo" aria-label="Yuvro home">
-        <img src={YuvroLogo} alt="Yuvro" className="h-8 w-auto object-contain" />
-        <span>Yuvro</span>
+    <section className="left" aria-label="How Yuvro Labs works">
+      <Link to="/" className="logo" aria-label="Yuvro Labs home">
+        <img src={YuvroLogo} alt="Yuvro Labs" className="h-8 w-auto object-contain" />
+        <span>Yuvro Labs</span>
       </Link>
 
       <div className="story">

@@ -3,7 +3,8 @@ import requests as http_requests
 from urllib.parse import urlparse
 
 from rest_framework import status, generics, permissions
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
+from rest_framework.throttling import SimpleRateThrottle
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
@@ -214,6 +215,16 @@ def google_login_view(request):
             WalletService.get_or_create_wallet(user, grant_signup_bonus=True)
         except Exception as e:
             logger.error(f"Failed to award signup bonus to Google user {user.id}: {e}", exc_info=True)
+
+        try:
+            from core.email_service import EmailService
+            EmailService.send_welcome_email(
+                to_email=user.email,
+                user_name=user.get_full_name() or user.first_name or user.username,
+                role="Student",
+            )
+        except Exception as e:
+            logger.warning(f"Failed to send welcome email to Google user {user.email}: {e}")
     
     update_fields = []
     product = request.query_params.get("product") or request.data.get("product")
@@ -268,6 +279,16 @@ class UserRegistrationView(generics.CreateAPIView):
         except Exception as e:
             logger.error(f"Failed to award signup bonus to new user {user.id}: {e}", exc_info=True)
 
+        try:
+            from core.email_service import EmailService
+            EmailService.send_welcome_email(
+                to_email=user.email,
+                user_name=user.get_full_name() or user.first_name or user.username,
+                role=user.roles.get("ylabs", "Student") if isinstance(getattr(user, "roles", None), dict) else "Student",
+            )
+        except Exception as e:
+            logger.warning(f"Failed to send welcome email to {user.email}: {e}")
+
         token_serializer = CustomTokenObtainPairSerializer()
         refresh = token_serializer.get_token(user)
 
@@ -296,18 +317,22 @@ class UserRegistrationView(generics.CreateAPIView):
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def public_send_otp(request):
-    email = request.data.get('email')
+    raw_email = (request.data.get('email') or '').strip()
+    email = raw_email
     contest_id = request.data.get('contest_id')
     resource_id = request.data.get('resource_id') or contest_id
     resource_type = request.data.get('resource_type', 'contest')
     contest_title = request.data.get('contest_title', 'Registration')
+
+    logger.info(f"[public_send_otp] Received OTP request for email '{email}', resource '{resource_id}', type '{resource_type}'")
     
     if not email or not resource_id:
         return Response({"error": "Email and resource_id are required"}, status=status.HTTP_400_BAD_REQUEST)
         
     if resource_type == 'signup':
-        user = User.objects.filter(email=email).first()
+        user = User.objects.filter(email__iexact=email).first()
         if user and not getattr(user, 'is_guest_user', False):
+            logger.warning(f"[public_send_otp] Account already exists for email '{email}'.")
             return Response({"error": "An account with this email already exists. Please log in."}, status=status.HTTP_400_BAD_REQUEST)
     
     otp = str(random.randint(100000, 999999))
@@ -320,27 +345,26 @@ def public_send_otp(request):
         defaults={'otp': otp, 'expires_at': None}
     )
     
-    context = {
-        "resource_title": contest_title,
-        "resource_type": resource_type,
-        "otp": otp,
-        "frontend_url": settings.FRONTEND_URL
-    }
-    
+    from core.email_service import EmailService
+
     try:
-        html_message = render_to_string("emails/otp_verification.html", context)
-    except:
-        html_message = f"Your OTP is: {otp}. It is valid for 5 minutes."
-        
-    send_mail(
-        subject=f"Yuvro OTP for Registration",
-        message=f"Your OTP for registering is: {otp}. It is valid for 5 minutes.",
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[email],
-        fail_silently=False,
-        html_message=html_message
-    )
-    
+        EmailService.send_registration_otp(
+            to_email=email,
+            otp=otp,
+            resource_title=contest_title,
+            resource_type=resource_type,
+            expiry_minutes=5,
+        )
+    except Exception as exc:
+        logger.error(f"Failed to send registration OTP email to {email}: {exc}", exc_info=True)
+        if getattr(settings, "DEBUG", False):
+            logger.info(f"[DEV] Registration OTP for {email}: {otp}")
+            return Response({"status": "success", "message": "OTP sent successfully (dev fallback)"})
+        return Response(
+            {"error": "Failed to send verification email. Please try again."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
     return Response({"status": "success", "message": "OTP sent successfully"})
 
 @api_view(["DELETE"])
@@ -549,6 +573,20 @@ def user_info_view(request):
             )
     record_user_session(request, request.user)
     if request.method in ["PUT", "PATCH"]:
+        username = request.data.get("username")
+        if username is not None:
+            uname = str(username).strip()
+            if uname.lower() != (request.user.username or "").lower():
+                from .serializers import RESERVED_USERNAMES
+                is_valid, _ = validate_username_format(uname)
+                if not is_valid or len(uname) > 30:
+                    return Response({"field": "username", "code": "invalid"}, status=status.HTTP_400_BAD_REQUEST)
+                if uname.lower() in RESERVED_USERNAMES:
+                    return Response({"field": "username", "code": "reserved"}, status=status.HTTP_400_BAD_REQUEST)
+                if User.objects.annotate(uname_lower=Lower("username")).filter(uname_lower=uname.lower(), is_guest_user=False).exclude(pk=request.user.pk).exists():
+                    return Response({"field": "username", "code": "taken"}, status=status.HTTP_409_CONFLICT)
+
+        old_email = request.user.email
         serializer = UserUpdateSerializer(
             request.user,
             data=request.data,
@@ -557,6 +595,19 @@ def user_info_view(request):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         request.user.refresh_from_db()
+
+        if old_email and request.user.email and old_email.lower() != request.user.email.lower():
+            try:
+                from core.email_service import EmailService
+                EmailService.send_email_change_notification(
+                    to_email=old_email,
+                    old_email=old_email,
+                    new_email=request.user.email,
+                    user_name=request.user.get_full_name() or request.user.first_name or request.user.username,
+                )
+            except Exception as e:
+                logger.warning(f"Failed to send email change notification: {e}")
+
         return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
 
     serializer = UserSerializer(request.user)
@@ -567,16 +618,23 @@ class ForgotPasswordView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        email = request.data.get("email")
-        if not email:
+        raw_email = (request.data.get("email") or "").strip()
+        if not raw_email:
             return Response({"error": "Email is required"}, status=400)
 
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
+        logger.info(f"[ForgotPasswordView] Received password reset request for '{raw_email}'")
+
+        user = User.objects.filter(email__iexact=raw_email).first()
+        if not user:
+            logger.warning(
+                f"[ForgotPasswordView] No user found with email '{raw_email}' in the database. "
+                "Returning success to prevent account enumeration, but NO EMAIL was sent."
+            )
             return Response(
                 {"message": "If this email exists, a reset link will be sent."}
             )
+
+        logger.info(f"[ForgotPasswordView] Found user '{user.username}' for '{raw_email}'. Preparing reset email...")
 
         token = PasswordResetTokenGenerator().make_token(user)
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
@@ -593,36 +651,17 @@ class ForgotPasswordView(generics.GenericAPIView):
         reset_link = f"{frontend_url}/reset-password/{uidb64}/{token}"
 
         user_name = user.get_full_name() or user.first_name or user.username or "there"
-        logo_url = getattr(settings, "EMAIL_LOGO_URL", "").strip() or "https://marketplace.yuvro.ai/knowledge-tree.png"
-        context = {
-            "user": user,
-            "user_name": user_name,
-            "reset_link": reset_link,
-            "frontend_url": frontend_url,
-            "logo_url": logo_url,
-        }
+        from core.email_service import EmailService
+
         try:
-            html_message = render_to_string("emails/password_reset.html", context)
+            EmailService.send_password_reset(
+                to_email=user.email,
+                reset_link=reset_link,
+                user_name=user_name,
+                expiry_hours=24,
+            )
         except Exception as e:
-            logger.error(f"Failed to render password reset email: {e}", exc_info=True)
-            html_message = f"Click the link to reset your password: {reset_link}"
-
-        plain_message = (
-            f"Hello {user_name},\n\n"
-            f"We received a request to reset your password for your Yuvro account.\n\n"
-            f"Click the link below to choose a new password:\n{reset_link}\n\n"
-            f"This link will expire in 24 hours. If you did not request a password reset, you can safely ignore this email.\n\n"
-            f"- The Yuvro Team"
-        )
-
-        send_mail(
-            subject="Password Reset Request",
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            html_message=html_message,
-            fail_silently=False,
-        )
+            logger.error(f"Failed to send password reset email: {e}", exc_info=True)
 
         return Response({"message": "If this email exists, a reset link will be sent."})
 
@@ -653,6 +692,15 @@ class ResetPasswordView(generics.GenericAPIView):
 
         user.set_password(password)
         user.save()
+
+        try:
+            from core.email_service import EmailService
+            EmailService.send_password_changed_notification(
+                to_email=user.email,
+                user_name=user.get_full_name() or user.first_name or user.username,
+            )
+        except Exception as exc:
+            logger.warning(f"Failed to send password changed notification: {exc}")
 
         try:
             if hasattr(request, "session"):
@@ -703,12 +751,18 @@ def send_forgot_password_code_view(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    logger.info(f"[send_forgot_password_code_view] Received code request for '{email}'")
+
     user = (
         User.objects.annotate(email_lower=Lower("email"))
         .filter(email_lower=email.lower())
         .first()
     )
     if not user or getattr(user, "is_guest_user", False):
+        logger.warning(
+            f"[send_forgot_password_code_view] No active user found with email '{email}'. "
+            "Returning success to prevent enumeration, but NO EMAIL was sent."
+        )
         return Response(
             {
                 "status": "success",
@@ -716,6 +770,8 @@ def send_forgot_password_code_view(request):
             },
             status=status.HTTP_200_OK,
         )
+
+    logger.info(f"[send_forgot_password_code_view] Found user '{user.username}' for '{email}'. Dispatching OTP code...")
 
     otp = str(random.randint(100000, 999999))
 
@@ -730,36 +786,14 @@ def send_forgot_password_code_view(request):
     )
 
     user_name = user.get_full_name() or user.first_name or user.username or "there"
-    context = {
-        "user_name": user_name,
-        "otp": otp,
-        "frontend_url": settings.FRONTEND_URL,
-        "resource_title": "Password Reset",
-        "resource_type": "password reset",
-    }
+    from core.email_service import EmailService
 
     try:
-        html_message = render_to_string("emails/otp_verification.html", context)
-    except Exception as e:
-        logger.warning(f"Failed to render OTP HTML email: {e}")
-        html_message = f"Hello {user_name},<br><br>Your 6-digit password reset verification code is: <b>{otp}</b>.<br>It is valid for 5 minutes."
-
-    plain_message = (
-        f"Hello {user_name},\n\n"
-        f"We received a request to reset your password for your Yuvro account.\n\n"
-        f"Your 6-digit verification code is:\n\n{otp}\n\n"
-        f"This code is valid for 5 minutes. If you did not request a password reset, you can safely ignore this email.\n\n"
-        f"- The Yuvro Team"
-    )
-
-    try:
-        send_mail(
-            subject="Your Yuvro Password Reset Code",
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            html_message=html_message,
-            fail_silently=False,
+        EmailService.send_password_reset_code(
+            to_email=user.email,
+            code=otp,
+            user_name=user_name,
+            expiry_minutes=5,
         )
     except Exception as e:
         logger.error(f"Failed to send forgot-password OTP email: {e}")
@@ -880,6 +914,15 @@ def reset_password_with_code_view(request):
     user.set_password(password)
     user.save()
 
+    try:
+        from core.email_service import EmailService
+        EmailService.send_password_changed_notification(
+            to_email=user.email,
+            user_name=user.get_full_name() or user.first_name or user.username,
+        )
+    except Exception as exc:
+        logger.warning(f"Failed to send password changed notification: {exc}")
+
     RegistrationOTP.objects.filter(
         email=user.email,
         resource_id="forgot_password",
@@ -932,13 +975,14 @@ def send_change_password_otp(request):
         defaults={"otp": otp, "expires_at": None},
     )
 
+    from core.email_service import EmailService
+
     try:
-        send_mail(
-            subject="Yuvro - OTP for Password Change",
-            message=f"Hi {user.first_name or user.username},\n\nYour OTP to change your password is: {otp}.\n\nThis OTP is valid for 5 minutes. If you did not request this change, please ignore this email.\n\nBest regards,\nTeam Yuvro",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
+        EmailService.send_password_change_otp(
+            to_email=user.email,
+            otp=otp,
+            user_name=user.get_full_name() or user.first_name or user.username,
+            expiry_minutes=5,
         )
     except Exception as exc:
         logger.error(f"Failed to send password change OTP to {user.email}: {exc}")
@@ -1003,6 +1047,15 @@ def change_password_view(request):
 
     user.set_password(new_password)
     user.save()
+
+    try:
+        from core.email_service import EmailService
+        EmailService.send_password_changed_notification(
+            to_email=user.email,
+            user_name=user.get_full_name() or user.first_name or user.username,
+        )
+    except Exception as exc:
+        logger.warning(f"Failed to send password changed notification: {exc}")
 
     return Response({"message": "Password changed successfully."})
 
@@ -1083,6 +1136,13 @@ class GithubConnectView(APIView):
                 "scopes": scopes
             }
         )
+
+        # If LinkedIn is connected but missing a clean handle, automatically sync handle from GitHub
+        from .models import LinkedInConnection
+        li_conn = LinkedInConnection.objects.filter(user=request.user).first()
+        if li_conn and (not li_conn.linkedin_handle or "-" in li_conn.linkedin_handle):
+            li_conn.linkedin_handle = github_username.lower()
+            li_conn.save(update_fields=["linkedin_handle"])
         
         return Response({"message": "GitHub connected successfully", "github_username": github_username})
 
@@ -1170,20 +1230,72 @@ class LinkedInConnectView(APIView):
         expires_at = None
         if expires_in:
             expires_at = timezone.now() + timedelta(seconds=int(expires_in))
+
+        # Check if /v2/me returns vanityName
+        vanity_name = None
+        try:
+            me_resp = http_requests.get("https://api.linkedin.com/v2/me", headers=user_headers)
+            if me_resp.status_code == 200:
+                vanity_name = me_resp.json().get("vanityName")
+        except Exception:
+            pass
+
+        # Automatically determine handle:
+        # 1. From LinkedIn vanityName if available
+        # 2. From connected GitHub username
+        # 3. From user's custom username
+        # 4. From slugified LinkedIn name
+        auto_handle = vanity_name
+        if not auto_handle:
+            from .models import GithubConnection
+            gh_conn = GithubConnection.objects.filter(user=request.user).first()
+            if gh_conn and gh_conn.github_username:
+                auto_handle = gh_conn.github_username.lower()
+        if not auto_handle and request.user.username and "@" not in request.user.username:
+            auto_handle = request.user.username.lower()
+        if not auto_handle and linkedin_name:
+            import re
+            auto_handle = re.sub(r'[^a-zA-Z0-9-]', '', linkedin_name.replace(' ', '-').lower())
+
+        defaults_dict = {
+            "linkedin_sub": linkedin_sub,
+            "linkedin_name": linkedin_name,
+            "linkedin_email": linkedin_email,
+            "access_token": encrypted_token,
+            "scopes": scopes,
+            "expires_at": expires_at,
+            "linkedin_handle": auto_handle,
+        }
         
         connection, _ = LinkedInConnection.objects.update_or_create(
             user=request.user,
-            defaults={
-                "linkedin_sub": linkedin_sub,
-                "linkedin_name": linkedin_name,
-                "linkedin_email": linkedin_email,
-                "access_token": encrypted_token,
-                "scopes": scopes,
-                "expires_at": expires_at,
-            }
+            defaults=defaults_dict,
         )
         
-        return Response({"message": "LinkedIn connected successfully", "linkedin_name": linkedin_name})
+        return Response({
+            "message": "LinkedIn connected successfully",
+            "linkedin_name": linkedin_name,
+            "linkedin_handle": connection.linkedin_handle or auto_handle,
+        })
+
+    def patch(self, request):
+        handle = request.data.get("linkedin_handle") or request.data.get("handle")
+        if not handle:
+            return Response({"error": "LinkedIn handle is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        import re
+        # Clean handle: extract slug if user entered full URL like https://www.linkedin.com/in/mkgandhi05/
+        clean_handle = re.sub(r'^https?://([a-zA-Z0-9-]+\.)?linkedin\.com/in/', '', str(handle).strip(), flags=re.IGNORECASE)
+        clean_handle = clean_handle.strip('/').strip()
+
+        from .models import LinkedInConnection
+        try:
+            connection = LinkedInConnection.objects.get(user=request.user)
+            connection.linkedin_handle = clean_handle
+            connection.save()
+            return Response({"status": "success", "linkedin_handle": clean_handle})
+        except LinkedInConnection.DoesNotExist:
+            return Response({"error": "LinkedIn is not connected"}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
         from .models import LinkedInConnection
@@ -1723,6 +1835,83 @@ def check_username_view(request):
         {"available": True, "message": "Username is available"},
         status=status.HTTP_200_OK,
     )
+
+
+class UsernameAvailableThrottle(SimpleRateThrottle):
+    scope = "username_available"
+    rate = "30/minute"
+
+    def get_cache_key(self, request, view):
+        if request.user and request.user.is_authenticated:
+            ident = str(request.user.pk)
+        else:
+            ident = self.get_ident(request)
+        return self.cache_format % {
+            "scope": self.scope,
+            "ident": ident,
+        }
+
+
+@extend_schema(
+    summary="Check Username Availability For Current/New User",
+    description="Check whether a username is available with reasons (taken, invalid, reserved)",
+    parameters=[
+        OpenApiParameter(
+            name="username",
+            description="Username to check",
+            required=True,
+            type=str,
+            location=OpenApiParameter.QUERY,
+        )
+    ],
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "available": {"type": "boolean"},
+                "reason": {"type": "string", "enum": ["taken", "invalid", "reserved"]},
+            },
+        }
+    },
+)
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+@throttle_classes([UsernameAvailableThrottle])
+def username_available_view(request):
+    raw_username = request.query_params.get("username", "")
+    if raw_username is None:
+        return Response({"available": False, "reason": "invalid"}, status=status.HTTP_200_OK)
+
+    username = str(raw_username).strip()
+    if not username:
+        return Response({"available": False, "reason": "invalid"}, status=status.HTTP_200_OK)
+
+    from .serializers import RESERVED_USERNAMES
+    from .validators import validate_username_format
+
+    if username.lower() in RESERVED_USERNAMES:
+        return Response({"available": False, "reason": "reserved"}, status=status.HTTP_200_OK)
+
+    is_valid, _ = validate_username_format(username)
+    if not is_valid or len(username) > 30:
+        return Response({"available": False, "reason": "invalid"}, status=status.HTTP_200_OK)
+
+    # If authenticated user checks their own current username
+    if request.user and request.user.is_authenticated:
+        if (request.user.username or "").lower() == username.lower():
+            return Response({"available": True}, status=status.HTTP_200_OK)
+
+    lower_username = username.lower()
+    qs = User.objects.annotate(uname_lower=Lower("username")).filter(
+        uname_lower=lower_username, is_guest_user=False
+    )
+    if request.user and request.user.is_authenticated:
+        qs = qs.exclude(pk=request.user.pk)
+
+    if qs.exists():
+        return Response({"available": False, "reason": "taken"}, status=status.HTTP_200_OK)
+
+    return Response({"available": True}, status=status.HTTP_200_OK)
 
 
 @extend_schema(

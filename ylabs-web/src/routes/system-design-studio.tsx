@@ -1707,8 +1707,7 @@ export function SystemDesignStudio({
           )}
           {isStandaloneStudio && (
             <Link
-              to={user ? "/student/dashboard" : "/auth"}
-              search={user ? undefined : { tab: "signin" }}
+              to="/student/dashboard"
               className="h-7 text-xs border border-border rounded-md px-2.5 inline-flex items-center font-medium hover:bg-accent text-foreground transition-colors ml-1"
               title="Practice in Yuvro Labs"
             >

@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { Card } from "@/components/profile-ui/Card";
+import { Section } from "@/components/profile-ui/Section";
+import { TextLink } from "@/components/profile-ui/TextLink";
+import { Button } from "@/components/profile-ui/Button";
+import { EmptyState } from "@/components/profile-ui/EmptyState";
 import { ProjectItem } from "../types";
 import { useProfileStore } from "../store/profileStore";
 import { ProjectForm } from "./ProjectForm";
@@ -24,24 +27,22 @@ export const ProjectsSection: React.FC = () => {
   };
 
   return (
-    <Card className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-ink">Projects</h2>
-        {!isAdding && !editingId && (
-          <button
-            type="button"
-            onClick={() => setIsAdding(true)}
-            className="text-sm font-medium text-primary hover:underline cursor-pointer bg-transparent border-0 p-0"
-          >
-            + Add
-          </button>
-        )}
-      </div>
-
-      <div className="divide-y divide-line/60">
-        {/* Inline Add Panel */}
+    <Section
+      id="projects-section"
+      title="Projects"
+      eyebrow="Portfolio"
+      actions={
+        !isAdding && !editingId ? (
+          <TextLink size="sm" onClick={() => setIsAdding(true)}>
+            Add
+          </TextLink>
+        ) : null
+      }
+    >
+      <div className="space-y-4">
+        {/* Inline Add Form */}
         {isAdding && (
-          <div className="pb-4">
+          <div className="rounded-card border border-line bg-card p-4 sm:p-5">
             <ProjectForm
               onSave={handleAddSave}
               onCancel={() => setIsAdding(false)}
@@ -49,35 +50,43 @@ export const ProjectsSection: React.FC = () => {
           </div>
         )}
 
-        {/* Existing Items */}
-        {projects.map((item) =>
-          editingId === item.id ? (
-            <div key={item.id} className="py-4">
-              <ProjectForm
-                initialData={item}
-                onSave={handleUpdateSave}
-                onCancel={() => setEditingId(null)}
-              />
-            </div>
-          ) : (
-            <ProjectItemCard
-              key={item.id}
-              item={item}
-              onEdit={() => {
-                setIsAdding(false);
-                setEditingId(item.id);
-              }}
-              onDelete={() => deleteProject(item.id)}
-            />
-          )
-        )}
-
-        {projects.length === 0 && !isAdding && (
-          <p className="text-sm text-muted italic py-3 text-center">
-            No projects added yet.
-          </p>
-        )}
+        {/* Existing Projects in auto-fill grid */}
+        {projects.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {projects.map((item) =>
+              editingId === item.id ? (
+                <div
+                  key={item.id}
+                  className="col-span-full rounded-card border border-line bg-card p-4 sm:p-5"
+                >
+                  <ProjectForm
+                    initialData={item}
+                    onSave={handleUpdateSave}
+                    onCancel={() => setEditingId(null)}
+                  />
+                </div>
+              ) : (
+                <ProjectItemCard
+                  key={item.id}
+                  item={item}
+                  onEdit={() => setEditingId(item.id)}
+                  onDelete={() => deleteProject(item.id)}
+                />
+              )
+            )}
+          </div>
+        ) : !isAdding ? (
+          <EmptyState
+            title="Showcase what you've built"
+            description="Highlight key engineering projects, hackathons, or open-source repositories."
+            action={
+              <Button size="sm" variant="primary" onClick={() => setIsAdding(true)}>
+                Add project
+              </Button>
+            }
+          />
+        ) : null}
       </div>
-    </Card>
+    </Section>
   );
 };

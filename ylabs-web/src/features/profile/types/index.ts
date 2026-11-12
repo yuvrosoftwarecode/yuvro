@@ -74,8 +74,11 @@ export interface Profile {
   phone: string;
   website: string;
   about: string;
+  dateJoined?: string;
   avatarUrl?: string;
   coverUrl?: string;
+  emailPublic?: boolean;
+  phonePublic?: boolean;
   userSkills: string[];
   verifiedSkills: VerifiedSkill[];
   work: WorkItem[];

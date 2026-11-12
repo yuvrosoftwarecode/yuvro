@@ -3,16 +3,16 @@ import { Section } from "@/components/profile-ui/Section";
 import { TextLink } from "@/components/profile-ui/TextLink";
 import { Button } from "@/components/profile-ui/Button";
 import { Textarea } from "@/components/profile-ui/Textarea";
+import { EmptyState } from "@/components/profile-ui/EmptyState";
 import { useProfileStore } from "../store/profileStore";
-import { Edit2 } from "lucide-react";
 
 export const AboutSection: React.FC = () => {
   const { profile, saveProfile } = useProfileStore();
   const [isEditing, setIsEditing] = useState(false);
   const [aboutText, setAboutText] = useState(profile?.about || "");
   const [saving, setSaving] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  // Sync state if profile changes
   useEffect(() => {
     if (profile?.about !== undefined) {
       setAboutText(profile.about);
@@ -21,7 +21,7 @@ export const AboutSection: React.FC = () => {
 
   const handleSave = async () => {
     setSaving(true);
-    const success = await saveProfile({ about: aboutText });
+    const success = await saveProfile({ about: aboutText.trim() });
     setSaving(false);
     if (success) {
       setIsEditing(false);
@@ -33,16 +33,15 @@ export const AboutSection: React.FC = () => {
     setIsEditing(false);
   };
 
+  const hasAbout = Boolean(profile?.about?.trim());
+  const isLong = (profile?.about?.length || 0) > 280;
+
   return (
     <Section
       title="About"
       actions={
-        !isEditing ? (
-          <TextLink
-            size="sm"
-            icon={<Edit2 className="h-3.5 w-3.5" />}
-            onClick={() => setIsEditing(true)}
-          >
+        hasAbout && !isEditing ? (
+          <TextLink size="sm" onClick={() => setIsEditing(true)}>
             Edit
           </TextLink>
         ) : null
@@ -57,11 +56,14 @@ export const AboutSection: React.FC = () => {
             <Textarea
               id="inline-about-input"
               value={aboutText}
-              onChange={(e) => setAboutText(e.target.value)}
+              onChange={(e) => setAboutText(e.target.value.slice(0, 500))}
               placeholder="Write a brief overview of your background, technical interests, and experience..."
               rows={4}
               autoFocus
             />
+            <div className="flex justify-end mt-1 text-[11px] text-muted">
+              {aboutText.length} / 500
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <Button size="sm" onClick={handleSave} loading={saving}>
@@ -72,14 +74,35 @@ export const AboutSection: React.FC = () => {
             </TextLink>
           </div>
         </div>
-      ) : (
-        <p className="text-[15px] leading-[1.55] text-sub whitespace-pre-line">
-          {profile?.about?.trim() || (
-            <span className="text-muted italic">
-              No summary provided yet. Click "Edit" to tell people about yourself.
-            </span>
+      ) : hasAbout ? (
+        <div className="space-y-2">
+          <p
+            className={`text-sm leading-relaxed text-sub whitespace-pre-line transition-all ${
+              !isExpanded && isLong ? "line-clamp-4" : ""
+            }`}
+          >
+            {profile?.about}
+          </p>
+          {isLong && (
+            <button
+              type="button"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-xs hover:text-primary font-medium hover:underline cursor-pointer transition-colors"
+            >
+              {isExpanded ? "Show less" : "Show more"}
+            </button>
           )}
-        </p>
+        </div>
+      ) : (
+        <EmptyState
+          title="No summary provided yet"
+          description="Click 'Edit' to tell people about yourself."
+          action={
+            <Button size="sm" variant="primary" onClick={() => setIsEditing(true)}>
+              Add about
+            </Button>
+          }
+        />
       )}
     </Section>
   );

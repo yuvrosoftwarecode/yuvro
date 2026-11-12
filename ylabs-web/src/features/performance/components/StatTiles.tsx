@@ -13,6 +13,7 @@ export const StatTiles: React.FC<StatTilesProps> = ({ stats }) => {
       label: "Labs completed",
       value: stats.labsCompleted ?? 0,
       sub: "Simulation labs",
+      zeroHint: "Start your first lab",
     },
     {
       id: "sprints",
@@ -30,21 +31,36 @@ export const StatTiles: React.FC<StatTilesProps> = ({ stats }) => {
       id: "interviews",
       label: "Mock interviews",
       value: stats.mockInterviews ?? 0,
-      sub: "AI & peer assessments",
+      sub: "AI assessments",
     },
   ];
 
+  const allZero = tiles.every((t) => t.value === 0);
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {tiles.map((tile) => (
-        <Card key={tile.id} className="p-5 space-y-1">
-          <div className="text-3xl font-semibold text-ink tracking-tight">
-            {tile.value}
-          </div>
-          <div className="text-sm font-medium text-sub">{tile.label}</div>
-          <div className="text-xs text-muted pt-0.5">{tile.sub}</div>
-        </Card>
-      ))}
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {tiles.map((tile) => (
+          <Card
+            key={tile.id}
+            className="p-4 flex flex-col justify-between hover:border-primary/40 transition-colors"
+          >
+            <div className="text-2xl font-bold text-ink tracking-tight">
+              {tile.value}
+            </div>
+            <div className="mt-1">
+              <div className="text-xs font-semibold text-sub">{tile.label}</div>
+              <div className="text-[11px] text-muted">{tile.sub}</div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {allZero && (
+        <p className="text-xs text-muted italic px-1">
+          Complete labs, sprint tickets, and mock interviews to track your live engineering performance.
+        </p>
+      )}
     </div>
   );
 };

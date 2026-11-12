@@ -25,6 +25,8 @@ const defaultProfile: Profile = {
   about: "",
   avatarUrl: "",
   coverUrl: "",
+  emailPublic: true,
+  phonePublic: false,
   userSkills: [],
   verifiedSkills: [],
   work: [],
@@ -245,6 +247,15 @@ export const profileApi: ProfileApi = {
         }
       : undefined;
 
+    const rawLinkedinHandle = (user as any).linkedin_handle;
+    const fallbackHandle =
+      (user as any).github_username?.toLowerCase() ||
+      ((user as any).username && !(user as any).username.includes("@") ? (user as any).username.toLowerCase() : "") ||
+      ((user as any).linkedin_name && !(user as any).linkedin_name.includes(" ")
+        ? (user as any).linkedin_name
+        : "");
+    const linkedinHandle = (rawLinkedinHandle || fallbackHandle || "").trim();
+
     const connections: Connection[] = [
       {
         platform: "github",
@@ -253,7 +264,7 @@ export const profileApi: ProfileApi = {
       },
       {
         platform: "linkedin",
-        handle: user.linkedin_name || "",
+        handle: linkedinHandle,
         connected: Boolean(user.linkedin_connected),
       },
     ];
@@ -274,8 +285,11 @@ export const profileApi: ProfileApi = {
       phone: user.phone || "",
       website: user.website || "",
       about: user.about || user.profile?.about || "",
+      dateJoined: user.date_joined || undefined,
       avatarUrl: user.profile_image || user.profile?.avatar || "",
       coverUrl: user.cover_image || "",
+      emailPublic: user.email_public !== undefined ? Boolean(user.email_public) : true,
+      phonePublic: user.phone_public !== undefined ? Boolean(user.phone_public) : false,
       userSkills: backendSkills,
       verifiedSkills,
       work: backendWork,
@@ -296,6 +310,8 @@ export const profileApi: ProfileApi = {
     if (updates.website !== undefined) backendPayload.website = updates.website;
     if (updates.about !== undefined) backendPayload.about = updates.about;
     if (updates.headline !== undefined) backendPayload.headline = updates.headline;
+    if (updates.emailPublic !== undefined) backendPayload.email_public = updates.emailPublic;
+    if (updates.phonePublic !== undefined) backendPayload.phone_public = updates.phonePublic;
     if (updates.work !== undefined) backendPayload.employment = updates.work;
     if (updates.education !== undefined) backendPayload.education = updates.education;
     if (updates.projects !== undefined) backendPayload.projects = updates.projects;
@@ -446,11 +462,13 @@ export const profileApi: ProfileApi = {
     connected: boolean
   ): Promise<Connection> {
     if (!connected) {
-      if (platform === "github") {
-        try {
-          await yhubApiAuthUtil.delete("/auth/github/connect/");
-        } catch {}
-      }
+      try {
+        await yhubApiAuthUtil.delete(`/auth/${platform}/connect/`);
+      } catch {}
+    } else if (platform === "linkedin" && handle) {
+      try {
+        await yhubApiAuthUtil.patch("/auth/linkedin/connect/", { handle });
+      } catch {}
     }
 
     return {

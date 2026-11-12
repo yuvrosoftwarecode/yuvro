@@ -460,6 +460,10 @@ function Hub() {
   }, [allCatalogLabs]);
 
   const toggle = (id: string) => {
+    if (!user) {
+      navigate({ to: "/auth", search: { tab: "signin", redirect: "/student/dashboard" } });
+      return;
+    }
     setEnrollLoading((prev) => ({ ...prev, [id]: true }));
     const isEnrolled = enrolledIds.has(id);
     const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
@@ -520,15 +524,12 @@ function Hub() {
     return localStorage.getItem(`is_first_login_${user.id}`) === "true";
   }, [user?.id]);
 
-  const handleGlobalClick = (e: React.MouseEvent) => {
-    if (!user) {
-      e.preventDefault();
-      e.stopPropagation();
-      navigate({ to: "/auth", search: { tab: "signin" } });
-    }
-  };
-
   const handleContinue = () => {
+    if (!user) {
+      const target = document.getElementById("featured-labs");
+      target?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
     if (recentLab) {
       navigate({ to: "/student/lab/$slug", params: { slug: recentLab.id } });
     } else if (enrolledLabs.length > 0) {
@@ -542,7 +543,7 @@ function Hub() {
   };
 
   return (
-    <div className="min-h-screen" onClickCapture={handleGlobalClick}>
+    <div className="min-h-screen">
       <main className="mx-auto max-w-[1200px] px-4 py-8">
         {/* Hero Section with Welcome Badge, Quotes, SVG Scenes, and Continue Lab CTA */}
         <LearnerHero

@@ -227,3 +227,62 @@ export function groupIntoWeeks(days: ContributionDay[]): HeatmapColumn[] {
 
   return columns;
 }
+
+/**
+ * Computes pixel/column offsets for month labels aligned to data columns without overlapping.
+ * Ensures the last label does not extend past the final cell.
+ */
+export function computeMonthLabelPositions(
+  columns: HeatmapColumn[],
+  maxColumns: number = 53
+): { month: string; columnIndex: number }[] {
+  const labels: { month: string; columnIndex: number }[] = [];
+  const monthNames = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+  let lastPlacedIndex = -4;
+
+  for (let colIdx = 0; colIdx < columns.length && colIdx < maxColumns; colIdx++) {
+    const col = columns[colIdx];
+    if (!col || !col.days || col.days.length === 0) continue;
+
+    for (const d of col.days) {
+      if (!d) continue;
+      const dayNum = parseInt(d.date.substring(8, 10), 10);
+      const monthNum = parseInt(d.date.substring(5, 7), 10) - 1;
+
+      // When day is within first 7 days of the month, mark column
+      if (dayNum <= 7 && colIdx - lastPlacedIndex >= 3 && colIdx <= maxColumns - 3) {
+        labels.push({
+          month: monthNames[monthNum],
+          columnIndex: colIdx,
+        });
+        lastPlacedIndex = colIdx;
+        break;
+      }
+    }
+  }
+
+  return labels;
+}
+
+/**
+ * Formats accessible tooltip for each cell:
+ * "N contributions on Mon, Nov 11, 2026"
+ */
+export function formatCellTooltip(dateStr: string, count: number): string {
+  try {
+    const parts = dateStr.split("-").map(Number);
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+    const weekday = d.toLocaleString("default", { weekday: "short" });
+    const month = d.toLocaleString("default", { month: "short" });
+    const day = parts[2];
+    const year = parts[0];
+    const countStr = count === 0 ? "No contributions" : count === 1 ? "1 contribution" : `${count} contributions`;
+    return `${countStr} on ${weekday}, ${month} ${day}, ${year}`;
+  } catch {
+    return `${count} contributions on ${dateStr}`;
+  }
+}
+

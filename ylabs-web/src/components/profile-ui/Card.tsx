@@ -13,7 +13,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         ref={ref}
         className={twMerge(
           clsx(
-            "rounded-[12px] border border-line bg-card p-6 shadow-card transition-colors",
+            "rounded-[10px] border border-line bg-card p-4 sm:p-5 shadow-none transition-all duration-150 hover:shadow-[0_1px_2px_rgba(16,24,40,0.04)] dark:hover:shadow-[0_1px_2px_rgba(0,0,0,0.2)]",
             className
           )
         )}

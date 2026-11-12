@@ -28,6 +28,7 @@ export interface User {
   website?: string;
   about?: string;
   headline?: string;
+  open_to_work?: boolean;
   projects?: Array<Record<string, any>>;
   skills?: string[];
   education?: Array<Record<string, any>>;

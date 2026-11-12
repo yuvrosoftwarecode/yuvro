@@ -73,8 +73,8 @@ export const performanceApi = {
     const finalStats = {
       total: computedStats.total,
       activeDays: computedStats.activeDays,
-      currentStreak: Math.max(computedStats.currentStreak, statsData.day_streak || 0),
-      longestStreak: Math.max(computedStats.longestStreak, statsData.day_streak || 0),
+      currentStreak: computedStats.total === 0 ? 0 : computedStats.currentStreak,
+      longestStreak: computedStats.total === 0 ? 0 : computedStats.longestStreak,
     };
 
     // Real Mock Interview Performance

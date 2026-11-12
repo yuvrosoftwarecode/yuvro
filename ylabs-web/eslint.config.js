@@ -24,5 +24,28 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  {
+    files: [
+      "src/features/profile/**/*.{ts,tsx}",
+      "src/features/performance/**/*.{ts,tsx}",
+      "src/features/settings/**/*.{ts,tsx}",
+      "src/components/profile-ui/**/*.{ts,tsx}",
+      "src/routes/student.profile.tsx",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "lucide-react",
+              message:
+                "Icons are strictly prohibited in Yuvro profile features. Use text, native controls, or typographic monograms instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   eslintPluginPrettier,
 );

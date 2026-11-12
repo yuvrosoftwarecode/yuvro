@@ -1,5 +1,7 @@
 from django.test import TestCase, RequestFactory
 from django.core.exceptions import ValidationError
+from django.core.cache import cache
+from django.db import IntegrityError
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -709,6 +711,104 @@ class ForgotPasswordOtpTests(TestCase):
         )
         reuse_res = reset_password_with_code_view(reuse_req)
         self.assertEqual(reuse_res.status_code, 400)
+
+
+class ProfileV32Tests(TestCase):
+    def setUp(self):
+        cache.clear()
+        from rest_framework.test import APIClient
+        self.client = APIClient()
+        self.user1 = User.objects.create_user(
+            username="alexstudent",
+            email="alex@yuvrolabs.com",
+            password="Password123!",
+        )
+        self.user2 = User.objects.create_user(
+            username="manikanta",
+            email="manikanta@yuvrolabs.com",
+            password="Password123!",
+        )
+        self.client.force_authenticate(user=self.user1)
+
+    def test_username_available_endpoint_taken_and_free(self):
+        # Already taken
+        res = self.client.get("/me/username-available?username=manikanta")
+        self.assertEqual(res.status_code, 200)
+        self.assertFalse(res.data["available"])
+        self.assertEqual(res.data["reason"], "taken")
+
+        # Case variant of taken
+        res = self.client.get("/me/username-available?username=MANIKANTA")
+        self.assertEqual(res.status_code, 200)
+        self.assertFalse(res.data["available"])
+        self.assertEqual(res.data["reason"], "taken")
+
+        # Own username (authenticated)
+        res = self.client.get("/me/username-available?username=alexstudent")
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res.data["available"])
+
+        # Free username
+        res = self.client.get("/me/username-available?username=brandnewuser")
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res.data["available"])
+
+    def test_username_available_reserved_and_invalid(self):
+        for name in ["admin", "root", "support", "yuvro", "api", "www", "settings", "login", "signup", "u", "me"]:
+            res = self.client.get(f"/me/username-available?username={name}")
+            self.assertEqual(res.status_code, 200)
+            self.assertFalse(res.data["available"])
+            self.assertEqual(res.data["reason"], "reserved")
+
+        # Invalid formats
+        for bad in ["a", "ab", "toolongusername12345678901234567890", "has spaces", "-startdash", "enddash-", "consecutive--dashes"]:
+            res = self.client.get(f"/me/username-available?username={bad}")
+            self.assertEqual(res.status_code, 200)
+            self.assertFalse(res.data["available"])
+            self.assertEqual(res.data["reason"], "invalid")
+
+    def test_username_available_throttled(self):
+        cache.clear()
+        from rest_framework.test import APIClient
+        client = APIClient()
+        # 30 requests should succeed
+        for i in range(30):
+            res = client.get(f"/me/username-available?username=testuser{i}")
+            self.assertEqual(res.status_code, 200)
+        # 31st request should be throttled
+        res = client.get("/me/username-available?username=testuser31")
+        self.assertEqual(res.status_code, 429)
+
+    def test_patch_user_email_is_read_only(self):
+        orig_email = self.user1.email
+        res = self.client.patch(
+            "/api/auth/user/",
+            {"email": "changed@attacker.com", "first_name": "UpdatedAlex"},
+            format="json",
+        )
+        self.assertEqual(res.status_code, 200)
+        self.user1.refresh_from_db()
+        self.assertEqual(self.user1.email, orig_email)
+        self.assertEqual(self.user1.first_name, "UpdatedAlex")
+
+    def test_patch_username_conflict_returns_409(self):
+        res = self.client.patch(
+            "/api/auth/user/",
+            {"username": "manikanta"},
+            format="json",
+        )
+        self.assertEqual(res.status_code, 409)
+        self.assertEqual(res.data.get("field"), "username")
+        self.assertEqual(res.data.get("code"), "taken")
+
+    def test_case_insensitive_unique_constraint_db(self):
+        with self.assertRaises(IntegrityError):
+            User.objects.create_user(
+                username="ALEXSTUDENT",
+                email="alex2@yuvrolabs.com",
+                password="Password123!",
+            )
+
 
 
 

@@ -9,22 +9,22 @@ export const Route = createFileRoute("/")({
       const token = localStorage.getItem("access");
       if (token) {
         const userStr = localStorage.getItem("user");
+        let dest = "/student/dashboard";
         if (userStr) {
           try {
             const user = JSON.parse(userStr);
-            const role = user.roles?.ylabs || user.roles?.ycode || user.role;
+            const role = user?.roles?.ylabs || user?.roles?.ycode || user?.role;
             const r = role?.toLowerCase();
             if (r === "admin") {
-              throw redirect({ to: "/admin" });
+              dest = "/admin";
             } else if (r === "recruiter") {
-              throw redirect({ to: "/recruiter/dashboard" });
-            } else {
-              throw redirect({ to: "/student/dashboard" });
+              dest = "/recruiter/dashboard";
             }
-          } catch (e) {
+          } catch {
             // ignore parsing error
           }
         }
+        throw redirect({ to: dest });
       }
     }
   },
@@ -155,9 +155,36 @@ const GLYPHS = { term: TermGlyph, wave: WaveGlyph, doc: DocGlyph };
 
 export function LandingPage() {
   const nav = useNavigate();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("access");
+      if (token || isAuthenticated || user) {
+        let dest = "/student/dashboard";
+        const role = user?.roles?.ylabs || user?.roles?.ycode || user?.role;
+        const r = role?.toLowerCase();
+        if (r === "admin") dest = "/admin";
+        else if (r === "recruiter") dest = "/recruiter/dashboard";
+        else {
+          const userStr = localStorage.getItem("user");
+          if (userStr) {
+            try {
+              const u = JSON.parse(userStr);
+              const r2 = (u?.roles?.ylabs || u?.roles?.ycode || u?.role)?.toLowerCase();
+              if (r2 === "admin") dest = "/admin";
+              else if (r2 === "recruiter") dest = "/recruiter/dashboard";
+            } catch {
+              // ignore
+            }
+          }
+        }
+        nav({ to: dest });
+      }
+    }
+  }, [user, isAuthenticated, nav]);
 
   const showToast = (m: string) => {
     setToast(m);
@@ -168,11 +195,7 @@ export function LandingPage() {
   /* Navigation actions */
   const goCompany = () => nav({ to: "/recruiter-login" });
   const goDeveloper = () => {
-    if (user) {
-      nav({ to: "/student/dashboard" });
-    } else {
-      nav({ to: "/auth", search: { tab: "signin" } });
-    }
+    nav({ to: "/student/dashboard" });
   };
 
   /* Rotating headline word */

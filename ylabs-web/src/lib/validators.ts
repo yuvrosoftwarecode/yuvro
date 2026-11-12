@@ -136,3 +136,48 @@ export function getPasswordStrength(pw: string) {
 
   return { score, label, hasLength, hasLetter, hasNumber };
 }
+
+/**
+ * Computes profile completion strength percentage and checklist items:
+ * Photo, Resume, Education, Project, GitHub, LinkedIn.
+ */
+export interface ProfileStrengthItem {
+  id: "photo" | "resume" | "education" | "project" | "github" | "linkedin";
+  label: string;
+  done: boolean;
+}
+
+export function computeProfileStrength(profile: any): {
+  percentage: number;
+  completedCount: number;
+  totalCount: number;
+  items: ProfileStrengthItem[];
+  incompleteItems: ProfileStrengthItem[];
+} {
+  if (!profile) {
+    return { percentage: 0, completedCount: 0, totalCount: 6, items: [], incompleteItems: [] };
+  }
+  const githubConn = profile.connections?.find((c: any) => c.platform === "github");
+  const linkedinConn = profile.connections?.find((c: any) => c.platform === "linkedin");
+
+  const items: ProfileStrengthItem[] = [
+    { id: "photo", label: "Add a profile photo", done: Boolean(profile.avatarUrl) },
+    { id: "resume", label: "Upload your resume", done: Boolean(profile.resume) },
+    { id: "education", label: "Add education", done: Boolean(profile.education && profile.education.length > 0) },
+    { id: "project", label: "Add a project", done: Boolean(profile.projects && profile.projects.length > 0) },
+    { id: "github", label: "Connect GitHub", done: Boolean(githubConn?.connected && githubConn?.handle) },
+    { id: "linkedin", label: "Connect LinkedIn", done: Boolean(linkedinConn?.connected && linkedinConn?.handle) },
+  ];
+
+  const incompleteItems = items.filter((i) => !i.done);
+  const completedCount = items.length - incompleteItems.length;
+  const percentage = Math.round((completedCount / items.length) * 100);
+
+  return {
+    percentage,
+    completedCount,
+    totalCount: items.length,
+    items,
+    incompleteItems,
+  };
+}

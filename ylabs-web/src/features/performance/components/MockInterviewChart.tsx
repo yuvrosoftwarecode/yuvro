@@ -1,6 +1,10 @@
 import React from "react";
 import { Card } from "@/components/profile-ui/Card";
 import { MockInterviewPerformance } from "../types";
+import { EmptyState } from "@/components/profile-ui/EmptyState";
+import { Button } from "@/components/profile-ui/Button";
+import { MockInterviewTrendChart } from "../charts/MockInterviewTrendChart";
+import { ProgressBar } from "@/components/profile-ui/ProgressBar";
 
 interface MockInterviewChartProps {
   data: MockInterviewPerformance;
@@ -13,104 +17,73 @@ export const MockInterviewChart: React.FC<MockInterviewChartProps> = ({
   const hasInterviews = points.length > 0;
   const dimensions = data.dimensions || [];
 
-  const width = 360;
-  const height = 90;
-  const paddingX = 12;
-  const paddingY = 16;
-
-  const minVal = points.length > 0 ? Math.max(0, Math.min(...points) - 1) : 0;
-  const maxVal = points.length > 0 ? Math.min(10, Math.max(...points) + 1) : 10;
-  const range = maxVal - minVal || 1;
-
-  const getX = (idx: number) =>
-    points.length <= 1
-      ? width / 2
-      : paddingX + (idx * (width - 2 * paddingX)) / (points.length - 1);
-  const getY = (val: number) =>
-    height - paddingY - ((val - minVal) * (height - 2 * paddingY)) / range;
-
-  const coordinates = points.map((p, idx) => ({ x: getX(idx), y: getY(p), val: p }));
-
-  const pathD = coordinates.reduce((acc, curr, idx) => {
-    return idx === 0 ? `M ${curr.x} ${curr.y}` : `${acc} L ${curr.x} ${curr.y}`;
-  }, "");
-
-  const lastCoord = coordinates[coordinates.length - 1];
-
   return (
-    <Card className="p-6 space-y-4">
-      <h2 className="text-base font-semibold text-ink">Mock interview performance</h2>
-
-      {hasInterviews ? (
-        <>
-          <div className="space-y-0.5">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-bold text-ink">
-                {data.latestScore > 0 ? data.latestScore : points[points.length - 1]}
-              </span>
-              <span className="text-sm font-medium text-muted">/ 10</span>
-            </div>
-            <p className="text-xs text-muted">
-              Latest of {points.length} {points.length === 1 ? "interview" : "interviews"}
-            </p>
-          </div>
-
-          {/* SVG Trend Line */}
-          <div className="w-full pt-2">
-            <svg
-              viewBox={`0 0 ${width} ${height}`}
-              className="w-full h-[80px] overflow-visible"
-              aria-label="Score trend chart"
+    <Card className="p-4 sm:p-5 flex flex-col justify-between h-full space-y-4">
+      <div>
+        <div className="flex items-center justify-between mb-3 border-b border-line pb-2.5">
+          <h2 className="text-base font-semibold text-ink">
+            Mock interview performance
+          </h2>
+          {hasInterviews && (
+            <a
+              href="/mock-interviews"
+              className="text-xs hover:text-primary hover:underline font-medium transition-colors"
             >
-              {points.length > 1 ? (
-                <path
-                  d={pathD}
-                  fill="none"
-                  stroke="#3558c8"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              ) : null}
-              {lastCoord && (
-                <circle
-                  cx={lastCoord.x}
-                  cy={lastCoord.y}
-                  r="4.5"
-                  fill="#3558c8"
-                  stroke="#ffffff"
-                  strokeWidth="1.5"
-                />
-              )}
-            </svg>
-          </div>
+              Practice &rarr;
+            </a>
+          )}
+        </div>
 
-          {/* Dimension Bars */}
-          {dimensions.length > 0 && (
-            <div className="space-y-2.5 pt-3 border-t border-line/60">
+        {hasInterviews ? (
+          <div className="space-y-4">
+            <div className="flex items-baseline justify-between">
+              <div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl font-bold text-ink tracking-tight">
+                    {data.latestScore > 0 ? data.latestScore : points[points.length - 1]}
+                  </span>
+                  <span className="text-sm font-medium text-muted">/ 10</span>
+                </div>
+                <p className="text-xs text-muted mt-0.5">
+                  Latest of {points.length} {points.length === 1 ? "interview" : "interviews"}
+                </p>
+              </div>
+            </div>
+
+            {/* Score trend chart from charts/ */}
+            <MockInterviewTrendChart scores={points} />
+
+            {/* Breakdown bars */}
+            <div className="space-y-2.5 pt-2 border-t border-line">
               {dimensions.map((dim) => (
-                <div key={dim.name} className="flex items-center justify-between gap-4 text-xs">
-                  <span className="text-sub font-normal w-32 truncate">{dim.name}</span>
-                  <div className="flex-1 h-1.5 rounded-full bg-[#e4e7ec] dark:bg-[#242c38] overflow-hidden">
-                    <div
-                      className="h-full bg-[#3558c8] rounded-full"
-                      style={{ width: `${dim.percentage}%` }}
-                    />
+                <div key={dim.name} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs text-sub">
+                    <span className="font-medium">{dim.name}</span>
+                    <span className="font-semibold text-ink">{dim.score}%</span>
                   </div>
-                  <span className="text-ink font-semibold w-6 text-right">{dim.score}</span>
+                  <ProgressBar value={dim.score} height={5} />
                 </div>
               ))}
             </div>
-          )}
-        </>
-      ) : (
-        <div className="py-8 text-center space-y-2">
-          <p className="text-sm text-sub font-medium">No mock interviews completed yet</p>
-          <p className="text-xs text-muted max-w-xs mx-auto">
-            Take practice technical interviews in Yuvro to assess your competencies and track your progress over time.
-          </p>
-        </div>
-      )}
+          </div>
+        ) : (
+          <EmptyState
+            title="No mock interviews taken"
+            description="Practice AI-guided technical system design and coding interviews with instant feedback."
+            action={
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={() => {
+                  window.location.href = "/mock-interviews";
+                }}
+              >
+                Start mock interview
+              </Button>
+            }
+          />
+        )}
+      </div>
     </Card>
   );
 };

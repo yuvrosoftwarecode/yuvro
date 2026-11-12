@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { Card } from "@/components/profile-ui/Card";
+import { Section } from "@/components/profile-ui/Section";
+import { TextLink } from "@/components/profile-ui/TextLink";
+import { Button } from "@/components/profile-ui/Button";
+import { EmptyState } from "@/components/profile-ui/EmptyState";
 import { EducationItem } from "../types";
 import { useProfileStore } from "../store/profileStore";
 import { EducationForm } from "./EducationForm";
@@ -10,7 +13,7 @@ export const EducationSection: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const educationList = profile?.education || [];
+  const education = profile?.education || [];
 
   const handleAddSave = async (data: Omit<EducationItem, "id">) => {
     const ok = await addEducation(data);
@@ -24,24 +27,22 @@ export const EducationSection: React.FC = () => {
   };
 
   return (
-    <Card className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-ink">Education</h2>
-        {!isAdding && !editingId && (
-          <button
-            type="button"
-            onClick={() => setIsAdding(true)}
-            className="text-sm font-medium text-primary hover:underline cursor-pointer bg-transparent border-0 p-0"
-          >
-            + Add
-          </button>
-        )}
-      </div>
-
-      <div className="divide-y divide-line/60">
+    <Section
+      id="education-section"
+      title="Education"
+      eyebrow="Credentials"
+      actions={
+        !isAdding && !editingId ? (
+          <TextLink size="sm" onClick={() => setIsAdding(true)}>
+            Add
+          </TextLink>
+        ) : null
+      }
+    >
+      <div className="space-y-4">
         {/* Inline Add Panel */}
         {isAdding && (
-          <div className="pb-4">
+          <div className="rounded-card border border-line bg-card p-4 sm:p-5">
             <EducationForm
               onSave={handleAddSave}
               onCancel={() => setIsAdding(false)}
@@ -49,35 +50,44 @@ export const EducationSection: React.FC = () => {
           </div>
         )}
 
-        {/* Existing Items */}
-        {educationList.map((item) =>
-          editingId === item.id ? (
-            <div key={item.id} className="py-4">
-              <EducationForm
-                initialData={item}
-                onSave={handleUpdateSave}
-                onCancel={() => setEditingId(null)}
-              />
-            </div>
-          ) : (
-            <EducationItemCard
-              key={item.id}
-              item={item}
-              onEdit={() => {
-                setIsAdding(false);
-                setEditingId(item.id);
-              }}
-              onDelete={() => deleteEducation(item.id)}
-            />
-          )
-        )}
-
-        {educationList.length === 0 && !isAdding && (
-          <p className="text-sm text-muted italic py-3 text-center">
-            No education history added yet.
-          </p>
-        )}
+        {/* Existing Education Timeline */}
+        {education.length > 0 ? (
+          <div className="pt-2 pl-1">
+            {education.map((item, index) =>
+              editingId === item.id ? (
+                <div
+                  key={item.id}
+                  className="rounded-card border border-line bg-card p-4 sm:p-5 mb-4"
+                >
+                  <EducationForm
+                    initialData={item}
+                    onSave={handleUpdateSave}
+                    onCancel={() => setEditingId(null)}
+                  />
+                </div>
+              ) : (
+                <EducationItemCard
+                  key={item.id}
+                  item={item}
+                  isLast={index === education.length - 1}
+                  onEdit={() => setEditingId(item.id)}
+                  onDelete={() => deleteEducation(item.id)}
+                />
+              )
+            )}
+          </div>
+        ) : !isAdding ? (
+          <EmptyState
+            title="Add your education"
+            description="Include your university, degree, field of study, and graduation year."
+            action={
+              <Button size="sm" variant="primary" onClick={() => setIsAdding(true)}>
+                Add education
+              </Button>
+            }
+          />
+        ) : null}
       </div>
-    </Card>
+    </Section>
   );
 };

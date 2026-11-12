@@ -16,7 +16,7 @@ export const TextLink = forwardRef<HTMLButtonElement | HTMLAnchorElement, TextLi
     const baseClasses = clsx(
       "inline-flex items-center gap-1.5 font-medium transition-colors cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
       size === "sm" ? "text-sm py-1 px-2 -my-1 -mx-2" : "text-[15px] py-1.5 px-2.5 -my-1.5 -mx-2.5",
-      variant === "primary" && "text-primary hover:bg-primary-subtle hover:text-primary-hover",
+      variant === "primary" && "hover:text-primary transition-colors",
       variant === "muted" && "text-muted hover:bg-line/40 hover:text-ink",
       variant === "danger" && "text-danger hover:bg-danger-subtle hover:text-red-700"
     );

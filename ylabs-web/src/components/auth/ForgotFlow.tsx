@@ -245,7 +245,9 @@ export function ForgotFlow({ initialUidb64, initialToken, redirectUrl, onNavigat
           : r === "recruiter"
             ? "/recruiter/dashboard"
             : "/student/dashboard";
-      const target = redirectUrl || defaultDest;
+      const isSafeRedirect =
+        redirectUrl && redirectUrl !== "/" && !redirectUrl.startsWith("/auth");
+      const target = isSafeRedirect ? redirectUrl : defaultDest;
 
       setTimeout(() => {
         window.location.href = target;
@@ -265,7 +267,9 @@ export function ForgotFlow({ initialUidb64, initialToken, redirectUrl, onNavigat
   // Success view
   if (subStep === "done") {
     const defaultDest = "/student/dashboard";
-    const target = redirectUrl || defaultDest;
+    const isSafeRedirect =
+      redirectUrl && redirectUrl !== "/" && !redirectUrl.startsWith("/auth");
+    const target = isSafeRedirect ? redirectUrl : defaultDest;
 
     return (
       <SuccessView

@@ -29,7 +29,6 @@ export function SignInForm({ redirectUrl, onNavigateTab }: SignInFormProps) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(true);
 
   const [emailErr, setEmailErr] = useState(false);
   const [pwErr, setPwErr] = useState(false);
@@ -54,7 +53,9 @@ export function SignInForm({ redirectUrl, onNavigateTab }: SignInFormProps) {
             ? "/recruiter/dashboard"
             : "/student/dashboard";
 
-      const target = redirectUrl || defaultDest;
+      const isSafeRedirect =
+        redirectUrl && redirectUrl !== "/" && !redirectUrl.startsWith("/auth");
+      const target = isSafeRedirect ? redirectUrl : defaultDest;
       window.location.href = target;
     } catch (err: unknown) {
       console.error("Google sign-in error", err);
@@ -96,9 +97,6 @@ export function SignInForm({ redirectUrl, onNavigateTab }: SignInFormProps) {
       if (res.user?.id) {
         localStorage.removeItem(`is_first_login_${res.user.id}`);
       }
-      if (!remember) {
-        // If not remember me, keep in session storage / handle as required
-      }
       login(res.user, res.access);
 
       const role = res.user.roles?.ylabs || res.user.roles?.ycode || res.user.role;
@@ -110,7 +108,9 @@ export function SignInForm({ redirectUrl, onNavigateTab }: SignInFormProps) {
             ? "/recruiter/dashboard"
             : "/student/dashboard";
 
-      const target = redirectUrl || defaultDest;
+      const isSafeRedirect =
+        redirectUrl && redirectUrl !== "/" && !redirectUrl.startsWith("/auth");
+      const target = isSafeRedirect ? redirectUrl : defaultDest;
       window.location.href = target;
     } catch (err: unknown) {
       const apiErr = err as ApiErrorResponse;
@@ -131,7 +131,7 @@ export function SignInForm({ redirectUrl, onNavigateTab }: SignInFormProps) {
 
   return (
     <form className="form in" onSubmit={handleSubmit} noValidate>
-      <h2>Sign in to Yuvro</h2>
+      <h2>Sign in to Yuvro Labs</h2>
       <p className="sub">Welcome back. Enter your details to continue.</p>
 
       {serverErr && (
@@ -187,20 +187,7 @@ export function SignInForm({ redirectUrl, onNavigateTab }: SignInFormProps) {
         <div className="msg">Enter your password.</div>
       </div>
 
-      <div className="row">
-        <label className="chk">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-          />
-          <span>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M5 12.5l4.5 4.5L19 7.5" />
-            </svg>
-          </span>
-          Remember me
-        </label>
+      <div className="row end">
         <button type="button" className="lnk" onClick={() => onNavigateTab("forgot")}>
           Forgot password?
         </button>

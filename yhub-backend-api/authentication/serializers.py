@@ -5,6 +5,20 @@ from django.db.models.functions import Lower
 from .models import User
 from .validators import validate_username_format
 
+RESERVED_USERNAMES = {
+    "admin",
+    "root",
+    "support",
+    "yuvro",
+    "api",
+    "www",
+    "settings",
+    "login",
+    "signup",
+    "u",
+    "me",
+}
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):    
     @classmethod
@@ -30,6 +44,7 @@ class UserSerializer(serializers.ModelSerializer):
     github_username = serializers.SerializerMethodField()
     linkedin_connected = serializers.SerializerMethodField()
     linkedin_name = serializers.SerializerMethodField()
+    linkedin_handle = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -48,6 +63,8 @@ class UserSerializer(serializers.ModelSerializer):
             "projects",
             "skills",
             "headline",
+            "email_public",
+            "phone_public",
             "phone",
             "location",
             "website",
@@ -60,6 +77,7 @@ class UserSerializer(serializers.ModelSerializer):
             "github_username",
             "linkedin_connected",
             "linkedin_name",
+            "linkedin_handle",
         ]
         read_only_fields = [
             "id",
@@ -69,6 +87,7 @@ class UserSerializer(serializers.ModelSerializer):
             "github_username",
             "linkedin_connected",
             "linkedin_name",
+            "linkedin_handle",
         ]
 
     def get_github_connected(self, obj):
@@ -88,6 +107,25 @@ class UserSerializer(serializers.ModelSerializer):
         from .models import LinkedInConnection
         conn = LinkedInConnection.objects.filter(user=obj).first()
         return conn.linkedin_name if conn else None
+
+    def get_linkedin_handle(self, obj):
+        from .models import LinkedInConnection
+        conn = LinkedInConnection.objects.filter(user=obj).first()
+        if not conn:
+            return None
+        if conn.linkedin_handle:
+            return conn.linkedin_handle
+
+        # Automatically infer handle if not explicitly set
+        gh_conn = getattr(obj, "github_connection", None)
+        if gh_conn and gh_conn.github_username:
+            return gh_conn.github_username.lower()
+        if obj.username and "@" not in obj.username:
+            return obj.username.lower()
+        if conn.linkedin_name:
+            import re
+            return re.sub(r'[^a-zA-Z0-9-]', '', conn.linkedin_name.replace(' ', '-').lower())
+        return None
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -195,6 +233,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "projects",
             "skills",
             "headline",
+            "email_public",
+            "phone_public",
             "phone",
             "location",
             "website",
@@ -209,6 +249,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         is_valid, err_msg = validate_username_format(val)
         if not is_valid:
             raise serializers.ValidationError(err_msg)
+        if len(val) > 30:
+            raise serializers.ValidationError("Username must be 30 characters or fewer.")
+        if val.lower() in RESERVED_USERNAMES:
+            raise serializers.ValidationError("This username is reserved.")
         qs = (
             User.objects.annotate(uname_lower=Lower("username"))
             .filter(uname_lower=val.lower(), is_guest_user=False)
@@ -216,6 +260,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         if self.instance:
             qs = qs.exclude(pk=self.instance.pk)
         if qs.exists():
-            raise serializers.ValidationError("A user with that username already exists.")
+            from rest_framework.exceptions import APIException
+            from rest_framework import status
+            class UsernameConflictException(APIException):
+                status_code = status.HTTP_409_CONFLICT
+                default_detail = {"field": "username", "code": "taken"}
+            raise UsernameConflictException()
         return val
 

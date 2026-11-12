@@ -15,12 +15,14 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       <StoryPanel />
       <main className="right">
         <div className="mobile-logo">
-          <Link to="/" className="logo" aria-label="Yuvro home">
-            <img src={YuvroLogo} alt="Yuvro" />
-            <span>Yuvro</span>
+          <Link to="/" className="logo" aria-label="Yuvro Labs home">
+            <img src={YuvroLogo} alt="Yuvro Labs" />
+            <span>Yuvro Labs</span>
           </Link>
         </div>
-        {children}
+        <div className="auth-content-box">
+          {children}
+        </div>
       </main>
       <AuthToast />
     </div>

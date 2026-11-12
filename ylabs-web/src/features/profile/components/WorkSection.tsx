@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { Card } from "@/components/profile-ui/Card";
+import { Section } from "@/components/profile-ui/Section";
+import { TextLink } from "@/components/profile-ui/TextLink";
+import { Button } from "@/components/profile-ui/Button";
+import { EmptyState } from "@/components/profile-ui/EmptyState";
 import { WorkItem } from "../types";
 import { useProfileStore } from "../store/profileStore";
 import { WorkForm } from "./WorkForm";
@@ -10,7 +13,7 @@ export const WorkSection: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const workList = profile?.work || [];
+  const work = profile?.work || [];
 
   const handleAddSave = async (data: Omit<WorkItem, "id">) => {
     const ok = await addWork(data);
@@ -24,24 +27,22 @@ export const WorkSection: React.FC = () => {
   };
 
   return (
-    <Card className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-ink">Work</h2>
-        {!isAdding && !editingId && (
-          <button
-            type="button"
-            onClick={() => setIsAdding(true)}
-            className="text-sm font-medium text-primary hover:underline cursor-pointer bg-transparent border-0 p-0"
-          >
-            + Add
-          </button>
-        )}
-      </div>
-
-      <div className="divide-y divide-line/60">
+    <Section
+      id="work-section"
+      title="Work experience"
+      eyebrow="History"
+      actions={
+        !isAdding && !editingId ? (
+          <TextLink size="sm" onClick={() => setIsAdding(true)}>
+            Add
+          </TextLink>
+        ) : null
+      }
+    >
+      <div className="space-y-4">
         {/* Inline Add Panel */}
         {isAdding && (
-          <div className="pb-4">
+          <div className="rounded-card border border-line bg-card p-4 sm:p-5">
             <WorkForm
               onSave={handleAddSave}
               onCancel={() => setIsAdding(false)}
@@ -49,35 +50,44 @@ export const WorkSection: React.FC = () => {
           </div>
         )}
 
-        {/* Existing Items */}
-        {workList.map((item) =>
-          editingId === item.id ? (
-            <div key={item.id} className="py-4">
-              <WorkForm
-                initialData={item}
-                onSave={handleUpdateSave}
-                onCancel={() => setEditingId(null)}
-              />
-            </div>
-          ) : (
-            <WorkItemCard
-              key={item.id}
-              item={item}
-              onEdit={() => {
-                setIsAdding(false);
-                setEditingId(item.id);
-              }}
-              onDelete={() => deleteWork(item.id)}
-            />
-          )
-        )}
-
-        {workList.length === 0 && !isAdding && (
-          <p className="text-sm text-muted italic py-3 text-center">
-            No work experience added yet.
-          </p>
-        )}
+        {/* Existing Work Timeline */}
+        {work.length > 0 ? (
+          <div className="pt-2 pl-1">
+            {work.map((item, index) =>
+              editingId === item.id ? (
+                <div
+                  key={item.id}
+                  className="rounded-card border border-line bg-card p-4 sm:p-5 mb-4"
+                >
+                  <WorkForm
+                    initialData={item}
+                    onSave={handleUpdateSave}
+                    onCancel={() => setEditingId(null)}
+                  />
+                </div>
+              ) : (
+                <WorkItemCard
+                  key={item.id}
+                  item={item}
+                  isLast={index === work.length - 1}
+                  onEdit={() => setEditingId(item.id)}
+                  onDelete={() => deleteWork(item.id)}
+                />
+              )
+            )}
+          </div>
+        ) : !isAdding ? (
+          <EmptyState
+            title="Add your work experience"
+            description="Include full-time roles, internships, freelance contracts, or research assistantships."
+            action={
+              <Button size="sm" variant="primary" onClick={() => setIsAdding(true)}>
+                Add experience
+              </Button>
+            }
+          />
+        ) : null}
       </div>
-    </Card>
+    </Section>
   );
 };
