@@ -48,6 +48,18 @@ function StudentProfileRoute() {
     activeTab = "overview";
   }
 
+  // Canonical redirect: If user has a username, profile page URL is domain/username
+  useEffect(() => {
+    if (user?.username) {
+      navigate({
+        to: "/$username",
+        params: { username: user.username },
+        search: { tab: activeTab },
+        replace: true,
+      });
+    }
+  }, [user?.username, activeTab, navigate]);
+
   // If URL has legacy params (tab=profile or tab=settings or section=...), redirect cleanly
   useEffect(() => {
     const isLegacy =
@@ -56,14 +68,14 @@ function StudentProfileRoute() {
       search.section !== undefined ||
       !search.tab;
 
-    if (isLegacy) {
+    if (isLegacy && !user?.username) {
       navigate({
         to: "/student/profile",
         search: { tab: activeTab },
         replace: true,
       });
     }
-  }, [search.tab, search.section, activeTab, navigate]);
+  }, [search.tab, search.section, activeTab, user?.username, navigate]);
 
   const { fetchProfile, initFromAuthUser, profile, loading } = useProfileStore();
 
@@ -75,10 +87,18 @@ function StudentProfileRoute() {
   }, [user?.id]);
 
   const handleTabChange = (tab: string) => {
-    navigate({
-      to: "/student/profile",
-      search: { tab },
-    });
+    if (user?.username) {
+      navigate({
+        to: "/$username",
+        params: { username: user.username },
+        search: { tab },
+      });
+    } else {
+      navigate({
+        to: "/student/profile",
+        search: { tab },
+      });
+    }
   };
 
   if (loading && !profile) {

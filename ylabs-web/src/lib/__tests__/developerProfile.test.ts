@@ -557,16 +557,16 @@ describe("Developer Profile v3.2: Sidebar Clipping, Public URL & Edit Profile Ru
     const { buildPublicProfileUrl, formatPublicProfileDisplayUrl } = await import("../publicUrl.ts");
 
     const fullUrl = buildPublicProfileUrl("manikanta", "https://yuvro.com");
-    assert.equal(fullUrl, "https://yuvro.com/u/manikanta");
+    assert.equal(fullUrl, "https://yuvro.com/manikanta");
 
     const encoded = buildPublicProfileUrl("test user", "http://localhost:3002");
-    assert.equal(encoded, "http://localhost:3002/u/test%20user");
+    assert.equal(encoded, "http://localhost:3002/test%20user");
 
     const display = formatPublicProfileDisplayUrl("manikanta", "https://yuvro.com");
-    assert.equal(display, "yuvro.com/u/manikanta");
+    assert.equal(display, "yuvro.com/manikanta");
 
     const localDisplay = formatPublicProfileDisplayUrl("manikanta", "http://localhost:3002");
-    assert.equal(localDisplay, "localhost:3002/u/manikanta");
+    assert.equal(localDisplay, "localhost:3002/manikanta");
   });
 
   it("asserts NO hardcoded yuvro.com inside ylabs-web/src/features/profile", () => {

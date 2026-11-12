@@ -158,7 +158,15 @@ export function TopNav({
                       console.error("Failed to fetch github connect url", e);
                     }
                   } else {
-                    nav({ to: "/student/profile/connections" });
+                    if (user?.username) {
+                      nav({
+                        to: "/$username",
+                        params: { username: user.username },
+                        search: { tab: "connections" },
+                      });
+                    } else {
+                      nav({ to: "/student/profile/connections" });
+                    }
                   }
                 }}
                 title={(user as any).github_connected ? "GitHub Connected (View Connections)" : "Connect GitHub"}
@@ -207,6 +215,7 @@ export function TopNav({
               }
               userEmail={user.email}
               profileImage={user.profile_image}
+              username={user.username}
             />
           ) : (
             <Link
@@ -228,11 +237,13 @@ function ProfileMenu({
   userName,
   userEmail,
   profileImage,
+  username,
 }: {
   onLogout: () => void;
   userName: string;
   userEmail?: string;
   profileImage?: string;
+  username?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -270,7 +281,7 @@ function ProfileMenu({
             )}
           </div>
           <Link
-            to="/student/profile"
+            to={username ? `/${username}` : "/student/profile"}
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/60"
           >

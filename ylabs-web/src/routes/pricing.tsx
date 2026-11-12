@@ -164,7 +164,7 @@ export function PricingContent({ onSubscribe }: { onSubscribe?: () => void } = {
   );
 }
 
-export function PricingPage() {
+function PricingPage() {
   return (
     <div className="ylp min-h-screen bg-[#f8f9fb] dark:bg-[#0d1120] font-sans text-[#14192b] dark:text-[#f1f4fc] antialiased">
       <StandardHeader />
@@ -633,4 +633,4 @@ const YLP_CSS = `
 .ylp-checkbox { accent-color: ${BRAND}; }
 `;
 
-export default PricingPage;
+

@@ -153,7 +153,7 @@ function DocGlyph() {
 
 const GLYPHS = { term: TermGlyph, wave: WaveGlyph, doc: DocGlyph };
 
-export function LandingPage() {
+function LandingPage() {
   const nav = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [toast, setToast] = useState<string | null>(null);
@@ -580,4 +580,4 @@ const CSS = `
 @media(prefers-reduced-motion:reduce){.yl *{animation:none!important;transition:none!important}}
 `;
 
-export default LandingPage;
+

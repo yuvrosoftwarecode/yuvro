@@ -27,6 +27,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BookDemoRouteImport } from './routes/book-demo'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as UsernameRouteImport } from './routes/$username'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecruiterIndexRouteImport } from './routes/recruiter.index'
 import { Route as EvaluationIndexRouteImport } from './routes/evaluation.index'
@@ -174,6 +175,11 @@ const AuthRoute = AuthRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsernameRoute = UsernameRouteImport.update({
+  id: '/$username',
+  path: '/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -488,6 +494,7 @@ const AdminStudentReportUserIdLabIdTicketTicketIdReviewRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$username': typeof UsernameRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/book-demo': typeof BookDemoRoute
@@ -566,6 +573,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$username': typeof UsernameRoute
   '/auth': typeof AuthRoute
   '/book-demo': typeof BookDemoRoute
   '/dashboard': typeof DashboardRoute
@@ -641,6 +649,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$username': typeof UsernameRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/book-demo': typeof BookDemoRoute
@@ -721,6 +730,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$username'
     | '/admin'
     | '/auth'
     | '/book-demo'
@@ -799,6 +809,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$username'
     | '/auth'
     | '/book-demo'
     | '/dashboard'
@@ -873,6 +884,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$username'
     | '/admin'
     | '/auth'
     | '/book-demo'
@@ -952,6 +964,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  UsernameRoute: typeof UsernameRoute
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   BookDemoRoute: typeof BookDemoRoute
@@ -1104,6 +1117,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$username': {
+      id: '/$username'
+      path: '/$username'
+      fullPath: '/$username'
+      preLoaderRoute: typeof UsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1763,6 +1783,7 @@ const StudentRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  UsernameRoute: UsernameRoute,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   BookDemoRoute: BookDemoRoute,

@@ -30,41 +30,6 @@ class EmailService:
     DEFAULT_FRONTEND_URL = "https://ylabs.yuvro.ai"
 
     @classmethod
-    def get_domain(cls) -> str:
-        """
-        Retrieves the domain from environment variables or settings:
-        1. DOMAIN / APP_DOMAIN / FRONTEND_DOMAIN environment variables
-        2. settings.APP_DOMAIN or settings.DOMAIN
-        3. Derived from FRONTEND_URL
-        4. Derived from DEFAULT_FROM_EMAIL
-        """
-        for env_key in ("APP_DOMAIN", "DOMAIN", "FRONTEND_DOMAIN"):
-            val = os.getenv(env_key)
-            if val and str(val).strip():
-                clean = str(val).strip().replace("http://", "").replace("https://", "").split("/")[0]
-                return clean
-
-        for setting_key in ("APP_DOMAIN", "DOMAIN", "FRONTEND_DOMAIN"):
-            val = getattr(settings, setting_key, None)
-            if val and str(val).strip():
-                clean = str(val).strip().replace("http://", "").replace("https://", "").split("/")[0]
-                return clean
-
-        frontend = os.getenv("FRONTEND_URL") or getattr(settings, "FRONTEND_URL", None)
-        if frontend and str(frontend).strip():
-            from urllib.parse import urlparse
-            parsed = urlparse(str(frontend).strip())
-            netloc = parsed.netloc or parsed.path.split("/")[0]
-            if netloc:
-                return netloc
-
-        from_email = os.getenv("DEFAULT_FROM_EMAIL") or getattr(settings, "DEFAULT_FROM_EMAIL", None)
-        if from_email and "@" in str(from_email):
-            return str(from_email).strip().split("@")[-1].rstrip(">")
-
-        return "yuvrolabs.com"
-
-    @classmethod
     def get_application_name(cls) -> str:
         name = os.getenv("APPLICATION_NAME") or os.getenv("APP_NAME") or getattr(settings, "APPLICATION_NAME", None) or getattr(settings, "APP_NAME", None)
         if name and str(name).strip():
@@ -76,13 +41,6 @@ class EmailService:
         email = os.getenv("SUPPORT_EMAIL") or getattr(settings, "SUPPORT_EMAIL", None)
         if email and str(email).strip():
             return str(email).strip()
-
-        domain = cls.get_domain()
-        if domain and "localhost" not in domain and "127.0.0.1" not in domain:
-            parts = domain.split(":")[0].split(".")
-            base_domain = ".".join(parts[-2:]) if len(parts) >= 2 else domain
-            return f"support@{base_domain}"
-
         return cls.DEFAULT_SUPPORT_EMAIL
 
     @classmethod
@@ -93,13 +51,6 @@ class EmailService:
         host_user = os.getenv("EMAIL_HOST_USER") or getattr(settings, "EMAIL_HOST_USER", None)
         if host_user and str(host_user).strip():
             return str(host_user).strip()
-
-        domain = cls.get_domain()
-        if domain and "localhost" not in domain and "127.0.0.1" not in domain:
-            parts = domain.split(":")[0].split(".")
-            base_domain = ".".join(parts[-2:]) if len(parts) >= 2 else domain
-            return f"contact@{base_domain}"
-
         return "contact@yuvro.ai"
 
     @classmethod
@@ -110,12 +61,6 @@ class EmailService:
             if not clean.startswith(("http://", "https://")):
                 clean = f"https://{clean}"
             return clean
-
-        domain = cls.get_domain()
-        if domain:
-            scheme = "http" if ("localhost" in domain or "127.0.0.1" in domain) else "https"
-            return f"{scheme}://{domain}"
-
         return cls.DEFAULT_FRONTEND_URL
 
     @classmethod
@@ -123,18 +68,12 @@ class EmailService:
         custom_logo = os.getenv("EMAIL_LOGO_URL") or getattr(settings, "EMAIL_LOGO_URL", None)
         if custom_logo and str(custom_logo).strip():
             return str(custom_logo).strip()
-
-        frontend = cls.get_frontend_url()
-        if frontend and not ("localhost" in frontend or "127.0.0.1" in frontend):
-            return f"{frontend}/knowledge-tree.png"
-
         return cls.DEFAULT_LOGO_URL
 
     @classmethod
     def build_base_context(cls, extra_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Build standard base context required by base.html and components."""
         frontend_url = cls.get_frontend_url()
-        domain = cls.get_domain()
         support_email = cls.get_support_email()
         app_name = cls.get_application_name()
         logo_url = cls.get_logo_url()
@@ -144,7 +83,6 @@ class EmailService:
             "support_email": support_email,
             "logo_url": logo_url,
             "frontend_url": frontend_url,
-            "domain": domain,
             "current_year": datetime.utcnow().year,
             "category_label": "",
             "header_badge": "",

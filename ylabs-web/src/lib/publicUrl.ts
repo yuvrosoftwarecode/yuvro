@@ -8,11 +8,11 @@ export function getPublicProfileBaseUrl(overrideBase?: string): string {
 export function buildPublicProfileUrl(username: string, overrideBase?: string): string {
   const base = getPublicProfileBaseUrl(overrideBase);
   const cleanUsername = (username || "").trim();
-  return `${base}/u/${encodeURIComponent(cleanUsername)}`;
+  return `${base}/${encodeURIComponent(cleanUsername)}`;
 }
 
 export function formatPublicProfileDisplayUrl(username: string, overrideBase?: string): string {
   const fullUrl = buildPublicProfileUrl(username, overrideBase);
-  // Drops the protocol: e.g. "https://yuvro.com/u/user" -> "yuvro.com/u/user"
+  // Drops the protocol: e.g. "https://yuvro.com/user" -> "yuvro.com/user"
   return fullUrl.replace(/^https?:\/\//i, "");
 }
