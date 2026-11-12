@@ -3055,6 +3055,36 @@
       "predefined_tree": []
     },
     {
+      "title": "HTML, CSS & JavaScript Development",
+      "description": "Adaptive AI-powered technical interview assessing core frontend web fundamentals. Evaluates semantic HTML5, CSS layout mechanics (Flexbox, Grid), box-sizing, JavaScript language internals (closures, prototypes, event loop), asynchronous programming (Promises, async/await), DOM manipulation, browser rendering optimization, and web accessibility (a11y) in real-time.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs",
+        "ycode",
+        "ycampus"
+      ],
+      "required_skills": [
+        "HTML5 & Semantic Markup",
+        "CSS3 (Flexbox & CSS Grid)",
+        "JavaScript Fundamentals & ES6+",
+        "DOM Manipulation & Browser APIs",
+        "CSS Box Model & Specificity",
+        "Asynchronous JavaScript (Promises & Async/Await)"
+      ],
+      "optional_skills": [
+        "Web Accessibility (ARIA & a11y)",
+        "Browser Critical Rendering Path & Repaints/Reflows",
+        "Event Bubbling, Capturing & Delegation",
+        "Web Performance & Asset Optimization",
+        "Responsive Web Design & Media Queries",
+        "Web Security Basics (XSS, CORS, Content Security Policy)"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
+    },
+    {
       "title": "Frontend Development",
       "description": "Comprehensive assessment of frontend development skills, including HTML, CSS, JavaScript, React, browser behavior, performance optimization, and frontend architecture.",
       "instructions": "HTML semantics, CSS layouts, JavaScript fundamentals and advanced concepts, React hooks and state management, performance optimization, and frontend security.",
