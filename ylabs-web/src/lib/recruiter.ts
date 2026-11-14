@@ -1208,3 +1208,57 @@ export async function forceFinishSubmissions(evaluationId: string, candidateEmai
     return false;
   }
 }
+
+export interface RecruiterPackageItem {
+  id: string;
+  code: "free" | "startup" | "growth" | "enterprise";
+  name: string;
+  badge?: string;
+  description: string;
+  monthly_price_usd: string;
+  yearly_price_usd: string;
+  trial_days: number;
+  total_submissions: number;
+  total_codebase_repos: number;
+  total_recruiter_logins: number;
+  features: Array<{ text: string; subItems?: string[] }>;
+  display_order: number;
+  is_active: boolean;
+}
+
+export interface RecruiterQuota {
+  id: string;
+  plan_tier: string;
+  billing_cycle: string;
+  package?: RecruiterPackageItem;
+  valid_from: string | null;
+  valid_until: string | null;
+  is_active: boolean;
+  total_submissions: number;
+  used_submissions: number;
+  submissions_remaining: number;
+  total_codebase_repos: number;
+  used_codebase_repos: number;
+  repos_remaining: number;
+  total_recruiter_logins: number;
+  used_recruiter_logins: number;
+  logins_remaining: number;
+}
+
+export async function getRecruiterPackages(): Promise<RecruiterPackageItem[]> {
+  try {
+    return await restApiAuthUtil.get<RecruiterPackageItem[]>("/recruiter/packages/");
+  } catch (err) {
+    console.error("Failed to load recruiter packages:", err);
+    return [];
+  }
+}
+
+export async function getRecruiterMyQuota(): Promise<RecruiterQuota | null> {
+  try {
+    return await restApiAuthUtil.get<RecruiterQuota>("/recruiter/my-quota/");
+  } catch (err) {
+    console.error("Failed to load recruiter quota:", err);
+    return null;
+  }
+}

@@ -1,13 +1,15 @@
 from rest_framework import viewsets, mixins, status, generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
-from .models import Company, CompanyRecruiter
+from .models import Company, CompanyRecruiter, RecruiterPackage, RecruiterUserQuota
 from .serializers import (
     CompanySerializer,
     CompanyRecruiterSerializer,
     CompanyRecruiterCreateSerializer,
     CompanyRecruiterUpdateSerializer,
-    RecruiterSelfRegistrationSerializer
+    RecruiterSelfRegistrationSerializer,
+    RecruiterPackageSerializer,
+    RecruiterUserQuotaSerializer,
 )
 from .services import delete_user_in_yhub
 
@@ -54,9 +56,26 @@ class CompanyRecruiterViewSet(viewsets.ModelViewSet):
         return CompanyRecruiterSerializer
 
     def create(self, request, *args, **kwargs):
+        # Enforce recruiter logins / seat quota check
+        from rest_framework.exceptions import ValidationError
+        quota = RecruiterUserQuota.objects.filter(user=request.user).first()
+        if not quota:
+            company_id = request.data.get("company") or request.data.get("company_id")
+            if company_id:
+                owner_cr = CompanyRecruiter.objects.filter(company_id=company_id).select_related("user").order_by("created_at").first()
+                if owner_cr and owner_cr.user:
+                    quota = RecruiterUserQuota.objects.filter(user=owner_cr.user).first()
+
+        if quota and quota.total_recruiter_logins >= 0 and quota.used_recruiter_logins >= quota.total_recruiter_logins:
+            raise ValidationError({
+                "detail": f"Recruiter logins limit reached ({quota.used_recruiter_logins}/{quota.total_recruiter_logins}). Upgrade plan to add more team members."
+            })
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         company_recruiter = serializer.save(created_by=request.user)
+        if quota:
+            quota.increment_usage("recruiter_logins")
 
         # Return the standard serialized format of the new object
         response_serializer = CompanyRecruiterSerializer(company_recruiter)
@@ -340,4 +359,267 @@ class GithubAppRepositoriesView(APIView):
             return Response({"error": "Installation not found or not authorized"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+DEFAULT_RECRUITER_PACKAGES = [
+    {
+        "code": "free",
+        "name": "Free Trial",
+        "badge": None,
+        "monthly_price_usd": 0,
+        "yearly_price_usd": 0,
+        "trial_days": 14,
+        "total_submissions": 10,
+        "total_codebase_repos": 1,
+        "total_recruiter_logins": 1,
+        "features": [
+            {"text": "10 candidate submissions"},
+            {"text": "1 codebase repository setup"},
+            {"text": "1 recruiter login"},
+            {"text": "14-day validity"},
+        ],
+        "display_order": 0,
+    },
+    {
+        "code": "startup",
+        "name": "Startup",
+        "badge": None,
+        "monthly_price_usd": 99,
+        "yearly_price_usd": 990,
+        "trial_days": 0,
+        "total_submissions": 20,
+        "total_codebase_repos": 2,
+        "total_recruiter_logins": 1,
+        "features": [
+            {"text": "20 submissions per month"},
+            {
+                "text": "Company can use these across:",
+                "subItems": ["Simulation Labs", "AI Mock Interviews", "Coding Assessments"],
+            },
+            {"text": "2 codebase repository setups"},
+            {"text": "1 recruiter login"},
+            {"text": "Candidate reports"},
+            {"text": "AI follow-up questions"},
+        ],
+        "display_order": 1,
+    },
+    {
+        "code": "growth",
+        "name": "Growth",
+        "badge": "MOST POPULAR",
+        "monthly_price_usd": 449,
+        "yearly_price_usd": 4490,
+        "trial_days": 0,
+        "total_submissions": 100,
+        "total_codebase_repos": 5,
+        "total_recruiter_logins": 3,
+        "features": [
+            {"text": "100 submissions per month"},
+            {
+                "text": "Company can use these across:",
+                "subItems": ["Simulation Labs", "AI Mock Interviews", "Coding Assessments"],
+            },
+            {"text": "5 codebase repository setups"},
+            {"text": "3 recruiter logins"},
+            {"text": "Advanced candidate reports"},
+            {"text": "Custom assessments"},
+            {"text": "Priority support"},
+        ],
+        "display_order": 2,
+    },
+    {
+        "code": "enterprise",
+        "name": "Enterprise",
+        "badge": None,
+        "monthly_price_usd": 0,
+        "yearly_price_usd": 0,
+        "trial_days": 0,
+        "total_submissions": -1,
+        "total_codebase_repos": -1,
+        "total_recruiter_logins": -1,
+        "features": [
+            {"text": "Everything in Growth"},
+            {"text": "Custom submission volumes"},
+            {"text": "Custom repository setups and recruiter access"},
+            {"text": "API, MCP and ATS integrations"},
+            {"text": "2,500+ library questions"},
+            {"text": "Dedicated account manager and support"},
+        ],
+        "display_order": 3,
+    },
+]
+
+
+def ensure_default_recruiter_packages(user=None):
+    """
+    Ensures default packages exist in DB so that subscriptions and quotas always resolve
+    proper package limits, pricing, and features.
+    """
+    for pkg_data in DEFAULT_RECRUITER_PACKAGES:
+        code = pkg_data["code"]
+        RecruiterPackage.objects.get_or_create(
+            code=code,
+            defaults={
+                "name": pkg_data["name"],
+                "badge": pkg_data["badge"],
+                "monthly_price_usd": pkg_data["monthly_price_usd"],
+                "yearly_price_usd": pkg_data["yearly_price_usd"],
+                "trial_days": pkg_data["trial_days"],
+                "total_submissions": pkg_data["total_submissions"],
+                "total_codebase_repos": pkg_data["total_codebase_repos"],
+                "total_recruiter_logins": pkg_data["total_recruiter_logins"],
+                "features": pkg_data["features"],
+                "display_order": pkg_data["display_order"],
+                "is_active": True,
+                "created_by": user,
+            },
+        )
+
+
+class RecruiterPackageListView(generics.ListAPIView):
+    """
+    Public/Authenticated list of active Recruiter Packages configured in Django Admin.
+    """
+    permission_classes = [AllowAny]
+    serializer_class = RecruiterPackageSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        user = self.request.user if (self.request.user and self.request.user.is_authenticated) else None
+        ensure_default_recruiter_packages(user)
+        return RecruiterPackage.objects.filter(is_active=True).order_by("display_order", "created_at")
+
+
+class RecruiterMyQuotaView(APIView):
+    """
+    Retrieves the current recruiter's active package and usage quotas.
+    Creates a default Free Trial quota if not yet established.
+    Computes accurate live counts for candidate submissions and codebase repositories.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        ensure_default_recruiter_packages(user)
+        quota = RecruiterUserQuota.objects.filter(user=user).select_related("package").first()
+        
+        if not quota:
+            from datetime import timedelta
+            from django.utils import timezone
+            free_pkg = RecruiterPackage.objects.filter(code="free").first()
+            quota = RecruiterUserQuota.objects.create(
+                user=user,
+                created_by=user,
+                package=free_pkg,
+                plan_tier=free_pkg.code if free_pkg else "free",
+                billing_cycle="trial",
+                valid_from=timezone.now(),
+                valid_until=timezone.now() + timedelta(days=free_pkg.trial_days if free_pkg else 14),
+                total_submissions=free_pkg.total_submissions if free_pkg else 10,
+                used_submissions=0,
+                total_codebase_repos=free_pkg.total_codebase_repos if free_pkg else 1,
+                used_codebase_repos=0,
+                total_recruiter_logins=free_pkg.total_recruiter_logins if free_pkg else 1,
+                used_recruiter_logins=1,
+            )
+        elif not quota.package:
+            # Associate package if missing
+            matching_pkg = RecruiterPackage.objects.filter(code=quota.plan_tier).first()
+            if matching_pkg:
+                quota.package = matching_pkg
+                quota.save(update_fields=["package"])
+        
+        # Calculate live candidate submissions across evaluations created by this recruiter
+        try:
+            from skill_evaluation.models import UserEvaluationSubmission, Evaluation, LabQuestionBank
+            eval_ids = Evaluation.objects.filter(created_by=user).values_list("id", flat=True)
+            live_submissions = UserEvaluationSubmission.objects.filter(
+                evaluation_id__in=eval_ids,
+                completed_at__isnull=False,
+            ).count()
+            if live_submissions == 0:
+                # If completed_at is not set on older submissions, count all submissions under user's evaluations
+                live_submissions = UserEvaluationSubmission.objects.filter(evaluation_id__in=eval_ids).count()
+            
+            # Calculate live codebase repository setups:
+            # Count distinct custom repositories configured on questions by this user
+            custom_repos_count = (
+                LabQuestionBank.objects.filter(created_by=user)
+                .exclude(git_repo_starter_url="")
+                .values("git_repo_starter_url")
+                .distinct()
+                .count()
+            )
+            live_repos = custom_repos_count
+
+            # Update cached usage counts if they differ
+            quota_updated = False
+            if quota.used_submissions != live_submissions:
+                quota.used_submissions = live_submissions
+                quota_updated = True
+            if quota.used_codebase_repos != live_repos:
+                quota.used_codebase_repos = live_repos
+                quota_updated = True
+            if quota_updated:
+                quota.save(update_fields=["used_submissions", "used_codebase_repos"])
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Error calculating live quota usage: {e}")
+
+        serializer = RecruiterUserQuotaSerializer(quota)
+        return Response(serializer.data)
+
+    def post(self, request):
+        """
+        Activate or update plan subscription for recruiter.
+        Accepts plan_code (e.g. 'startup', 'growth', 'recruiter_starter_monthly') and billing_cycle.
+        """
+        from datetime import timedelta
+        from django.utils import timezone
+        
+        raw_code = request.data.get("plan_code") or request.data.get("item_id") or ""
+        billing_cycle = request.data.get("billing_cycle", "monthly")
+
+        # Normalize plan code (handle both 'startup' and 'recruiter_starter_monthly' etc.)
+        norm = str(raw_code).lower().strip()
+        if "growth" in norm:
+            plan_code = "growth"
+        elif "start" in norm: # startup, starter
+            plan_code = "startup"
+        elif "enterprise" in norm or "scale" in norm:
+            plan_code = "enterprise"
+        elif "free" in norm or "trial" in norm:
+            plan_code = "free"
+        else:
+            plan_code = norm
+
+        ensure_default_recruiter_packages(request.user)
+        pkg = RecruiterPackage.objects.filter(code=plan_code).first()
+        if not pkg:
+            pkg = RecruiterPackage.objects.filter(code="startup").first()
+            
+        if not pkg:
+            return Response({"error": "Invalid plan package specified."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        days = 365 if billing_cycle == "yearly" else (pkg.trial_days if pkg.code == "free" else 30)
+        
+        quota, _ = RecruiterUserQuota.objects.update_or_create(
+            user=request.user,
+            defaults={
+                "created_by": request.user,
+                "package": pkg,
+                "plan_tier": pkg.code,
+                "billing_cycle": billing_cycle,
+                "valid_from": timezone.now(),
+                "valid_until": timezone.now() + timedelta(days=days),
+                "is_active": True,
+                "total_submissions": pkg.total_submissions,
+                "total_codebase_repos": pkg.total_codebase_repos,
+                "total_recruiter_logins": pkg.total_recruiter_logins,
+            }
+        )
+        
+        return Response(RecruiterUserQuotaSerializer(quota).data, status=status.HTTP_200_OK)
+
+
 

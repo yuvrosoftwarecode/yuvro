@@ -1,7 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { StandardHeader } from "@/components/StandardHeader";
-import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { useAuth } from "@/lib/auth";
+import { yhubApiAuthUtil, restApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { loadRazorpayScript } from "@/lib/razorpay";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { getRecruiterPackages, RecruiterPackageItem } from "@/lib/recruiter";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -43,6 +48,7 @@ type FeatureItem = {
 };
 
 const STARTUP = {
+  id: "startup",
   name: "Startup",
   monthly: 99,
   yearlyTotal: 990,
@@ -63,6 +69,7 @@ const STARTUP = {
 };
 
 const GROWTH = {
+  id: "growth",
   name: "Growth",
   monthly: 449,
   yearlyTotal: 4490,
@@ -149,28 +156,38 @@ export function selectPlan(planId: string, billing: "monthly" | "yearly") {
 
 type Billing = "monthly" | "yearly";
 
-export function PricingContent({ onSubscribe }: { onSubscribe?: () => void } = {}) {
+export function PricingContent({ onSubscribe }: { onSubscribe?: () => void }) {
   const [billing, setBilling] = useState<Billing>("monthly");
 
   return (
-    <div className="mx-auto w-full max-w-[1120px] px-6 py-12">
+    <div className="ylp font-sans text-[#14192b] dark:text-[#f1f4fc] antialiased">
       <style>{YLP_CSS}</style>
-      <Hero billing={billing} setBilling={setBilling} />
-      <TrialStrip onSubscribe={onSubscribe} />
-      <Plans billing={billing} onSubscribe={onSubscribe} />
-      <HowSubmissionsWork />
-      <Faq />
-      <ClosingBanner onSubscribe={onSubscribe} />
+      <div className="mx-auto w-full max-w-[1120px] px-6 py-6">
+        <Hero billing={billing} setBilling={setBilling} />
+        <TrialStrip onSubscribe={onSubscribe} />
+        <Plans billing={billing} onSubscribe={onSubscribe} />
+        <HowSubmissionsWork />
+        <Faq />
+        <ClosingBanner onSubscribe={onSubscribe} />
+      </div>
     </div>
   );
 }
 
-function PricingPage() {
+export function PricingPage() {
+  const [billing, setBilling] = useState<Billing>("monthly");
+
   return (
     <div className="ylp min-h-screen bg-[#f8f9fb] dark:bg-[#0d1120] font-sans text-[#14192b] dark:text-[#f1f4fc] antialiased">
+      <style>{YLP_CSS}</style>
       <StandardHeader />
-      <PricingContent />
-      <div className="mx-auto w-full max-w-[1120px] px-6">
+      <div className="mx-auto w-full max-w-[1120px] px-6 py-12">
+        <Hero billing={billing} setBilling={setBilling} />
+        <TrialStrip />
+        <Plans billing={billing} />
+        <HowSubmissionsWork />
+        <Faq />
+        <ClosingBanner />
         <Footer />
       </div>
     </div>
@@ -265,43 +282,60 @@ function StartFreeButton({
   className?: string;
   onSubscribe?: () => void;
 }) {
-  const nav = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleClick = async () => {
-    if (onSubscribe) {
-      await onSubscribe();
+  const handleStartTrial = async () => {
+    if (!isAuthenticated) {
+      selectPlan("trial", "monthly");
+      navigate({ to: "/auth", search: { tab: "signup" } });
       return;
     }
 
-    const token = typeof window !== "undefined" ? localStorage.getItem("access") : null;
-    if (token) {
-      setLoading(true);
+    setIsLoading(true);
+    try {
       try {
         await yhubApiAuthUtil.post("/payment/start_trial/", {});
-      } catch (err) {
-        console.log("start_trial:", err);
-      } finally {
-        setLoading(false);
-        nav({ to: "/recruiter/dashboard" });
+      } catch (e) {
+        // Fallback / sync with local ylabs backend if needed
       }
-    } else {
-      nav({
-        to: "/auth",
-        search: { tab: "signup", redirect: "/recruiter/dashboard" },
-      });
+      await restApiAuthUtil.post("/recruiter/my-quota/", { plan_code: "free", billing_cycle: "trial" });
+      toast.success("Free trial activated successfully!");
+      if (onSubscribe) {
+        onSubscribe();
+      } else {
+        navigate({ to: "/recruiter/dashboard" });
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to start trial");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  if (isAuthenticated) {
+    return (
+      <button
+        type="button"
+        onClick={handleStartTrial}
+        disabled={isLoading}
+        className={`ylp-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-50 ${className}`}
+      >
+        {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+        {isLoading ? "Starting..." : "Start free"}
+      </button>
+    );
+  }
+
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={loading}
-      className={`ylp-btn-primary inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-50 cursor-pointer ${className}`}
+    <Link
+      to="/auth"
+      search={{ tab: "signup" }}
+      className={`ylp-btn-primary inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 ${className}`}
     >
-      {loading ? "Starting trial…" : "Start free"}
-    </button>
+      Start free
+    </Link>
   );
 }
 
@@ -334,6 +368,52 @@ function Plans({
   onSubscribe?: () => void;
 }) {
   const [workTrailQty, setWorkTrailQty] = useState(0);
+  const [backendPackages, setBackendPackages] = useState<RecruiterPackageItem[]>([]);
+
+  useEffect(() => {
+    getRecruiterPackages().then((pkgs) => {
+      if (pkgs && pkgs.length > 0) {
+        setBackendPackages(pkgs);
+      }
+    });
+  }, []);
+
+  const startupPkg = backendPackages.find((p) => p.code === "startup");
+  const growthPkg = backendPackages.find((p) => p.code === "growth");
+  const enterprisePkg = backendPackages.find((p) => p.code === "enterprise");
+
+  const startupPlan = startupPkg
+    ? {
+        id: startupPkg.code,
+        name: startupPkg.name,
+        monthly: Number(startupPkg.monthly_price_usd),
+        yearlyTotal: Number(startupPkg.yearly_price_usd),
+        monthlyEquiv: Math.round(Number(startupPkg.yearly_price_usd) / 12),
+        submissionsMonthly: startupPkg.total_submissions,
+        submissionsYearly: startupPkg.total_submissions * 12,
+        features: startupPkg.features,
+      }
+    : STARTUP;
+
+  const growthPlan = growthPkg
+    ? {
+        id: growthPkg.code,
+        name: growthPkg.name,
+        monthly: Number(growthPkg.monthly_price_usd),
+        yearlyTotal: Number(growthPkg.yearly_price_usd),
+        monthlyEquiv: Math.round(Number(growthPkg.yearly_price_usd) / 12),
+        submissionsMonthly: growthPkg.total_submissions,
+        submissionsYearly: growthPkg.total_submissions * 12,
+        features: growthPkg.features,
+      }
+    : GROWTH;
+
+  const enterprisePlan = enterprisePkg
+    ? {
+        name: enterprisePkg.name,
+        features: enterprisePkg.features,
+      }
+    : ENTERPRISE;
 
   const workTrailTotal =
     workTrailQty > 0 ? workTrailQty * WORK_TRAIL.pricePerAssignment : 0;
@@ -351,20 +431,20 @@ function Plans({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <PlanCard
           order="order-2 lg:order-1"
-          plan={STARTUP}
+          plan={startupPlan}
           billing={billing}
           workTrailLine={workTrailLine}
           onSubscribe={onSubscribe}
         />
         <PlanCard
           order="order-1 lg:order-2"
-          plan={GROWTH}
+          plan={growthPlan}
           featured
           billing={billing}
           workTrailLine={workTrailLine}
           onSubscribe={onSubscribe}
         />
-        <PlanCard order="order-3 lg:order-3" plan={ENTERPRISE} billing={billing} />
+        <PlanCard order="order-3 lg:order-3" plan={enterprisePlan} billing={billing} />
       </div>
       <WorkTrailControls
         qty={workTrailQty}
@@ -390,9 +470,146 @@ function PlanCard({
   order: string;
   onSubscribe?: () => void;
 }) {
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [isPaying, setIsPaying] = useState(false);
+
   const isEnterprise = !("monthly" in plan);
   const yearly = billing === "yearly";
   const planAny = plan as typeof STARTUP;
+
+  const handleBuyPlan = async () => {
+    if (!isAuthenticated) {
+      selectPlan(planAny.id, billing);
+      navigate({ to: "/auth", search: { tab: "signup" } });
+      return;
+    }
+
+    const price = yearly ? planAny.yearlyTotal : planAny.monthly;
+    setIsPaying(true);
+    try {
+      const orderRes = await yhubApiAuthUtil.post<{
+        id: string;
+        gateway_order_or_intent_id: string;
+        key_id?: string;
+      }>("/payment/", {
+        payment_gateway: "RAZORPAY",
+        amount: price,
+        currency: "USD",
+        item_type: "plan",
+        item_id: planAny.id,
+        item_name: `${planAny.name} (${billing})`,
+        product: "ylabs",
+      });
+
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        toast.error("Razorpay SDK failed to load. Are you online?");
+        setIsPaying(false);
+        return;
+      }
+
+      const rzpKey = orderRes.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID;
+
+      const options = {
+        key: rzpKey,
+        amount: price,
+        currency: "USD",
+        name: "Yuvro Labs",
+        description: `${planAny.name} Plan Subscription`,
+        order_id: orderRes.gateway_order_or_intent_id,
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await yhubApiAuthUtil.post<{ status: string; message: string }>(
+              "/payment/verify/",
+              {
+                gateway_order_id: response.razorpay_order_id,
+                gateway_payment_id: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+              },
+            );
+
+            if (verifyRes.status === "SUCCESS") {
+              const targetPlanCode = planAny.id || "startup";
+              try {
+                await restApiAuthUtil.post("/recruiter/my-quota/", {
+                  plan_code: targetPlanCode,
+                  billing_cycle: billing,
+                });
+              } catch (e) {
+                console.warn("Retrying sync of recruiter quota:", e);
+                try {
+                  await restApiAuthUtil.post("/recruiter/my-quota/", {
+                    plan_code: targetPlanCode,
+                    billing_cycle: billing,
+                  });
+                } catch (retryErr) {
+                  console.error("Could not sync recruiter quota:", retryErr);
+                }
+              }
+
+              toast.success("Subscription activated successfully!");
+              if (onSubscribe) {
+                onSubscribe();
+              } else {
+                navigate({ to: "/recruiter/dashboard" });
+              }
+            } else {
+              await yhubApiAuthUtil.post("/payment/fail/", {
+                gateway_order_id: orderRes.gateway_order_or_intent_id,
+                reason: "Payment signature verification failed",
+              });
+              throw new Error(verifyRes.message || "Payment verification failed");
+            }
+          } catch (error: any) {
+            console.error(error);
+            toast.error(error.message || "Payment verification failed");
+          } finally {
+            setIsPaying(false);
+          }
+        },
+        prefill: {
+          name: user?.first_name || "",
+          email: user?.email || "",
+        },
+        theme: {
+          color: BRAND,
+        },
+        modal: {
+          ondismiss: async function () {
+            setIsPaying(false);
+            toast.info("Payment cancelled");
+            try {
+              await yhubApiAuthUtil.post("/payment/fail/", {
+                gateway_order_id: orderRes.gateway_order_or_intent_id,
+                reason: "User closed the payment modal",
+              });
+            } catch (e) {}
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+
+      rzp.on("payment.failed", async function (response: any) {
+        try {
+          await yhubApiAuthUtil.post("/payment/fail/", {
+            gateway_order_id: response.error?.metadata?.order_id,
+            gateway_payment_id: response.error?.metadata?.payment_id,
+            reason: response.error?.description,
+          });
+        } catch (e) {}
+        toast.error(response.error?.description || "Payment failed");
+        setIsPaying(false);
+      });
+
+      rzp.open();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error?.message || "Failed to initiate payment.");
+      setIsPaying(false);
+    }
+  };
 
   return (
     <div
@@ -470,7 +687,15 @@ function PlanCard({
           Contact us
         </Link>
       ) : (
-        <StartFreeButton onSubscribe={onSubscribe} />
+        <button
+          type="button"
+          onClick={handleBuyPlan}
+          disabled={isPaying}
+          className="ylp-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-50"
+        >
+          {isPaying && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isPaying ? "Processing..." : isAuthenticated ? "Upgrade plan" : "Start free"}
+        </button>
       )}
     </div>
   );
@@ -652,4 +877,4 @@ const YLP_CSS = `
 .ylp-checkbox { accent-color: ${BRAND}; }
 `;
 
-
+export default PricingPage;
