@@ -32,21 +32,7 @@ _set_kv() {
     local f="$1" key="$2" value="$3"
     [ -z "$value" ] && return 0
     [ ! -f "$f" ]   && touch "$f"
-    
-    # Never overwrite certain sensitive keys if they already exist and value is empty/default
-    # (preserve existing secrets when value comes from empty environment variables)
     if grep -qE "^${key}=" "$f"; then
-        # For sensitive keys, only update if the new value is non-empty and different
-        case "$key" in
-            VITE_GOOGLE_CLIENT_ID|GOOGLE_OAUTH2_CLIENT_ID|GOOGLE_OAUTH2_CLIENT_SECRET|GITHUB_CLIENT_ID|GITHUB_CLIENT_SECRET)
-                # Preserve existing secrets if new value is empty or looks like a placeholder
-                local existing="$(grep "^${key}=" "$f" | cut -d= -f2-)"
-                if [ -z "$value" ] || [ "$value" = '""' ] || [ "$value" = "''" ]; then
-                    # Keep existing value
-                    return 0
-                fi
-                ;;
-        esac
         sed -i.bak -E "s|^${key}=.*$|${key}=${value}|" "$f" && rm -f "$f.bak"
     else
         printf "\n%s=%s\n" "$key" "$value" >> "$f"
@@ -215,7 +201,7 @@ wire_secrets() {
     # Skip if OpenTofu state not available locally (e.g. infra already exists, deployed from another machine)
     if [ ! -f "$OPENTOFU_DIR/terraform.tfstate" ] && [ ! -d "$OPENTOFU_DIR/.terraform" ]; then
         print_warning "OpenTofu state not available locally — skipping secrets wiring from outputs"
-        print_info "S3 / RDS vars will use values already in .env.dev-secrets files"
+        print_info "Secrets will use values already in .env.dev-secrets files if available locally"
         return 0
     fi
 
@@ -236,10 +222,15 @@ wire_secrets() {
     
     cd "$PROJECT_ROOT" >/dev/null
 
-    # S3 into all backends
+    # Only update secrets files that exist locally
+    # GitHub Actions doesn't have .env.dev-secrets files, so skip wiring
+    # Local deployments have them and will get infrastructure variables wired
+    
+    # S3 into all backends - ONLY if the file exists
     for f in ycode-backend-api/.env.dev-secrets ycampus-backend-api/.env.dev-secrets \
               yhub-backend-api/.env.dev-secrets  ylabs-backend-api/.env.dev-secrets \
               ymarketplace/ymarketplace-backend-api/.env.dev-secrets; do
+        [ ! -f "$SECRETS_DIR/$f" ] && continue
         _set_kv "$SECRETS_DIR/$f" "AWS_STORAGE_BUCKET_NAME" "$S3_BUCKET"
         _set_kv "$SECRETS_DIR/$f" "AWS_ACCESS_KEY_ID"        "$S3_KEY_ID"
         _set_kv "$SECRETS_DIR/$f" "AWS_SECRET_ACCESS_KEY"    "$S3_SECRET"
@@ -250,48 +241,58 @@ wire_secrets() {
     if [ -n "$DB_HOST" ]; then
         # YCode
         local f="$SECRETS_DIR/ycode-backend-api/.env.dev-secrets"
-        _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ycode"
-        _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
-        _set_kv "$f" "DB_NAME" "ycode"; _set_kv "$f" "DB_USER" "$DB_USER"
-        _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
-        sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
-        print_success "YCode database: ycode (on consolidated RDS)"
+        if [ -f "$f" ]; then
+            _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ycode"
+            _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
+            _set_kv "$f" "DB_NAME" "ycode"; _set_kv "$f" "DB_USER" "$DB_USER"
+            _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
+            sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
+            print_success "YCode database: ycode (on consolidated RDS)"
+        fi
 
         # YCampus
         f="$SECRETS_DIR/ycampus-backend-api/.env.dev-secrets"
-        _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ycampus"
-        _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
-        _set_kv "$f" "DB_NAME" "ycampus"; _set_kv "$f" "DB_USER" "$DB_USER"
-        _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
-        sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
-        print_success "YCampus database: ycampus (on consolidated RDS)"
+        if [ -f "$f" ]; then
+            _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ycampus"
+            _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
+            _set_kv "$f" "DB_NAME" "ycampus"; _set_kv "$f" "DB_USER" "$DB_USER"
+            _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
+            sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
+            print_success "YCampus database: ycampus (on consolidated RDS)"
+        fi
 
         # YHub
         f="$SECRETS_DIR/yhub-backend-api/.env.dev-secrets"
-        _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/yhub"
-        _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
-        _set_kv "$f" "DB_NAME" "yhub"; _set_kv "$f" "DB_USER" "$DB_USER"
-        _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
-        sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
-        print_success "YHub database: yhub (on consolidated RDS)"
+        if [ -f "$f" ]; then
+            _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/yhub"
+            _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
+            _set_kv "$f" "DB_NAME" "yhub"; _set_kv "$f" "DB_USER" "$DB_USER"
+            _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
+            sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
+            print_success "YHub database: yhub (on consolidated RDS)"
+        fi
 
         # YLabs
         f="$SECRETS_DIR/ylabs-backend-api/.env.dev-secrets"
-        _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ylabs"
-        _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
-        _set_kv "$f" "DB_NAME" "ylabs"; _set_kv "$f" "DB_USER" "$DB_USER"
-        _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
-        sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
-        print_success "YLabs database: ylabs (on consolidated RDS)"
+        if [ -f "$f" ]; then
+            _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ylabs"
+            _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
+            _set_kv "$f" "DB_NAME" "ylabs"; _set_kv "$f" "DB_USER" "$DB_USER"
+            _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
+            sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
+            print_success "YLabs database: ylabs (on consolidated RDS)"
+        fi
 
         # YMarketplace
         f="$SECRETS_DIR/ymarketplace/ymarketplace-backend-api/.env.dev-secrets"
-        _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ymarketplace"
-        _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
-        _set_kv "$f" "DB_NAME" "ymarketplace"; _set_kv "$f" "DB_USER" "$DB_USER"
-        _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
-        sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
-        print_success "YMarketplace database: ymarketplace (on consolidated RDS)"
+        if [ -f "$f" ]; then
+            _set_kv "$f" "DATABASE_URL" "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/ymarketplace"
+            _set_kv "$f" "DB_HOST" "$DB_HOST"; _set_kv "$f" "DB_PORT" "$DB_PORT"
+            _set_kv "$f" "DB_NAME" "ymarketplace"; _set_kv "$f" "DB_USER" "$DB_USER"
+            _set_kv "$f" "DB_PASSWORD" "$DB_PASS"
+            sed -i.bak '/^POSTGRES_DB=/d;/^POSTGRES_USER=/d;/^POSTGRES_PASSWORD=/d' "$f" && rm -f "$f.bak"
+            print_success "YMarketplace database: ymarketplace (on consolidated RDS)"
+        fi
         
         print_success "All databases wired to consolidated RDS: $DB_HOST"
     else
