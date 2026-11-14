@@ -1978,7 +1978,6 @@ def check_email_view(request):
         status=status.HTTP_200_OK,
     )
 
-
 @api_view(["GET"])
 @permission_classes([permissions.AllowAny])
 def public_profile_view(request, username):
@@ -2033,4 +2032,3 @@ def public_profile_view(request, username):
         "linkedin_handle": linkedin_handle,
     }
     return Response(data, status=status.HTTP_200_OK)
-

@@ -8,7 +8,7 @@ import { AccountPage, type AccountData } from "@/components/recruiter/settings/A
 import { UsersPage } from "@/components/recruiter/settings/UsersPage";
 import { SubscriptionPage } from "@/components/recruiter/settings/SubscriptionPage";
 import type { TeamUser, Plan, Usage, Invoice } from "@/lib/recruiterSettings";
-import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { yhubApiAuthUtil, restApiAuthUtil } from "@/utils/RestApiAuthUtil";
 
 export const Route = createFileRoute("/recruiter/settings")({
   head: () => ({
@@ -207,7 +207,10 @@ function RecruiterSettingsPage() {
         const parts = val.name.trim().split(" ");
         const first_name = parts[0];
         const last_name = parts.slice(1).join(" ") || "";
-        await authService.updateUser({ first_name, last_name });
+        await Promise.allSettled([
+          authService.updateUser({ first_name, last_name }),
+          restApiAuthUtil.put("/auth/user/", { first_name, last_name }),
+        ]);
       }
     } catch {
       // Local changes still preserved

@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import LoadingSkeleton from "@/components/common/LoadingSkeleton";
 import { Button } from "@/components/ui/button";
 import { QuestionBuilder } from "@/components/recruiter/QuestionBuilder";
+import { Sparkles, User } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/recruiter/questions")({
   head: () => ({
@@ -530,10 +532,37 @@ const QuestionCardItem = memo(function QuestionCardItem({
   onEdit: (q: any) => void;
   onDelete: (q: any) => void;
 }) {
-  const tags = [q.domain, q.scenario, q.scenario_type, q.company,
+  const isYuvro = q.is_yuvro === true || (!q.company && !q.company_name && !q.company_id) || (typeof q.id === "string" && q.id.startsWith("builtin-"));
+  const tags = [q.domain, q.scenario, q.scenario_type, q.company_name || q.company,
     q.questionCategory === "KNOWLEDGE" ? q.format || q.type : null,
   ].filter(Boolean);
   const tasks = Array.isArray(q.tasks) ? q.tasks.length : 0;
+  const creatorDisplay = (() => {
+    const name = q.created_by_name?.trim();
+    if (name && name.toLowerCase() !== "tech recruiter") {
+      return name;
+    }
+    try {
+      const stored = localStorage.getItem("pl-recruiter-settings");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.name && parsed.name.trim()) {
+          const storedEmail = parsed.email;
+          if (!storedEmail || !q.created_by_email || q.created_by_email.toLowerCase() === storedEmail.toLowerCase()) {
+            return parsed.name.trim();
+          }
+        }
+      }
+    } catch {}
+    if (name) return name;
+    if (typeof q.created_by === "object") {
+      const objName = `${q.created_by?.first_name || ""} ${q.created_by?.last_name || ""}`.trim();
+      if (objName && objName.toLowerCase() !== "tech recruiter") return objName;
+      return q.created_by?.email || "";
+    }
+    return q.created_by_email || "";
+  })();
+
   return (
     <article
       className="qb-question-card flex min-w-0 cursor-pointer flex-col rounded-xl border border-border bg-card p-5 transition-colors hover:bg-accent"
@@ -557,10 +586,23 @@ const QuestionCardItem = memo(function QuestionCardItem({
       <div className="mt-auto pt-4">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-border pt-4 text-sm leading-5 text-muted-foreground">
           <span>{plural(q.marks ?? 0, "mark")} · {q.duration_minutes ?? 0} min{tasks > 0 ? ` · ${plural(tasks, "task")}` : ""}</span>
-          <div className="flex gap-4" onClick={event => event.stopPropagation()}>
+          <div className="flex items-center gap-4" onClick={event => event.stopPropagation()}>
+            {!isYuvro && creatorDisplay && (
+              <span className="text-xs text-muted-foreground font-normal">
+                {creatorDisplay}
+              </span>
+            )}
             <Button variant="link" className="qb-action" onClick={() => onPreview(q)}>View</Button>
-            <Button variant="link" className="qb-action" disabled={loadingEditId === q.id} onClick={() => onEdit(q)}>{loadingEditId === q.id ? "Editing…" : "Edit"}</Button>
-            <Button variant="link" className="qb-action hover:text-destructive" onClick={() => onDelete(q)}>Delete</Button>
+            {!isYuvro && (
+              <>
+                <Button variant="link" className="qb-action" disabled={loadingEditId === q.id} onClick={() => onEdit(q)}>
+                  {loadingEditId === q.id ? "Editing…" : "Edit"}
+                </Button>
+                <Button variant="link" className="qb-action hover:text-destructive" onClick={() => onDelete(q)}>
+                  Delete
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -570,6 +612,14 @@ const QuestionCardItem = memo(function QuestionCardItem({
 
 function RecruiterQuestionBankPage() {
   const queryClient = useQueryClient();
+
+  // Source State: "yuvro" (library) | "recruiter" (recruiter's company questions)
+  const [questionSource, setQuestionSource] = useState<"yuvro" | "recruiter">("yuvro");
+
+  const handleSourceChange = (newSource: "yuvro" | "recruiter") => {
+    setQuestionSource(newSource);
+    setCurrentPage(1);
+  };
 
   // Tab State: "ALL" | "LAB" | "KNOWLEDGE" | "SYSTEM_DESIGN"
   const [activeTab, setActiveTab] = useState<"ALL" | "LAB" | "KNOWLEDGE" | "SYSTEM_DESIGN">("ALL");
@@ -583,31 +633,38 @@ function RecruiterQuestionBankPage() {
 
   // Fetch Lab Questions
   const { data: labQuestions = [], isLoading: isLoadingLabs } = useQuery({
-    queryKey: ["labQuestions"],
-    queryFn: () => questionBankService.getLabQuestions(),
+    queryKey: ["labQuestions", questionSource],
+    queryFn: () => questionBankService.getLabQuestions(questionSource),
   });
 
-  // Fetch Knowledge Questions (Only recruiter created questions from ylabs-backend)
+  // Fetch Knowledge Questions
   const { data: knowledgeQuestions = [], isLoading: isLoadingKnowledge } = useQuery({
-    queryKey: ["knowledgeQuestions"],
-    queryFn: () => questionBankService.getKnowledgeQuestions(),
+    queryKey: ["knowledgeQuestions", questionSource],
+    queryFn: () => questionBankService.getKnowledgeQuestions(questionSource),
   });
 
   // Fetch System Design Questions
   const { data: systemDesignQuestions = [], isLoading: isLoadingSystemDesign } = useQuery({
-    queryKey: ["systemDesignQuestions"],
+    queryKey: ["systemDesignQuestions", questionSource],
     queryFn: async () => {
       try {
-        const data = await questionBankService.getSystemDesignQuestions();
-        if (Array.isArray(data) && data.length > 0) {
-          const ids = new Set(data.map((d: any) => d.id));
-          const nonDupBuiltins = BUILTIN_SYSTEM_DESIGN_CHALLENGES.filter((b) => !ids.has(b.id));
-          return [...data, ...nonDupBuiltins];
+        const data = await questionBankService.getSystemDesignQuestions(questionSource);
+        if (questionSource === "yuvro") {
+          if (Array.isArray(data) && data.length > 0) {
+            const existingSlugs = new Set(data.map((d: any) => d.system_slug || d.id));
+            const nonDupBuiltins = BUILTIN_SYSTEM_DESIGN_CHALLENGES.filter(
+              (b) => !existingSlugs.has(b.system_slug) && !existingSlugs.has(b.id)
+            );
+            return [...data, ...nonDupBuiltins];
+          }
+          return BUILTIN_SYSTEM_DESIGN_CHALLENGES;
+        } else {
+          return Array.isArray(data) ? data : [];
         }
       } catch (e) {
         console.warn("Failed to fetch system design questions from API, using builtins", e);
+        return questionSource === "yuvro" ? BUILTIN_SYSTEM_DESIGN_CHALLENGES : [];
       }
-      return BUILTIN_SYSTEM_DESIGN_CHALLENGES;
     },
   });
 
@@ -925,6 +982,11 @@ function RecruiterQuestionBankPage() {
         }}
         onSuccess={(msg) => {
           showToast(msg);
+          // Auto switch to "recruiter" so recruiter immediately sees their newly created question
+          setQuestionSource("recruiter");
+          queryClient.invalidateQueries({ queryKey: ["labQuestions"] });
+          queryClient.invalidateQueries({ queryKey: ["knowledgeQuestions"] });
+          queryClient.invalidateQueries({ queryKey: ["systemDesignQuestions"] });
         }}
       />
     );
@@ -940,19 +1002,46 @@ function RecruiterQuestionBankPage() {
         <Button onClick={handleOpenAddModal} className="rec-btn shrink-0">Add question</Button>
       </header>
 
-      <div role="tablist" aria-label="Question categories" className="mb-6 flex flex-wrap gap-x-6 gap-y-2 border-b border-border">
-        {([
-          { key: "ALL", label: "All questions", count: totalCount },
-          { key: "LAB", label: "Engineering labs", count: labCount },
-          { key: "SYSTEM_DESIGN", label: "System design", count: systemDesignCount },
-          { key: "KNOWLEDGE", label: "Knowledge assessment", count: knowledgeCount },
-        ] as const).map(tab => (
-          <Button key={tab.key} role="tab" aria-selected={activeTab === tab.key} variant="ghost"
-            onClick={() => handleTabChange(tab.key)}
-            className={`qb-tab -mb-px h-auto rounded-none border-b-2 px-0 pb-3 pt-0 text-[15px] leading-5 ${activeTab === tab.key ? "border-primary font-medium text-foreground" : "border-transparent font-normal text-muted-foreground hover:text-foreground"}`}>
-            {tab.label} ({tab.count})
-          </Button>
-        ))}
+      <div role="tablist" aria-label="Question categories" className="mb-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-border pb-1">
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          {([
+            { key: "ALL", label: "All questions", count: totalCount },
+            { key: "LAB", label: "Engineering labs", count: labCount },
+            { key: "SYSTEM_DESIGN", label: "System design", count: systemDesignCount },
+            { key: "KNOWLEDGE", label: "Knowledge assessment", count: knowledgeCount },
+          ] as const).map(tab => (
+            <Button key={tab.key} role="tab" aria-selected={activeTab === tab.key} variant="ghost"
+              onClick={() => handleTabChange(tab.key)}
+              className={`qb-tab -mb-px h-auto rounded-none border-b-2 px-0 pb-3 pt-0 text-[15px] leading-5 ${activeTab === tab.key ? "border-primary font-medium text-foreground" : "border-transparent font-normal text-muted-foreground hover:text-foreground"}`}>
+              {tab.label} ({tab.count})
+            </Button>
+          ))}
+        </div>
+
+        {/* Source Toggle: Yuvro Library vs Recruiter (Company) */}
+        <div className="mb-2 flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2">
+          <span
+            className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
+              questionSource === "yuvro" ? "text-foreground" : "text-muted-foreground"
+            }`}
+          >
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            Yuvro
+          </span>
+          <Switch
+            aria-label="Show recruiter questions"
+            checked={questionSource === "recruiter"}
+            onCheckedChange={(checked) => handleSourceChange(checked ? "recruiter" : "yuvro")}
+          />
+          <span
+            className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
+              questionSource === "recruiter" ? "text-foreground" : "text-muted-foreground"
+            }`}
+          >
+            <User className="h-3.5 w-3.5 text-primary" />
+            Recruiter
+          </span>
+        </div>
       </div>
 
       <div className="qb-filters mb-6 flex flex-wrap gap-3">

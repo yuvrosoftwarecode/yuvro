@@ -38,7 +38,7 @@ ENV VITE_BACKEND_API_BASE_URL=$VITE_BACKEND_API_BASE_URL \
     VITE_DEPLOY_BRANCH=$VITE_DEPLOY_BRANCH \
     VITE_DEPLOY_APP_VERSION=$VITE_DEPLOY_APP_VERSION
 COPY . .
-RUN npx vite build
+RUN NODE_OPTIONS="--max-old-space-size=4096" npx vite build
 
 # ── serve: minimal nginx image with pre-built static files ───────────────────
 FROM nginx:alpine AS serve

@@ -225,6 +225,13 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("postgres")) {
     icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg";
     color = "primary";
+  } else if (
+    titleLower.includes("html") ||
+    titleLower.includes("javascript") ||
+    titleLower.includes("css")
+  ) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg";
+    color = "warning";
   } else if (category === "AI/ML" || titleLower.includes("machine learning")) {
     icon = "🤖";
     color = "info";

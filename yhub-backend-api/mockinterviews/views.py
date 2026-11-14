@@ -1232,6 +1232,22 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for rt in react_core_topics:
                         if rt not in all_skills:
                             all_skills.append(rt)
+                elif "html" in mock_interview.title.lower() or "css" in mock_interview.title.lower() or "javascript" in mock_interview.title.lower():
+                    frontend_core_topics = [
+                        "Semantic HTML5 Elements & Document Structure",
+                        "CSS Box Model, Specificity & Cascade Rules",
+                        "Modern CSS Layouts (Flexbox, CSS Grid & Positioning)",
+                        "Responsive Web Design, Media Queries & Viewport Units",
+                        "JavaScript Fundamentals, Scopes, Closures & Hoisting",
+                        "DOM Tree Manipulation, Selectors & Browser Event Handling",
+                        "Event Bubbling, Event Capturing & Event Delegation",
+                        "Asynchronous JavaScript (Promises, Async/Await & Fetch API)",
+                        "Browser Rendering Pipeline (Critical Rendering Path, Repaints & Reflows)",
+                        "Web Accessibility (ARIA, Semantic Markup, Keyboard Navigation) & Security (XSS, CORS)"
+                    ]
+                    for ft in frontend_core_topics:
+                        if ft not in all_skills:
+                            all_skills.append(ft)
                 elif "postgres" in mock_interview.title.lower() or "postgresql" in mock_interview.title.lower():
                     postgres_core_topics = [
                         "Relational Modeling & Schema Design in PostgreSQL",
@@ -1596,6 +1612,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Virtual DOM as an in-memory representation synchronized with the real DOM",
                                     "Diffing algorithm and batched updates to minimize DOM operations",
                                     "React Fiber incremental rendering and prioritized concurrent work"
+                                ]
+                            }
+                        elif "html" in title_lower or "css" in title_lower or "javascript" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In modern web development, can you explain the CSS Box Model, how the box-sizing property (content-box vs border-box) affects element sizing and layout calculations, and how the browser's Critical Rendering Path turns HTML and CSS into visible pixels on screen?",
+                                "topic": "CSS Box Model & Browser Rendering Pipeline",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Box model layers: content, padding, border, and margin",
+                                    "Differences between content-box and border-box in sizing calculations",
+                                    "Critical Rendering Path stages: DOM tree + CSSOM tree -> Render Tree -> Layout (reflow) -> Paint"
                                 ]
                             }
                         elif "postgres" in title_lower or "postgresql" in title_lower:

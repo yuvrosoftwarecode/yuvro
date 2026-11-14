@@ -14,6 +14,7 @@ import { Route as YuvrolabsRouteImport } from './routes/yuvrolabs'
 import { Route as VitarkaAiRouteImport } from './routes/vitarka-ai'
 import { Route as SystemDesignStudioRouteImport } from './routes/system-design-studio'
 import { Route as StudentRouteImport } from './routes/student'
+import { Route as ResearchRouteImport } from './routes/research'
 import { Route as RecruiterSignupRouteImport } from './routes/recruiter-signup'
 import { Route as RecruiterLoginRouteImport } from './routes/recruiter-login'
 import { Route as RecruiterRouteImport } from './routes/recruiter'
@@ -33,6 +34,7 @@ import { Route as RecruiterIndexRouteImport } from './routes/recruiter.index'
 import { Route as EvaluationIndexRouteImport } from './routes/evaluation.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as StudentResearchRouteImport } from './routes/student.research'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentLeaderboardRouteImport } from './routes/student.leaderboard'
 import { Route as StudentForumRouteImport } from './routes/student.forum'
@@ -54,6 +56,7 @@ import { Route as EvaluationProctoringRouteImport } from './routes/evaluation.pr
 import { Route as EvaluationOtpRouteImport } from './routes/evaluation.otp'
 import { Route as EvaluationInstructionsRouteImport } from './routes/evaluation.instructions'
 import { Route as EvaluationCompleteRouteImport } from './routes/evaluation.complete'
+import { Route as AdminResearchRouteImport } from './routes/admin.research'
 import { Route as AdminRecruitersRouteImport } from './routes/admin.recruiters'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminLabsRouteImport } from './routes/admin.labs'
@@ -111,6 +114,11 @@ const SystemDesignStudioRoute = SystemDesignStudioRouteImport.update({
 const StudentRoute = StudentRouteImport.update({
   id: '/student',
   path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResearchRoute = ResearchRouteImport.update({
+  id: '/research',
+  path: '/research',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecruiterSignupRoute = RecruiterSignupRouteImport.update({
@@ -207,6 +215,11 @@ const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
+} as any)
+const StudentResearchRoute = StudentResearchRouteImport.update({
+  id: '/research',
+  path: '/research',
+  getParentRoute: () => StudentRoute,
 } as any)
 const StudentProfileRoute = StudentProfileRouteImport.update({
   id: '/profile',
@@ -312,6 +325,11 @@ const EvaluationCompleteRoute = EvaluationCompleteRouteImport.update({
   id: '/complete',
   path: '/complete',
   getParentRoute: () => EvaluationRoute,
+} as any)
+const AdminResearchRoute = AdminResearchRouteImport.update({
+  id: '/research',
+  path: '/research',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminRecruitersRoute = AdminRecruitersRouteImport.update({
   id: '/recruiters',
@@ -514,6 +532,7 @@ export interface FileRoutesByFullPath {
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
+  '/research': typeof ResearchRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
   '/vitarka-ai': typeof VitarkaAiRoute
@@ -522,6 +541,7 @@ export interface FileRoutesByFullPath {
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
+  '/admin/research': typeof AdminResearchRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -543,6 +563,7 @@ export interface FileRoutesByFullPath {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
+  '/student/research': typeof StudentResearchRoute
   '/u/$username': typeof UUsernameRoute
   '/admin/': typeof AdminIndexRoute
   '/evaluation/': typeof EvaluationIndexRoute
@@ -591,6 +612,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
+  '/research': typeof ResearchRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
   '/vitarka-ai': typeof VitarkaAiRoute
@@ -598,6 +620,7 @@ export interface FileRoutesByTo {
   '/yuvrolabs-pricing': typeof YuvrolabsPricingRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
+  '/admin/research': typeof AdminResearchRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -619,6 +642,7 @@ export interface FileRoutesByTo {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
+  '/student/research': typeof StudentResearchRoute
   '/u/$username': typeof UUsernameRoute
   '/admin': typeof AdminIndexRoute
   '/evaluation': typeof EvaluationIndexRoute
@@ -671,6 +695,7 @@ export interface FileRoutesById {
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
+  '/research': typeof ResearchRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
   '/vitarka-ai': typeof VitarkaAiRoute
@@ -679,6 +704,7 @@ export interface FileRoutesById {
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
+  '/admin/research': typeof AdminResearchRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -700,6 +726,7 @@ export interface FileRoutesById {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
+  '/student/research': typeof StudentResearchRoute
   '/u/$username': typeof UUsernameRoute
   '/admin/': typeof AdminIndexRoute
   '/evaluation/': typeof EvaluationIndexRoute
@@ -753,6 +780,7 @@ export interface FileRouteTypes {
     | '/recruiter'
     | '/recruiter-login'
     | '/recruiter-signup'
+    | '/research'
     | '/student'
     | '/system-design-studio'
     | '/vitarka-ai'
@@ -761,6 +789,7 @@ export interface FileRouteTypes {
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
+    | '/admin/research'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -782,6 +811,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/student/research'
     | '/u/$username'
     | '/admin/'
     | '/evaluation/'
@@ -830,6 +860,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/recruiter-login'
     | '/recruiter-signup'
+    | '/research'
     | '/student'
     | '/system-design-studio'
     | '/vitarka-ai'
@@ -837,6 +868,7 @@ export interface FileRouteTypes {
     | '/yuvrolabs-pricing'
     | '/admin/questions'
     | '/admin/recruiters'
+    | '/admin/research'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -858,6 +890,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/student/research'
     | '/u/$username'
     | '/admin'
     | '/evaluation'
@@ -909,6 +942,7 @@ export interface FileRouteTypes {
     | '/recruiter'
     | '/recruiter-login'
     | '/recruiter-signup'
+    | '/research'
     | '/student'
     | '/system-design-studio'
     | '/vitarka-ai'
@@ -917,6 +951,7 @@ export interface FileRouteTypes {
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
+    | '/admin/research'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -938,6 +973,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/student/research'
     | '/u/$username'
     | '/admin/'
     | '/evaluation/'
@@ -990,6 +1026,7 @@ export interface RootRouteChildren {
   RecruiterRoute: typeof RecruiterRouteWithChildren
   RecruiterLoginRoute: typeof RecruiterLoginRoute
   RecruiterSignupRoute: typeof RecruiterSignupRoute
+  ResearchRoute: typeof ResearchRoute
   StudentRoute: typeof StudentRouteWithChildren
   SystemDesignStudioRoute: typeof SystemDesignStudioRoute
   VitarkaAiRoute: typeof VitarkaAiRoute
@@ -1039,6 +1076,13 @@ declare module '@tanstack/react-router' {
       path: '/student'
       fullPath: '/student'
       preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/research': {
+      id: '/research'
+      path: '/research'
+      fullPath: '/research'
+      preLoaderRoute: typeof ResearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recruiter-signup': {
@@ -1173,6 +1217,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/u/$username'
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/student/research': {
+      id: '/student/research'
+      path: '/research'
+      fullPath: '/student/research'
+      preLoaderRoute: typeof StudentResearchRouteImport
+      parentRoute: typeof StudentRoute
     }
     '/student/profile': {
       id: '/student/profile'
@@ -1320,6 +1371,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/evaluation/complete'
       preLoaderRoute: typeof EvaluationCompleteRouteImport
       parentRoute: typeof EvaluationRoute
+    }
+    '/admin/research': {
+      id: '/admin/research'
+      path: '/research'
+      fullPath: '/admin/research'
+      preLoaderRoute: typeof AdminResearchRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/recruiters': {
       id: '/admin/recruiters'
@@ -1617,6 +1675,7 @@ interface AdminRouteChildren {
   AdminLabsRoute: typeof AdminLabsRouteWithChildren
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminRecruitersRoute: typeof AdminRecruitersRoute
+  AdminResearchRoute: typeof AdminResearchRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminUsersIdRoute: typeof AdminUsersIdRouteWithChildren
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
@@ -1627,6 +1686,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLabsRoute: AdminLabsRouteWithChildren,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminRecruitersRoute: AdminRecruitersRoute,
+  AdminResearchRoute: AdminResearchRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminUsersIdRoute: AdminUsersIdRouteWithChildren,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
@@ -1782,6 +1842,7 @@ interface StudentRouteChildren {
   StudentForumRoute: typeof StudentForumRoute
   StudentLeaderboardRoute: typeof StudentLeaderboardRoute
   StudentProfileRoute: typeof StudentProfileRouteWithChildren
+  StudentResearchRoute: typeof StudentResearchRoute
   StudentLabSlugRoute: typeof StudentLabSlugRouteWithChildren
   StudentCollaborationSprintIdRoute: typeof StudentCollaborationSprintIdRouteWithChildren
 }
@@ -1793,6 +1854,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentForumRoute: StudentForumRoute,
   StudentLeaderboardRoute: StudentLeaderboardRoute,
   StudentProfileRoute: StudentProfileRouteWithChildren,
+  StudentResearchRoute: StudentResearchRoute,
   StudentLabSlugRoute: StudentLabSlugRouteWithChildren,
   StudentCollaborationSprintIdRoute:
     StudentCollaborationSprintIdRouteWithChildren,
@@ -1817,6 +1879,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecruiterRoute: RecruiterRouteWithChildren,
   RecruiterLoginRoute: RecruiterLoginRoute,
   RecruiterSignupRoute: RecruiterSignupRoute,
+  ResearchRoute: ResearchRoute,
   StudentRoute: StudentRouteWithChildren,
   SystemDesignStudioRoute: SystemDesignStudioRoute,
   VitarkaAiRoute: VitarkaAiRoute,
