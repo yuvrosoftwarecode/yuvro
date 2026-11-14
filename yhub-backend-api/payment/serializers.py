@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from django.conf import settings
 from .models import Payment, Refund, PaymentStatus, UserEntitlement, PurchasableItem
 
 
@@ -44,7 +44,6 @@ class PaymentSerializer(serializers.ModelSerializer):
         ]
 
     def get_key_id(self, obj):
-        from django.conf import settings
         return getattr(settings, "RAZORPAY_KEY_ID", "")
 
 
