@@ -274,16 +274,13 @@ class GeminiService(BaseAIService):
 
 
     def __init__(self, api_key: str, model_name: str = "gemini-2.5-flash"):
-        super().__init__(api_key, model_name)
-        try:
-            import google.generativeai as genai
+        from ai_assistant.gemini_client import create_gemini_client, normalize_gemini_model
 
-            genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel(model_name)
-        except ImportError:
-            raise AIServiceError(
-                "Google Generative AI library not installed. Run: pip install google-generativeai"
-            )
+        super().__init__(api_key, normalize_gemini_model(model_name))
+        try:
+            self.client = create_gemini_client(api_key)
+        except RuntimeError as exc:
+            raise AIServiceError(str(exc)) from exc
 
     async def generate_response(
         self,
@@ -293,6 +290,8 @@ class GeminiService(BaseAIService):
         stream: bool = False,
         **kwargs,
     ) -> Dict[str, Any]:
+        from ai_assistant.gemini_client import gemini_generate_content, gemini_usage_counts
+
         start_time = time.time()
 
         messages = _apply_page_content_grounding(messages, kwargs)
@@ -307,64 +306,39 @@ class GeminiService(BaseAIService):
                 elif msg["role"] == "assistant":
                     conversation_text += f"Assistant: {msg['content']}\n"
 
-            generation_config = {
-                "temperature": temperature,
-                "max_output_tokens": max_tokens,
-            }
+            response = await gemini_generate_content(
+                self.client,
+                self.model_name,
+                conversation_text,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stream=stream,
+            )
 
-            try:
-                response = await self.model.generate_content_async(
-                    conversation_text, generation_config=generation_config, stream=stream
-                )
-                  
-                if stream:
-                    return {
-                        "stream": response,
-                        "metadata": {"model": self.model_name},
-                    }
-                    
-            except Exception as e:
-                if "404" in str(e) or "not found" in str(e).lower():
-                    logger.warning(f"Gemini model {self.model_name} failed. Attempting fallback to gemini-2.5-flash.")
-                    try:
-                        import google.generativeai as genai
-                        fallback_model = genai.GenerativeModel("gemini-2.5-flash")
-                        response = await fallback_model.generate_content_async(
-                            conversation_text, generation_config=generation_config, stream=stream
-                        )
-                        
-                        if stream:
-                            return {
-                                "stream": response,
-                                "metadata": {"model": self.model_name},
-                            }
-                            
-                    except Exception as fallback_error:
-                         logger.error(f"Fallback failed: {fallback_error}")
-                         raise e
-                else:
-                    raise e
+            if stream:
+                return {
+                    "stream": response,
+                    "metadata": {"model": self.model_name},
+                }
 
             end_time = time.time()
             response_time_ms = int((end_time - start_time) * 1000)
+            usage = gemini_usage_counts(response)
+            finish_reason = None
+            candidates = getattr(response, "candidates", None)
+            if candidates:
+                reason = getattr(candidates[0], "finish_reason", None)
+                finish_reason = getattr(reason, "name", None) or (str(reason) if reason is not None else None)
 
             return {
                 "response": response.text,
-                "tokens_used": response.usage_metadata.total_token_count
-                if hasattr(response, "usage_metadata")
-                else None,
+                "tokens_used": usage.get("total"),
                 "response_time_ms": response_time_ms,
                 "metadata": {
                     "model": self.model_name,
-                    "finish_reason": response.candidates[0].finish_reason.name
-                    if response.candidates
-                    else None,
-                    "prompt_tokens": response.usage_metadata.prompt_token_count
-                    if hasattr(response, "usage_metadata")
-                    else None,
-                    "completion_tokens": response.usage_metadata.candidates_token_count
-                    if hasattr(response, "usage_metadata")
-                    else None,
+                    "finish_reason": finish_reason,
+                    "prompt_tokens": usage.get("prompt"),
+                    "completion_tokens": usage.get("completion"),
                 },
             }
         except Exception as e:

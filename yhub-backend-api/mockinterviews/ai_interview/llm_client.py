@@ -116,22 +116,16 @@ class AnthropicClient(BaseLLMClient):
 
 
 class GeminiClient(BaseLLMClient):
-    """Async Google Gemini client using google-generativeai."""
+    """Async Google Gemini client using google-genai."""
 
     def __init__(self, model_name: str | None = None) -> None:
-        try:
-            import google.generativeai as genai
-        except ImportError:
-            raise RuntimeError(
-                "google-generativeai is not installed. Run: pip install google-generativeai"
-            )
+        from ai_assistant.gemini_client import create_gemini_client, normalize_gemini_model
 
         if not settings.GEMINI_API_KEY:
             raise RuntimeError("GEMINI_API_KEY is not set in environment / .env")
 
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        self._model_name = model_name or settings.GEMINI_MODEL
-        self._genai = genai
+        self._model_name = normalize_gemini_model(model_name or settings.GEMINI_MODEL)
+        self._client = create_gemini_client(settings.GEMINI_API_KEY)
 
     async def generate(
         self,
@@ -140,40 +134,19 @@ class GeminiClient(BaseLLMClient):
         max_tokens: int = 512,
         temperature: float = 0.3,
     ) -> str:
-        import google.generativeai as genai
+        from ai_assistant.gemini_client import gemini_generate_content
 
         logger.debug("Gemini request: model=%s, max_tokens=%d", self._model_name, max_tokens)
 
-        generation_config = {
-            "temperature": temperature,
-            "max_output_tokens": max_tokens,
-        }
-
         full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
-
-        try:
-            model = genai.GenerativeModel(self._model_name)
-            response = await model.generate_content_async(
-                full_prompt,
-                generation_config=generation_config,
-            )
-            text = response.text or ""
-        except Exception as e:
-            if "404" in str(e) or "not found" in str(e).lower():
-                logger.warning(
-                    "Gemini model %s failed (%s). Falling back to gemini-2.5-flash.",
-                    self._model_name,
-                    e,
-                )
-                model = genai.GenerativeModel("gemini-2.5-flash")
-                response = await model.generate_content_async(
-                    full_prompt,
-                    generation_config=generation_config,
-                )
-                text = response.text or ""
-            else:
-                raise
-
+        response = await gemini_generate_content(
+            self._client,
+            self._model_name,
+            full_prompt,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+        text = response.text or ""
         logger.debug("Gemini response: length=%d chars", len(text))
         return text
 

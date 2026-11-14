@@ -28,6 +28,12 @@ import codeExecutorService, { isTaskHidden } from "@/services/codeExecutorServic
 import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
 import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { formatSourceCode } from "@/lib/codeFormatter";
+import {
+  explanationFromMentorContent,
+  findUpdateForCode,
+  parseFileUpdates,
+  type MentorFileUpdate,
+} from "@/lib/mentorFileUpdates";
 import { TopNav } from "@/components/TopNav";
 import useAIChat from "@/components/common/ai-buddy/useAIChat";
 import { WalletBalanceBadge } from "@/components/credits/WalletBalanceBadge";
@@ -4001,6 +4007,46 @@ export function TicketIDE({
     setDirty((d) => ({ ...d, [target]: true }));
   }
 
+  function applyMentorFiles(updates: { path: string; code: string }[]) {
+    const resolved = updates
+      .map((u) => ({
+        path: (u.path || "").trim().replace(/^\/+/, ""),
+        code: u.code ?? "",
+      }))
+      .filter((u) => u.path && !isInternalOrHiddenFile(u.path));
+    if (!resolved.length) return;
+
+    setFiles((f) => {
+      const next = { ...f };
+      for (const u of resolved) next[u.path] = u.code;
+      return next;
+    });
+    setDirty((d) => {
+      const next = { ...d };
+      for (const u of resolved) next[u.path] = true;
+      return next;
+    });
+    setOpenTabs((prev) => {
+      const next = [...prev];
+      for (const u of resolved) {
+        if (!next.includes(u.path)) next.push(u.path);
+      }
+      return next;
+    });
+    setActiveFile(resolved[resolved.length - 1].path);
+
+    if (isReal) {
+      resolved.forEach((u) => {
+        wsWriteFile(effectiveUserId, labId, sprintId, u.path, u.code, evaluationId)
+          .then(() => loadedFiles.current.add(u.path))
+          .catch(() => showToast(`⚠ Could not persist ${u.path}`));
+      });
+    }
+
+    const names = resolved.map((u) => u.path).join(", ");
+    showToast(resolved.length === 1 ? `Applied code to ${names}` : `Applied ${resolved.length} files: ${names}`);
+  }
+
   const handleResetProgress = async () => {
     setConfirmDialog({
       isOpen: true,
@@ -5357,12 +5403,10 @@ export function TicketIDE({
                     : <SideMentor
                         chatTitle={`${labTitle} - Sprint ${sprintNo} - Ticket ${ticketNo}`}
                         persistenceKey={`ticket-${ticket.id}`}
-                        contextGetter={() => `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\nCurrent Code:\n${Object.entries(files).map(([name, content]) => `File: ${name}\n${content}`).join('\n\n')}`}
+                        contextGetter={() => `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\nWorkspace files: ${allWorkspaceFiles.join(", ") || "(none)"}\n\nCurrent Code:\n${Object.entries(files).map(([name, content]) => `File: ${name}\n${content}`).join('\n\n')}`}
                         activeFile={activeFile}
-                        onApplyCode={(code) => {
-                          updateCode(code);
-                          showToast(`Applied code to ${activeFile}`);
-                        }}
+                        knownFiles={allWorkspaceFiles}
+                        onApplyFiles={applyMentorFiles}
                       />}
                 </div>
               </aside>
@@ -9677,41 +9721,15 @@ export function SolutionPanel({
   );
 }
 
-function parseAgentResponse(content: string, activeFile?: string) {
-  const codeBlockRegex = /```(?:[a-zA-Z0-9_-]+)?\s*([\s\S]*?)```/g;
-  const matches = [...content.matchAll(codeBlockRegex)];
-
-  // Filter out code blocks that are just the file name (e.g. ```text\nmain.py\n```)
-  const validBlocks = matches
-    .map((m) => m[1]?.trim())
-    .filter((c) => c && c !== activeFile && !c.endsWith(".py") && c.length > 5);
-
-  const mainCode =
-    validBlocks.length > 0
-      ? validBlocks[validBlocks.length - 1]
-      : matches.length > 0
-      ? matches[matches.length - 1][1]?.trim()
-      : "";
-
-  let explanation = content.replace(codeBlockRegex, "").trim();
-  
-  // Clean up greetings, conversational fluff, and markdown headers
-  explanation = explanation
-    .replace(/^#+\s+.*$/gm, "")
-    .replace(/^Hello\s+[^,!\n]+[,!]\s*/i, "")
-    .replace(/^Hi\s+[^,!\n]+[,!]\s*/i, "")
-    .replace(/^Okay,?\s+[^,!\n]+[,!]\s*/i, "")
-    .replace(/^Sure,?\s+[^,!\n]+[,!]\s*/i, "")
-    .replace(/^Certainly,?\s+[^,!\n]+[,!]\s*/i, "")
-    .replace(/Here'?s the code you'?ll need for.*$/im, "")
-    .replace(/Here is the (?:solution|code).*$/im, "")
-    .trim();
-
-  if (!explanation) {
-    explanation = `Updated ${activeFile || "file"} with the required code.`;
-  }
-
-  return { mainCode, explanation, hasCode: !!mainCode };
+function parseAgentResponse(content: string, activeFile?: string, knownFiles?: string[]) {
+  const updates = parseFileUpdates(content, activeFile, knownFiles);
+  const explanation = explanationFromMentorContent(content, updates);
+  return {
+    updates,
+    explanation,
+    hasCode: updates.length > 0,
+    mainCode: updates[updates.length - 1]?.code || "",
+  };
 }
 
 function AgentChangeCard({
@@ -9793,13 +9811,15 @@ function MentorCodeBlock({
   code,
   language,
   activeFile,
+  targetFile,
   onApplyCode,
   isAgentMode,
 }: {
   code: string;
   language: string;
   activeFile?: string;
-  onApplyCode?: (code: string) => void;
+  targetFile?: string;
+  onApplyCode?: (code: string, filePath?: string) => void;
   isAgentMode?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
@@ -9820,15 +9840,17 @@ function MentorCodeBlock({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const applyTarget = targetFile || activeFile;
+
   const handleApply = () => {
     if (onApplyCode) {
-      onApplyCode(code);
+      onApplyCode(code, applyTarget);
       setApplied(true);
       setTimeout(() => setApplied(false), 2000);
     }
   };
 
-  const targetLabel = activeFile ? `Apply to ${activeFile}` : "Apply";
+  const targetLabel = applyTarget ? `Apply to ${applyTarget}` : "Apply";
 
   return (
     <div className="relative group/code rounded-lg overflow-hidden my-2 border border-border/70 bg-[#18181b] dark:bg-[#121214] shadow-xs text-left font-sans">
@@ -9902,26 +9924,42 @@ function SideMentor({
   chatTitle,
   persistenceKey,
   activeFile,
-  onApplyCode,
+  knownFiles,
+  onApplyFiles,
 }: {
   contextGetter: () => string;
   chatTitle?: string;
   persistenceKey?: string;
   activeFile?: string;
-  onApplyCode?: (code: string) => void;
+  knownFiles?: string[];
+  onApplyFiles?: (updates: { path: string; code: string }[]) => void;
 }) {
   const [mentorMode, setMentorMode] = useState<"chat" | "agent">("chat");
   const autoAppliedRef = useRef<Set<string>>(new Set());
 
+  const applyUpdates = useCallback(
+    (updates: MentorFileUpdate[] | { path: string; code: string }[]) => {
+      if (!onApplyFiles || !updates.length) return;
+      onApplyFiles(updates.map((u) => ({ path: u.path, code: u.code })));
+    },
+    [onApplyFiles],
+  );
+
+  const fileFormatHint = `When you provide code, use one fenced block PER file with the path in the fence header, for example:
+\`\`\`python src/app.py
+<full file contents>
+\`\`\`
+You MAY update multiple files in one response. Always emit the complete file contents (not a diff).`;
+
   const dynamicContextGetter = useCallback(() => {
     const baseContext = contextGetter ? contextGetter() : "";
     if (mentorMode === "agent") {
-      return `${baseContext}\n\n[MODE: AGENT]\nYou are operating in AGENT mode. When writing or editing code for ${activeFile || 'the active file'}:
-1. Start with a very concise 1-2 sentence description of what was changed.
-2. Provide the complete updated code inside a single code block (\`\`\`<language> ... \`\`\`).
-Do NOT output extra code blocks for file names or extra boilerplate. The code will be directly applied to ${activeFile || 'the active file'}.`;
+      return `${baseContext}\n\n[MODE: AGENT]\nYou are operating in AGENT mode like a vibe-coding agent. You can create and update MULTIPLE workspace files in one turn.
+1. Start with a very concise 1-2 sentence description of what changed.
+2. ${fileFormatHint}
+Unlabeled code will be applied to ${activeFile || "the active file"}.`;
     }
-    return `${baseContext}\n\n[MODE: CHAT]\nYou are operating in CHAT mentor mode. Give Socratic hints, explanations, and guidance step-by-step.`;
+    return `${baseContext}\n\n[MODE: CHAT]\nYou are operating in CHAT mentor mode. Give Socratic hints, explanations, and guidance step-by-step. If the student asks for code, ${fileFormatHint} The student can apply one or more files from your reply.`;
   }, [contextGetter, mentorMode, activeFile]);
 
   const { messages, isLoading, sendMessage, suggestedPrompts, activeStream, startNewChat, sessionHistory, fetchHistory, loadSession } = useAIChat({
@@ -9937,21 +9975,21 @@ Do NOT output extra code blocks for file names or extra boilerplate. The code wi
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, activeStream]);
 
-  // In Agent mode, automatically apply code from the latest assistant message
+  // In Agent mode, automatically apply every file the model emitted
   useEffect(() => {
-    if (mentorMode !== "agent" || !onApplyCode || isLoading) return;
+    if (mentorMode !== "agent" || !onApplyFiles || isLoading) return;
 
     const assistantMessages = messages.filter((m) => m.message_type === "assistant");
     const latestAssistant = assistantMessages[assistantMessages.length - 1];
     if (!latestAssistant || !latestAssistant.content) return;
     if (autoAppliedRef.current.has(latestAssistant.id)) return;
 
-    const { mainCode, hasCode } = parseAgentResponse(latestAssistant.content, activeFile);
-    if (hasCode && mainCode) {
+    const { updates, hasCode } = parseAgentResponse(latestAssistant.content, activeFile, knownFiles);
+    if (hasCode && updates.length > 0) {
       autoAppliedRef.current.add(latestAssistant.id);
-      onApplyCode(mainCode);
+      applyUpdates(updates);
     }
-  }, [messages, isLoading, mentorMode, onApplyCode, activeFile]);
+  }, [messages, isLoading, mentorMode, onApplyFiles, activeFile, knownFiles, applyUpdates]);
 
   const send = () => {
     if (!input.trim() || isLoading) return;
@@ -9984,7 +10022,7 @@ Do NOT output extra code blocks for file names or extra boilerplate. The code wi
                 ? "bg-primary text-primary-foreground shadow-xs font-semibold"
                 : "text-muted-foreground hover:text-foreground"
             }`}
-            title="Agent mode: Automatically updates the active file when code is generated"
+            title="Agent mode: Automatically creates and updates workspace files when code is generated"
           >
             <Zap className={`w-3 h-3 ${mentorMode === "agent" ? "text-amber-300" : ""}`} />
             Agent
@@ -10045,7 +10083,7 @@ Do NOT output extra code blocks for file names or extra boilerplate. The code wi
               <div className="flex">
                 <div className="max-w-[90%] rounded-md px-3 py-2 text-[13px] bg-accent text-foreground">
                   {mentorMode === "agent"
-                    ? `⚡ Agent Mode active. Tell me what changes or code to write for ${activeFile || 'your file'}, and I will directly update it!`
+                    ? `⚡ Agent Mode active. Tell me what to build or change — I can update multiple files in one turn.`
                     : "Hi! I'm your AI mentor. I can give Socratic hints — what are you stuck on?"}
                 </div>
               </div>
@@ -10055,17 +10093,23 @@ Do NOT output extra code blocks for file names or extra boilerplate. The code wi
               const displayContent = isStreaming ? `${activeStream!.content}` : m.content;
 
               if (m.message_type === "assistant" && mentorMode === "agent" && !isStreaming) {
-                const { mainCode, explanation, hasCode } = parseAgentResponse(displayContent, activeFile);
+                const { updates, explanation, hasCode } = parseAgentResponse(displayContent, activeFile, knownFiles);
                 if (hasCode) {
                   return (
                     <div key={i} className="flex">
-                      <div className="w-full">
-                        <AgentChangeCard
-                          fileName={activeFile || "main.py"}
-                          explanation={explanation}
-                          code={mainCode}
-                          onReapply={() => onApplyCode && onApplyCode(mainCode)}
-                        />
+                      <div className="w-full space-y-2">
+                        {explanation && updates.length > 1 && (
+                          <div className="text-[12px] text-muted-foreground px-0.5">{explanation}</div>
+                        )}
+                        {updates.map((update) => (
+                          <AgentChangeCard
+                            key={`${update.path}-${update.code.length}`}
+                            fileName={update.path || activeFile || "main.py"}
+                            explanation={updates.length === 1 ? explanation : `Updated ${update.path}`}
+                            code={update.code}
+                            onReapply={() => applyUpdates([update])}
+                          />
+                        ))}
                       </div>
                     </div>
                   );
@@ -10081,33 +10125,52 @@ Do NOT output extra code blocks for file names or extra boilerplate. The code wi
                       <div className="whitespace-pre-wrap">{m.content}</div>
                     ) : (
                       <div className="prose prose-sm dark:prose-invert max-w-full break-words [&>p]:mb-2 [&>p]:last:mb-0 [&>ul]:my-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:my-2 [&>ol]:list-decimal [&>ol]:pl-4">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            code({ node, inline, className, children, ...props }: any) {
-                              const match = /language-(\w+)/.exec(className || "");
-                              const codeString = String(children).replace(/\n$/, "");
-                              if (inline) {
-                                return (
-                                  <code className="bg-background/80 px-1.5 py-0.5 rounded font-mono text-[11px] text-primary" {...props}>
-                                    {children}
-                                  </code>
-                                );
-                              }
-                              return (
-                                <MentorCodeBlock
-                                  code={codeString}
-                                  language={match?.[1] || "text"}
-                                  activeFile={activeFile}
-                                  onApplyCode={onApplyCode}
-                                  isAgentMode={mentorMode === "agent"}
-                                />
-                              );
-                            },
-                          }}
-                        >
-                          {displayContent}
-                        </ReactMarkdown>
+                        {(() => {
+                          const chatUpdates = parseFileUpdates(displayContent, activeFile, knownFiles);
+                          return (
+                            <>
+                              {mentorMode === "chat" && chatUpdates.length > 1 && onApplyFiles && (
+                                <button
+                                  type="button"
+                                  onClick={() => applyUpdates(chatUpdates)}
+                                  className="mb-2 inline-flex items-center gap-1 rounded-md bg-primary px-2.5 py-1 text-[10.5px] font-medium text-primary-foreground hover:bg-primary/90"
+                                >
+                                  <Download className="w-3 h-3" />
+                                  Apply {chatUpdates.length} files
+                                </button>
+                              )}
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={{
+                                  code({ node, inline, className, children, ...props }: any) {
+                                    const match = /language-(\w+)/.exec(className || "");
+                                    const codeString = String(children).replace(/\n$/, "");
+                                    if (inline) {
+                                      return (
+                                        <code className="bg-background/80 px-1.5 py-0.5 rounded font-mono text-[11px] text-primary" {...props}>
+                                          {children}
+                                        </code>
+                                      );
+                                    }
+                                    const matched = findUpdateForCode(chatUpdates, codeString);
+                                    return (
+                                      <MentorCodeBlock
+                                        code={codeString}
+                                        language={match?.[1] || "text"}
+                                        activeFile={activeFile}
+                                        targetFile={matched?.path || activeFile}
+                                        onApplyCode={(c, filePath) => applyUpdates([{ path: filePath || activeFile || "main.py", code: c }])}
+                                        isAgentMode={mentorMode === "agent"}
+                                      />
+                                    );
+                                  },
+                                }}
+                              >
+                                {displayContent}
+                              </ReactMarkdown>
+                            </>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>
@@ -10151,7 +10214,7 @@ Do NOT output extra code blocks for file names or extra boilerplate. The code wi
               disabled={isLoading}
               placeholder={
                 mentorMode === "agent"
-                  ? `Instruct Agent to update ${activeFile || 'file'}...`
+                  ? "Instruct Agent to update files..."
                   : "Ask AI mentor..."
               }
               className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 text-xs outline-none focus:border-primary disabled:opacity-50 transition-colors min-w-0"

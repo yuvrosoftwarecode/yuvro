@@ -152,31 +152,25 @@ class ScoringLLMClient:
         max_tokens: int,
     ) -> Dict[str, Any]:
         """Calls Google Gemini (e.g. gemini-2.5-flash)."""
-        import google.generativeai as genai
+        from ai_assistant.gemini_client import (
+            create_gemini_client,
+            gemini_generate_content,
+            gemini_usage_counts,
+        )
 
-        genai.configure(api_key=api_key)
         model_name = self.model_name if self.provider == "gemini" and self.model_name else "gemini-2.5-flash"
-        gemini_model = genai.GenerativeModel(
-            model_name=model_name,
-            system_instruction=system_prompt if system_prompt else None,
-        )
-
-        generation_config = {
-            "temperature": temperature,
-            "max_output_tokens": max_tokens,
-            "response_mime_type": "application/json",
-        }
-
-        response = await gemini_model.generate_content_async(
+        client = create_gemini_client(api_key)
+        response = await gemini_generate_content(
+            client,
+            model_name,
             prompt,
-            generation_config=generation_config,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            system_instruction=system_prompt or None,
+            response_mime_type="application/json",
         )
-
-        tokens = None
-        if hasattr(response, "usage_metadata") and response.usage_metadata:
-            tokens = response.usage_metadata.total_token_count
-
-        return {"content": response.text, "model": model_name, "tokens": tokens}
+        usage = gemini_usage_counts(response)
+        return {"content": response.text, "model": model_name, "tokens": usage.get("total")}
 
     async def _call_openai(
         self,
