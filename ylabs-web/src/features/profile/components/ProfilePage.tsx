@@ -9,26 +9,30 @@ import { ResumeSection } from "./ResumeSection";
 
 interface ProfilePageProps {
   onNavigateTab?: (tab: string) => void;
+  isOwner?: boolean;
 }
 
-export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigateTab }) => {
+export const ProfilePage: React.FC<ProfilePageProps> = ({
+  onNavigateTab,
+  isOwner = true,
+}) => {
   return (
     <div className="space-y-5 min-w-0">
       {/* 1. Contribution Activity Card */}
       <div id="contributions-section">
         <OverviewContributionCard
-          onSeePerformance={() => onNavigateTab?.("performance")}
+          onSeePerformance={isOwner ? () => onNavigateTab?.("performance") : undefined}
         />
       </div>
 
       {/* 2. About Card */}
       <div id="about-section">
-        <AboutSection />
+        <AboutSection isOwner={isOwner} />
       </div>
 
       {/* 3. Skills Card */}
       <div id="skills-section">
-        <SkillsSection />
+        <SkillsSection isOwner={isOwner} />
       </div>
 
       {/* 4. Projects Card */}

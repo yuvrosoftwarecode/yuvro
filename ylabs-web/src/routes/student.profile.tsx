@@ -52,7 +52,7 @@ function StudentProfileRoute() {
   useEffect(() => {
     if (user?.username) {
       navigate({
-        to: "/$username",
+        to: "/u/$username",
         params: { username: user.username },
         search: { tab: activeTab },
         replace: true,
@@ -89,7 +89,7 @@ function StudentProfileRoute() {
   const handleTabChange = (tab: string) => {
     if (user?.username) {
       navigate({
-        to: "/$username",
+        to: "/u/$username",
         params: { username: user.username },
         search: { tab },
       });

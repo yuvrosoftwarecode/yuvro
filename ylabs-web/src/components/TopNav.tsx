@@ -160,7 +160,7 @@ export function TopNav({
                   } else {
                     if (user?.username) {
                       nav({
-                        to: "/$username",
+                        to: "/u/$username",
                         params: { username: user.username },
                         search: { tab: "connections" },
                       });
@@ -281,7 +281,7 @@ function ProfileMenu({
             )}
           </div>
           <Link
-            to={username ? `/${username}` : "/student/profile"}
+            to={username ? `/u/${username}` : "/student/profile"}
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/60"
           >

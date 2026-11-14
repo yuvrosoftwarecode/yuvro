@@ -32,6 +32,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecruiterIndexRouteImport } from './routes/recruiter.index'
 import { Route as EvaluationIndexRouteImport } from './routes/evaluation.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentLeaderboardRouteImport } from './routes/student.leaderboard'
 import { Route as StudentForumRouteImport } from './routes/student.forum'
@@ -201,6 +202,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const UUsernameRoute = UUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const StudentProfileRoute = StudentProfileRouteImport.update({
   id: '/profile',
@@ -537,6 +543,7 @@ export interface FileRoutesByFullPath {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
+  '/u/$username': typeof UUsernameRoute
   '/admin/': typeof AdminIndexRoute
   '/evaluation/': typeof EvaluationIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
@@ -612,6 +619,7 @@ export interface FileRoutesByTo {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
+  '/u/$username': typeof UUsernameRoute
   '/admin': typeof AdminIndexRoute
   '/evaluation': typeof EvaluationIndexRoute
   '/recruiter': typeof RecruiterIndexRoute
@@ -692,6 +700,7 @@ export interface FileRoutesById {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
+  '/u/$username': typeof UUsernameRoute
   '/admin/': typeof AdminIndexRoute
   '/evaluation/': typeof EvaluationIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
@@ -773,6 +782,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/u/$username'
     | '/admin/'
     | '/evaluation/'
     | '/recruiter/'
@@ -848,6 +858,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/u/$username'
     | '/admin'
     | '/evaluation'
     | '/recruiter'
@@ -927,6 +938,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/u/$username'
     | '/admin/'
     | '/evaluation/'
     | '/recruiter/'
@@ -986,6 +998,7 @@ export interface RootRouteChildren {
   GithubCallbackRoute: typeof GithubCallbackRoute
   LinkedinCallbackRoute: typeof LinkedinCallbackRoute
   MockInterviewSlugRoute: typeof MockInterviewSlugRoute
+  UUsernameRoute: typeof UUsernameRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
   SharedReportTokenRoute: typeof SharedReportTokenRoute
   PublicMilestoneSlugUserIdRoute: typeof PublicMilestoneSlugUserIdRoute
@@ -1153,6 +1166,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/u/$username': {
+      id: '/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof UUsernameRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/student/profile': {
       id: '/student/profile'
@@ -1805,6 +1825,7 @@ const rootRouteChildren: RootRouteChildren = {
   GithubCallbackRoute: GithubCallbackRoute,
   LinkedinCallbackRoute: LinkedinCallbackRoute,
   MockInterviewSlugRoute: MockInterviewSlugRoute,
+  UUsernameRoute: UUsernameRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
   SharedReportTokenRoute: SharedReportTokenRoute,
   PublicMilestoneSlugUserIdRoute: PublicMilestoneSlugUserIdRoute,

@@ -13,11 +13,13 @@ export type ProfileTab = "overview" | "performance" | "connections" | "security"
 export interface ProfileViewProps {
   activeTab: ProfileTab;
   onTabChange: (tab: string) => void;
+  isOwner?: boolean;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
   activeTab,
   onTabChange,
+  isOwner = true,
 }) => {
   const { profile, loading } = useProfileStore();
 
@@ -25,12 +27,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     return <ProfilePageSkeleton activeTab={activeTab === "overview" ? "profile" : activeTab} />;
   }
 
-  const TABS: { id: ProfileTab; label: string }[] = [
-    { id: "overview", label: "Overview" },
-    { id: "performance", label: "Performance" },
-    { id: "connections", label: "Connections" },
-    { id: "security", label: "Security" },
-  ];
+  const TABS: { id: ProfileTab; label: string }[] = isOwner
+    ? [
+        { id: "overview", label: "Overview" },
+        { id: "performance", label: "Performance" },
+        { id: "connections", label: "Connections" },
+        { id: "security", label: "Security" },
+      ]
+    : [
+        { id: "overview", label: "Overview" },
+      ];
 
   return (
     <div className="yuvro-profile-theme min-h-screen bg-bg text-ink antialiased selection:bg-primary-subtle selection:text-primary">
@@ -50,7 +56,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               boxSizing: "border-box",
             }}
           >
-            <IdentityPanel onNavigateTab={onTabChange} />
+            <IdentityPanel onNavigateTab={onTabChange} isOwner={isOwner} />
           </div>
 
           {/* Right Main Column: Sticky Tab Bar + Content */}
@@ -86,14 +92,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <main>
               <div key={activeTab} className="animate-fade-in">
                 {activeTab === "overview" && (
-                  <ProfilePage onNavigateTab={onTabChange} />
+                  <ProfilePage onNavigateTab={onTabChange} isOwner={isOwner} />
                 )}
 
-                {activeTab === "performance" && <PerformancePage />}
+                {activeTab === "performance" && isOwner && <PerformancePage />}
 
-                {activeTab === "connections" && <ConnectionsTab />}
+                {activeTab === "connections" && isOwner && <ConnectionsTab />}
 
-                {activeTab === "security" && <SecurityTab />}
+                {activeTab === "security" && isOwner && <SecurityTab />}
               </div>
             </main>
           </div>

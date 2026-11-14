@@ -1079,6 +1079,136 @@ def public_milestone_view(request, slug, user_id):
             "sprints": sprint_data,
         }
     })
+
+
+@api_view(["GET"])
+@permission_classes([])
+def public_user_stats_view(request, username):
+    clean_username = (username or "").strip()
+    if not clean_username:
+        return Response({"error": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    from django.contrib.auth import get_user_model
+    UserModel = get_user_model()
+    student = UserModel.objects.filter(username__iexact=clean_username).first()
+
+    default_stats = {
+        "labsCompleted": 0,
+        "sprintsShipped": 0,
+        "ticketsClosed": 0,
+        "mockInterviews": 0,
+        "stats": {
+            "total": 0,
+            "activeDays": 0,
+            "currentStreak": 0,
+            "longestStreak": 0,
+        },
+        "activityDates": [],
+        "verifiedSkills": [],
+    }
+
+    if not student:
+        return Response(default_stats, status=status.HTTP_200_OK)
+
+    submissions = list(UserLabSprintTicketSubmission.objects.filter(
+        user=student,
+        ticket_status__in=['in_review', 'done']
+    ).select_related('lab_sprint_ticket', 'lab_sprint_ticket__sprint', 'lab_sprint_ticket__sprint__lab'))
+
+    closed_submissions = [s for s in submissions if s.ticket_status == 'done']
+    tickets_closed = len(closed_submissions)
+
+    sprint_set = set()
+    for s in submissions:
+        sprint_id = getattr(s, 'sprint_id', None) or (s.lab_sprint_ticket.sprint_id if s.lab_sprint_ticket else None)
+        if sprint_id:
+            sprint_set.add(str(sprint_id))
+    sprints_shipped = len(sprint_set)
+
+    # Count completed labs: labs where user has completed all tickets
+    completed_enrollments = 0
+    enrollments = UserLabEnrollment.objects.filter(user=student).select_related('lab')
+    for enr in enrollments:
+        lab = enr.lab
+        total_tickets = LabSprintTicket.objects.filter(sprint__lab=lab).count()
+        if total_tickets > 0:
+            done_tickets = sum(1 for s in closed_submissions if s.lab_sprint_ticket and s.lab_sprint_ticket.sprint and s.lab_sprint_ticket.sprint.lab_id == lab.id)
+            if done_tickets >= total_tickets:
+                completed_enrollments += 1
+
+    activities = list(UserLabActivity.objects.filter(user=student).values_list('date', flat=True))
+    sorted_dates = sorted(activities, reverse=True)
+
+    today = timezone.now().date()
+    yesterday = today - timedelta(days=1)
+    streak = 0
+    if sorted_dates and sorted_dates[0] == today:
+        streak = 1
+        current_check = yesterday
+        for d in sorted_dates[1:]:
+            if d == current_check:
+                streak += 1
+                current_check -= timedelta(days=1)
+            else:
+                break
+    elif sorted_dates and sorted_dates[0] == yesterday:
+        streak = 1
+        current_check = yesterday - timedelta(days=1)
+        for d in sorted_dates[1:]:
+            if d == current_check:
+                streak += 1
+                current_check -= timedelta(days=1)
+            else:
+                break
+
+    count_per_lab = {}
+    lab_names = {}
+    for s in submissions:
+        lab_obj = None
+        if s.lab_sprint_ticket and s.lab_sprint_ticket.sprint and s.lab_sprint_ticket.sprint.lab:
+            lab_obj = s.lab_sprint_ticket.sprint.lab
+        lab_id = str(lab_obj.id) if lab_obj else "core"
+        lab_name = lab_obj.title if lab_obj else "Engineering Lab"
+        count_per_lab[lab_id] = count_per_lab.get(lab_id, 0) + 1
+        lab_names[lab_id] = lab_name
+
+    verified_skills = []
+    for lab_id, count in count_per_lab.items():
+        level = "Advanced" if count >= 15 else ("Intermediate" if count >= 5 else "Beginner")
+        verified_skills.append({
+            "id": f"vs-{lab_id}",
+            "name": lab_names.get(lab_id, f"Engineering Lab #{lab_id}"),
+            "level": level,
+            "tasksCount": count,
+        })
+
+    event_dates = []
+    for d in sorted_dates:
+        event_dates.append(d.isoformat())
+    for s in submissions:
+        dt = s.updated_at or s.created_at
+        if dt:
+            event_dates.append(dt.isoformat() if hasattr(dt, 'isoformat') else str(dt))
+
+    unique_active_days = len(set(d.split("T")[0] for d in event_dates))
+    total_contributions = len(event_dates)
+
+    return Response({
+        "labsCompleted": completed_enrollments,
+        "sprintsShipped": sprints_shipped,
+        "ticketsClosed": tickets_closed,
+        "mockInterviews": 0,
+        "stats": {
+            "total": total_contributions,
+            "activeDays": unique_active_days,
+            "currentStreak": streak,
+            "longestStreak": streak,
+        },
+        "activityDates": event_dates,
+        "verifiedSkills": verified_skills,
+    }, status=status.HTTP_200_OK)
+
+
 class SystemDesignViewSet(viewsets.ModelViewSet):
     serializer_class = SystemDesignSerializer
     permission_classes = [IsAuthenticated]

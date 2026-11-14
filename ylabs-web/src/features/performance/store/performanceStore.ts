@@ -8,6 +8,7 @@ interface PerformanceStoreState {
   error: string | null;
   fetchPerformance: (force?: boolean) => Promise<PerformanceStats | null>;
   setPerformanceData: (data: PerformanceStats) => void;
+  fetchPublicPerformance: (username: string) => Promise<PerformanceStats | null>;
 }
 
 export const usePerformanceStore = create<PerformanceStoreState>((set, get) => ({
@@ -31,4 +32,16 @@ export const usePerformanceStore = create<PerformanceStoreState>((set, get) => (
   },
 
   setPerformanceData: (data: PerformanceStats) => set({ data }),
+
+  fetchPublicPerformance: async (username: string) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await performanceApi.getPublicPerformance(username);
+      set({ data: res, loading: false });
+      return res;
+    } catch (err: any) {
+      set({ error: err.message || "Failed to load performance", loading: false });
+      return null;
+    }
+  },
 }));
