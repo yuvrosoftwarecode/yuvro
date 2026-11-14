@@ -47,6 +47,9 @@ YCode frontend: http://localhost:3000/
 YCampus frontend: http://localhost:3001/
 YLabs frontend: http://localhost:3002/
 
+Public Profile Base URL:
+- `VITE_PUBLIC_PROFILE_BASE_URL`: Base URL used for canonical public profile links and share text (e.g. `https://yuvro.com` in production, `http://localhost:3002` in development). Configured via `VITE_PUBLIC_PROFILE_BASE_URL` in frontend `.env` files and `PUBLIC_PROFILE_BASE_URL` in backend settings.
+
 YCode backend health: http://localhost:8000/api/health/
 YCampus backend health: http://localhost:8001/api/health/
 YLabs backend health: http://localhost:8002/api/health/

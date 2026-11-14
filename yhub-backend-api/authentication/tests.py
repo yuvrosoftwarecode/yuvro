@@ -1,5 +1,7 @@
 from django.test import TestCase, RequestFactory
 from django.core.exceptions import ValidationError
+from django.core.cache import cache
+from django.db import IntegrityError
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -318,4 +320,496 @@ class UserAdminTests(TestCase):
         recruiter_qs = rf_recruiter.queryset(request, User.objects.all())
         self.assertIn(user_recruiter, recruiter_qs)
         self.assertNotIn(user_admin, recruiter_qs)
+
+
+class UsernameAvailabilityTests(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_user(
+            username="existinguser",
+            email="existing@example.com",
+            password="testpassword123",
+        )
+
+    def test_available_username(self):
+        from authentication.views import check_username_view
+        request = self.factory.get("/api/auth/check-username/", {"username": "brandnewuser"})
+        response = check_username_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"available": True, "message": "Username is available"})
+
+    def test_already_registered_username(self):
+        from authentication.views import check_username_view
+        request = self.factory.get("/api/auth/check-username/", {"username": "existinguser"})
+        response = check_username_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"available": False, "message": "Username is already taken"})
+
+    def test_case_insensitive_registered_username(self):
+        from authentication.views import check_username_view
+        request = self.factory.get("/api/auth/check-username/", {"username": "EXISTINGUSER"})
+        response = check_username_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"available": False, "message": "Username is already taken"})
+
+    def test_empty_username(self):
+        from authentication.views import check_username_view
+        request = self.factory.get("/api/auth/check-username/", {"username": ""})
+        response = check_username_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"available": False, "message": "Invalid username"})
+
+    def test_invalid_username_short(self):
+        from authentication.views import check_username_view
+        request = self.factory.get("/api/auth/check-username/", {"username": "ab"})
+        response = check_username_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"available": False, "message": "Invalid username"})
+
+    def test_invalid_username_symbols(self):
+        from authentication.views import check_username_view
+        for invalid_un in ["-leadingsymbol", "trailingsymbol-", "double--hyphen", "bad space", "bad@char"]:
+            request = self.factory.get("/api/auth/check-username/", {"username": invalid_un})
+            response = check_username_view(request)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, {"available": False, "message": "Invalid username"}, f"Failed for {invalid_un}")
+
+    def test_authenticated_user_own_username_is_available(self):
+        from rest_framework.test import APIRequestFactory, force_authenticate
+        from authentication.views import check_username_view
+        api_factory = APIRequestFactory()
+        request = api_factory.get("/api/auth/check-username/", {"username": "existinguser"})
+        force_authenticate(request, user=self.user)
+        response = check_username_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"available": True, "message": "Username is available"})
+
+    def test_database_constraint_case_insensitive_unique(self):
+        from django.db import IntegrityError
+        with self.assertRaises(IntegrityError):
+            User.objects.create_user(
+                username="EXISTINGUSER",
+                email="another@example.com",
+                password="password123",
+            )
+
+    def test_registration_serializer_case_insensitive_duplicate(self):
+        from authentication.serializers import UserRegistrationSerializer
+        data = {
+            "username": "EXISTINGUSER",
+            "email": "fresh@example.com",
+            "password": "ValidPassword123",
+            "password_confirm": "ValidPassword123",
+        }
+        serializer = UserRegistrationSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("username", serializer.errors)
+
+
+class EmailAvailabilityTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="existinguser",
+            email="existing@example.com",
+            password="testpassword123",
+        )
+
+    def test_available_email(self):
+        from rest_framework.test import APIRequestFactory
+        from authentication.views import check_email_view
+        factory = APIRequestFactory()
+        request = factory.get("/api/auth/check-email/", {"email": "brandnew@example.com"})
+        response = check_email_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"available": True, "message": "Email is available"})
+
+    def test_already_registered_email(self):
+        from rest_framework.test import APIRequestFactory
+        from authentication.views import check_email_view
+        factory = APIRequestFactory()
+        request = factory.get("/api/auth/check-email/", {"email": "existing@example.com"})
+        response = check_email_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["available"], False)
+        self.assertIn("already associated with an account", response.data["message"])
+
+    def test_case_insensitive_registered_email(self):
+        from rest_framework.test import APIRequestFactory
+        from authentication.views import check_email_view
+        factory = APIRequestFactory()
+        request = factory.get("/api/auth/check-email/", {"email": "EXISTING@EXAMPLE.COM"})
+        response = check_email_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["available"], False)
+        self.assertIn("already associated with an account", response.data["message"])
+
+    def test_empty_email(self):
+        from rest_framework.test import APIRequestFactory
+        from authentication.views import check_email_view
+        factory = APIRequestFactory()
+        request = factory.get("/api/auth/check-email/", {"email": ""})
+        response = check_email_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"available": False, "message": "Please enter a valid email address."})
+
+    def test_invalid_email_format(self):
+        from rest_framework.test import APIRequestFactory
+        from authentication.views import check_email_view
+        factory = APIRequestFactory()
+        for invalid_email in ["notanemail", "user@", "@domain.com", "user@domain"]:
+            request = factory.get("/api/auth/check-email/", {"email": invalid_email})
+            response = check_email_view(request)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, {"available": False, "message": "Please enter a valid email address."})
+
+    def test_authenticated_user_own_email_is_available(self):
+        from rest_framework.test import APIRequestFactory, force_authenticate
+        from authentication.views import check_email_view
+        factory = APIRequestFactory()
+        request = factory.get("/api/auth/check-email/", {"email": "existing@example.com"})
+        force_authenticate(request, user=self.user)
+        response = check_email_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {"available": True, "message": "Email is available"})
+
+    def test_database_constraint_case_insensitive_unique_email(self):
+        from django.db import IntegrityError
+        with self.assertRaises(IntegrityError):
+            User.objects.create_user(
+                username="anotheruser",
+                email="EXISTING@EXAMPLE.COM",
+                password="password123",
+            )
+
+    def test_registration_serializer_case_insensitive_duplicate_email(self):
+        from authentication.serializers import UserRegistrationSerializer
+        data = {
+            "username": "freshuser",
+            "email": "EXISTING@EXAMPLE.COM",
+            "password": "ValidPassword123",
+            "password_confirm": "ValidPassword123",
+        }
+        serializer = UserRegistrationSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("email", serializer.errors)
+
+
+class ForgotPasswordOtpTests(TestCase):
+    def setUp(self):
+        from rest_framework.test import APIRequestFactory
+        self.factory = APIRequestFactory()
+        self.user = User.objects.create_user(
+            username="resetuser",
+            email="resetuser@example.com",
+            password="OldPassword123!",
+        )
+
+    def test_send_code_existing_user(self):
+        from authentication.views import send_forgot_password_code_view
+        from authentication.models import RegistrationOTP
+        request = self.factory.post(
+            "/api/auth/forgot-password/send-code/",
+            {"email": "resetuser@example.com"},
+            format="json",
+        )
+        response = send_forgot_password_code_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["status"], "success")
+
+        otp_rec = RegistrationOTP.objects.filter(
+            email="resetuser@example.com",
+            resource_id="forgot_password",
+            resource_type="password_reset",
+        ).first()
+        self.assertIsNotNone(otp_rec)
+        self.assertEqual(len(otp_rec.otp), 6)
+        self.assertTrue(otp_rec.otp.isdigit())
+
+    def test_send_code_case_insensitive_email(self):
+        from authentication.views import send_forgot_password_code_view
+        from authentication.models import RegistrationOTP
+        request = self.factory.post(
+            "/api/auth/forgot-password/send-code/",
+            {"email": "RESETUSER@EXAMPLE.COM"},
+            format="json",
+        )
+        response = send_forgot_password_code_view(request)
+        self.assertEqual(response.status_code, 200)
+
+        otp_rec = RegistrationOTP.objects.filter(
+            email="resetuser@example.com",
+            resource_id="forgot_password",
+        ).first()
+        self.assertIsNotNone(otp_rec)
+
+    def test_send_code_non_existent_email_is_enumeration_safe(self):
+        from authentication.views import send_forgot_password_code_view
+        from authentication.models import RegistrationOTP
+        request = self.factory.post(
+            "/api/auth/forgot-password/send-code/",
+            {"email": "nobody@example.com"},
+            format="json",
+        )
+        response = send_forgot_password_code_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["status"], "success")
+        self.assertFalse(
+            RegistrationOTP.objects.filter(email="nobody@example.com").exists()
+        )
+
+    def test_send_code_invalid_email_format(self):
+        from authentication.views import send_forgot_password_code_view
+        request = self.factory.post(
+            "/api/auth/forgot-password/send-code/",
+            {"email": "invalid-email"},
+            format="json",
+        )
+        response = send_forgot_password_code_view(request)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.data)
+
+    def test_verify_code_success(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from authentication.views import verify_forgot_password_code_view
+        from authentication.models import RegistrationOTP
+
+        RegistrationOTP.objects.create(
+            email=self.user.email,
+            resource_id="forgot_password",
+            resource_type="password_reset",
+            otp="654321",
+            expires_at=timezone.now() + timedelta(minutes=5),
+        )
+
+        request = self.factory.post(
+            "/api/auth/forgot-password/verify-code/",
+            {"email": self.user.email, "code": "654321"},
+            format="json",
+        )
+        response = verify_forgot_password_code_view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["status"], "success")
+        self.assertIn("token", response.data)
+        self.assertIn("uidb64", response.data)
+
+    def test_verify_code_incorrect(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from authentication.views import verify_forgot_password_code_view
+        from authentication.models import RegistrationOTP
+
+        RegistrationOTP.objects.create(
+            email=self.user.email,
+            resource_id="forgot_password",
+            resource_type="password_reset",
+            otp="654321",
+            expires_at=timezone.now() + timedelta(minutes=5),
+        )
+
+        request = self.factory.post(
+            "/api/auth/forgot-password/verify-code/",
+            {"email": self.user.email, "code": "000000"},
+            format="json",
+        )
+        response = verify_forgot_password_code_view(request)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.data)
+
+    def test_verify_code_expired(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from authentication.views import verify_forgot_password_code_view
+        from authentication.models import RegistrationOTP
+
+        RegistrationOTP.objects.create(
+            email=self.user.email,
+            resource_id="forgot_password",
+            resource_type="password_reset",
+            otp="654321",
+            expires_at=timezone.now() - timedelta(minutes=1),
+        )
+
+        request = self.factory.post(
+            "/api/auth/forgot-password/verify-code/",
+            {"email": self.user.email, "code": "654321"},
+            format="json",
+        )
+        response = verify_forgot_password_code_view(request)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.data)
+
+    def test_reset_password_with_token(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from django.contrib.auth import authenticate
+        from authentication.views import verify_forgot_password_code_view, reset_password_with_code_view
+        from authentication.models import RegistrationOTP
+
+        RegistrationOTP.objects.create(
+            email=self.user.email,
+            resource_id="forgot_password",
+            resource_type="password_reset",
+            otp="112233",
+            expires_at=timezone.now() + timedelta(minutes=5),
+        )
+
+        # 1. Verify code
+        verify_req = self.factory.post(
+            "/api/auth/forgot-password/verify-code/",
+            {"email": self.user.email, "code": "112233"},
+            format="json",
+        )
+        verify_res = verify_forgot_password_code_view(verify_req)
+        token = verify_res.data["token"]
+        uidb64 = verify_res.data["uidb64"]
+
+        # 2. Reset password
+        new_pw = "BrandNewPassword123!"
+        reset_req = self.factory.post(
+            "/api/auth/forgot-password/reset-with-code/",
+            {
+                "email": self.user.email,
+                "code": "112233",
+                "token": token,
+                "uidb64": uidb64,
+                "password": new_pw,
+            },
+            format="json",
+        )
+        reset_res = reset_password_with_code_view(reset_req)
+        self.assertEqual(reset_res.status_code, 200)
+        self.assertEqual(reset_res.data["status"], "success")
+        self.assertIn("access", reset_res.data)
+        self.assertIn("refresh", reset_res.data)
+        self.assertIn("user", reset_res.data)
+        self.assertEqual(reset_res.data["user"]["email"], self.user.email)
+
+        # 3. Check authentication with new password
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(new_pw))
+        authed = authenticate(username=self.user.email, password=new_pw)
+        self.assertIsNotNone(authed)
+
+        # 4. Check OTP record deleted
+        self.assertFalse(
+            RegistrationOTP.objects.filter(
+                email=self.user.email,
+                resource_id="forgot_password",
+            ).exists()
+        )
+
+        # 5. Token cannot be reused
+        reuse_req = self.factory.post(
+            "/api/auth/forgot-password/reset-with-code/",
+            {
+                "email": self.user.email,
+                "token": token,
+                "password": "AnotherPassword123!",
+            },
+            format="json",
+        )
+        reuse_res = reset_password_with_code_view(reuse_req)
+        self.assertEqual(reuse_res.status_code, 400)
+
+
+class ProfileV32Tests(TestCase):
+    def setUp(self):
+        cache.clear()
+        from rest_framework.test import APIClient
+        self.client = APIClient()
+        self.user1 = User.objects.create_user(
+            username="alexstudent",
+            email="alex@yuvrolabs.com",
+            password="Password123!",
+        )
+        self.user2 = User.objects.create_user(
+            username="manikanta",
+            email="manikanta@yuvrolabs.com",
+            password="Password123!",
+        )
+        self.client.force_authenticate(user=self.user1)
+
+    def test_username_available_endpoint_taken_and_free(self):
+        # Already taken
+        res = self.client.get("/me/username-available?username=manikanta")
+        self.assertEqual(res.status_code, 200)
+        self.assertFalse(res.data["available"])
+        self.assertEqual(res.data["reason"], "taken")
+
+        # Case variant of taken
+        res = self.client.get("/me/username-available?username=MANIKANTA")
+        self.assertEqual(res.status_code, 200)
+        self.assertFalse(res.data["available"])
+        self.assertEqual(res.data["reason"], "taken")
+
+        # Own username (authenticated)
+        res = self.client.get("/me/username-available?username=alexstudent")
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res.data["available"])
+
+        # Free username
+        res = self.client.get("/me/username-available?username=brandnewuser")
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(res.data["available"])
+
+    def test_username_available_reserved_and_invalid(self):
+        for name in ["admin", "root", "support", "yuvro", "api", "www", "settings", "login", "signup", "u", "me"]:
+            res = self.client.get(f"/me/username-available?username={name}")
+            self.assertEqual(res.status_code, 200)
+            self.assertFalse(res.data["available"])
+            self.assertEqual(res.data["reason"], "reserved")
+
+        # Invalid formats
+        for bad in ["a", "ab", "toolongusername12345678901234567890", "has spaces", "-startdash", "enddash-", "consecutive--dashes"]:
+            res = self.client.get(f"/me/username-available?username={bad}")
+            self.assertEqual(res.status_code, 200)
+            self.assertFalse(res.data["available"])
+            self.assertEqual(res.data["reason"], "invalid")
+
+    def test_username_available_throttled(self):
+        cache.clear()
+        from rest_framework.test import APIClient
+        client = APIClient()
+        # 30 requests should succeed
+        for i in range(30):
+            res = client.get(f"/me/username-available?username=testuser{i}")
+            self.assertEqual(res.status_code, 200)
+        # 31st request should be throttled
+        res = client.get("/me/username-available?username=testuser31")
+        self.assertEqual(res.status_code, 429)
+
+    def test_patch_user_email_is_read_only(self):
+        orig_email = self.user1.email
+        res = self.client.patch(
+            "/api/auth/user/",
+            {"email": "changed@attacker.com", "first_name": "UpdatedAlex"},
+            format="json",
+        )
+        self.assertEqual(res.status_code, 200)
+        self.user1.refresh_from_db()
+        self.assertEqual(self.user1.email, orig_email)
+        self.assertEqual(self.user1.first_name, "UpdatedAlex")
+
+    def test_patch_username_conflict_returns_409(self):
+        res = self.client.patch(
+            "/api/auth/user/",
+            {"username": "manikanta"},
+            format="json",
+        )
+        self.assertEqual(res.status_code, 409)
+        self.assertEqual(res.data.get("field"), "username")
+        self.assertEqual(res.data.get("code"), "taken")
+
+    def test_case_insensitive_unique_constraint_db(self):
+        with self.assertRaises(IntegrityError):
+            User.objects.create_user(
+                username="ALEXSTUDENT",
+                email="alex2@yuvrolabs.com",
+                password="Password123!",
+            )
+
+
+
+
 

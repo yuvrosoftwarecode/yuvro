@@ -1,8 +1,5 @@
 import InterviewReport, { type Report, type AttemptItem, IR_CSS } from "@/components/InterviewReport";
 import {
-  captureInterviewReport,
-  readInterviewReport,
-  readInterviewReportHistory,
   submissionToReport,
 } from "@/lib/mockInterviewReports";
 import { Button } from "@/components/ui/button";
@@ -20,7 +17,6 @@ import {
   MessageSquare,
   Code2,
   Loader2,
-  BrainCircuit,
   RotateCcw,
   CheckCircle2,
   Sparkles,
@@ -535,17 +531,12 @@ function fmt(s: number) {
 }
 
 function CapturedReport({
-  slug,
-  report,
   children,
 }: {
-  slug: string;
-  report: Report;
+  slug?: string;
+  report?: Report;
   children: React.ReactNode;
 }) {
-  useEffect(() => {
-    captureInterviewReport(slug, report);
-  }, [slug, report]);
   return <>{children}</>;
 }
 
@@ -553,7 +544,7 @@ function InterviewScreen() {
   const iv = Route.useLoaderData();
   const navigate = useNavigate();
   const { report: showReport } = Route.useSearch();
-  const [savedReport, setSavedReport] = useState<Report | null>(() => readInterviewReport(iv.slug));
+  const [savedReport, setSavedReport] = useState<Report | null>(null);
   const [submissions, setSubmissions] = useState<any[]>(() => iv.mySubmissions || []);
   const [isLoadingSubmissions, setIsLoadingSubmissions] = useState(false);
   const [selectedAttemptId, setSelectedAttemptId] = useState<string | null>(null);
@@ -563,6 +554,18 @@ function InterviewScreen() {
   const [buyModalNote, setBuyModalNote] = useState<string | null>(null);
 
   const backendId = iv.backendId || (iv.slug.length > 20 ? iv.slug : null);
+
+  useEffect(() => {
+    // Purge any legacy client-side storage keys for mock interviews
+    try {
+      localStorage.removeItem("yuvro-mock-interviews-enrolled");
+      localStorage.removeItem("yuvro_real_mock_interviews_enrolled");
+      localStorage.removeItem(`yuvro-mock-interview-report:${iv.slug}`);
+      localStorage.removeItem(`yuvro-mock-interview-history:${iv.slug}`);
+      sessionStorage.removeItem(`yuvro-mock-interview-report:${iv.slug}`);
+      sessionStorage.removeItem(`yuvro-mock-interview-history:${iv.slug}`);
+    } catch {}
+  }, [iv.slug]);
 
   useEffect(() => {
     fetchMockInterviewQuota().then((q) => {
@@ -609,7 +612,7 @@ function InterviewScreen() {
       });
     });
 
-    // 2. Active saved report from current session if not yet in backend submissions
+    // 2. Newly completed session report in current component memory if not yet reflected in backend submissions
     if (savedReport) {
       const isAlreadyIncluded = list.some(
         (it) =>
@@ -631,30 +634,6 @@ function InterviewScreen() {
         });
       }
     }
-
-    // 3. Local report history cache
-    const history = readInterviewReportHistory(iv.slug);
-    history.forEach((h) => {
-      const exists = list.some(
-        (it) =>
-          it.id === h.id ||
-          (it.date === h.date && it.duration === h.duration && it.score === h.score)
-      );
-      if (!exists) {
-        list.push({
-          id: h.id || `loc-${list.length}`,
-          attemptNumber: 0,
-          date: h.date,
-          duration: h.duration,
-          score: h.score,
-          status: "completed",
-          summary: h.summary,
-          strength: h.strength,
-          focus: h.focus,
-          report: h,
-        });
-      }
-    });
 
     // Assign attempt numbers: newest attempt gets total, oldest gets #1
     const total = list.length;
@@ -1043,7 +1022,9 @@ function InterviewScreen() {
       return (
         <Shell title={iv.name}>
           <div className="mx-auto max-w-xl px-6 py-24 text-center">
-            <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+            <div className="mx-auto mb-5 flex items-center justify-center">
+              <img src={YuvroLogo} alt="Yuvro" className="h-16 w-16 object-contain animate-pulse" />
+            </div>
             <h2 className="mt-4 text-base font-semibold">Loading interview attempts and report...</h2>
           </div>
         </Shell>
@@ -1149,6 +1130,9 @@ function InterviewScreen() {
                 <h1 className="ir-h1">{iv.name}</h1>
                 <p className="ir-meta">Interview report · Finalizing report · {todayStr}</p>
               </div>
+              <div className="flex items-center gap-2">
+                <img src={YuvroLogo} alt="Yuvro Labs" className="h-7 w-auto object-contain" />
+              </div>
             </header>
 
             <div
@@ -1165,11 +1149,12 @@ function InterviewScreen() {
                 marginTop: "8px",
               }}
             >
-              <div className="relative flex items-center justify-center">
-                <div className="absolute h-28 w-28 animate-ping rounded-full bg-[#4a7bdc]/20" />
-                <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl border border-[#4a7bdc]/40 bg-[#1b2546] shadow-xl backdrop-blur">
-                  <BrainCircuit className="h-10 w-10 animate-pulse text-[#4a7bdc]" />
-                </div>
+              <div className="flex items-center justify-center">
+                <img
+                  src={YuvroLogo}
+                  alt="Yuvro"
+                  className="h-16 w-16 object-contain animate-pulse"
+                />
               </div>
 
               <h2
@@ -1209,7 +1194,7 @@ function InterviewScreen() {
                   boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                 }}
               >
-                <Loader2 className="h-4 w-4 animate-spin text-[#4a7bdc]" />
+                <Loader2 className="h-4 w-4 animate-spin text-[#f7931e]" />
                 <span>Analyzing interview answers and conversation flow...</span>
               </div>
             </div>
@@ -1343,8 +1328,6 @@ function InterviewScreen() {
           }
           onSelectAttempt={handleSelectAttempt}
           onBack={() => {
-            captureInterviewReport(iv.slug, report);
-            setSavedReport(report);
             navigate({ to: "/mock-interviews" });
           }}
           onTryAgain={() => {
@@ -1358,6 +1341,7 @@ function InterviewScreen() {
             setSessionId(null);
             setSubmissionId(null);
             setBackendReportData(null);
+            setSavedReport(null);
             setQuestionType("behavioral");
             setViewingReportOverride(null);
             setSelectedAttemptId(null);
@@ -2496,7 +2480,7 @@ function Shell({
 }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b bg-background/90 px-4 backdrop-blur">
+      <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-border bg-background px-4">
         <div className="flex items-center gap-3">
           <Link to="/mock-interviews" className="rounded-md p-1.5 hover:bg-muted">
             <ArrowLeft className="h-4 w-4" />

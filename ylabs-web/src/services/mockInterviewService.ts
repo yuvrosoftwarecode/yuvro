@@ -1,5 +1,5 @@
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
-import { type Category, type Diff, type Interview, INTERVIEWS } from "@/lib/mockInterviews";
+import { type Category, type Diff, type Interview } from "@/lib/mockInterviews";
 
 export interface BackendQuestionNode {
   id: string;
@@ -359,26 +359,10 @@ export async function fetchBackendMockInterviews(
 
       const mapped = filteredList.map(mapBackendToInterview);
 
-      // Ensure default featured ylabs interviews like MongoDB Development are present
-      if (product.toLowerCase().trim() === "ylabs") {
-        const hasMongo = mapped.some(
-          (m) => m.name.toLowerCase().includes("mongodb") || m.slug.includes("mongodb")
-        );
-        if (!hasMongo) {
-          const mongoFallback = INTERVIEWS.find((i) => i.slug === "mongodb-development");
-          if (mongoFallback) {
-            mapped.push(mongoFallback);
-          }
-        }
-      }
-
       interviewCache.set(cacheKey, { data: mapped, timestamp: Date.now() });
       return mapped;
     } catch (err) {
       console.error("Failed to load real mock interviews from backend:", err);
-      if (product.toLowerCase().trim() === "ylabs") {
-        return INTERVIEWS.filter((i) => (i.products || []).includes("ylabs"));
-      }
       return [];
     } finally {
       inFlightInterviews.delete(cacheKey);
@@ -405,11 +389,7 @@ export async function fetchMockInterviewBySlugOrId(slugOrId: string): Promise<In
     } catch {}
   }
 
-  return (
-    INTERVIEWS.find(
-      (i) => i.slug === slugOrId || i.backendId === slugOrId || slugifyTitle(i.name) === slugOrId
-    ) || null
-  );
+  return null;
 }
 
 export async function fetchUserInterviewSubmissions(

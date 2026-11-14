@@ -10,7 +10,9 @@ import { getSystemDesignLab } from "@/lib/systemDesign";
 import { SystemDesignStudio } from "@/routes/system-design-studio";
 import { getLab } from "@/lib/adminLabs";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { EditorView } from "@codemirror/view";
+import { EditorView, keymap, MatchDecorator, ViewPlugin, Decoration } from "@codemirror/view";
+import { defaultHighlightStyle, syntaxTree } from "@codemirror/language";
+import { tags as t } from "@lezer/highlight";
 import { useTheme } from "@/hooks/use-theme";
 import {
   fetchFileTree,
@@ -25,6 +27,7 @@ import {
 import codeExecutorService, { isTaskHidden } from "@/services/codeExecutorService";
 import { CustomTestCaseManager } from "@/components/CustomTestCaseManager";
 import { ExecutionOutputView } from "@/components/ExecutionOutputView";
+import { formatSourceCode } from "@/lib/codeFormatter";
 import { TopNav } from "@/components/TopNav";
 import useAIChat from "@/components/common/ai-buddy/useAIChat";
 import { WalletBalanceBadge } from "@/components/credits/WalletBalanceBadge";
@@ -40,11 +43,14 @@ import { executeExternalDbQuery, fetchExternalDbSchema } from "@/services/codeEx
 import { useAuth } from "@/lib/auth";
 import {
   Play, Save, Send, Lightbulb, AlertTriangle, ChevronRight, ChevronDown, ChevronLeft,
-  FileCode2, Folder, FolderOpen, Search, GitBranch, Bug, Package, Settings,
+  FileCode2, Folder, FolderOpen, Search, GitBranch, Package, Settings,
   CircleDot, Terminal as TerminalIcon, CheckCircle2, XCircle, Clock, Zap,
   MessageSquare, Lock, Unlock, RotateCcw, Copy, Share2, Flag, HelpCircle,
   Sparkles, Gauge, Wand2, Globe, Check, ArrowLeft, PanelLeftClose, PanelLeftOpen, BookOpen,
   FilePlus, FolderPlus, Pencil, Trash2, X, FlaskConical, Key, Shield, Download,
+  PanelBottom, ListChecks, SquareTerminal, Bot, ChevronUp,
+  GitCommit, Plus, Minus, Undo2, RefreshCw, MoreHorizontal,
+  FileText, FileDiff, Database,
 } from "lucide-react";
 
 import CodeMirror from "@uiw/react-codemirror";
@@ -58,6 +64,38 @@ import { css } from "@codemirror/lang-css";
 import { json as jsonLang } from "@codemirror/lang-json";
 import { cpp } from "@codemirror/lang-cpp";
 import { vscodeDark, vscodeLight } from "@uiw/codemirror-theme-vscode";
+
+function makeHighlightStyleSafe(themeOrStyle: any) {
+  if (!themeOrStyle) return themeOrStyle;
+  if (Array.isArray(themeOrStyle)) {
+    themeOrStyle.forEach((item) => makeHighlightStyleSafe(item));
+    return themeOrStyle;
+  }
+  if (themeOrStyle.value && themeOrStyle.value.style) {
+    const hs = themeOrStyle.value;
+    if (!hs._safe) {
+      const orig = hs.style.bind(hs);
+      hs.style = (tags: any) => {
+        if (!tags || typeof tags[Symbol.iterator] !== "function") return null;
+        return orig(tags);
+      };
+      hs._safe = true;
+    }
+  }
+  if (themeOrStyle.style && !themeOrStyle._safe) {
+    const orig = themeOrStyle.style.bind(themeOrStyle);
+    themeOrStyle.style = (tags: any) => {
+      if (!tags || typeof tags[Symbol.iterator] !== "function") return null;
+      return orig(tags);
+    };
+    themeOrStyle._safe = true;
+  }
+  return themeOrStyle;
+}
+
+makeHighlightStyleSafe(vscodeDark);
+makeHighlightStyleSafe(vscodeLight);
+makeHighlightStyleSafe(defaultHighlightStyle);
 import {
   ContextMenu,
   ContextMenuContent,
@@ -1140,7 +1178,7 @@ function CodeTicketView({
                   : "Beginner",
             xp: t.yuvro_points ?? 100,
             estMin: t.minutes_max ?? 30,
-            tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "bash",
+            tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "",
             status: "in_progress",
             startup_command: t.startup_command || t.scoring_rules?.startup_command || "",
             test_command: t.test_command || t.scoring_rules?.test_command || "",
@@ -1657,6 +1695,13 @@ export function TicketIDE({
     () => Object.keys(files).filter(k => Boolean(k && k.trim()) && !isInternalOrHiddenFile(k)),
     [files]
   );
+  const allWorkspaceFiles = useMemo(() => {
+    const set = new Set<string>(fileList);
+    Object.keys(files || {}).forEach((f) => {
+      if (f && !isInternalOrHiddenFile(f)) set.add(f);
+    });
+    return Array.from(set);
+  }, [fileList, files]);
   
   const [activeFile, setActiveFile] = useState<FileName>(() => {
     if (initialFiles) {
@@ -1700,8 +1745,8 @@ export function TicketIDE({
     setActiveFile(path);
   }
 
-  function closeTab(path: string, e: React.MouseEvent) {
-    e.stopPropagation();
+  function closeTab(path: string, e?: React.MouseEvent) {
+    e?.stopPropagation();
     setOpenTabs((prev) => {
       const next = prev.filter((p) => p !== path);
       if (activeFile === path) {
@@ -1876,7 +1921,8 @@ export function TicketIDE({
   }, [activeFile, isReal, wsLoaded, effectiveUserId]);
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss" | "solution">("problem");
-  const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const [activeSidebarView, setActiveSidebarView] = useState<"problem" | "explorer" | "search" | "git" | null>("problem");
+  const [sidebarWidth, setSidebarWidth] = useState<number>(360);
   const [bottomTab, setBottomTab] = useState<BottomTab>("terminal");
   const [uiDiffResult, setUiDiffResult] = useState<any>(null);
   const [hintLevel, setHintLevel] = useState(2);
@@ -1890,48 +1936,40 @@ export function TicketIDE({
   });
   const { theme, toggle: toggleTheme } = useTheme();
   const [showProgress, setShowProgress] = useState(true);
-  const [fileTreeOpen, setFileTreeOpen] = useState(true);
+  const [searchInFilesQuery, setSearchInFilesQuery] = useState("");
+  const [searchMatchCase, setSearchMatchCase] = useState(false);
+  const [searchMatchWord, setSearchMatchWord] = useState(false);
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
   const toggleFolder = (k: string) => setOpenFolders((o) => ({ ...o, [k]: !(o[k] ?? true) }));
   const isFolderOpen = (k: string) => openFolders[k] ?? true;
   const [sidePanel, setSidePanel] = useState<null | "preview" | "mentor">(null);
   const [previewDevice, setPreviewDevice] = useState<"Mobile" | "Tablet" | "Desktop">("Desktop");
   const [sideWidth, setSideWidth] = useState<number | null>(null);
-  const [leftWidth, setLeftWidth] = useState<number>(360);
-  const [explorerWidth, setExplorerWidth] = useState<number>(240);
   const [bottomHeight, setBottomHeight] = useState<number>(240);
+  const [isBottomCollapsed, setIsBottomCollapsed] = useState(false);
   const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false);
   const [quickSearchQuery, setQuickSearchQuery] = useState("");
+  const [quickSearchSelectedIndex, setQuickSearchSelectedIndex] = useState(0);
+  const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
+  const [stagedFiles, setStagedFiles] = useState<string[]>([]);
+  const [isStagedCollapsed, setIsStagedCollapsed] = useState(false);
+  const [isChangesCollapsed, setIsChangesCollapsed] = useState(false);
+  const [isCommitsCollapsed, setIsCommitsCollapsed] = useState(false);
+  const [commitHistory, setCommitHistory] = useState<
+    Array<{ id: string; message: string; timestamp: Date; files: string[] }>
+  >([]);
+  const [committedBase, setCommittedBase] = useState<Record<string, string>>({});
+  const [diffModalFile, setDiffModalFile] = useState<string | null>(null);
   const splitContainerRef = useRef<HTMLDivElement>(null);
   const mainIdeRef = useRef<HTMLDivElement>(null);
 
-  function startLeftResize(e: React.MouseEvent) {
+  function startSidebarResize(e: React.MouseEvent) {
     e.preventDefault();
     const startX = e.clientX;
-    const startWidth = leftWidth;
+    const startWidth = sidebarWidth;
     const onMove = (ev: MouseEvent) => {
       const next = startWidth + (ev.clientX - startX);
-      setLeftWidth(Math.min(650, Math.max(260, next)));
-    };
-    const onUp = () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-  }
-
-  function startExplorerResize(e: React.MouseEvent) {
-    e.preventDefault();
-    const startX = e.clientX;
-    const startWidth = explorerWidth;
-    const onMove = (ev: MouseEvent) => {
-      const next = startWidth + (ev.clientX - startX);
-      setExplorerWidth(Math.min(480, Math.max(160, next)));
+      setSidebarWidth(Math.min(650, Math.max(240, next)));
     };
     const onUp = () => {
       window.removeEventListener("mousemove", onMove);
@@ -2329,14 +2367,58 @@ export function TicketIDE({
     }
   }, [files]);
 
-  // Keyboard: Ctrl/Cmd+Enter to run, Ctrl/Cmd+S to save, Ctrl/Cmd+P to quick-open files
+  // Keyboard: VS Code shortcuts
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleRun(); }
-      if ((e.metaKey || e.ctrlKey) && e.key === "s") { e.preventDefault(); handleSave(false); }
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        handleRun();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        handleSave(false);
+      }
       if ((e.metaKey || e.ctrlKey) && (e.key === "p" || e.key === "P")) {
         e.preventDefault();
         setQuickSwitcherOpen((prev) => !prev);
+      }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "b" || e.key === "B")) {
+        e.preventDefault();
+        setActiveSidebarView((prev) => (prev ? null : "problem"));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === "f" || e.key === "F")) {
+        e.preventDefault();
+        setActiveSidebarView((prev) => (prev === "search" ? null : "search"));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === "e" || e.key === "E")) {
+        e.preventDefault();
+        setActiveSidebarView((prev) => (prev === "explorer" ? null : "explorer"));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === "g" || e.key === "G")) {
+        e.preventDefault();
+        setActiveSidebarView((prev) => (prev === "git" ? null : "git"));
+      }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "j" || e.key === "J" || e.key === "`" || e.key === "~")) {
+        e.preventDefault();
+        setIsBottomCollapsed((prev) => !prev);
+      }
+      if (e.key === "F1") {
+        e.preventDefault();
+        setShortcutsModalOpen((prev) => !prev);
+      }
+      if (e.key === "F5") {
+        e.preventDefault();
+        handleRun();
+      }
+      if (e.shiftKey && e.altKey && (e.key === "F" || e.key === "f")) {
+        e.preventDefault();
+        handleFormatCode();
+      }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "w" || e.key === "W")) {
+        if (activeFile && openTabs.length > 1) {
+          e.preventDefault();
+          closeTab(activeFile);
+        }
       }
     };
     window.addEventListener("keydown", fn);
@@ -2530,6 +2612,7 @@ export function TicketIDE({
   };
 
   async function handleRun() {
+    setIsBottomCollapsed(false);
     if (isReal) {
       const filesToSave = getFilesToSave();
       try {
@@ -3092,7 +3175,7 @@ export function TicketIDE({
         setOutput(
           "$ javac Main.java\n❌ Main.java:1: error: class or main method missing\n1 error",
         );
-        setBottomTab("errors");
+        setBottomTab("output");
       } else {
         const out: string[] = [];
         const re = /System\.out\.println\("([^"]*)"\s*\+\s*([^)]+)\)/g;
@@ -3120,6 +3203,7 @@ export function TicketIDE({
   }
 
   function handleRunTests() {
+    setIsBottomCollapsed(false);
     setBottomTab("tests");
     setTests((ts) => ts.map((t) => ({ ...t, time: "…", pass: false })));
     setTimeout(() => {
@@ -3572,11 +3656,115 @@ export function TicketIDE({
   const sprintNo = ticket.sprintOrder ?? 1;
   const ticketNo = ticket.ticketOrder ?? 1;
 
-  async function handleCommitSubmit() {
-    if (!commitMessage.trim()) return;
+  const getBaseContent = useCallback(
+    (f: string): string => {
+      if (committedBase[f] !== undefined) return committedBase[f];
+      if (starters[f] !== undefined) return starters[f];
+      return "";
+    },
+    [committedBase, starters]
+  );
+
+  const allChangedFiles = useMemo(() => {
+    const result: Array<{ file: string; status: "M" | "U" | "D" }> = [];
+    const currentFiles = Object.keys(files);
+    const baseFileKeys = Array.from(new Set([...Object.keys(starters), ...Object.keys(committedBase)]));
+
+    currentFiles.forEach((f) => {
+      const isBaseKnown = committedBase[f] !== undefined || starters[f] !== undefined;
+      const baseVal = getBaseContent(f);
+      const currVal = files[f] ?? "";
+      if (!isBaseKnown) {
+        result.push({ file: f, status: "U" });
+      } else if (currVal !== baseVal || dirty[f]) {
+        result.push({ file: f, status: "M" });
+      }
+    });
+
+    baseFileKeys.forEach((f) => {
+      if (files[f] === undefined) {
+        result.push({ file: f, status: "D" });
+      }
+    });
+
+    return result;
+  }, [files, starters, committedBase, dirty, getBaseContent]);
+
+  const handleStageFile = (f: string) => {
+    setStagedFiles((prev) => (prev.includes(f) ? prev : [...prev, f]));
+  };
+
+  const handleStageAll = () => {
+    setStagedFiles(allChangedFiles.map((c) => c.file));
+  };
+
+  const handleUnstageFile = (f: string) => {
+    setStagedFiles((prev) => prev.filter((p) => p !== f));
+  };
+
+  const handleUnstageAll = () => {
+    setStagedFiles([]);
+  };
+
+  const handleDiscardFile = (f: string) => {
+    const isBaseKnown = committedBase[f] !== undefined || starters[f] !== undefined;
+    if (!isBaseKnown) {
+      setFiles((prev) => {
+        const next = { ...prev };
+        delete next[f];
+        return next;
+      });
+      setOpenTabs((prev) => prev.filter((t) => t !== f));
+      if (activeFile === f) {
+        const remaining = Object.keys(files).filter((k) => k !== f);
+        setActiveFile(remaining[0] || "");
+      }
+    } else {
+      const baseVal = getBaseContent(f);
+      setFiles((prev) => ({ ...prev, [f]: baseVal }));
+    }
+    setDirty((prev) => {
+      const next = { ...prev };
+      delete next[f];
+      return next;
+    });
+    setStagedFiles((prev) => prev.filter((p) => p !== f));
+    showToast(`Discarded changes in ${f}`);
+  };
+
+  const handleDiscardAll = () => {
+    const nextFiles = { ...files };
+    const baseFileKeys = Array.from(new Set([...Object.keys(starters), ...Object.keys(committedBase)]));
+    
+    // Remove untracked files
+    Object.keys(nextFiles).forEach((f) => {
+      if (committedBase[f] === undefined && starters[f] === undefined) {
+        delete nextFiles[f];
+      }
+    });
+    // Restore base files
+    baseFileKeys.forEach((f) => {
+      nextFiles[f] = getBaseContent(f);
+    });
+    setFiles(nextFiles);
+    setDirty({});
+    setStagedFiles([]);
+    showToast("Discarded all workspace changes");
+  };
+
+  async function handleCommitSubmit(overrideMsg?: string) {
+    const staged = allChangedFiles.filter((c) => stagedFiles.includes(c.file)).map((c) => c.file);
+    const toCommit = staged.length > 0 ? staged : allChangedFiles.map((c) => c.file);
+    if (toCommit.length === 0) {
+      showToast("No changes to commit");
+      return;
+    }
+    const rawMsg = (overrideMsg !== undefined ? overrideMsg : commitMessage).trim();
+    const finalMsg = rawMsg || `Update ${toCommit.length === 1 ? toCommit[0] : `${toCommit.length} files`}`;
+    const formattedMessage = `feat(S${sprintNo}-T${ticketNo}) : ${finalMsg}`;
+
     setIsCommitting(true);
     try {
-      const formattedMessage = `feat(S${sprintNo}-T${ticketNo}) : ${commitMessage}`;
       const gitName = user?.github_username || user?.username || "Student";
       const gitEmail = user?.github_username
         ? `${user.github_username}@users.noreply.github.com`
@@ -3595,10 +3783,7 @@ export function TicketIDE({
             ticket_no: ticketNo,
           });
           if (commitRes && (commitRes.status === "success" || commitRes.message)) {
-            showToast(commitRes.message || "Changes committed and pushed successfully");
-            setIsCommitDialogOpen(false);
-            setCommitMessage("");
-            return;
+            // success
           }
         } catch (backendErr: any) {
           const errMsg = backendErr?.response?.data?.error || backendErr?.message || "";
@@ -3608,22 +3793,50 @@ export function TicketIDE({
           }
           console.warn("Backend ticket commit endpoint failed, falling back to workspace git:", backendErr);
         }
+
+        // 2. Fallback: runCommand in workspace
+        try {
+          const safeName = gitName.replace(/"/g, '\\"');
+          const safeEmail = gitEmail.replace(/"/g, '\\"');
+          const cmd = `git config user.name "${safeName}" && git config user.email "${safeEmail}" && git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" --author="${safeName} <${safeEmail}>" && git push`;
+          const { runCommand } = await import("@/services/workspaceService");
+          await runCommand(effectiveUserId, labId, sprintId, cmd, evaluationId);
+        } catch (cmdErr) {
+          console.warn("Workspace git push error:", cmdErr);
+        }
       }
 
-      // 2. Fallback: runCommand in workspace
-      const safeName = gitName.replace(/"/g, '\\"');
-      const safeEmail = gitEmail.replace(/"/g, '\\"');
-      const cmd = `git config user.name "${safeName}" && git config user.email "${safeEmail}" && git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" --author="${safeName} <${safeEmail}>" && git push`;
-      
-      const { runCommand } = await import("@/services/workspaceService");
-      const res = await runCommand(effectiveUserId, labId, sprintId, cmd, evaluationId);
-      if (res.exit_code === 0) {
-        showToast("Changes committed and pushed successfully");
-        setIsCommitDialogOpen(false);
-        setCommitMessage("");
-      } else {
-        showToast(`Commit failed: ${res.stderr || res.stdout}`);
-      }
+      // Record commit in history
+      const commitId = Math.random().toString(16).substring(2, 9);
+      setCommitHistory((prev) => [
+        {
+          id: commitId,
+          message: finalMsg,
+          timestamp: new Date(),
+          files: toCommit,
+        },
+        ...prev,
+      ]);
+
+      // Update committedBase with the committed file snapshots
+      setCommittedBase((prev) => ({
+        ...starters,
+        ...prev,
+        ...Object.fromEntries(toCommit.map((f) => [f, files[f] ?? ""])),
+      }));
+
+      // Clear committed files from dirty and staged
+      setDirty((prev) => {
+        const next = { ...prev };
+        toCommit.forEach((f) => {
+          delete next[f];
+        });
+        return next;
+      });
+      setStagedFiles((prev) => prev.filter((f) => !toCommit.includes(f)));
+      setCommitMessage("");
+      setIsCommitDialogOpen(false);
+      showToast(`✓ Committed ${toCommit.length} file(s) [${commitId}]`);
     } catch (err: any) {
       showToast(`Error: ${err.message}`);
     } finally {
@@ -3716,6 +3929,21 @@ export function TicketIDE({
       }
     }
     if (!silent) showToast("Saved");
+  }
+
+  function handleFormatCode() {
+    if (!activeFile) return;
+    const currentCode = files[activeFile] ?? "";
+    if (!currentCode.trim()) return;
+    const ext = activeFile.split(".").pop() || progLang || "py";
+    const res = formatSourceCode(currentCode, ext, activeFile);
+    if (res.changed) {
+      setFiles((prev) => ({ ...prev, [activeFile]: res.formatted }));
+      setDirty((prev) => ({ ...prev, [activeFile]: true }));
+      showToast("Code formatted");
+    } else {
+      showToast("Already formatted");
+    }
   }
 
   function handleReset() {
@@ -3822,26 +4050,29 @@ export function TicketIDE({
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {!previewOverride && !isEvaluationMode && (
-          <Link
-            to="/student/lab/$slug"
-            params={{ slug }}
-            className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent"
-          >
-            <ArrowLeft className="h-3 w-3" />
-            Exit
-          </Link>
-        )}
-        <button
-          onClick={() => setLeftCollapsed((v) => !v)}
-          title="Toggle panel"
-          className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-accent"
-        >
-          {leftCollapsed ? (
-            <PanelLeftOpen className="h-3 w-3" />
+          ((ticket as any)?.sprint_id || (ticket as any)?.sprint || (typeof window !== "undefined" ? sessionStorage.getItem(`last_sprint_${slug}`) : null)) ? (
+            <Link
+              to="/student/lab/$slug/sprint/$sprintId"
+              params={{
+                slug,
+                sprintId: String((ticket as any)?.sprint_id || (ticket as any)?.sprint || (typeof window !== "undefined" ? sessionStorage.getItem(`last_sprint_${slug}`) : "")),
+              }}
+              className="inline-flex items-center justify-center h-7 w-7 rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+              title="Back"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
           ) : (
-            <PanelLeftClose className="h-3 w-3" />
-          )}
-        </button>
+            <Link
+              to="/student/lab/$slug"
+              params={{ slug }}
+              className="inline-flex items-center justify-center h-7 w-7 rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+              title="Back"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          )
+        )}
 
         <StatusBadge value={ticketStatus} />
         <DiffBadge value={ticket.difficulty} />
@@ -3870,12 +4101,27 @@ export function TicketIDE({
           Reset
         </button>
 
+        <button
+          onClick={() => {
+            setQuickSwitcherOpen(true);
+            setQuickSearchSelectedIndex(0);
+          }}
+          className="hidden md:inline-flex items-center gap-2 rounded-md border border-border/70 bg-muted/30 px-2.5 py-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          title="Quick open file (⌘P)"
+        >
+          <Search className="h-3 w-3" />
+          <span>Find files...</span>
+          <kbd className="rounded bg-muted px-1.5 py-0.2 text-[9px] font-mono text-muted-foreground border">
+            ⌘P
+          </kbd>
+        </button>
+
         <div className="ml-auto flex items-center gap-1.5">
           <button
             onClick={() => {
               if (sidePanel !== "preview") {
                 setSidePanel("preview");
-                setLeftCollapsed(true);
+                setActiveSidebarView(null);
               } else {
                 setSidePanel(null);
               }
@@ -3890,7 +4136,7 @@ export function TicketIDE({
               onClick={() => setSidePanel((p) => (p === "mentor" ? null : "mentor"))}
               className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "mentor" ? "bg-accent text-foreground border-primary/40" : ""}`}
             >
-              <Sparkles className="h-3 w-3" />
+              <Bot className="h-3.5 w-3.5" />
               AI Mentor
             </button>
           )}
@@ -3949,87 +4195,94 @@ export function TicketIDE({
       {/* MAIN IDE */}
       <div className="flex flex-1 min-h-0">
         {/* Activity bar */}
-        <div className="flex w-11 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
+        <div className="flex w-12 flex-col items-center gap-1 border-r border-border bg-editor-panel py-2 text-muted-foreground shrink-0 z-20">
+          {/* Problem button (top of Explorer) */}
           <button
-            onClick={() => setFileTreeOpen((v) => !v)}
-            title={fileTreeOpen ? "Hide Explorer" : "Show Explorer"}
-            className={`grid h-9 w-9 place-items-center rounded ${fileTreeOpen ? "text-foreground bg-accent" : "hover:text-foreground"}`}
+            onClick={() => setActiveSidebarView((v) => (v === "problem" ? null : "problem"))}
+            title={activeSidebarView === "problem" ? "Hide Problem (⌘B)" : "Show Problem (⌘B)"}
+            className={`grid h-9 w-9 place-items-center rounded transition-colors ${
+              activeSidebarView === "problem"
+                ? "text-foreground bg-accent"
+                : "hover:text-foreground hover:bg-accent/40"
+            }`}
+          >
+            <BookOpen className="h-4 w-4" />
+          </button>
+
+          {/* Explorer button */}
+          <button
+            onClick={() => setActiveSidebarView((v) => (v === "explorer" ? null : "explorer"))}
+            title={activeSidebarView === "explorer" ? "Hide Explorer (⌘⇧E)" : "Show Explorer (⌘⇧E)"}
+            className={`grid h-9 w-9 place-items-center rounded transition-colors ${
+              activeSidebarView === "explorer"
+                ? "text-foreground bg-accent"
+                : "hover:text-foreground hover:bg-accent/40"
+            }`}
           >
             <FileCode2 className="h-4 w-4" />
           </button>
-          {[Search, GitBranch, Bug, Package].map((I, i) => (
-            <button
-              key={i}
-              className="grid h-9 w-9 place-items-center rounded hover:text-foreground"
-            >
-              <I className="h-4 w-4" />
-            </button>
-          ))}
-          <Settings className="mt-auto h-4 w-4" />
+          {[
+            { id: "search", icon: Search, label: "Search in Files (⌘⇧F)" },
+            { id: "git", icon: GitBranch, label: "Source Control / Diff (⌘⇧G)" },
+          ].map((act) => {
+            const gitBadgeCount = allChangedFiles.length;
+            return (
+              <button
+                key={act.id}
+                onClick={() => setActiveSidebarView((v) => (v === act.id ? null : (act.id as any)))}
+                title={act.label}
+                className={`relative grid h-9 w-9 place-items-center rounded transition-colors ${
+                  activeSidebarView === act.id
+                    ? "text-foreground bg-accent"
+                    : "hover:text-foreground hover:bg-accent/40"
+                }`}
+              >
+                <act.icon className="h-4 w-4" />
+                {act.id === "git" && gitBadgeCount > 0 && (
+                  <span className="absolute top-1 right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground leading-none">
+                    {gitBadgeCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setShortcutsModalOpen(true)}
+            title="Keyboard Shortcuts (F1)"
+            className="mt-auto grid h-9 w-9 place-items-center rounded text-muted-foreground hover:text-foreground hover:bg-accent/40"
+          >
+            <Settings className="h-4 w-4" />
+          </button>
         </div>
 
-        {/* Left panel (collapsible & resizable) */}
-        {leftCollapsed ? (
-          <aside className="hidden md:flex w-10 flex-col items-center gap-1 border-r bg-editor-panel py-2 text-muted-foreground">
-            {[
-              { k: "problem", I: BookOpen, label: "Problem" },
-                ...(!isEvaluationMode || isRecruiterPreview ? [
-                  { k: "hints", I: Lightbulb, label: "Hints" },
-                  // { k: "discuss", I: MessageSquare, label: "Discuss" },
-                  { k: "solution", I: Key, label: "Solution" },
-                ] : []),
-              ].map(({ k, I, label }) => (
-              <button
-                key={k}
-                title={label}
-                onClick={() => {
-                  setLeftCollapsed(false);
-                  setTab(k as typeof tab);
-                }}
-                className="grid h-9 w-9 place-items-center rounded hover:text-foreground hover:bg-accent"
-              >
-                <I className="h-4 w-4" />
-              </button>
-            ))}
-            <button
-              onClick={() => setLeftCollapsed(false)}
-              title="Expand panel"
-              className="mt-auto grid h-9 w-9 place-items-center rounded hover:text-foreground hover:bg-accent"
-            >
-              <PanelLeftOpen className="h-4 w-4" />
-            </button>
-          </aside>
-        ) : (
+        {/* Single Left Sidebar Panel - only ONE open at a time */}
+        {activeSidebarView !== null && (
           <>
             <aside
-              style={{ width: `${leftWidth}px`, flexShrink: 0 }}
-              className="hidden md:flex flex-col border-r bg-editor-panel max-w-[55vw] min-w-[260px]"
+              style={{ width: `${sidebarWidth}px`, flexShrink: 0 }}
+              className={`hidden md:flex flex-col border-r bg-editor-panel max-w-[55vw] min-w-[240px] text-xs ${activeSidebarView === "explorer" && (isAnySql || isMongo) ? "font-mono text-[13px]" : ""}`}
             >
-              <div className="flex items-center border-b text-xs">
-                {[
-                  { k: "problem", label: "Problem" },
-                  ...(!isEvaluationMode || isRecruiterPreview ? [
-                    { k: "hints", label: "Hints" },
-                    // { k: "discuss", label: "Discuss" },
-                    { k: "solution", label: "Solution" },
-                  ] : []),
-                ].map((t) => (
-                  <button
-                    key={t.k}
-                    onClick={() => setTab(t.k as typeof tab)}
-                    className={`px-3 py-2 ${tab === t.k ? "bg-editor-bg text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-                <button
-                  onClick={() => setLeftCollapsed(true)}
-                  title="Collapse panel"
-                  className="ml-auto mr-2 grid h-7 w-7 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
-                >
-                  <PanelLeftClose className="h-3.5 w-3.5" />
-                </button>
-              </div>
+              {activeSidebarView === "problem" && (
+                <>
+                  <div className="flex items-center border-b text-xs">
+                    {[
+                      { k: "problem", label: "Problem" },
+                      ...(!isEvaluationMode || isRecruiterPreview ? [
+                        { k: "hints", label: "Hints" },
+                        // { k: "discuss", label: "Discuss" },
+                        { k: "solution", label: "Solution" },
+                      ] : []),
+                    ].map((t) => (
+                      <button
+                        key={t.k}
+                        onClick={() => setTab(t.k as typeof tab)}
+                        className={`px-3 py-2 ${tab === t.k ? "bg-editor-bg text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
               <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
                 {tab === "problem" && (
                   <ProblemPanel 
@@ -4101,28 +4354,13 @@ export function TicketIDE({
                 )}
                 {/* {tab === "discuss" && <DiscussPanel />} */}
               </div>
-            </aside>
-            <div
-              role="separator"
-              onMouseDown={startLeftResize}
-              className="hidden md:block w-1 cursor-col-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
-              title="Drag to resize problem panel"
-            />
-          </>
-        )}
+            </>
+          )}
 
-        {/* Center editor */}
-        <section className="flex flex-1 min-w-0 flex-col relative">
-          <div ref={splitContainerRef} className="flex flex-1 min-h-0">
-            {/* File tree */}
-            {fileTreeOpen && (
-              <>
-                <div
-                  style={{ width: `${explorerWidth}px`, flexShrink: 0 }}
-                  className={`flex flex-col border-r bg-editor-panel text-xs ${isAnySql || isMongo ? "font-mono text-[13px]" : ""}`}
-                >
-                <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-                  <span>Explorer</span>
+          {activeSidebarView === "explorer" && (
+                    <>
+                      <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+                        <span>Explorer</span>
                   <div className="flex items-center gap-1 normal-case">
                     <button
                       title="New File"
@@ -4372,21 +4610,467 @@ export function TicketIDE({
                     )}
                   </div>
                 )}
-                <div className="mt-auto border-t px-3 py-2 text-[11px] text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <GitBranch className="h-3 w-3" /> main
+                  <div className="mt-auto border-t px-3 py-2 text-[11px] text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <GitBranch className="h-3 w-3" /> main
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Search in Files view */}
+              {activeSidebarView === "search" && (
+                <div className="flex flex-col h-full min-h-0">
+                  <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
+                    <span>Search in Files</span>
+                  </div>
+                  <div className="p-3 border-b border-border/40 space-y-2">
+                    <input
+                      type="text"
+                      value={searchInFilesQuery}
+                      onChange={(e) => setSearchInFilesQuery(e.target.value)}
+                      placeholder="Search keywords..."
+                      className="w-full rounded bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground border border-border focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                    <div className="flex items-center gap-1 text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => setSearchMatchCase((v) => !v)}
+                        className={`px-1.5 py-0.5 rounded border text-[10px] font-mono ${searchMatchCase ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
+                        title="Match Case"
+                      >
+                        Aa
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSearchMatchWord((v) => !v)}
+                        className={`px-1.5 py-0.5 rounded border text-[10px] font-mono ${searchMatchWord ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"}`}
+                        title="Match Whole Word"
+                      >
+                        \b
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex-1 overflow-auto p-2 space-y-2 min-h-0">
+                    {(() => {
+                      if (!searchInFilesQuery.trim()) {
+                        return (
+                          <div className="p-4 text-center text-xs text-muted-foreground">
+                            Type a query above to search across workspace files.
+                          </div>
+                        );
+                      }
+                      const results: { file: string; matches: { line: number; text: string }[] }[] = [];
+                      allWorkspaceFiles.forEach((f: string) => {
+                        const content = files[f] || "";
+                        const lines = content.split("\n");
+                        const fileMatches: { line: number; text: string }[] = [];
+                        lines.forEach((l: string, idx: number) => {
+                          const hay = searchMatchCase ? l : l.toLowerCase();
+                          const needle = searchMatchCase ? searchInFilesQuery : searchInFilesQuery.toLowerCase();
+                          let matched = false;
+                          if (searchMatchWord) {
+                            const reg = new RegExp(`\\b${needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, searchMatchCase ? "" : "i");
+                            matched = reg.test(l);
+                          } else {
+                            matched = hay.includes(needle);
+                          }
+                          if (matched && fileMatches.length < 5) {
+                            fileMatches.push({ line: idx + 1, text: l.trim() });
+                          }
+                        });
+                        if (fileMatches.length > 0) {
+                          results.push({ file: f, matches: fileMatches });
+                        }
+                      });
+                      if (results.length === 0) {
+                        return (
+                          <div className="p-4 text-center text-xs text-muted-foreground">
+                            No results found for "{searchInFilesQuery}"
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="space-y-3">
+                          <div className="text-[11px] text-muted-foreground px-1 font-mono">
+                            {results.reduce((a, b) => a + b.matches.length, 0)} results in {results.length} files
+                          </div>
+                          {results.map(({ file, matches }) => (
+                            <div key={file} className="rounded border border-border/50 bg-background/50 overflow-hidden">
+                              <button
+                                onClick={() => openFile(file)}
+                                className="flex w-full items-center justify-between px-2.5 py-1.5 text-xs font-mono font-medium text-foreground bg-muted/30 hover:bg-muted/60 text-left border-b border-border/30"
+                              >
+                                <span className="truncate">{file}</span>
+                                <span className="text-[10px] rounded bg-primary/10 text-primary px-1.5 py-0.2">
+                                  {matches.length}
+                                </span>
+                              </button>
+                              <div className="divide-y divide-border/20 text-[11px] font-mono">
+                                {matches.map((m, mIdx) => (
+                                  <button
+                                    key={mIdx}
+                                    onClick={() => openFile(file)}
+                                    className="flex w-full items-start gap-2 px-2.5 py-1 text-left text-muted-foreground hover:bg-accent/40 hover:text-foreground transition-colors"
+                                  >
+                                    <span className="text-primary/70 shrink-0 w-5 text-right">{m.line}:</span>
+                                    <span className="truncate">{m.text}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
-              </div>
-              <div
-                role="separator"
-                onMouseDown={startExplorerResize}
-                className="w-1 cursor-col-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
-                title="Drag to resize explorer"
-              />
-            </>
-          )}
+              )}
 
+              {/* Source Control view (VS Code & Antigravity IDE style) */}
+              {activeSidebarView === "git" && (() => {
+                const stagedItems = allChangedFiles.filter((c) => stagedFiles.includes(c.file));
+                const unstagedItems = allChangedFiles.filter((c) => !stagedFiles.includes(c.file));
+                const totalChanges = allChangedFiles.length;
+
+                return (
+                  <div className="flex flex-col h-full min-h-0 bg-sidebar font-sans select-none">
+                    {/* Header bar */}
+                    <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground border-b border-border/40">
+                      <span>Source Control</span>
+                      <div className="flex items-center gap-1 normal-case text-muted-foreground">
+                        <button
+                          onClick={() => {
+                            showToast("Checking git status...");
+                          }}
+                          title="Refresh (git status)"
+                          className="grid h-5 w-5 place-items-center rounded hover:bg-accent hover:text-foreground transition-colors cursor-pointer"
+                        >
+                          <RefreshCw className="h-3 w-3" />
+                        </button>
+                        <button
+                          onClick={() => handleCommitSubmit()}
+                          title="Commit (⌘Enter)"
+                          disabled={totalChanges === 0 || isCommitting}
+                          className="grid h-5 w-5 place-items-center rounded hover:bg-accent hover:text-foreground disabled:opacity-30 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={handleDiscardAll}
+                          title="Discard All Changes"
+                          disabled={totalChanges === 0}
+                          className="grid h-5 w-5 place-items-center rounded hover:bg-accent hover:text-foreground disabled:opacity-30 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                        >
+                          <Undo2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Commit Input Box */}
+                    <div className="p-2.5 border-b border-border/40 space-y-2 bg-muted/10">
+                      <div className="relative">
+                        <textarea
+                          value={commitMessage}
+                          onChange={(e) => setCommitMessage(e.target.value)}
+                          onKeyDown={(e) => {
+                            if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                              e.preventDefault();
+                              handleCommitSubmit();
+                            }
+                          }}
+                          placeholder="Message (⌘Enter to commit)"
+                          rows={2}
+                          className="w-full resize-none rounded border border-border/80 bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary font-sans leading-relaxed"
+                        />
+                      </div>
+                      <button
+                        onClick={() => handleCommitSubmit()}
+                        disabled={totalChanges === 0 || isCommitting}
+                        className="w-full flex items-center justify-center gap-1.5 rounded bg-primary py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40 transition-all shadow-xs cursor-pointer disabled:cursor-not-allowed"
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                        <span>{isCommitting ? "Committing..." : "Commit"}</span>
+                      </button>
+                    </div>
+
+                    {/* Scrollable sections */}
+                    <div className="flex-1 overflow-auto p-1 space-y-1 min-h-0 text-xs">
+                      {/* STAGED CHANGES section */}
+                      {stagedItems.length > 0 && (
+                        <div className="rounded overflow-hidden">
+                          <div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-muted-foreground hover:bg-accent/40 rounded transition-colors group">
+                            <button
+                              onClick={() => setIsStagedCollapsed((v) => !v)}
+                              className="flex items-center gap-1 text-left flex-1 cursor-pointer"
+                            >
+                              {isStagedCollapsed ? (
+                                <ChevronRight className="h-3 w-3 shrink-0" />
+                              ) : (
+                                <ChevronDown className="h-3 w-3 shrink-0" />
+                              )}
+                              <span className="uppercase tracking-wider text-[10px]">Staged Changes</span>
+                              <span className="ml-1 rounded-full bg-primary/20 text-primary text-[10px] px-1.5 py-0 font-mono font-bold">
+                                {stagedItems.length}
+                              </span>
+                            </button>
+                            <button
+                              onClick={handleUnstageAll}
+                              title="Unstage All Changes"
+                              className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent hover:text-foreground transition-opacity cursor-pointer"
+                            >
+                              <Minus className="h-3 w-3" />
+                            </button>
+                          </div>
+
+                          {!isStagedCollapsed && (
+                            <div className="space-y-0.5 pl-2">
+                              {stagedItems.map((item) => {
+                                const f = item.file;
+                                const parts = f.split("/");
+                                const fileName = parts.pop() || f;
+                                const dirPath = parts.join("/");
+                                return (
+                                  <div
+                                    key={f}
+                                    onClick={() => openFile(f)}
+                                    className={`group flex items-center justify-between rounded px-2 py-1 text-xs cursor-pointer transition-colors ${
+                                      activeFile === f
+                                        ? "bg-accent text-foreground font-medium"
+                                        : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                                      {getLanguageFileIcon(fileName, "h-3.5 w-3.5 shrink-0")}
+                                      <span className="truncate font-mono text-xs text-foreground">{fileName}</span>
+                                      {dirPath && (
+                                        <span className="truncate text-[10px] text-muted-foreground/70 font-sans">
+                                          {dirPath}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setDiffModalFile(f);
+                                        }}
+                                        title="View Diff"
+                                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent hover:text-foreground transition-opacity"
+                                      >
+                                        <FileDiff className="h-3 w-3" />
+                                      </button>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleUnstageFile(f);
+                                        }}
+                                        title="Unstage Changes"
+                                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent hover:text-foreground transition-opacity"
+                                      >
+                                        <Minus className="h-3 w-3" />
+                                      </button>
+                                      <span className={`text-[10px] font-bold font-mono ${
+                                        item.status === "M" ? "text-success" : item.status === "U" ? "text-emerald-500" : "text-destructive"
+                                      }`}>
+                                        {item.status}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* CHANGES section */}
+                      <div className="rounded overflow-hidden">
+                        <div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-muted-foreground hover:bg-accent/40 rounded transition-colors group">
+                          <button
+                            onClick={() => setIsChangesCollapsed((v) => !v)}
+                            className="flex items-center gap-1 text-left flex-1 cursor-pointer"
+                          >
+                            {isChangesCollapsed ? (
+                              <ChevronRight className="h-3 w-3 shrink-0" />
+                            ) : (
+                              <ChevronDown className="h-3 w-3 shrink-0" />
+                            )}
+                            <span className="uppercase tracking-wider text-[10px]">Changes</span>
+                            <span className="ml-1 rounded-full bg-muted text-muted-foreground text-[10px] px-1.5 py-0 font-mono font-bold">
+                              {unstagedItems.length}
+                            </span>
+                          </button>
+                          {unstagedItems.length > 0 && (
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={handleDiscardAll}
+                                title="Discard All Changes"
+                                className="p-0.5 rounded hover:bg-accent hover:text-foreground cursor-pointer"
+                              >
+                                <Undo2 className="h-3 w-3" />
+                              </button>
+                              <button
+                                onClick={handleStageAll}
+                                title="Stage All Changes"
+                                className="p-0.5 rounded hover:bg-accent hover:text-foreground cursor-pointer"
+                              >
+                                <Plus className="h-3 w-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {!isChangesCollapsed && (
+                          <div className="space-y-0.5 pl-2">
+                            {unstagedItems.length === 0 && stagedItems.length === 0 ? (
+                              <div className="p-4 text-center text-xs text-muted-foreground flex flex-col items-center gap-1.5">
+                                <CheckCircle2 className="h-5 w-5 text-muted-foreground/50" />
+                                <span>No uncommitted changes in workspace.</span>
+                              </div>
+                            ) : (
+                              unstagedItems.map((item) => {
+                                const f = item.file;
+                                const parts = f.split("/");
+                                const fileName = parts.pop() || f;
+                                const dirPath = parts.join("/");
+                                return (
+                                  <div
+                                    key={f}
+                                    onClick={() => openFile(f)}
+                                    className={`group flex items-center justify-between rounded px-2 py-1 text-xs cursor-pointer transition-colors ${
+                                      activeFile === f
+                                        ? "bg-accent text-foreground font-medium"
+                                        : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                                      {getLanguageFileIcon(fileName, "h-3.5 w-3.5 shrink-0")}
+                                      <span className="truncate font-mono text-xs text-foreground">{fileName}</span>
+                                      {dirPath && (
+                                        <span className="truncate text-[10px] text-muted-foreground/70 font-sans">
+                                          {dirPath}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setDiffModalFile(f);
+                                        }}
+                                        title="View Diff"
+                                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent hover:text-foreground transition-opacity"
+                                      >
+                                        <FileDiff className="h-3 w-3" />
+                                      </button>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDiscardFile(f);
+                                        }}
+                                        title="Discard Changes"
+                                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent hover:text-foreground transition-opacity"
+                                      >
+                                        <Undo2 className="h-3 w-3" />
+                                      </button>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleStageFile(f);
+                                        }}
+                                        title="Stage Changes"
+                                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent hover:text-foreground transition-opacity"
+                                      >
+                                        <Plus className="h-3 w-3" />
+                                      </button>
+                                      <span className={`text-[10px] font-bold font-mono ${
+                                        item.status === "M" ? "text-warning" : item.status === "U" ? "text-emerald-500" : "text-destructive"
+                                      }`}>
+                                        {item.status}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* COMMITS HISTORY section */}
+                      {commitHistory.length > 0 && (
+                        <div className="rounded overflow-hidden pt-2 border-t border-border/40">
+                          <button
+                            onClick={() => setIsCommitsCollapsed((v) => !v)}
+                            className="flex items-center justify-between w-full px-2 py-1 text-[11px] font-semibold text-muted-foreground hover:bg-accent/40 rounded transition-colors"
+                          >
+                            <div className="flex items-center gap-1">
+                              {isCommitsCollapsed ? (
+                                <ChevronRight className="h-3 w-3 shrink-0" />
+                              ) : (
+                                <ChevronDown className="h-3 w-3 shrink-0" />
+                              )}
+                              <span className="uppercase tracking-wider text-[10px]">Recent Commits</span>
+                            </div>
+                            <span className="rounded-full bg-muted text-muted-foreground text-[10px] px-1.5 py-0 font-mono font-bold">
+                              {commitHistory.length}
+                            </span>
+                          </button>
+
+                          {!isCommitsCollapsed && (
+                            <div className="space-y-1 pl-2 pt-1">
+                              {commitHistory.map((c) => (
+                                <div
+                                  key={c.id}
+                                  className="flex items-start justify-between rounded p-1.5 hover:bg-accent/40 text-[11px] font-sans border border-border/30 bg-muted/10"
+                                >
+                                  <div className="flex items-start gap-1.5 min-w-0">
+                                    <GitCommit className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                                    <div className="min-w-0">
+                                      <div className="truncate font-medium text-foreground">{c.message}</div>
+                                      <div className="text-[10px] text-muted-foreground font-mono">
+                                        {c.id} · {c.files.length} file{c.files.length === 1 ? "" : "s"}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <span className="text-[9px] text-muted-foreground shrink-0 ml-1">
+                                    just now
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Footer bar */}
+                    <div className="mt-auto border-t border-border/40 px-3 py-2 text-[11px] text-muted-foreground flex items-center justify-between bg-muted/10">
+                      <div className="flex items-center gap-1.5 font-mono text-[11px] text-foreground">
+                        <GitBranch className="h-3.5 w-3.5 text-primary" />
+                        <span>main</span>
+                      </div>
+                      <span className="text-[10px]">
+                        {totalChanges === 0 ? "Clean index" : `* ${totalChanges} change${totalChanges === 1 ? "" : "s"}`}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </aside>
+            <div
+              role="separator"
+              onMouseDown={startSidebarResize}
+              className="hidden md:block w-1 cursor-col-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
+              title="Drag to resize sidebar"
+            />
+          </>
+        )}
+
+        {/* Center editor */}
+        <section className="flex flex-1 min-w-0 flex-col relative">
+          <div ref={splitContainerRef} className="flex flex-1 min-h-0">
             <div className="flex flex-1 min-w-0 flex-col">
               {/* Tabs row */}
               <div className="flex items-center border-b bg-editor-panel text-xs overflow-x-auto">
@@ -4396,7 +5080,7 @@ export function TicketIDE({
                     onClick={() => setActiveFile(f)}
                     className={`flex items-center gap-2 border-r pl-3 pr-2 py-2 whitespace-nowrap group ${activeFile === f ? "bg-editor-bg text-foreground" : "text-muted-foreground hover:bg-editor-bg/50 hover:text-foreground"}`}
                   >
-                    <FileCode2 className="h-3 w-3" />
+                    {getLanguageFileIcon(f, "h-3.5 w-3.5")}
                     {f.split("/").pop()}
                     {dirty[f] && <CircleDot className="h-2.5 w-2.5 text-warning" />}
                     <div
@@ -4433,29 +5117,10 @@ export function TicketIDE({
                       </select>
                     </label>
                   )}
-                  <button
-                    title="Quick Open File (Ctrl+P)"
-                    onClick={() => setQuickSwitcherOpen(true)}
-                    className="flex items-center gap-1.5 rounded border border-border bg-background px-2 py-0.5 font-medium hover:bg-accent text-foreground transition-colors"
-                  >
-                    <Search className="h-3 w-3 text-muted-foreground" />
-                    <span>Find File</span>
-                    <kbd className="hidden sm:inline-block rounded bg-muted px-1 py-0.2 text-[9px] font-mono text-muted-foreground border">
-                      Ctrl+P
-                    </kbd>
-                  </button>
                   {isJava && <CompileBadge state={compileState} />}
-                  {!isEvaluationMode && (
-                    <button
-                      onClick={toggleTheme}
-                      className="rounded border px-2 py-0.5 hover:bg-accent"
-                    >
-                      {theme === "dark" ? "☀ Light" : "🌙 Dark"}
-                    </button>
-                  )}
                   <button
                     title="Format"
-                    onClick={() => showToast("Code formatted")}
+                    onClick={handleFormatCode}
                     className="rounded border px-2 py-0.5 hover:bg-accent"
                   >
                     <Wand2 className="h-3 w-3" />
@@ -4496,100 +5161,139 @@ export function TicketIDE({
                     onChange={updateCode}
                     language={editorLanguage(activeFile)}
                     theme={theme}
+                    onToggleBottom={() => setIsBottomCollapsed((prev) => !prev)}
                   />
                 )}
               </div>
 
-              {/* Bottom panel (resizable) */}
+              {/* Bottom panel (resizable & collapsable with Ctrl+J) */}
+              {!isBottomCollapsed && (
+                <div
+                  role="separator"
+                  onMouseDown={startBottomResize}
+                  className="h-1 cursor-row-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
+                  title="Drag to resize console / terminal height"
+                />
+              )}
               <div
-                role="separator"
-                onMouseDown={startBottomResize}
-                className="h-1 cursor-row-resize bg-border hover:bg-primary transition-colors shrink-0 z-10"
-                title="Drag to resize console / terminal height"
-              />
-              <div
-                style={{ height: `${bottomHeight}px`, flexShrink: 0 }}
-                className="border-t bg-editor-panel flex flex-col min-h-0"
+                style={{
+                  height: isBottomCollapsed ? "34px" : `${bottomHeight}px`,
+                  flexShrink: 0,
+                }}
+                className="border-t bg-editor-panel flex flex-col min-h-0 overflow-hidden transition-[height] duration-150 ease-out"
               >
-                <div className="flex items-center border-b text-xs overflow-x-auto">
+                <div className="flex items-center border-b text-xs overflow-x-auto h-[34px] shrink-0 select-none">
                   {[
                     { k: "terminal", label: "Terminal", icon: TerminalIcon },
                     ...(isAlgo ? [{ k: "testcases", label: "Test Cases", icon: FlaskConical }] : []),
-                    { k: "preview", label: "Results", icon: Globe },
-                    { k: "output", label: "Console", icon: TerminalIcon },
-                    { k: "errors", label: "Errors", icon: AlertTriangle },
+                    { k: "preview", label: "Results", icon: ListChecks },
+                    { k: "output", label: "Console", icon: SquareTerminal },
                   ].map((t) => (
                     <button
                       key={t.k}
-                      onClick={() => setBottomTab(t.k as BottomTab)}
-                      className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 uppercase tracking-wide ${bottomTab === t.k ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+                      onClick={() => {
+                        if (isBottomCollapsed) {
+                          setBottomTab(t.k as BottomTab);
+                          setIsBottomCollapsed(false);
+                        } else if (bottomTab === t.k) {
+                          setIsBottomCollapsed(true);
+                        } else {
+                          setBottomTab(t.k as BottomTab);
+                        }
+                      }}
+                      className={`inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 uppercase tracking-wide text-[11px] font-sans transition-colors cursor-pointer ${
+                        bottomTab === t.k
+                          ? "text-foreground border-b-2 border-primary font-semibold"
+                          : "text-muted-foreground hover:text-foreground font-medium"
+                      }`}
                     >
-                      <t.icon className="h-3 w-3" />
+                      <t.icon className="h-3.5 w-3.5" />
                       {t.label}
                     </button>
                   ))}
                   {ticketScore !== null && ticketScore.total > 0 && (
-                    <div className="ml-auto flex items-center px-4 text-[11px] font-semibold tracking-wider text-success">
+                    <div className="ml-auto flex items-center px-3 text-[11px] font-semibold tracking-wider text-success">
                       SCORE: {isMultiLang ? `${Math.round((ticketScore.passed / ticketScore.total) * 100)}%` : `${ticketScore.passed} / ${ticketScore.total}`}
                     </div>
                   )}
+                  {/* Collapse / Expand Down Bar button */}
+                  <div className={`${ticketScore !== null && ticketScore.total > 0 ? "border-l pl-1" : "ml-auto"} flex items-center pr-2`}>
+                    <button
+                      onClick={() => setIsBottomCollapsed((prev) => !prev)}
+                      title={isBottomCollapsed ? "Expand down bar (Ctrl+J)" : "Collapse down bar (Ctrl+J)"}
+                      className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    >
+                      {isBottomCollapsed ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                    </button>
+                  </div>
                 </div>
-                <div className={`flex-1 min-h-0 ${bottomTab === "terminal" ? "p-0 overflow-hidden flex flex-col" : "overflow-auto scrollbar-thin p-3 text-xs"}`}>
-                  {bottomTab === "output" && (
-                    <ExecutionOutputView
-                      output={output}
-                      executionMetrics={executionMetrics}
-                      testResults={testResults}
-                      executionOutput={executionOutput}
-                    />
-                  )}
-                  {bottomTab === "errors" && <ErrorsView state={compileState} file={activeFile} />}
-                  {bottomTab === "testcases" && <CustomTestCaseManager customTestCases={customTestCases} onTestCasesChange={setCustomTestCases} />}
-                  {bottomTab === "preview" && (
-                    <FormattedResultsView
-                      ticket={ticket}
-                      taskExecutionData={taskExecutionData}
-                      testResults={testResults}
-                      executionMetrics={executionMetrics}
-                      tests={tests}
-                      testsRan={testsRan}
-                      ticketScore={ticketScore}
-                      evalResult={evalResult}
-                      output={output}
-                      executionOutput={executionOutput}
-                      onRun={handleRun}
-                      running={running}
-                      isSql={isSql}
-                      isMongo={isMongo}
-                      isExternalDb={isExternalDb}
-                      executedQuery={executedQuery}
-                      runId={runId}
-                      refreshSchema={refreshSchema}
-                      dbType={dbType}
-                      isUi={isUi}
-                      files={files}
-                      isDjango={isDjango}
-                      previewPort={previewPort}
-                      computedStartupCommand={computedStartupCommand}
-                      isPython={isPython}
-                      isEvaluationMode={isEvaluationMode}
-                      effectiveUserId={effectiveUserId}
-                      labId={labId}
-                      sprintId={sprintId}
-                      evaluationId={isEvaluationMode ? evaluationId : undefined}
-                    />
-                  )}
-                  <div style={{ display: bottomTab === "terminal" ? "flex" : "none" }} className="min-h-0 flex-1 flex-col h-full w-full">
-                      <TerminalView
-                        theme={theme}
-                        isVisible={bottomTab === "terminal"}
-                        wsUrl={isReal && !isLoading && effectiveUserId ? getTerminalWsUrl(effectiveUserId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other", evaluationId) : null}
-                        onCommandRun={() => loadWorkspaceFiles(true)}
-                        startupCommand={(isExternalDb || ticket.connection_url) ? undefined : computedStartupCommand}
-                        onStartupCommandRun={() => {
-                          setTimeout(() => setBottomTab("preview"), 2000);
-                        }}
+                <div
+                  style={{ display: isBottomCollapsed ? "none" : "flex" }}
+                  className="flex-1 min-h-0 flex-col overflow-hidden"
+                >
+                  <div className={`flex-1 min-h-0 ${bottomTab === "terminal" ? "p-0 overflow-hidden flex flex-col" : "overflow-auto scrollbar-thin p-3 text-xs"}`}>
+                    {bottomTab === "output" && (
+                      <ExecutionOutputView
+                        output={output}
+                        executionMetrics={executionMetrics}
+                        testResults={testResults}
+                        executionOutput={executionOutput}
                       />
+                    )}
+                    {bottomTab === "errors" && <ErrorsView state={compileState} file={activeFile} />}
+                    {bottomTab === "testcases" && (
+                      <CustomTestCaseManager
+                        customTestCases={customTestCases}
+                        onTestCasesChange={setCustomTestCases}
+                        ticketTasks={ticket.tasks}
+                      />
+                    )}
+                    {bottomTab === "preview" && (
+                      <FormattedResultsView
+                        ticket={ticket}
+                        taskExecutionData={taskExecutionData}
+                        testResults={testResults}
+                        executionMetrics={executionMetrics}
+                        tests={tests}
+                        testsRan={testsRan}
+                        ticketScore={ticketScore}
+                        evalResult={evalResult}
+                        output={output}
+                        executionOutput={executionOutput}
+                        onRun={handleRun}
+                        running={running}
+                        isSql={isSql}
+                        isMongo={isMongo}
+                        isExternalDb={isExternalDb}
+                        executedQuery={executedQuery}
+                        runId={runId}
+                        refreshSchema={refreshSchema}
+                        dbType={dbType}
+                        isUi={isUi}
+                        files={files}
+                        isDjango={isDjango}
+                        previewPort={previewPort}
+                        computedStartupCommand={computedStartupCommand}
+                        isPython={isPython}
+                        isEvaluationMode={isEvaluationMode}
+                        effectiveUserId={effectiveUserId}
+                        labId={labId}
+                        sprintId={sprintId}
+                        evaluationId={isEvaluationMode ? evaluationId : undefined}
+                      />
+                    )}
+                    <div style={{ display: bottomTab === "terminal" ? "flex" : "none" }} className="min-h-0 flex-1 flex-col h-full w-full">
+                        <TerminalView
+                          theme={theme}
+                          isVisible={bottomTab === "terminal" && !isBottomCollapsed}
+                          wsUrl={isReal && !isLoading && effectiveUserId ? getTerminalWsUrl(effectiveUserId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other", evaluationId) : null}
+                          onCommandRun={() => loadWorkspaceFiles(true)}
+                          startupCommand={(isExternalDb || ticket.connection_url) ? undefined : computedStartupCommand}
+                          onStartupCommandRun={() => {
+                            setTimeout(() => setBottomTab("preview"), 2000);
+                          }}
+                        />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -4622,7 +5326,7 @@ export function TicketIDE({
                       </>
                     ) : (
                       <>
-                        <Sparkles className="h-3 w-3 text-primary" />
+                        <Bot className="h-3.5 w-3.5 text-primary" />
                         AI Mentor
                       </>
                     )}
@@ -4668,7 +5372,7 @@ export function TicketIDE({
       </div>
 
       {/* Status bar */}
-      <div className="flex items-center gap-3 border-t bg-primary/90 px-3 py-1 text-[11px] text-primary-foreground">
+      <div className="flex items-center gap-3 border-t bg-primary/90 px-3 py-1 text-[11px] text-primary-foreground select-none">
         <span className="inline-flex items-center gap-1">
           <GitBranch className="h-3 w-3" /> main
         </span>
@@ -4744,7 +5448,7 @@ export function TicketIDE({
               Cancel
             </button>
             <button
-              onClick={handleCommitSubmit}
+              onClick={() => handleCommitSubmit()}
               disabled={!commitMessage.trim() || isCommitting}
               className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
             >
@@ -4780,52 +5484,78 @@ export function TicketIDE({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      {/* Quick Open File Switcher Modal (Ctrl+P / Command+P) */}
-      <Dialog open={quickSwitcherOpen} onOpenChange={setQuickSwitcherOpen}>
-        <DialogContent className="max-w-lg p-0 overflow-hidden border border-border shadow-2xl bg-card">
-          <div className="flex items-center gap-2 border-b px-4 py-3 bg-muted/30">
+      {/* Quick Open File Switcher Modal (Ctrl+P / Command+P - VS Code & Antigravity IDE style) */}
+      <Dialog open={quickSwitcherOpen} onOpenChange={(open) => {
+        setQuickSwitcherOpen(open);
+        if (open) {
+          setQuickSearchSelectedIndex(0);
+        }
+      }}>
+        <DialogContent
+          hideCloseButton
+          overlayClassName="bg-black/25 backdrop-blur-[1px]"
+          className="fixed !top-12 left-1/2 -translate-x-1/2 !translate-y-0 w-full max-w-xl p-0 overflow-hidden border border-border/80 shadow-2xl bg-popover/95 backdrop-blur-md rounded-lg gap-0 z-[100]"
+        >
+          <div className="flex items-center gap-2 border-b border-border/60 px-3.5 py-2.5 bg-muted/20">
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
             <input
               type="text"
               autoFocus
               value={quickSearchQuery}
-              onChange={(e) => setQuickSearchQuery(e.target.value)}
-              placeholder="Search files by name (e.g. tests.py, views.py, main.py)..."
-              className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              onChange={(e) => {
+                setQuickSearchQuery(e.target.value);
+                setQuickSearchSelectedIndex(0);
+              }}
+              placeholder="Search files by name..."
+              className="w-full bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none font-sans"
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  const filtered = fileList.filter((f) =>
-                    f.toLowerCase().includes(quickSearchQuery.toLowerCase())
-                  );
-                  if (filtered.length > 0) {
-                    openFile(filtered[0]);
+                const matches = allWorkspaceFiles.filter((f: string) =>
+                  f.toLowerCase().includes(quickSearchQuery.toLowerCase())
+                );
+                if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setQuickSearchSelectedIndex((i: number) => Math.min(matches.length - 1, i + 1));
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setQuickSearchSelectedIndex((i: number) => Math.max(0, i - 1));
+                } else if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (matches.length > 0) {
+                    const picked = matches[quickSearchSelectedIndex] || matches[0];
+                    openFile(picked);
                     setQuickSwitcherOpen(false);
                     setQuickSearchQuery("");
                   }
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  setQuickSwitcherOpen(false);
                 }
               }}
             />
-            <kbd className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground border">
+            <kbd className="rounded bg-muted/80 px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground border border-border/50">
               ESC
             </kbd>
           </div>
-          <div className="max-h-72 overflow-y-auto p-2">
+          <div className="max-h-80 overflow-y-auto p-1.5 space-y-0.5">
             {(() => {
-              const matches = fileList.filter((f) =>
+              const matches = allWorkspaceFiles.filter((f: string) =>
                 f.toLowerCase().includes(quickSearchQuery.toLowerCase())
               );
               if (matches.length === 0) {
                 return (
-                  <div className="p-4 text-center text-xs text-muted-foreground">
+                  <div className="p-6 text-center text-xs text-muted-foreground">
                     No files found matching "{quickSearchQuery}"
                   </div>
                 );
               }
-              return matches.map((f) => {
+              return matches.map((f: string, idx: number) => {
                 const parts = f.split("/");
                 const fileName = parts.pop() || f;
                 const dirPath = parts.join("/");
                 const isCurrent = activeFile === f;
+                const isSelected = idx === quickSearchSelectedIndex;
+                const changeItem = allChangedFiles.find((c) => c.file === f);
+                const isModified = !!changeItem || dirty[f];
                 return (
                   <button
                     key={f}
@@ -4834,31 +5564,272 @@ export function TicketIDE({
                       setQuickSwitcherOpen(false);
                       setQuickSearchQuery("");
                     }}
+                    onMouseEnter={() => setQuickSearchSelectedIndex(idx)}
                     className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs transition-colors ${
-                      isCurrent
+                      isSelected
+                        ? "bg-accent text-accent-foreground font-medium border-l-2 border-primary pl-2.5"
+                        : isCurrent
                         ? "bg-primary/10 text-primary font-medium"
-                        : "text-foreground hover:bg-accent"
+                        : "text-foreground hover:bg-accent/60"
                     }`}
                   >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <FileCode2 className="h-3.5 w-3.5 shrink-0 text-info" />
-                      <span className="font-mono text-sm">{fileName}</span>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {getLanguageFileIcon(fileName, "h-4 w-4 shrink-0")}
+                      <span className="font-mono text-[13px]">{fileName}</span>
                       {dirPath && (
-                        <span className="text-[11px] text-muted-foreground truncate">
-                          ({dirPath})
+                        <span className="text-[11px] text-muted-foreground truncate font-sans">
+                          {dirPath}
                         </span>
                       )}
                     </div>
-                    {isCurrent && (
-                      <span className="text-[10px] text-primary shrink-0 uppercase tracking-wide">
-                        Active
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {isModified && (
+                        <span className="text-[10px] font-bold text-warning font-mono" title="Modified">
+                          ●
+                        </span>
+                      )}
+                      {changeItem && (
+                        <span className={`text-[10px] font-bold font-mono ${
+                          changeItem.status === "M" ? "text-warning" : changeItem.status === "U" ? "text-success" : "text-destructive"
+                        }`}>
+                          {changeItem.status}
+                        </span>
+                      )}
+                      {isCurrent && (
+                        <span className="text-[10px] uppercase font-semibold text-primary/70 tracking-wider">
+                          Active
+                        </span>
+                      )}
+                    </div>
                   </button>
                 );
               });
             })()}
           </div>
+          <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-border/40 bg-muted/10 text-[10px] text-muted-foreground">
+            <span>
+              {allWorkspaceFiles.filter((f: string) => f.toLowerCase().includes(quickSearchQuery.toLowerCase())).length} file(s)
+            </span>
+            <div className="flex items-center gap-2.5">
+              <span><kbd className="font-mono bg-muted px-1 py-0.2 rounded border text-[9px]">↑↓</kbd> navigate</span>
+              <span><kbd className="font-mono bg-muted px-1 py-0.2 rounded border text-[9px]">↵</kbd> open</span>
+              <span><kbd className="font-mono bg-muted px-1 py-0.2 rounded border text-[9px]">esc</kbd> close</span>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* File Diff Modal (VS Code & Antigravity IDE style) */}
+      <Dialog open={!!diffModalFile} onOpenChange={(open) => { if (!open) setDiffModalFile(null); }}>
+        <DialogContent
+          overlayClassName="bg-black/40 backdrop-blur-[1px]"
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92vw] max-w-4xl max-h-[85vh] p-0 overflow-hidden border border-border shadow-2xl bg-card rounded-lg flex flex-col gap-0 z-[100]"
+        >
+          {diffModalFile && (() => {
+            const baseText = getBaseContent(diffModalFile);
+            const currText = files[diffModalFile] ?? "";
+            const isStaged = stagedFiles.includes(diffModalFile);
+            const baseLines = baseText.split("\n");
+            const currLines = currText.split("\n");
+
+            return (
+              <>
+                <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/20">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {getLanguageFileIcon(diffModalFile, "h-4 w-4 shrink-0")}
+                    <span className="font-mono text-xs font-semibold text-foreground truncate">
+                      {diffModalFile}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground uppercase font-sans tracking-wider px-1.5 py-0.5 rounded bg-muted border border-border/50">
+                      Working Tree ↔ HEAD
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {isStaged ? (
+                      <button
+                        onClick={() => handleUnstageFile(diffModalFile)}
+                        className="inline-flex items-center gap-1 rounded bg-muted px-2.5 py-1 text-xs font-medium hover:bg-accent text-foreground transition-colors border border-border/60 cursor-pointer"
+                      >
+                        <Minus className="h-3 w-3" />
+                        <span>Unstage</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleStageFile(diffModalFile)}
+                        className="inline-flex items-center gap-1 rounded bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:opacity-90 transition-opacity cursor-pointer"
+                      >
+                        <Plus className="h-3 w-3" />
+                        <span>Stage Changes</span>
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        handleDiscardFile(diffModalFile);
+                        setDiffModalFile(null);
+                      }}
+                      className="inline-flex items-center gap-1 rounded bg-destructive/15 text-destructive hover:bg-destructive/25 px-2.5 py-1 text-xs font-medium transition-colors border border-destructive/30 cursor-pointer"
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                      <span>Discard</span>
+                    </button>
+                    <button
+                      onClick={() => setDiffModalFile(null)}
+                      className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      title="Close Diff (Esc)"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-auto max-h-[70vh] font-mono text-xs p-2 grid grid-cols-2 gap-2 divide-x divide-border/40 bg-background/50">
+                  {/* Left: Original / Base */}
+                  <div className="space-y-0.5 overflow-x-auto pr-2">
+                    <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70 pb-1 border-b border-border/30 mb-1 sticky top-0 bg-background/90 px-1 backdrop-blur-xs flex items-center justify-between">
+                      <span>HEAD / Committed</span>
+                      <span className="font-mono text-[9px]">{baseLines.length} lines</span>
+                    </div>
+                    {baseLines.map((line, idx) => {
+                      const isDiff = line !== currLines[idx];
+                      return (
+                        <div
+                          key={`base-${idx}`}
+                          className={`flex items-start gap-2 px-1 py-0.5 rounded text-[11px] leading-tight ${
+                            isDiff ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 font-medium" : "text-muted-foreground/80"
+                          }`}
+                        >
+                          <span className="w-8 shrink-0 text-right text-[10px] text-muted-foreground/50 select-none font-mono">
+                            {idx + 1}
+                          </span>
+                          <span className="w-3 shrink-0 text-center select-none text-[10px]">
+                            {isDiff ? "-" : " "}
+                          </span>
+                          <pre className="font-mono whitespace-pre flex-1 truncate">{line || " "}</pre>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right: Working Tree (Current) */}
+                  <div className="space-y-0.5 overflow-x-auto pl-2">
+                    <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/70 pb-1 border-b border-border/30 mb-1 sticky top-0 bg-background/90 px-1 backdrop-blur-xs flex items-center justify-between">
+                      <span>Working Tree</span>
+                      <span className="font-mono text-[9px]">{currLines.length} lines</span>
+                    </div>
+                    {currLines.map((line, idx) => {
+                      const isDiff = line !== baseLines[idx];
+                      return (
+                        <div
+                          key={`curr-${idx}`}
+                          className={`flex items-start gap-2 px-1 py-0.5 rounded text-[11px] leading-tight ${
+                            isDiff ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-medium" : "text-foreground/90"
+                          }`}
+                        >
+                          <span className="w-8 shrink-0 text-right text-[10px] text-muted-foreground/50 select-none font-mono">
+                            {idx + 1}
+                          </span>
+                          <span className="w-3 shrink-0 text-center select-none text-[10px]">
+                            {isDiff ? "+" : " "}
+                          </span>
+                          <pre className="font-mono whitespace-pre flex-1 truncate">{line || " "}</pre>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between px-4 py-1.5 border-t border-border bg-muted/10 text-[11px] text-muted-foreground">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      <span className="h-2 w-2 rounded-full bg-rose-500"></span> Deleted / Modified in Base
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500"></span> Added / Modified in Working Tree
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono">Press ESC to close</span>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Keyboard Shortcuts Cheatsheet Modal */}
+      <Dialog open={shortcutsModalOpen} onOpenChange={setShortcutsModalOpen}>
+        <DialogContent className="max-w-md border border-border shadow-2xl bg-card">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base font-semibold">
+              <Settings className="h-4 w-4 text-primary" />
+              Keyboard Shortcuts
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              VS Code compatible shortcuts in this workspace.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-80 overflow-y-auto space-y-4 py-2 text-xs">
+            <div>
+              <div className="font-semibold text-muted-foreground uppercase tracking-wider text-[10px] mb-1.5">
+                Navigation & Views
+              </div>
+              <div className="space-y-1.5">
+                {[
+                  { keys: ["⌘", "P"], label: "Quick Open / Find File" },
+                  { keys: ["⌘", "B"], label: "Toggle Left Problem Panel" },
+                  { keys: ["⌘", "Shift", "F"], label: "Search in Files" },
+                  { keys: ["⌘", "Shift", "E"], label: "File Explorer" },
+                  { keys: ["⌘", "Shift", "G"], label: "Source Control / Diff" },
+                  { keys: ["⌘", "J"], label: "Toggle Down Bar (Expand / Collapse)" },
+                ].map((s, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-1 border-b border-border/30">
+                    <span className="text-foreground">{s.label}</span>
+                    <div className="flex items-center gap-1">
+                      {s.keys.map((k, kIdx) => (
+                        <kbd key={kIdx} className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground border border-border/60">
+                          {k}
+                        </kbd>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="font-semibold text-muted-foreground uppercase tracking-wider text-[10px] mb-1.5">
+                Editor Actions
+              </div>
+              <div className="space-y-1.5">
+                {[
+                  { keys: ["⌘", "S"], label: "Save File" },
+                  { keys: ["⌘", "↵"], label: "Run Code / Tests" },
+                  { keys: ["Shift", "⌥", "F"], label: "Format Document" },
+                  { keys: ["⌘", "W"], label: "Close Active Tab" },
+                  { keys: ["F5"], label: "Run / Debug Code" },
+                  { keys: ["F1"], label: "Show Keyboard Shortcuts" },
+                ].map((s, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-1 border-b border-border/30">
+                    <span className="text-foreground">{s.label}</span>
+                    <div className="flex items-center gap-1">
+                      {s.keys.map((k, kIdx) => (
+                        <kbd key={kIdx} className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground border border-border/60">
+                          {k}
+                        </kbd>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setShortcutsModalOpen(false)}
+              className="px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground text-xs font-medium hover:bg-secondary/80"
+            >
+              Close
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -4891,21 +5862,162 @@ function editorLanguage(file: string): EditorLang {
   return "txt";
 }
 
+function getLanguageFileIcon(fileName: string, className = "h-3.5 w-3.5 shrink-0") {
+  const lower = fileName.toLowerCase();
+  if (lower.endsWith(".py")) {
+    return (
+      <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7.87 1c-3.1 0-2.9 1.34-2.9 1.34l.01 1.4h2.95v.42H3.84S1 4 1 7.15c0 3.12 1.66 3.01 1.66 3.01h1v-1.42s-.05-1.66 1.63-1.66h2.82c1.37 0 1.37-1.34 1.37-1.34V3.13S9.94 1 7.87 1zm-1.46.85c.34 0 .61.28.61.62s-.27.62-.61.62a.62.62 0 110-1.24z" fill="#3776AB"/>
+        <path d="M8.13 15c3.1 0 2.9-1.34 2.9-1.34l-.01-1.4H8.07v-.42h4.09S15 12 15 8.85c0-3.12-1.66-3.01-1.66-3.01h-1v1.42s.05 1.66-1.63 1.66H7.89c-1.37 0-1.37 1.34-1.37 1.34v3.61s-.46 2.13 1.61 2.13zm1.46-.85c-.34 0-.61-.28-.61-.62s.27-.62.61-.62a.62.62 0 110-1.24z" fill="#FFD438"/>
+      </svg>
+    );
+  }
+  if (lower.endsWith(".md")) {
+    return (
+      <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="2" width="14" height="12" rx="1.5" stroke="#388bfd" strokeWidth="1.2" fill="#388bfd" fillOpacity="0.1" />
+        <path d="M3.5 11V5.5l2 2.5 2-2.5V11" stroke="#388bfd" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 8.5l-1.5 2-1.5-2m1.5-3.5v5.5" stroke="#388bfd" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (lower.endsWith(".js") || lower.endsWith(".jsx")) {
+    return (
+      <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="14" height="14" rx="2" fill="#F7DF1E"/>
+        <path d="M7 11.5c-.3.3-.8.5-1.4.5-.9 0-1.6-.5-1.6-1.5v-.2h1.1v.2c0 .4.2.6.5.6.3 0 .5-.2.5-.5V6h1.1v4.7c0 .4-.1.6-.2.8zm5-.2c-.3.4-.9.7-1.7.7-.9 0-1.6-.5-1.6-1.4 0-1 .7-1.3 1.5-1.6.5-.2.8-.3.8-.6 0-.3-.2-.4-.5-.4-.3 0-.6.1-.7.4l-.8-.5c.3-.5.8-.8 1.5-.8.9 0 1.6.5 1.6 1.4 0 .9-.6 1.2-1.4 1.5-.5.2-.9.4-.9.7 0 .3.3.4.6.4.4 0 .7-.2.9-.5l.6.6z" fill="#000000"/>
+      </svg>
+    );
+  }
+  if (lower.endsWith(".ts") || lower.endsWith(".tsx")) {
+    return (
+      <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="14" height="14" rx="2" fill="#3178C6"/>
+        <path d="M3.5 7h4v1.2H6v4H4.7v-4H3.5V7zm7.5 4.3c-.3.4-.9.7-1.7.7-.9 0-1.6-.5-1.6-1.4 0-1 .7-1.3 1.5-1.6.5-.2.8-.3.8-.6 0-.3-.2-.4-.5-.4-.3 0-.6.1-.7.4l-.8-.5c.3-.5.8-.8 1.5-.8.9 0 1.6.5 1.6 1.4 0 .9-.6 1.2-1.4 1.5-.5.2-.9.4-.9.7 0 .3.3.4.6.4.4 0 .7-.2.9-.5l.6.6z" fill="#FFFFFF"/>
+      </svg>
+    );
+  }
+  if (lower.endsWith(".json")) {
+    return (
+      <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="8" y="11.5" textAnchor="middle" fontSize="11" fontWeight="bold" fontFamily="monospace" fill="#CBCB41">{`{}`}</text>
+      </svg>
+    );
+  }
+  if (lower.endsWith(".html")) {
+    return (
+      <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.5 1.5L3.6 14l4.4 1.2 4.4-1.2 1.1-12.5H2.5z" fill="#E44D26"/>
+        <path d="M8 2.6v11.4l3.5-1 .9-10.4H8z" fill="#F16529"/>
+        <path d="M4.8 5.2h6.4l-.2 2.2H6.9l.2 2h3.9l-.3 3.3-2.7.8-2.7-.8-.2-1.7h1.3l.1.8 1.5.4 1.5-.4.1-1.3H4.6l.2-5.1z" fill="#FFFFFF"/>
+      </svg>
+    );
+  }
+  if (lower.endsWith(".css")) {
+    return (
+      <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.5 1.5L3.6 14l4.4 1.2 4.4-1.2 1.1-12.5H2.5z" fill="#1572B6"/>
+        <path d="M8 2.6v11.4l3.5-1 .9-10.4H8z" fill="#33A9DC"/>
+        <path d="M4.8 5.2h6.4l-.2 2.2H6.9l.2 2h3.9l-.3 3.3-2.7.8-2.7-.8-.2-1.7h1.3l.1.8 1.5.4 1.5-.4.1-1.3H4.6l.2-5.1z" fill="#FFFFFF"/>
+      </svg>
+    );
+  }
+  if (lower.endsWith(".java")) {
+    return (
+      <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6.2 12.3s-.7.1-.4.4c.4.3 1.2.3 2 .3 1.3 0 2.2-.2 2.2-.2s.5-.2.3-.4c-.2-.2-.8-.2-1.4-.2-.8 0-1.9.1-2.7.1z" fill="#EA2D2E"/>
+        <path d="M5.8 13.5s-.8.2-.3.5c.6.4 1.7.3 2.9.3 1.7 0 2.9-.3 2.9-.3s.6-.2.4-.4c-.2-.2-1-.2-1.8-.2-1.1 0-2.8.1-4.1.1z" fill="#007396"/>
+        <path d="M8.2 2.5c-.8 1.4-1.2 2.5.4 3.7.8.6 1.3 1.2 1.3 2 0 1.5-1.2 2.3-2.2 2.7-.3.1-.2.4.1.3 1.5-.6 2.9-1.6 2.9-3.3 0-1.3-.7-2-1.4-2.7-1.1-1-.8-1.8-.3-2.4.2-.3-.5-.7-.8-.3z" fill="#EA2D2E"/>
+      </svg>
+    );
+  }
+  if (lower.endsWith(".sql")) {
+    return <Database className={`${className} text-[#00758f]`} />;
+  }
+  if (lower.endsWith(".cpp") || lower.endsWith(".c") || lower.endsWith(".h")) {
+    return (
+      <svg className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="14" height="14" rx="2" fill="#00599C"/>
+        <text x="8" y="11" textAnchor="middle" fontSize="8" fontWeight="bold" fontFamily="sans-serif" fill="#FFFFFF">C++</text>
+      </svg>
+    );
+  }
+  if (lower.includes("git")) {
+    return <GitBranch className={`${className} text-[#F05032]`} />;
+  }
+  return <FileText className={`${className} text-muted-foreground`} />;
+}
+
+const monacoBuiltinsHighlighter = ViewPlugin.fromClass(
+  class {
+    decorations: any;
+    matcher: any;
+    constructor(view: EditorView) {
+      this.matcher = new MatchDecorator({
+        regexp:
+          /\b(str|int|float|bool|list|dict|set|tuple|bytes|bytearray|range|slice|object|type|Exception|TypeError|ValueError|KeyError|IndexError|AttributeError|RuntimeError|String|Integer|Boolean|Double|Float|Long|Short|Byte|Character|List|ArrayList|LinkedList|Map|HashMap|TreeMap|Set|HashSet|TreeSet|void|char|boolean|byte|short|int|long|float|double|self|cls|__name__|__main__|__init__|__doc__|__file__)\b/g,
+        decoration: (match, view, pos) => {
+          try {
+            const node = syntaxTree(view.state).resolveInner(pos, 1);
+            if (node.name.includes("Comment") || node.name.includes("String")) {
+              return null;
+            }
+          } catch {
+            // fallback
+          }
+          const word = match[1];
+          if (word === "self" || word === "cls") {
+            return Decoration.mark({ class: "cm-vs-self" });
+          }
+          if (word.startsWith("__") && word.endsWith("__")) {
+            return Decoration.mark({ class: "cm-vs-dunder" });
+          }
+          return Decoration.mark({ class: "cm-vs-type" });
+        },
+      });
+      this.decorations = this.matcher.createDeco(view);
+    }
+    update(update: any) {
+      this.decorations = this.matcher.updateDeco(update, this.decorations);
+    }
+  },
+  {
+    decorations: (v: any) => v.decorations,
+  }
+);
+
 function CodeEditor({
   code,
   onChange,
   language,
   theme,
+  onToggleBottom,
 }: {
   code: string;
   onChange: (v: string) => void;
   language: EditorLang;
   theme: "dark" | "light";
+  onToggleBottom?: () => void;
 }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const keymapExtension = useMemo(() => {
+    if (!onToggleBottom) return [];
+    return [
+      keymap.of([
+        {
+          key: "Mod-j",
+          run: () => {
+            onToggleBottom();
+            return true;
+          },
+        },
+      ]),
+    ];
+  }, [onToggleBottom]);
 
   const extensions = useMemo(() => {
     switch (language) {
@@ -4934,17 +6046,41 @@ function CodeEditor({
   }, [language]);
 
   const transparentTheme = useMemo(() => {
+    const isDark = theme === "dark";
     return EditorView.theme({
-      "&": { backgroundColor: "transparent !important" },
+      "&": {
+        backgroundColor: "transparent !important",
+        height: "100%",
+      },
       ".cm-gutters": {
         backgroundColor: "transparent !important",
         borderRight: "1px solid var(--color-border) !important",
-        color: "var(--color-muted-foreground)",
       },
-      ".cm-activeLine": { backgroundColor: "var(--color-muted) !important" },
-      ".cm-activeLineGutter": { backgroundColor: "var(--color-muted) !important" },
+      ".cm-lineNumbers .cm-gutterElement": {
+        color: "var(--color-muted-foreground) !important",
+        opacity: 0.65,
+      },
+      ".cm-lineNumbers .cm-gutterElement.cm-activeLineGutter, .cm-activeLineGutter": {
+        backgroundColor: "transparent !important",
+        color: "var(--color-foreground) !important",
+        fontWeight: "700 !important",
+        opacity: "1 !important",
+      },
+      ".cm-activeLine": {
+        backgroundColor: isDark ? "rgba(255, 255, 255, 0.04) !important" : "rgba(0, 0, 0, 0.04) !important",
+      },
+      ".cm-vs-type": {
+        color: isDark ? "#4ec9b0 !important" : "#267f99 !important",
+      },
+      ".cm-vs-self": {
+        color: isDark ? "#569cd6 !important" : "#0000ff !important",
+        fontStyle: "italic",
+      },
+      ".cm-vs-dunder": {
+        color: isDark ? "#569cd6 !important" : "#0000ff !important",
+      },
     });
-  }, []);
+  }, [theme]);
 
   if (!mounted) {
     return (
@@ -4957,13 +6093,19 @@ function CodeEditor({
   return (
     <div className="flex flex-1 min-w-0 overflow-hidden bg-editor-bg">
       <CodeMirror
+        key={`${language}-${theme}`}
         value={code}
         onChange={(v) => onChange(v)}
         theme={theme === "dark" ? vscodeDark : vscodeLight}
-        extensions={[transparentTheme, ...extensions]}
+        extensions={[
+          transparentTheme,
+          monacoBuiltinsHighlighter,
+          ...keymapExtension,
+          ...extensions,
+        ]}
         basicSetup={{
           lineNumbers: true,
-          highlightActiveLine: true,
+          highlightActiveLine: false,
           highlightActiveLineGutter: true,
           foldGutter: true,
           autocompletion: true,
@@ -5177,7 +6319,7 @@ function FormattedResultsView({
     const isAllPassed = passedCount === totalCount && totalCount > 0;
 
     return (
-      <div className="space-y-4 max-w-4xl pb-4">
+      <div className="space-y-4 w-full pb-4">
         {/* Metrics Header */}
         <div className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg border bg-card text-xs">
           <div className="flex items-center gap-2">
@@ -5304,24 +6446,24 @@ function FormattedResultsView({
       }
 
       return (
-        <div className="space-y-4 max-w-4xl pb-4">
+        <div className="space-y-4 w-full pb-4">
           {/* Score & Summary Banner */}
           <div className={`rounded-lg border p-4 transition-all ${bannerBorder}`}>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className={`flex h-10 w-10 items-center justify-center rounded-full border ${iconBg}`}>
-                  {isAllPassed ? <CheckCircle2 className="h-5 w-5" /> : report.hasRan ? <XCircle className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
+                  {isAllPassed ? <CheckCircle2 className="h-5 w-5" /> : report.hasRan ? <XCircle className="h-5 w-5" /> : <ListChecks className="h-5 w-5" />}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm text-foreground">
+                    <span className="font-semibold text-sm text-foreground font-sans">
                       {headerText}
                     </span>
-                    <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${statusCls}`}>
+                    <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded font-sans ${statusCls}`}>
                       {statusText}
                     </span>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
+                  <div className="text-xs text-muted-foreground mt-0.5 font-sans">
                     {!report.hasRan
                       ? "Click Run to execute automated evaluation against all tasks"
                       : "Automated test evaluation results"}
@@ -5331,7 +6473,7 @@ function FormattedResultsView({
 
               <div className="flex items-center gap-4">
                 <div className="text-right">
-                  <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Score</div>
+                  <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider font-sans">Score</div>
                   <div className="font-mono text-base font-bold text-foreground">
                     <span className={isAllPassed ? "text-success" : report.totalScore > 0 ? "text-amber-500" : "text-foreground"}>{report.totalScore}</span>
                     <span className="text-muted-foreground text-xs font-normal"> / {report.maxScore}</span>
@@ -5363,7 +6505,7 @@ function FormattedResultsView({
 
           {/* Tasks List */}
           <div className="space-y-2.5">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-0.5">
+            <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-0.5 font-sans">
               Tasks ({report.items.length})
             </h4>
             {report.items.map((it) => {
@@ -6139,7 +7281,7 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
     >
       {/* Sleek Terminal Header */}
       <div
-        className={`flex items-center justify-between h-7 px-3 border-b text-[11px] font-mono select-none flex-shrink-0 ${
+        className={`flex items-center justify-between h-7 px-3 border-b text-[11px] font-sans select-none flex-shrink-0 ${
           isDark
             ? "bg-[#161b22] border-white/10 text-neutral-400"
             : "bg-neutral-100 border-neutral-200 text-neutral-600"
@@ -6151,10 +7293,10 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
               connected ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]" : "bg-rose-500"
             }`}
           />
-          <span className="font-semibold tracking-wider text-[10px] uppercase text-foreground">
+          <span className="font-semibold tracking-wider text-[11px] uppercase text-foreground font-sans">
             Terminal
           </span>
-          <span className="text-[10px] text-muted-foreground hidden sm:inline">
+          <span className="text-[11px] text-muted-foreground hidden sm:inline font-sans">
             {connected ? "• Connected" : `• ${error ?? "Disconnected"}`}
           </span>
         </div>
@@ -6164,7 +7306,7 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
               termRef.current?.clear();
             }}
             title="Clear terminal"
-            className="hover:text-foreground text-muted-foreground transition-colors px-1.5 py-0.5 rounded text-[10px]"
+            className="hover:text-foreground text-muted-foreground transition-colors px-1.5 py-0.5 rounded text-[11px] font-sans font-medium"
           >
             Clear
           </button>
@@ -6311,9 +7453,11 @@ function ProblemPanel({
   return (
     <>
       <div>
-        <div className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
-          {ticket.tag}
-        </div>
+        {ticket.tag && ticket.tag.toLowerCase() !== "bash" && (
+          <div className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+            {ticket.tag}
+          </div>
+        )}
         <h2 className="text-lg font-semibold mt-0.5">{ticket.title}</h2>
         {isAlgo && isReal ? (
           <div className="mt-3 text-sm text-muted-foreground leading-relaxed DS-Markdown"
@@ -6332,7 +7476,7 @@ function ProblemPanel({
           {/* Tasks from DB */}
           {tasks.length > 0 && (
             <Section title={isAlgo ? "✅ Test Cases" : "✅ Tasks"}>
-              <div className="space-y-2 text-muted-foreground">
+              <div className="space-y-1.5 text-muted-foreground">
                 {tasks.map((task: any, originalIdx: number) => ({ task, originalIdx })).filter(({ task }) => {
                   const title = typeof task === "string" ? task : (task.title ?? "");
                   return !(typeof task === "object" && (title.toLowerCase().includes("hidden") || title.toLowerCase().includes("advanced") || task.is_hidden === true));
@@ -6342,49 +7486,52 @@ function ProblemPanel({
                   const taskTitle = formatTaskTitle(rawTitle, idx, task?.original_index ?? originalIdx);
                   const taskDesc = typeof task === "object" ? task.description : null;
                   const taskMethod = typeof task === "object" ? task.method : null;
-                  const isDS = isAlgo;
-                  const isHidden = typeof task === "object" && (taskTitle.toLowerCase().includes("hidden") || task.is_hidden === true);
+                  const isGenericDesc = taskDesc && taskDesc.toLowerCase().startsWith("validate your code against test case");
                   
                   return (
                     <div
                       key={idx}
-                      className="rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors p-3.5"
+                      className="rounded-md border border-border/40 bg-muted/20 hover:bg-muted/30 transition-colors p-2.5"
                     >
-                      <div className="flex items-start gap-3">
-                        <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary/10 border border-primary/20 text-[11px] text-primary font-bold">
+                      <div className="flex items-start gap-2.5">
+                        <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-bold">
                           {idx + 1}
                         </span>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
-                            {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">{taskDesc}</p>}
-                          {(task.input !== undefined || (task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)))) && (
-                            <div className="mt-2.5 text-xs bg-muted/40 rounded-md p-2.5">
-                              {task.input !== undefined && (
-                                <>
-                                  <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Input:</div>
-                                  <div className="mb-3 whitespace-pre-wrap font-mono text-foreground">{task.input || "No input"}</div>
-                                </>
-                              )}
-                              {task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)) && (
-                                <>
-                                  <div className="font-semibold text-muted-foreground mb-1 uppercase tracking-wide text-[10px]">Expected Output:</div>
-                                  <div className="whitespace-pre-wrap font-mono text-foreground">{typeof task.expected_output === 'object' ? JSON.stringify(task.expected_output, null, 2) : (task.expected_output || "No output")}</div>
-                                </>
-                              )}
-                            </div>
-                          )}
-                          {taskMethod && (
-                            <div className="mt-3 flex items-center flex-wrap gap-2">
-                              <span className="inline-flex items-center gap-1.5 rounded bg-info/10 px-2 py-1 text-[11px] font-medium text-info">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-foreground text-xs">{taskTitle}</span>
+                            {taskMethod && (
+                              <span className="inline-flex items-center rounded bg-info/10 px-1.5 py-0.2 text-[10px] font-medium text-info">
                                 {taskMethod}
                               </span>
+                            )}
+                          </div>
+                          {taskDesc && !isGenericDesc && (
+                            <p className="mt-0.5 text-[11px] text-muted-foreground leading-tight whitespace-pre-wrap break-words">{taskDesc}</p>
+                          )}
+                          {(task.input !== undefined || (task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)))) && (
+                            <div className="mt-1.5 grid grid-cols-2 gap-2 bg-muted/40 rounded p-2 text-[11px] font-mono">
+                              {task.input !== undefined && (
+                                <div className="min-w-0">
+                                  <div className="font-semibold text-muted-foreground mb-0.5 uppercase tracking-wide text-[9px]">Input:</div>
+                                  <div className="whitespace-pre-wrap break-all text-foreground leading-snug">{task.input || "No input"}</div>
+                                </div>
+                              )}
+                              {task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)) && (
+                                <div className="min-w-0">
+                                  <div className="font-semibold text-muted-foreground mb-0.5 uppercase tracking-wide text-[9px]">Expected Output:</div>
+                                  <div className="whitespace-pre-wrap break-all text-foreground leading-snug">
+                                    {typeof task.expected_output === 'object' ? JSON.stringify(task.expected_output) : (task.expected_output || "No output")}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           )}
                           {(() => {
                             const item = evalResult[task.task_slug] || evalResult[`task-${originalIdx}`] || evalResult[`task-${idx}`] || (task.id ? evalResult[String(task.id)] : undefined);
                             if (!item) return null;
                             return (
-                              <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
+                              <div className={`mt-2 rounded-md border px-2.5 py-1 text-xs font-medium ${
                                 item.passed 
                                   ? "border-success/20 bg-success/10 text-success" 
                                   : "border-destructive/20 bg-destructive/10 text-destructive"
@@ -6613,8 +7760,8 @@ function HintsPanel({
           ticket_id: ticket.id,
           hint_index: index,
         });
-        if (res?.revealed_hints) {
-          setRevealedHints(res.revealed_hints);
+        if ((res as any)?.revealed_hints) {
+          setRevealedHints((res as any).revealed_hints);
         } else {
           setRevealedHints([...revealedHints, index]);
         }
@@ -7189,7 +8336,7 @@ function TreeFileNode({
     return (
       <InlineInput
         initialValue={node.name}
-        icon={<FileCode2 className="h-3 w-3 shrink-0 text-info" />}
+        icon={getLanguageFileIcon(node.name, "h-3.5 w-3.5 shrink-0")}
         paddingLeft={depth * 10 + 4}
         onCommit={(nextName) => {
           const trimmed = nextName.trim();
@@ -7216,7 +8363,7 @@ function TreeFileNode({
           }`}
         >
           <span className="w-3" />
-          <FileCode2 className="h-3 w-3 shrink-0" />
+          {getLanguageFileIcon(node.name, "h-3.5 w-3.5 shrink-0")}
           <span className="flex-1 truncate">{node.name}</span>
           {modified && <span className="h-1.5 w-1.5 rounded-full bg-warning" />}
         </button>

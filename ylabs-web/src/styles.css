@@ -53,11 +53,62 @@
   --color-syntax-fn: var(--syntax-fn);
   --color-syntax-type: var(--syntax-type);
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-bg: var(--color-bg);
+  --color-ink: var(--color-ink);
+  --color-sub: var(--color-sub);
+  --color-line: var(--color-line);
+  --color-line-soft: var(--color-line-soft);
+  --color-danger: var(--danger);
+  --color-danger-strong: var(--danger-strong);
+  --color-danger-soft: var(--danger-soft);
+  --color-on-danger: var(--on-danger);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-subtle: var(--color-primary-subtle);
+  --color-danger-subtle: var(--color-danger-subtle);
+  --color-success-subtle: var(--color-success-subtle);
+  --radius-card: var(--radius-card);
+  --radius-input: var(--radius-input);
 }
 
 :root {
+  --nav-h: 56px;
   --brand-orange: #f7931e;
   --radius: 0.625rem;
+  --radius-card: 10px;
+  --radius-input: 6px;
+
+  /* Global Developer Profile Design Tokens (Light) */
+  --danger: #dc2626;
+  --danger-strong: #b91c1c;
+  --danger-soft: #fef2f2;
+  --on-danger: #ffffff;
+  --color-danger: #dc2626;
+  --color-danger-subtle: #fef2f2;
+
+  --ink: #101828;
+  --color-ink: #101828;
+  --sub: #344054;
+  --color-sub: #344054;
+  --line: #e4e7ec;
+  --color-line: #e4e7ec;
+  --line-soft: #ebedf0;
+  --color-line-soft: #ebedf0;
+
+  --primary-strong: #c2540a;
+  --primary-soft: rgba(234, 88, 12, 0.10);
+  --color-primary: #ea580c;
+  --color-primary-hover: #c2540a;
+  --color-primary-subtle: #fff7ed;
+
+  --success-soft: #edfcf2;
+  --color-success: #157f3d;
+  --color-success-subtle: #edfcf2;
+  --warn-soft: #fffbeb;
+  --color-warning: #d97706;
+  --color-warning-subtle: #fffbeb;
+  --hover: rgba(16, 24, 40, 0.04);
+  --color-bg: #f6f7f9;
+  --color-card: #ffffff;
   /* Light theme — clean, soft slate/indigo */
   --background: oklch(0.985 0.003 260);
   --foreground: oklch(0.22 0.02 260);
@@ -109,6 +160,42 @@
 
 .dark {
   color-scheme: dark;
+  --nav-h: 56px;
+  --radius-card: 10px;
+  --radius-input: 6px;
+
+  /* Global Developer Profile Design Tokens (Dark) */
+  --danger: #ef4444;
+  --danger-strong: #dc2626;
+  --danger-soft: #450a0a;
+  --on-danger: #ffffff;
+  --color-danger: #ef4444;
+  --color-danger-subtle: #450a0a;
+
+  --ink: #f0f6fc;
+  --color-ink: #f0f6fc;
+  --sub: #c9d1d9;
+  --color-sub: #c9d1d9;
+  --line: #30363d;
+  --color-line: #30363d;
+  --line-soft: #21262d;
+  --color-line-soft: #21262d;
+
+  --primary-strong: #fb923c;
+  --primary-soft: rgba(249, 115, 22, 0.15);
+  --color-primary: #f97316;
+  --color-primary-hover: #ea580c;
+  --color-primary-subtle: #2b1704;
+
+  --success-soft: #132d20;
+  --color-success: #16a34a;
+  --color-success-subtle: #132d20;
+  --warn-soft: #2e2008;
+  --color-warning: #f59e0b;
+  --color-warning-subtle: #2e2008;
+  --hover: rgba(240, 246, 252, 0.06);
+  --color-bg: #0d1117;
+  --color-card: #161b22;
   --background: oklch(0.16 0.018 260);
   --foreground: oklch(0.96 0.005 260);
   --card: oklch(0.2 0.02 260);
@@ -194,11 +281,13 @@
     background: var(--border);
     border-radius: 8px;
   }
-  .hide-scrollbar {
+  .hide-scrollbar,
+  .no-scrollbar {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
-  .hide-scrollbar::-webkit-scrollbar {
+  .hide-scrollbar::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
   }
 }
@@ -900,4 +989,282 @@
 }
 /* Evaluation workspace (Submissions): allow main to shrink beside the fixed sidebar. */
 .recruiter-theme main:has(.evs-theme) { min-width: 0; }
+
+/* ==========================================================================
+   Developer Profile Design Tokens (faithful to Yuvro prototype)
+   ========================================================================== */
+:root {
+  --color-bg: #f6f7f9;
+  --color-card: #ffffff;
+  --color-ink: #101828;
+  --color-sub: #344054;
+  --color-muted: #667085;
+  --color-line: #e4e7ec;
+  --color-primary: #3558c8;
+  --color-primary-hover: #2a47a3;
+  --color-primary-subtle: #eef2ff;
+  --color-danger: #dc2626;
+  --color-danger-subtle: #fef2f2;
+  --color-success: #157f3d;
+  --color-success-subtle: #edfcf2;
+  --radius-card: 12px;
+  --radius-input: 8px;
+}
+
+.dark {
+  --color-bg: #0f141c;
+  --color-card: #161c26;
+  --color-ink: #f2f4f7;
+  --color-sub: #d0d5dd;
+  --color-muted: #98a2b3;
+  --color-line: #242c38;
+  --color-primary: #4a6fdc;
+  --color-primary-hover: #5d80e6;
+  --color-primary-subtle: #1a2236;
+  --color-danger: #ef4444;
+  --color-danger-subtle: #450a0a;
+  --color-success: #17b26a;
+  --color-success-subtle: #132d20;
+}
+
+.yuvro-profile-theme {
+  --nav-h: 56px;
+  --color-bg: #f6f7f9;
+  --color-card: #ffffff;
+  --color-ink: #101828;
+  --color-sub: #344054;
+  --color-muted: #667085;
+  --color-line: #e4e7ec;
+  --color-line-soft: #ebedf0;
+  --color-primary: #ea580c;
+  --color-primary-hover: #c2540a;
+  --color-primary-subtle: #fff7ed;
+  --primary: #ea580c;
+  --primary-strong: #c2540a;
+  --primary-soft: rgba(234, 88, 12, 0.10);
+  --color-danger: #dc2626;
+  --color-danger-subtle: #fef2f2;
+  --danger: #dc2626;
+  --danger-strong: #b91c1c;
+  --danger-soft: #fef2f2;
+  --on-danger: #ffffff;
+  --color-success: #157f3d;
+  --color-success-subtle: #edfcf2;
+  --success-soft: #edfcf2;
+  --color-warning: #d97706;
+  --color-warning-subtle: #fffbeb;
+  --warn-soft: #fffbeb;
+  --hover: rgba(16, 24, 40, 0.04);
+  --radius-card: 8px;
+  --radius-input: 6px;
+
+  /* GitHub-style green contribution heatmap tokens */
+  --heat-0: var(--color-line-soft);
+  --heat-1: #aceebb;
+  --heat-2: #4ac26b;
+  --heat-3: #2da44e;
+  --heat-4: #116329;
+
+  /* Overrides for standard theme variables inside developer profile */
+  --background: #f6f7f9;
+  --foreground: #101828;
+  --card: #ffffff;
+  --card-foreground: #101828;
+  --muted: #667085;
+  --muted-foreground: #667085;
+  --primary-foreground: #ffffff;
+  --border: #e4e7ec;
+  --input: #e4e7ec;
+  --radius: 8px;
+
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.dark .yuvro-profile-theme,
+.yuvro-profile-theme.dark {
+  --color-bg: #0f141c;
+  --color-card: #161c26;
+  --color-ink: #f2f4f7;
+  --color-sub: #d0d5dd;
+  --color-muted: #98a2b3;
+  --color-line: #242c38;
+  --color-line-soft: #1f242b;
+  --color-primary: #f97316;
+  --color-primary-hover: #fb923c;
+  --color-primary-subtle: #2e1d0f;
+  --primary: #f97316;
+  --primary-strong: #f58a3a;
+  --primary-soft: rgba(249, 115, 22, 0.14);
+  --color-danger: #ef4444;
+  --color-danger-subtle: #450a0a;
+  --danger: #ef4444;
+  --danger-strong: #dc2626;
+  --danger-soft: #450a0a;
+  --on-danger: #ffffff;
+  --color-success: #17b26a;
+  --color-success-subtle: #132d20;
+  --success-soft: #132d20;
+  --color-warning: #f59e0b;
+  --color-warning-subtle: #2e2009;
+  --warn-soft: #2e2009;
+  --hover: rgba(242, 244, 247, 0.05);
+
+  /* Dark mode green contribution heatmap tokens */
+  --heat-0: #1f242b;
+  --heat-1: #0e4429;
+  --heat-2: #006d32;
+  --heat-3: #26a641;
+  --heat-4: #39d353;
+
+  --background: #0f141c;
+  --foreground: #f2f4f7;
+  --card: #161c26;
+  --card-foreground: #f2f4f7;
+  --muted: #98a2b3;
+  --muted-foreground: #98a2b3;
+  --border: #242c38;
+  --input: #242c38;
+}
+
+/* Global Design Token Utility Classes (applies everywhere including portals) */
+.bg-bg { background-color: var(--color-bg, #f6f7f9) !important; }
+.bg-card { background-color: var(--card, #ffffff) !important; }
+.text-ink { color: var(--ink, #101828) !important; }
+.text-sub { color: var(--sub, #344054) !important; }
+.text-muted { color: var(--color-muted, #667085) !important; }
+.text-primary { color: var(--color-primary, #ea580c) !important; }
+.text-primary-strong { color: var(--primary-strong, #c2540a) !important; }
+.text-danger { color: var(--danger, #dc2626) !important; }
+.text-on-danger { color: var(--on-danger, #ffffff) !important; }
+.bg-danger { background-color: var(--danger, #dc2626) !important; }
+.hover\:bg-danger-strong:hover { background-color: var(--danger-strong, #b91c1c) !important; }
+.bg-danger-soft { background-color: var(--danger-soft, #fef2f2) !important; }
+.border-danger { border-color: var(--danger, #dc2626) !important; }
+.text-success { color: var(--color-success, #157f3d) !important; }
+.border-line { border-color: var(--line, #e4e7ec) !important; }
+.bg-primary-subtle { background-color: var(--color-primary-subtle, #fff7ed) !important; }
+.bg-success-subtle { background-color: var(--color-success-subtle, #edfcf2) !important; }
+.bg-danger-subtle { background-color: var(--danger-soft, #fef2f2) !important; }
+.rounded-card { border-radius: 10px !important; }
+.rounded-input { border-radius: 6px !important; }
+
+.dark .bg-bg { background-color: var(--color-bg, #0d1117) !important; }
+.dark .bg-card { background-color: var(--card, #161b22) !important; }
+.dark .text-ink { color: var(--ink, #f0f6fc) !important; }
+.dark .text-sub { color: var(--sub, #c9d1d9) !important; }
+.dark .text-muted { color: var(--color-muted, #8b949e) !important; }
+.dark .text-primary { color: var(--color-primary, #f97316) !important; }
+.dark .text-primary-strong { color: var(--primary-strong, #fb923c) !important; }
+.dark .text-danger { color: var(--danger, #ef4444) !important; }
+.dark .text-on-danger { color: var(--on-danger, #ffffff) !important; }
+.dark .bg-danger { background-color: var(--danger, #ef4444) !important; }
+.dark .hover\:bg-danger-strong:hover { background-color: var(--danger-strong, #dc2626) !important; }
+.dark .bg-danger-soft { background-color: var(--danger-soft, #450a0a) !important; }
+.dark .border-danger { border-color: var(--danger, #ef4444) !important; }
+.dark .text-success { color: var(--color-success, #16a34a) !important; }
+.dark .border-line { border-color: var(--line, #30363d) !important; }
+.dark .bg-primary-subtle { background-color: var(--color-primary-subtle, #2b1704) !important; }
+.dark .bg-success-subtle { background-color: var(--color-success-subtle, #132d20) !important; }
+.dark .bg-danger-subtle { background-color: var(--danger-soft, #450a0a) !important; }
+
+/* Prototype utility classes */
+.yuvro-profile-theme .bg-bg { background-color: var(--color-bg) !important; }
+.yuvro-profile-theme .bg-card { background-color: var(--color-card) !important; }
+.yuvro-profile-theme .text-ink:not(:hover),
+.yuvro-profile-theme span.text-ink,
+.yuvro-profile-theme p.text-ink,
+.yuvro-profile-theme h1.text-ink,
+.yuvro-profile-theme h2.text-ink,
+.yuvro-profile-theme h3.text-ink,
+.yuvro-profile-theme h4.text-ink,
+.yuvro-profile-theme div.text-ink { color: var(--color-ink) !important; }
+.yuvro-profile-theme .text-sub { color: var(--color-sub) !important; }
+.yuvro-profile-theme .text-muted { color: var(--color-muted) !important; }
+.yuvro-profile-theme .text-primary { color: var(--color-primary) !important; }
+.yuvro-profile-theme .text-primary-strong { color: var(--primary-strong) !important; }
+.yuvro-profile-theme .text-danger { color: var(--color-danger) !important; }
+.yuvro-profile-theme .text-success { color: var(--color-success) !important; }
+.yuvro-profile-theme .border-line { border-color: var(--color-line) !important; }
+.yuvro-profile-theme .bg-primary-subtle { background-color: var(--color-primary-subtle) !important; }
+.yuvro-profile-theme .bg-success-subtle { background-color: var(--color-success-subtle) !important; }
+.yuvro-profile-theme .bg-danger-subtle { background-color: var(--color-danger-subtle) !important; }
+.yuvro-profile-theme .border-danger { border-color: var(--danger, #dc2626) !important; }
+.dark .yuvro-profile-theme .border-danger { border-color: var(--danger, #ef4444) !important; }
+.yuvro-profile-theme .hover\:bg-danger-soft:hover { background-color: var(--danger-soft, #fef2f2) !important; }
+.dark .yuvro-profile-theme .hover\:bg-danger-soft:hover { background-color: var(--danger-soft, #450a0a) !important; }
+
+/* Links default to black (text-ink) and transition to Yuvro orange on hover */
+.yuvro-profile-theme a:not(:hover):not([class*="btn"]):not([class*="bg-primary"]):not([class*="bg-danger"]):not([class*="text-danger"]):not([class*="text-muted"]) {
+  color: var(--color-ink) !important;
+  transition: color 150ms ease;
+}
+.yuvro-profile-theme a:hover,
+.yuvro-profile-theme a:hover:not([class*="btn"]):not([class*="bg-primary"]):not([class*="bg-danger"]):not([class*="text-danger"]),
+.yuvro-profile-theme a.hover\:text-primary:hover,
+.yuvro-profile-theme a:hover *,
+.yuvro-profile-theme button.hover\:text-primary:hover,
+.yuvro-profile-theme .hover\:text-primary:hover {
+  color: var(--color-primary, #ea580c) !important;
+}
+.dark .yuvro-profile-theme a:hover,
+.dark .yuvro-profile-theme a:hover:not([class*="btn"]):not([class*="bg-primary"]):not([class*="bg-danger"]):not([class*="text-danger"]),
+.dark .yuvro-profile-theme a.hover\:text-primary:hover,
+.dark .yuvro-profile-theme a:hover *,
+.dark .yuvro-profile-theme button.hover\:text-primary:hover,
+.dark .yuvro-profile-theme .hover\:text-primary:hover {
+  color: var(--color-primary, #f97316) !important;
+}
+.yuvro-profile-theme .rounded-card { border-radius: 8px !important; }
+.yuvro-profile-theme .rounded-input { border-radius: 6px !important; }
+.yuvro-profile-theme .bg-heat-0 { background-color: var(--heat-0) !important; }
+.yuvro-profile-theme .bg-heat-1 { background-color: var(--heat-1) !important; }
+.yuvro-profile-theme .bg-heat-2 { background-color: var(--heat-2) !important; }
+.yuvro-profile-theme .bg-heat-3 { background-color: var(--heat-3) !important; }
+.yuvro-profile-theme .bg-heat-4 { background-color: var(--heat-4) !important; }
+
+/* Interactive focus ring: logo orange + 3px 22% ring */
+.yuvro-profile-theme input:focus,
+.yuvro-profile-theme textarea:focus,
+.yuvro-profile-theme select:focus,
+.yuvro-profile-theme button:focus-visible {
+  outline: none !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.22) !important;
+}
+
+.dark .yuvro-profile-theme input:focus,
+.dark .yuvro-profile-theme textarea:focus,
+.dark .yuvro-profile-theme select:focus,
+.dark .yuvro-profile-theme button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.28) !important;
+}
+
+@keyframes profileFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: profileFadeIn 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
 

@@ -1,8 +1,9 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { requireStudentAuth } from "@/utils/authGuards";
 import { ClientOnly } from "@/components/ClientOnly";
 import { useAuth } from "@/lib/auth";
 import { useEffect } from "react";
+import { TopNav } from "@/components/TopNav";
 
 export const Route = createFileRoute("/student")({
   beforeLoad: ({ location }) => {
@@ -15,6 +16,11 @@ export const Route = createFileRoute("/student")({
 function StudentLayout() {
   const { user } = useAuth();
   const nav = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  const isWorkspace =
+    (pathname.includes("/ticket/") && !pathname.includes("/review")) ||
+    (pathname.includes("/collaboration/") && pathname.includes("/workspace"));
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -35,6 +41,7 @@ function StudentLayout() {
 
   return (
     <ClientOnly>
+      {!isWorkspace && <TopNav />}
       <Outlet />
     </ClientOnly>
   );

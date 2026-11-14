@@ -3,49 +3,42 @@ import type { Report } from "@/components/InterviewReport";
 const key = (slug: string) => `yuvro-mock-interview-report:${slug}`;
 const historyKey = (slug: string) => `yuvro-mock-interview-history:${slug}`;
 
-export function readInterviewReport(slug: string): Report | null {
+/**
+ * Purges all mock interview reports and histories from browser storage.
+ * Reports, transcripts, and scores must NEVER be stored in client-side storage
+ * and must come strictly from the backend API.
+ */
+export function purgeMockInterviewStorage(slug?: string) {
   try {
-    const value = JSON.parse(
-      sessionStorage.getItem(key(slug)) ||
-      localStorage.getItem(key(slug)) ||
-      "null"
-    );
-    return value && typeof value.role === "string" && typeof value.score === "number"
-      && Array.isArray(value.questions) && Array.isArray(value.transcript) ? value : null;
-  } catch { return null; }
+    if (slug) {
+      localStorage.removeItem(key(slug));
+      localStorage.removeItem(historyKey(slug));
+      sessionStorage.removeItem(key(slug));
+      sessionStorage.removeItem(historyKey(slug));
+    }
+    localStorage.removeItem("yuvro-mock-interviews-enrolled");
+    localStorage.removeItem("yuvro_real_mock_interviews_enrolled");
+  } catch {}
+}
+
+export function readInterviewReport(slug: string): Report | null {
+  purgeMockInterviewStorage(slug);
+  return null;
 }
 
 export function readInterviewReportHistory(slug: string): Report[] {
-  try {
-    const raw =
-      sessionStorage.getItem(historyKey(slug)) ||
-      localStorage.getItem(historyKey(slug));
-    const list = raw ? JSON.parse(raw) : [];
-    return Array.isArray(list) ? list : [];
-  } catch { return []; }
+  purgeMockInterviewStorage(slug);
+  return [];
 }
 
-export function captureInterviewReport(slug: string, report: Report) {
-  try {
-    sessionStorage.setItem(key(slug), JSON.stringify(report));
-    localStorage.setItem(key(slug), JSON.stringify(report));
-
-    const existing = readInterviewReportHistory(slug);
-    const updated = [
-      report,
-      ...existing.filter(
-        (h) =>
-          h.id !== report.id &&
-          (h.date !== report.date || h.duration !== report.duration || h.score !== report.score)
-      ),
-    ].slice(0, 30);
-    sessionStorage.setItem(historyKey(slug), JSON.stringify(updated));
-    localStorage.setItem(historyKey(slug), JSON.stringify(updated));
-  } catch { /* Storage may be unavailable. */ }
+export function captureInterviewReport(slug: string, _report?: Report) {
+  // Mock interview reports must NEVER be stored in localStorage or sessionStorage.
+  // All reports are strictly persisted and fetched via authoritative backend API calls.
+  purgeMockInterviewStorage(slug);
 }
 
-export function hasCompletedInterview(slug: string, completed: number) {
-  return completed > 0 || readInterviewReport(slug) !== null || readInterviewReportHistory(slug).length > 0;
+export function hasCompletedInterview(_slug: string, completed: number) {
+  return completed > 0;
 }
 
 export function submissionToReport(sub: any, roleName: string): Report {

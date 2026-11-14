@@ -4,7 +4,6 @@ import type { CSSProperties, KeyboardEvent, PointerEvent } from "react";
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=DM+Sans:wght@400;500;700&display=swap');
 .ul{--page:#f8f9fb;--ink:#14192b;--muted:#5f6880;--accent:#3b6fd4}
-@media (prefers-color-scheme:dark){.ul{--page:#0d1120;--ink:#f1f4fc;--muted:#a9b2c9}}
 .dark .ul{--page:#0d1120;--ink:#f1f4fc;--muted:#a9b2c9}
 .ul,.ul *{box-sizing:border-box}
 .ul button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}

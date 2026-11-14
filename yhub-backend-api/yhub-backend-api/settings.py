@@ -218,6 +218,10 @@ DEFAULT_FROM_EMAIL = config(
     default=EMAIL_HOST_USER
 )
 
+APPLICATION_NAME = config("APPLICATION_NAME", default="Yuvro Labs")
+SUPPORT_EMAIL = config("SUPPORT_EMAIL", default="support@yuvrolabs.com")
+EMAIL_LOGO_URL = config("EMAIL_LOGO_URL", default="https://marketplace.yuvro.ai/knowledge-tree.png")
+
 STRIPE_API_KEY = config("STRIPE_API_KEY", default="")
 STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
 
@@ -258,7 +262,13 @@ def _resolve_razorpay_credentials():
 
 RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET = _resolve_razorpay_credentials()
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3002")
+FRONTEND_URL = config("FRONTEND_URL", default=os.getenv("FRONTEND_URL", "http://localhost:3002"))
+
+PUBLIC_PROFILE_BASE_URL = config(
+    "PUBLIC_PROFILE_BASE_URL",
+    default=FRONTEND_URL
+).rstrip("/")
+
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "YHub Backend API",

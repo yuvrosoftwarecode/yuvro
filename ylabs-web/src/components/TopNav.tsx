@@ -4,7 +4,12 @@ import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/lib/auth";
 import { useEffect, useRef, useState } from "react";
 import { DeployInfo } from "@/components/common/DeployInfo";
-import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
+import {
+  loadStudentStats,
+  getCachedStudentStats,
+  subscribeStudentStats,
+  type StudentStats,
+} from "@/lib/studentStats";
 import { WalletBalanceBadge } from "@/components/credits/WalletBalanceBadge";
 import YuvroLogo from "@/assets/YuvroLogo.png";
 
@@ -13,6 +18,8 @@ const primaryLinks = [
   { to: "/mock-interviews", label: "Mock Interviews" },
   { to: "/research", label: "AI Research Papers" },
 ];
+
+let hasShownGithubPromptSession = false;
 
 export function TopNav({
   rightSlot,
@@ -24,25 +31,38 @@ export function TopNav({
   const nav = useNavigate();
   const activePath = activeOverride ?? path;
 
-  const [stats, setStats] = useState<StudentStats | null>(null);
+  const [stats, setStats] = useState<StudentStats | null>(() => getCachedStudentStats());
 
   useEffect(() => {
     if (user) {
       loadStudentStats().then(setStats).catch(() => {});
     }
 
+    const unsub = subscribeStudentStats((newStats) => {
+      setStats(newStats);
+    });
+
     const handleRefresh = () => {
       loadStudentStats(true).then(setStats).catch(() => {});
     };
     window.addEventListener("yuvro-stats-refresh", handleRefresh);
-    return () => window.removeEventListener("yuvro-stats-refresh", handleRefresh);
+    window.addEventListener("yuvro-submission-updated", handleRefresh);
+    window.addEventListener("focus", handleRefresh);
+
+    return () => {
+      unsub();
+      window.removeEventListener("yuvro-stats-refresh", handleRefresh);
+      window.removeEventListener("yuvro-submission-updated", handleRefresh);
+      window.removeEventListener("focus", handleRefresh);
+    };
   }, [user]);
 
   const [showGithubPrompt, setShowGithubPrompt] = useState(false);
   const [isBlinking, setIsBlinking] = useState(false);
 
   useEffect(() => {
-    if (user && !(user as any).github_connected) {
+    if (user && !(user as any).github_connected && !hasShownGithubPromptSession) {
+      hasShownGithubPromptSession = true;
       setShowGithubPrompt(true);
       setIsBlinking(true);
       const timer = setTimeout(() => setIsBlinking(false), 5000);
@@ -53,6 +73,7 @@ export function TopNav({
   const dismissPrompt = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowGithubPrompt(false);
+    hasShownGithubPromptSession = true;
   };
 
   const isActive = (to: string) => {
@@ -73,7 +94,7 @@ export function TopNav({
   };
 
   return (
-    <header className="sticky top-0 z-40 glass border-b border-border">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-6 px-4">
         <Link
           to="/student/dashboard"
@@ -141,10 +162,18 @@ export function TopNav({
                       console.error("Failed to fetch github connect url", e);
                     }
                   } else {
-                    nav({ to: "/student/profile" });
+                    if (user?.username) {
+                      nav({
+                        to: "/$username",
+                        params: { username: user.username },
+                        search: { tab: "connections" },
+                      });
+                    } else {
+                      nav({ to: "/student/profile/connections" });
+                    }
                   }
                 }}
-                title={(user as any).github_connected ? "GitHub Connected (View Profile)" : "Connect GitHub"}
+                title={(user as any).github_connected ? "GitHub Connected (View Connections)" : "Connect GitHub"}
                 className="relative grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
@@ -190,6 +219,7 @@ export function TopNav({
               }
               userEmail={user.email}
               profileImage={user.profile_image}
+              username={user.username}
             />
           ) : (
             <Link
@@ -211,11 +241,13 @@ function ProfileMenu({
   userName,
   userEmail,
   profileImage,
+  username,
 }: {
   onLogout: () => void;
   userName: string;
   userEmail?: string;
   profileImage?: string;
+  username?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -228,13 +260,8 @@ function ProfileMenu({
     return () => document.removeEventListener("mousedown", onDown);
   }, [open]);
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const initial = (userName || "?").trim().charAt(0).toUpperCase();
-  const displayImage = mounted ? profileImage : undefined;
+  const displayImage = profileImage;
 
   return (
     <div ref={ref} className="relative">
@@ -258,7 +285,7 @@ function ProfileMenu({
             )}
           </div>
           <Link
-            to="/student/profile"
+            to={username ? `/${username}` : "/student/profile"}
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/60"
           >

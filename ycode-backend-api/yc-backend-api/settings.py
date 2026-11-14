@@ -278,7 +278,11 @@ DEFAULT_FROM_EMAIL = config(
     default=EMAIL_HOST_USER
 )
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+APPLICATION_NAME = config("APPLICATION_NAME", default="Yuvro Labs")
+SUPPORT_EMAIL = config("SUPPORT_EMAIL", default="support@yuvrolabs.com")
+EMAIL_LOGO_URL = config("EMAIL_LOGO_URL", default="https://marketplace.yuvro.ai/knowledge-tree.png")
+
+FRONTEND_URL = config("FRONTEND_URL", default=os.getenv("FRONTEND_URL", "http://localhost:3000"))
 # if frontend runs on 5173 (Vite)
 
 # Code Executor Service Configuration
