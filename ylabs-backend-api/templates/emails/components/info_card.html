@@ -1,0 +1,15 @@
+<!-- Subtle Key-Value Information Card -->
+<div style="margin: 22px 0; border: 1px solid #E2E8F0; border-radius: 8px; background-color: #F8FAFC; padding: 16px 18px;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="info-table">
+    {% for item in info_items %}
+    <tr>
+      <td valign="top" style="padding: 6px 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 13px; font-weight: 600; color: #64748B; width: 35%;">
+        {{ item.label }}
+      </td>
+      <td valign="top" style="padding: 6px 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 13px; font-weight: 500; color: #0F172A; word-break: break-all;">
+        {{ item.value }}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>

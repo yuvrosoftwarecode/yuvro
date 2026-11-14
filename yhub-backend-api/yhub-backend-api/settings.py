@@ -7,6 +7,35 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Pre-populate os.environ from local env files so decouple.config & os.environ have full access
+def _load_env_files():
+    search_dirs = [
+        BASE_DIR,
+        Path("/app"),
+        BASE_DIR.parent,
+        BASE_DIR.parent / "ylabs-backend-api",
+    ]
+    for sdir in search_dirs:
+        if not sdir or not os.path.exists(sdir):
+            continue
+        for fname in [".env.local-secrets", ".env.local", ".env", ".env.dev"]:
+            fpath = Path(sdir) / fname
+            if fpath.exists():
+                try:
+                    with open(fpath, "r", encoding="utf-8") as f:
+                        for line in f:
+                            line = line.strip()
+                            if line and not line.startswith("#") and "=" in line:
+                                k, v = line.split("=", 1)
+                                k = k.strip()
+                                v = v.strip().strip("'\"")
+                                if k not in os.environ or not os.environ[k]:
+                                    os.environ[k] = v
+                except Exception:
+                    pass
+
+_load_env_files()
+
 SECRET_KEY = config("SECRET_KEY", default="change-me-in-production-use-env-dev-secrets")
 DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = ["*"]
@@ -189,6 +218,10 @@ DEFAULT_FROM_EMAIL = config(
     default=EMAIL_HOST_USER
 )
 
+APPLICATION_NAME = config("APPLICATION_NAME", default="Yuvro Labs")
+SUPPORT_EMAIL = config("SUPPORT_EMAIL", default="support@yuvrolabs.com")
+EMAIL_LOGO_URL = config("EMAIL_LOGO_URL", default="https://marketplace.yuvro.ai/knowledge-tree.png")
+
 STRIPE_API_KEY = config("STRIPE_API_KEY", default="")
 STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
 
@@ -196,7 +229,13 @@ RAZORPAY_KEY_ID = config("RAZORPAY_KEY_ID", default="").strip()
 RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET", default="").strip()
 RAZORPAY_WEBHOOK_SECRET = config("RAZORPAY_WEBHOOK_SECRET", default="").strip()
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3002")
+FRONTEND_URL = config("FRONTEND_URL", default=os.getenv("FRONTEND_URL", "http://localhost:3002"))
+
+PUBLIC_PROFILE_BASE_URL = config(
+    "PUBLIC_PROFILE_BASE_URL",
+    default=FRONTEND_URL
+).rstrip("/")
+
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "YHub Backend API",
@@ -236,4 +275,19 @@ AI_CREDITS_ENABLED = config("AI_CREDITS_ENABLED", default=False, cast=bool)
 AI_CREDITS_DEFAULT_RESERVATION = config("AI_CREDITS_DEFAULT_RESERVATION", default=4096, cast=int)
 AI_CREDITS_MAX_RESERVATION = config("AI_CREDITS_MAX_RESERVATION", default=16384, cast=int)
 AI_CREDITS_RESERVATION_EXPIRY_SECONDS = config("AI_CREDITS_RESERVATION_EXPIRY_SECONDS", default=300, cast=int)
+
+# ── GitHub App / PAT Integration ────────────────────────────────
+GITHUB_APP_NAME = config("GITHUB_APP_NAME", default=os.environ.get("GITHUB_APP_NAME", "yuvro-labs-app"))
+GITHUB_APP_ID = config("GITHUB_APP_ID", default=os.environ.get("GITHUB_APP_ID", ""))
+GITHUB_APP_PRIVATE_KEY = config("GITHUB_APP_PRIVATE_KEY", default=os.environ.get("GITHUB_APP_PRIVATE_KEY", ""))
+GITHUB_SYSTEM_PAT = config("GITHUB_SYSTEM_PAT", default=os.environ.get("GITHUB_SYSTEM_PAT", ""))
+# ── GitHub & LinkedIn OAuth ──────────────────────────────────────
+GITHUB_CLIENT_ID = config("GITHUB_CLIENT_ID", default=os.environ.get("GITHUB_CLIENT_ID", ""))
+GITHUB_CLIENT_SECRET = config("GITHUB_CLIENT_SECRET", default=os.environ.get("GITHUB_CLIENT_SECRET", ""))
+GITHUB_REDIRECT_URI = config("GITHUB_REDIRECT_URI", default=os.environ.get("GITHUB_REDIRECT_URI", ""))
+
+LINKEDIN_CLIENT_ID = config("LINKEDIN_CLIENT_ID", default=os.environ.get("LINKEDIN_CLIENT_ID", ""))
+LINKEDIN_CLIENT_SECRET = config("LINKEDIN_CLIENT_SECRET", default=os.environ.get("LINKEDIN_CLIENT_SECRET", ""))
+LINKEDIN_REDIRECT_URI = config("LINKEDIN_REDIRECT_URI", default=os.environ.get("LINKEDIN_REDIRECT_URI", ""))
+
 

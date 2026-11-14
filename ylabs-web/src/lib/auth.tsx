@@ -18,6 +18,8 @@ export interface User {
   last_login?: string;
   github_connected?: boolean;
   github_username?: string;
+  linkedin_connected?: boolean;
+  linkedin_name?: string;
   profile_image?: string;
   cover_image?: string;
   resume_file?: string;
@@ -25,6 +27,10 @@ export interface User {
   location?: string;
   website?: string;
   about?: string;
+  headline?: string;
+  open_to_work?: boolean;
+  projects?: Array<Record<string, any>>;
+  skills?: string[];
   education?: Array<Record<string, any>>;
   employment?: Array<Record<string, any>>;
   profile?: {
@@ -179,6 +185,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       dispatch({ type: "SET_LOADING", payload: false });
     }
+
+    const handleUserUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<User>;
+      if (customEvent.detail) {
+        localStorage.setItem("user", JSON.stringify(customEvent.detail));
+        dispatch({ type: "UPDATE_USER", payload: customEvent.detail });
+      }
+    };
+    window.addEventListener("yuvro_auth_user_updated", handleUserUpdate);
+    return () => {
+      window.removeEventListener("yuvro_auth_user_updated", handleUserUpdate);
+    };
   }, []);
 
   const login = (user: User, token: string) => {

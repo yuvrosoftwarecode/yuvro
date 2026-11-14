@@ -155,6 +155,8 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("python") && !titleLower.includes("machine learning")) {
     category = "Backend";
   } else if (
+    titleLower.includes("ai engineer") ||
+    titleLower.includes("artificial intelligence") ||
     titleLower.includes("machine learning") ||
     titleLower.includes("deep learning") ||
     skills.includes("machine learning") ||
@@ -183,7 +185,9 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
     allText.includes("data") ||
     allText.includes("sql") ||
     allText.includes("database") ||
-    allText.includes("postgres")
+    allText.includes("postgres") ||
+    allText.includes("mongodb") ||
+    allText.includes("nosql")
   ) {
     category = "Data";
   } else if (
@@ -209,6 +213,25 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("python")) {
     icon = "🐍";
     color = "info";
+  } else if (titleLower.includes("mongodb") || titleLower.includes("mongo")) {
+    icon = "🍃";
+    color = "success";
+  } else if (titleLower.includes("react")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg";
+    color = "info";
+  } else if (titleLower.includes("mysql")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg";
+    color = "primary";
+  } else if (titleLower.includes("postgres")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg";
+    color = "primary";
+  } else if (
+    titleLower.includes("html") ||
+    titleLower.includes("javascript") ||
+    titleLower.includes("css")
+  ) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg";
+    color = "warning";
   } else if (category === "AI/ML" || titleLower.includes("machine learning")) {
     icon = "🤖";
     color = "info";
@@ -335,6 +358,7 @@ export async function fetchBackendMockInterviews(
         : rawList;
 
       const mapped = filteredList.map(mapBackendToInterview);
+
       interviewCache.set(cacheKey, { data: mapped, timestamp: Date.now() });
       return mapped;
     } catch (err) {
@@ -365,11 +389,7 @@ export async function fetchMockInterviewBySlugOrId(slugOrId: string): Promise<In
     } catch {}
   }
 
-  return (
-    INTERVIEWS.find(
-      (i) => i.slug === slugOrId || i.backendId === slugOrId || slugifyTitle(i.name) === slugOrId
-    ) || null
-  );
+  return null;
 }
 
 export async function fetchUserInterviewSubmissions(
@@ -566,3 +586,26 @@ export async function verifyMockInterviewPayment(
     payload
   );
 }
+
+export async function polishDictatedQuery(
+  text: string,
+  language: string = "sql",
+  context: string = ""
+): Promise<string> {
+  if (!text || !text.trim()) return text;
+  try {
+    const res = await yhubApiAuthUtil.post<{ polished_code?: string }>("/mock-interviews/polish_query/", {
+      text,
+      language,
+      context,
+    });
+    if (res && res.polished_code) {
+      return res.polished_code;
+    }
+    return text;
+  } catch (err) {
+    console.warn("Could not polish query with backend AI:", err);
+    return text;
+  }
+}
+

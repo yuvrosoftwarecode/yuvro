@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { TopNav } from "@/components/TopNav";
 import { leaderboard } from "@/lib/dummy";
 import { Trophy, Flame } from "lucide-react";
 
@@ -10,7 +9,6 @@ export const Route = createFileRoute("/student/leaderboard")({
 function Leaderboard() {
   return (
     <div className="min-h-screen">
-      <TopNav />
       <main className="mx-auto max-w-[1100px] px-4 py-8">
         <header className="mb-6">
           <h1 className="text-2xl font-semibold flex items-center gap-2">

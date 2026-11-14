@@ -226,6 +226,14 @@ class LabQuestionBank(QuestionBank):
         choices=RepoSourceType.choices,
         default=RepoSourceType.ADMIN_SYSTEM,
     )
+    company = models.ForeignKey(
+        "recruiter.Company",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="lab_questions",
+        help_text="Company owning this lab question",
+    )
     github_app_installation = models.ForeignKey(
         "recruiter.GithubAppInstallation",
         on_delete=models.SET_NULL,

@@ -1,0 +1,65 @@
+{
+  "lab_questions": [
+    {
+      "title": "django todo signup fix",
+      "type": "BACKEND",
+      "description": "django todo signup fix",
+      "difficulty": "EASY",
+      "domain": "ERP",
+      "experience": "FRESHER",
+      "duration_minutes": 45,
+      "marks": 30,
+      "scenario": "BUG_FIXING",
+      "git_repo_starter_url": "https://github.com/MKGandhi05/yuvro_django_todo_eval",
+      "git_repo_starter_branch": "main",
+      "startup_command": "",
+      "test_command": "",
+      "connection_url": "",
+      "programming_languages": [
+        "PYTHON"
+      ],
+      "databases": [
+        "SQLITE"
+      ],
+      "backend_frameworks": [
+        "DJANGO",
+        "DJANGO_REST_FRAMEWORK"
+      ],
+      "frontend_frameworks": [],
+      "tasks": [
+        {
+          "title": "Fix User Signup Endpoint",
+          "description": "The Django Todo application has a broken signup endpoint. Users cannot register because the signup view is missing or incorrectly implemented. Your task is to implement a functional signup endpoint using Django REST Framework. The endpoint should accept POST requests with 'username', 'password', and 'email' fields, create a new user, and return a success response with status code 201. Ensure proper validation and error handling for duplicate usernames and missing fields. The endpoint should be accessible at '/api/signup/'.",
+          "difficulty": "EASY",
+          "marks": 15,
+          "duration_minutes": 20,
+          "order_index": 0,
+          "scoring_rules": {
+            "parent_task_id": null
+          },
+          "expected_output": [],
+          "solution": {
+            "query.sql": "from rest_framework.decorators import api_view\nfrom rest_framework.response import Response\nfrom rest_framework import status\nfrom django.contrib.auth.models import User\n\n@api_view(['POST'])\ndef signup(request):\n    username = request.data.get('username')\n    password = request.data.get('password')\n    email = request.data.get('email')\n    if not username or not password:\n        return Response({'error': 'Username and password required'}, status=status.HTTP_400_BAD_REQUEST)\n    if User.objects.filter(username=username).exists():\n        return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)\n    user = User.objects.create_user(username=username, password=password, email=email)\n    return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)"
+          }
+        },
+        {
+          "title": "Fix Todo List API Permissions",
+          "description": "The Todo list API currently allows unauthenticated users to view and modify todos. Your task is to enforce authentication and ensure that users can only access their own todos. Modify the existing TodoViewSet (or equivalent) to require authentication and filter querysets by the requesting user. Additionally, ensure that when creating a todo, it is automatically associated with the authenticated user. The API should return 401 Unauthorized for unauthenticated requests and 403 Forbidden when trying to access another user's todo.",
+          "difficulty": "EASY",
+          "marks": 15,
+          "duration_minutes": 25,
+          "order_index": 1,
+          "scoring_rules": {
+            "parent_task_id": "81bb3ee4-2dc9-4f0c-8c6f-2fa7943e4768"
+          },
+          "expected_output": [],
+          "solution": {
+            "query.sql": "from rest_framework import viewsets, permissions\nfrom .models import Todo\nfrom .serializers import TodoSerializer\n\nclass TodoViewSet(viewsets.ModelViewSet):\n    serializer_class = TodoSerializer\n    permission_classes = [permissions.IsAuthenticated]\n\n    def get_queryset(self):\n        return Todo.objects.filter(user=self.request.user)\n\n    def perform_create(self, serializer):\n        serializer.save(user=self.request.user)"
+          }
+        }
+      ],
+      "allow_task_selection": true,
+      "solution": {}
+    }
+  ]
+}

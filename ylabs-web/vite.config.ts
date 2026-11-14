@@ -21,6 +21,15 @@ export default defineConfig({
       "react-native": path.resolve(__dirname, "./src/lib/emptyStub.ts"),
       "react-native-fs": path.resolve(__dirname, "./src/lib/emptyStub.ts"),
     },
+    dedupe: [
+      "@lezer/common",
+      "@lezer/highlight",
+      "@lezer/lr",
+      "@codemirror/state",
+      "@codemirror/view",
+      "@codemirror/language",
+      "@uiw/react-codemirror",
+    ],
   },
   optimizeDeps: {
     include: ["recharts", "alasql", "mingo", "jspdf", "xlsx"],
@@ -39,6 +48,9 @@ export default defineConfig({
       "@codemirror/view",
       "@codemirror/state",
       "@codemirror/language",
+      "@lezer/common",
+      "@lezer/highlight",
+      "@lezer/lr",
     ],
   },
   build: {

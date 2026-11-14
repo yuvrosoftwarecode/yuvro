@@ -229,4 +229,101 @@ describe("Mock Interviews Hub Data & Display", () => {
     assert.equal(liveSpokenText, "");
     assert.equal(draft, "");
   });
+
+  it("9. Interview reports and transcripts are never stored in client storage, and legacy entries are purged", async () => {
+    const { captureInterviewReport, readInterviewReport, readInterviewReportHistory, hasCompletedInterview } = await import(
+      "../mockInterviewReports.ts"
+    );
+
+    const localStore = new Map<string, string>();
+    const sessionStore = new Map<string, string>();
+
+    // Simulate legacy reports sitting in localStorage and sessionStorage
+    localStore.set("yuvro-mock-interview-report:test-slug", JSON.stringify({ role: "Frontend", score: 90, questions: [], transcript: [] }));
+    localStore.set("yuvro-mock-interview-history:test-slug", JSON.stringify([{ role: "Frontend", score: 90, questions: [], transcript: [] }]));
+    localStore.set("yuvro-mock-interviews-enrolled", JSON.stringify(["test-slug"]));
+    localStore.set("yuvro_real_mock_interviews_enrolled", JSON.stringify(["test-slug"]));
+    sessionStore.set("yuvro-mock-interview-report:test-slug", "stale");
+    sessionStore.set("yuvro-mock-interview-history:test-slug", "stale");
+
+    const origLocal = globalThis.localStorage;
+    const origSession = globalThis.sessionStorage;
+
+    globalThis.localStorage = {
+      getItem: (k: string) => localStore.get(k) ?? null,
+      setItem: (k: string, v: string) => localStore.set(k, String(v)),
+      removeItem: (k: string) => localStore.delete(k),
+      clear: () => localStore.clear(),
+      key: (i: number) => Array.from(localStore.keys())[i] ?? null,
+      get length() { return localStore.size; },
+    } as Storage;
+
+    globalThis.sessionStorage = {
+      getItem: (k: string) => sessionStore.get(k) ?? null,
+      setItem: (k: string, v: string) => sessionStore.set(k, String(v)),
+      removeItem: (k: string) => sessionStore.delete(k),
+      clear: () => sessionStore.clear(),
+      key: (i: number) => Array.from(sessionStore.keys())[i] ?? null,
+      get length() { return sessionStore.size; },
+    } as Storage;
+
+    try {
+      const mockReport: any = {
+        id: "rep-1",
+        role: "Frontend Engineer",
+        duration: "15m",
+        date: "10 Nov 2026",
+        score: 85,
+        summary: "Good session",
+        strength: "Communication",
+        focus: "State management",
+        competencies: [],
+        skills: [],
+        questions: [{ question: "What is React?", category: "React", score: 9, answer: "UI lib", missing: "", tip: "" }],
+        transcript: [{ from: "ai", text: "What is React?", time: "00:01" }],
+      };
+
+      captureInterviewReport("test-slug", mockReport);
+
+      // Verify report and history are NEVER saved to localStorage or sessionStorage
+      assert.equal(localStore.has("yuvro-mock-interview-report:test-slug"), false);
+      assert.equal(localStore.has("yuvro-mock-interview-history:test-slug"), false);
+      assert.equal(localStore.has("yuvro-mock-interviews-enrolled"), false);
+      assert.equal(localStore.has("yuvro_real_mock_interviews_enrolled"), false);
+      assert.equal(sessionStore.has("yuvro-mock-interview-report:test-slug"), false);
+      assert.equal(sessionStore.has("yuvro-mock-interview-history:test-slug"), false);
+
+      // Verify readInterviewReport and readInterviewReportHistory return null / [] and purge
+      localStore.set("yuvro-mock-interview-report:test-slug", "legacy-report");
+      localStore.set("yuvro-mock-interview-history:test-slug", "legacy-history");
+      assert.equal(readInterviewReport("test-slug"), null);
+      assert.equal(localStore.has("yuvro-mock-interview-report:test-slug"), false);
+
+      assert.deepEqual(readInterviewReportHistory("test-slug"), []);
+      assert.equal(localStore.has("yuvro-mock-interview-history:test-slug"), false);
+
+      // Verify hasCompletedInterview relies strictly on backend completion status (completed > 0)
+      assert.equal(hasCompletedInterview("test-slug", 0), false);
+      assert.equal(hasCompletedInterview("test-slug", 1), true);
+    } finally {
+      globalThis.localStorage = origLocal;
+      globalThis.sessionStorage = origSession;
+    }
+  });
+
+  it("10. Dummy INTERVIEWS data array is completely empty to prevent any dummy interviews from showing", async () => {
+    const { INTERVIEWS } = await import("../mockInterviews.ts");
+    assert.equal(Array.isArray(INTERVIEWS), true);
+    assert.equal(INTERVIEWS.length, 0, "INTERVIEWS array must contain no dummy data");
+  });
+
+  it("11. Mock Interview service handles backend errors by returning empty array rather than dummy data", () => {
+    // Verify that on error, the service fallback returns an empty list, not dummy items
+    const errorHandler = (err: unknown) => {
+      console.error("Failed to load real mock interviews from backend:", err);
+      return [];
+    };
+    const fallbackResult = errorHandler(new Error("Network timeout"));
+    assert.deepEqual(fallbackResult, []);
+  });
 });

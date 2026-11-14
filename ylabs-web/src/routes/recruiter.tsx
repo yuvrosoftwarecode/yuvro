@@ -10,6 +10,7 @@ import {
   Github,
   Settings,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
@@ -90,16 +91,21 @@ function RecruiterLayout() {
     checkPlan();
   }, [nav]);
 
-  const items = [
+  const items: { to: string; label: string; icon: any; exact?: boolean }[] = [
     { to: "/recruiter/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { to: "/recruiter/vitarka-ai", label: "Vitarka AI", icon: Sparkles, exact: true },
     { to: "/recruiter/evaluations", label: "Evaluations", icon: ClipboardList },
     { to: "/recruiter/questions", label: "Question bank", icon: Database },
     { to: "/recruiter/github", label: "GitHub and repositories", icon: Github },
     { to: "/recruiter/settings", label: "Settings", icon: Settings },
   ];
 
-  const isActive = (to: string, exact?: boolean) =>
-    exact ? pathname === to : pathname.startsWith(to);
+  const isActive = (to: string, exact?: boolean) => {
+    if (to === "/recruiter/vitarka-ai") {
+      return pathname === "/recruiter/vitarka-ai" || pathname === "/vitarka-ai";
+    }
+    return exact ? pathname === to : pathname.startsWith(to);
+  };
 
   if (hasPlan === false) {
     return (
@@ -122,7 +128,17 @@ function RecruiterLayout() {
           </button>
         </div>
         <div className="pt-8">
-          <PricingContent onSubscribe={() => window.location.reload()} />
+          <PricingContent
+            onSubscribe={async () => {
+              try {
+                await yhubApiAuthUtil.post("/payment/start_trial/", {});
+              } catch (e) {
+                console.log("start_trial error:", e);
+              }
+              setHasPlan(true);
+              nav({ to: "/recruiter/dashboard" });
+            }}
+          />
         </div>
       </div>
     );
@@ -233,9 +249,9 @@ function RecruiterLayout() {
                 >
                   {isSidebarOpen ? (
                     <span className="whitespace-nowrap">{it.label}</span>
-                  ) : (
+                  ) : it.icon ? (
                     <it.icon className="h-5 w-5 shrink-0" />
-                  )}
+                  ) : null}
                 </Link>
               );
             })}

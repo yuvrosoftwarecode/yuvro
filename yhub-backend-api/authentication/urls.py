@@ -5,6 +5,10 @@ from .views import admin_users, google_login_view
 app_name = "authentication"
 
 urlpatterns = [
+    path("check-username/", views.check_username_view, name="check_username"),
+    path("check-email/", views.check_email_view, name="check_email"),
+    path("me/username-available", views.username_available_view, name="auth_me_username_available_no_slash"),
+    path("me/username-available/", views.username_available_view, name="auth_me_username_available"),
     path("register/", views.UserRegistrationView.as_view(), name="register"),
     path("login/", views.login_view, name="login"),
     path("google/", google_login_view, name="google_login"),
@@ -21,6 +25,21 @@ urlpatterns = [
         "forgot-password/", views.ForgotPasswordView.as_view(), name="forgot_password"
     ),
     path(
+        "forgot-password/send-code/",
+        views.send_forgot_password_code_view,
+        name="forgot_password_send_code",
+    ),
+    path(
+        "forgot-password/verify-code/",
+        views.verify_forgot_password_code_view,
+        name="forgot_password_verify_code",
+    ),
+    path(
+        "forgot-password/reset-with-code/",
+        views.reset_password_with_code_view,
+        name="forgot_password_reset_with_code",
+    ),
+    path(
         "reset-password/<uidb64>/<token>/",
         views.ResetPasswordView.as_view(),
         name="reset_password",
@@ -29,6 +48,9 @@ urlpatterns = [
     path("change-password/send-otp/", views.send_change_password_otp, name="send_change_password_otp"),
     path("admin-users/", admin_users, name="admin_users"),
     path("github/connect/", views.GithubConnectView.as_view(), name="github_connect"),
+    path("linkedin/connect/", views.LinkedInConnectView.as_view(), name="linkedin_connect"),
+    path("linkedin/share/", views.LinkedInShareMilestoneView.as_view(), name="linkedin_share"),
+    path("linkedin/generate-gif/", views.LinkedInGenerateGifView.as_view(), name="linkedin_generate_gif"),
     path("internal/github-token/<uuid:user_id>/", views.internal_github_token_view, name="internal_github_token"),
     path("internal/delete-user/", views.internal_delete_user, name="internal_delete_user"),
     path("profile/upload-image/", views.upload_profile_image, name="upload_profile_image"),

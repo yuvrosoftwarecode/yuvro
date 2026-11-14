@@ -15,8 +15,7 @@ export function StandardHeader() {
   const isPricingActive = pathname.startsWith("/pricing") || pathname.startsWith("/yuvrolabs-pricing");
   const isDeveloperActive = pathname.startsWith("/auth") || pathname.startsWith("/student");
 
-  const developerLink = user ? "/student/dashboard" : "/auth";
-  const developerSearch = user ? undefined : { tab: "signin" as const };
+  const developerLink = "/student/dashboard";
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#f8f9fb]/95 dark:bg-[#0d1120]/95 backdrop-blur-md border-b border-[#646d84]/15 transition-colors">
@@ -74,7 +73,6 @@ export function StandardHeader() {
           {/* Requirement 6: Developer Navigation: Remove 'Login as a Developer' and keep only 'Developer' */}
           <Link
             to={developerLink}
-            search={developerSearch}
             className={`relative px-3.5 py-2 rounded-[10px] font-semibold text-[13px] transition-colors ${
               isDeveloperActive
                 ? "text-[#14192b] dark:text-white"
@@ -142,7 +140,6 @@ export function StandardHeader() {
           </Link>
           <Link
             to={developerLink}
-            search={developerSearch}
             onClick={() => setMobileMenuOpen(false)}
             className={`block px-3 py-2 rounded-md font-semibold text-[14px] ${
               isDeveloperActive ? "text-[#f7931e] bg-[#f7931e]/10" : "text-[#14192b] dark:text-[#f1f4fc]"

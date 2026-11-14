@@ -1,0 +1,1439 @@
+/* ==========================================================================
+   Yuvro Auth Redesign Stylesheet
+   Source of truth: Reference specification HTML
+   Pure white theme, DM Sans typography, #4A7BDB primary blue
+   ========================================================================== */
+
+.yuvro-auth-page {
+  --auth-ink: #171c2e;
+  --auth-muted: #667085;
+  --auth-line: #e3e6ec;
+  --auth-soft: #f5f6f9;
+  --auth-blue: #4a7bdb;
+  --auth-blue-d: #3f6bc4;
+  --auth-err: #d6372c;
+  --auth-suc: #30a46c;
+  --auth-disabled: #b9c9ec;
+  --auth-border: #d3d8e3;
+
+  color-scheme: light;
+  box-sizing: border-box;
+  margin: 0;
+  min-height: 100vh;
+  width: 100%;
+  background: #ffffff;
+  color: var(--auth-ink);
+  font-family:
+    "DM Sans",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.yuvro-auth-page * {
+  box-sizing: border-box;
+}
+
+.yuvro-auth-page button,
+.yuvro-auth-page input,
+.yuvro-auth-page select {
+  font: inherit;
+  color: inherit;
+}
+
+.yuvro-auth-page button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.yuvro-auth-page a {
+  color: inherit;
+}
+
+.yuvro-auth-page :focus-visible {
+  outline: 2px solid var(--auth-blue);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ---------- Left Story Panel ---------- */
+.yuvro-auth-page .left {
+  padding: 36px 56px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--auth-line);
+  min-width: 0;
+  background: #ffffff;
+}
+
+.yuvro-auth-page .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  align-self: flex-start;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .logo img {
+  height: 34px;
+  width: auto;
+  object-fit: contain;
+}
+
+.yuvro-auth-page .logo svg {
+  width: 32px;
+  height: 32px;
+}
+
+.yuvro-auth-page .logo path {
+  fill: none;
+  stroke: #f7931e;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.yuvro-auth-page .logo circle {
+  fill: #fff;
+  stroke: #f7931e;
+  stroke-width: 5;
+}
+
+.yuvro-auth-page .story {
+  margin: auto 0;
+  padding: 24px 0;
+  max-width: 600px;
+  width: 100%;
+}
+
+.yuvro-auth-page .story h1 {
+  font-weight: 700;
+  font-size: clamp(28px, 2.9vw, 38px);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin: 0 0 12px;
+  max-width: 20ch;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .story > p {
+  margin: 0 0 28px;
+  color: var(--auth-muted);
+  font-size: 17px;
+  max-width: 48ch;
+}
+
+.yuvro-auth-page .stage {
+  position: relative;
+  height: 350px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.yuvro-auth-page .pn {
+  position: absolute;
+  inset: 0;
+  padding: 6px 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.35s ease,
+    visibility 0.35s ease;
+}
+
+.yuvro-auth-page .pn.on {
+  opacity: 1;
+  visibility: visible;
+}
+
+.yuvro-auth-page .sh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.yuvro-auth-page .sh b {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .sh .k {
+  font-size: 12.5px;
+  color: var(--auth-muted);
+}
+
+.yuvro-auth-page .sh .cnt {
+  margin-left: auto;
+  font-size: 12.5px;
+  color: var(--auth-muted);
+}
+
+@keyframes auth-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.yuvro-auth-page .board {
+  position: relative;
+  height: 244px;
+}
+
+.yuvro-auth-page .cols {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.yuvro-auth-page .cl2 {
+  background: var(--auth-soft);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--auth-muted);
+  text-transform: uppercase;
+}
+
+.yuvro-auth-page .cl2 span {
+  font-weight: 500;
+  margin-left: 5px;
+  letter-spacing: 0;
+}
+
+.yuvro-auth-page .tk {
+  position: absolute;
+  height: 60px;
+  width: calc((100% - 20px) / 3 - 16px);
+  left: calc(8px + var(--c) * ((100% - 20px) / 3 + 10px));
+  top: calc(34px + var(--r) * 68px);
+  background: #ffffff;
+  border: 1px solid #dadfe9;
+  border-radius: 6px;
+  padding: 7px 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.yuvro-auth-page .tk .t1 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 20px;
+  font-size: 11.5px;
+  color: var(--auth-muted);
+  font-weight: 500;
+}
+
+.yuvro-auth-page .tk .ty {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.yuvro-auth-page .ty.bug {
+  background: #e5484d;
+}
+
+.yuvro-auth-page .ty.feat {
+  background: #30a46c;
+}
+
+.yuvro-auth-page .ty.task {
+  background: var(--auth-blue);
+}
+
+.yuvro-auth-page .tk .pt {
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: #eceef3;
+  color: #4b5368;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 6px;
+  flex: none;
+}
+
+.yuvro-auth-page .tk .as {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #e4e7ee;
+  color: #4b5368;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex: none;
+}
+
+.yuvro-auth-page .tk.me .as {
+  background: var(--auth-blue);
+  color: #ffffff;
+}
+
+.yuvro-auth-page .tk p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .pn.on .tk.me {
+  animation: auth-mv 5s ease forwards;
+}
+
+@keyframes auth-mv {
+  0%,
+  10% {
+    left: 8px;
+    top: 34px;
+    border-color: #dadfe9;
+  }
+  28%,
+  46% {
+    left: calc(8px + (100% - 20px) / 3 + 10px);
+    top: 102px;
+    border-color: #4a7bdb;
+  }
+  64%,
+  100% {
+    left: calc(8px + 2 * ((100% - 20px) / 3 + 10px));
+    top: 170px;
+    border-color: #30a46c;
+  }
+}
+
+.yuvro-auth-page .pr {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 13.5px;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .pr svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: #2f9e5b;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+.yuvro-auth-page .pr b {
+  font-weight: 500;
+}
+
+.yuvro-auth-page .pr em {
+  font-style: normal;
+  color: var(--auth-muted);
+}
+
+.yuvro-auth-page .pr .mg {
+  margin-left: auto;
+  background: #30a46c;
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 99px;
+}
+
+.yuvro-auth-page .pn.on .pr {
+  animation: auth-pop 0.5s 3.9s backwards;
+}
+
+/* GitHub profile scene */
+.yuvro-auth-page .gh {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.yuvro-auth-page .av {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #dfe6f6;
+  color: #27437d;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.yuvro-auth-page .gh b {
+  display: block;
+  font-size: 15.5px;
+  line-height: 1.2;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .gh span {
+  font-size: 12.5px;
+  color: var(--auth-muted);
+}
+
+.yuvro-auth-page .gc {
+  margin-left: auto;
+  text-align: right;
+}
+
+.yuvro-auth-page .gc b {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  display: block;
+  line-height: 1.1;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .gc span {
+  font-size: 12.5px;
+  color: var(--auth-muted);
+}
+
+.yuvro-auth-page .graph {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, 11px);
+  grid-auto-columns: 11px;
+  gap: 3px;
+  width: max-content;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.yuvro-auth-page .graph i {
+  display: block;
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  background: #ebedf0;
+  transition: background 0.3s;
+}
+
+.yuvro-auth-page .graph i[data-l="1"] {
+  background: #aee9b9;
+}
+.yuvro-auth-page .graph i[data-l="2"] {
+  background: #5fcb7a;
+}
+.yuvro-auth-page .graph i[data-l="3"] {
+  background: #2fa653;
+}
+.yuvro-auth-page .graph i[data-l="4"] {
+  background: #1f6f3a;
+}
+
+.yuvro-auth-page .repo {
+  margin-top: 20px;
+  font-size: 13.5px;
+  color: var(--auth-muted);
+}
+
+.yuvro-auth-page .repo b {
+  display: block;
+  color: #3a62b8;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.yuvro-auth-page .pn.on .repo {
+  animation: auth-pop 0.5s 3.2s backwards;
+}
+
+.yuvro-auth-page .cap {
+  margin: 14px 0 0;
+  font-size: 15px;
+  color: #40485c;
+  min-height: 46px;
+  transition: opacity 0.25s ease;
+}
+
+.yuvro-auth-page .cap.sw {
+  opacity: 0;
+}
+
+/* ---------- Right Panel (Forms & Screens) ---------- */
+.yuvro-auth-page .right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 28px;
+  background: #ffffff;
+  min-width: 0;
+  width: 100%;
+}
+
+.yuvro-auth-page .auth-content-box {
+  width: 100%;
+  max-width: 392px;
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.yuvro-auth-page .form {
+  width: 100%;
+  max-width: 100%;
+}
+
+.yuvro-auth-page .form h2 {
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0 0 6px;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .form .sub {
+  margin: 0 0 26px;
+  color: var(--auth-muted);
+  font-size: 15.5px;
+}
+
+.yuvro-auth-page .f {
+  margin-bottom: 18px;
+}
+
+.yuvro-auth-page .f label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .inp {
+  position: relative;
+}
+
+.yuvro-auth-page .inp input {
+  width: 100%;
+  height: 46px;
+  border: 1px solid var(--auth-border);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0 14px;
+  font-size: 15.5px;
+  color: var(--auth-ink);
+  transition: border-color 0.15s ease;
+}
+
+.yuvro-auth-page .inp input::placeholder {
+  color: #a3aabb;
+}
+
+.yuvro-auth-page .inp input:focus {
+  outline: 0;
+  border-color: var(--auth-blue);
+  box-shadow: 0 0 0 3px rgba(74, 123, 219, 0.14);
+}
+
+.yuvro-auth-page .inp.err input {
+  border-color: var(--auth-err);
+}
+
+.yuvro-auth-page .inp.err input:focus {
+  border-color: var(--auth-err);
+  box-shadow: 0 0 0 3px rgba(214, 55, 44, 0.12);
+}
+
+.yuvro-auth-page .msg {
+  display: none;
+  margin-top: 5px;
+  font-size: 13px;
+  color: var(--auth-err);
+}
+
+.yuvro-auth-page .inp.err + .msg,
+.yuvro-auth-page .f.has-err .msg {
+  display: block;
+}
+
+.yuvro-auth-page .eye {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  color: var(--auth-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.yuvro-auth-page .eye:hover {
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .eye svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.yuvro-auth-page .eye .off {
+  display: none;
+}
+
+.yuvro-auth-page .eye.on .off {
+  display: block;
+}
+
+.yuvro-auth-page .eye.on .show {
+  display: none;
+}
+
+.yuvro-auth-page .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 20px;
+  font-size: 14px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.yuvro-auth-page .row.end {
+  justify-content: flex-end;
+}
+
+.yuvro-auth-page .chk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--auth-ink);
+  padding: 4px 0;
+  min-height: 32px;
+}
+
+.yuvro-auth-page .chk input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.yuvro-auth-page .chk span {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid #b9c0cf;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.yuvro-auth-page .chk svg {
+  width: 11px;
+  height: 11px;
+  stroke: #ffffff;
+  stroke-width: 3;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+
+.yuvro-auth-page .chk input:checked + span {
+  background: var(--auth-blue);
+  border-color: var(--auth-blue);
+}
+
+.yuvro-auth-page .chk input:checked + span svg {
+  opacity: 1;
+}
+
+.yuvro-auth-page .chk input:focus-visible + span {
+  outline: 2px solid var(--auth-blue);
+  outline-offset: 2px;
+}
+
+.yuvro-auth-page .lnk {
+  color: var(--auth-blue);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.yuvro-auth-page .lnk:hover {
+  text-decoration: underline;
+}
+
+.yuvro-auth-page .go {
+  width: 100%;
+  height: 46px;
+  border-radius: 8px;
+  background: var(--auth-blue);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.yuvro-auth-page .go:hover:not(:disabled) {
+  background: var(--auth-blue-d);
+}
+
+.yuvro-auth-page .go:disabled {
+  background: var(--auth-disabled);
+  cursor: default;
+}
+
+.yuvro-auth-page .go .sp {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  animation: auth-spin 0.7s linear infinite;
+}
+
+.yuvro-auth-page .go.load .sp {
+  display: block;
+}
+
+@keyframes auth-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.yuvro-auth-page .or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 18px;
+  color: var(--auth-muted);
+  font-size: 13px;
+}
+
+.yuvro-auth-page .or::before,
+.yuvro-auth-page .or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--auth-line);
+}
+
+.yuvro-auth-page .soc {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.yuvro-auth-page .soc button {
+  height: 44px;
+  border: 1px solid var(--auth-border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--auth-ink);
+  background: #ffffff;
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+
+.yuvro-auth-page .soc button:hover {
+  background: var(--auth-soft);
+}
+
+.yuvro-auth-page .soc svg {
+  width: 19px;
+  height: 19px;
+}
+
+.yuvro-auth-page .foot {
+  text-align: center;
+  margin-top: 26px;
+  font-size: 14.5px;
+}
+
+.yuvro-auth-page .foot p {
+  margin: 0 0 8px;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .foot .lnk {
+  font-weight: 700;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .back {
+  color: var(--auth-muted);
+  font-size: 13.5px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.yuvro-auth-page .back:hover {
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .in {
+  animation: auth-vin 0.35s ease;
+}
+
+@keyframes auth-vin {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.yuvro-auth-page .steps {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.yuvro-auth-page .steps span {
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--auth-line);
+}
+
+.yuvro-auth-page .steps span.on {
+  background: var(--auth-blue);
+}
+
+.yuvro-auth-page .stp {
+  font-size: 12.5px;
+  color: var(--auth-muted);
+  font-weight: 500;
+  margin: 0 0 14px;
+}
+
+.yuvro-auth-page .su .f {
+  margin-bottom: 15px;
+}
+
+.yuvro-auth-page .inp.ph {
+  display: flex;
+  gap: 8px;
+}
+
+.yuvro-auth-page .inp.ph select {
+  height: 46px;
+  width: 84px;
+  flex: none;
+  border: 1px solid var(--auth-border);
+  border-radius: 8px;
+  padding: 0 8px;
+  background: #ffffff;
+  font-size: 15px;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .inp.ph select:focus {
+  outline: 0;
+  border-color: var(--auth-blue);
+}
+
+.yuvro-auth-page .inp.ph input {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+.yuvro-auth-page .inp.err select {
+  border-color: var(--auth-err);
+}
+
+.yuvro-auth-page .otpb {
+  margin-bottom: 22px;
+}
+
+.yuvro-auth-page .oh {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.yuvro-auth-page .oh b {
+  font-weight: 700;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .oh span {
+  color: var(--auth-muted);
+  font-size: 13px;
+}
+
+.yuvro-auth-page .otp {
+  display: flex;
+  gap: 8px;
+}
+
+.yuvro-auth-page .otp input {
+  width: 100%;
+  min-width: 0;
+  max-width: 54px;
+  height: 50px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  border: 1px solid var(--auth-border);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0;
+  color: var(--auth-ink);
+  transition: border-color 0.15s ease;
+}
+
+.yuvro-auth-page .otp input:focus {
+  outline: 0;
+  border-color: var(--auth-blue);
+}
+
+.yuvro-auth-page .otp.err input {
+  border-color: var(--auth-err);
+}
+
+.yuvro-auth-page .rs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--auth-muted);
+  min-height: 22px;
+}
+
+.yuvro-auth-page .rs button {
+  font-size: 13.5px;
+}
+
+.yuvro-auth-page .rs button:disabled {
+  color: #a3aabb;
+  cursor: default;
+  text-decoration: none;
+}
+
+.yuvro-auth-page .otperr {
+  display: none;
+  margin: -8px 0 14px;
+  font-size: 13px;
+  color: var(--auth-err);
+}
+
+.yuvro-auth-page .otperr.show {
+  display: block;
+}
+
+/* Success screens */
+.yuvro-auth-page .done {
+  text-align: center;
+}
+
+.yuvro-auth-page .ck {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  display: block;
+}
+
+.yuvro-auth-page .ck circle {
+  fill: #e8f6ee;
+  stroke: var(--auth-suc);
+  stroke-width: 2.5;
+  stroke-dasharray: 151;
+  animation: auth-dr 0.6s ease backwards;
+}
+
+.yuvro-auth-page .ck path {
+  fill: none;
+  stroke: var(--auth-suc);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 40;
+  animation: auth-dr 0.45s 0.5s ease backwards;
+}
+
+@keyframes auth-dr {
+  from {
+    stroke-dashoffset: 151;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.yuvro-auth-page .done .sub {
+  margin-bottom: 26px;
+}
+
+/* Radio options */
+.yuvro-auth-page .opt {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border: 1px solid var(--auth-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+  background: #ffffff;
+}
+
+.yuvro-auth-page .opt input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.yuvro-auth-page .opt i {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid #b9c0cf;
+  flex: none;
+  margin-top: 2px;
+  display: grid;
+  place-items: center;
+  transition: border-color 0.15s ease;
+}
+
+.yuvro-auth-page .opt input:checked + i {
+  border-color: var(--auth-blue);
+}
+
+.yuvro-auth-page .opt input:checked + i::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--auth-blue);
+}
+
+.yuvro-auth-page .opt:has(input:checked) {
+  border-color: var(--auth-blue);
+  background: #f6f9fe;
+}
+
+.yuvro-auth-page .opt:has(input:focus-visible) {
+  outline: 2px solid var(--auth-blue);
+  outline-offset: 2px;
+}
+
+.yuvro-auth-page .opt b {
+  display: block;
+  font-size: 14.5px;
+  line-height: 1.3;
+  color: var(--auth-ink);
+}
+
+.yuvro-auth-page .opt span {
+  display: block;
+  font-size: 13px;
+  color: var(--auth-muted);
+  margin-top: 2px;
+}
+
+.yuvro-auth-page .mi {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #eef3fd;
+  display: grid;
+  place-items: center;
+  margin-bottom: 18px;
+}
+
+.yuvro-auth-page .mi svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: var(--auth-blue);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.yuvro-auth-page .hint {
+  font-size: 13px;
+  color: var(--auth-muted);
+  margin: 16px 0 0;
+}
+
+.yuvro-auth-page .hint .lnk {
+  font-size: 13px;
+}
+
+.yuvro-auth-page .sec {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: 13.5px;
+  color: var(--auth-muted);
+}
+
+.yuvro-auth-page .sec button:disabled {
+  color: #a3aabb;
+  cursor: default;
+  text-decoration: none;
+}
+
+/* Toast */
+.yuvro-auth-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 12px);
+  background: #171c2e;
+  color: #ffffff;
+  padding: 11px 18px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+  z-index: 9999;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.yuvro-auth-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.yuvro-auth-page .mobile-logo {
+  display: none;
+}
+
+/* Username Availability Feedback */
+.yuvro-auth-page .inp.ok input {
+  border-color: #2da44e;
+}
+
+.yuvro-auth-page .inp.ok input:focus {
+  border-color: #2da44e;
+}
+
+.yuvro-auth-page .un-spinner {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border: 2px solid #dadfe9;
+  border-top-color: var(--auth-blue);
+  border-radius: 50%;
+  animation: auth-spin 0.6s linear infinite;
+  pointer-events: none;
+}
+
+.yuvro-auth-page .un-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.yuvro-auth-page .un-icon.ok {
+  color: #1a7f37;
+  background: #dafbe1;
+}
+
+.yuvro-auth-page .un-icon.err {
+  color: #cf222e;
+  background: #ffebe9;
+  font-size: 10px;
+}
+
+.yuvro-auth-page .un-msg {
+  margin-top: 6px;
+  font-size: 12.5px;
+  line-height: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: auth-fadein 0.15s ease-out;
+}
+
+.yuvro-auth-page .un-msg.checking {
+  color: var(--auth-muted);
+}
+
+.yuvro-auth-page .un-msg.available {
+  color: #1a7f37;
+  font-weight: 500;
+}
+
+.yuvro-auth-page .un-msg.taken,
+.yuvro-auth-page .un-msg.invalid,
+.yuvro-auth-page .un-msg.error {
+  color: var(--auth-err);
+  font-weight: 500;
+}
+
+.yuvro-auth-page .un-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  background: currentColor;
+  flex: none;
+}
+
+@keyframes auth-fadein {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.yuvro-auth-page .github-alert-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 18px;
+  font-size: 13px;
+  color: #cf222e;
+  margin-top: 6px;
+}
+
+.yuvro-auth-page .github-alert-msg .alert-icon {
+  font-size: 13px;
+  line-height: 18px;
+  flex: none;
+}
+
+.yuvro-auth-page .auth-text-link {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--auth-blue);
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.yuvro-auth-page .auth-text-link:hover {
+  color: #3b66c4;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .yuvro-auth-page {
+    grid-template-columns: 1fr;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: #f8fafc;
+  }
+  .yuvro-auth-page .left {
+    display: none;
+  }
+  .yuvro-auth-page .right {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: max(32px, env(safe-area-inset-top, 32px)) 24px max(32px, env(safe-area-inset-bottom, 32px));
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  .yuvro-auth-page .auth-content-box {
+    max-width: 440px;
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow:
+      0 4px 6px -1px rgba(15, 23, 42, 0.04),
+      0 10px 24px -4px rgba(15, 23, 42, 0.06);
+    padding: 40px 36px;
+    margin: auto auto;
+    flex: none;
+  }
+  .yuvro-auth-page .mobile-logo {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    flex: none;
+  }
+  .yuvro-auth-page .mobile-logo .logo {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .yuvro-auth-page {
+    background: #ffffff;
+  }
+  .yuvro-auth-page .right {
+    background: #ffffff;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: max(24px, env(safe-area-inset-top, 24px)) 20px max(24px, env(safe-area-inset-bottom, 24px));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  .yuvro-auth-page .auth-content-box {
+    max-width: 392px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 16px 0;
+    margin: auto auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .yuvro-auth-page .mobile-logo {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    max-width: 392px;
+    margin: 0 auto;
+    flex: none;
+  }
+  .yuvro-auth-page .mobile-logo .logo img {
+    height: 32px;
+  }
+  .yuvro-auth-page .mobile-logo .logo span {
+    font-size: 21px;
+  }
+  .yuvro-auth-page .form h2 {
+    font-size: 25px;
+  }
+  .yuvro-auth-page .form .sub {
+    font-size: 15px;
+    margin-bottom: 22px;
+  }
+  .yuvro-auth-page .inp input,
+  .yuvro-auth-page .inp.ph input,
+  .yuvro-auth-page .inp.ph select {
+    height: 48px;
+    font-size: 16px;
+  }
+  .yuvro-auth-page .go {
+    height: 48px;
+    font-size: 16px;
+  }
+  .yuvro-auth-page .soc button {
+    height: 46px;
+    font-size: 14.5px;
+  }
+  .yuvro-auth-page .otp {
+    gap: 6px;
+  }
+  .yuvro-auth-page .otp input {
+    max-width: 46px;
+    height: 48px;
+    font-size: 19px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yuvro-auth-page * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

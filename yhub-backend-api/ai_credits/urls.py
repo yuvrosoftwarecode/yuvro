@@ -7,6 +7,7 @@ from .views import (
     CreditLedgerHistoryView,
     CreditPackListView,
     CreditUsageHistoryView,
+    DeductCreditsView,
     RazorpayWebhookView,
     UserWalletView,
     VerifyCheckoutPaymentView,
@@ -16,6 +17,7 @@ app_name = "ai_credits"
 
 urlpatterns = [
     path("wallet/", UserWalletView.as_view(), name="wallet"),
+    path("deduct/", DeductCreditsView.as_view(), name="deduct_credits"),
     path("packs/", CreditPackListView.as_view(), name="packs"),
     path("orders/", CreateCreditOrderView.as_view(), name="create_order"),
     path("verify/", VerifyCheckoutPaymentView.as_view(), name="verify_payment"),

@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
+const API_BASE_URL =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_BACKEND_API_BASE_URL) ||
+  "http://localhost:8003/api";
 
 export class ApiError extends Error {
   status: number;
@@ -173,6 +175,6 @@ class RestApiUtil {
 export { RestApiUtil };
 export const restApiUtil = new RestApiUtil(API_BASE_URL);
 export const yhubApiUtil = new RestApiUtil(
-  import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL || API_BASE_URL,
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_YHUB_BACKEND_API_BASE_URL) || API_BASE_URL,
 );
 export default restApiUtil;

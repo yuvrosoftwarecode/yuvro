@@ -1,8 +1,5 @@
 import InterviewReport, { type Report, type AttemptItem, IR_CSS } from "@/components/InterviewReport";
 import {
-  captureInterviewReport,
-  readInterviewReport,
-  readInterviewReportHistory,
   submissionToReport,
 } from "@/lib/mockInterviewReports";
 import { Button } from "@/components/ui/button";
@@ -20,7 +17,9 @@ import {
   MessageSquare,
   Code2,
   Loader2,
-  BrainCircuit,
+  RotateCcw,
+  CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
@@ -40,6 +39,7 @@ import {
   generateBackendReport,
   fetchMockInterviewQuota,
   type CandidateMockInterviewQuota,
+  polishDictatedQuery,
 } from "@/services/mockInterviewService";
 import { BuyMockInterviewsModal } from "@/components/interview/BuyMockInterviewsModal";
 
@@ -294,6 +294,154 @@ export function detectLangFromContext(
   return detectDefaultLang(interviewTitle);
 }
 
+export function formatSpokenQuery(transcript: string, lang: string): string {
+  if (!transcript) return "";
+  let text = transcript.trim();
+
+  // 1. Spoken Punctuation, Brackets, and Operators
+  text = text
+    .replace(/\bsemi\s*colon\b/gi, ";")
+    .replace(/\b(?:bracket\s+start|bracket\s+open|open\s+bracket|start\s+bracket|open\s+parenthesis|left\s+parenthesis)\b/gi, "(")
+    .replace(/\b(?:bracket\s+close|bracket\s+end|close\s+bracket|end\s+bracket|closed\s+bracket|close\s+parenthesis|right\s+parenthesis)\b/gi, ")")
+    .replace(/\s*(?:full\s+stop)\s*/gi, ".")
+    .replace(/\s+dot\s+/gi, ".")
+    .replace(/\b(?:under\s*score|under\s*line)\b/gi, "_")
+    .replace(/\b(?:star|asterisk)\b/gi, "*")
+    .replace(/\b(?:greater than or equal to|greater than or equals)\b/gi, ">=")
+    .replace(/\b(?:less than or equal to|less than or equals)\b/gi, "<=")
+    .replace(/\b(?:not equal to|not equals|not equal)\b/gi, "!=")
+    .replace(/\b(?:is\s+equal\s+to|is\s+equals\s+to|is\s+equal|is\s+equals|equal\s+to|equals\s+to|is\s+=|equals|equal)\b/gi, "=")
+    .replace(/\b(?:greater than)\b/gi, ">")
+    .replace(/\b(?:less than)\b/gi, "<")
+    .replace(/\b(?:single quote|quotes?)\s+(\w+)\s+(?:single quote|quotes?)\b/gi, "'$1'");
+
+  // 2. Normalize underscores in identifiers: "product _ id" or "total _ quantity _ sold" -> "product_id", "total_quantity_sold"
+  text = text.replace(/\s*_\s*/g, "_");
+
+  // 3. Clean up spurious Web Speech pause periods
+  text = text
+    .replace(/,\s*\./g, ",")
+    .replace(/\b(SELECT|FROM|JOIN|LEFT JOIN|RIGHT JOIN|INNER JOIN|WHERE|GROUP BY|ORDER BY|HAVING|LIMIT)\s*\.\s*/gi, "$1 ")
+    .replace(/\.\s*(DESC|ASC|FROM|JOIN|WHERE|GROUP BY|ORDER BY|LIMIT|ON|AS)\b/gi, " $1 ")
+    .replace(/;\s*\./g, ";")
+    .replace(/\.\s*$/g, "");
+
+  // Remove periods between table and alias (e.g., "order_items. OI" -> "order_items oi")
+  text = text.replace(/([a-zA-Z0-9_]+)\.\s+([a-zA-Z0-9_]+)\b/g, "$1 $2");
+
+  // 4. Dot navigation for column selection (e.g. "oi . product_id" -> "oi.product_id")
+  text = text.replace(/([a-zA-Z0-9_]+)\s*\.\s*([a-zA-Z0-9_]+)/g, (m, a, b) => `${a.toLowerCase()}.${b.toLowerCase()}`);
+
+  // 5. Common phonetic speech-to-text corrections for SQL
+  text = text
+    .replace(/\b(?:some|sum)\s*\(/gi, "SUM(")
+    .replace(/\b(?:count)\s*\(/gi, "COUNT(")
+    .replace(/\b(?:avg|average)\s*\(/gi, "AVG(")
+    .replace(/\b(?:max)\s*\(/gi, "MAX(")
+    .replace(/\b(?:min)\s*\(/gi, "MIN(")
+    .replace(/\b(?:orders?)\s+0\b/gi, "orders o")
+    .replace(/\border\s*by\b/gi, "ORDER BY")
+    .replace(/\bgroupby\b/gi, "GROUP BY");
+
+  // Lowercase identifiers like "OI." or "O."
+  text = text.replace(/\b([A-Z]{1,2})\.([a-z])/g, (m, a, b) => `${a.toLowerCase()}.${b}`);
+
+  if (lang === "sql") {
+    // Multi-word SQL clauses
+    const multiWordKeywords: [RegExp, string][] = [
+      [/inner\s+join/gi, "INNER JOIN"],
+      [/left\s+(?:outer\s+)?join/gi, "LEFT JOIN"],
+      [/right\s+(?:outer\s+)?join/gi, "RIGHT JOIN"],
+      [/full\s+(?:outer\s+)?join/gi, "FULL OUTER JOIN"],
+      [/cross\s+join/gi, "CROSS JOIN"],
+      [/group\s*by/gi, "GROUP BY"],
+      [/order\s*by/gi, "ORDER BY"],
+      [/insert\s+into/gi, "INSERT INTO"],
+      [/delete\s+from/gi, "DELETE FROM"],
+      [/is\s+not\s+null/gi, "IS NOT NULL"],
+      [/is\s+null/gi, "IS NULL"],
+      [/not\s+in/gi, "NOT IN"],
+      [/not\s+like/gi, "NOT LIKE"],
+      [/not\s+between/gi, "NOT BETWEEN"],
+      [/primary\s+key/gi, "PRIMARY KEY"],
+      [/foreign\s+key/gi, "FOREIGN KEY"],
+    ];
+
+    for (const [pattern, repl] of multiWordKeywords) {
+      text = text.replace(pattern, repl);
+    }
+
+    // Single-word SQL keywords
+    const singleKeywords = [
+      "select",
+      "distinct",
+      "from",
+      "where",
+      "having",
+      "limit",
+      "offset",
+      "join",
+      "on",
+      "as",
+      "and",
+      "or",
+      "not",
+      "in",
+      "between",
+      "like",
+      "union",
+      "all",
+      "update",
+      "set",
+      "values",
+      "desc",
+      "asc",
+      "count",
+      "sum",
+      "avg",
+      "max",
+      "min",
+      "case",
+      "when",
+      "then",
+      "else",
+      "end",
+      "coalesce",
+      "nullif",
+    ];
+
+    for (const kw of singleKeywords) {
+      const rx = new RegExp(`\\b${kw}\\b`, "gi");
+      text = text.replace(rx, kw.toUpperCase());
+    }
+
+    // Punctuation spacing cleanups
+    text = text
+      .replace(/\s+,/g, ",")
+      .replace(/,\s*/g, ", ")
+      .replace(/\s+;/g, ";")
+      .replace(/\(\s+/g, "(")
+      .replace(/\s+\)/g, ")")
+      .replace(/\s*=\s*/g, " = ")
+      .replace(/\b(COUNT|SUM|AVG|MAX|MIN)\s+\(/g, "$1(");
+
+    // Add clean clause line breaks for readable SQL formatting
+    text = text
+      .replace(/\s+(FROM\b)/g, "\n$1")
+      .replace(/\s+((?:LEFT |RIGHT |INNER |CROSS |FULL OUTER )?JOIN\b)/g, "\n$1")
+      .replace(/\s+(WHERE\b)/g, "\n$1")
+      .replace(/\s+(GROUP BY\b)/g, "\n$1")
+      .replace(/\s+(HAVING\b)/g, "\n$1")
+      .replace(/\s+(ORDER BY\b)/g, "\n$1")
+      .replace(/\s+(LIMIT\b)/g, "\n$1")
+      .replace(/\s+(OFFSET\b)/g, "\n$1")
+      .replace(/\s+(SET\b)/g, "\n$1")
+      .replace(/\s+(VALUES\b)/g, "\n$1");
+  }
+
+  return text;
+}
+
 export const Route = createFileRoute("/mock-interview/$slug")({
   validateSearch: (search: Record<string, unknown>) => ({
     report: search.report === true || search.report === "true",
@@ -383,17 +531,12 @@ function fmt(s: number) {
 }
 
 function CapturedReport({
-  slug,
-  report,
   children,
 }: {
-  slug: string;
-  report: Report;
+  slug?: string;
+  report?: Report;
   children: React.ReactNode;
 }) {
-  useEffect(() => {
-    captureInterviewReport(slug, report);
-  }, [slug, report]);
   return <>{children}</>;
 }
 
@@ -401,7 +544,7 @@ function InterviewScreen() {
   const iv = Route.useLoaderData();
   const navigate = useNavigate();
   const { report: showReport } = Route.useSearch();
-  const [savedReport, setSavedReport] = useState<Report | null>(() => readInterviewReport(iv.slug));
+  const [savedReport, setSavedReport] = useState<Report | null>(null);
   const [submissions, setSubmissions] = useState<any[]>(() => iv.mySubmissions || []);
   const [isLoadingSubmissions, setIsLoadingSubmissions] = useState(false);
   const [selectedAttemptId, setSelectedAttemptId] = useState<string | null>(null);
@@ -411,6 +554,18 @@ function InterviewScreen() {
   const [buyModalNote, setBuyModalNote] = useState<string | null>(null);
 
   const backendId = iv.backendId || (iv.slug.length > 20 ? iv.slug : null);
+
+  useEffect(() => {
+    // Purge any legacy client-side storage keys for mock interviews
+    try {
+      localStorage.removeItem("yuvro-mock-interviews-enrolled");
+      localStorage.removeItem("yuvro_real_mock_interviews_enrolled");
+      localStorage.removeItem(`yuvro-mock-interview-report:${iv.slug}`);
+      localStorage.removeItem(`yuvro-mock-interview-history:${iv.slug}`);
+      sessionStorage.removeItem(`yuvro-mock-interview-report:${iv.slug}`);
+      sessionStorage.removeItem(`yuvro-mock-interview-history:${iv.slug}`);
+    } catch {}
+  }, [iv.slug]);
 
   useEffect(() => {
     fetchMockInterviewQuota().then((q) => {
@@ -457,7 +612,7 @@ function InterviewScreen() {
       });
     });
 
-    // 2. Active saved report from current session if not yet in backend submissions
+    // 2. Newly completed session report in current component memory if not yet reflected in backend submissions
     if (savedReport) {
       const isAlreadyIncluded = list.some(
         (it) =>
@@ -479,30 +634,6 @@ function InterviewScreen() {
         });
       }
     }
-
-    // 3. Local report history cache
-    const history = readInterviewReportHistory(iv.slug);
-    history.forEach((h) => {
-      const exists = list.some(
-        (it) =>
-          it.id === h.id ||
-          (it.date === h.date && it.duration === h.duration && it.score === h.score)
-      );
-      if (!exists) {
-        list.push({
-          id: h.id || `loc-${list.length}`,
-          attemptNumber: 0,
-          date: h.date,
-          duration: h.duration,
-          score: h.score,
-          status: "completed",
-          summary: h.summary,
-          strength: h.strength,
-          focus: h.focus,
-          report: h,
-        });
-      }
-    });
 
     // Assign attempt numbers: newest attempt gets total, oldest gets #1
     const total = list.length;
@@ -532,16 +663,37 @@ function InterviewScreen() {
   };
 
   const questions = useMemo(() => {
+    const introItem = {
+      text: `Hello! I'm your AI interviewer today for the ${iv.name} role. To get started, could you please introduce yourself and share a brief overview of your background and technical experience?`,
+      skill: "Introduction",
+    };
+
+    let baseQuestions: { text: string; skill: string }[] = [];
+
     if (iv.predefinedTree && Array.isArray(iv.predefinedTree) && iv.predefinedTree.length > 0) {
-      return iv.predefinedTree.map((node: any, k: number) => ({
+      baseQuestions = iv.predefinedTree.map((node: any, k: number) => ({
         text: node.text || node.question || `Question ${k + 1}`,
         skill: `${iv.name} · Topic ${k + 1}`,
       }));
+    } else {
+      const nameLower = (iv.name || "").toLowerCase();
+      const slugLower = (iv.slug || "").toLowerCase();
+      if (nameLower.includes("mongodb") || slugLower.includes("mongodb") || nameLower.includes("mongo")) {
+        baseQuestions = [
+          { text: "Can you explain the key architectural differences between MongoDB and traditional relational databases, specifically regarding schema design and horizontal scaling?", skill: "MongoDB Architecture & NoSQL" },
+          { text: "When modeling one-to-many relationships in MongoDB, how do you decide whether to embed documents or reference them with ObjectIDs?", skill: "Document Schema Design" },
+          { text: "How does the MongoDB Aggregation Pipeline work, and can you walk through a pipeline using $match, $group, and $project stages?", skill: "Aggregation Framework" },
+          { text: "What indexing strategies does MongoDB support (e.g. compound, multikey, TTL), and how do you use explain plans to optimize a slow query?", skill: "Indexing & Query Optimization" },
+          { text: "Can you explain how replication and replica sets work in MongoDB to ensure high availability and automatic failover?", skill: "Replication & High Availability" },
+        ];
+      } else if (iv.category && BANK[iv.category] && BANK[iv.category].length > 0) {
+        baseQuestions = BANK[iv.category];
+      } else {
+        baseQuestions = BANK.Backend;
+      }
     }
-    if (iv.category && BANK[iv.category] && BANK[iv.category].length > 0) {
-      return BANK[iv.category];
-    }
-    return BANK.Backend;
+
+    return [introItem, ...baseQuestions];
   }, [iv]);
 
   const [phase, setPhase] = useState<"lobby" | "live" | "done">("lobby");
@@ -754,10 +906,13 @@ function InterviewScreen() {
           if (res.submission_id) setSubmissionId(res.submission_id);
           if (sessId) setSessionId(sessId);
 
-          const firstQ = res.first_question || questions[0]?.text;
+          const firstQ =
+            res.first_question ||
+            questions[0]?.text ||
+            `Hello! I'm your AI interviewer today for the ${iv.name} role. To get started, could you please introduce yourself and share a brief overview of your background and technical experience?`;
           if (firstQ) {
             setLog([{ who: "ai", text: firstQ }]);
-            setQuestionType(res.first_question_type || (isCodingQuestion(firstQ) ? "coding" : "behavioral"));
+            setQuestionType(res.first_question_type || "behavioral");
           }
           setPhase("live");
           setIsStarting(false);
@@ -782,11 +937,11 @@ function InterviewScreen() {
     }
 
     // Fallback if not a backend interview or network call failed
-    if (questions.length > 0) {
-      const firstQ = questions[0].text;
-      setLog([{ who: "ai", text: firstQ }]);
-      setQuestionType(isCodingQuestion(firstQ) ? "coding" : "behavioral");
-    }
+    const firstQ =
+      questions[0]?.text ||
+      `Hello! I'm your AI interviewer today for the ${iv.name} role. To get started, could you please introduce yourself and share a brief overview of your background and technical experience?`;
+    setLog([{ who: "ai", text: firstQ }]);
+    setQuestionType("behavioral");
     setPhase("live");
     setIsStarting(false);
   };
@@ -832,6 +987,16 @@ function InterviewScreen() {
     }
 
     // Fallback to local questions
+    if (idx === 0) {
+      const nextQ = questions[1]?.text || "Can you explain your approach to writing scalable, maintainable code?";
+      const transitionText = `Thank you for introducing yourself! Let's start with our first technical question:\n\n${nextQ}`;
+      setLog((l) => [...l, { who: "ai", text: transitionText }]);
+      setFollowUp(null);
+      setIdx(1);
+      setQuestionType(isCodingQuestion(nextQ) ? "coding" : "technical");
+      return;
+    }
+
     if (!followUp && next.length % 2 === 1 && idx < questions.length - 1) {
       const f = FOLLOWUPS[idx % FOLLOWUPS.length];
       setLog((l) => [...l, { who: "ai", text: f }]);
@@ -857,7 +1022,9 @@ function InterviewScreen() {
       return (
         <Shell title={iv.name}>
           <div className="mx-auto max-w-xl px-6 py-24 text-center">
-            <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+            <div className="mx-auto mb-5 flex items-center justify-center">
+              <img src={YuvroLogo} alt="Yuvro" className="h-16 w-16 object-contain animate-pulse" />
+            </div>
             <h2 className="mt-4 text-base font-semibold">Loading interview attempts and report...</h2>
           </div>
         </Shell>
@@ -963,6 +1130,9 @@ function InterviewScreen() {
                 <h1 className="ir-h1">{iv.name}</h1>
                 <p className="ir-meta">Interview report · Finalizing report · {todayStr}</p>
               </div>
+              <div className="flex items-center gap-2">
+                <img src={YuvroLogo} alt="Yuvro Labs" className="h-7 w-auto object-contain" />
+              </div>
             </header>
 
             <div
@@ -979,11 +1149,12 @@ function InterviewScreen() {
                 marginTop: "8px",
               }}
             >
-              <div className="relative flex items-center justify-center">
-                <div className="absolute h-28 w-28 animate-ping rounded-full bg-[#4a7bdc]/20" />
-                <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl border border-[#4a7bdc]/40 bg-[#1b2546] shadow-xl backdrop-blur">
-                  <BrainCircuit className="h-10 w-10 animate-pulse text-[#4a7bdc]" />
-                </div>
+              <div className="flex items-center justify-center">
+                <img
+                  src={YuvroLogo}
+                  alt="Yuvro"
+                  className="h-16 w-16 object-contain animate-pulse"
+                />
               </div>
 
               <h2
@@ -1023,7 +1194,7 @@ function InterviewScreen() {
                   boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                 }}
               >
-                <Loader2 className="h-4 w-4 animate-spin text-[#4a7bdc]" />
+                <Loader2 className="h-4 w-4 animate-spin text-[#f7931e]" />
                 <span>Analyzing interview answers and conversation flow...</span>
               </div>
             </div>
@@ -1157,8 +1328,6 @@ function InterviewScreen() {
           }
           onSelectAttempt={handleSelectAttempt}
           onBack={() => {
-            captureInterviewReport(iv.slug, report);
-            setSavedReport(report);
             navigate({ to: "/mock-interviews" });
           }}
           onTryAgain={() => {
@@ -1172,6 +1341,7 @@ function InterviewScreen() {
             setSessionId(null);
             setSubmissionId(null);
             setBackendReportData(null);
+            setSavedReport(null);
             setQuestionType("behavioral");
             setViewingReportOverride(null);
             setSelectedAttemptId(null);
@@ -1230,6 +1400,38 @@ function LiveRoom(p: {
   const [lang, setLang] = useState<keyof typeof LANGS>(() => detectDefaultLang(p.title));
   const [code, setCode] = useState<Record<string, string>>({});
   const [micLevel, setMicLevel] = useState(0);
+
+  const [dictateToEditor, setDictateToEditor] = useState(true);
+  const [editorDictationStatus, setEditorDictationStatus] = useState<"idle" | "listening" | "captured">("idle");
+  const [dictatedVoiceSnippet, setDictatedVoiceSnippet] = useState("");
+  const editorBaseBeforeVoiceRef = useRef<string | null>(null);
+
+  const [isPolishing, setIsPolishing] = useState(false);
+  const [autoPolish, setAutoPolish] = useState(true);
+  const autoPolishRef = useRef(autoPolish);
+  useEffect(() => {
+    autoPolishRef.current = autoPolish;
+  }, [autoPolish]);
+
+  const codeModeRef = useRef(codeMode);
+  useEffect(() => {
+    codeModeRef.current = codeMode;
+  }, [codeMode]);
+
+  const dictateToEditorRef = useRef(dictateToEditor);
+  useEffect(() => {
+    dictateToEditorRef.current = dictateToEditor;
+  }, [dictateToEditor]);
+
+  const langRef = useRef(lang);
+  useEffect(() => {
+    langRef.current = lang;
+  }, [lang]);
+
+  const codeRef = useRef(code);
+  useEffect(() => {
+    codeRef.current = code;
+  }, [code]);
 
   const autoOpenedForRef = useRef<string>("");
   const wasAutoOpenedRef = useRef<boolean>(false);
@@ -1404,6 +1606,48 @@ function LiveRoom(p: {
         // Require at least 2 words or 6 characters to prevent background clicks/noise from triggering
         const words = fullSpoken.split(/\s+/).filter(Boolean);
         if (words.length >= 2 || fullSpoken.length >= 6) {
+          // If Code Editor is active and Dictation to Editor is turned on, populate editor in real-time
+          if (codeModeRef.current && dictateToEditorRef.current) {
+            const currentLang = langRef.current;
+            const currentCode = codeRef.current[currentLang] ?? LANGS[currentLang].starter;
+            const isUntouchedStarter =
+              !codeRef.current[currentLang] || currentCode.trim() === LANGS[currentLang].starter.trim();
+
+            if (editorBaseBeforeVoiceRef.current === null) {
+              editorBaseBeforeVoiceRef.current = isUntouchedStarter ? "" : currentCode.trim();
+            }
+
+            const formattedVoice = formatSpokenQuery(fullSpoken, currentLang);
+            const newEditorContent = editorBaseBeforeVoiceRef.current
+              ? `${editorBaseBeforeVoiceRef.current}\n${formattedVoice}`
+              : formattedVoice;
+
+            setCode((c) => ({ ...c, [currentLang]: newEditorContent }));
+            setEditorDictationStatus("listening");
+            setDictatedVoiceSnippet(fullSpoken);
+
+            // In Code Editor mode: Silence does NOT auto-submit!
+            // It commits the current spoken buffer to the editor after 2s of silence so the candidate can edit typos.
+            if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+            silenceTimerRef.current = setTimeout(() => {
+              if (!isMountedRef.current) return;
+              spokenAccumulatorRef.current = "";
+              editorBaseBeforeVoiceRef.current = null;
+              setEditorDictationStatus("captured");
+              setDictatedVoiceSnippet("");
+
+              // Auto-Polish on silence after 2 seconds if enabled
+              if (
+                autoPolishRef.current &&
+                newEditorContent &&
+                newEditorContent.trim() !== LANGS[currentLang].starter.trim()
+              ) {
+                triggerPolishRef.current(newEditorContent);
+              }
+            }, 2000);
+            return;
+          }
+
           setLiveSpokenText(fullSpoken);
           setIsSilentCountdown(true);
 
@@ -1426,7 +1670,11 @@ function LiveRoom(p: {
             }
           }, 3000);
         } else if (fullSpoken) {
-          setLiveSpokenText(fullSpoken);
+          if (codeModeRef.current && dictateToEditorRef.current) {
+            setDictatedVoiceSnippet(fullSpoken);
+          } else {
+            setLiveSpokenText(fullSpoken);
+          }
         }
       };
 
@@ -1475,8 +1723,13 @@ function LiveRoom(p: {
       stopListening();
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       spokenAccumulatorRef.current = "";
+      editorBaseBeforeVoiceRef.current = null;
       setLiveSpokenText("");
       setIsSilentCountdown(false);
+      setDictatedVoiceSnippet("");
+      if (p.speaking || p.isThinking) {
+        setEditorDictationStatus("idle");
+      }
     } else {
       // AI just stopped speaking: set post-speech cooldown to completely reject speaker tail and room reverb
       aiSpeakingCooldownRef.current = Date.now() + 600;
@@ -1586,11 +1839,58 @@ function LiveRoom(p: {
   );
 
   const current = code[lang] ?? LANGS[lang].starter;
+  const handleResetCode = () => {
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    spokenAccumulatorRef.current = "";
+    editorBaseBeforeVoiceRef.current = null;
+    setEditorDictationStatus("idle");
+    setDictatedVoiceSnippet("");
+    setCode((c) => ({ ...c, [lang]: LANGS[lang].starter }));
+  };
+
+  const triggerPolishQuery = useCallback(async (textToPolish?: string) => {
+    const currentTargetLang = langRef.current;
+    const targetCode =
+      textToPolish ??
+      (codeRef.current[currentTargetLang] ?? LANGS[currentTargetLang].starter);
+    if (
+      !targetCode ||
+      !targetCode.trim() ||
+      targetCode.trim() === LANGS[currentTargetLang].starter.trim()
+    ) {
+      return;
+    }
+    setIsPolishing(true);
+    try {
+      const polished = await polishDictatedQuery(
+        targetCode,
+        currentTargetLang,
+        lastAiText
+      );
+      if (polished && polished.trim()) {
+        setCode((c) => ({ ...c, [currentTargetLang]: polished.trim() }));
+      }
+    } catch (err) {
+      console.warn("Failed to polish query:", err);
+    } finally {
+      setIsPolishing(false);
+      setEditorDictationStatus("captured");
+    }
+  }, [lastAiText]);
+
+  const triggerPolishRef = useRef(triggerPolishQuery);
+  useEffect(() => {
+    triggerPolishRef.current = triggerPolishQuery;
+  }, [triggerPolishQuery]);
+
   const submitCode = () => {
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     spokenAccumulatorRef.current = "";
+    editorBaseBeforeVoiceRef.current = null;
     setLiveSpokenText("");
     setIsSilentCountdown(false);
+    setEditorDictationStatus("idle");
+    setDictatedVoiceSnippet("");
     p.submit(`\`\`\`${lang}\n${current}\n\`\`\``);
   };
 
@@ -1695,9 +1995,9 @@ function LiveRoom(p: {
                         : isSilentCountdown
                         ? "Submitting answer..."
                         : userTalking
-                        ? "You're speaking"
+                        ? (dictateToEditor ? "Speaking into editor..." : "You're speaking")
                         : p.mic
-                        ? "Listening to you"
+                        ? (dictateToEditor ? "Speak query or type in editor" : "Listening to you")
                         : "Mic is off"}
                     </div>
                     <div className="text-xs text-[#8b93a7]">
@@ -1708,9 +2008,9 @@ function LiveRoom(p: {
                         : isSilentCountdown
                         ? "Pause detected — auto-submitting in 3 seconds..."
                         : userTalking
-                        ? "Go on, Vitarka is listening."
+                        ? (dictateToEditor ? "Dictating directly into the split-screen editor." : "Go on, Vitarka is listening.")
                         : p.mic
-                        ? "Take your time. Speak or type your answer."
+                        ? (dictateToEditor ? "Speak your query aloud — it will appear in the editor where you can fix typos." : "Take your time. Speak or type your answer.")
                         : "Turn on your mic or type your answer."}
                     </div>
                   </div>
@@ -1784,10 +2084,58 @@ function LiveRoom(p: {
           <ResizablePanel defaultSize="62%" minSize="40%">
             <div className="flex h-full min-w-0 flex-col bg-[#1e1e1e]">
               <div className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-black/40 bg-[#181818] px-3">
-                <span className="font-mono text-sm text-[#a0a6b4]">
-                  Solution.{LANGS[lang].ext}
-                </span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="font-mono text-sm text-[#a0a6b4] shrink-0">
+                    Solution.{LANGS[lang].ext}
+                  </span>
+                  {isPolishing ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/20 border border-purple-500/40 px-2.5 py-0.5 text-xs text-purple-300 animate-pulse truncate max-w-[240px]">
+                      <Sparkles className="h-3 w-3 shrink-0 animate-spin text-purple-300" />
+                      <span className="truncate">AI Polishing query...</span>
+                    </span>
+                  ) : editorDictationStatus === "listening" ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-xs text-amber-300 animate-pulse truncate max-w-[220px]">
+                      <Mic className="h-3 w-3 shrink-0" />
+                      <span className="truncate">Listening to query...</span>
+                    </span>
+                  ) : editorDictationStatus === "captured" ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs text-emerald-300 truncate max-w-[240px]">
+                      <CheckCircle2 className="h-3 w-3 shrink-0" />
+                      <span className="truncate">Captured — edit typos or submit</span>
+                    </span>
+                  ) : null}
+                </div>
                 <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDictateToEditor(!dictateToEditor)}
+                    title={
+                      dictateToEditor
+                        ? "Voice Dictation is ON: Spoken query words are automatically typed into this editor. Click to turn off."
+                        : "Voice Dictation is OFF: Click to enable speaking queries directly into this editor."
+                    }
+                    className={`flex items-center gap-1.5 h-8 rounded-md px-2.5 text-xs font-medium border transition-colors ${
+                      dictateToEditor
+                        ? "border-amber-500/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25"
+                        : "border-white/10 bg-[#252525] text-[#8b93a7] hover:text-white hover:bg-[#303030]"
+                    }`}
+                  >
+                    {dictateToEditor ? (
+                      <Mic className="h-3.5 w-3.5 text-amber-400" />
+                    ) : (
+                      <MicOff className="h-3.5 w-3.5 text-[#8b93a7]" />
+                    )}
+                    <span>{dictateToEditor ? "Voice Dictation: ON" : "Voice Dictation: OFF"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResetCode}
+                    title="Reset code to starter template"
+                    className="flex items-center gap-1 h-8 rounded-md border border-white/10 bg-[#252525] px-2 text-xs text-[#a0a6b4] hover:text-white hover:bg-[#303030]"
+                  >
+                    <RotateCcw className="h-3 w-3" />
+                    <span>Reset</span>
+                  </button>
                   <select
                     value={lang}
                     onChange={(e) => setLang(e.target.value as keyof typeof LANGS)}
@@ -1802,6 +2150,7 @@ function LiveRoom(p: {
                   <button
                     onClick={submitCode}
                     disabled={p.isThinking}
+                    title="Submit your code or query (Ctrl+Enter)"
                     className="flex items-center gap-1.5 h-8 rounded-md bg-[#6b8cf5] px-3 text-sm font-semibold text-white hover:bg-[#7d9bff] disabled:opacity-50"
                   >
                     {p.isThinking ? (
@@ -1815,7 +2164,34 @@ function LiveRoom(p: {
                   </button>
                 </div>
               </div>
-              <div className="min-h-0 flex-1 overflow-auto">
+              <div className="flex items-center justify-between border-b border-white/5 bg-[#141414] px-3 py-1.5 text-[11px] text-[#8b93a7]">
+                <div className="flex items-center gap-1.5 truncate">
+                  <Sparkles className="h-3.5 w-3.5 shrink-0 text-[#6b8cf5]" />
+                  <span className="truncate">
+                    {dictateToEditor
+                      ? "Speak your query aloud to populate editor. Edit any typos or syntax with keyboard before submitting."
+                      : "Voice dictation is paused. You can write code manually or enable voice dictation above."}
+                  </span>
+                </div>
+                <div className="hidden sm:inline-flex items-center gap-1 font-mono text-[10px] text-[#6b7285] shrink-0 ml-2">
+                  <kbd className="rounded border border-white/10 bg-[#222] px-1 py-0.5 text-white/70">Ctrl</kbd>
+                  <span>+</span>
+                  <kbd className="rounded border border-white/10 bg-[#222] px-1 py-0.5 text-white/70">Enter</kbd>
+                  <span>to submit</span>
+                </div>
+              </div>
+              <div
+                className="min-h-0 flex-1 overflow-auto"
+                onKeyDown={(e) => {
+                  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                    e.preventDefault();
+                    submitCode();
+                  } else if (e.altKey && (e.key === "p" || e.key === "P")) {
+                    e.preventDefault();
+                    triggerPolishQuery();
+                  }
+                }}
+              >
                 <CodeMirror
                   value={current}
                   onChange={(v) => setCode((c) => ({ ...c, [lang]: v }))}
@@ -2104,7 +2480,7 @@ function Shell({
 }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b bg-background/90 px-4 backdrop-blur">
+      <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-border bg-background px-4">
         <div className="flex items-center gap-3">
           <Link to="/mock-interviews" className="rounded-md p-1.5 hover:bg-muted">
             <ArrowLeft className="h-4 w-4" />

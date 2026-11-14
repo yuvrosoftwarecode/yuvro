@@ -19,6 +19,19 @@ from observability import setup_telemetry, instrument_fastapi_app, get_tracer, r
 import re as _re
 from database_evaluator.factory import DatabaseEvaluatorFactory
 
+# Patch asyncio.subprocess.Process._feed_stdin to gracefully handle uvloop's
+# WriteUnixTransport closed RuntimeError when a subprocess terminates early.
+_orig_feed_stdin = asyncio.subprocess.Process._feed_stdin
+
+async def _safe_feed_stdin(self, input):
+    try:
+        await _orig_feed_stdin(self, input)
+    except (RuntimeError, BrokenPipeError, ConnectionResetError) as exc:
+        if isinstance(exc, RuntimeError) and "the handler is closed" not in str(exc):
+            raise
+
+asyncio.subprocess.Process._feed_stdin = _safe_feed_stdin
+
 import base64
 import io
 import tempfile
@@ -696,10 +709,26 @@ class CodeExecutorService:
 
                     # Execute with timeout
                     try:
-                        stdout, stderr = await asyncio.wait_for(
-                            process.communicate(input=input_data.encode()),
-                            timeout=timeout
-                        )
+                        input_bytes = None
+                        if input_data:
+                            if not input_data.endswith('\n'):
+                                input_data = input_data + '\n'
+                            input_bytes = input_data.encode()
+
+                        try:
+                            stdout, stderr = await asyncio.wait_for(
+                                process.communicate(input=input_bytes),
+                                timeout=timeout
+                            )
+                        except (RuntimeError, BrokenPipeError, ConnectionResetError) as exc:
+                            if isinstance(exc, RuntimeError) and "the handler is closed" not in str(exc):
+                                raise
+                            try:
+                                stdout = await process.stdout.read() if process.stdout else b""
+                                stderr = await process.stderr.read() if process.stderr else b""
+                            except Exception:
+                                stdout, stderr = b"", b""
+                            await process.wait()
                         
                         execution_time = time.time() - start_time
                         
@@ -1057,11 +1086,14 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                     )
 
                     try:
-                        if input_data and not input_data.endswith('\n'):
-                            input_data = input_data + '\n'
+                        input_bytes = None
+                        if input_data:
+                            if not input_data.endswith('\n'):
+                                input_data = input_data + '\n'
+                            input_bytes = input_data.encode()
 
                         mem_task = asyncio.create_task(
-                            process.communicate(input=input_data.encode())
+                            process.communicate(input=input_bytes)
                         )
                         
                         async def track_peak_memory(pid):
@@ -1082,7 +1114,18 @@ async def execute_code_with_tests(request: CodeExecutionWithTestsRequest):
                             
                         monitor_task = asyncio.create_task(track_peak_memory(process.pid))
 
-                        stdout, stderr = await asyncio.wait_for(mem_task, timeout=exec_timeout)
+                        try:
+                            stdout, stderr = await asyncio.wait_for(mem_task, timeout=exec_timeout)
+                        except (RuntimeError, BrokenPipeError, ConnectionResetError) as exc:
+                            if isinstance(exc, RuntimeError) and "the handler is closed" not in str(exc):
+                                raise
+                            try:
+                                stdout = await process.stdout.read() if process.stdout else b""
+                                stderr = await process.stderr.read() if process.stderr else b""
+                            except Exception:
+                                stdout, stderr = b"", b""
+                            await process.wait()
+
                         execution_time = time.time() - start_time
                         memory_usage = await monitor_task
 
@@ -3117,7 +3160,10 @@ sqlite3() {
             except Exception:
                 pass
 
-    await websocket.close()
+    try:
+        await websocket.close()
+    except Exception:
+        pass
 
 
 # ─── Browser Preview Proxy ────────────────────────────────────────────────────

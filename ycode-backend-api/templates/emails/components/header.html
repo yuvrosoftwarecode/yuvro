@@ -1,0 +1,37 @@
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left" valign="middle">
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <!-- Logo Mark -->
+          <td valign="middle" style="padding-right: 12px;">
+            <a href="{{ frontend_url }}" target="_blank" style="text-decoration: none; display: block;">
+              <img src="{{ logo_url }}" alt="Yuvro Labs" width="28" height="28" style="width: 28px; height: 28px; max-width: 28px; max-height: 28px; border: 0; outline: none; display: block;" />
+            </a>
+          </td>
+          <!-- Application Name -->
+          <td valign="middle">
+            <a href="{{ frontend_url }}" target="_blank" style="text-decoration: none; display: inline-block;">
+              <span style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 17px; font-weight: 700; color: #0F172A; letter-spacing: -0.2px; line-height: 28px;">
+                {{ application_name|default:"Yuvro Labs" }}
+              </span>
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+    {% if category_label %}
+    <td align="right" valign="middle">
+      <span style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 700; color: #475569; background-color: #F1F5F9; border: 1px solid #E2E8F0; padding: 4px 10px; border-radius: 9999px; letter-spacing: 0.5px; text-transform: uppercase; display: inline-block; line-height: 14px;">
+        {{ category_label }}
+      </span>
+    </td>
+    {% elif header_badge %}
+    <td align="right" valign="middle">
+      <span style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 700; color: #475569; background-color: #F1F5F9; border: 1px solid #E2E8F0; padding: 4px 10px; border-radius: 9999px; letter-spacing: 0.5px; text-transform: uppercase; display: inline-block; line-height: 14px;">
+        {{ header_badge }}
+      </span>
+    </td>
+    {% endif %}
+  </tr>
+</table>

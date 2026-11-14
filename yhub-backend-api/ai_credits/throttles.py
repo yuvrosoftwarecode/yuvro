@@ -11,3 +11,10 @@ class CreditCheckoutVerificationRateThrottle(UserRateThrottle):
     """Limits checkout verification to 60 requests per minute per user."""
     scope = "credit_checkout_verification"
     rate = "60/minute"
+
+
+class CreditDeductionRateThrottle(UserRateThrottle):
+    """Limits direct credit deductions to 60 requests per minute per user."""
+    scope = "credit_deduction"
+    rate = "60/minute"
+

@@ -1,8 +1,9 @@
 import { restApiAuthUtil } from "../utils/RestApiAuthUtil";
 
 export const questionBankService = {
-  async getLabQuestions(): Promise<any[]> {
-    return restApiAuthUtil.get(`/skill_evaluation/lab-questions/`);
+  async getLabQuestions(source?: string): Promise<any[]> {
+    const query = source ? `?source=${encodeURIComponent(source)}` : "";
+    return restApiAuthUtil.get(`/skill_evaluation/lab-questions/${query}`);
   },
   
   async getLabQuestion(id: string): Promise<any> {
@@ -29,8 +30,9 @@ export const questionBankService = {
     return restApiAuthUtil.post(`/skill_evaluation/lab-questions/${id}/export-fixture/`);
   },
 
-  async getKnowledgeQuestions(): Promise<any[]> {
-    const data: any = await restApiAuthUtil.get(`/skill_evaluation/knowledge-questions/`);
+  async getKnowledgeQuestions(source?: string): Promise<any[]> {
+    const query = source ? `?source=${encodeURIComponent(source)}` : "";
+    const data: any = await restApiAuthUtil.get(`/skill_evaluation/knowledge-questions/${query}`);
     return Array.isArray(data) ? data : data?.results || [];
   },
 
@@ -50,8 +52,9 @@ export const questionBankService = {
     return restApiAuthUtil.delete(`/skill_evaluation/knowledge-questions/${id}/`);
   },
 
-  async getSystemDesignQuestions(): Promise<any[]> {
-    const data: any = await restApiAuthUtil.get(`/skill_evaluation/system-design-questions/`);
+  async getSystemDesignQuestions(source?: string): Promise<any[]> {
+    const query = source ? `?source=${encodeURIComponent(source)}` : "";
+    const data: any = await restApiAuthUtil.get(`/skill_evaluation/system-design-questions/${query}`);
     return Array.isArray(data) ? data : data?.results || [];
   },
 

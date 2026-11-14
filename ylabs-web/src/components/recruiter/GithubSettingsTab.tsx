@@ -26,82 +26,6 @@ interface Repository {
   updated_at?: string;
 }
 
-const MOCK_INSTALLATIONS: Installation[] = [
-  {
-    id: "inst-1",
-    installation_id: "inst-yuvrolabs",
-    account_login: "yuvrolabs-org",
-    account_type: "Organization",
-    manage_url: "https://github.com/organizations/yuvrolabs/settings/installations",
-    connected_at: new Date(Date.now() - 30 * 86400000).toISOString()
-  },
-  {
-    id: "inst-2",
-    installation_id: "inst-recruiter-demo",
-    account_login: "acme-engineering",
-    account_type: "Organization",
-    manage_url: "https://github.com/organizations/acme-engineering/settings/installations",
-    connected_at: new Date(Date.now() - 60 * 86400000).toISOString()
-  }
-];
-
-const MOCK_REPOSITORIES: Record<string, Repository[]> = {
-  "inst-yuvrolabs": [
-    {
-      id: 101,
-      name: "starter-payment-webhook-service",
-      full_name: "yuvrolabs-org/starter-payment-webhook-service",
-      private: true,
-      default_branch: "main",
-      language: "TypeScript",
-      description: "Production starter template for payment idempotency and webhook retry lab",
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 102,
-      name: "starter-django-order-management",
-      full_name: "yuvrolabs-org/starter-django-order-management",
-      private: true,
-      default_branch: "main",
-      language: "Python",
-      description: "Django REST Framework starter for e-commerce order state machine lab",
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 103,
-      name: "system-design-canvas-templates",
-      full_name: "yuvrolabs-org/system-design-canvas-templates",
-      private: false,
-      default_branch: "main",
-      language: "TypeScript",
-      description: "Interactive system design architecture starter templates",
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 104,
-      name: "starter-postgresql-ledger-analytics",
-      full_name: "yuvrolabs-org/starter-postgresql-ledger-analytics",
-      private: true,
-      default_branch: "main",
-      language: "SQL",
-      description: "PostgreSQL financial ledger rollup performance benchmark suite",
-      updated_at: new Date().toISOString()
-    }
-  ],
-  "inst-recruiter-demo": [
-    {
-      id: 201,
-      name: "backend-distributed-locks",
-      full_name: "acme-engineering/backend-distributed-locks",
-      private: true,
-      default_branch: "main",
-      language: "Java",
-      description: "Spring Boot Redisson distributed locking evaluation repo",
-      updated_at: new Date().toISOString()
-    }
-  ]
-};
-
 const GitHubMark = ({ size = 40 }: { size?: number }) => (
   <svg
     width={size}
@@ -134,30 +58,6 @@ export function GithubSettingsTab() {
   const [connectLoading, setConnectLoading] = useState(false);
   const [disconnectLoading, setDisconnectLoading] = useState(false);
   const [lastDisconnected, setLastDisconnected] = useState<string | null>(null);
-
-  // Active view: 'connected' | 'disconnected'
-  const [activeTab, setActiveTab] = useState<"connected" | "disconnected">(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("view") === "disconnected" || params.get("state") === "disconnected") {
-        return "disconnected";
-      }
-    }
-    return "connected";
-  });
-
-  const handleTabChange = (tab: "connected" | "disconnected") => {
-    setActiveTab(tab);
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      if (tab === "disconnected") {
-        url.searchParams.set("view", "disconnected");
-      } else {
-        url.searchParams.delete("view");
-      }
-      window.history.replaceState({}, "", url.toString());
-    }
-  };
 
   const [searchQuery, setSearchQuery] = useState("");
   const [visibilityFilter, setVisibilityFilter] = useState<"ALL" | "PRIVATE" | "PUBLIC">("ALL");
@@ -215,22 +115,25 @@ export function GithubSettingsTab() {
     try {
       const data: any = await restApiAuthUtil.get("/recruiter/github-app/installations/");
       const list = Array.isArray(data) ? data : [];
+      setInstallations(list);
       if (list.length > 0) {
-        setInstallations(list);
         setSelectedInstId((prev) => {
           const exists = list.some((i: Installation) => i.installation_id === prev);
           return exists ? prev : list[0].installation_id;
         });
-        setLoadingInst(false);
-        return;
+      } else {
+        setSelectedInstId("");
+        setRepos([]);
       }
-    } catch (err) {
-      console.warn("Failed to fetch installations from backend, using mock installations:", err);
+    } catch (err: any) {
+      console.error("Failed to fetch installations", err);
+      toast.error("Failed to load GitHub installations.");
+      setInstallations([]);
+      setSelectedInstId("");
+      setRepos([]);
+    } finally {
+      setLoadingInst(false);
     }
-
-    setInstallations(MOCK_INSTALLATIONS);
-    setSelectedInstId(MOCK_INSTALLATIONS[0].installation_id);
-    setLoadingInst(false);
   };
 
   // Fetch repos whenever selected installation changes
@@ -247,18 +150,14 @@ export function GithubSettingsTab() {
     try {
       const data: any = await restApiAuthUtil.get(`/recruiter/github-app/installations/${instId}/repositories/`);
       const list = Array.isArray(data) ? data : [];
-      if (list.length > 0) {
-        setRepos(list);
-        setLoadingRepos(false);
-        return;
-      }
-    } catch (err) {
-      console.warn("Failed to fetch repos, using mock repositories:", err);
+      setRepos(list);
+    } catch (err: any) {
+      console.error("Failed to fetch repos", err);
+      toast.error("Failed to load repositories from GitHub.");
+      setRepos([]);
+    } finally {
+      setLoadingRepos(false);
     }
-
-    const mockList = MOCK_REPOSITORIES[instId] || MOCK_REPOSITORIES["inst-yuvrolabs"] || [];
-    setRepos(mockList);
-    setLoadingRepos(false);
   };
 
   const handleConnect = async () => {
@@ -268,20 +167,15 @@ export function GithubSettingsTab() {
       if (data?.url) {
         window.location.href = data.url;
         return;
+      } else {
+        toast.error("Failed to generate GitHub authorization URL.");
+        setConnectLoading(false);
       }
-    } catch (err) {
-      console.warn("Backend connect endpoint unreachable, restoring sample accounts for preview:", err);
-    }
-
-    // Smooth fallback for local preview / Lovable demo
-    setTimeout(() => {
-      setInstallations(MOCK_INSTALLATIONS);
-      setSelectedInstId(MOCK_INSTALLATIONS[0].installation_id);
-      handleTabChange("connected");
+    } catch (err: any) {
+      console.error("Failed to get install URL", err);
+      toast.error(err?.response?.data?.error || "Failed to start GitHub connection flow. Please check server settings.");
       setConnectLoading(false);
-      setLastDisconnected(null);
-      toast.success("GitHub Account connected successfully!");
-    }, 500);
+    }
   };
 
   const handleConfirmDisconnect = async (instId: string) => {
@@ -291,26 +185,19 @@ export function GithubSettingsTab() {
     setDisconnectLoading(true);
     try {
       await restApiAuthUtil.delete(`/recruiter/github-app/installations/${instId}/`);
+      toast.success(`Disconnected ${confirmName}`);
+      setDisconnectTarget(null);
+      setLastDisconnected(confirmName);
+      await fetchInstallations();
     } catch (err: any) {
-      console.warn("Backend disconnect endpoint unreachable, proceeding with local mock state:", err);
+      console.error("Failed to disconnect", err);
+      toast.error(err?.response?.data?.error || "Failed to disconnect GitHub App installation.");
     } finally {
       setDisconnectLoading(false);
-      setDisconnectTarget(null);
-      const remaining = installations.filter((i) => i.installation_id !== instId);
-      setInstallations(remaining);
-      setLastDisconnected(confirmName);
-      if (remaining.length > 0) {
-        setSelectedInstId(remaining[0].installation_id);
-      } else {
-        setSelectedInstId("");
-        setRepos([]);
-        handleTabChange("disconnected");
-      }
-      toast.success(`Disconnected ${confirmName}`);
     }
   };
 
-  const currentInstallation = installations.find((i) => i.installation_id === selectedInstId) || installations[0];
+  const currentInstallation = installations.find((i) => i.installation_id === selectedInstId) || installations[0] || null;
 
   // Filter repositories based on search and visibility
   const filteredRepos = useMemo(() => {
@@ -333,181 +220,45 @@ export function GithubSettingsTab() {
   const privateCount = useMemo(() => repos.filter((r) => r.private).length, [repos]);
   const publicCount = useMemo(() => repos.filter((r) => !r.private).length, [repos]);
 
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  const faqs = [
-    {
-      q: "Who can install the GitHub App for an organization?",
-      a: "Any GitHub user can install the app on their personal account. For GitHub organizations, an organization owner or member with app installation permissions can approve the install. If you don't have admin rights, GitHub allows you to submit an installation request directly to your org owner for 1-click approval."
-    },
-    {
-      q: "Can I grant access to only specific starter repositories?",
-      a: "Yes. During installation on GitHub, choose 'Only select repositories' and select the exact starter code projects you want to use for assessments. You can add or remove repositories at any time by clicking 'Add / Remove Repositories'."
-    },
-    {
-      q: "Do candidates get direct access to our GitHub repository?",
-      a: "No. Candidates never see your GitHub tokens, credentials, or private repository URLs. Yuvro provisions an isolated, sandboxed clone inside an ephemeral browser workspace container."
-    },
-    {
-      q: "What happens when a candidate commits or submits their solution?",
-      a: "Candidate code changes and test runs are evaluated independently in their sandbox environment and packaged directly into Yuvro's evaluation scorecard. They are never committed or pushed back to your GitHub repository."
-    },
-    {
-      q: "Can I connect multiple GitHub accounts or organizations?",
-      a: "Yes. You can connect multiple GitHub organizations or personal accounts and switch between them when assigning starter templates to questions in Question Bank."
-    }
-  ];
-
-  const isDisconnectedView = activeTab === "disconnected" || installations.length === 0;
-
   if (loadingInst) {
     return <p className="py-16 text-center text-sm text-muted-foreground">Loading GitHub connection settings…</p>;
   }
 
   return (
     <div>
-      {/* Case 1: Disconnected view */}
-      {isDisconnectedView ? (
-        <div>
-          {lastDisconnected && (
-            <p className="mb-8 text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">{lastDisconnected}</span> was disconnected. To evaluate
-              candidates using private repositories, connect a GitHub account below.{" "}
-              <button type="button" onClick={() => setLastDisconnected(null)} className={linkCls}>
-                Dismiss
-              </button>
-            </p>
-          )}
+      {lastDisconnected && (
+        <p className="mb-6 text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">{lastDisconnected}</span> was disconnected. To evaluate
+          candidates using private repositories, connect a GitHub account.{" "}
+          <button type="button" onClick={() => setLastDisconnected(null)} className={linkCls}>
+            Dismiss
+          </button>
+        </p>
+      )}
 
-          <h2 className="max-w-xl">Evaluate engineering candidates using your real-world repositories</h2>
-          <p className="mt-3 max-w-xl text-[15px] leading-6 text-secondary-foreground">
-            Connect your GitHub organization or personal profile to authorize starter repositories. When creating
-            evaluation challenges, link your private codebases with one click — candidates receive an ephemeral,
-            browser-based coding workspace without compromising your code or credentials.
-          </p>
-
-          <div className="mt-6 flex flex-wrap items-center gap-5">
-            <button onClick={handleConnect} disabled={connectLoading} className="rec-btn disabled:opacity-50">
-              {connectLoading ? "Redirecting to GitHub…" : "Connect GitHub account"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setInstallations(MOCK_INSTALLATIONS);
-                setSelectedInstId(MOCK_INSTALLATIONS[0].installation_id);
-                setLastDisconnected(null);
-                handleTabChange("connected");
-                toast.success("Loaded demo connected accounts");
-              }}
-              className={linkCls}
-            >
-              Load sample repositories
-            </button>
-            <span className="text-sm text-muted-foreground">Takes ~30 seconds · Select all or specific repositories</span>
-          </div>
-
-          <p className="mt-6 text-sm text-muted-foreground">Strictly read-only access · Revoke anytime</p>
-
-          {installations.length > 0 && (
-            <p className="mt-2 text-sm">
-              <button type="button" onClick={() => handleTabChange("connected")} className={linkCls}>
-                Back to connected accounts
-              </button>
-            </p>
-          )}
-
-          {/* How it works */}
-          <div className="mt-12">
-            <h2>How it works</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              From installation to candidate evaluation in three steps.
-            </p>
-            <div className="mt-5 border-t border-border">
-              {[
-                {
-                  step: "01",
-                  title: "Connect organization or account",
-                  body: "Authorize the Yuvro Labs GitHub App with one click. Organization owners can install it across the entire company or a personal profile."
-                },
-                {
-                  step: "02",
-                  title: "Select authorized repositories",
-                  body: "Choose “Only select repositories” to pick specific starter code templates, or grant access to all repositories. Update allowed repos anytime."
-                },
-                {
-                  step: "03",
-                  title: "Attach to lab evaluations",
-                  body: "In the question bank, select your repo with one click. Candidates get an isolated browser IDE with real git branches ready, without seeing your repo URL."
-                }
-              ].map((s) => (
-                <div key={s.step} className="grid grid-cols-[48px_1fr] gap-4 border-b border-border py-5">
-                  <span className="text-sm text-muted-foreground">{s.step}</span>
-                  <div>
-                    <div className="text-base font-medium leading-6">{s.title}</div>
-                    <p className="mt-1 max-w-2xl text-[15px] leading-[22px] text-secondary-foreground">{s.body}</p>
-                  </div>
-                </div>
-              ))}
+      {/* Account header */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <GitHubMark />
+          <div>
+            <div className="text-xl font-semibold leading-7">
+              {currentInstallation ? currentInstallation.account_login : "No GitHub account connected"}
             </div>
-          </div>
-
-          {/* FAQ */}
-          <div className="mt-12">
-            <h2>Frequently asked questions</h2>
-            <div className="mt-5 border-t border-border">
-              {faqs.map((faq, idx) => {
-                const isOpen = openFaq === idx;
-                return (
-                  <div key={idx} className="border-b border-border py-4">
-                    <button
-                      onClick={() => setOpenFaq(isOpen ? null : idx)}
-                      className="w-full text-left text-[15px] font-medium leading-6 hover:text-primary"
-                    >
-                      {faq.q}
-                    </button>
-                    {isOpen && (
-                      <p className="mt-2 max-w-3xl text-sm leading-6 text-secondary-foreground">{faq.a}</p>
-                    )}
-                  </div>
-                );
-              })}
+            <div className="text-sm leading-5 text-muted-foreground">
+              {currentInstallation
+                ? `${currentInstallation.account_type || "User"} · Installation ID ${currentInstallation.installation_id} · Connected`
+                : "Connect your GitHub organization or personal profile to authorize starter repositories"}
             </div>
-          </div>
-
-          {/* Bottom connect line */}
-          <div className="mt-12 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <span className="font-medium">Ready to connect your engineering repositories?</span>{" "}
-              <span className="text-secondary-foreground">
-                Takes under a minute. You will be redirected to GitHub to select your authorized repositories.
-              </span>
-            </div>
-            <button onClick={handleConnect} disabled={connectLoading} className="rec-btn disabled:opacity-50">
-              Connect GitHub
-            </button>
           </div>
         </div>
-      ) : (
-        /* Case 2: One or more installations connected */
-        <div>
-          {/* Account header */}
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <GitHubMark />
-              <div>
-                <div className="text-xl font-semibold leading-7">{currentInstallation?.account_login}</div>
-                <div className="text-sm leading-5 text-muted-foreground">
-                  {currentInstallation?.account_type || "User"} · Installation ID{" "}
-                  {currentInstallation?.installation_id} · Connected
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-5 text-[15px]">
-              {currentInstallation?.manage_url && (
-                <a href={currentInstallation.manage_url} target="_blank" rel="noreferrer" className={linkCls}>
-                  Manage on GitHub
-                </a>
-              )}
+        <div className="flex flex-wrap items-center gap-5 text-[15px]">
+          {currentInstallation?.manage_url && (
+            <a href={currentInstallation.manage_url} target="_blank" rel="noreferrer" className={linkCls}>
+              Manage on GitHub
+            </a>
+          )}
+          {currentInstallation && (
+            <>
               <button
                 onClick={() => selectedInstId && fetchRepos(selectedInstId)}
                 disabled={loadingRepos}
@@ -516,54 +267,66 @@ export function GithubSettingsTab() {
                 {loadingRepos ? "Syncing…" : "Sync"}
               </button>
               <button
-                onClick={() => currentInstallation && setDisconnectTarget(currentInstallation)}
+                onClick={() => setDisconnectTarget(currentInstallation)}
                 disabled={disconnectLoading}
                 className="text-muted-foreground underline hover:text-destructive disabled:opacity-50"
               >
                 Disconnect
               </button>
-              <button onClick={handleConnect} disabled={connectLoading} className="rec-btn disabled:opacity-50">
-                Add account
-              </button>
-            </div>
-          </div>
+            </>
+          )}
+          <button onClick={handleConnect} disabled={connectLoading} className="rec-btn disabled:opacity-50">
+            {connectLoading ? "Redirecting to GitHub…" : currentInstallation ? "Add account" : "Connect GitHub"}
+          </button>
+        </div>
+      </div>
 
-          {/* Account switcher */}
-          <div className="mt-5 flex flex-wrap items-center gap-5 text-sm leading-5 text-muted-foreground">
-            <span>Accounts</span>
-            {installations.map((a) => (
-              <button
-                key={a.id}
-                onClick={() => setSelectedInstId(a.installation_id)}
-                className={
-                  a.installation_id === selectedInstId ? "font-medium text-foreground" : "hover:text-foreground"
-                }
-              >
-                {a.account_login}
-              </button>
-            ))}
-            <span className="ml-auto">{installations.length} connected</span>
-            {installations.length > 0 && (
-              <button type="button" onClick={() => handleTabChange("disconnected")} className="hover:text-foreground">
-                Disconnected view
-              </button>
-            )}
-          </div>
+      {/* Account switcher */}
+      {installations.length > 0 && (
+        <div className="mt-5 flex flex-wrap items-center gap-5 text-sm leading-5 text-muted-foreground">
+          <span>Accounts</span>
+          {installations.map((a) => (
+            <button
+              key={a.id}
+              onClick={() => setSelectedInstId(a.installation_id)}
+              className={
+                a.installation_id === selectedInstId ? "font-medium text-foreground" : "hover:text-foreground"
+              }
+            >
+              {a.account_login}
+            </button>
+          ))}
+          <span className="ml-auto">{installations.length} connected</span>
+        </div>
+      )}
 
-          {/* Stats */}
-          <div className="my-10 flex flex-wrap gap-16">
-            <Stat label="Repositories" value={repos.length} />
-            <Stat label="Private" value={privateCount} />
-            <Stat label="Public" value={publicCount} />
-            <Stat label="Evaluation status" value="Ready for labs" />
-          </div>
+      {/* Stats */}
+      <div className="my-10 flex flex-wrap gap-16">
+        <Stat label="Repositories" value={repos.length} />
+        <Stat label="Private" value={privateCount} />
+        <Stat label="Public" value={publicCount} />
+        <Stat
+          label="Evaluation status"
+          value={installations.length > 0 ? "Ready for labs" : "Not connected"}
+        />
+      </div>
 
-          {/* Authorized repositories */}
-          <h2>Authorized repositories</h2>
-          <p className="mb-5 mt-1 text-sm text-muted-foreground">
-            Select a repository when creating questions in the question bank to use it as starter code
-          </p>
+      {/* Authorized repositories */}
+      <h2>Authorized repositories</h2>
+      <p className="mb-5 mt-1 text-sm text-muted-foreground">
+        Select a repository when creating questions in the question bank to use it as starter code
+      </p>
 
+      {installations.length === 0 ? (
+        <div className="border-t border-border py-12 text-center text-muted-foreground">
+          No GitHub accounts connected yet. Click{" "}
+          <button type="button" onClick={handleConnect} disabled={connectLoading} className={linkCls}>
+            Connect GitHub
+          </button>{" "}
+          to authorize starter repositories.
+        </div>
+      ) : (
+        <>
           <div className="mb-2 flex flex-wrap items-center gap-8">
             <input
               value={searchQuery}
@@ -659,7 +422,7 @@ export function GithubSettingsTab() {
               </a>
             </div>
           )}
-        </div>
+        </>
       )}
 
       {/* Disconnect confirmation modal */}

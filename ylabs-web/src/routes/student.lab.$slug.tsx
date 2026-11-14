@@ -1,5 +1,4 @@
 import { createFileRoute, Link, Outlet, useMatch, useParams, useNavigate, useLocation } from "@tanstack/react-router";
-import { TopNav } from "@/components/TopNav";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { labs, tickets, leaderboard } from "@/lib/dummy";
 import { getSystemDesignLab, SYSTEM_DESIGN_SPRINTS } from "@/lib/systemDesign";
@@ -27,7 +26,7 @@ import {
   Github,
   ExternalLink,
 } from "lucide-react";
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useCallback, createContext, useContext } from "react";
 import { useAuth } from "@/lib/auth";
 import type { Ticket, Status } from "@/lib/dummy";
 import { getLab, type AdminLab } from "@/lib/adminLabs";
@@ -70,7 +69,7 @@ const isDsaLab = (name?: string, slug?: string) => {
 };
 
 type SprintStatus = "Completed" | "Active" | "Upcoming";
-interface Sprint {
+export interface Sprint {
   id: string;
   name: string;
   goal: string;
@@ -78,6 +77,40 @@ interface Sprint {
   ticketIds: string[];
   status: SprintStatus;
 }
+
+export interface SprintRouteContext {
+  slug: string;
+  lab: {
+    slug: string;
+    name: string;
+    icon?: string;
+    color?: string;
+    difficulty?: string;
+    completed: number;
+    total: number;
+    description?: string;
+    skills?: { name: string; pct: number }[];
+  };
+  sprint: Sprint | null;
+  sprints: Sprint[];
+  sprintTickets: Ticket[];
+  allTickets: Ticket[];
+  cols: { key: Status; label: string }[];
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  handleTicketClick: (e: React.MouseEvent) => void;
+  isLocked: boolean;
+  meta: {
+    price: string;
+    short: string;
+    name: string;
+    color: string;
+  };
+  onUnlock: () => void;
+}
+
+export const LabSprintContext = createContext<SprintRouteContext | null>(null);
+export const useLabSprint = () => useContext(LabSprintContext);
 
 function buildSprints(slug: string, allTickets: Ticket[]): Sprint[] {
   const javaGroups = [
@@ -418,6 +451,15 @@ function LabDashboard() {
   const { slug } = useParams({ from: "/student/lab/$slug" });
   const ticketMatch = useMatch({ from: "/student/lab/$slug/ticket/$ticketId", shouldThrow: false });
   const reportMatch = useMatch({ from: "/student/lab/$slug/report", shouldThrow: false });
+  const sprintMatch = useMatch({ from: "/student/lab/$slug/sprint/$sprintId", shouldThrow: false });
+
+  const sprintIdFromPath = (() => {
+    const match = location.pathname.match(/\/student\/lab\/[^/]+\/sprint\/([^/?#]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  })();
+
+  const isSprintRoute = Boolean(sprintMatch || sprintIdFromPath);
+  const activeSprintId = sprintMatch?.params?.sprintId || sprintIdFromPath || null;
   const isDashboardView = !ticketMatch && !reportMatch && !location.pathname.includes("/ticket/") && !location.pathname.includes("/report");
 
   const [realLab, setRealLab] = useState<AdminLab | null>(null);
@@ -700,7 +742,8 @@ function LabDashboard() {
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [activeSprint, setActiveSprint] = useState<string | null>(null);
 
-  const sprint = sprints.find((s) => s.id === activeSprint) ?? null;
+  const currentSprintId = activeSprintId || activeSprint;
+  const sprint = (currentSprintId ? sprints.find((s) => s.id === currentSprintId || String(s.id) === currentSprintId) : null) ?? null;
   const sprintTickets = (
     sprint ? allTickets.filter((t) => sprint.ticketIds.includes(t.id)) : allTickets
   ).filter((t) => 
@@ -765,7 +808,7 @@ function LabDashboard() {
     }
   }, [isDsa, activeSprint]);
 
-  const openSprint = (sprintId: string, index: number, sprint?: { is_locked?: boolean }) => {
+  const openSprint = (sprintId: string, index: number, sprintItem?: { is_locked?: boolean }) => {
     if (isUpcoming) {
       toast.info("This lab is upcoming and cannot be opened yet.");
       return;
@@ -774,11 +817,17 @@ function LabDashboard() {
       handleStartLabPrompt();
       return;
     }
-    if (sprintLocked(index, sprint)) {
+    if (sprintLocked(index, sprintItem)) {
       setPayOpen(true);
       return;
     }
-    setActiveSprint(sprintId);
+    try {
+      sessionStorage.setItem(`last_sprint_${slug}`, sprintId);
+    } catch {}
+    navigate({
+      to: "/student/lab/$slug/sprint/$sprintId",
+      params: { slug, sprintId },
+    });
   };
   const handleUnlock = async () => {
     setIsPaying(true);
@@ -928,7 +977,13 @@ function LabDashboard() {
       // Directly open tickets page
       const firstSprintId = sprints[0]?.id;
       if (firstSprintId) {
-        setActiveSprint(firstSprintId);
+        try {
+          sessionStorage.setItem(`last_sprint_${slug}`, firstSprintId);
+        } catch {}
+        navigate({
+          to: "/student/lab/$slug/sprint/$sprintId",
+          params: { slug, sprintId: firstSprintId },
+        });
       }
     } catch (e: any) {
       console.error("Failed to enroll in lab", e);
@@ -961,7 +1016,6 @@ function LabDashboard() {
     if (!isLoading && realLab && isEnrolled !== null && (!isReady || isEnrolled === false)) {
       return (
         <div className="min-h-screen bg-background">
-          <TopNav />
           <div className="flex h-[calc(100vh-64px)] flex-col items-center justify-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="text-sm text-muted-foreground">Preparing workspace repository...</p>
@@ -993,7 +1047,6 @@ function LabDashboard() {
   if (isUpcoming) {
     return (
       <div className="min-h-screen bg-background">
-        <TopNav />
         <main className="mx-auto max-w-2xl px-4 py-16 text-center">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-500/10 text-3xl">
             <LabIcon name={lab.name} icon={lab.icon} size="h-10 w-10" />
@@ -1032,14 +1085,23 @@ function LabDashboard() {
 
   return (
     <div className="min-h-screen">
-      <TopNav />
       <main className="mx-auto max-w-[1500px] px-4 py-6">
         <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
           <Link to="/student/dashboard" className="hover:text-foreground">
             Practical Labs
           </Link>
           <span>/</span>
-          <span className="text-foreground">{lab.name}</span>
+          {isSprintRoute && sprint ? (
+            <>
+              <Link to="/student/lab/$slug" params={{ slug }} className="hover:text-foreground">
+                {lab.name}
+              </Link>
+              <span>/</span>
+              <span className="text-foreground font-medium">{sprint.name}</span>
+            </>
+          ) : (
+            <span className="text-foreground">{lab.name}</span>
+          )}
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[260px_1fr_300px]">
@@ -1166,7 +1228,7 @@ function LabDashboard() {
 
           {/* MAIN */}
           <section>
-            {!sprint ? (
+            {!isSprintRoute ? (
               <>
                 <div className="mb-3 flex items-center justify-between">
                   <div>
@@ -1303,91 +1365,30 @@ function LabDashboard() {
                 </div>
               </>
             ) : (
-              <>
-                <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={() => setActiveSprint(null)}
-                    className="inline-flex items-center gap-1 rounded-md border bg-card px-2 py-1.5 text-xs hover:bg-accent"
-                  >
-                    <ArrowLeft className="h-3 w-3" />
-                    Sprints
-                  </button>
-                  <div className="min-w-0">
-                    <div className="text-sm font-semibold leading-tight">{sprint.name}</div>
-                    <div className="text-[11px] text-muted-foreground">
-                      {sprint.range} · {sprint.goal}
-                    </div>
-                  </div>
-                  <div className="ml-auto flex items-center gap-2">
-                    <div className="relative">
-                      <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-                      <input
-                        placeholder="Search tickets..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-56 rounded-md border bg-input/40 pl-8 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/40"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid gap-3 md:grid-cols-3">
-                  {cols.map((c) => {
-                    const items = sprintTickets.filter((t) => t.status === c.key);
-                    return (
-                      <div key={c.key} className="flex flex-col rounded-xl border bg-card/50 p-3 max-h-[calc(100vh-11rem)]">
-                        <div className="mb-3 flex items-center justify-between px-1 shrink-0">
-                          <div className="text-sm font-medium">{c.label}</div>
-                          <span className="rounded-full bg-accent px-2 py-0.5 text-[11px]">
-                            {items.length}
-                          </span>
-                        </div>
-                        <div className="space-y-2 overflow-y-auto min-h-0 pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                          {items.length === 0 && <div className="px-1 py-4 text-[11px] text-muted-foreground">No tickets</div>}
-                          {items.map((t) => (
-                            <div key={t.id}>
-                              <Link
-                                onClick={handleTicketClick}
-                                to="/student/lab/$slug/ticket/$ticketId"
-                                params={{ slug: lab.slug, ticketId: t.id }}
-                                className="block rounded-lg border bg-card p-3 hover:border-primary/50 transition"
-                              >
-                                <div className="text-sm font-medium leading-snug">{t.title}</div>
-                                <div className="mt-1.5 flex items-center justify-between">
-                                  <DiffBadge value={t.difficulty} />
-                                </div>
-                                <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-                                  <span>
-                                    ⏱ {t.estMin}m · {t.tag}
-                                  </span>
-                                  <span className="inline-flex items-center gap-1 text-primary">
-                                    <Zap className="h-3 w-3" />
-                                    {t.xp}
-                                  </span>
-                                </div>
-                                {t.status === "in_progress" && t.progress != null && (
-                                  <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
-                                    <div
-                                      className="h-full bg-info"
-                                      style={{ width: `${t.progress}%` }}
-                                    />
-                                  </div>
-                                )}
-                                {t.status === "done" && (
-                                  <div className="mt-2 flex items-center justify-between text-[11px]">
-                                    <span className="text-success">✓ Score {t.score}</span>
-                                    <Award className="h-3.5 w-3.5 text-warning" />
-                                  </div>
-                                )}
-                              </Link>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
+              <LabSprintContext.Provider
+                value={{
+                  slug,
+                  lab,
+                  sprint,
+                  sprints,
+                  sprintTickets,
+                  allTickets,
+                  cols,
+                  searchQuery,
+                  setSearchQuery,
+                  handleTicketClick,
+                  isLocked: sprint
+                    ? sprintLocked(
+                        sprints.findIndex((s) => s.id === sprint.id),
+                        realSprints[sprints.findIndex((s) => s.id === sprint.id)]
+                      )
+                    : false,
+                  meta,
+                  onUnlock: () => setPayOpen(true),
+                }}
+              >
+                <Outlet />
+              </LabSprintContext.Provider>
             )}
           </section>
 

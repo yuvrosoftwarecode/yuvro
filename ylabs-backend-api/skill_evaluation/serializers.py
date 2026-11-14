@@ -343,11 +343,30 @@ class LabQuestionBankTaskSerializer(serializers.ModelSerializer):
 
 class LabQuestionBankSerializer(serializers.ModelSerializer):
     tasks = LabQuestionBankTaskSerializer(many=True, required=False)
+    created_by_email = serializers.SerializerMethodField()
+    created_by_name = serializers.SerializerMethodField()
+    company_name = serializers.SerializerMethodField()
+    is_yuvro = serializers.SerializerMethodField()
     
     class Meta:
         model = LabQuestionBank
         fields = '__all__'
-        read_only_fields = ['created_by', 'updated_by']
+        read_only_fields = ['created_by', 'company', 'updated_by']
+
+    def get_created_by_email(self, obj):
+        return obj.created_by.email if obj.created_by else None
+
+    def get_created_by_name(self, obj):
+        if obj.created_by:
+            name = f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()
+            return name if name else None
+        return None
+
+    def get_company_name(self, obj):
+        return obj.company.name if obj.company else None
+
+    def get_is_yuvro(self, obj):
+        return obj.company_id is None
 
     def to_internal_value(self, data):
         if isinstance(data, dict):
@@ -628,7 +647,9 @@ class RecruiterActivityLogSerializer(serializers.ModelSerializer):
 
 class KnowledgeQuestionBankSerializer(serializers.ModelSerializer):
     created_by_email = serializers.SerializerMethodField()
+    created_by_name = serializers.SerializerMethodField()
     company_name = serializers.SerializerMethodField()
+    is_yuvro = serializers.SerializerMethodField()
 
     class Meta:
         model = KnowledgeQuestionBank
@@ -638,8 +659,17 @@ class KnowledgeQuestionBankSerializer(serializers.ModelSerializer):
     def get_created_by_email(self, obj):
         return obj.created_by.email if obj.created_by else None
 
+    def get_created_by_name(self, obj):
+        if obj.created_by:
+            name = f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()
+            return name if name else None
+        return None
+
     def get_company_name(self, obj):
         return obj.company.name if obj.company else None
+
+    def get_is_yuvro(self, obj):
+        return obj.company_id is None
 
     def to_internal_value(self, data):
         if isinstance(data, dict):
@@ -675,7 +705,9 @@ class CandidateEvaluationFeedbackSerializer(serializers.ModelSerializer):
 
 class SystemDesignQuestionBankSerializer(serializers.ModelSerializer):
     created_by_email = serializers.SerializerMethodField()
+    created_by_name = serializers.SerializerMethodField()
     company_name = serializers.SerializerMethodField()
+    is_yuvro = serializers.SerializerMethodField()
 
     class Meta:
         model = SystemDesignQuestionBank
@@ -685,8 +717,17 @@ class SystemDesignQuestionBankSerializer(serializers.ModelSerializer):
     def get_created_by_email(self, obj):
         return obj.created_by.email if obj.created_by else None
 
+    def get_created_by_name(self, obj):
+        if obj.created_by:
+            name = f"{obj.created_by.first_name} {obj.created_by.last_name}".strip()
+            return name if name else None
+        return None
+
     def get_company_name(self, obj):
         return obj.company.name if obj.company else None
+
+    def get_is_yuvro(self, obj):
+        return obj.company_id is None
 
 
 class UserSystemDesignEvaluationSubmissionSerializer(serializers.ModelSerializer):

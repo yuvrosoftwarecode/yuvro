@@ -11,6 +11,7 @@ from .views import (
     InterviewSessionViewSet,
     LabScoringViewSet,
 )
+from .lab_task_ai.views import LabTaskAIViewSet
 
 router = DefaultRouter()
 router.register(r"agents", AIAgentViewSet)
@@ -23,6 +24,7 @@ router.register(
 router.register(r"chat", ChatViewSet, basename="chat")
 router.register(r"interviews", InterviewSessionViewSet, basename="interviewsession")
 router.register(r"scoring", LabScoringViewSet, basename="labscoring")
+router.register(r"lab-task-ai", LabTaskAIViewSet, basename="labtaskai")
 
 urlpatterns = [
     path("", include(router.urls)),

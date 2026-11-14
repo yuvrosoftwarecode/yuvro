@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { TopNav } from "@/components/TopNav";
 import { certificates, me } from "@/lib/dummy";
-import { Award, Download, Share2 } from "lucide-react";
+import { Award, Download, Share2, Linkedin } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { ShareMilestoneModal } from "@/components/shared/ShareMilestoneModal";
 
 export const Route = createFileRoute("/student/certificates")({
   component: Certificates,
@@ -10,9 +11,9 @@ export const Route = createFileRoute("/student/certificates")({
 
 function Certificates() {
   const { user } = useAuth();
+  const [selectedCertificate, setSelectedCertificate] = useState<{ title: string; id: string } | null>(null);
   return (
     <div className="min-h-screen">
-      <TopNav />
       <main className="mx-auto max-w-[1100px] px-4 py-8">
         <header className="mb-6">
           <h1 className="text-2xl font-semibold flex items-center gap-2">
@@ -69,15 +70,29 @@ function Certificates() {
                   <Download className="h-3 w-3" />
                   PDF
                 </button>
-                <button className="flex-1 inline-flex items-center justify-center gap-1 rounded-md border py-1.5 text-xs hover:bg-accent">
-                  <Share2 className="h-3 w-3" />
-                  Share
+                <button
+                  onClick={() => setSelectedCertificate({ title: c.title, id: c.id })}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-md border py-1.5 text-xs font-medium text-[#0A66C2] hover:bg-[#0A66C2]/10 transition-colors"
+                >
+                  <Linkedin className="h-3.5 w-3.5 fill-current" />
+                  Share to LinkedIn
                 </button>
               </div>
             </div>
           ))}
         </div>
       </main>
+
+      {selectedCertificate && (
+        <ShareMilestoneModal
+          isOpen={!!selectedCertificate}
+          onClose={() => setSelectedCertificate(null)}
+          milestoneTitle={selectedCertificate.title}
+          milestoneType="certificate"
+          shareUrl={typeof window !== "undefined" ? `${window.location.origin}/student/certificates` : undefined}
+          defaultCommentary={`🎓 Delighted to share that I've earned the ${selectedCertificate.title} certification on Yuvro Labs! Always leveling up. #learning #growth #developer #yuvro`}
+        />
+      )}
     </div>
   );
 }
