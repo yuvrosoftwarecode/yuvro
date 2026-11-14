@@ -3,7 +3,11 @@ from django.conf import settings
 from rest_framework import generics, permissions, status, views
 from rest_framework.response import Response
 
-from .exceptions import InvalidPackError, PaymentVerificationError
+from .exceptions import (
+    InvalidPackError,
+    PaymentVerificationError,
+    InsufficientCreditsError,
+)
 from .models import CreditLedgerEntry, CreditPack, CreditUsageRecord
 from .pagination import CreditHistoryPagination
 from .payment_service import CreditPaymentService
@@ -20,6 +24,7 @@ from .serializers import (
 from .throttles import (
     CreditCheckoutVerificationRateThrottle,
     CreditOrderCreationRateThrottle,
+    CreditDeductionRateThrottle,
 )
 from .wallet_service import WalletService
 
@@ -284,4 +289,49 @@ class AdminDeficitReconcileView(views.APIView):
                 {"error": "reconciliation_failed", "message": str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class DeductCreditsView(views.APIView):
+    """
+    Atomically deducts a specified amount of credits from the authenticated user's wallet.
+    Used for instant one-off AI operations such as AI Research Paper summarization.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [CreditDeductionRateThrottle]
+
+    def post(self, request):
+        amount = request.data.get("amount", 1)
+        try:
+            amount = int(amount)
+        except (ValueError, TypeError):
+            return Response({"error": "amount must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
+
+        description = request.data.get("description", "AI Research Paper Summary")
+        idempotency_key = request.data.get("idempotency_key")
+        metadata = request.data.get("metadata", {})
+
+        try:
+            wallet, entry = WalletService.deduct_credits(
+                user=request.user,
+                amount=amount,
+                description=description,
+                idempotency_key=idempotency_key,
+                metadata=metadata,
+            )
+            return Response({
+                "success": True,
+                "credits_deducted": amount,
+                "total_available": wallet.total_available,
+                "wallet": CreditWalletSerializer(wallet).data,
+            }, status=status.HTTP_200_OK)
+        except InsufficientCreditsError as e:
+            return Response({
+                "error": str(e),
+                "available": e.available,
+                "required": e.required,
+            }, status=status.HTTP_402_PAYMENT_REQUIRED)
+        except Exception as e:
+            logger.error(f"Error deducting credits: {e}")
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
