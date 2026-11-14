@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { StandardHeader } from "@/components/StandardHeader";
+import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -159,7 +160,7 @@ export function PricingContent({ onSubscribe }: { onSubscribe?: () => void } = {
       <Plans billing={billing} onSubscribe={onSubscribe} />
       <HowSubmissionsWork />
       <Faq />
-      <ClosingBanner />
+      <ClosingBanner onSubscribe={onSubscribe} />
     </div>
   );
 }
@@ -264,25 +265,43 @@ function StartFreeButton({
   className?: string;
   onSubscribe?: () => void;
 }) {
-  if (onSubscribe) {
-    return (
-      <button
-        type="button"
-        onClick={onSubscribe}
-        className={`ylp-btn-primary inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 ${className}`}
-      >
-        Start free
-      </button>
-    );
-  }
+  const nav = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleClick = async () => {
+    if (onSubscribe) {
+      await onSubscribe();
+      return;
+    }
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("access") : null;
+    if (token) {
+      setLoading(true);
+      try {
+        await yhubApiAuthUtil.post("/payment/start_trial/", {});
+      } catch (err) {
+        console.log("start_trial:", err);
+      } finally {
+        setLoading(false);
+        nav({ to: "/recruiter/dashboard" });
+      }
+    } else {
+      nav({
+        to: "/auth",
+        search: { tab: "signup", redirect: "/recruiter/dashboard" },
+      });
+    }
+  };
+
   return (
-    <Link
-      to="/auth"
-      search={{ tab: "signup" }}
-      className={`ylp-btn-primary inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 ${className}`}
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={loading}
+      className={`ylp-btn-primary inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-50 cursor-pointer ${className}`}
     >
-      Start free
-    </Link>
+      {loading ? "Starting trial…" : "Start free"}
+    </button>
   );
 }
 
@@ -590,7 +609,7 @@ function Faq() {
   );
 }
 
-function ClosingBanner() {
+function ClosingBanner({ onSubscribe }: { onSubscribe?: () => void }) {
   return (
     <section
       className="mt-16 flex flex-col items-center justify-between gap-4 rounded-2xl border px-8 py-6 sm:flex-row shadow-sm"
@@ -600,7 +619,7 @@ function ClosingBanner() {
       }}
     >
       <p className="text-[16px] font-bold text-[#14192b] dark:text-white">Try Yuvro free for {TRIAL.days} days</p>
-      <StartFreeButton className="shrink-0" />
+      <StartFreeButton className="shrink-0" onSubscribe={onSubscribe} />
     </section>
   );
 }

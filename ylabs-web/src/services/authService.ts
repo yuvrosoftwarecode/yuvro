@@ -69,6 +69,9 @@ class AuthService {
 
     localStorage.setItem("access", response.access);
     localStorage.setItem("refresh", response.refresh);
+    if (response.user) {
+      localStorage.setItem("user", JSON.stringify(response.user));
+    }
     restApiAuthUtil.setAuthToken(response.access);
     yhubApiAuthUtil.setAuthToken(response.access);
     ycodeApiAuthUtil.setAuthToken(response.access);
@@ -84,6 +87,9 @@ class AuthService {
 
     localStorage.setItem("access", response.access);
     localStorage.setItem("refresh", response.refresh);
+    if (response.user) {
+      localStorage.setItem("user", JSON.stringify(response.user));
+    }
     restApiAuthUtil.setAuthToken(response.access);
     yhubApiAuthUtil.setAuthToken(response.access);
     ycodeApiAuthUtil.setAuthToken(response.access);
@@ -116,6 +122,9 @@ class AuthService {
 
     localStorage.setItem("access", response.access);
     localStorage.setItem("refresh", response.refresh);
+    if (response.user) {
+      localStorage.setItem("user", JSON.stringify(response.user));
+    }
     restApiAuthUtil.setAuthToken(response.access);
     yhubApiAuthUtil.setAuthToken(response.access);
     ycodeApiAuthUtil.setAuthToken(response.access);

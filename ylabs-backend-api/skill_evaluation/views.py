@@ -1727,10 +1727,50 @@ def export_lab_question_to_fixture(lab_question):
     return file_path, fixture_content
 
 
+def get_user_company(user):
+    if not user or not user.is_authenticated:
+        return None
+    if hasattr(user, 'recruiter_profiles') and user.recruiter_profiles.exists():
+        return user.recruiter_profiles.first().company
+    return None
+
+
+def filter_question_queryset(qs, user, source=None):
+    from django.db.models import Q
+    source = (source or "").strip().lower()
+
+    if user and (user.is_superuser or user.is_staff):
+        if source == "yuvro":
+            return qs.filter(company__isnull=True)
+        elif source == "recruiter":
+            company = get_user_company(user)
+            if company:
+                return qs.filter(company=company)
+            return qs.filter(company__isnull=False)
+        return qs
+
+    company = get_user_company(user)
+
+    if source == "yuvro":
+        return qs.filter(company__isnull=True)
+    elif source == "recruiter":
+        if not company:
+            return qs.none()
+        return qs.filter(company=company)
+    else:
+        # Default / all allowed: Yuvro questions + user's company questions
+        if company:
+            return qs.filter(Q(company__isnull=True) | Q(company=company))
+        return qs.filter(company__isnull=True)
+
+
 class LabQuestionBankViewSet(viewsets.ModelViewSet):
-    queryset = LabQuestionBank.objects.all()
     serializer_class = LabQuestionBankSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        source = self.request.query_params.get('source')
+        return filter_question_queryset(LabQuestionBank.objects.all(), self.request.user, source)
 
     def perform_create(self, serializer):
         self._validate_github_app_access(serializer.validated_data)
@@ -1738,7 +1778,8 @@ class LabQuestionBankViewSet(viewsets.ModelViewSet):
         if not user:
             from django.contrib.auth import get_user_model
             user = get_user_model().objects.filter(is_superuser=True).first()
-        instance = serializer.save(created_by=user)
+        company = get_user_company(user)
+        instance = serializer.save(created_by=user, company=company)
         try:
             export_lab_question_to_fixture(instance)
         except Exception as e:
@@ -1746,11 +1787,27 @@ class LabQuestionBankViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         self._validate_github_app_access(serializer.validated_data)
+        user = self.request.user
+        instance = serializer.instance
+        if not (user and (user.is_superuser or user.is_staff)):
+            company = get_user_company(user)
+            if instance.company is None or instance.company != company:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("You do not have permission to edit this question.")
         instance = serializer.save()
         try:
             export_lab_question_to_fixture(instance)
         except Exception as e:
             logging.getLogger(__name__).warning(f"Auto-export fixture failed on update: {e}")
+
+    def perform_destroy(self, instance):
+        user = self.request.user
+        if not (user and (user.is_superuser or user.is_staff)):
+            company = get_user_company(user)
+            if instance.company is None or instance.company != company:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("You do not have permission to delete this question.")
+        instance.delete()
 
     @action(detail=True, methods=['get', 'post'], permission_classes=[AllowAny])
     def export_fixture(self, request, pk=None):
@@ -1898,31 +1955,69 @@ class LabQuestionBankViewSet(viewsets.ModelViewSet):
 
 
 class KnowledgeQuestionBankViewSet(viewsets.ModelViewSet):
-    queryset = KnowledgeQuestionBank.objects.all().order_by('-created_at')
     serializer_class = KnowledgeQuestionBankSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return KnowledgeQuestionBank.objects.all().order_by('-created_at')
+        source = self.request.query_params.get('source')
+        return filter_question_queryset(KnowledgeQuestionBank.objects.all().order_by('-created_at'), self.request.user, source)
 
     def perform_create(self, serializer):
         user = self.request.user
-        company = user.recruiter_profiles.first().company if hasattr(user, 'recruiter_profiles') and user.recruiter_profiles.exists() else None
+        company = get_user_company(user)
         serializer.save(created_by=user, company=company)
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        instance = serializer.instance
+        if not (user and (user.is_superuser or user.is_staff)):
+            company = get_user_company(user)
+            if instance.company is None or instance.company != company:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("You do not have permission to edit this question.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        user = self.request.user
+        if not (user and (user.is_superuser or user.is_staff)):
+            company = get_user_company(user)
+            if instance.company is None or instance.company != company:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("You do not have permission to delete this question.")
+        instance.delete()
 
 
 class SystemDesignQuestionBankViewSet(viewsets.ModelViewSet):
-    queryset = SystemDesignQuestionBank.objects.all().order_by('-created_at')
     serializer_class = SystemDesignQuestionBankSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return SystemDesignQuestionBank.objects.all().order_by('-created_at')
+        source = self.request.query_params.get('source')
+        return filter_question_queryset(SystemDesignQuestionBank.objects.all().order_by('-created_at'), self.request.user, source)
 
     def perform_create(self, serializer):
         user = self.request.user
-        company = user.recruiter_profiles.first().company if hasattr(user, 'recruiter_profiles') and user.recruiter_profiles.exists() else None
+        company = get_user_company(user)
         serializer.save(created_by=user, company=company)
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        instance = serializer.instance
+        if not (user and (user.is_superuser or user.is_staff)):
+            company = get_user_company(user)
+            if instance.company is None or instance.company != company:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("You do not have permission to edit this question.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        user = self.request.user
+        if not (user and (user.is_superuser or user.is_staff)):
+            company = get_user_company(user)
+            if instance.company is None or instance.company != company:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("You do not have permission to delete this question.")
+        instance.delete()
 
 
 class UserSystemDesignEvaluationSubmissionViewSet(viewsets.ModelViewSet):

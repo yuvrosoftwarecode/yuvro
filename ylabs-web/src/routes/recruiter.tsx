@@ -128,7 +128,17 @@ function RecruiterLayout() {
           </button>
         </div>
         <div className="pt-8">
-          <PricingContent onSubscribe={() => window.location.reload()} />
+          <PricingContent
+            onSubscribe={async () => {
+              try {
+                await yhubApiAuthUtil.post("/payment/start_trial/", {});
+              } catch (e) {
+                console.log("start_trial error:", e);
+              }
+              setHasPlan(true);
+              nav({ to: "/recruiter/dashboard" });
+            }}
+          />
         </div>
       </div>
     );
