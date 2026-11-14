@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { EducationItem } from "../types";
 import { Avatar } from "@/components/profile-ui/Avatar";
 import { ConfirmDialog } from "@/components/profile-ui/ConfirmDialog";
+import { OwnerOnly } from "@/components/profile-ui/OwnerOnly";
 
 interface EducationItemCardProps {
   item: EducationItem;
   isLast?: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  isOwner?: boolean;
 }
 
 export const EducationItemCard: React.FC<EducationItemCardProps> = ({
@@ -15,6 +17,7 @@ export const EducationItemCard: React.FC<EducationItemCardProps> = ({
   isLast = false,
   onEdit,
   onDelete,
+  isOwner = true,
 }) => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const degreeDetails = [item.degree, item.field].filter(Boolean).join(", ");
@@ -57,24 +60,25 @@ export const EducationItemCard: React.FC<EducationItemCardProps> = ({
               </div>
             </div>
 
-            {/* Quiet text links */}
-            <div className="flex items-center gap-1.5 text-xs shrink-0">
-              <button
-                type="button"
-                onClick={onEdit}
-                className="hover:text-primary font-medium cursor-pointer transition-colors"
-              >
-                Edit
-              </button>
-              <span className="text-line" aria-hidden="true">&middot;</span>
-              <button
-                type="button"
-                onClick={() => setConfirmOpen(true)}
-                className="text-muted hover:text-danger font-medium cursor-pointer"
-              >
-                Remove
-              </button>
-            </div>
+            <OwnerOnly isOwner={isOwner}>
+              <div className="flex items-center gap-1.5 text-xs shrink-0">
+                <button
+                  type="button"
+                  onClick={onEdit}
+                  className="hover:text-primary font-medium cursor-pointer transition-colors"
+                >
+                  Edit
+                </button>
+                <span className="text-line" aria-hidden="true">&middot;</span>
+                <button
+                  type="button"
+                  onClick={() => setConfirmOpen(true)}
+                  className="text-muted hover:text-danger font-medium cursor-pointer"
+                >
+                  Remove
+                </button>
+              </div>
+            </OwnerOnly>
           </div>
         </div>
       </div>

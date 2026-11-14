@@ -3,12 +3,15 @@ import { Section } from "@/components/profile-ui/Section";
 import { TextLink } from "@/components/profile-ui/TextLink";
 import { Button } from "@/components/profile-ui/Button";
 import { EmptyState } from "@/components/profile-ui/EmptyState";
+import { OwnerOnly } from "@/components/profile-ui/OwnerOnly";
 import { EducationItem } from "../types";
 import { useProfileStore } from "../store/profileStore";
 import { EducationForm } from "./EducationForm";
 import { EducationItemCard } from "./EducationItemCard";
 
-export const EducationSection: React.FC = () => {
+export const EducationSection: React.FC<{ isOwner?: boolean }> = ({
+  isOwner = true,
+}) => {
   const { profile, addEducation, updateEducation, deleteEducation } = useProfileStore();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -33,9 +36,11 @@ export const EducationSection: React.FC = () => {
       eyebrow="Credentials"
       actions={
         !isAdding && !editingId ? (
-          <TextLink size="sm" onClick={() => setIsAdding(true)}>
-            Add
-          </TextLink>
+          <OwnerOnly isOwner={isOwner}>
+            <TextLink size="sm" onClick={() => setIsAdding(true)}>
+              Add
+            </TextLink>
+          </OwnerOnly>
         ) : null
       }
     >
@@ -72,20 +77,23 @@ export const EducationSection: React.FC = () => {
                   isLast={index === education.length - 1}
                   onEdit={() => setEditingId(item.id)}
                   onDelete={() => deleteEducation(item.id)}
+                  isOwner={isOwner}
                 />
               )
             )}
           </div>
         ) : !isAdding ? (
-          <EmptyState
-            title="Add your education"
-            description="Include your university, degree, field of study, and graduation year."
-            action={
-              <Button size="sm" variant="primary" onClick={() => setIsAdding(true)}>
-                Add education
-              </Button>
-            }
-          />
+          <OwnerOnly isOwner={isOwner}>
+            <EmptyState
+              title="Add your education"
+              description="Include your university, degree, field of study, and graduation year."
+              action={
+                <Button size="sm" variant="primary" onClick={() => setIsAdding(true)}>
+                  Add education
+                </Button>
+              }
+            />
+          </OwnerOnly>
         ) : null}
       </div>
     </Section>

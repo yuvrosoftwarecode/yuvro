@@ -5,11 +5,14 @@ import { useProfileStore } from "../store/profileStore";
 import { formatFileSize, formatRelativeTime } from "@/lib/dateHelpers";
 import { toast } from "@/lib/toastStore";
 import { ConfirmDialog } from "@/components/profile-ui/ConfirmDialog";
+import { OwnerOnly } from "@/components/profile-ui/OwnerOnly";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_EXTENSIONS = [".pdf", ".doc", ".docx"];
 
-export const ResumeSection: React.FC = () => {
+export const ResumeSection: React.FC<{ isOwner?: boolean }> = ({
+  isOwner = true,
+}) => {
   const { profile, uploadResume, removeResume } = useProfileStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -115,55 +118,59 @@ export const ResumeSection: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                loading={uploading}
-              >
-                Replace
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="text-muted hover:text-danger"
-                onClick={() => setConfirmOpen(true)}
-              >
-                Remove
-              </Button>
+              <OwnerOnly isOwner={isOwner}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  loading={uploading}
+                >
+                  Replace
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted hover:text-danger"
+                  onClick={() => setConfirmOpen(true)}
+                >
+                  Remove
+                </Button>
+              </OwnerOnly>
             </div>
           </div>
         ) : (
-          <div
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            className={`flex flex-col items-center justify-center p-8 rounded-card border-2 border-dashed transition-colors text-center ${
-              isDragOver
-                ? "border-primary bg-primary-subtle/50"
-                : "border-line bg-card/40 hover:bg-card/70"
-            }`}
-          >
-            <h4 className="text-sm font-semibold text-ink">
-              Upload your resume
-            </h4>
-            <p className="mt-1 text-xs text-muted max-w-sm">
-              PDF, DOC, or DOCX documents up to 5 MB
-            </p>
-            <div className="mt-4">
-              <Button
-                size="sm"
-                variant="primary"
-                onClick={() => fileInputRef.current?.click()}
-                loading={uploading}
-              >
-                Choose file
-              </Button>
+          <OwnerOnly isOwner={isOwner}>
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              className={`flex flex-col items-center justify-center p-8 rounded-card border-2 border-dashed transition-colors text-center ${
+                isDragOver
+                  ? "border-primary bg-primary-subtle/50"
+                  : "border-line bg-card/40 hover:bg-card/70"
+              }`}
+            >
+              <h4 className="text-sm font-semibold text-ink">
+                Upload your resume
+              </h4>
+              <p className="mt-1 text-xs text-muted max-w-sm">
+                PDF, DOC, or DOCX documents up to 5 MB
+              </p>
+              <div className="mt-4">
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => fileInputRef.current?.click()}
+                  loading={uploading}
+                >
+                  Choose file
+                </Button>
+              </div>
             </div>
-          </div>
+          </OwnerOnly>
         )}
       </Section>
 

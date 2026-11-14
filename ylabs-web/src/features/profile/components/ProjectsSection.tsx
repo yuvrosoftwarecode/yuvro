@@ -3,12 +3,15 @@ import { Section } from "@/components/profile-ui/Section";
 import { TextLink } from "@/components/profile-ui/TextLink";
 import { Button } from "@/components/profile-ui/Button";
 import { EmptyState } from "@/components/profile-ui/EmptyState";
+import { OwnerOnly } from "@/components/profile-ui/OwnerOnly";
 import { ProjectItem } from "../types";
 import { useProfileStore } from "../store/profileStore";
 import { ProjectForm } from "./ProjectForm";
 import { ProjectItemCard } from "./ProjectItemCard";
 
-export const ProjectsSection: React.FC = () => {
+export const ProjectsSection: React.FC<{ isOwner?: boolean }> = ({
+  isOwner = true,
+}) => {
   const { profile, addProject, updateProject, deleteProject } = useProfileStore();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -33,9 +36,11 @@ export const ProjectsSection: React.FC = () => {
       eyebrow="Portfolio"
       actions={
         !isAdding && !editingId ? (
-          <TextLink size="sm" onClick={() => setIsAdding(true)}>
-            Add
-          </TextLink>
+          <OwnerOnly isOwner={isOwner}>
+            <TextLink size="sm" onClick={() => setIsAdding(true)}>
+              Add
+            </TextLink>
+          </OwnerOnly>
         ) : null
       }
     >
@@ -71,20 +76,23 @@ export const ProjectsSection: React.FC = () => {
                   item={item}
                   onEdit={() => setEditingId(item.id)}
                   onDelete={() => deleteProject(item.id)}
+                  isOwner={isOwner}
                 />
               )
             )}
           </div>
         ) : !isAdding ? (
-          <EmptyState
-            title="Showcase what you've built"
-            description="Highlight key engineering projects, hackathons, or open-source repositories."
-            action={
-              <Button size="sm" variant="primary" onClick={() => setIsAdding(true)}>
-                Add project
-              </Button>
-            }
-          />
+          <OwnerOnly isOwner={isOwner}>
+            <EmptyState
+              title="Showcase what you've built"
+              description="Highlight key engineering projects, hackathons, or open-source repositories."
+              action={
+                <Button size="sm" variant="primary" onClick={() => setIsAdding(true)}>
+                  Add project
+                </Button>
+              }
+            />
+          </OwnerOnly>
         ) : null}
       </div>
     </Section>

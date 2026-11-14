@@ -107,6 +107,8 @@ export const SkillsSection: React.FC<{ isOwner?: boolean }> = ({
                 </div>
               ))}
             </div>
+          ) : !isOwner ? (
+            <p className="text-xs text-muted">No skills to show.</p>
           ) : (
             <EmptyState
               title="No verified skills yet"

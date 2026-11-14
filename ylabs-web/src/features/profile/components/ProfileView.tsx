@@ -47,8 +47,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div
             className="w-full lg:w-[calc(296px+16px)] max-w-full min-w-0 box-border lg:sticky overflow-hidden lg:overflow-y-auto lg:overflow-x-hidden no-scrollbar"
             style={{
-              top: "calc(var(--nav-h, 56px) + 16px)",
-              maxHeight: "calc(100vh - var(--nav-h, 56px) - 32px)",
+              top: isOwner ? "calc(var(--nav-h, 56px) + 16px)" : "16px",
+              maxHeight: isOwner
+                ? "calc(100vh - var(--nav-h, 56px) - 32px)"
+                : "calc(100vh - 32px)",
               padding: "8px",
               margin: "-8px",
               scrollPadding: "8px",
@@ -64,7 +66,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             {/* Sticky Underline Tabs Bar with opaque bg-bg - flush with TopNav (56px) so content never scrolls above tabs */}
             <div
               className="sticky bg-bg z-30 border-b border-line pt-3 pb-0"
-              style={{ top: "var(--nav-h, 56px)" }}
+              style={{ top: isOwner ? "var(--nav-h, 56px)" : "0" }}
             >
               <nav aria-label="Profile navigation tabs" className="flex items-center gap-6 text-sm font-medium">
                 {TABS.map((tab) => {

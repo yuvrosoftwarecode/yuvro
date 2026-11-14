@@ -37,22 +37,22 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
 
       {/* 4. Projects Card */}
       <div id="projects-section">
-        <ProjectsSection />
+        <ProjectsSection isOwner={isOwner} />
       </div>
 
       {/* 5. Work Experience Card */}
       <div id="work-section">
-        <WorkSection />
+        <WorkSection isOwner={isOwner} />
       </div>
 
       {/* 6. Education Card */}
       <div id="education-section">
-        <EducationSection />
+        <EducationSection isOwner={isOwner} />
       </div>
 
       {/* 7. Resume Card */}
       <div id="resume-section">
-        <ResumeSection />
+        <ResumeSection isOwner={isOwner} />
       </div>
     </div>
   );

@@ -89,7 +89,7 @@ function PublicUserProfileRoute() {
 
   return (
     <ClientOnly>
-      <TopNav />
+      {isOwner && <TopNav />}
       {isLoading ? (
         <ProfilePageSkeleton activeTab={activeTab} />
       ) : (
