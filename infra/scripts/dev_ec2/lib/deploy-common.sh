@@ -32,7 +32,21 @@ _set_kv() {
     local f="$1" key="$2" value="$3"
     [ -z "$value" ] && return 0
     [ ! -f "$f" ]   && touch "$f"
+    
+    # Never overwrite certain sensitive keys if they already exist and value is empty/default
+    # (preserve existing secrets when value comes from empty environment variables)
     if grep -qE "^${key}=" "$f"; then
+        # For sensitive keys, only update if the new value is non-empty and different
+        case "$key" in
+            VITE_GOOGLE_CLIENT_ID|GOOGLE_OAUTH2_CLIENT_ID|GOOGLE_OAUTH2_CLIENT_SECRET|GITHUB_CLIENT_ID|GITHUB_CLIENT_SECRET)
+                # Preserve existing secrets if new value is empty or looks like a placeholder
+                local existing="$(grep "^${key}=" "$f" | cut -d= -f2-)"
+                if [ -z "$value" ] || [ "$value" = '""' ] || [ "$value" = "''" ]; then
+                    # Keep existing value
+                    return 0
+                fi
+                ;;
+        esac
         sed -i.bak -E "s|^${key}=.*$|${key}=${value}|" "$f" && rm -f "$f.bak"
     else
         printf "\n%s=%s\n" "$key" "$value" >> "$f"
