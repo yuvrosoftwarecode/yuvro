@@ -15,9 +15,13 @@ import { buildPublicProfileUrl, formatPublicProfileDisplayUrl } from "@/lib/publ
 
 interface IdentityPanelProps {
   onNavigateTab?: (tab: string) => void;
+  isOwner?: boolean;
 }
 
-export const IdentityPanel: React.FC<IdentityPanelProps> = ({ onNavigateTab }) => {
+export const IdentityPanel: React.FC<IdentityPanelProps> = ({
+  onNavigateTab,
+  isOwner = true,
+}) => {
   const {
     profile,
     saveProfile,
@@ -272,7 +276,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ onNavigateTab }) =
         }}
       />
 
-      {isEditing ? (
+      {isOwner && isEditing ? (
         /* ================= IN-PLACE EDIT MODE ================= */
         <div
           className="bg-card border border-line rounded-card p-5 space-y-4 w-full min-w-0 box-border text-left"
@@ -518,24 +522,26 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ onNavigateTab }) =
               />
             </div>
 
-            <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-left w-full min-w-0 box-border">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="hover:text-primary font-medium underline-offset-2 hover:underline cursor-pointer transition-colors"
-              >
-                Change photo
-              </button>
-              {profile.avatarUrl && (
+            {isOwner && (
+              <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-left w-full min-w-0 box-border">
                 <button
                   type="button"
-                  onClick={() => setShowRemovePhotoConfirm(true)}
-                  className="text-muted hover:text-danger font-medium underline-offset-2 hover:underline cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="hover:text-primary font-medium underline-offset-2 hover:underline cursor-pointer transition-colors"
                 >
-                  Remove photo
+                  Change photo
                 </button>
-              )}
-            </div>
+                {profile.avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setShowRemovePhotoConfirm(true)}
+                    className="text-muted hover:text-danger font-medium underline-offset-2 hover:underline cursor-pointer"
+                  >
+                    Remove photo
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Identity details */}
@@ -571,7 +577,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ onNavigateTab }) =
               >
                 {profile.headline}
               </p>
-            ) : (
+            ) : isOwner ? (
               <button
                 type="button"
                 onClick={() => setIsEditing(true)}
@@ -579,17 +585,19 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ onNavigateTab }) =
               >
                 Add a headline
               </button>
-            )}
+            ) : null}
           </div>
 
           {/* Full-width In-place Edit Profile button */}
-          <button
-            type="button"
-            onClick={() => setIsEditing(true)}
-            className="w-full min-w-0 box-border h-9 px-4 rounded-input bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-ink font-medium text-sm transition-colors flex items-center justify-center select-none cursor-pointer"
-          >
-            Edit profile
-          </button>
+          {isOwner && (
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="w-full min-w-0 box-border h-9 px-4 rounded-input bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-ink font-medium text-sm transition-colors flex items-center justify-center select-none cursor-pointer"
+            >
+              Edit profile
+            </button>
+          )}
 
           {/* Details list (no icons) */}
           <div className="space-y-2 text-xs sm:text-[13px] text-sub pt-1 border-t border-line w-full min-w-0 box-border text-left">
@@ -739,46 +747,48 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ onNavigateTab }) =
           </div>
 
           {/* Public Profile Link row */}
-          <div className="p-3 rounded-card bg-card border border-line space-y-2 w-full min-w-0 box-border text-left">
-            <div className="flex items-center gap-2 w-full min-w-0">
-              <span
-                className="font-mono text-xs text-muted"
-                style={{
-                  flex: "1 1 0%",
-                  minWidth: 0,
-                  overflowWrap: "anywhere",
-                  wordBreak: "break-word",
-                  whiteSpace: "normal",
-                }}
-              >
-                {formatPublicProfileDisplayUrl(profile.username)}
-              </span>
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className="hover:text-primary font-medium text-xs cursor-pointer hover:underline transition-colors"
-                style={{ flex: "none" }}
-              >
-                {copied ? "Copied" : "Copy"}
-              </button>
+          {isOwner && (
+            <div className="p-3 rounded-card bg-card border border-line space-y-2 w-full min-w-0 box-border text-left">
+              <div className="flex items-center gap-2 w-full min-w-0">
+                <span
+                  className="font-mono text-xs text-muted"
+                  style={{
+                    flex: "1 1 0%",
+                    minWidth: 0,
+                    overflowWrap: "anywhere",
+                    wordBreak: "break-word",
+                    whiteSpace: "normal",
+                  }}
+                >
+                  {formatPublicProfileDisplayUrl(profile.username)}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="hover:text-primary font-medium text-xs cursor-pointer hover:underline transition-colors"
+                  style={{ flex: "none" }}
+                >
+                  {copied ? "Copied" : "Copy"}
+                </button>
+              </div>
+              <div className="w-full min-w-0">
+                <a
+                  href={buildPublicProfileUrl(profile.username)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block text-[11px] hover:text-primary text-left transition-colors hover:underline"
+                  style={{
+                    overflowWrap: "anywhere",
+                    wordBreak: "break-word",
+                    whiteSpace: "normal",
+                  }}
+                >
+                  View public profile &rarr;
+                  <span className="sr-only"> (opens in new tab)</span>
+                </a>
+              </div>
             </div>
-            <div className="w-full min-w-0">
-              <a
-                href={buildPublicProfileUrl(profile.username)}
-                target="_blank"
-                rel="noreferrer"
-                className="block text-[11px] hover:text-primary text-left transition-colors hover:underline"
-                style={{
-                  overflowWrap: "anywhere",
-                  wordBreak: "break-word",
-                  whiteSpace: "normal",
-                }}
-              >
-                View public profile &rarr;
-                <span className="sr-only"> (opens in new tab)</span>
-              </a>
-            </div>
-          </div>
+          )}
 
           {/* Hairline Divider */}
           <div className="border-t border-line my-4 w-full" />
@@ -815,7 +825,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ onNavigateTab }) =
           </div>
 
           {/* Hairline Divider & Profile Strength */}
-          {strength.percentage < 100 && (
+          {isOwner && strength.percentage < 100 && (
             <>
               <div className="border-t border-line my-4 w-full" />
               <div className="space-y-2.5 text-left p-3.5 rounded-card bg-card border border-line w-full min-w-0 box-border">

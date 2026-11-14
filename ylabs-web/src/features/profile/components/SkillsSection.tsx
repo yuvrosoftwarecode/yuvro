@@ -7,7 +7,9 @@ import { Button } from "@/components/profile-ui/Button";
 
 const SUGGESTED_SKILLS = ["React", "TypeScript", "Node.js", "Python", "SQL", "Docker", "Git"];
 
-export const SkillsSection: React.FC = () => {
+export const SkillsSection: React.FC<{ isOwner?: boolean }> = ({
+  isOwner = true,
+}) => {
   const { profile, addSkill, removeSkill } = useProfileStore();
   const [newSkill, setNewSkill] = useState("");
   const [skillError, setSkillError] = useState("");
@@ -105,6 +107,8 @@ export const SkillsSection: React.FC = () => {
                 </div>
               ))}
             </div>
+          ) : !isOwner ? (
+            <p className="text-xs text-muted">No skills to show.</p>
           ) : (
             <EmptyState
               title="No verified skills yet"
@@ -136,14 +140,16 @@ export const SkillsSection: React.FC = () => {
                     className="group inline-flex items-center gap-1.5 h-7 px-3 rounded-full border border-line bg-card text-sub text-xs font-medium transition-colors hover:border-primary/40"
                   >
                     <span>{skill}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeSkill(skill)}
-                      className="text-muted hover:text-danger text-xs font-bold leading-none cursor-pointer -mr-1 px-1"
-                      aria-label={`Remove ${skill}`}
-                    >
-                      &times;
-                    </button>
+                    {isOwner && (
+                      <button
+                        type="button"
+                        onClick={() => removeSkill(skill)}
+                        className="text-muted hover:text-danger text-xs font-bold leading-none cursor-pointer -mr-1 px-1"
+                        aria-label={`Remove ${skill}`}
+                      >
+                        &times;
+                      </button>
+                    )}
                   </span>
                 ))}
 
@@ -168,6 +174,8 @@ export const SkillsSection: React.FC = () => {
                 )}
               </div>
             </div>
+          ) : !isOwner ? (
+            <p className="text-xs text-muted">No skills added yet.</p>
           ) : (
             <div className="space-y-2">
               <p className="text-xs text-muted">Add technologies, frameworks, and tools you use:</p>
@@ -187,29 +195,31 @@ export const SkillsSection: React.FC = () => {
           )}
 
           {/* Add skill input */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleAddSkill();
-            }}
-            className="flex items-center gap-2 max-w-sm pt-2"
-          >
-            <input
-              type="text"
-              value={newSkill}
-              onChange={(e) => {
-                setNewSkill(e.target.value);
-                if (skillError) setSkillError("");
+          {isOwner && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleAddSkill();
               }}
-              placeholder="Add a skill, e.g. Docker"
-              className="flex-1 h-9 rounded-input border border-line bg-card px-3 text-xs sm:text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/22"
-            />
-            <Button type="submit" size="sm" variant="primary">
-              Add
-            </Button>
-          </form>
+              className="flex items-center gap-2 max-w-sm pt-2"
+            >
+              <input
+                type="text"
+                value={newSkill}
+                onChange={(e) => {
+                  setNewSkill(e.target.value);
+                  if (skillError) setSkillError("");
+                }}
+                placeholder="Add a skill, e.g. Docker"
+                className="flex-1 h-9 rounded-input border border-line bg-card px-3 text-xs sm:text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/22"
+              />
+              <Button type="submit" size="sm" variant="primary">
+                Add
+              </Button>
+            </form>
+          )}
 
-          {skillError && (
+          {isOwner && skillError && (
             <p className="text-xs text-danger" role="alert">
               {skillError}
             </p>

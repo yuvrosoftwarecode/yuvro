@@ -72,7 +72,7 @@ export const ExecutionOutputView: React.FC<ExecutionOutputViewProps> = ({
       <div className="flex items-center justify-between border-b border-border/60 pb-2">
         <div className="flex items-center gap-2">
           <TerminalIcon className="w-3.5 h-3.5 text-primary" />
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground font-sans">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Console Output
           </span>
           {(executionMetrics || durationMs !== undefined) && (

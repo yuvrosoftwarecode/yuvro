@@ -8,7 +8,7 @@ export function getPublicProfileBaseUrl(overrideBase?: string): string {
 export function buildPublicProfileUrl(username: string, overrideBase?: string): string {
   const base = getPublicProfileBaseUrl(overrideBase);
   const cleanUsername = (username || "").trim();
-  return `${base}/${encodeURIComponent(cleanUsername)}`;
+  return `${base}/u/${encodeURIComponent(cleanUsername)}`;
 }
 
 export function formatPublicProfileDisplayUrl(username: string, overrideBase?: string): string {

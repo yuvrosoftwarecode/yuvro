@@ -13,11 +13,13 @@ export type ProfileTab = "overview" | "performance" | "connections" | "security"
 export interface ProfileViewProps {
   activeTab: ProfileTab;
   onTabChange: (tab: string) => void;
+  isOwner?: boolean;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
   activeTab,
   onTabChange,
+  isOwner = true,
 }) => {
   const { profile, loading } = useProfileStore();
 
@@ -25,12 +27,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     return <ProfilePageSkeleton activeTab={activeTab === "overview" ? "profile" : activeTab} />;
   }
 
-  const TABS: { id: ProfileTab; label: string }[] = [
-    { id: "overview", label: "Overview" },
-    { id: "performance", label: "Performance" },
-    { id: "connections", label: "Connections" },
-    { id: "security", label: "Security" },
-  ];
+  const TABS: { id: ProfileTab; label: string }[] = isOwner
+    ? [
+        { id: "overview", label: "Overview" },
+        { id: "performance", label: "Performance" },
+        { id: "connections", label: "Connections" },
+        { id: "security", label: "Security" },
+      ]
+    : [
+        { id: "overview", label: "Overview" },
+      ];
 
   return (
     <div className="yuvro-profile-theme min-h-screen bg-bg text-ink antialiased selection:bg-primary-subtle selection:text-primary">
@@ -41,8 +47,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div
             className="w-full lg:w-[calc(296px+16px)] max-w-full min-w-0 box-border lg:sticky overflow-hidden lg:overflow-y-auto lg:overflow-x-hidden no-scrollbar"
             style={{
-              top: "calc(var(--nav-h, 56px) + 16px)",
-              maxHeight: "calc(100vh - var(--nav-h, 56px) - 32px)",
+              top: isOwner ? "calc(var(--nav-h, 56px) + 16px)" : "16px",
+              maxHeight: isOwner
+                ? "calc(100vh - var(--nav-h, 56px) - 32px)"
+                : "calc(100vh - 32px)",
               padding: "8px",
               margin: "-8px",
               scrollPadding: "8px",
@@ -50,7 +58,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               boxSizing: "border-box",
             }}
           >
-            <IdentityPanel onNavigateTab={onTabChange} />
+            <IdentityPanel onNavigateTab={onTabChange} isOwner={isOwner} />
           </div>
 
           {/* Right Main Column: Sticky Tab Bar + Content */}
@@ -58,7 +66,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             {/* Sticky Underline Tabs Bar with opaque bg-bg - flush with TopNav (56px) so content never scrolls above tabs */}
             <div
               className="sticky bg-bg z-30 border-b border-line pt-3 pb-0"
-              style={{ top: "var(--nav-h, 56px)" }}
+              style={{ top: isOwner ? "var(--nav-h, 56px)" : "0" }}
             >
               <nav aria-label="Profile navigation tabs" className="flex items-center gap-6 text-sm font-medium">
                 {TABS.map((tab) => {
@@ -86,14 +94,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <main>
               <div key={activeTab} className="animate-fade-in">
                 {activeTab === "overview" && (
-                  <ProfilePage onNavigateTab={onTabChange} />
+                  <ProfilePage onNavigateTab={onTabChange} isOwner={isOwner} />
                 )}
 
-                {activeTab === "performance" && <PerformancePage />}
+                {activeTab === "performance" && isOwner && <PerformancePage />}
 
-                {activeTab === "connections" && <ConnectionsTab />}
+                {activeTab === "connections" && isOwner && <ConnectionsTab />}
 
-                {activeTab === "security" && <SecurityTab />}
+                {activeTab === "security" && isOwner && <SecurityTab />}
               </div>
             </main>
           </div>

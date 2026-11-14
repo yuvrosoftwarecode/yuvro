@@ -3,12 +3,15 @@ import { Section } from "@/components/profile-ui/Section";
 import { TextLink } from "@/components/profile-ui/TextLink";
 import { Button } from "@/components/profile-ui/Button";
 import { EmptyState } from "@/components/profile-ui/EmptyState";
+import { OwnerOnly } from "@/components/profile-ui/OwnerOnly";
 import { WorkItem } from "../types";
 import { useProfileStore } from "../store/profileStore";
 import { WorkForm } from "./WorkForm";
 import { WorkItemCard } from "./WorkItemCard";
 
-export const WorkSection: React.FC = () => {
+export const WorkSection: React.FC<{ isOwner?: boolean }> = ({
+  isOwner = true,
+}) => {
   const { profile, addWork, updateWork, deleteWork } = useProfileStore();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -33,9 +36,11 @@ export const WorkSection: React.FC = () => {
       eyebrow="History"
       actions={
         !isAdding && !editingId ? (
-          <TextLink size="sm" onClick={() => setIsAdding(true)}>
-            Add
-          </TextLink>
+          <OwnerOnly isOwner={isOwner}>
+            <TextLink size="sm" onClick={() => setIsAdding(true)}>
+              Add
+            </TextLink>
+          </OwnerOnly>
         ) : null
       }
     >
@@ -72,20 +77,23 @@ export const WorkSection: React.FC = () => {
                   isLast={index === work.length - 1}
                   onEdit={() => setEditingId(item.id)}
                   onDelete={() => deleteWork(item.id)}
+                  isOwner={isOwner}
                 />
               )
             )}
           </div>
         ) : !isAdding ? (
-          <EmptyState
-            title="Add your work experience"
-            description="Include full-time roles, internships, freelance contracts, or research assistantships."
-            action={
-              <Button size="sm" variant="primary" onClick={() => setIsAdding(true)}>
-                Add experience
-              </Button>
-            }
-          />
+          <OwnerOnly isOwner={isOwner}>
+            <EmptyState
+              title="Add your work experience"
+              description="Include full-time roles, internships, freelance contracts, or research assistantships."
+              action={
+                <Button size="sm" variant="primary" onClick={() => setIsAdding(true)}>
+                  Add experience
+                </Button>
+              }
+            />
+          </OwnerOnly>
         ) : null}
       </div>
     </Section>

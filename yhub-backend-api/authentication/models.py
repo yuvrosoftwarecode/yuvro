@@ -51,7 +51,7 @@ class User(AbstractUser):
     location = models.CharField(max_length=150, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
     about = models.TextField(blank=True, null=True)
-    email_public = models.BooleanField(default=True)
+    email_public = models.BooleanField(default=False)
     phone_public = models.BooleanField(default=False)
 
     class Meta:

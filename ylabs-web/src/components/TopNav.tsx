@@ -16,7 +16,6 @@ import YuvroLogo from "@/assets/YuvroLogo.png";
 const primaryLinks = [
   { to: "/student/dashboard", label: "Simulation Labs" },
   { to: "/mock-interviews", label: "Mock Interviews" },
-  { to: "/research", label: "AI Research Papers" },
 ];
 
 let hasShownGithubPromptSession = false;
@@ -86,9 +85,6 @@ export function TopNav({
     }
     if (to === "/mock-interviews") {
       return activePath.startsWith("/mock-interviews") || activePath.startsWith("/mock-interview");
-    }
-    if (to === "/research") {
-      return activePath.startsWith("/research") || activePath.startsWith("/student/research");
     }
     return activePath.startsWith(to);
   };
@@ -164,7 +160,7 @@ export function TopNav({
                   } else {
                     if (user?.username) {
                       nav({
-                        to: "/$username",
+                        to: "/u/$username",
                         params: { username: user.username },
                         search: { tab: "connections" },
                       });
@@ -285,7 +281,7 @@ function ProfileMenu({
             )}
           </div>
           <Link
-            to={username ? `/${username}` : "/student/profile"}
+            to={username ? `/u/${username}` : "/student/profile"}
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/60"
           >
