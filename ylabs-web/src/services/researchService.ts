@@ -56,7 +56,7 @@ export interface ResearchFilterParams {
   view?: "latest" | "following" | "topics";
   topic?: string;
   source?: string;
-  period?: "today" | "week" | "month" | "all";
+  period?: "today" | "week" | "month";
   sort?: "newest" | "cited" | "upvoted";
   search?: string;
   limit?: number;

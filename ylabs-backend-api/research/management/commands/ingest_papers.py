@@ -3,7 +3,6 @@ from django.core.management.base import BaseCommand
 from research.models import ResearchPaper, ResearchTopic
 from research.services import (
     seed_default_topics,
-    seed_default_papers,
     ingest_huggingface_papers,
     ingest_openalex_papers,
     fetch_arxiv_papers,
@@ -77,11 +76,6 @@ class Command(BaseCommand):
                     if created:
                         live_count += 1
             self.stdout.write(f"   arXiv: {live_count} live papers ingested.")
-
-        if ResearchPaper.objects.count() == 0:
-            self.stdout.write("5. Seeding initial curated AI research papers...")
-            seed_count = seed_default_papers()
-            self.stdout.write(f"   Seeded {seed_count} curated papers.")
 
         total_count = ResearchPaper.objects.count()
         self.stdout.write(
