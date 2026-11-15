@@ -1200,6 +1200,22 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for mt in mongo_core_topics:
                         if mt not in all_skills:
                             all_skills.append(mt)
+                elif "llm" in mock_interview.title.lower() or "agent" in mock_interview.title.lower():
+                    llm_agent_core_topics = [
+                        "AI Agent Architecture & Reasoning Loops (ReAct, Plan-and-Solve, Reflection)",
+                        "Tool Calling, Function Execution & Schema Definition (Pydantic / JSON Schema)",
+                        "Production Resiliency: Model Fallbacks, Timeouts, Retries & Circuit Breakers",
+                        "RAG Architecture: Semantic Chunking, Vector Embeddings, Hybrid Search & Reranking",
+                        "Model Selection & Dynamic Routing (Tiered Latency, Cost, Task Complexity)",
+                        "Agent Memory Patterns (Working Context, Conversation Buffers, Long-term Vector Memory)",
+                        "Vibe Coding Workflows: Validating, Linting, Testing & Sandboxing LLM-Generated Code",
+                        "Multi-Agent Orchestration & Subagent Delegation (Supervisor vs Peer-to-Peer)",
+                        "Context Window Optimization, Prompt Caching & Token Management",
+                        "LLM Guardrails, Safety Validation & Hallucination Detection (NeMo, Guardrails AI, Ragas)"
+                    ]
+                    for lt in llm_agent_core_topics:
+                        if lt not in all_skills:
+                            all_skills.append(lt)
                 elif "ai" in mock_interview.title.lower() or "machine learning" in mock_interview.title.lower():
                     ai_core_topics = [
                         "Machine Learning Fundamentals & Optimization",
@@ -1586,6 +1602,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Contiguous memory vs dispersed pointer-linked nodes",
                                     "O(1) index access in arrays vs O(N) access in linked lists",
                                     "Insertion and deletion trade-offs"
+                                ]
+                            }
+                        elif "llm" in title_lower or "agent" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first practical technical question: When designing a production AI agent to accomplish multi-step workflows, what core architectural components (such as planning loops, tool integration, and memory) do you configure, and how do you handle resilience when an underlying LLM provider encounters rate limits or downtime?",
+                                "topic": "AI Agent Architecture & Production Resiliency",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Core agent components: Reasoning/planning loop (e.g. ReAct), tool schemas & function calling, working memory, and execution environment",
+                                    "Resilience strategies: Fallback cascades to secondary models or backup providers, retries with exponential backoff, and circuit breakers",
+                                    "Handling partial failures: Maintaining task state so failed steps can resume without restarting the entire workflow"
                                 ]
                             }
                         elif "ai" in title_lower or "machine learning" in title_lower:
