@@ -313,7 +313,7 @@ Rules:
                             "fallback_from": f"{active_agent.provider}/{active_agent.model_name}"
                         }
                         fallback_agent = await sync_to_async(
-                            lambda: AIAgent.objects.filter(provider="deepseek", model_name="deepseek-chat", is_active=True).first()
+                            lambda: AIAgent.objects.filter(provider="deepseek", is_active=True).first()
                         )()
                         if fallback_agent:
                             active_agent = fallback_agent
@@ -335,6 +335,9 @@ Rules:
 
                 if "stream" in response_data:
                     stream = response_data["stream"]
+                    buffer_chunk = ""
+                    is_first_chunk = True
+
                     async for chunk in stream:
                         text = None
                         # Gemini
@@ -347,11 +350,37 @@ Rules:
                         elif hasattr(chunk, 'type'):
                             if chunk.type == 'content_block_delta':
                                 text = chunk.delta.text
+                        # OpenAI / DeepSeek
+                        elif hasattr(chunk, 'choices') and chunk.choices:
+                            delta = getattr(chunk.choices[0], 'delta', None)
+                            if delta and hasattr(delta, 'content') and delta.content:
+                                text = delta.content
+
+                        if hasattr(chunk, 'usage') and chunk.usage:
+                            tokens_used = chunk.usage.total_tokens
 
                         if text:
                             full_response_text += text
-                            data = json.dumps({"chunk": text})
-                            yield f"data: {data}\n\n"
+                            buffer_chunk += text
+
+                            # Send optimized larger chunks (~50-90 chars) while preserving minimal TTFT for first chunk
+                            should_flush = (
+                                is_first_chunk
+                                or "\n" in buffer_chunk
+                                or (len(buffer_chunk) >= 50 and (buffer_chunk.endswith(" ") or buffer_chunk.endswith(",") or buffer_chunk.endswith(".")))
+                                or len(buffer_chunk) >= 90
+                            )
+                            if should_flush:
+                                is_first_chunk = False
+                                data = json.dumps({"chunk": buffer_chunk})
+                                yield f"data: {data}\n\n"
+                                buffer_chunk = ""
+
+                    # Flush any remaining text in buffer before closing stream
+                    if buffer_chunk:
+                        data = json.dumps({"chunk": buffer_chunk})
+                        yield f"data: {data}\n\n"
+                        buffer_chunk = ""
 
                     # Final usage update after loop
                     if hasattr(stream, "get_final_metadata"):
@@ -519,7 +548,20 @@ class ChatSessionViewSet(ChatServiceMixin, viewsets.ModelViewSet):
         try:
             is_trigger = message_content == "The interview is starting now. Please introduce yourself and ask the first question."
 
-            ai_agent = await sync_to_async(lambda: chat_session.ai_agent)()
+            ai_agent_id = validated_data.get("ai_agent_id")
+            if ai_agent_id:
+                requested_agent = await sync_to_async(
+                    lambda: AIAgent.objects.filter(id=ai_agent_id, is_active=True).first()
+                )()
+                if requested_agent:
+                    ai_agent = requested_agent
+                    if chat_session.ai_agent_id != requested_agent.id:
+                        chat_session.ai_agent = requested_agent
+                        await sync_to_async(chat_session.save)(update_fields=["ai_agent"])
+                else:
+                    ai_agent = await sync_to_async(lambda: chat_session.ai_agent)()
+            else:
+                ai_agent = await sync_to_async(lambda: chat_session.ai_agent)()
             session_user = await sync_to_async(lambda: chat_session.user)()
 
             user_config = await sync_to_async(

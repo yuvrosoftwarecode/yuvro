@@ -204,7 +204,7 @@ const useAIChat = (config?: {
           max_tokens: 4096,
           page_content: getContext?.() || "",
           stream: true,
-          ...(sid && !sid.startsWith("local-") ? {} : { ai_agent_id: selectedAgentId || agents[0]?.id || null }),
+          ai_agent_id: selectedAgentId || agents[0]?.id || null,
         };
 
         const streamingBufferRef = { current: "" };
@@ -290,9 +290,11 @@ const useAIChat = (config?: {
             const required =
               typeof errPayload?.required === "number" ? errPayload.required : undefined;
             const message =
-              errPayload?.message ||
-              errPayload?.detail ||
-              "Insufficient credits to start AI session.";
+              typeof errPayload?.message === "string"
+                ? errPayload.message
+                : typeof errPayload?.detail === "string"
+                ? errPayload.detail
+                : "Insufficient credits to start AI session.";
 
             setMessages((m) => m.filter((msg) => msg.id !== assistantMsgId));
             creditEvents.emitInsufficient({ available, required, message });
@@ -318,23 +320,25 @@ const useAIChat = (config?: {
             const current = displayedBufferRef.current;
             if (current.length < target.length) {
               const backlog = target.length - current.length;
-              const increment = backlog > 300 ? 12 : backlog > 100 ? 4 : backlog > 20 ? 2 : 1;
+              const increment =
+                backlog > 400 ? 32 : backlog > 150 ? 16 : backlog > 50 ? 8 : backlog > 15 ? 4 : 2;
               const next = target.slice(0, current.length + increment);
               displayedBufferRef.current = next;
               setActiveStream({ id: assistantMsgId, content: next });
               setMessages((m) =>
                 m.map((msg) => (msg.id === assistantMsgId ? { ...msg, content: next } : msg)),
               );
-              typingTimer = setTimeout(tick, backlog > 100 ? 5 : 20);
+              typingTimer = setTimeout(tick, backlog > 50 ? 5 : 12);
             } else {
               typingTimer = null;
               if (isStreamingDone && finalData) {
+                const finalMsgId = typeof finalData.message_id === "string" ? finalData.message_id : assistantMsgId;
                 setMessages((m) =>
                   m.map((msg) =>
                     msg.id === assistantMsgId
                       ? {
                           ...msg,
-                          id: finalData.message_id || msg.id,
+                          id: finalMsgId,
                           content: streamingBufferRef.current,
                         }
                       : msg,
@@ -461,7 +465,7 @@ const useAIChat = (config?: {
         setIsLoading(false);
       }
     },
-    [ensureSession, getContext, agents],
+    [ensureSession, getContext, agents, selectedAgentId],
   );
 
   const startNewChat = useCallback(() => {

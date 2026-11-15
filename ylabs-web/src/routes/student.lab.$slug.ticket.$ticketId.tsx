@@ -3900,10 +3900,11 @@ export function TicketIDE({
             <button
               type="button"
               onClick={() => {
+                const returnUrl = typeof window !== "undefined" ? sessionStorage.getItem("weekly_task_return_url") : null;
                 const weeklyTaskId =
                   (typeof window !== "undefined" && sessionStorage.getItem("weekly_task_id")) ||
                   new URLSearchParams(
-                    (typeof window !== "undefined" && sessionStorage.getItem("weekly_task_return_url"))?.split("?")[1] || ""
+                    (returnUrl && typeof returnUrl === "string" ? returnUrl.split("?")[1] : "") || ""
                   ).get("id") ||
                   undefined;
                 try {
@@ -5027,14 +5028,43 @@ export function TicketIDE({
                     : <SideMentor
                         chatTitle={`${labTitle} - Sprint ${sprintNo} - Ticket ${ticketNo}`}
                         persistenceKey={`ticket-${ticket.id}`}
-                        contextGetter={() => `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\nCurrent Code:\n${Object.entries(files).map(([name, content]) => `File: ${name}\n${content}`).join('\n\n')}`}
-                        activeFile={activeFile}
-                        files={files}
+                        contextGetter={() => {
+                          const fileEntries = Object.entries(files);
+                          let codeStr = "";
+                          if (activeFile && files[activeFile] !== undefined) {
+                            codeStr += `File: ${activeFile}\n${files[activeFile]}\n\n`;
+                          }
+                          for (const [name, content] of fileEntries) {
+                            if (name !== activeFile) {
+                              if ((codeStr + content).length < 25000) {
+                                codeStr += `File: ${name}\n${content}\n\n`;
+                              } else {
+                                codeStr += `File: ${name} (omitted due to length)\n\n`;
+                              }
+                            }
+                          }
+
+                          // Include Editor Console Output & Execution Errors if available
+                          const activeConsole = (executionOutput || output || "").trim();
+                          let consoleBlock = "";
+                          if (activeConsole) {
+                            const trimmed = activeConsole.length > 5000 ? activeConsole.slice(-5000) : activeConsole;
+                            consoleBlock = `\n\n[EDITOR CONSOLE OUTPUT / RECENT ERRORS]:\n${trimmed}`;
+                          }
+
+                          return `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\nCurrent Code:\n${codeStr}${consoleBlock}`.trim();
+                        }}
+                        activeFile={activeFile || defaultPrimaryFile}
                         tasks={ticket.tasks || []}
                         evalResult={evalResult}
+                        consoleOutput={(executionOutput || output || "").trim()}
                         onApplyCode={(code) => {
                           updateCode(code);
-                          showToast(`Applied code to ${activeFile}`);
+                          const target = activeFile || defaultPrimaryFile;
+                          if (target && effectiveUserId) {
+                            wsWriteFile(effectiveUserId, labId, sprintId, target, code, evaluationId).catch(console.error);
+                          }
+                          showToast(`Applied code to ${target || "file"}`);
                         }}
                         onClose={() => setSidePanel(null)}
                       />}
@@ -9108,14 +9138,27 @@ function AgentChangeCard({
               <ChevronRight className={`w-3 h-3 transition-transform duration-150 ${showCode ? "rotate-90" : ""}`} />
               {showCode ? "Hide code" : "View code"}
             </button>
-            <button
-              type="button"
-              onClick={handleCopy}
-              className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-            >
-              {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-              <span>{copied ? "Copied" : "Copy"}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {onReapply && (
+                <button
+                  type="button"
+                  onClick={onReapply}
+                  className="text-[10px] text-primary hover:underline flex items-center gap-1 font-medium transition-colors"
+                  title={`Reapply to ${fileName}`}
+                >
+                  <Download className="w-3 h-3" />
+                  <span>Reapply</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+              >
+                {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                <span>{copied ? "Copied" : "Copy"}</span>
+              </button>
+            </div>
           </div>
 
           {showCode && (
@@ -9277,6 +9320,7 @@ function SideMentor({
   activeFile,
   tasks,
   evalResult,
+  consoleOutput,
   onApplyCode,
   onClose,
 }: {
@@ -9286,6 +9330,7 @@ function SideMentor({
   activeFile?: string;
   tasks?: any[];
   evalResult?: Record<string, { passed: boolean; reason: string }>;
+  consoleOutput?: string;
   onApplyCode?: (code: string) => void;
   onClose?: () => void;
 }) {
@@ -9320,28 +9365,33 @@ function SideMentor({
     const base = contextGetter ? contextGetter() : "";
     
     // Get file paths from workspace or active file
-    const filePaths = activeFile ? `\nCurrent file: ${activeFile}` : "";
+    const filePaths = activeFile ? `\nCurrent active file: ${activeFile}` : "";
+
+    // If there are failed tasks, extract their details for bugfix and ask modes
+    const failedTasks = ticketTasks.filter((t) => t.passed === false);
+    const failureContext = failedTasks.length > 0
+      ? `\n\nFailed Tasks / Errors:\n` + failedTasks.map((t) => {
+          const reason = evalResult && (evalResult[t.slug]?.reason || evalResult[`task${t.slug}`]?.reason);
+          return `- Task: "${t.title}" (FAILED)${reason ? ` - Error: ${reason}` : ""}`;
+        }).join("\n")
+      : "";
     
-    // Vibe code tools context
-    const vibeTools = `\n\nVibe Code Tools Available (use when needed):
-- mkdir(path): Create directory structure
-- create_file(path, content): Create new file with content  
-- grep(pattern, path): Search files for pattern
-- cat(path): Read file content
-- modify(path, find, replace): Replace text in file
-- delete(path): Delete file or directory`;
+    // Editor console output context (compiler errors, runtime exceptions, stdout/stderr)
+    const consoleContext = consoleOutput
+      ? `\n\n[EDITOR CONSOLE OUTPUT / RECENT ERRORS]:\n${consoleOutput.length > 5000 ? consoleOutput.slice(-5000) : consoleOutput}`
+      : "";
     
     switch (mode) {
       case "plan":
-        return `${base}${filePaths}\n\n[MODE: PLAN]\nCreate a numbered step-by-step plan to complete this ticket. Format as a numbered list. Keep each step short and actionable. Do NOT write any code yet.`;
+        return `${base}${filePaths}\n\n[MODE: PLAN]\nCreate a numbered step-by-step plan (1., 2., 3., etc.) to complete this ticket. Format as a numbered list. Keep each step short and actionable. Do NOT write any full code yet.`;
       case "bugfix":
-        return `${base}${filePaths}${vibeTools}\n\n[MODE: BUG FIX]\nYou are a debugging expert. Analyze the current code for errors, identify the root cause, explain WHY it's happening, then provide the corrected code or use vibe tools to fix it directly.`;
+        return `${base}${filePaths}${failureContext}${consoleContext}\n\n[MODE: BUG FIX]\nYou are a debugging expert. Analyze the current code, the Editor Console Output, and any failed tasks. Identify the exact root cause of any error or test failure, explain why it happened, and provide the corrected code in markdown code blocks to fix it.`;
       case "agent":
-        return `${base}${filePaths}${vibeTools}\n\n[MODE: AGENT]\nImplement the COMPLETE solution for ${activeFile || "the active file"}. Output rules:\n1. Use vibe tools to create/modify files as needed\n2. Output the COMPLETE file content in code blocks\n3. Implement ALL required functionality — no TODOs or placeholders\n4. Use vibe tools: mkdir, create_file, grep, cat, modify, delete\n5. Write a 1-sentence summary before showing changes.`;
+        return `${base}${filePaths}${failureContext}${consoleContext}\n\n[MODE: AGENT]\nImplement the COMPLETE solution for ${activeFile || "the active file"}. Make sure to resolve any errors shown in the Editor Console Output. Output rules:\n1. Output the COMPLETE file content in code blocks\n2. Implement ALL required functionality — no TODOs or placeholders\n3. Write a 1-sentence summary before showing changes.`;
       default:
-        return `${base}${filePaths}${vibeTools}\n\n[MODE: ASK]\nYou are an AI code mentor. Give Socratic hints, guide step-by-step. Use vibe tools to show file structure, read code, or fix issues when asked.`;
+        return `${base}${filePaths}${failureContext}${consoleContext}\n\n[MODE: ASK]\nYou are an AI code mentor. Give Socratic hints, guide step-by-step. If there are errors in the Editor Console Output, explain the problem and help guide the fix. Provide code examples in code blocks when needed.`;
     }
-  }, [contextGetter, activeFile]);
+  }, [contextGetter, activeFile, ticketTasks, evalResult, consoleOutput]);
 
   const { messages, isLoading, sendMessage, suggestedPrompts, activeStream, startNewChat, sessionHistory, fetchHistory, loadSession, agents } = useAIChat({
     getContext: () => getModeContext(mentorMode),
@@ -9546,16 +9596,35 @@ function SideMentor({
                   <p className="text-[11.5px] text-muted-foreground max-w-[190px] leading-relaxed mt-1">{currentMode.desc}</p>
                 </div>
                 {mentorMode === "plan" && (
-                  <button onClick={() => send("Create a step-by-step plan to complete this ticket.")} className="px-3 py-1.5 text-[11px] font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">Generate Plan</button>
-                )}
-                {mentorMode === "autopilot" && (
-                  <button onClick={() => send(`Write the complete solution for ${activeFile || "the active file"} to pass all tasks.`)} className="px-3 py-1.5 text-[11px] font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-1.5">
-                    <Zap size={11} /> Run Autopilot
+                  <button onClick={() => send("Create a step-by-step plan to complete this ticket.")} className="px-3 py-1.5 text-[11px] font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1.5">
+                    <Lightbulb size={12} /> Generate Plan
                   </button>
                 )}
-                {mentorMode === "default" && suggestedPrompts.length > 0 && (
+                {mentorMode === "agent" && (
+                  <button onClick={() => send(`Write the complete solution for ${activeFile || "the active file"} to pass all tasks.`)} className="px-3 py-1.5 text-[11px] font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-1.5">
+                    <Zap size={12} /> Generate Solution & Apply
+                  </button>
+                )}
+                {mentorMode === "bugfix" && (
+                  <div className="flex flex-col items-center gap-2">
+                    {consoleOutput && (
+                      <div className="w-full max-w-[280px] rounded-md border border-amber-500/20 bg-amber-500/5 p-2 text-left">
+                        <div className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1 mb-0.5">
+                          <Bug size={10} /> Editor Console Output Detected
+                        </div>
+                        <p className="text-[9.5px] text-muted-foreground line-clamp-2 font-mono">
+                          {consoleOutput.split("\n").filter(Boolean).slice(-2).join(" ")}
+                        </p>
+                      </div>
+                    )}
+                    <button onClick={() => send(consoleOutput ? "Analyze the Editor console output and fix the error in my code." : "Analyze the current code and any task failures, identify all bugs, and provide the fixed code.")} className="px-3 py-1.5 text-[11px] font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-1.5">
+                      <Bug size={12} /> Diagnose & Fix Errors
+                    </button>
+                  </div>
+                )}
+                {mentorMode === "ask" && (
                   <div className="flex flex-wrap gap-1.5 justify-center">
-                    {suggestedPrompts.slice(0, 3).map((s) => (
+                    {(suggestedPrompts.length > 0 ? suggestedPrompts.slice(0, 3) : ["How do I start?", "Explain the requirements", "Review my approach"]).map((s) => (
                       <button key={s} onClick={() => !isLoading && sendMessage(s)} disabled={isLoading} className="px-2.5 py-1 text-[11px] font-medium text-primary bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20 transition-colors disabled:opacity-40">{s}</button>
                     ))}
                   </div>
