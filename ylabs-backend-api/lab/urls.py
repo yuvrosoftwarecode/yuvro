@@ -10,6 +10,11 @@ from .views import (
     student_stats_view,
     FrontendValidateView,
     public_milestone_view,
+    public_user_stats_view,
+    LearnRecurringTaskViewSet,
+    LearnRecurringTaskEnrollmentViewSet,
+    WeeklyTaskViewSet,
+    WeeklyTaskEnrollmentViewSet,
 )
 
 router = DefaultRouter()
@@ -19,10 +24,15 @@ router.register(r'tickets', LabSprintTicketViewSet)
 router.register(r'enrollments', UserLabEnrollmentViewSet, basename='lab-enrollment')
 router.register(r'submissions', UserLabSprintTicketSubmissionViewSet, basename='lab-submission')
 router.register(r'system-designs', SystemDesignViewSet, basename='system-design')
+router.register(r'learn-recurring-tasks', LearnRecurringTaskViewSet, basename='learn-recurring-task')
+router.register(r'learn-recurring-task-enrollments', LearnRecurringTaskEnrollmentViewSet, basename='learn-recurring-task-enrollment')
+router.register(r'weekly-tasks', WeeklyTaskViewSet, basename='weekly-task')
+router.register(r'weekly-task-enrollments', WeeklyTaskEnrollmentViewSet, basename='weekly-task-enrollment')
 
 urlpatterns = [
     path('stats/', student_stats_view, name='student-stats'),
     path('frontend-validate/', FrontendValidateView.as_view(), name='frontend-validate'),
     path('public/milestone/<slug:slug>/<uuid:user_id>/', public_milestone_view, name='public-milestone'),
+    path('public/user-stats/<str:username>/', public_user_stats_view, name='public-user-stats'),
     path('', include(router.urls)),
 ]

@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { loadLabs } from "@/lib/adminLabs";
 import { invalidateStudentStats } from "@/lib/studentStats";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
+import { loadActiveWeeklyTasks, type WeeklyTask } from "@/lib/weeklyTasks";
 import {
   ArrowRight,
   Check,
@@ -69,8 +70,10 @@ function Hub() {
   const [allCatalogLabs, setAllCatalogLabs] = useState<CatalogLab[]>([]);
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
   const [enrollLoading, setEnrollLoading] = useState<Record<string, boolean>>({});
+  const [weeklyTasks, setWeeklyTasks] = useState<WeeklyTask[]>([]);
 
   useEffect(() => {
+    loadActiveWeeklyTasks().then((wts) => setWeeklyTasks(wts)).catch(() => {});
     invalidateStudentStats();
     loadLabs()
       .catch((err) => {
@@ -554,6 +557,48 @@ function Hub() {
         />
 
         <div className="mt-8 space-y-10">
+          {/* Weekly tasks section */}
+          {weeklyTasks.length > 0 && (
+            <section>
+              <h2 className="text-xl font-semibold">Weekly task</h2>
+
+              <div className="mt-4 space-y-3">
+                {weeklyTasks.map((wt) => {
+                  const days = wt.enriched_days || wt.days || [];
+                  const tIdx = Math.max(0, Math.min(days.length - 1, wt.today_index ?? 0));
+                  const d = days[tIdx];
+                  const subtext = wt.is_future
+                    ? `Starts on ${wt.start_date}`
+                    : d
+                    ? `${d.day_name} · Day ${tIdx + 1} — ${d.ticket_title || "Ticket Challenge"}`
+                    : `${days.length} days challenge · ${wt.lab_details?.title || "Lab"}`;
+
+                  return (
+                    <Link
+                      key={wt.id}
+                      to="/student/weekly-task"
+                      search={{ id: wt.id }}
+                      className="flex items-center justify-between gap-4 rounded-xl border bg-card p-5 hover:bg-muted/40 transition-colors shadow-sm"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-base font-medium text-foreground">{wt.name}</p>
+                        <p className="text-sm text-muted-foreground mt-0.5 truncate">
+                          {subtext}
+                        </p>
+                      </div>
+                      <span
+                        className="shrink-0 rounded-md px-3.5 py-1.5 text-sm font-medium text-white shadow-sm"
+                        style={{ background: "#f7931e" }}
+                      >
+                        {wt.is_enrolled ? "Open" : "Enroll"}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
           {/* My labs — horizontal scroll */}
           {user && (
             <section>

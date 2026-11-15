@@ -45,8 +45,10 @@ export interface ActivityItem {
   type: ActivityType;
   title: string;
   subtitle: string;
+  detail?: string;
   result: string;
   resultVariant?: "success" | "primary" | "warning" | "muted";
+  variant?: "success" | "primary" | "warning" | "muted";
   timestamp: string; // ISO
 }
 

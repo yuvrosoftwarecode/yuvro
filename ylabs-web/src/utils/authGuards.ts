@@ -24,7 +24,17 @@ export function requireStudentAuth(currentUrl?: string) {
         const role = user.roles?.ylabs || user.roles?.ycode || user.role;
         const r = role?.toLowerCase();
         if (r === "admin") {
-          throw redirect({ to: "/admin" });
+          const isAllowedForAdmin =
+            window.location.pathname.startsWith("/student/lab") ||
+            window.location.pathname.startsWith("/student/weekly-task") ||
+            window.location.pathname.startsWith("/student/dashboard") ||
+            (currentUrl &&
+              (currentUrl.includes("/student/lab") ||
+                currentUrl.includes("/student/weekly-task") ||
+                currentUrl.includes("/student/dashboard")));
+          if (!isAllowedForAdmin) {
+            throw redirect({ to: "/admin" });
+          }
         } else if (r === "recruiter") {
           throw redirect({ to: "/recruiter/dashboard" });
         }

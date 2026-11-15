@@ -14,32 +14,13 @@ from payment.models import PaymentStatus
 
 
 
-KNOWN_REVOKED_KEYS = {"rzp_test_T56EPoR3Lpa9xz"}
-VERIFIED_KEY_PAIRS = [
-    ("rzp_live_Tv1bKX52in9Kmf", "ZG7DiBLkljv5vktLiScBXtdZ"),
-    ("rzp_test_Tk7OrnJ01pSZKN", "NRnTLfpi2Ln6OBIfaL6nmGrm"),
-]
-
-
 class RazorpayGateway(BasePaymentGateway):
     name = "razorpay"
 
     def __init__(self):
         self.base_url = "https://api.razorpay.com/v1"
-        key_id = str(getattr(settings, "RAZORPAY_KEY_ID", "") or "").strip()
-        key_secret = str(getattr(settings, "RAZORPAY_KEY_SECRET", "") or "").strip()
-
-        # If current key is empty or known to be revoked, swap to active verified credentials
-        if not key_id or key_id in KNOWN_REVOKED_KEYS:
-            key_id, key_secret = VERIFIED_KEY_PAIRS[0]
-            try:
-                setattr(settings, "RAZORPAY_KEY_ID", key_id)
-                setattr(settings, "RAZORPAY_KEY_SECRET", key_secret)
-            except Exception:
-                pass
-
-        self.key_id = key_id
-        self.key_secret = key_secret
+        self.key_id = str(getattr(settings, "RAZORPAY_KEY_ID", "") or "").strip()
+        self.key_secret = str(getattr(settings, "RAZORPAY_KEY_SECRET", "") or "").strip()
 
     def _auth(self):
         if not self.key_id or not self.key_secret:
@@ -48,24 +29,6 @@ class RazorpayGateway(BasePaymentGateway):
 
     def _post(self, path: str, data: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.post(f"{self.base_url}/{path}", json=data, auth=self._auth())
-
-        # If 401 Unauthorized, automatically recover by trying verified active key pairs
-        if response.status_code == 401:
-            logging.warning(f"Razorpay API 401 Unauthorized with key {self.key_id[:8]}... Attempting automatic fallback.")
-            for alt_id, alt_secret in VERIFIED_KEY_PAIRS:
-                if alt_id != self.key_id:
-                    alt_resp = requests.post(f"{self.base_url}/{path}", json=data, auth=(alt_id, alt_secret))
-                    if alt_resp.status_code < 400:
-                        logging.info(f"Razorpay successfully authenticated using fallback key {alt_id[:8]}...")
-                        self.key_id = alt_id
-                        self.key_secret = alt_secret
-                        try:
-                            setattr(settings, "RAZORPAY_KEY_ID", alt_id)
-                            setattr(settings, "RAZORPAY_KEY_SECRET", alt_secret)
-                        except Exception:
-                            pass
-                        response = alt_resp
-                        break
 
         try:
             response.raise_for_status()
@@ -84,20 +47,6 @@ class RazorpayGateway(BasePaymentGateway):
 
     def _get(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         response = requests.get(f"{self.base_url}/{path}", params=params, auth=self._auth())
-        if response.status_code == 401:
-            for alt_id, alt_secret in VERIFIED_KEY_PAIRS:
-                if alt_id != self.key_id:
-                    alt_resp = requests.get(f"{self.base_url}/{path}", params=params, auth=(alt_id, alt_secret))
-                    if alt_resp.status_code < 400:
-                        self.key_id = alt_id
-                        self.key_secret = alt_secret
-                        try:
-                            setattr(settings, "RAZORPAY_KEY_ID", alt_id)
-                            setattr(settings, "RAZORPAY_KEY_SECRET", alt_secret)
-                        except Exception:
-                            pass
-                        response = alt_resp
-                        break
         response.raise_for_status()
         return response.json()
 
@@ -170,18 +119,12 @@ class RazorpayGateway(BasePaymentGateway):
         return self._get(f"refunds/{refund_id}")
 
     def verify_signature(self, order_id: str, payment_id: str, signature: str) -> bool:
-        secrets_to_check = [self.key_secret, getattr(settings, "RAZORPAY_KEY_SECRET", "")]
-        for _, sec in VERIFIED_KEY_PAIRS:
-            if sec not in secrets_to_check:
-                secrets_to_check.append(sec)
-
+        secret = self.key_secret or getattr(settings, "RAZORPAY_KEY_SECRET", "")
+        if not secret:
+            return False
         payload = f"{order_id}|{payment_id}"
-        for sec in secrets_to_check:
-            if sec:
-                expected = hmac.new(sec.encode(), payload.encode(), hashlib.sha256).hexdigest()
-                if hmac.compare_digest(signature, expected):
-                    return True
-        return False
+        expected = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
+        return hmac.compare_digest(signature, expected)
 
     def verify_webhook(self, request) -> bool:
         signature = request.headers.get("X-Razorpay-Signature")

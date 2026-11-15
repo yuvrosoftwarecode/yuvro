@@ -92,10 +92,14 @@ export async function getLab(id: string): Promise<AdminLab | undefined> {
     try {
       const allLabs = await loadLabs();
       const lower = id.toLowerCase();
+      const cleanLower = lower.replace(/[^a-z0-9]/g, "");
       const match = allLabs.find(
         (l) =>
           l.id === id ||
           l.title?.toLowerCase() === lower ||
+          l.title?.toLowerCase().replace(/[^a-z0-9]/g, "") === cleanLower ||
+          l.title?.toLowerCase().replace(/[^a-z0-9]/g, "").startsWith(cleanLower) ||
+          (lower.includes("git") && l.title?.toLowerCase().includes("git")) ||
           (lower.includes("system") &&
             lower.includes("design") &&
             (l.type === "SYSTEM_DESIGN" || l.title?.toLowerCase().includes("system design")))

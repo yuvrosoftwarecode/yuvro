@@ -1,0 +1,589 @@
+.wt-container {
+  --bg: #f6f7f9;
+  --card: #fff;
+  --ink: #111827;
+  --sub: #374151;
+  --muted: #6b7280;
+  --line: #eceef2;
+  --blue: #1a6fe0;
+  --blueh: #1559b8;
+  --soft: #eaf2fe;
+  --green: #17984f;
+  --rowhi: #f5f9ff;
+  --fill: #f1f3f6;
+
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 15px/1.5 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: calc(100vh - 64px);
+}
+
+.dark .wt-container,
+:root.dark .wt-container {
+  --bg: #0f1115;
+  --card: #171a20;
+  --ink: #f2f4f7;
+  --sub: #d0d5dd;
+  --muted: #9aa3b2;
+  --line: #252a33;
+  --blue: #3b82f0;
+  --blueh: #5b97f3;
+  --soft: #18284a;
+  --green: #3ec46f;
+  --rowhi: #192234;
+  --fill: #232831;
+}
+
+.wt-container * {
+  box-sizing: border-box;
+}
+
+.wt-container .pg {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 22px 24px 72px;
+}
+
+.wt-container .back {
+  display: inline-block;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+}
+
+.wt-container .back:hover {
+  color: var(--ink);
+}
+
+.wt-container .tabs {
+  display: flex;
+  gap: 28px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.wt-container .tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.wt-container .tabs button {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 10px 0;
+  margin-bottom: -1px;
+  color: var(--muted);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.15s;
+  cursor: pointer;
+}
+
+.wt-container .tabs button:hover {
+  color: var(--ink);
+}
+
+.wt-container .tabs [aria-current="page"],
+.wt-container .tabs button.active {
+  color: var(--ink);
+  border-bottom-color: var(--blue);
+}
+
+.wt-container .grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+.wt-container .side {
+  display: grid;
+  gap: 20px;
+  position: sticky;
+  top: 20px;
+}
+
+.wt-container .card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px 30px;
+}
+
+.wt-container .fade {
+  animation: wt-fd 0.22s ease;
+}
+
+@keyframes wt-fd {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wt-container .eye {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.wt-container .top {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.wt-container .top h1 {
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  margin: 6px 0 4px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.wt-container .top p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.wt-container .enr {
+  text-align: right;
+  flex: none;
+}
+
+.wt-container .enr b {
+  display: block;
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.wt-container .enr span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.wt-container .prog {
+  margin: 26px 0 6px;
+}
+
+.wt-container .seg {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.wt-container .seg i {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--fill);
+  display: block;
+}
+
+.wt-container .seg i.on {
+  background: var(--blue);
+}
+
+.wt-container .pt {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+.wt-container .pt b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.wt-container .days {
+  margin-top: 12px;
+}
+
+.wt-container .day {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 20px 14px;
+  margin: 0 -14px;
+  border-top: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.wt-container .day:first-child {
+  border-top: 0;
+}
+
+.wt-container .day.now {
+  background: var(--rowhi);
+  border-top-color: transparent;
+}
+
+.wt-container .day.now + .day {
+  border-top-color: transparent;
+}
+
+.wt-container .mk {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 13.5px;
+  font-weight: 600;
+  background: var(--fill);
+  color: var(--muted);
+}
+
+.wt-container .mk.done {
+  background: var(--green);
+  color: #fff;
+}
+
+.wt-container .mk.done svg {
+  width: 16px;
+  height: 16px;
+}
+
+.wt-container .mk.now {
+  background: var(--blue);
+  color: #fff;
+}
+
+.wt-container .mk.past {
+  color: var(--sub);
+}
+
+.wt-container .dm {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.wt-container .dm .t {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.wt-container .day h3 {
+  margin: 1px 0 2px;
+  font-size: 16.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.wt-container .day p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14.5px;
+}
+
+.wt-container .day .x {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.wt-container .btn {
+  background: var(--blue);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-weight: 500;
+  font-size: 14.5px;
+  transition: background 0.15s;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.wt-container .btn:hover {
+  background: var(--blueh);
+}
+
+.wt-container .btn.s {
+  background: var(--soft);
+  color: var(--blue);
+}
+
+.wt-container .btn.s:hover {
+  background: color-mix(in srgb, var(--blue) 18%, var(--card));
+}
+
+.wt-container .ok {
+  color: var(--green);
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.wt-container .lk {
+  background: none;
+  border: 0;
+  color: var(--blue);
+  font-weight: 500;
+  padding: 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.wt-container .lk:hover {
+  text-decoration: underline;
+}
+
+.wt-container .lock {
+  color: var(--muted);
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+
+.wt-container .sh {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.wt-container .sh h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.wt-container .sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+
+.wt-container .lb {
+  display: grid;
+  grid-template-columns: 26px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  margin: 0 -12px;
+  border-radius: 8px;
+  font-size: 14.5px;
+}
+
+.wt-container .lb .r {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.wt-container .lb .d {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.wt-container .lb .p {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 56px;
+  text-align: right;
+  color: var(--ink);
+}
+
+.wt-container .lb.you {
+  background: var(--soft);
+}
+
+.wt-container .lb.you .r,
+.wt-container .lb.you .d {
+  color: var(--blue);
+}
+
+.wt-container .lb.you b {
+  color: var(--blue);
+}
+
+.wt-container .gap {
+  text-align: center;
+  color: var(--muted);
+  line-height: 0.8;
+  letter-spacing: 0.2em;
+  padding: 2px 0;
+}
+
+.wt-container .st {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 16px;
+  margin-top: 16px;
+}
+
+.wt-container .st b {
+  display: block;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.wt-container .st b small {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0;
+}
+
+.wt-container .st span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.wt-container #toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--card);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 9999;
+}
+
+.wt-container #toast.on {
+  opacity: 1;
+}
+
+.wt-container button:focus-visible,
+.wt-container a:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.wt-container .skel {
+  background: var(--fill);
+  border-radius: 4px;
+  animation: wt-skel-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes wt-skel-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wt-container *,
+  .wt-container *::before,
+  .wt-container *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 960px) {
+  .wt-container .grid {
+    grid-template-columns: 1fr;
+  }
+  .wt-container .side {
+    position: static;
+  }
+}
+
+@media (max-width: 700px) {
+  .wt-container .pg {
+    padding: 16px 16px 56px;
+  }
+  .wt-container .card {
+    padding: 20px 18px;
+  }
+  .wt-container .top h1 {
+    font-size: 23px;
+  }
+  .wt-container .day {
+    grid-template-columns: 32px 1fr;
+    gap: 12px;
+    margin: 0 -8px;
+    padding: 18px 8px;
+  }
+  .wt-container .day .act {
+    grid-column: 2;
+  }
+}
+
+/* Modal Dialog Styles scoped to Weekly Task */
+.wt-container .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 17, 21, 0.6);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  padding: 20px;
+  animation: wt-fd 0.18s ease;
+}
+
+.wt-container .modal-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 26px 28px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: wt-fd 0.22s ease;
+}
+
+.wt-container .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.wt-container .modal-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 4px 0 0;
+  line-height: 1.3;
+}
+
+.wt-container .modal-body {
+  color: var(--sub);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.wt-container .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  align-items: center;
+}

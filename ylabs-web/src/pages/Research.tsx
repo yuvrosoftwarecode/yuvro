@@ -205,6 +205,7 @@ export default function Research({ embedded = false }: { embedded?: boolean }) {
   const handleSyncLivePapers = async () => {
     setSyncing(true);
     try {
+      const res = await researchService.syncPapers();
       const count = res.new_papers_ingested ?? 0;
       toast.success(
         count > 0

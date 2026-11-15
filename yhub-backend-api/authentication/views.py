@@ -1978,3 +1978,57 @@ def check_email_view(request):
         status=status.HTTP_200_OK,
     )
 
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def public_profile_view(request, username):
+    clean_username = (username or "").strip()
+    if not clean_username:
+        return Response({"error": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = User.objects.filter(username__iexact=clean_username, is_active=True).first()
+    if not user:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    github_conn = getattr(user, "github_connection", None)
+    linkedin_conn = getattr(user, "linkedin_connection", None)
+
+    linkedin_handle = None
+    if linkedin_conn:
+        if linkedin_conn.linkedin_handle:
+            linkedin_handle = linkedin_conn.linkedin_handle
+        elif github_conn and github_conn.github_username:
+            linkedin_handle = github_conn.github_username.lower()
+        elif user.username and "@" not in user.username:
+            linkedin_handle = user.username.lower()
+        elif linkedin_conn.linkedin_name:
+            import re
+            linkedin_handle = re.sub(r'[^a-zA-Z0-9-]', '', linkedin_conn.linkedin_name.replace(' ', '-').lower())
+
+    data = {
+        "id": str(user.id),
+        "username": user.username,
+        "first_name": user.first_name or "",
+        "last_name": user.last_name or "",
+        "profile_image": user.profile_image or "",
+        "cover_image": user.cover_image or "",
+        "headline": user.headline or "",
+        "about": user.about or "",
+        "location": user.location or "",
+        "website": user.website or "",
+        "date_joined": user.date_joined.isoformat() if user.date_joined else None,
+        "email_public": getattr(user, "email_public", False),
+        "phone_public": getattr(user, "phone_public", False),
+        "email": user.email if getattr(user, "email_public", False) else "",
+        "phone": user.phone if getattr(user, "phone_public", False) else "",
+        "skills": user.skills if isinstance(user.skills, list) else [],
+        "employment": user.employment if isinstance(user.employment, list) else [],
+        "education": user.education if isinstance(user.education, list) else [],
+        "projects": user.projects if isinstance(user.projects, list) else [],
+        "resume_file": user.resume_file or "",
+        "github_connected": bool(github_conn),
+        "github_username": github_conn.github_username if github_conn else None,
+        "linkedin_connected": bool(linkedin_conn),
+        "linkedin_name": linkedin_conn.linkedin_name if linkedin_conn else None,
+        "linkedin_handle": linkedin_handle,
+    }
+    return Response(data, status=status.HTTP_200_OK)

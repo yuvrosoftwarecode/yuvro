@@ -557,16 +557,16 @@ describe("Developer Profile v3.2: Sidebar Clipping, Public URL & Edit Profile Ru
     const { buildPublicProfileUrl, formatPublicProfileDisplayUrl } = await import("../publicUrl.ts");
 
     const fullUrl = buildPublicProfileUrl("manikanta", "https://yuvro.com");
-    assert.equal(fullUrl, "https://yuvro.com/manikanta");
+    assert.equal(fullUrl, "https://yuvro.com/u/manikanta");
 
     const encoded = buildPublicProfileUrl("test user", "http://localhost:3002");
-    assert.equal(encoded, "http://localhost:3002/test%20user");
+    assert.equal(encoded, "http://localhost:3002/u/test%20user");
 
     const display = formatPublicProfileDisplayUrl("manikanta", "https://yuvro.com");
-    assert.equal(display, "yuvro.com/manikanta");
+    assert.equal(display, "yuvro.com/u/manikanta");
 
     const localDisplay = formatPublicProfileDisplayUrl("manikanta", "http://localhost:3002");
-    assert.equal(localDisplay, "localhost:3002/manikanta");
+    assert.equal(localDisplay, "localhost:3002/u/manikanta");
   });
 
   it("asserts NO hardcoded yuvro.com inside ylabs-web/src/features/profile", () => {
@@ -808,6 +808,35 @@ describe("Developer Profile v3.5: Red Danger Colors, Tab Stickiness, Single-Clic
     assert.ok(secContent.includes("detectCurrentDevice"), "must dynamically detect current device");
     assert.ok(secContent.includes("revokeSession"), "must support revoking individual sessions");
     assert.ok(secContent.includes("revokeAllOtherSessions"), "must support revoking other sessions");
+  });
+});
+
+describe("Developer Profile v3.8: Ticket Name Display & Recent Activity Formatting", () => {
+  it("ensures ticket recent activity resolves real ticket names instead of raw UUIDs", () => {
+    const apiPath = path.resolve(ylabsWebDir, "src/features/performance/api/performanceApi.ts");
+    const apiContent = fs.readFileSync(apiPath, "utf8");
+
+    // Must look up ticket title, slug or fallback to friendly title, not raw UUID
+    assert.ok(apiContent.includes("s.ticket_title"), "must read s.ticket_title from backend serializer");
+    assert.ok(apiContent.includes("ticketMap.get"), "must map ticket ID against /lab/tickets/ catalog");
+    assert.ok(!apiContent.includes("`Ticket #${s.lab_sprint_ticket_id || s.id}`"), "must not fall back to raw UUID Ticket #<id>");
+  });
+
+  it("verifies RecentActivityList renders subtitle and timestamp without dangling bullets", () => {
+    const listPath = path.resolve(ylabsWebDir, "src/features/performance/components/RecentActivityList.tsx");
+    const listContent = fs.readFileSync(listPath, "utf8");
+
+    assert.ok(listContent.includes("subtitleText"), "must extract subtitleText from item.subtitle or item.detail");
+    assert.ok(listContent.includes("<span>&bull;</span>"), "must only render bullet when subtitleText exists");
+  });
+
+  it("verifies backend UserLabSprintTicketSubmissionSerializer includes ticket_title and lab_title", () => {
+    const serializerPath = path.resolve(ylabsWebDir, "../ylabs-backend-api/lab/serializers.py");
+    const serializerContent = fs.readFileSync(serializerPath, "utf8");
+
+    assert.ok(serializerContent.includes("ticket_title = serializers.SerializerMethodField()"), "must define ticket_title");
+    assert.ok(serializerContent.includes("lab_title = serializers.SerializerMethodField()"), "must define lab_title");
+    assert.ok(serializerContent.includes("def get_ticket_title"), "must implement get_ticket_title");
   });
 });
 

@@ -4,17 +4,20 @@ import { formatMonthRange } from "@/lib/dateHelpers";
 import { Avatar } from "@/components/profile-ui/Avatar";
 import { Tag } from "@/components/profile-ui/Tag";
 import { ConfirmDialog } from "@/components/profile-ui/ConfirmDialog";
+import { OwnerOnly } from "@/components/profile-ui/OwnerOnly";
 
 interface ProjectItemCardProps {
   item: ProjectItem;
   onEdit: () => void;
   onDelete: () => void;
+  isOwner?: boolean;
 }
 
 export const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
   item,
   onEdit,
   onDelete,
+  isOwner = true,
 }) => {
   const [showAllBullets, setShowAllBullets] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -41,24 +44,25 @@ export const ProjectItemCard: React.FC<ProjectItemCardProps> = ({
               </div>
             </div>
 
-            {/* Quiet text links for Edit and Remove */}
-            <div className="flex items-center gap-2 text-xs shrink-0">
-              <button
-                type="button"
-                onClick={onEdit}
-                className="hover:text-primary font-medium cursor-pointer transition-colors"
-              >
-                Edit
-              </button>
-              <span className="text-line" aria-hidden="true">&middot;</span>
-              <button
-                type="button"
-                onClick={() => setConfirmOpen(true)}
-                className="text-muted hover:text-danger font-medium cursor-pointer"
-              >
-                Remove
-              </button>
-            </div>
+            <OwnerOnly isOwner={isOwner}>
+              <div className="flex items-center gap-2 text-xs shrink-0">
+                <button
+                  type="button"
+                  onClick={onEdit}
+                  className="hover:text-primary font-medium cursor-pointer transition-colors"
+                >
+                  Edit
+                </button>
+                <span className="text-line" aria-hidden="true">&middot;</span>
+                <button
+                  type="button"
+                  onClick={() => setConfirmOpen(true)}
+                  className="text-muted hover:text-danger font-medium cursor-pointer"
+                >
+                  Remove
+                </button>
+              </div>
+            </OwnerOnly>
           </div>
 
           {/* Bullets */}

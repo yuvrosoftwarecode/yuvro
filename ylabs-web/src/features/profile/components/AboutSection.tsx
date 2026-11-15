@@ -6,7 +6,7 @@ import { Textarea } from "@/components/profile-ui/Textarea";
 import { EmptyState } from "@/components/profile-ui/EmptyState";
 import { useProfileStore } from "../store/profileStore";
 
-export const AboutSection: React.FC = () => {
+export const AboutSection: React.FC<{ isOwner?: boolean }> = ({ isOwner = true }) => {
   const { profile, saveProfile } = useProfileStore();
   const [isEditing, setIsEditing] = useState(false);
   const [aboutText, setAboutText] = useState(profile?.about || "");
@@ -40,14 +40,14 @@ export const AboutSection: React.FC = () => {
     <Section
       title="About"
       actions={
-        hasAbout && !isEditing ? (
+        isOwner && hasAbout && !isEditing ? (
           <TextLink size="sm" onClick={() => setIsEditing(true)}>
             Edit
           </TextLink>
         ) : null
       }
     >
-      {isEditing ? (
+      {isOwner && isEditing ? (
         <div className="space-y-4 animate-fade-in">
           <div>
             <label htmlFor="inline-about-input" className="sr-only">
@@ -93,6 +93,8 @@ export const AboutSection: React.FC = () => {
             </button>
           )}
         </div>
+      ) : !isOwner ? (
+        <p className="text-sm text-muted">No information provided.</p>
       ) : (
         <EmptyState
           title="No summary provided yet"

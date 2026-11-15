@@ -778,8 +778,14 @@ function LabDashboard() {
 
   const isUpcoming = realLab ? realLab.status === "upcoming" : !isDsaLab(lab.name, slug);
   const isDsa = !isUpcoming;
+  const hasExistingRepo = Boolean(
+    enrollmentInfo?.github_repo_url ||
+    enrollmentInfo?.github_repo_name ||
+    enrollmentInfo?.repo_url ||
+    enrollmentInfo?.is_ready
+  );
   const hasGithub = Boolean(user && (user as any).github_connected);
-  const isReady = Boolean(isEnrolled && hasGithub);
+  const isReady = Boolean(isEnrolled && (hasGithub || hasExistingRepo));
 
   const handleStartLabPrompt = () => {
     if (isUpcoming) {
@@ -854,7 +860,7 @@ function LabDashboard() {
       }
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key: (orderRes as any).key_id || import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: amount,
         currency: "INR",
         name: "Yuvro Labs",
@@ -974,6 +980,10 @@ function LabDashboard() {
         localStorage.setItem(userMockKey, JSON.stringify([...set]));
       } catch {}
       toast.success("Repository created and lab started successfully!");
+      // If already on a ticket route, stay on the ticket so the IDE loads immediately
+      if (ticketMatch?.params?.ticketId) {
+        return;
+      }
       // Directly open tickets page
       const firstSprintId = sprints[0]?.id;
       if (firstSprintId) {

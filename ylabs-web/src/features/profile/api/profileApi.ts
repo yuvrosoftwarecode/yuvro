@@ -155,24 +155,31 @@ async function fetchRealVerifiedSkills(): Promise<VerifiedSkill[]> {
     submissions.forEach((s: any) => {
       if (s.ticket_status === "done" || s.ticket_status === "in_review") {
         const labId = String(
+          s.lab_id ||
           s.lab_sprint_ticket?.sprint?.lab ||
           s.lab_sprint_ticket?.lab ||
-          s.lab_id ||
           s.lab ||
-          "core"
+          (labsList[0]?.id ? String(labsList[0].id) : "core")
         );
-        countPerLab[labId] = (countPerLab[labId] || 0) + 1;
+        const resolvedLabName =
+          s.lab_title ||
+          labMap.get(labId) ||
+          (labsList[0]?.title ? labsList[0].title : "Engineering Lab");
+
+        if (!countPerLab[labId]) {
+          countPerLab[labId] = { count: 0, name: resolvedLabName };
+        }
+        countPerLab[labId].count += 1;
       }
     });
 
     const verified: VerifiedSkill[] = [];
-    Object.entries(countPerLab).forEach(([labId, count]) => {
-      if (count > 0) {
-        const labName = labMap.get(labId) || `Engineering Lab #${labId}`;
-        const level = count >= 15 ? "Advanced" : count >= 5 ? "Intermediate" : "Beginner";
+    Object.entries(countPerLab).forEach(([labId, data]) => {
+      if (data.count > 0) {
+        const level = data.count >= 15 ? "Advanced" : data.count >= 5 ? "Intermediate" : "Beginner";
         verified.push({
           id: `vs-${labId}`,
-          name: labName,
+          name: data.name,
           level,
           tasksCount: count,
         });
@@ -214,6 +221,7 @@ export interface ProfileApi {
   removeResume(): Promise<void>;
   // Connections
   updateConnection(platform: "github" | "linkedin", handle: string, connected: boolean): Promise<Connection>;
+  getPublicProfile(username: string): Promise<Profile>;
 }
 
 export const profileApi: ProfileApi = {
@@ -475,6 +483,76 @@ export const profileApi: ProfileApi = {
       platform,
       handle,
       connected,
+    };
+  },
+
+  async getPublicProfile(username: string): Promise<Profile> {
+    const YHUB_BASE =
+      (typeof import.meta !== "undefined" && import.meta.env?.VITE_YHUB_BACKEND_API_BASE_URL) ||
+      "http://localhost:8003/api";
+    const res = await fetch(`${YHUB_BASE}/auth/public/profile/${encodeURIComponent(username)}/`);
+    if (!res.ok) {
+      throw new Error(`Public profile not found (${res.status})`);
+    }
+    const user: any = await res.json();
+
+    const verifiedSkills: any[] = []; // will be provided by public stats endpoint
+
+    const resume: Resume | undefined = user.resume_file
+      ? {
+          id: `res-${user.id}`,
+          fileName: decodeURIComponent(
+            user.resume_file.split("/").pop()?.split("?")[0] || "Resume.pdf"
+          ),
+          fileSize: 1024 * 512,
+          uploadedAt: new Date().toISOString(),
+          url: user.resume_file,
+        }
+      : undefined;
+
+    const linkedinHandle = (user.linkedin_handle || user.github_username || "").trim();
+
+    const connections: Connection[] = [
+      {
+        platform: "github",
+        handle: user.github_username || "",
+        connected: Boolean(user.github_connected),
+      },
+      {
+        platform: "linkedin",
+        handle: linkedinHandle,
+        connected: Boolean(user.linkedin_connected),
+      },
+    ];
+
+    const backendWork = mapBackendEmployment(user.employment || []);
+    const backendEducation = mapBackendEducation(user.education || []);
+    const backendProjects = mapBackendProjects(user.projects || []);
+    const backendSkills = Array.isArray(user.skills) ? user.skills : [];
+
+    return {
+      id: user.id || "",
+      username: user.username || "",
+      firstName: user.first_name || "",
+      lastName: user.last_name || "",
+      headline: user.headline || "",
+      location: user.location || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      website: user.website || "",
+      about: user.about || "",
+      dateJoined: user.date_joined || undefined,
+      avatarUrl: user.profile_image || "",
+      coverUrl: user.cover_image || "",
+      emailPublic: user.email_public !== undefined ? Boolean(user.email_public) : true,
+      phonePublic: user.phone_public !== undefined ? Boolean(user.phone_public) : false,
+      userSkills: backendSkills,
+      verifiedSkills,
+      work: backendWork,
+      projects: backendProjects,
+      education: backendEducation,
+      resume,
+      connections,
     };
   },
 };

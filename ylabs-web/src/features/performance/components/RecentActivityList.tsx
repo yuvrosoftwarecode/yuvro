@@ -78,32 +78,43 @@ export const RecentActivityList: React.FC<RecentActivityListProps> = ({
       {/* Activity rows */}
       {filtered.length > 0 ? (
         <div className="divide-y divide-line">
-          {filtered.map((item) => (
-            <div
-              key={item.id}
-              className="py-3 px-2 flex items-center justify-between gap-3 hover:bg-[var(--hover)] transition-colors rounded-[6px]"
-            >
-              <div className="space-y-0.5 min-w-0">
-                <p className="text-sm font-medium text-ink truncate">
-                  {item.title}
-                </p>
-                <p className="text-xs text-muted">
-                  {item.detail} &bull; {formatRelativeTime(item.timestamp)}
-                </p>
-              </div>
+          {filtered.map((item) => {
+            const subtitleText = item.subtitle || item.detail;
+            const badgeVariant = item.resultVariant || (item as any).variant;
 
-              {item.result && (
-                <span
-                  className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 ${getResultBadgeClass(
-                    item.result,
-                    item.variant
-                  )}`}
-                >
-                  {item.result}
-                </span>
-              )}
-            </div>
-          ))}
+            return (
+              <div
+                key={item.id}
+                className="py-3 px-2 flex items-center justify-between gap-3 hover:bg-[var(--hover)] transition-colors rounded-[6px]"
+              >
+                <div className="space-y-0.5 min-w-0">
+                  <p className="text-sm font-medium text-ink truncate">
+                    {item.title}
+                  </p>
+                  <p className="text-xs text-muted flex items-center gap-1.5 flex-wrap">
+                    {subtitleText && (
+                      <>
+                        <span>{subtitleText}</span>
+                        <span>&bull;</span>
+                      </>
+                    )}
+                    <span>{formatRelativeTime(item.timestamp)}</span>
+                  </p>
+                </div>
+
+                {item.result && (
+                  <span
+                    className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 ${getResultBadgeClass(
+                      item.result,
+                      badgeVariant
+                    )}`}
+                  >
+                    {item.result}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : (
         <EmptyState

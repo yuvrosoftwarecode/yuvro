@@ -7,7 +7,14 @@ import { invalidateStudentStats } from "@/lib/studentStats";
 import { parseSolutionPatch } from "@/lib/solutionParser";
 import { ShareMilestoneModal } from "@/components/shared/ShareMilestoneModal";
 
+type ReviewSearch = {
+  from?: string;
+};
+
 export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId/review")({
+  validateSearch: (search: Record<string, unknown>): ReviewSearch => ({
+    from: typeof search.from === "string" ? search.from : undefined,
+  }),
   component: Review,
 });
 
@@ -65,7 +72,19 @@ function SectionHeading({ id, children }: { id: string; children: string }) {
 
 function Review() {
   const { slug, ticketId } = useParams({ from: "/student/lab/$slug/ticket/$ticketId/review" });
-  const { from } = Route.useSearch() as any;
+  const { from } = Route.useSearch();
+  const isFromWeekly =
+    from === "weekly-task" ||
+    (typeof window !== "undefined" &&
+      (Boolean(sessionStorage.getItem("from_weekly_task")) ||
+        new URLSearchParams(window.location.search).get("from") === "weekly-task"));
+  const weeklyTaskId =
+    (typeof window !== "undefined" && sessionStorage.getItem("weekly_task_id")) ||
+    (typeof window !== "undefined" &&
+      new URLSearchParams(
+        sessionStorage.getItem("weekly_task_return_url")?.split("?")[1] || ""
+      ).get("id")) ||
+    undefined;
   const [lab, setLab] = useState<any>(null);
   const [ticket, setTicket] = useState<any>(null);
   const [submission, setSubmission] = useState<any>(null);
@@ -245,7 +264,22 @@ function Review() {
     <div className="min-h-screen bg-card text-card-foreground">
       <main className="w-full px-6 py-6 sm:px-10 sm:py-8">
         <Button asChild variant="ghost" className="-ml-3 text-muted-foreground">
-          {from === "report" ? (
+          {isFromWeekly ? (
+            <Link
+              to="/student/weekly-task"
+              search={weeklyTaskId ? { id: weeklyTaskId } : undefined}
+              onClick={() => {
+                try {
+                  sessionStorage.removeItem("from_weekly_task");
+                  sessionStorage.removeItem("weekly_task_return_url");
+                  sessionStorage.removeItem("weekly_task_id");
+                } catch {}
+              }}
+            >
+              <ArrowLeft />
+              Back to Weekly Task
+            </Link>
+          ) : from === "report" ? (
             <Link to="/student/lab/$slug/report" params={{ slug }}>
               <ArrowLeft />
               Back to Reports
