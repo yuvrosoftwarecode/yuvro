@@ -247,17 +247,6 @@ function Review() {
     formattedTime = `${m}m`;
   }
 
-  let parsedOutput: any = null;
-  if (submission?.solution_output) {
-    try {
-      parsedOutput =
-        typeof submission.solution_output === "string"
-          ? JSON.parse(submission.solution_output)
-          : submission.solution_output;
-    } catch (e) {}
-  }
-
-  const displayTicketId = ticket?.ticket_id || ticket?.id || ticketId;
   const title = sessionSubmission?.title ?? ticket?.title ?? "Ticket review";
 
   return (
@@ -301,7 +290,7 @@ function Review() {
         </Button>
         <header className="flex flex-wrap items-center justify-between gap-3 pb-4 pt-2">
           <h1 className="text-lg font-semibold tracking-tight sm:text-xl">
-            {displayTicketId}: {title}
+            {title}
           </h1>
           <button
             onClick={() => setShowShareModal(true)}
@@ -412,21 +401,6 @@ function Review() {
           </section>
         </div>
 
-        {/* Evaluation Output if available */}
-        {submission?.solution_output ? (
-          <section aria-labelledby="evaluation-heading" className="mt-8">
-            <div className="mb-3 flex min-h-9 items-center">
-              <SectionHeading id="evaluation-heading">Evaluation Output</SectionHeading>
-            </div>
-            <div className="rounded-lg border bg-muted/20 p-4 font-mono text-xs overflow-auto max-h-72">
-              <pre className="text-muted-foreground whitespace-pre-wrap">
-                {typeof parsedOutput === "object" && parsedOutput !== null
-                  ? JSON.stringify(parsedOutput, null, 2)
-                  : submission.solution_output}
-              </pre>
-            </div>
-          </section>
-        ) : null}
         <ShareMilestoneModal
           isOpen={showShareModal}
           onClose={() => setShowShareModal(false)}
