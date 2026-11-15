@@ -1,5 +1,8 @@
 import InterviewReport, { type Report, type AttemptItem, IR_CSS } from "@/components/InterviewReport";
 import {
+  captureInterviewReport,
+  readInterviewReport,
+  readInterviewReportHistory,
   submissionToReport,
 } from "@/lib/mockInterviewReports";
 import { Button } from "@/components/ui/button";
@@ -20,6 +23,8 @@ import {
   RotateCcw,
   CheckCircle2,
   Sparkles,
+  Play,
+  X,
 } from "lucide-react";
 import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
@@ -39,9 +44,50 @@ import {
   generateBackendReport,
   fetchMockInterviewQuota,
   type CandidateMockInterviewQuota,
-  polishDictatedQuery,
+  polishDictation,
+  sendCodingEvent,
+  type CodingEventPayload,
 } from "@/services/mockInterviewService";
+// Mock interview: speech-to-text via OpenAI gpt-live-transcribe through the Yuvro backend
+// Alex's voice: Sarvam AI text-to-speech (browser voice as fallback)
+import { speakWithSarvam, type SarvamSpeech } from "@/services/sarvamTts";
+import { deliverAnswer, newAnswerId } from "@/services/testAnswerDelivery";
+import { collectInputQuality, noteSttFailure } from "@/services/answerEvidence";
+import { answerWait, noteAnswerWait, lastAnswerWait } from "@/services/testAnswerWait";
+import {
+  RealtimeSttRecognition,
+  closeRealtimeStt,
+  getRealtimeSttState,
+  resetRealtimeSttAnswer,
+  setRealtimeSttContext,
+  setRealtimeSttMuted,
+  useRealtimeSttStatus,
+  sttNetworkDown,
+  sttNetworkPaused,
+} from "@/services/testStt"; // Mock interview: network resilience layer (switchable, see testStt.ts)
 import { BuyMockInterviewsModal } from "@/components/interview/BuyMockInterviewsModal";
+import { codeExecutorService } from "@/services/codeExecutorService";
+import { ExecutionOutputView } from "@/components/ExecutionOutputView";
+
+/** Mock interview: true while the learner is speaking or a committed segment is still being transcribed. */
+function sttBusy(): boolean {
+  const s = getRealtimeSttState();
+  // While the connection is down the learner may well be answering: hold silence/idle check-ins.
+  return s.speaking || s.pending > 0 || sttNetworkDown();
+}
+
+/** Mock interview: transcription keywords = interview skills + technical words in Alex's question. */
+function buildSttKeywords(iv: Interview, question: string): string[] {
+  const out: string[] = [];
+  const add = (w?: string) => {
+    const t = (w || "").replace(/[<>\r\n]/g, " ").replace(/\s+/g, " ").trim();
+    if (t && t.length <= 50 && !out.some((o) => o.toLowerCase() === t.toLowerCase())) out.push(t);
+  };
+  [...(iv.requiredSkills || []), ...(iv.optionalSkills || [])].forEach(add);
+  // e.g. PostgreSQL, MongoDB, useEffect, $match, JSONB, SQL
+  (question.match(/\$[a-zA-Z]+|\b[A-Za-z]*[a-z][A-Z][A-Za-z0-9]*\b|\b[A-Z]{2,}[A-Za-z0-9]*\b/g) || []).forEach(add);
+  return out.slice(0, 30);
+}
 
 const LANGS = {
   javascript: {
@@ -207,6 +253,220 @@ export function isCodingQuestion(text: string): boolean {
   ];
 
   return patterns.some((rx) => rx.test(lower));
+}
+
+const SPEECH_FILLERS = new Set(["uh", "um", "umm", "uhh", "hmm", "hm", "ah", "oh", "er", "erm", "mm", "mhm"]);
+
+/** True when the text is only filler sounds / noise ("um", "hmm"). */
+export function isFillerOnly(text: string): boolean {
+  const words = (text || "").toLowerCase().replace(/[^a-z ]/g, " ").split(/\s+/).filter(Boolean);
+  return words.length === 0 || words.every((w) => SPEECH_FILLERS.has(w));
+}
+
+export function normalizeSpeech(text: string): string {
+  return (text || "").toLowerCase().replace(/['\u2019]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * True when recognised text is (mostly) Alex's own words picked up by the microphone,
+ * even if slightly misheard: 80%+ of its words appear in what Alex is saying.
+ */
+export function isLikelyEcho(heard: string, aiText: string): boolean {
+  const h = normalizeSpeech(heard);
+  const a = normalizeSpeech(aiText);
+  if (!h || !a) return false;
+  if (a.includes(h)) return true;
+  const aiWords = new Set(a.split(" "));
+  const words = h.split(" ").filter((w) => w.length > 2);
+  if (words.length === 0) return false;
+  // 80%: a real answer naturally reuses some words of the question ("years", "experience"); an echo is
+  // almost entirely Alex's words.
+  return words.filter((w) => aiWords.has(w)).length / words.length >= 0.8;
+}
+
+/**
+ * The candidate wants to end the WHOLE interview (not skip a question). Includes common
+ * speech-to-text mishearings ("entering the test"). The backend still asks for confirmation.
+ */
+export function isEndCommand(text: string): boolean {
+  const t = normalizeSpeech(text);
+  if (!t || t.split(" ").length > 14) return false;
+  if (/\b(question|this one)\b/.test(t)) return false; // "skip / stop this question" is not an end
+  if (/\b(dont|do not|not|never)\b(\s+\w+){0,3}\s+(end|stop|quit|close|finish|exit)\b/.test(t)) return false;
+  return (
+    /\b(end|stop|quit|close|finish|exit|terminate|wrap up)\s+(the|this|my)?\s*(test|interview|session|assessment)\b/.test(t) ||
+    // Mishearings of "end the test" count only as the whole sentence ("please and the test"), so an answer
+    // like "I wrote the loop and the test passed" is not taken as an end request.
+    /^(please |can you |could you |lets |let us )?(entering|ending|end of|and) the (test|interview)( please| now)?$/.test(t) ||
+    /\b(i want to (end|quit|stop)|can we (end|stop)( here| now)?|lets (end|stop) here|im done with the (test|interview)|i am done with the (test|interview)|thats all for today|i have to go|i need to leave)\b/.test(t)
+  );
+}
+
+/** "I'm done" / "finished" / "that's my answer" while coding. */
+export function isDoneSpeech(text: string): boolean {
+  const t = (text || "").toLowerCase().replace(/[^a-z' ]/g, " ").replace(/\s+/g, " ").trim();
+  if (!t || t.split(" ").length > 12) return false;
+  if (/\b(not|isn't|isnt|almost|nearly)\b.*\b(done|finished|complete)/.test(t)) return false;
+  // Whole-utterance "done" ("okay I'm done", "finished", "done with the code") or an explicit hand-over.
+  // "once the loop is done we return" must NOT count.
+  if (/^(ok|okay|so|yeah|alright|right|yes)?\s*(i'?m|i am|i'?ve|i have|we'?re|we are)?\s*(done|finished|completed)(\s+(now|here|with (it|this|that|the code|coding|my code)))?$/.test(t)) return true;
+  return /\b(i'?m done|i am done|i have finished|i'?ve finished|that'?s my (final )?(answer|solution|code)|that is my (final )?(answer|solution|code)|this is my (final )?(answer|solution|code)|you can (check|review) (it|my code))\b/.test(t);
+}
+
+/** "next question" / "skip" / "move on" / "let's move on". */
+export function isMoveOnSpeech(text: string): boolean {
+  const t = (text || "").toLowerCase().trim();
+  if (t.split(/\s+/).length > 10) return false; // long messages are explanations ("we skip duplicates...")
+  return /\b(next question|skip (this|it|this one|the question)|^skip$|move on|moving on|go to the next|next one|let'?s move)\b/.test(t);
+}
+
+export function isYesReply(text: string): boolean {
+  const t = (text || "").toLowerCase().trim();
+  return t.split(/\s+/).length <= 8 && /^(yes|yeah|yep|yup|sure|ok|okay|please|go ahead|submit|do it|haan)\b/.test(t);
+}
+
+export function isNoReply(text: string): boolean {
+  const t = (text || "").toLowerCase().trim();
+  return t.split(/\s+/).length <= 8 && /^(no|nope|nah|don'?t|do not|not now|skip it|just move on)\b/.test(t);
+}
+
+/** Languages the interview Run button can execute (SQL / MongoDB have no database here). */
+export const RUNNABLE_LANGS = ["python", "javascript", "java", "cpp"];
+
+/** True for database questions (SQL / MongoDB), where Run is hidden. */
+export function isQueryQuestion(text: string): boolean {
+  return /\b(sql|mongo(db)?|aggregation pipeline|select statement)\b/i.test(text || "");
+}
+
+function canonicalJson(value: any): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value)
+      .sort()
+      .map((k) => `${JSON.stringify(k)}:${canonicalJson(value[k])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+/** Compares program output with the expected value, ignoring JSON formatting / key order. */
+export function outputsMatch(actual: string, expected: string): boolean {
+  const a = (actual ?? "").toString().trim();
+  const e = (expected ?? "").toString().trim();
+  if (a === e) return true;
+  try {
+    return canonicalJson(JSON.parse(a)) === canonicalJson(JSON.parse(e));
+  } catch {
+    try {
+      // expected is JSON (e.g. "\"abc\"") and the program printed the raw string
+      return JSON.parse(e) === a;
+    } catch {
+      return false;
+    }
+  }
+}
+
+/** Picks the candidate's main function: one named in the question, else "solve", else the last defined. */
+function pickFunctionName(names: string[], questionText: string): string | null {
+  if (!names.length) return null;
+  const mentioned = names.filter((n) => new RegExp(`\\b${n}\\b`).test(questionText || ""));
+  if (mentioned.length) return mentioned[0];
+  if (names.includes("solve")) return "solve";
+  return names[names.length - 1];
+}
+
+/**
+ * Wraps the candidate's function so the runner can call it: reads the test input (a JSON array of
+ * arguments) from stdin, calls the function and prints the result as JSON. Plain scripts (no
+ * function) and Java / C++ run as written.
+ */
+export function buildRunnableProgram(code: string, lang: string, questionText: string): string {
+  if (lang === "python") {
+    const names = Array.from(code.matchAll(/^def\s+([A-Za-z_]\w*)\s*\(/gm)).map((m) => m[1]);
+    const fn = pickFunctionName(names, questionText);
+    if (!fn) return code;
+    return `${code}
+
+# --- interview Run harness ---
+import sys as _hs, json as _hj
+_raw = _hs.stdin.read()
+try:
+    _args = _hj.loads(_raw) if _raw.strip() else []
+except Exception:
+    _args = [_raw.strip()]
+if not isinstance(_args, list):
+    _args = [_args]
+_res = ${fn}(*_args)
+print(_res if isinstance(_res, str) else _hj.dumps(_res, sort_keys=True))
+`;
+  }
+  if (lang === "javascript") {
+    const names = [
+      ...Array.from(code.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g)).map((m) => m[1]),
+      ...Array.from(
+        code.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?(?:function\b|\([^)]*\)\s*=>|[A-Za-z_$][\w$]*\s*=>)/g)
+      ).map((m) => m[1]),
+    ];
+    const fn = pickFunctionName(names, questionText);
+    if (!fn) return code;
+    return `${code}
+
+// --- interview Run harness ---
+;(async () => {
+  const _raw = require("fs").readFileSync(0, "utf8");
+  let _args;
+  try { _args = _raw.trim() ? JSON.parse(_raw) : []; } catch (e) { _args = [_raw.trim()]; }
+  if (!Array.isArray(_args)) _args = [_args];
+  const _res = await ${fn}(..._args);
+  console.log(typeof _res === "string" ? _res : JSON.stringify(_res));
+})();
+`;
+  }
+  return code;
+}
+
+/** Appends the current editor code to a spoken message so the interviewer sees both. */
+export function withCodeSnapshot(
+  spoken: string,
+  lang: string,
+  codeByLang: Record<string, string>
+): string {
+  const starter = (LANGS as any)[lang]?.starter ?? "";
+  const code = (codeByLang[lang] ?? "").trim();
+  if (!code || code === String(starter).trim()) return spoken;
+  return `${spoken}\n\n\`\`\`${lang}\n${code}\n\`\`\``;
+}
+
+/**
+ * True when a code-mode utterance is dictated code ("def solve data colon", "match status equals paid"),
+ * false for conversation ("can you solve this problem", "end the test", "give me a hint").
+ * Conversation is sent to the interviewer and never typed into the editor.
+ */
+export function looksLikeDictatedCode(text: string): boolean {
+  const lower = (text || "").toLowerCase().trim();
+  if (!lower) return false;
+  const conversational = [
+    "can you", "could you", "would you", "will you", "please", "i ", "i'm", "im ", "i am", "i'll", "i will",
+    "i think", "i don't", "i dont", "what", "how", "why", "when", "should", "is it", "is this", "do you",
+    "hint", "help", "repeat", "end ", "end the", "stop", "wait", "give me", "hold on", "sorry", "okay", "ok ",
+    "yes", "no ", "let me", "let's", "lets", "so ", "actually", "solve", "explain", "next", "skip", "done",
+    "finished", "thank", "hello", "hi ", "entering",
+  ];
+  if (conversational.some((p) => lower === p.trim() || lower.startsWith(p))) return false;
+  if (/[=(){}[\]:;$<>]|==|=>|->/.test(lower)) return true;
+  const codeWords = new Set([
+    "def", "return", "function", "const", "let", "var", "print", "import", "from", "for", "while", "if",
+    "else", "elif", "class", "in", "range", "len", "equals", "equal", "plus", "minus", "times", "colon",
+    "semicolon", "bracket", "brace", "brackets", "braces", "parenthesis", "paren", "parentheses", "comma",
+    "dot", "dollar", "match", "group", "project", "sum", "select", "where", "join", "insert", "update",
+    "true", "false", "none", "null", "underscore", "quote", "arrow", "lambda", "async", "await", "append",
+    "dict", "list", "int", "str", "string", "new", "line", "indent", "tab", "open", "close", "curly",
+    "square", "id", "count", "sort", "limit", "lookup", "unwind", "aggregate", "find", "and", "or", "not",
+  ]);
+  const words = lower.split(/\s+/).filter(Boolean);
+  if (words.length < 2) return false;
+  const hits = words.filter((w) => codeWords.has(w.replace(/[^a-z_]/g, ""))).length;
+  return hits / words.length >= 0.35;
 }
 
 export function isUserSignalingCodeIntent(text: string): boolean {
@@ -531,12 +791,17 @@ function fmt(s: number) {
 }
 
 function CapturedReport({
+  slug,
+  report,
   children,
 }: {
   slug?: string;
   report?: Report;
   children: React.ReactNode;
 }) {
+  useEffect(() => {
+    captureInterviewReport(`${slug}`, report);
+  }, [slug, report]);
   return <>{children}</>;
 }
 
@@ -544,7 +809,7 @@ function InterviewScreen() {
   const iv = Route.useLoaderData();
   const navigate = useNavigate();
   const { report: showReport } = Route.useSearch();
-  const [savedReport, setSavedReport] = useState<Report | null>(null);
+  const [savedReport, setSavedReport] = useState<Report | null>(() => readInterviewReport(`${iv.slug}`));
   const [submissions, setSubmissions] = useState<any[]>(() => iv.mySubmissions || []);
   const [isLoadingSubmissions, setIsLoadingSubmissions] = useState(false);
   const [selectedAttemptId, setSelectedAttemptId] = useState<string | null>(null);
@@ -635,6 +900,30 @@ function InterviewScreen() {
       }
     }
 
+    // 3. Local report history cache
+    const history = readInterviewReportHistory(`${iv.slug}`);
+    history.forEach((h) => {
+      const exists = list.some(
+        (it) =>
+          it.id === h.id ||
+          (it.date === h.date && it.duration === h.duration && it.score === h.score)
+      );
+      if (!exists) {
+        list.push({
+          id: h.id || `loc-${list.length}`,
+          attemptNumber: 0,
+          date: h.date,
+          duration: h.duration,
+          score: h.score,
+          status: "completed",
+          summary: h.summary,
+          strength: h.strength,
+          focus: h.focus,
+          report: h,
+        });
+      }
+    });
+
     // Assign attempt numbers: newest attempt gets total, oldest gets #1
     const total = list.length;
     return list.map((it, idx) => ({
@@ -707,10 +996,73 @@ function InterviewScreen() {
   const [log, setLog] = useState<{ who: "ai" | "me"; text: string }[]>([]);
   const [isStarting, setIsStarting] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
+  // Mirrors isThinking synchronously so a second message can't slip through before React re-renders.
+  const isThinkingRef = useRef(false);
+  const pendingSubmitsRef = useRef<string[]>([]);
+  // Mock interview: safe answer retries. The answer being delivered (kept until Vitarka confirms it).
+  const failedAnswerRef = useRef<{ text: string; answerId: string } | null>(null);
+  const [answerDelivery, setAnswerDelivery] = useState<null | { state: "retrying" | "failed"; attempt?: number }>(null);
+  const answerDeliveryRef = useRef(answerDelivery);
+  answerDeliveryRef.current = answerDelivery;
+  // Mock interview: per-turn timing printed in the console when Alex's voice starts.
+  const turnTimingRef = useRef<null | {
+    speechEnd: number;
+    submitAt: number;
+    sayAt?: number;
+    responseAt?: number;
+    voiceAt?: number;
+    voice?: string;
+    server?: Record<string, number>;
+  }>(null);
+  /** Called when Alex's voice starts and when the reply arrives; prints once both happened. */
+  const logTurnTiming = (voice?: string) => {
+    const t = turnTimingRef.current;
+    if (!t) return;
+    if (voice && !t.voiceAt) {
+      t.voiceAt = Date.now();
+      t.voice = voice;
+    }
+    if (!t.voiceAt || !t.responseAt) return;
+    turnTimingRef.current = null;
+    const s = t.server || {};
+    const sec = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
+    const parts: string[] = [];
+    if (t.speechEnd) parts.push(`wait ${sec(t.submitAt - t.speechEnd)}${lastAnswerWait ? ` (${lastAnswerWait.rule})` : ""}`);
+    if (s.scoring_ms !== undefined) parts.push(`scoring ${sec(s.scoring_ms)}`);
+    if (t.sayAt && t.sayAt < t.responseAt) {
+      // Early voice: Alex started speaking as soon as his line was written.
+      const toLine = t.sayAt - t.submitAt - (s.scoring_ms || 0);
+      parts.push(`Alex until his line ${sec(Math.max(0, toLine))} (full reply ${s.alex_ms !== undefined ? sec(s.alex_ms) : "?"})`);
+      parts.push(`voice ${sec(t.voiceAt - t.sayAt)}${t.voice === "Sarvam voice" ? "" : ` (${t.voice})`}`);
+    } else {
+      if (s.alex_ms !== undefined) parts.push(`Alex ${sec(s.alex_ms)}`);
+      if (s.server_total_ms !== undefined) {
+        const other = s.server_total_ms - (s.scoring_ms || 0) - (s.alex_ms || 0);
+        if (other >= 100) parts.push(`saving ${sec(other)}`);
+        parts.push(`network ${sec(t.responseAt - t.submitAt - s.server_total_ms)}`);
+      }
+      parts.push(`voice ${sec(t.voiceAt - t.responseAt)}${t.voice === "Sarvam voice" ? "" : ` (${t.voice})`}`);
+    }
+    const total = t.speechEnd ? t.voiceAt - t.speechEnd : t.voiceAt - t.submitAt;
+    console.info(`[Vitarka timing] ${sec(total)} total = ${parts.join(" + ")}${t.speechEnd ? "" : " (typed answer, from Send)"}`);
+  };
+  // Mock interview: Alex's voice started early from his streamed line (kept only if the final reply matches).
+  const earlySpeechRef = useRef<{ handle: SarvamSpeech; text: string; matched: boolean } | null>(null);
+  useEffect(() => {
+    isThinkingRef.current = isThinking;
+  }, [isThinking]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [backendReportData, setBackendReportData] = useState<any | null>(null);
   const [questionType, setQuestionType] = useState<string>("behavioral");
+  // How long the candidate may stay silent before we ask the backend for a check-in.
+  const [silenceTimeoutSec, setSilenceTimeoutSec] = useState<number>(15);
+  // Visible tests for the editor's Run button (sent with each coding question).
+  const [sampleTests, setSampleTests] = useState<{ input: string; expected_output: string }[]>([]);
+  // Hints used on the current coding question (max 3, counted by the backend).
+  const [hintsUsed, setHintsUsed] = useState(0);
+  // LiveRoom registers a getter for code that was written but never submitted (auto-submitted at the end).
+  const pendingCodeRef = useRef<() => string | null>(() => null);
 
   useEffect(() => {
     if (phase === "live" && log.length === 0 && questions.length > 0) {
@@ -721,21 +1073,57 @@ function InterviewScreen() {
   const [left, setLeft] = useState((iv.minutes || 30) * 60);
   const endRef = useRef<HTMLDivElement>(null);
   const isEndingRef = useRef(false);
+  // Evidence only: why the interview ended (End button unless something else ended it first).
+  const endReasonRef = useRef("ended_by_learner");
+  /** Stops Alex's early voice (the one started before his full reply arrived), if any. */
+  const stopEarlyVoice = () => {
+    const early = earlySpeechRef.current;
+    earlySpeechRef.current = null;
+    if (early) {
+      try {
+        early.handle.stop();
+      } catch {}
+      setSpeaking(false);
+    }
+    try {
+      window.speechSynthesis?.cancel();
+    } catch {}
+  };
+  // Leaving the page: never leave a voice playing.
+  useEffect(() => () => stopEarlyVoice(), []);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+
+  // End the interview only after the last AI message (farewell / time-up line) has finished
+  // speaking. Closing the screen cancels speech, so a fixed timer cut Alex off mid-sentence.
+  const [endAfterSpeech, setEndAfterSpeech] = useState(false);
+  const sawFarewellSpeechRef = useRef(false);
+  const requestEndAfterSpeech = () => {
+    sawFarewellSpeechRef.current = false;
+    setEndAfterSpeech(true);
+  };
 
   const handleEndInterview = async () => {
     if (isEndingRef.current) return;
     isEndingRef.current = true;
+    stopEarlyVoice(); // Alex's early voice (started from a reply still in flight) must not outlive the interview
     setPhase("done");
     setIsGeneratingReport(true);
 
     const backendId = iv.backendId || (iv.slug.length > 20 ? iv.slug : null);
     if (sessionId && backendId) {
       try {
+        // Code written but never submitted still counts: send it with the finish signal.
+        let unsubmittedCode: string | null = null;
+        try {
+          unsubmittedCode = pendingCodeRef.current();
+        } catch {
+          unsubmittedCode = null;
+        }
         await submitBackendAnswer(backendId, {
           interview_session_id: sessionId,
-          user_answer: "",
+          user_answer: unsubmittedCode || "",
           status: "finish",
+          end_reason: endReasonRef.current,
         });
       } catch (e) {
         console.warn("Could not notify backend of interview finish:", e);
@@ -767,12 +1155,42 @@ function InterviewScreen() {
 
   useEffect(() => {
     if (phase !== "live") return;
-    const t = setInterval(
-      () => setLeft((v) => (v <= 1 ? (handleEndInterview(), 0) : v - 1)),
-      1000
-    );
+    const t = setInterval(() => {
+      // Mock interview: the clock pauses while the connection has been down for more than 5 s.
+      if (sttNetworkPaused() || answerDeliveryRef.current) return;
+      setLeft((v) => (v <= 1 ? (handleTimeUp(), 0) : v - 1));
+    }, 1000);
     return () => clearInterval(t);
   }, [phase, sessionId, submissionId]);
+
+  // Time is up: say a short closing line, let it finish, then close (unsubmitted code is still sent).
+  const timeUpRef = useRef(false);
+  const handleTimeUp = () => {
+    if (timeUpRef.current || isEndingRef.current) return;
+    timeUpRef.current = true;
+    endReasonRef.current = "time_up";
+    setLog((l) => [...l, { who: "ai", text: "We're out of time. Thank you for your answers today!" }]);
+    requestEndAfterSpeech();
+  };
+
+  useEffect(() => {
+    if (!endAfterSpeech) return;
+    if (speaking) {
+      sawFarewellSpeechRef.current = true;
+      return;
+    }
+    if (sawFarewellSpeechRef.current) {
+      handleEndInterview();
+    }
+  }, [endAfterSpeech, speaking]);
+
+  useEffect(() => {
+    if (!endAfterSpeech) return;
+    // Safety net if speech never starts or never reports its end.
+    const hasSpeech = typeof window !== "undefined" && "speechSynthesis" in window;
+    const t = setTimeout(() => handleEndInterview(), hasSpeech ? 12000 : 1500);
+    return () => clearTimeout(t);
+  }, [endAfterSpeech]);
 
   const lastAiMessage = useMemo(() => {
     for (let i = log.length - 1; i >= 0; i--) {
@@ -781,13 +1199,41 @@ function InterviewScreen() {
     return "";
   }, [log]);
 
+  // Mock interview: transcription context = this interview session, role, Alex's current question,
+  // technical keywords (updated with every question) and the turn number for the logs.
+  useEffect(() => {
+    setRealtimeSttContext({
+      sessionId: sessionId || undefined,
+      role: iv.name,
+      question: lastAiMessage,
+      keywords: buildSttKeywords(iv, lastAiMessage),
+      turnId: String(log.filter((l) => l.who === "ai").length),
+      interviewId: iv.backendId || iv.slug,
+    });
+  }, [lastAiMessage, iv.name, sessionId]);
+
   // AI voice speech synthesis with acoustic isolation & persistent consistent voice
   useEffect(() => {
     if (phase !== "live" || !lastAiMessage) return;
     setSpeaking(true);
+    setRealtimeSttMuted(true); // speech-to-text pauses (stays connected) while Alex speaks
     let cancelled = false;
     let failsafeTimer: NodeJS.Timeout | null = null;
     let synthUtterance: SpeechSynthesisUtterance | null = null;
+    let voicesTimer: NodeJS.Timeout | null = null;
+    let sarvam: SarvamSpeech | null = null;
+
+    // Same end handling for both voices: listen again right away (short guard in speech-to-text).
+    let ended = false;
+    const finishSpeaking = () => {
+      if (ended) return;
+      ended = true;
+      if (failsafeTimer) clearTimeout(failsafeTimer);
+      if (!cancelled) setRealtimeSttMuted(false);
+      setTimeout(() => {
+        if (!cancelled) setSpeaking(false);
+      }, 250);
+    };
 
     const playSpeech = () => {
       if (cancelled) return;
@@ -806,12 +1252,8 @@ function InterviewScreen() {
           }
 
           const handleSpeechEnd = () => {
-            if (failsafeTimer) clearTimeout(failsafeTimer);
             synthUtterance = null;
-            // Hold speaking state for an extra 600ms so room acoustic echo and speaker tail completely decay
-            setTimeout(() => {
-              if (!cancelled) setSpeaking(false);
-            }, 600);
+            finishSpeaking();
           };
 
           utterance.onend = handleSpeechEnd;
@@ -827,38 +1269,76 @@ function InterviewScreen() {
       }
     };
 
-    // If voices haven't loaded yet on first speech, wait for them:
-    if (typeof window !== "undefined" && "speechSynthesis" in window && !lockedVoice) {
-      const current = window.speechSynthesis.getVoices();
-      if (!current || current.length === 0) {
-        let fired = false;
-        const onVoicesReady = () => {
-          if (fired) return;
-          fired = true;
-          window.speechSynthesis.onvoiceschanged = null;
-          resolveConsistentVoice();
-          playSpeech();
-        };
-        window.speechSynthesis.onvoiceschanged = onVoicesReady;
-        const timer = setTimeout(() => {
-          if (!fired) {
+    // Browser voice (fallback). If voices haven't loaded yet on first speech, wait for them.
+    const playBrowserVoice = () => {
+      if (cancelled) return;
+      if (typeof window !== "undefined" && "speechSynthesis" in window && !lockedVoice) {
+        const current = window.speechSynthesis.getVoices();
+        if (!current || current.length === 0) {
+          let fired = false;
+          const onVoicesReady = () => {
+            if (fired) return;
             fired = true;
+            window.speechSynthesis.onvoiceschanged = null;
             resolveConsistentVoice();
             playSpeech();
-          }
-        }, 150);
-        return () => {
-          cancelled = true;
-          clearTimeout(timer);
-          window.speechSynthesis.onvoiceschanged = null;
-        };
+          };
+          window.speechSynthesis.onvoiceschanged = onVoicesReady;
+          voicesTimer = setTimeout(onVoicesReady, 150);
+          return;
+        }
       }
-    }
+      playSpeech();
+    };
 
-    playSpeech();
+    // Sarvam voice first. On failure (or no audio within a few seconds) the browser voice speaks instead.
+    try {
+      window.speechSynthesis?.cancel();
+    } catch {}
+    const pre = earlySpeechRef.current;
+    let earlyGuard: ReturnType<typeof setTimeout> | null = null;
+    let speech: SarvamSpeech;
+    if (pre && pre.matched && pre.text.trim() === String(lastAiMessage).trim()) {
+      // Alex's voice already started from his streamed line: keep it (no second request to Sarvam).
+      earlySpeechRef.current = null;
+      speech = pre.handle;
+      if (!speech.hasStarted()) {
+        const handle: SarvamSpeech = speech;
+        earlyGuard = setTimeout(() => {
+          if (cancelled || handle.hasStarted()) return;
+          handle.stop();
+          if (failsafeTimer) clearTimeout(failsafeTimer);
+          logTurnTiming("browser voice fallback");
+          playBrowserVoice();
+        }, 4000);
+      }
+    } else {
+      if (pre) {
+        pre.handle.stop();
+        earlySpeechRef.current = null;
+      }
+      speech = speakWithSarvam(lastAiMessage, () => logTurnTiming("Sarvam voice"));
+    }
+    sarvam = speech;
+    // Failsafe if playback stalls without an end event: generous estimate of the line's duration.
+    failsafeTimer = setTimeout(finishSpeaking, 20000 + lastAiMessage.length * 120);
+    speech.done.then(finishSpeaking).catch((err) => {
+      if (cancelled) return;
+      if (earlyGuard) clearTimeout(earlyGuard);
+      if (localStorage.getItem("vitarkaDebug") === "1") console.warn("[Vitarka TTS] Sarvam voice unavailable, using browser voice:", err?.message || err);
+      logTurnTiming("browser voice fallback");
+      if (failsafeTimer) clearTimeout(failsafeTimer);
+      playBrowserVoice();
+    });
 
     return () => {
       cancelled = true;
+      sarvam?.stop();
+      if (earlyGuard) clearTimeout(earlyGuard);
+      if (voicesTimer) clearTimeout(voicesTimer);
+      try {
+        if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.onvoiceschanged = null;
+      } catch {}
       if (failsafeTimer) clearTimeout(failsafeTimer);
       try {
         if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -946,35 +1426,116 @@ function InterviewScreen() {
     setIsStarting(false);
   };
 
-  const submit = async (override?: string) => {
+  const submit = async (override?: string, opts?: { resend?: boolean }) => {
     const text = (typeof override === "string" ? override : draft).trim();
-    if (!text || isThinking) return;
-    const next = [...answers, text];
-    setAnswers(next);
-    setDraft("");
+    if (!text) return;
+    if (isThinkingRef.current) {
+      // A request is still running: keep the message and send it right after (never drop it).
+      pendingSubmitsRef.current.push(text);
+      setDraft("");
+      return;
+    }
+    if (!opts?.resend && failedAnswerRef.current) {
+      // The previous answer hasn't reached Vitarka yet: send it first, then this one (order kept).
+      pendingSubmitsRef.current.push(text);
+      setDraft("");
+      void submitLatestRef.current(failedAnswerRef.current.text, { resend: true });
+      return;
+    }
 
-    setLog((l) => [...l, { who: "me", text }]);
+    const next = opts?.resend ? answers : [...answers, text];
+    if (!opts?.resend) {
+      setAnswers(next);
+      setDraft("");
+      setLog((l) => [...l, { who: "me", text }]);
+    }
 
     const backendId = iv.backendId || (iv.slug.length > 20 ? iv.slug : null);
 
     if (sessionId && backendId) {
+      isThinkingRef.current = true;
       setIsThinking(true);
       try {
-        const nextRes = await submitBackendAnswer(backendId, {
-          interview_session_id: sessionId,
-          user_answer: text,
-          status: "normal",
-        });
+        {
+          const st = getRealtimeSttState();
+          const spoken = st.lastSpeechAt && Date.now() - st.lastSpeechAt < 15000;
+          turnTimingRef.current = { speechEnd: spoken ? st.lastSpeechAt : 0, submitAt: Date.now() };
+        }
+        // Mock interview: one-time answer id + automatic safe retries (see testAnswerDelivery.ts).
+        const answerId = opts?.resend && failedAnswerRef.current ? failedAnswerRef.current.answerId : newAnswerId();
+        failedAnswerRef.current = { text, answerId };
+        setAnswerDelivery(null);
+        earlySpeechRef.current?.handle.stop();
+        earlySpeechRef.current = null;
+        const delivery = await deliverAnswer(
+          backendId,
+          {
+            interview_session_id: sessionId,
+            user_answer: text,
+            status: "normal",
+            input_quality: collectInputQuality(!!turnTimingRef.current?.speechEnd), // evidence only
+          },
+          answerId,
+          (attempt, reason) => setAnswerDelivery({ state: "retrying", attempt: reason === "processing" ? undefined : attempt }),
+          (line) => {
+            // Alex's spoken line is ready (the rest of his reply is still being written): start his voice.
+            if (earlySpeechRef.current || isEndingRef.current) return; // interview ended: stay silent
+            if (turnTimingRef.current) turnTimingRef.current.sayAt = Date.now();
+            const handle = speakWithSarvam(line, () => {
+              setSpeaking(true);
+              logTurnTiming("Sarvam voice");
+            });
+            handle.done.catch(() => {});
+            earlySpeechRef.current = { handle, text: line, matched: false };
+          }
+        );
+        let nextRes: any = null;
+        if (isEndingRef.current) stopEarlyVoice(); // ended while Alex was replying
+        const early = earlySpeechRef.current;
+        if (delivery.ok) {
+          failedAnswerRef.current = null;
+          setAnswerDelivery(null);
+          nextRes = delivery.res;
+          if (early && nextRes?.question && String(nextRes.question).trim() === early.text.trim()) {
+            early.matched = true;
+          } else if (early) {
+            // Final reply differs (e.g. end-of-interview confirmation): stop and speak the final reply.
+            if (early.handle.hasStarted()) setSpeaking(false);
+            early.handle.stop();
+            earlySpeechRef.current = null;
+            if (turnTimingRef.current) turnTimingRef.current.sayAt = undefined;
+          }
+          if (turnTimingRef.current) {
+            turnTimingRef.current.responseAt = Date.now();
+            turnTimingRef.current.server = (delivery.res as any)?.timings;
+            if (early?.matched && early.handle.hasStarted()) logTurnTiming();
+          }
+        } else {
+          if (early) {
+            if (early.handle.hasStarted()) setSpeaking(false);
+            early.handle.stop();
+            earlySpeechRef.current = null;
+          }
+          setAnswerDelivery({ state: "failed" });
+        }
 
+        if (nextRes?.silence_timeout_seconds) {
+          setSilenceTimeoutSec(nextRes.silence_timeout_seconds);
+        }
         if (nextRes && nextRes.question) {
+          if (nextRes.sample_tests && nextRes.sample_tests.length) {
+            setSampleTests(nextRes.sample_tests);
+          } else if (nextRes.question_type && nextRes.question_type !== "coding") {
+            setSampleTests([]);
+          }
+          if (typeof nextRes.hints_used === "number") setHintsUsed(nextRes.hints_used);
           setLog((l) => [...l, { who: "ai", text: nextRes.question }]);
           setIdx((i) => i + 1);
           setQuestionType(nextRes.question_type || (isCodingQuestion(nextRes.question) ? "coding" : "technical"));
           if (nextRes.is_finished) {
-            // Give 4 seconds for AI voice to speak the farewell before transitioning to report
-            setTimeout(async () => {
-              await handleEndInterview();
-            }, 4000);
+            // Close only after the farewell has finished speaking (no more cut-off goodbyes).
+            if (!timeUpRef.current) endReasonRef.current = "ended_by_learner_voice";
+            requestEndAfterSpeech();
           }
           return;
         }
@@ -1013,6 +1574,62 @@ function InterviewScreen() {
     } else {
       await handleEndInterview();
     }
+  };
+
+  // Candidate has been silent for silenceTimeoutSec: let the backend decide how to react
+  // (gentle check-in, offer to move on, or stay quiet while a "give me a minute" wait is running).
+  const sendSilence = async () => {
+    const backendId = iv.backendId || (iv.slug.length > 20 ? iv.slug : null);
+    if (!sessionId || !backendId || isThinkingRef.current || isEndingRef.current) return;
+    if (failedAnswerRef.current || answerDeliveryRef.current) return; // an answer is still on its way
+    try {
+      const res = await submitBackendAnswer(backendId, {
+        interview_session_id: sessionId,
+        user_answer: "",
+        status: "silence",
+      });
+      if (!res) return;
+      if (res.silence_timeout_seconds) setSilenceTimeoutSec(res.silence_timeout_seconds);
+      if (res.question) {
+        setLog((l) => [...l, { who: "ai", text: res.question }]);
+        if (res.question_type) setQuestionType(res.question_type);
+      }
+      if (res.is_finished) {
+        requestEndAfterSpeech();
+      }
+    } catch (err) {
+      console.warn("Silence check failed:", err);
+    }
+  };
+
+  const submitLatestRef = useRef(submit);
+  submitLatestRef.current = submit;
+  useEffect(() => {
+    if (isThinking || pendingSubmitsRef.current.length === 0 || failedAnswerRef.current) return;
+    const next = pendingSubmitsRef.current.shift();
+    if (next) setTimeout(() => submitLatestRef.current(next), 0);
+  }, [isThinking]);
+
+  // Live coding coaching: idle check-ins and Run results go to the interviewer (not scored).
+  const handleCodingEvent = async (payload: CodingEventPayload) => {
+    const backendId = iv.backendId || (iv.slug.length > 20 ? iv.slug : null);
+    if (!sessionId || !backendId || isThinkingRef.current || isEndingRef.current) return;
+    isThinkingRef.current = true;
+    setIsThinking(true);
+    try {
+      const res = await sendCodingEvent(backendId, sessionId, payload);
+      if (typeof res?.hints_used === "number") setHintsUsed(res.hints_used);
+      if (res?.question) {
+        setLog((l) => [...l, { who: "ai", text: res.question }]);
+      }
+    } finally {
+      setIsThinking(false);
+    }
+  };
+
+  // Fixed interviewer lines generated on the page (submit reminders); spoken like any AI message.
+  const addLocalAiMessage = (text: string) => {
+    if (text) setLog((l) => [...l, { who: "ai", text }]);
   };
 
   const q = questions[idx] || questions[0];
@@ -1328,6 +1945,8 @@ function InterviewScreen() {
           }
           onSelectAttempt={handleSelectAttempt}
           onBack={() => {
+            captureInterviewReport(`${iv.slug}`, report);
+            setSavedReport(report);
             navigate({ to: "/mock-interviews" });
           }}
           onTryAgain={() => {
@@ -1368,6 +1987,17 @@ function InterviewScreen() {
       draft={draft}
       setDraft={setDraft}
       submit={submit}
+      onSilence={sendSilence}
+      silenceTimeoutSec={silenceTimeoutSec}
+      onCodingEvent={handleCodingEvent}
+      sampleTests={sampleTests}
+      hintsUsed={hintsUsed}
+      onLocalAiMessage={addLocalAiMessage}
+      answerDelivery={answerDelivery}
+      onRetryAnswer={() => {
+        if (failedAnswerRef.current) void submit(failedAnswerRef.current.text, { resend: true });
+      }}
+      pendingCodeRef={pendingCodeRef}
       onEnd={handleEndInterview}
       progress={`Question ${idx + 1} of ${questions.length} · ${q.skill}`}
       endRef={endRef}
@@ -1389,6 +2019,15 @@ function LiveRoom(p: {
   draft: string;
   setDraft: (v: string | ((prev: string) => string)) => void;
   submit: (override?: string) => void;
+  onSilence?: () => void;
+  silenceTimeoutSec?: number;
+  onCodingEvent?: (payload: CodingEventPayload) => void | Promise<void>;
+  sampleTests?: { input: string; expected_output: string }[];
+  hintsUsed?: number;
+  onLocalAiMessage?: (text: string) => void;
+  answerDelivery?: null | { state: "retrying" | "failed"; attempt?: number };
+  onRetryAnswer?: () => void;
+  pendingCodeRef?: React.MutableRefObject<() => string | null>;
   onEnd: () => void;
   progress: string;
   endRef: React.RefObject<HTMLDivElement | null>;
@@ -1400,8 +2039,16 @@ function LiveRoom(p: {
   const [lang, setLang] = useState<keyof typeof LANGS>(() => detectDefaultLang(p.title));
   const [code, setCode] = useState<Record<string, string>>({});
   const [micLevel, setMicLevel] = useState(0);
+  const sttStatus = useRealtimeSttStatus();
+  // Mock interview: release the mic and the transcription connection when the mic is off or on leaving.
+  useEffect(() => {
+    if (!p.mic) closeRealtimeStt();
+  }, [p.mic]);
+  useEffect(() => () => closeRealtimeStt(), []);
 
-  const [dictateToEditor, setDictateToEditor] = useState(true);
+  // The code editor is for typing only: speech is never written into it. While the editor is open,
+  // speech goes to the interviewer as conversation (sent together with the current code).
+  const dictateToEditor = false;
   const [editorDictationStatus, setEditorDictationStatus] = useState<"idle" | "listening" | "captured">("idle");
   const [dictatedVoiceSnippet, setDictatedVoiceSnippet] = useState("");
   const editorBaseBeforeVoiceRef = useRef<string | null>(null);
@@ -1437,6 +2084,7 @@ function LiveRoom(p: {
   const wasAutoOpenedRef = useRef<boolean>(false);
 
   const [liveSpokenText, setLiveSpokenText] = useState("");
+  const [sttAnswerError, setSttAnswerError] = useState("");
   const [isSilentCountdown, setIsSilentCountdown] = useState(false);
   const spokenAccumulatorRef = useRef("");
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -1444,6 +2092,20 @@ function LiveRoom(p: {
 
   const recRef = useRef<any>(null);
   const aiSpeakingCooldownRef = useRef(0);
+  const lastAiTextRef = useRef("");
+  // Last moment the candidate did anything (spoke, typed, edited code) or the AI finished speaking.
+  const lastActivityRef = useRef(Date.now());
+  const markActivity = () => {
+    lastActivityRef.current = Date.now();
+  };
+  const routeCodeModeSpeechRef = useRef<(spoken: string) => void>(() => {});
+  // Submit tracking for the current coding problem.
+  const lastSubmittedCodeRef = useRef<string | null>(null);
+  const lastRunRef = useRef<null | { code: string; allPassed: boolean; failKey: string; summary: any }>(null);
+  const remindersShownRef = useRef({ pass: false, final: false });
+  const pendingMoveOnRef = useRef<string | null>(null);
+  // Returns true when a code-mode message was handled here (done -> auto-submit, move on -> ask first).
+  const handleCodeModeMessageRef = useRef<(text: string) => boolean>(() => false);
   const isListeningRef = useRef(false);
 
   const submitRef = useRef(p.submit);
@@ -1465,6 +2127,9 @@ function LiveRoom(p: {
   useEffect(() => {
     speakingRef.current = p.speaking;
   }, [p.speaking]);
+  // Mock interview: an answer is still being delivered -> hold silence and coding idle check-ins.
+  const answerDeliveryLiveRef = useRef(p.answerDelivery);
+  answerDeliveryLiveRef.current = p.answerDelivery;
 
   // Audio level monitoring
   useEffect(() => {
@@ -1541,9 +2206,8 @@ function LiveRoom(p: {
       return;
     }
 
-    const SpeechRec =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRec) return;
+    // Mock interview: OpenAI realtime transcription (same interface as the browser's SpeechRecognition).
+    const SpeechRec = RealtimeSttRecognition;
 
     if (recRef.current) {
       try {
@@ -1576,6 +2240,8 @@ function LiveRoom(p: {
           return;
         }
 
+        markActivity(); // keeps the silence check-in from firing while the candidate is talking
+        setSttAnswerError("");
         let newFinal = "";
         let interim = "";
 
@@ -1603,9 +2269,37 @@ function LiveRoom(p: {
           interim.trim()
         ).trim();
 
-        // Require at least 2 words or 6 characters to prevent background clicks/noise from triggering
+        const inEditorDictation = codeModeRef.current && dictateToEditorRef.current;
+
+        // FIX 2: "please end the test" at any point (also while the code editor is open) is sent to
+        // Alex right away, instead of waiting or being typed into the editor.
+        if (isEndCommand(fullSpoken)) {
+          if (inEditorDictation && editorBaseBeforeVoiceRef.current !== null) {
+            // Undo any of these words already typed into the editor.
+            const currentLang = langRef.current;
+            const base = editorBaseBeforeVoiceRef.current;
+            setCode((c) => ({ ...c, [currentLang]: base || LANGS[currentLang].starter }));
+            editorBaseBeforeVoiceRef.current = null;
+          }
+          if (!newFinal.trim()) return; // wait for the final words before sending
+          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+          spokenAccumulatorRef.current = "";
+          setLiveSpokenText("");
+          setIsSilentCountdown(false);
+          setDictatedVoiceSnippet("");
+          setEditorDictationStatus("idle");
+          // Sent in a clear form, so the backend also catches mishearings like "please and the test".
+          submitRef.current("Please end the test.");
+          return;
+        }
+
+        // Require at least 2 words or 6 characters to prevent background clicks/noise from triggering.
+        // FIX 1: a single recognised word ("yes", "no", "eight") is also accepted once it is final,
+        // unless it is only a filler sound ("um", "hmm"). Editor dictation keeps the original rule.
         const words = fullSpoken.split(/\s+/).filter(Boolean);
-        if (words.length >= 2 || fullSpoken.length >= 6) {
+        const singleFinalWord =
+          !inEditorDictation && !!spokenAccumulatorRef.current.trim() && !isFillerOnly(spokenAccumulatorRef.current);
+        if (words.length >= 2 || fullSpoken.length >= 6 || singleFinalWord) {
           // If Code Editor is active and Dictation to Editor is turned on, populate editor in real-time
           if (codeModeRef.current && dictateToEditorRef.current) {
             const currentLang = langRef.current;
@@ -1629,8 +2323,13 @@ function LiveRoom(p: {
             // In Code Editor mode: Silence does NOT auto-submit!
             // It commits the current spoken buffer to the editor after 2s of silence so the candidate can edit typos.
             if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-            silenceTimerRef.current = setTimeout(() => {
+            const commitDictation = () => {
               if (!isMountedRef.current) return;
+              // Mock interview: never commit while the learner still talks or a segment is being transcribed.
+              if (sttBusy()) {
+                silenceTimerRef.current = setTimeout(commitDictation, 300);
+                return;
+              }
               spokenAccumulatorRef.current = "";
               editorBaseBeforeVoiceRef.current = null;
               setEditorDictationStatus("captured");
@@ -1644,17 +2343,40 @@ function LiveRoom(p: {
               ) {
                 triggerPolishRef.current(newEditorContent);
               }
-            }, 2000);
+            };
+            silenceTimerRef.current = setTimeout(commitDictation, 2000);
             return;
           }
 
           setLiveSpokenText(fullSpoken);
           setIsSilentCountdown(true);
 
-          // Reset the 3-second auto-submit silence timer
+          // Mock interview: answer completion. A 700 ms pause only ends an audio SEGMENT; the answer
+          // ends after a wait without speech (2 s short / 2.5 s longer / 3 s if it sounds unfinished, see
+          // testAnswerWait.ts) AND once every committed segment has its final transcript. A failed
+          // segment blocks auto-submit (no silently shortened answers).
           if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-          silenceTimerRef.current = setTimeout(() => {
+          const wait = answerWait(fullSpoken);
+          const finishAnswer = () => {
             if (!isMountedRef.current) return;
+            const st = getRealtimeSttState();
+            const quietMs = Date.now() - st.lastSpeechAt;
+            if (st.speaking || quietMs < wait.ms) {
+              silenceTimerRef.current = setTimeout(finishAnswer, st.speaking ? 300 : wait.ms - quietMs);
+              return;
+            }
+            if (st.pending > 0) {
+              silenceTimerRef.current = setTimeout(finishAnswer, 200);
+              return;
+            }
+            if (st.failedSegments > 0) {
+              if (localStorage.getItem("vitarkaDebug") === "1") console.warn("[Vitarka STT] not auto-submitting: part of the answer could not be transcribed");
+              noteSttFailure(); // evidence only
+              resetRealtimeSttAnswer();
+              setIsSilentCountdown(false);
+              setSttAnswerError("Part of your answer couldn't be transcribed. Say it again, or press Send to submit what's shown.");
+              return;
+            }
             const textToSubmit =
               spokenAccumulatorRef.current.trim() || fullSpoken.trim();
             spokenAccumulatorRef.current = "";
@@ -1666,9 +2388,17 @@ function LiveRoom(p: {
               !speakingRef.current &&
               Date.now() >= aiSpeakingCooldownRef.current
             ) {
+              if (localStorage.getItem("vitarkaDebug") === "1") console.info("[Vitarka STT] submitting answer:", textToSubmit.length, "chars");
+              resetRealtimeSttAnswer();
+              noteAnswerWait(wait);
               submitRef.current(textToSubmit);
             }
-          }, 3000);
+          };
+          // Count the wait from the end of speech, not from when a (possibly slow) transcript arrived.
+          silenceTimerRef.current = setTimeout(
+            finishAnswer,
+            Math.max(150, wait.ms - (Date.now() - getRealtimeSttState().lastSpeechAt))
+          );
         } else if (fullSpoken) {
           if (codeModeRef.current && dictateToEditorRef.current) {
             setDictatedVoiceSnippet(fullSpoken);
@@ -1714,13 +2444,15 @@ function LiveRoom(p: {
     }
   }, [p.mic, p.speaking, p.isThinking]);
 
-  // Master speech recognition lifecycle controller:
-  // - Stops listening and clears buffers whenever AI speaks or thinks
-  // - Restarts listening automatically after speech finishes with 600ms acoustic echo cooldown
+  // Speech recognition lifecycle (test interview):
+  // - Mic off -> stop listening and clear buffers.
+  // - Alex speaking or thinking -> keep the speech-to-text session but MUTE it (no audio sent) and clear buffers.
+  // - Alex done -> unmute immediately (short guard inside speech-to-text); no restart, no extra cooldown.
   useEffect(() => {
     isMountedRef.current = true;
     if (!p.mic || p.speaking || p.isThinking) {
-      stopListening();
+      if (!p.mic) stopListening();
+      else setRealtimeSttMuted(true);
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       spokenAccumulatorRef.current = "";
       editorBaseBeforeVoiceRef.current = null;
@@ -1729,16 +2461,13 @@ function LiveRoom(p: {
       setDictatedVoiceSnippet("");
       if (p.speaking || p.isThinking) {
         setEditorDictationStatus("idle");
+        resetRealtimeSttAnswer();
+        setSttAnswerError("");
       }
     } else {
-      // AI just stopped speaking: set post-speech cooldown to completely reject speaker tail and room reverb
-      aiSpeakingCooldownRef.current = Date.now() + 600;
-      const timer = setTimeout(() => {
-        if (isMountedRef.current && p.mic && !speakingRef.current && !thinkingRef.current) {
-          startListening();
-        }
-      }, 650);
-      return () => clearTimeout(timer);
+      aiSpeakingCooldownRef.current = 0; // the speaker-tail guard is handled by speech-to-text (RESUME_GUARD_MS)
+      setRealtimeSttMuted(false); // no-op if Alex's speech end already unmuted
+      if (!isListeningRef.current) startListening(); // first start, or after the session ended
     }
   }, [p.mic, p.speaking, p.isThinking, startListening, stopListening]);
 
@@ -1771,6 +2500,7 @@ function LiveRoom(p: {
 
   const lastAi = p.log.map((m) => m.who).lastIndexOf("ai");
   const lastAiText = lastAi >= 0 ? p.log[lastAi].text : "";
+  lastAiTextRef.current = lastAiText;
 
   // Automatically open the code editor whenever a question asks to write code
   useEffect(() => {
@@ -1839,6 +2569,255 @@ function LiveRoom(p: {
   );
 
   const current = code[lang] ?? LANGS[lang].starter;
+
+  // Typing (answer box or code editor) counts as activity for the silence check.
+  useEffect(() => {
+    markActivity();
+  }, [p.draft, code]);
+
+  // A new AI message / AI finishing speaking restarts the silence clock.
+  useEffect(() => {
+    markActivity();
+  }, [p.speaking, p.isThinking, lastAiText]);
+
+  // Silence watchdog: after silenceTimeoutSec without speech or typing (30s minimum while coding,
+  // where the candidate may be thinking), ask the backend to react. The backend handles
+  // "give me a minute" waits and escalation.
+  useEffect(() => {
+    if (!p.onSilence) return;
+    const t = setInterval(() => {
+      if (p.speaking || p.isThinking || isPolishing || liveSpokenText || dictatedVoiceSnippet || sttBusy() || answerDeliveryLiveRef.current) return;
+      if (codeModeRef.current && p.onCodingEvent) return; // coding idle check-ins take over in the editor
+      const base = p.silenceTimeoutSec || 15;
+      const limitMs = (codeModeRef.current ? Math.max(base, 30) : base) * 1000;
+      if (Date.now() - lastActivityRef.current >= limitMs) {
+        markActivity();
+        p.onSilence?.();
+      }
+    }, 1000);
+    return () => clearInterval(t);
+  }, [p.onSilence, p.silenceTimeoutSec, p.speaking, p.isThinking, isPolishing, liveSpokenText, dictatedVoiceSnippet]);
+
+  // ── Live coding coaching ──
+  // Idle check-ins while the editor is open: 15s, then 15s, then 20s without typing or speaking.
+  // At most 3 per pause; writing new code starts a fresh pause. The backend caps hints at 3 per question.
+  const CODING_IDLE_SCHEDULE_SEC = [15, 15, 20];
+  const idleStreakRef = useRef(0);
+  const lastCodeRef = useRef<string>("");
+  const [isRunning, setIsRunning] = useState(false);
+  const [runView, setRunView] = useState<null | {
+    output: string;
+    executionOutput: string;
+    executionMetrics: any;
+    testResults: any;
+  }>(null);
+
+  useEffect(() => {
+    const c = code[lang] ?? "";
+    if (c !== lastCodeRef.current) {
+      lastCodeRef.current = c;
+      idleStreakRef.current = 0; // new code -> fresh pause
+    }
+  }, [code, lang]);
+
+  useEffect(() => {
+    if (codeMode) {
+      idleStreakRef.current = 0;
+      markActivity();
+    } else {
+      setRunView(null);
+    }
+  }, [codeMode]);
+
+  // A new coding question (new sample tests or the editor reopening) starts fresh submit tracking.
+  useEffect(() => {
+    lastSubmittedCodeRef.current = null;
+    lastRunRef.current = null;
+    remindersShownRef.current = { pass: false, final: false };
+    pendingMoveOnRef.current = null;
+  }, [p.sampleTests, codeMode]);
+
+  // Code written for this problem that hasn't been submitted (null for empty / starter / already submitted).
+  const getUnsubmittedCode = (): string | null => {
+    const currentLang = langRef.current;
+    const src = codeRef.current[currentLang] ?? LANGS[currentLang].starter;
+    if (!src.trim() || src.trim() === LANGS[currentLang].starter.trim()) return null;
+    if (lastSubmittedCodeRef.current !== null && src === lastSubmittedCodeRef.current) return null;
+    return src;
+  };
+
+  // Case 5: let the parent auto-submit unsubmitted code when the interview ends.
+  if (p.pendingCodeRef) {
+    p.pendingCodeRef.current = () => {
+      if (!codeModeRef.current) return null;
+      const src = getUnsubmittedCode();
+      return src ? `\`\`\`${langRef.current}\n${src}\n\`\`\`` : null;
+    };
+  }
+
+  const submitCurrentCode = (message: string) => {
+    const currentLang = langRef.current;
+    const src = codeRef.current[currentLang] ?? LANGS[currentLang].starter;
+    lastSubmittedCodeRef.current = src;
+    pendingMoveOnRef.current = null;
+    submitRef.current(`${message}\n\n\`\`\`${currentLang}\n${src}\n\`\`\``);
+  };
+
+  handleCodeModeMessageRef.current = (text: string) => {
+    const unsubmitted = getUnsubmittedCode();
+    if (pendingMoveOnRef.current) {
+      const original = pendingMoveOnRef.current;
+      if (isYesReply(text)) {
+        submitCurrentCode("Yes, please submit my code and let's move on.");
+        return true;
+      }
+      if (isNoReply(text)) {
+        pendingMoveOnRef.current = null;
+        submitRef.current(`${original} (I don't want to submit my code; let's move on.)`);
+        return true;
+      }
+      pendingMoveOnRef.current = null; // something else: treat as a normal message
+    }
+    if (unsubmitted && isDoneSpeech(text)) {
+      // Case 1: "I'm done" without clicking Submit -> submit the editor code for them.
+      submitCurrentCode(text);
+      return true;
+    }
+    if (unsubmitted && isMoveOnSpeech(text)) {
+      // Case 3: moving on with unsubmitted code -> ask first.
+      pendingMoveOnRef.current = text;
+      p.onLocalAiMessage?.("You haven't submitted your code yet. Shall I submit what you have before we move on?");
+      return true;
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    if (!codeMode || !p.onCodingEvent) return;
+    const t = setInterval(() => {
+      if (p.speaking || p.isThinking || isPolishing || isRunning || liveSpokenText || dictatedVoiceSnippet || sttBusy() || answerDeliveryLiveRef.current) return;
+      if (pendingMoveOnRef.current) return; // waiting for "submit before moving on?" answer
+      const idleMs = Date.now() - lastActivityRef.current;
+      const currentLang = langRef.current;
+      const src = codeRef.current[currentLang] ?? LANGS[currentLang].starter;
+      const unsubmitted = getUnsubmittedCode();
+      const lastRun = lastRunRef.current && lastRunRef.current.code === src ? lastRunRef.current : null;
+
+      // Case 2: tests pass but not submitted -> one reminder after 15s, never hints.
+      if (unsubmitted && lastRun?.allPassed) {
+        if (!remindersShownRef.current.pass && idleMs >= 15000) {
+          remindersShownRef.current.pass = true;
+          markActivity();
+          p.onLocalAiMessage?.("Your tests pass. Click Submit code to share your solution.");
+        }
+        return;
+      }
+
+      // Case 4: all 3 hints used, code written, 60s of silence -> one final reminder.
+      if ((p.hintsUsed ?? 0) >= 3) {
+        if (unsubmitted && !remindersShownRef.current.final && idleMs >= 60000) {
+          remindersShownRef.current.final = true;
+          markActivity();
+          p.onLocalAiMessage?.(
+            lastRun && !lastRun.allPassed
+              ? "You can keep working on it, or submit what you have. Partial solutions still count, and we'll go through it together."
+              : "Whenever you're ready, click Submit code, or tell me if you'd like to move on."
+          );
+        }
+        return;
+      }
+
+      const n = idleStreakRef.current;
+      if (n >= CODING_IDLE_SCHEDULE_SEC.length) return;
+      const waitSec = CODING_IDLE_SCHEDULE_SEC[n];
+      if (idleMs >= waitSec * 1000) {
+        idleStreakRef.current = n + 1;
+        markActivity();
+        p.onCodingEvent?.({
+          event_type: "idle",
+          code: src,
+          language: currentLang,
+          idle_seconds: waitSec,
+          idle_count: n + 1,
+          last_run: lastRun && !lastRun.allPassed ? lastRun.summary : undefined,
+        });
+      }
+    }, 1000);
+    return () => clearInterval(t);
+  }, [codeMode, p.onCodingEvent, p.hintsUsed, p.speaking, p.isThinking, isPolishing, isRunning, liveSpokenText, dictatedVoiceSnippet]);
+
+  // Run button: hidden for SQL / MongoDB answers (no database in the interview).
+  const canRun = RUNNABLE_LANGS.includes(lang as string) && !isQueryQuestion(lastAiText);
+
+  const handleRun = async () => {
+    if (isRunning || !canRun) return;
+    markActivity();
+    idleStreakRef.current = 0;
+    setIsRunning(true);
+    const source = code[lang] ?? LANGS[lang].starter;
+    const usesTests = lang === "python" || lang === "javascript";
+    const tests = usesTests ? p.sampleTests || [] : [];
+    const program = buildRunnableProgram(source, lang as string, lastAiText);
+    let runSummary: NonNullable<CodingEventPayload["run"]>;
+    try {
+      const res = await codeExecutorService.executeCode({
+        code: program,
+        language: lang as string,
+        test_cases: tests.length ? tests : [{ input: "", expected_output: "" }],
+      });
+      const raw = res.test_results?.results || [];
+      const results = tests.length
+        ? raw.map((r: any, i: number) => ({
+            ...r,
+            input: tests[i]?.input ?? r.input,
+            expected_output: tests[i]?.expected_output ?? r.expected_output,
+            passed: !r.error && outputsMatch(r.actual_output, tests[i]?.expected_output ?? ""),
+          }))
+        : [];
+      const passed = results.filter((r: any) => r.passed).length;
+      const consoleText = (raw[0]?.console_output || raw[0]?.actual_output || res.output || "").toString();
+      setRunView({
+        output: res.error_message ? `${res.error_message}` : consoleText,
+        executionOutput: res.error_message ? res.error_message : tests.length ? "" : consoleText,
+        executionMetrics: { execution_time: res.execution_time, memory_usage: res.memory_usage, status: res.status },
+        testResults: results.length ? { passed, total: results.length, results } : null,
+      });
+      const firstFail = results.find((r: any) => !r.passed);
+      runSummary = {
+        status: res.status,
+        error: res.error_message || raw.find((r: any) => r.error)?.error || "",
+        output: consoleText.slice(0, 1500),
+        passed,
+        total: results.length,
+        failures: firstFail
+          ? [{ input: firstFail.input, expected: firstFail.expected_output, actual: firstFail.actual_output || "" }]
+          : [],
+      };
+    } catch (err: any) {
+      const message = err?.details?.status === "tle" ? "Time Limit Exceeded" : err?.message || "Could not run the code.";
+      setRunView({ output: message, executionOutput: message, executionMetrics: null, testResults: null });
+      runSummary = { status: "error", error: message, passed: 0, total: tests.length };
+    } finally {
+      setIsRunning(false);
+    }
+    markActivity();
+    const allPassed = !runSummary.error && runSummary.total > 0 && runSummary.passed === runSummary.total;
+    const failKey = runSummary.error
+      ? `error:${String(runSummary.error).slice(0, 120)}`
+      : runSummary.failures && runSummary.failures.length
+      ? `test:${runSummary.failures[0].input}`
+      : "";
+    const repeatFailure = !allPassed && !!failKey && !!lastRunRef.current && lastRunRef.current.failKey === failKey;
+    lastRunRef.current = { code: source, allPassed, failKey, summary: runSummary };
+    p.onCodingEvent?.({
+      event_type: "run",
+      code: source,
+      language: lang as string,
+      run: runSummary,
+      repeat_failure: repeatFailure,
+    });
+  };
+
   const handleResetCode = () => {
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     spokenAccumulatorRef.current = "";
@@ -1848,7 +2827,17 @@ function LiveRoom(p: {
     setCode((c) => ({ ...c, [lang]: LANGS[lang].starter }));
   };
 
-  const triggerPolishQuery = useCallback(async (textToPolish?: string) => {
+  // Send spoken conversation to the interviewer, together with the code written so far.
+  const sendSpeechToInterviewer = useCallback((spoken: string) => {
+    if (!spoken.trim()) return;
+    setEditorDictationStatus("idle");
+    if (handleCodeModeMessageRef.current(spoken.trim())) return;
+    submitRef.current(withCodeSnapshot(spoken.trim(), langRef.current, codeRef.current));
+  }, []);
+
+  // Polish dictated code. `baseCode` is the editor content before this dictation, so a
+  // transcript the backend classifies as conversation can be taken back out of the editor.
+  const triggerPolishQuery = useCallback(async (textToPolish?: string, baseCode?: string, spoken?: string) => {
     const currentTargetLang = langRef.current;
     const targetCode =
       textToPolish ??
@@ -1861,22 +2850,46 @@ function LiveRoom(p: {
       return;
     }
     setIsPolishing(true);
+    let sentAsSpeech = false;
     try {
-      const polished = await polishDictatedQuery(
-        targetCode,
-        currentTargetLang,
-        lastAiText
-      );
-      if (polished && polished.trim()) {
-        setCode((c) => ({ ...c, [currentTargetLang]: polished.trim() }));
+      const result = await polishDictation(spoken ?? targetCode, currentTargetLang);
+      if ((result.isSpeech || result.endIntent) && spoken !== undefined) {
+        if (baseCode !== undefined) {
+          setCode((c) => ({ ...c, [currentTargetLang]: baseCode || LANGS[currentTargetLang].starter }));
+        }
+        sentAsSpeech = true;
+        sendSpeechToInterviewer(result.speechText || spoken || targetCode);
+      } else if (result.code && !result.isSpeech) {
+        const merged = spoken !== undefined && baseCode ? `${baseCode}\n${result.code}` : result.code;
+        setCode((c) => ({ ...c, [currentTargetLang]: merged }));
       }
     } catch (err) {
       console.warn("Failed to polish query:", err);
     } finally {
       setIsPolishing(false);
-      setEditorDictationStatus("captured");
+      if (!sentAsSpeech) setEditorDictationStatus("captured");
     }
-  }, [lastAiText]);
+  }, [sendSpeechToInterviewer]);
+
+  // Decide where a finished code-mode utterance goes: editor (dictated code) or interviewer (conversation).
+  routeCodeModeSpeechRef.current = (spoken: string) => {
+    const currentLang = langRef.current;
+    if (!looksLikeDictatedCode(spoken)) {
+      sendSpeechToInterviewer(spoken);
+      return;
+    }
+    const currentCode = codeRef.current[currentLang] ?? LANGS[currentLang].starter;
+    const isUntouchedStarter =
+      !codeRef.current[currentLang] || currentCode.trim() === LANGS[currentLang].starter.trim();
+    const baseCode = isUntouchedStarter ? "" : currentCode.trim();
+    const formatted = formatSpokenQuery(spoken, currentLang);
+    const newContent = baseCode ? `${baseCode}\n${formatted}` : formatted;
+    setCode((c) => ({ ...c, [currentLang]: newContent }));
+    setEditorDictationStatus("captured");
+    if (autoPolishRef.current) {
+      triggerPolishRef.current(newContent, baseCode, spoken);
+    }
+  };
 
   const triggerPolishRef = useRef(triggerPolishQuery);
   useEffect(() => {
@@ -1884,6 +2897,8 @@ function LiveRoom(p: {
   }, [triggerPolishQuery]);
 
   const submitCode = () => {
+    lastSubmittedCodeRef.current = current;
+    pendingMoveOnRef.current = null;
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     spokenAccumulatorRef.current = "";
     editorBaseBeforeVoiceRef.current = null;
@@ -1902,11 +2917,117 @@ function LiveRoom(p: {
     setIsSilentCountdown(false);
     p.setDraft("");
     if (textToSend) {
-      p.submit(textToSend);
+      if (codeMode && handleCodeModeMessageRef.current(textToSend)) return;
+      p.submit(codeMode ? withCodeSnapshot(textToSend, lang as string, code) : textToSend);
     }
   };
 
   const userTalking = !p.speaking && !p.isThinking && p.mic && (micLevel > 0.04 || !!liveSpokenText);
+  const sttModel = sttStatus.model || "sarvam saaras:v4";
+  const sttPending = sttStatus.pending ? ` (${sttStatus.pending} pending)` : "";
+  const sttStatusText =
+    sttAnswerError ||
+    {
+      idle: "Speech-to-text: Sarvam AI (starts with the mic)",
+      connecting: "Speech-to-text: connecting...",
+      connected: `Speech-to-text: connected (${sttModel}), paused while Vitarka speaks${sttPending}`,
+      listening: `Speech-to-text: listening (${sttModel})`,
+      hearing: "Speech-to-text: hearing you...",
+      transcribing: `Speech-to-text: transcribing${sttPending}...`,
+      received: "Speech-to-text: transcript received",
+      reconnecting: `Speech-to-text: connection lost, reconnecting${sttPending}...${sttStatus.message ? ` (${sttStatus.message})` : ""}`,
+      error: `Speech-to-text error: ${sttStatus.message || "unknown"}`,
+    }[sttStatus.state];
+  // Mock interview: connection indicator (network resilience layer), top-right of the header.
+  const connView = sttStatus.conn;
+  const timerPaused = sttNetworkPaused();
+  const connPillInfo =
+    connView === "lost" || connView === "reconnecting"
+      ? {
+          text: `Connection lost${connView === "reconnecting" ? " · reconnecting" : ""}${timerPaused ? " · timer paused" : ""}`,
+          detail: `Keep talking - your answer is saved${sttStatus.pendingAudioSec ? ` (${sttStatus.pendingAudioSec}s)` : ""}`,
+          cls: "border-red-500/50 bg-red-500/15 text-red-200",
+          dot: "bg-red-400 animate-pulse",
+        }
+      : connView === "offline-queue-full"
+      ? {
+          text: "Connection lost · please pause",
+          detail: "You'll be asked to repeat the missing part",
+          cls: "border-red-500/50 bg-red-500/15 text-red-200",
+          dot: "bg-red-400 animate-pulse",
+        }
+      : connView === "slow"
+      ? {
+          text: "Slow connection",
+          detail: "Keep going - your answer is being saved",
+          cls: "border-amber-500/50 bg-amber-500/15 text-amber-200",
+          dot: "bg-amber-400",
+        }
+      : connView === "recovered"
+      ? { text: "Connection restored", detail: "", cls: "border-emerald-500/50 bg-emerald-500/15 text-emerald-200", dot: "bg-emerald-400" }
+      : sttStatus.noisy && p.mic && !p.speaking && !p.isThinking
+      ? {
+          // Background-noise guard: sounds around the learner keep reaching the mic.
+          text: "Background noise detected",
+          detail: "A headset or a quieter spot will help",
+          cls: "border-amber-500/50 bg-amber-500/15 text-amber-200",
+          dot: "bg-amber-400",
+        }
+      : null;
+  const deliveryInfo =
+    p.answerDelivery?.state === "retrying"
+      ? {
+          text: p.answerDelivery.attempt ? `Couldn't reach Vitarka · retrying (${p.answerDelivery.attempt})` : "Vitarka is still working on your answer",
+          detail: "Your answer is saved and will be sent",
+          cls: "border-amber-500/50 bg-amber-500/15 text-amber-200",
+          dot: "bg-amber-400 animate-pulse",
+          retry: false,
+        }
+      : p.answerDelivery?.state === "failed"
+      ? {
+          text: "Couldn't send your answer",
+          detail: "Your answer is saved. Check your connection, then retry.",
+          cls: "border-red-500/50 bg-red-500/15 text-red-200",
+          dot: "bg-red-400",
+          retry: true,
+        }
+      : null;
+  const pillInfo = deliveryInfo || (connPillInfo ? { ...connPillInfo, retry: false } : null);
+  const connPill = pillInfo ? (
+    <div role="status" aria-live="polite" className="pointer-events-none fixed right-4 top-16 z-50 flex flex-col items-end whitespace-nowrap rounded-xl bg-[#0b0f17]/80 p-1.5 shadow-lg backdrop-blur">
+      <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${pillInfo.cls}`}>
+        <span className={`h-2 w-2 shrink-0 rounded-full ${pillInfo.dot}`} />
+        {pillInfo.text}
+      </span>
+      {pillInfo.detail ? <span className="mt-0.5 text-right text-[10px] leading-tight text-[#c3c8d4]">{pillInfo.detail}</span> : null}
+      {pillInfo.retry && p.onRetryAnswer ? (
+        <button
+          type="button"
+          onClick={p.onRetryAnswer}
+          className="pointer-events-auto mt-1 rounded-md border border-red-400/50 bg-red-500/20 px-3 py-0.5 text-xs font-semibold text-red-100 hover:bg-red-500/30"
+        >
+          Retry sending
+        </button>
+      ) : null}
+    </div>
+  ) : (
+    <span />
+  );
+  // In the answer panel: only the "please say it again" notice.
+  const repeatBanner =
+    sttStatus.needsRepeat && !sttAnswerError
+      ? { text: "Part of your answer couldn't be captured because of the connection. Please say it again.", cls: "text-red-400" }
+      : null;
+  const connBannerEl = repeatBanner ? (
+    <div className={`mt-0.5 text-[11px] font-medium ${repeatBanner.cls}`}>{repeatBanner.text}</div>
+  ) : null;
+  const sttStatusClass = `mt-0.5 text-[10px] ${
+    sttAnswerError || sttStatus.state === "error"
+      ? "text-red-400"
+      : sttStatus.state === "reconnecting"
+      ? "text-amber-400"
+      : "text-[#6b7280]"
+  }`;
   const orb = p.speaking
     ? "bg-[radial-gradient(circle_at_35%_30%,#ffd08a,#f59e42_55%,#b8661c)]"
     : p.isThinking
@@ -1928,7 +3049,7 @@ function LiveRoom(p: {
           <span className="absolute left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-[#111622] px-2.5 py-1 font-mono text-xs text-white">
             <Clock className="h-3.5 w-3.5" /> {fmt(p.left)}
           </span>
-          <span />
+          {connPill}
         </div>
 
         <ResizablePanelGroup orientation="horizontal" className="min-h-0 flex-1">
@@ -2013,6 +3134,8 @@ function LiveRoom(p: {
                         ? (dictateToEditor ? "Speak your query aloud — it will appear in the editor where you can fix typos." : "Take your time. Speak or type your answer.")
                         : "Turn on your mic or type your answer."}
                     </div>
+                    {connBannerEl}
+                    <div className={sttStatusClass}>{sttStatusText}</div>
                   </div>
                   <div className="flex h-7 items-center gap-[3px]">
                     {Array.from({ length: 22 }).map((_, k) => {
@@ -2096,7 +3219,9 @@ function LiveRoom(p: {
                   ) : editorDictationStatus === "listening" ? (
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-xs text-amber-300 animate-pulse truncate max-w-[220px]">
                       <Mic className="h-3 w-3 shrink-0" />
-                      <span className="truncate">Listening to query...</span>
+                      <span className="truncate">
+                        {dictatedVoiceSnippet ? `Heard: "${dictatedVoiceSnippet}"` : "Listening..."}
+                      </span>
                     </span>
                   ) : editorDictationStatus === "captured" ? (
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs text-emerald-300 truncate max-w-[240px]">
@@ -2106,27 +3231,6 @@ function LiveRoom(p: {
                   ) : null}
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setDictateToEditor(!dictateToEditor)}
-                    title={
-                      dictateToEditor
-                        ? "Voice Dictation is ON: Spoken query words are automatically typed into this editor. Click to turn off."
-                        : "Voice Dictation is OFF: Click to enable speaking queries directly into this editor."
-                    }
-                    className={`flex items-center gap-1.5 h-8 rounded-md px-2.5 text-xs font-medium border transition-colors ${
-                      dictateToEditor
-                        ? "border-amber-500/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25"
-                        : "border-white/10 bg-[#252525] text-[#8b93a7] hover:text-white hover:bg-[#303030]"
-                    }`}
-                  >
-                    {dictateToEditor ? (
-                      <Mic className="h-3.5 w-3.5 text-amber-400" />
-                    ) : (
-                      <MicOff className="h-3.5 w-3.5 text-[#8b93a7]" />
-                    )}
-                    <span>{dictateToEditor ? "Voice Dictation: ON" : "Voice Dictation: OFF"}</span>
-                  </button>
                   <button
                     type="button"
                     onClick={handleResetCode}
@@ -2147,6 +3251,21 @@ function LiveRoom(p: {
                       </option>
                     ))}
                   </select>
+                  {canRun && (
+                    <button
+                      onClick={handleRun}
+                      disabled={isRunning || p.isThinking}
+                      title="Run your code against the sample tests (does not submit)"
+                      className="flex items-center gap-1.5 h-8 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 text-sm font-semibold text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50"
+                    >
+                      {isRunning ? (
+                        <span className="h-3 w-3 animate-spin rounded-full border-2 border-emerald-300 border-t-transparent" />
+                      ) : (
+                        <Play className="h-3.5 w-3.5" />
+                      )}
+                      <span>{isRunning ? "Running..." : "Run"}</span>
+                    </button>
+                  )}
                   <button
                     onClick={submitCode}
                     disabled={p.isThinking}
@@ -2168,9 +3287,7 @@ function LiveRoom(p: {
                 <div className="flex items-center gap-1.5 truncate">
                   <Sparkles className="h-3.5 w-3.5 shrink-0 text-[#6b8cf5]" />
                   <span className="truncate">
-                    {dictateToEditor
-                      ? "Speak your query aloud to populate editor. Edit any typos or syntax with keyboard before submitting."
-                      : "Voice dictation is paused. You can write code manually or enable voice dictation above."}
+                    Type your code here. Talk to Vitarka anytime: your speech goes to the interviewer, not into the editor.
                   </span>
                 </div>
                 <div className="hidden sm:inline-flex items-center gap-1 font-mono text-[10px] text-[#6b7285] shrink-0 ml-2">
@@ -2202,6 +3319,28 @@ function LiveRoom(p: {
                   basicSetup={{ lineNumbers: true, foldGutter: false, highlightActiveLine: false }}
                 />
               </div>
+              {(runView || isRunning) && (
+                <div className="max-h-[40%] shrink-0 overflow-y-auto border-t border-white/10 bg-[#141414] p-3 text-[#c9d1d9]">
+                  <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-[#8b93a7]">
+                    <span>Run result {p.sampleTests && p.sampleTests.length && (lang === "python" || lang === "javascript") ? "· sample tests" : ""}</span>
+                    {!isRunning && (
+                      <button onClick={() => setRunView(null)} title="Close" className="rounded p-0.5 hover:bg-white/10">
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                  {isRunning ? (
+                    <div className="text-xs text-[#8b93a7]">Running your code...</div>
+                  ) : runView ? (
+                    <ExecutionOutputView
+                      output={runView.output}
+                      executionMetrics={runView.executionMetrics}
+                      testResults={runView.testResults}
+                      executionOutput={runView.executionOutput}
+                    />
+                  ) : null}
+                </div>
+              )}
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
@@ -2283,7 +3422,7 @@ function LiveRoom(p: {
           <span className="absolute left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-[#111622] px-2.5 py-1 font-mono text-xs text-white">
             <Clock className="h-3.5 w-3.5" /> {fmt(p.left)}
           </span>
-          <span />
+          {connPill}
         </div>
 
         <div className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-6 pb-40 lg:grid-cols-2">
@@ -2334,6 +3473,8 @@ function LiveRoom(p: {
                     ? "Take your time. Speak or type your answer."
                     : "Turn on your mic or type your answer."}
                 </div>
+                {connBannerEl}
+                <div className={sttStatusClass}>{sttStatusText}</div>
               </div>
               <div className="flex h-7 items-center gap-[3px]">
                 {Array.from({ length: 22 }).map((_, k) => {

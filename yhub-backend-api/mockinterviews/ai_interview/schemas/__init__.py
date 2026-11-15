@@ -1,5 +1,4 @@
 from .master_interviewer import (
-    InterviewPhase,
     CandidateIntent,
     NextAction,
     CodingAction,
@@ -11,7 +10,6 @@ from .master_interviewer import (
 )
 
 __all__ = [
-    "InterviewPhase",
     "CandidateIntent",
     "NextAction",
     "CodingAction",

@@ -222,6 +222,57 @@ class MockInterviewSubmission(BaseUserSubmission):
         return f"{self.user.username} - {title} ({self.get_experience_level_display()})"
 
 
+class InterviewEvaluation(BaseTimestampedModel):
+    """Post-interview evaluation (engine version 2), produced in shadow mode beside the existing report.
+
+    One row per finished interview and engine version. The row is also the work queue: it is created
+    as "pending" when the learner's report is requested and processed by the scheduled command
+    `process_interview_evaluations` (see mockinterviews/evaluation_v2/queue.py).
+    """
+
+    STATUS_PENDING = "pending"
+    STATUS_PROCESSING = "processing"
+    STATUS_RETRY = "retry"
+    STATUS_COMPLETED = "completed"
+    STATUS_NEEDS_REVIEW = "needs_review"
+    STATUS_FAILED = "failed"
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "Pending"),
+        (STATUS_PROCESSING, "Processing"),
+        (STATUS_RETRY, "Waiting to retry"),
+        (STATUS_COMPLETED, "Completed"),
+        (STATUS_NEEDS_REVIEW, "Completed, needs review"),
+        (STATUS_FAILED, "Failed"),
+    ]
+
+    submission = models.ForeignKey(
+        "MockInterviewSubmission", on_delete=models.CASCADE, related_name="evaluations_v2"
+    )
+    engine_version = models.CharField(max_length=20)
+    rubric_version = models.CharField(max_length=40, blank=True, default="")
+    evaluator_model = models.CharField(max_length=120, blank=True, default="")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING, db_index=True)
+    attempts = models.PositiveIntegerField(default=0)
+    next_attempt_at = models.DateTimeField(null=True, blank=True)
+    locked_at = models.DateTimeField(null=True, blank=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+    error = models.TextField(blank=True, default="")
+    result = models.JSONField(default=dict, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["submission", "engine_version"], name="uniq_interview_evaluation_per_engine"
+            )
+        ]
+
+    def __str__(self):
+        return f"InterviewEvaluation {self.submission_id} v{self.engine_version} [{self.status}]"
+
+
 class UserInterviewProgress(BaseTimestampedModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="interview_progress")
     mock_interview = models.ForeignKey('MockInterview', on_delete=models.CASCADE)

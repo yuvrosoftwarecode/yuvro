@@ -93,19 +93,6 @@ const DEFAULT_TASKS_DATA: TaskRawData[] = [
   },
 ];
 
-const LEADERBOARD_NAMES = [
-  "Aarav S.",
-  "Meera K.",
-  "Daniel O.",
-  "Priya R.",
-  "Lucas M.",
-  "Ananya V.",
-  "Chen W.",
-  "Fatima A.",
-  "Rohan P.",
-  "Sofia L.",
-];
-
 export const DAY_NAMES = [
   "Monday",
   "Tuesday",
@@ -444,65 +431,7 @@ export async function getLeaderboard(id: string): Promise<{
     }
   } catch {}
 
-  const now = new Date();
-  const task = await getTask(id);
-  const ti = getTodayIndex(now);
-  const taskIdx = DEFAULT_TASKS_DATA.findIndex((t) => t.id === id);
-  const raw = taskIdx >= 0 ? DEFAULT_TASKS_DATA[taskIdx] : null;
-  const totalEnrolled = task?.enrolledCount || raw?.en || 120;
-  const done = getStoredDone(id, raw?.defaultDone || [], ti);
-
-  const md = Math.min(ti + 1, 7);
-  const offset = taskIdx >= 0 ? taskIdx : 0;
-  const dd = [md, md, md - 1, md - 1, md - 2].map((x) => Math.max(0, x));
-
-  let top: LeaderboardEntry[] = dd.map((d, i) => ({
-    rank: i + 1,
-    name: LEADERBOARD_NAMES[(i + offset) % LEADERBOARD_NAMES.length],
-    daysDone: d,
-    points: calculatePoints(d),
-    isYou: false,
-  }));
-
-  const userPoints = calculatePoints(done.length);
-  const higherCount = top.filter((e) => e.points > userPoints).length;
-  let rank: number | null = null;
-
-  if (done.length === 0) {
-    rank = null;
-  } else if (higherCount < 5) {
-    rank = higherCount + 1;
-    top.splice(higherCount, 0, {
-      rank: rank,
-      name: "You",
-      daysDone: done.length,
-      points: userPoints,
-      isYou: true,
-    });
-    top = top.slice(0, 5).map((e, idx) => ({ ...e, rank: idx + 1 }));
-  } else {
-    rank = Math.max(
-      6,
-      5 +
-        Math.round(
-          (totalEnrolled - 5) *
-            Math.pow(1 - userPoints / Math.max(top[0].points, 1), 1.4)
-        )
-    );
-  }
-
-  const userEntry: LeaderboardEntry | null =
-    rank && !top.some((e) => e.isYou)
-      ? {
-          rank,
-          name: "You",
-          daysDone: done.length,
-          points: userPoints,
-          isYou: true,
-        }
-      : null;
-
-  return { top, userEntry, rank };
+  return { top: [], userEntry: null, rank: null };
 }
 
 export async function getStats(id: string): Promise<TaskStats> {

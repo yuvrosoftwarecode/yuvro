@@ -21,4 +21,7 @@ anthropic>=0.7.0
 google-generativeai>=0.3.0
 cohere>=4.0.0
 pydantic>=2.0.0
-
+# Test mock interview speech-to-text (WebSocket service, run by uvicorn next to gunicorn)
+channels>=4.1
+websockets>=14
+uvicorn[standard]>=0.30

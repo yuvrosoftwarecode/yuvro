@@ -1,3 +1,4 @@
+import contextvars
 import logging
 from abc import ABC, abstractmethod
 from functools import lru_cache
@@ -6,6 +7,30 @@ from typing import List
 from mockinterviews.ai_interview.config import settings
 
 logger = logging.getLogger(__name__)
+
+# TEST mock interview only: lets mockinterviews/test_stt/latency.py hand in one cached client for a
+# turn (warm connection). Unset everywhere else, so get_llm_client() behaves exactly as before.
+_CLIENT_OVERRIDE: contextvars.ContextVar = contextvars.ContextVar("llm_client_override", default=None)
+
+
+async def _openai_compatible_stream(sdk, model, messages, max_tokens, temperature, on_text, extra_body=None) -> str:
+    """Same chat-completion request with stream=True; calls on_text(text_so_far) as tokens arrive."""
+    kwargs = dict(model=model, messages=messages, max_tokens=max_tokens, temperature=temperature, stream=True)
+    if extra_body:
+        kwargs["extra_body"] = extra_body
+    stream = await sdk.chat.completions.create(**kwargs)
+    parts: list[str] = []
+    async for chunk in stream:
+        if not getattr(chunk, "choices", None):
+            continue
+        piece = getattr(chunk.choices[0].delta, "content", None) or ""
+        if piece:
+            parts.append(piece)
+            try:
+                on_text("".join(parts))
+            except Exception:  # a watcher problem must never break the AI call
+                logger.exception("Stream watcher failed")
+    return "".join(parts)
 
 
 class BaseLLMClient(ABC):
@@ -65,6 +90,12 @@ class OpenAIClient(BaseLLMClient):
             getattr(response.usage, "total_tokens", "N/A"),
         )
         return text
+
+    async def generate_stream(self, prompt, system_prompt="", max_tokens=512, temperature=0.3, on_text=None) -> str:
+        messages = ([{"role": "system", "content": system_prompt}] if system_prompt else []) + [
+            {"role": "user", "content": prompt}
+        ]
+        return await _openai_compatible_stream(self._client, self._model, messages, max_tokens, temperature, on_text)
 
 
 class AnthropicClient(BaseLLMClient):
@@ -240,6 +271,15 @@ class DeepSeekClient(BaseLLMClient):
         logger.info("DeepSeek response: tokens=%s, chars=%d", total_tokens, len(text))
         return text
 
+    async def generate_stream(self, prompt, system_prompt="", max_tokens=300, temperature=0.6, on_text=None) -> str:
+        messages = ([{"role": "system", "content": system_prompt}] if system_prompt else []) + [
+            {"role": "user", "content": prompt}
+        ]
+        return await _openai_compatible_stream(
+            self._client, self._model, messages, max_tokens, temperature, on_text,
+            extra_body={"thinking": {"type": "disabled"}},
+        )
+
 
 _PROVIDERS = {
     "openai": OpenAIClient,
@@ -285,6 +325,27 @@ class ResilientLLMClient(BaseLLMClient):
 
         raise RuntimeError("All available LLM providers failed to generate response.")
 
+    async def generate_stream(self, prompt, system_prompt="", max_tokens=512, temperature=0.3, on_text=None) -> str:
+        """TEST mock interview: same request, streamed. Falls back to the normal call (with its provider
+        fallbacks) if streaming is unsupported or fails before any text arrived."""
+        stream_fn = getattr(self.primary_client, "generate_stream", None)
+        if stream_fn is None or on_text is None:
+            return await self.generate(prompt, system_prompt, max_tokens, temperature)
+        emitted = False
+
+        def _seen(text):
+            nonlocal emitted
+            emitted = True
+            on_text(text)
+
+        try:
+            return await stream_fn(prompt, system_prompt, max_tokens, temperature, _seen)
+        except Exception as e:
+            if emitted:
+                raise
+            logger.warning("Streaming on '%s' failed before any text (%s); using the normal call", self.primary_name, e)
+        return await self.generate(prompt, system_prompt, max_tokens, temperature)
+
 
 def _fetch_active_agent():
     try:
@@ -314,6 +375,9 @@ def _get_active_agent():
 
 def get_llm_client() -> BaseLLMClient:
     """Return the configured LLM client dynamically based on the active AIAgent in the DB, with fallback to settings."""
+    override = _CLIENT_OVERRIDE.get()
+    if override is not None:
+        return override
     provider = None
     model_name = None
     try:

@@ -49,6 +49,7 @@ import { Route as RecruiterQuestionsRouteImport } from './routes/recruiter.quest
 import { Route as RecruiterGithubRouteImport } from './routes/recruiter.github'
 import { Route as RecruiterDashboardRouteImport } from './routes/recruiter.dashboard'
 import { Route as RecruiterBillingRouteImport } from './routes/recruiter.billing'
+import { Route as MockInterviewSlug1RouteImport } from './routes/mock-interview.$slug-1'
 import { Route as MockInterviewSlugRouteImport } from './routes/mock-interview.$slug'
 import { Route as LinkedinCallbackRouteImport } from './routes/linkedin.callback'
 import { Route as GithubCallbackRouteImport } from './routes/github.callback'
@@ -296,6 +297,11 @@ const RecruiterBillingRoute = RecruiterBillingRouteImport.update({
   id: '/billing',
   path: '/billing',
   getParentRoute: () => RecruiterRoute,
+} as any)
+const MockInterviewSlug1Route = MockInterviewSlug1RouteImport.update({
+  id: '/mock-interview/$slug-1',
+  path: '/mock-interview/$slug-1',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MockInterviewSlugRoute = MockInterviewSlugRouteImport.update({
   id: '/mock-interview/$slug',
@@ -589,6 +595,7 @@ export interface FileRoutesByFullPath {
   '/github/callback': typeof GithubCallbackRoute
   '/linkedin/callback': typeof LinkedinCallbackRoute
   '/mock-interview/$slug': typeof MockInterviewSlugRoute
+  '/mock-interview/$slug-1': typeof MockInterviewSlug1Route
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
@@ -673,6 +680,7 @@ export interface FileRoutesByTo {
   '/github/callback': typeof GithubCallbackRoute
   '/linkedin/callback': typeof LinkedinCallbackRoute
   '/mock-interview/$slug': typeof MockInterviewSlugRoute
+  '/mock-interview/$slug-1': typeof MockInterviewSlug1Route
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
@@ -763,6 +771,7 @@ export interface FileRoutesById {
   '/github/callback': typeof GithubCallbackRoute
   '/linkedin/callback': typeof LinkedinCallbackRoute
   '/mock-interview/$slug': typeof MockInterviewSlugRoute
+  '/mock-interview/$slug-1': typeof MockInterviewSlug1Route
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
@@ -854,6 +863,7 @@ export interface FileRouteTypes {
     | '/github/callback'
     | '/linkedin/callback'
     | '/mock-interview/$slug'
+    | '/mock-interview/$slug-1'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/github'
@@ -938,6 +948,7 @@ export interface FileRouteTypes {
     | '/github/callback'
     | '/linkedin/callback'
     | '/mock-interview/$slug'
+    | '/mock-interview/$slug-1'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/github'
@@ -1027,6 +1038,7 @@ export interface FileRouteTypes {
     | '/github/callback'
     | '/linkedin/callback'
     | '/mock-interview/$slug'
+    | '/mock-interview/$slug-1'
     | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/github'
@@ -1106,6 +1118,7 @@ export interface RootRouteChildren {
   GithubCallbackRoute: typeof GithubCallbackRoute
   LinkedinCallbackRoute: typeof LinkedinCallbackRoute
   MockInterviewSlugRoute: typeof MockInterviewSlugRoute
+  MockInterviewSlug1Route: typeof MockInterviewSlug1Route
   UUsernameRoute: typeof UUsernameRoute
   ResetPasswordUidb64TokenRoute: typeof ResetPasswordUidb64TokenRoute
   SharedReportTokenRoute: typeof SharedReportTokenRoute
@@ -1393,6 +1406,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/recruiter/billing'
       preLoaderRoute: typeof RecruiterBillingRouteImport
       parentRoute: typeof RecruiterRoute
+    }
+    '/mock-interview/$slug-1': {
+      id: '/mock-interview/$slug-1'
+      path: '/mock-interview/$slug-1'
+      fullPath: '/mock-interview/$slug-1'
+      preLoaderRoute: typeof MockInterviewSlug1RouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/mock-interview/$slug': {
       id: '/mock-interview/$slug'
@@ -2021,6 +2041,7 @@ const rootRouteChildren: RootRouteChildren = {
   GithubCallbackRoute: GithubCallbackRoute,
   LinkedinCallbackRoute: LinkedinCallbackRoute,
   MockInterviewSlugRoute: MockInterviewSlugRoute,
+  MockInterviewSlug1Route: MockInterviewSlug1Route,
   UUsernameRoute: UUsernameRoute,
   ResetPasswordUidb64TokenRoute: ResetPasswordUidb64TokenRoute,
   SharedReportTokenRoute: SharedReportTokenRoute,
