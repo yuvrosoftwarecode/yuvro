@@ -60,6 +60,7 @@ import { Route as EvaluationOtpRouteImport } from './routes/evaluation.otp'
 import { Route as EvaluationInstructionsRouteImport } from './routes/evaluation.instructions'
 import { Route as EvaluationCompleteRouteImport } from './routes/evaluation.complete'
 import { Route as AdminWeeklyTasksRouteImport } from './routes/admin.weekly-tasks'
+import { Route as AdminVitarkaIdeRouteImport } from './routes/admin.vitarka-ide'
 import { Route as AdminResearchRouteImport } from './routes/admin.research'
 import { Route as AdminRecruitersRouteImport } from './routes/admin.recruiters'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
@@ -353,6 +354,11 @@ const AdminWeeklyTasksRoute = AdminWeeklyTasksRouteImport.update({
   path: '/weekly-tasks',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminVitarkaIdeRoute = AdminVitarkaIdeRouteImport.update({
+  id: '/vitarka-ide',
+  path: '/vitarka-ide',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminResearchRoute = AdminResearchRouteImport.update({
   id: '/research',
   path: '/research',
@@ -585,6 +591,7 @@ export interface FileRoutesByFullPath {
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
   '/admin/research': typeof AdminResearchRoute
+  '/admin/vitarka-ide': typeof AdminVitarkaIdeRoute
   '/admin/weekly-tasks': typeof AdminWeeklyTasksRouteWithChildren
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
@@ -671,6 +678,7 @@ export interface FileRoutesByTo {
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
   '/admin/research': typeof AdminResearchRoute
+  '/admin/vitarka-ide': typeof AdminVitarkaIdeRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -761,6 +769,7 @@ export interface FileRoutesById {
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
   '/admin/research': typeof AdminResearchRoute
+  '/admin/vitarka-ide': typeof AdminVitarkaIdeRoute
   '/admin/weekly-tasks': typeof AdminWeeklyTasksRouteWithChildren
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
@@ -853,6 +862,7 @@ export interface FileRouteTypes {
     | '/admin/questions'
     | '/admin/recruiters'
     | '/admin/research'
+    | '/admin/vitarka-ide'
     | '/admin/weekly-tasks'
     | '/evaluation/complete'
     | '/evaluation/instructions'
@@ -939,6 +949,7 @@ export interface FileRouteTypes {
     | '/admin/questions'
     | '/admin/recruiters'
     | '/admin/research'
+    | '/admin/vitarka-ide'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -1028,6 +1039,7 @@ export interface FileRouteTypes {
     | '/admin/questions'
     | '/admin/recruiters'
     | '/admin/research'
+    | '/admin/vitarka-ide'
     | '/admin/weekly-tasks'
     | '/evaluation/complete'
     | '/evaluation/instructions'
@@ -1484,6 +1496,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminWeeklyTasksRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/vitarka-ide': {
+      id: '/admin/vitarka-ide'
+      path: '/vitarka-ide'
+      fullPath: '/admin/vitarka-ide'
+      preLoaderRoute: typeof AdminVitarkaIdeRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/research': {
       id: '/admin/research'
       path: '/research'
@@ -1824,6 +1843,7 @@ interface AdminRouteChildren {
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminRecruitersRoute: typeof AdminRecruitersRoute
   AdminResearchRoute: typeof AdminResearchRoute
+  AdminVitarkaIdeRoute: typeof AdminVitarkaIdeRoute
   AdminWeeklyTasksRoute: typeof AdminWeeklyTasksRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
   AdminUsersIdRoute: typeof AdminUsersIdRouteWithChildren
@@ -1836,6 +1856,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminRecruitersRoute: AdminRecruitersRoute,
   AdminResearchRoute: AdminResearchRoute,
+  AdminVitarkaIdeRoute: AdminVitarkaIdeRoute,
   AdminWeeklyTasksRoute: AdminWeeklyTasksRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
   AdminUsersIdRoute: AdminUsersIdRouteWithChildren,

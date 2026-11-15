@@ -14,9 +14,16 @@ import {
   Search,
   Sparkles,
   CalendarDays,
+  Code2,
 } from "lucide-react";
 
 const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[] = [
+  {
+    group: "Developer Tools",
+    items: [
+      { to: "/admin/vitarka-ide", label: "Yuvro Vitarka IDE", icon: Code2 },
+    ],
+  },
   {
     group: "People",
     items: [
@@ -39,11 +46,13 @@ export function AdminShell({
   title,
   breadcrumb,
   right,
+  fullBleed = false,
   children,
 }: {
   title: string;
   breadcrumb?: string[];
   right?: ReactNode;
+  fullBleed?: boolean;
   children: ReactNode;
 }) {
   const { user, logout } = useAuth();
@@ -254,16 +263,20 @@ export function AdminShell({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto min-h-0">
-          <div className="p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
-            <div className="flex items-end justify-between mb-6 gap-4 flex-wrap">
-              <div>
-                <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <main className={`flex-1 min-h-0 ${fullBleed ? "overflow-hidden flex flex-col" : "overflow-y-auto"}`}>
+          {fullBleed ? (
+            children
+          ) : (
+            <div className="p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
+              <div className="flex items-end justify-between mb-6 gap-4 flex-wrap">
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+                </div>
+                {right}
               </div>
-              {right}
+              {children}
             </div>
-            {children}
-          </div>
+          )}
         </main>
       </div>
     </div>

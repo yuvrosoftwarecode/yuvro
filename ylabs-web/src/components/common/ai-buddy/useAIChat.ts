@@ -102,14 +102,8 @@ const useAIChat = (config?: {
 
     const prompts: string[] = [];
 
-    // Error/Bug context
-    if (context.includes("error") || context.includes("exception") || context.includes("failed")) {
-      prompts.push("Debug this error");
-      prompts.push("Fix the issue");
-      prompts.push("Explain the problem");
-    }
     // Test context
-    else if (context.includes("test") || context.includes("pass") || context.includes("fail")) {
+    if (context.includes("test") || context.includes("pass") || context.includes("fail")) {
       prompts.push("Make tests pass");
       prompts.push("Check test output");
       prompts.push("Review my solution");
@@ -124,7 +118,7 @@ const useAIChat = (config?: {
     else {
       prompts.push("Write the solution");
       prompts.push("Create a plan");
-      prompts.push("Fix the bug");
+      prompts.push("Guide next steps");
     }
 
     setSuggestedPrompts(Array.from(new Set(prompts)).slice(0, 3));
