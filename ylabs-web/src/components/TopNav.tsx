@@ -103,6 +103,9 @@ export function TopNav({
         >
           <img src={YuvroLogo} alt="Yuvro Labs" className="h-7 w-auto object-contain" />
           <span>Yuvro Labs</span>
+          <span className="rounded-full bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-medium leading-none text-orange-600 dark:text-orange-400 select-none">
+            Beta
+          </span>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm">
           {primaryLinks.map((l) => {

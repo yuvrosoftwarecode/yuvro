@@ -39,20 +39,20 @@ const DEFAULT_MOCK_INTERVIEW_PACKS: MockInterviewPack[] = [
 ];
 
 describe("Candidate Mock Interview Quota & Purchase System", () => {
-  it("1. Candidate receives an initial grant of 3 free mock interviews by default", () => {
+  it("1. Candidate receives an initial grant of 1 free mock interview by default", () => {
     const defaultQuota: CandidateMockInterviewQuota = {
-      free_interviews: 3,
+      free_interviews: 1,
       purchased_interviews: 0,
       used_interviews: 0,
-      available_interviews: 3,
-      total_granted: 3,
+      available_interviews: 1,
+      total_granted: 1,
     };
 
-    assert.strictEqual(defaultQuota.free_interviews, 3);
+    assert.strictEqual(defaultQuota.free_interviews, 1);
     assert.strictEqual(defaultQuota.purchased_interviews, 0);
     assert.strictEqual(defaultQuota.used_interviews, 0);
-    assert.strictEqual(defaultQuota.available_interviews, 3);
-    assert.strictEqual(defaultQuota.total_granted, 3);
+    assert.strictEqual(defaultQuota.available_interviews, 1);
+    assert.strictEqual(defaultQuota.total_granted, 1);
   });
 
   it("2. Pricing catalog matches requested tiers: 1: ₹99, 5: ₹399, 10: ₹700", () => {
@@ -79,11 +79,11 @@ describe("Candidate Mock Interview Quota & Purchase System", () => {
 
   it("3. Purchasing a pack atomically increases purchased and available interviews", () => {
     const currentQuota: CandidateMockInterviewQuota = {
-      free_interviews: 3,
+      free_interviews: 1,
       purchased_interviews: 0,
       used_interviews: 1,
-      available_interviews: 2,
-      total_granted: 3,
+      available_interviews: 0,
+      total_granted: 1,
     };
 
     // Candidate purchases 5 mock interviews pack (₹399)
@@ -99,17 +99,17 @@ describe("Candidate Mock Interview Quota & Purchase System", () => {
     };
 
     assert.strictEqual(updatedQuota.purchased_interviews, 5);
-    assert.strictEqual(updatedQuota.available_interviews, 7); // (3 free + 5 purchased) - 1 used = 7
-    assert.strictEqual(updatedQuota.total_granted, 8);
+    assert.strictEqual(updatedQuota.available_interviews, 5); // (1 free + 5 purchased) - 1 used = 5
+    assert.strictEqual(updatedQuota.total_granted, 6);
   });
 
   it("4. Starting an interview consumes 1 interview from available balance", () => {
     const quota: CandidateMockInterviewQuota = {
-      free_interviews: 3,
+      free_interviews: 1,
       purchased_interviews: 0,
       used_interviews: 0,
-      available_interviews: 3,
-      total_granted: 3,
+      available_interviews: 1,
+      total_granted: 1,
     };
 
     // User starts an interview session
@@ -119,25 +119,16 @@ describe("Candidate Mock Interview Quota & Purchase System", () => {
       available_interviews: Math.max(0, (quota.free_interviews + quota.purchased_interviews) - (quota.used_interviews + 1)),
     };
     assert.strictEqual(afterSession1.used_interviews, 1);
-    assert.strictEqual(afterSession1.available_interviews, 2);
-
-    // User starts second and third interviews
-    const afterSession3: CandidateMockInterviewQuota = {
-      ...quota,
-      used_interviews: 3,
-      available_interviews: Math.max(0, (quota.free_interviews + quota.purchased_interviews) - 3),
-    };
-    assert.strictEqual(afterSession3.used_interviews, 3);
-    assert.strictEqual(afterSession3.available_interviews, 0);
+    assert.strictEqual(afterSession1.available_interviews, 0);
   });
 
   it("5. Zero available mock interviews blocks interview start and requires purchase", () => {
     const exhaustedQuota: CandidateMockInterviewQuota = {
-      free_interviews: 3,
+      free_interviews: 1,
       purchased_interviews: 0,
-      used_interviews: 3,
+      used_interviews: 1,
       available_interviews: 0,
-      total_granted: 3,
+      total_granted: 1,
     };
 
     const isStartAllowed = exhaustedQuota.available_interviews > 0;
@@ -181,16 +172,16 @@ describe("Candidate Mock Interview Quota & Purchase System", () => {
       status: "SUCCESS",
       message: "Successfully added 5 mock interview(s) to your balance.",
       quota: {
-        free_interviews: 3,
+        free_interviews: 1,
         purchased_interviews: 5,
-        used_interviews: 2,
-        available_interviews: 6,
-        total_granted: 8,
+        used_interviews: 1,
+        available_interviews: 5,
+        total_granted: 6,
       },
     };
 
     assert.strictEqual(verificationResponse.status, "SUCCESS");
-    assert.strictEqual(verificationResponse.quota.available_interviews, 6);
+    assert.strictEqual(verificationResponse.quota.available_interviews, 5);
     assert.strictEqual(verificationResponse.quota.purchased_interviews, 5);
   });
 });

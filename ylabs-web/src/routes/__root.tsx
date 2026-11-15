@@ -11,6 +11,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "@/lib/auth";
 import { CreditWalletProvider } from "@/context/CreditWalletContext";
 import { Toaster } from "@/components/ui/sonner";
+import { SupportFeedbackButton } from "@/components/support/SupportFeedbackButton";
 
 function NotFoundComponent() {
   return (
@@ -93,6 +94,7 @@ function RootComponent() {
         <CreditWalletProvider>
           <HeadContent />
           <Outlet />
+          <SupportFeedbackButton />
           <Toaster position="top-right" />
         </CreditWalletProvider>
       </AuthProvider>

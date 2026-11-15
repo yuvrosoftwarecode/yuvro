@@ -612,11 +612,11 @@ export async function fetchMockInterviewQuota(): Promise<CandidateMockInterviewQ
     console.warn("Could not fetch mock interview quota from server:", err);
   }
   return {
-    free_interviews: 3,
+    free_interviews: 1,
     purchased_interviews: 0,
     used_interviews: 0,
-    available_interviews: 3,
-    total_granted: 3,
+    available_interviews: 1,
+    total_granted: 1,
   };
 }
 
