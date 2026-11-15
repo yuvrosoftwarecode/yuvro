@@ -85,7 +85,16 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+type TicketSearch = {
+  preview?: string;
+  from?: string;
+};
+
 export const Route = createFileRoute("/student/lab/$slug/ticket/$ticketId")({
+  validateSearch: (search: Record<string, unknown>): TicketSearch => ({
+    preview: typeof search.preview === "string" ? search.preview : undefined,
+    from: typeof search.from === "string" ? search.from : undefined,
+  }),
   component: TicketEditorRoute,
 });
 
@@ -1393,6 +1402,10 @@ export function TicketIDE({
   initialFiles?: Record<string, string>;
 }) {
   const navigate = useNavigate();
+  const isFromWeeklyTask =
+    (typeof window !== "undefined" &&
+      (Boolean(sessionStorage.getItem("from_weekly_task")) ||
+        new URLSearchParams(window.location.search).get("from") === "weekly-task"));
   const isDsaLabMatch = (str?: string) => {
     if (!str) return false;
     const s = str.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
@@ -3334,7 +3347,7 @@ export function TicketIDE({
             }, "*");
           } else {
             notifyTicketSubmitted(computedSqlScore > 0 ? "done" : "in_progress");
-            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id }, search: isFromWeeklyTask ? { from: "weekly-task" } : undefined });
           }
         });
       } else {
@@ -3350,7 +3363,7 @@ export function TicketIDE({
           }, "*");
         } else {
           notifyTicketSubmitted(computedSqlScore > 0 ? "done" : "in_progress");
-          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id }, search: isFromWeeklyTask ? { from: "weekly-task" } : undefined });
         }
       }
       return;
@@ -3399,7 +3412,7 @@ export function TicketIDE({
             }, "*");
           } else {
             notifyTicketSubmitted(computedUiScore > 0 ? "done" : "in_progress");
-            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id }, search: isFromWeeklyTask ? { from: "weekly-task" } : undefined });
           }
         });
       } else {
@@ -3415,7 +3428,7 @@ export function TicketIDE({
           }, "*");
         } else {
           notifyTicketSubmitted(computedUiScore > 0 ? "done" : "in_progress");
-          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id }, search: isFromWeeklyTask ? { from: "weekly-task" } : undefined });
         }
       }
       return;
@@ -3495,7 +3508,7 @@ export function TicketIDE({
             }, "*");
           } else {
             notifyTicketSubmitted(computedScore > 0 ? "done" : "in_progress");
-            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id }, search: isFromWeeklyTask ? { from: "weekly-task" } : undefined });
           }
         });
       } else {
@@ -3512,7 +3525,7 @@ export function TicketIDE({
           }, "*");
         } else {
           notifyTicketSubmitted(computedScore > 0 ? "done" : "in_progress");
-          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id }, search: isFromWeeklyTask ? { from: "weekly-task" } : undefined });
         }
       }
       return;
@@ -3589,7 +3602,7 @@ export function TicketIDE({
             }, "*");
           } else {
             notifyTicketSubmitted(legacyScore > 0 ? "done" : "in_progress");
-            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+            navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id }, search: isFromWeeklyTask ? { from: "weekly-task" } : undefined });
           }
         });
       } else {
@@ -3605,7 +3618,7 @@ export function TicketIDE({
         } else {
           invalidateStudentStats();
           if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("yuvro-submission-updated"));
-          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id } });
+          navigate({ to: "/student/lab/$slug/ticket/$ticketId/review", params: { slug, ticketId: ticket.id }, search: isFromWeeklyTask ? { from: "weekly-task" } : undefined });
         }
       }
     }, 600);
@@ -3882,7 +3895,33 @@ export function TicketIDE({
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
         {!previewOverride && !isEvaluationMode && (
-          ((ticket as any)?.sprint_id || (ticket as any)?.sprint || (typeof window !== "undefined" ? sessionStorage.getItem(`last_sprint_${slug}`) : null)) ? (
+          isFromWeeklyTask ? (
+            <button
+              type="button"
+              onClick={() => {
+                const weeklyTaskId =
+                  (typeof window !== "undefined" && sessionStorage.getItem("weekly_task_id")) ||
+                  new URLSearchParams(
+                    (typeof window !== "undefined" && sessionStorage.getItem("weekly_task_return_url"))?.split("?")[1] || ""
+                  ).get("id") ||
+                  undefined;
+                try {
+                  sessionStorage.removeItem("from_weekly_task");
+                  sessionStorage.removeItem("weekly_task_return_url");
+                  sessionStorage.removeItem("weekly_task_id");
+                } catch {}
+                navigate({
+                  to: "/student/weekly-task",
+                  search: weeklyTaskId ? { id: weeklyTaskId } : undefined,
+                });
+              }}
+              className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              title="Back to Weekly Task"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>Exit</span>
+            </button>
+          ) : ((ticket as any)?.sprint_id || (ticket as any)?.sprint || (typeof window !== "undefined" ? sessionStorage.getItem(`last_sprint_${slug}`) : null)) ? (
             <Link
               to="/student/lab/$slug/sprint/$sprintId"
               params={{

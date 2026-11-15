@@ -588,6 +588,10 @@ export function SystemDesignStudio({
   const [realLabId, setRealLabId] = useState<string | null>(null);
 
   const { user } = useAuth();
+  const isFromWeeklyTask =
+    (typeof window !== "undefined" &&
+      (Boolean(sessionStorage.getItem("from_weekly_task")) ||
+        new URLSearchParams(window.location.search).get("from") === "weekly-task"));
   const [isCommitDialogOpen, setIsCommitDialogOpen] = useState(false);
   const [commitMessage, setCommitMessage] = useState("");
   const [isCommitting, setIsCommitting] = useState(false);
@@ -963,6 +967,7 @@ export function SystemDesignStudio({
         navigate({
           to: "/student/lab/$slug/ticket/$ticketId/review",
           params: { slug, ticketId },
+          search: isFromWeeklyTask ? { from: "weekly-task" } : undefined,
         });
       }
     } catch {
@@ -1487,14 +1492,42 @@ export function SystemDesignStudio({
           </div>
         ) : (
           <>
-            <Link
-              to="/student/lab/$slug"
-              params={{ slug }}
-              className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent"
-            >
-              <ArrowLeft className="h-3 w-3" />
-              Exit
-            </Link>
+            {isFromWeeklyTask ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const weeklyTaskId =
+                    (typeof window !== "undefined" && sessionStorage.getItem("weekly_task_id")) ||
+                    new URLSearchParams(
+                      (typeof window !== "undefined" && sessionStorage.getItem("weekly_task_return_url"))?.split("?")[1] || ""
+                    ).get("id") ||
+                    undefined;
+                  try {
+                    sessionStorage.removeItem("from_weekly_task");
+                    sessionStorage.removeItem("weekly_task_return_url");
+                    sessionStorage.removeItem("weekly_task_id");
+                  } catch {}
+                  navigate({
+                    to: "/student/weekly-task",
+                    search: weeklyTaskId ? { id: weeklyTaskId } : undefined,
+                  });
+                }}
+                className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent"
+                title="Back to Weekly Task"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                Exit
+              </button>
+            ) : (
+              <Link
+                to="/student/lab/$slug"
+                params={{ slug }}
+                className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                Exit
+              </Link>
+            )}
             <button
               onClick={() => setLeftCollapsed((v) => !v)}
               title="Toggle panel"

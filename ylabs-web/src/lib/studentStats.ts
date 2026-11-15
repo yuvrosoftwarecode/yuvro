@@ -73,3 +73,17 @@ export function invalidateStudentStats() {
     }, 2800);
   }
 }
+
+export function incrementLocalYP(amount: number = 10) {
+  if (globalStudentStats) {
+    globalStudentStats = {
+      ...globalStudentStats,
+      total_yp: (globalStudentStats.total_yp || 0) + amount,
+    };
+    statsListeners.forEach((fn) => {
+      try {
+        fn(globalStudentStats!);
+      } catch {}
+    });
+  }
+}

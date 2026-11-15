@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { cleanDescription, type EvaluationContext, type EvaluationReport } from "@/lib/evaluation";
 
-const marks = (n: number) => Number(n.toFixed(2));
+const marks = (n?: number | null) => (typeof n === "number" && !isNaN(n) ? Number(n.toFixed(2)) : 0);
 
 export interface EvaluationDrawerProps {
   report: EvaluationReport | null;

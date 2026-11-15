@@ -7,7 +7,11 @@ import { TopNav } from "@/components/TopNav";
 
 export const Route = createFileRoute("/student")({
   beforeLoad: ({ location }) => {
-    if (location.pathname === "/student/dashboard") return;
+    if (
+      location.pathname === "/student/dashboard" ||
+      location.pathname === "/student/weekly-task"
+    )
+      return;
     requireStudentAuth(location.href);
   },
   component: StudentLayout,
@@ -24,7 +28,12 @@ function StudentLayout() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      if (window.location.pathname === "/student/dashboard") return;
+      if (
+        window.location.pathname === "/student/dashboard" ||
+        window.location.pathname === "/student/weekly-task" ||
+        window.location.pathname.startsWith("/student/lab")
+      )
+        return;
       const token = localStorage.getItem("access");
       if (!token) {
         nav({ to: "/auth", search: { tab: "signin", redirect: window.location.pathname } });
