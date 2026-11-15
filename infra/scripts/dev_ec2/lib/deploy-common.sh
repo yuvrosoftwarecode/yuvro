@@ -478,12 +478,14 @@ setup_build_args() {
     local code_executor_url=""
     local ycampus_backend_url=""
     local ylabs_backend_url=""
+    local ylabs_public_profile_base_url=""
     local ymarketplace_backend_url=""
     
     # Read from .env files - these must exist and be properly configured
     [ -f "$PROJECT_ROOT/ycode-web/.env.dev" ] && ycode_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ycode-web/.env.dev" | cut -d= -f2- | tr -d '"')
     [ -f "$PROJECT_ROOT/ycampus-web/.env.dev" ] && ycampus_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ycampus-web/.env.dev" | cut -d= -f2- | tr -d '"')
     [ -f "$PROJECT_ROOT/ylabs-web/.env.dev" ] && ylabs_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ylabs-web/.env.dev" | cut -d= -f2- | tr -d '"')
+    [ -f "$PROJECT_ROOT/ylabs-web/.env.dev" ] && ylabs_public_profile_base_url=$(grep '^VITE_PUBLIC_PROFILE_BASE_URL=' "$PROJECT_ROOT/ylabs-web/.env.dev" | cut -d= -f2- | tr -d '"')
     [ -f "$PROJECT_ROOT/ymarketplace/ymarketplace-web/.env.dev" ] && ymarketplace_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ymarketplace/ymarketplace-web/.env.dev" | cut -d= -f2- | tr -d '"')
     
     # Additional URLs from .env files if available
@@ -499,6 +501,7 @@ setup_build_args() {
     export YLABS_VITE_BACKEND_API_BASE_URL="$ylabs_backend_url"
     export YLABS_VITE_YHUB_BACKEND_API_BASE_URL="$yhub_backend_url"
     export YLABS_VITE_YCODE_BACKEND_API_BASE_URL="$ycode_backend_url"
+    export YLABS_VITE_PUBLIC_PROFILE_BASE_URL="${ylabs_public_profile_base_url:-https://dev.yuvrolabs.com}"
     export YMARKETPLACE_VITE_BACKEND_API_BASE_URL="$ymarketplace_backend_url"
     export YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL="$yhub_backend_url"
     
