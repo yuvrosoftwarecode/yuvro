@@ -40,28 +40,28 @@ class MockInterviewQuotaTests(TestCase):
             max_duration=30,
         )
 
-    def test_default_initial_grant_is_3(self):
-        """Candidate automatically receives 3 free mock interviews on first access."""
+    def test_default_initial_grant_is_1(self):
+        """Candidate automatically receives 1 free mock interview on first access."""
         quota = CandidateMockInterviewQuota.get_or_create_quota(self.user)
-        self.assertEqual(quota.free_interviews, 3)
+        self.assertEqual(quota.free_interviews, 1)
         self.assertEqual(quota.purchased_interviews, 0)
         self.assertEqual(quota.used_interviews, 0)
-        self.assertEqual(quota.available_interviews, 3)
-        self.assertEqual(quota.total_granted, 3)
+        self.assertEqual(quota.available_interviews, 1)
+        self.assertEqual(quota.total_granted, 1)
 
         # Check ledger entry
         ledger = MockInterviewCreditLedger.objects.filter(user=self.user).first()
         self.assertIsNotNone(ledger)
         self.assertEqual(ledger.entry_type, MockInterviewCreditLedger.TYPE_INITIAL_GRANT)
-        self.assertEqual(ledger.delta, 3)
-        self.assertEqual(ledger.balance_after, 3)
+        self.assertEqual(ledger.delta, 1)
+        self.assertEqual(ledger.balance_after, 1)
 
     def test_quota_api_endpoint(self):
         """GET /api/mock-interviews/quota/ returns candidate's available interviews."""
         response = self.client.get("/api/mock-interviews/quota/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["available_interviews"], 3)
-        self.assertEqual(response.data["free_interviews"], 3)
+        self.assertEqual(response.data["available_interviews"], 1)
+        self.assertEqual(response.data["free_interviews"], 1)
         self.assertEqual(response.data["purchased_interviews"], 0)
         self.assertEqual(response.data["used_interviews"], 0)
 
@@ -153,24 +153,24 @@ class MockInterviewQuotaTests(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["status"], "SUCCESS")
-        self.assertEqual(response.data["quota"]["available_interviews"], 8) # 3 initial + 5 purchased
+        self.assertEqual(response.data["quota"]["available_interviews"], 6) # 1 initial + 5 purchased
         self.assertEqual(response.data["quota"]["purchased_interviews"], 5)
 
         # Verify quota and ledger
         quota = CandidateMockInterviewQuota.objects.get(user=self.user)
-        self.assertEqual(quota.available_interviews, 8)
+        self.assertEqual(quota.available_interviews, 6)
 
         ledger = MockInterviewCreditLedger.objects.filter(
             user=self.user, entry_type=MockInterviewCreditLedger.TYPE_PURCHASE
         ).first()
         self.assertIsNotNone(ledger)
         self.assertEqual(ledger.delta, 5)
-        self.assertEqual(ledger.balance_after, 8)
+        self.assertEqual(ledger.balance_after, 6)
 
     def test_quota_blocks_start_when_exhausted(self):
         """Candidate with 0 mock interviews remaining is blocked with HTTP 402."""
         quota = CandidateMockInterviewQuota.get_or_create_quota(self.user)
-        quota.used_interviews = 3 # All 3 consumed
+        quota.used_interviews = 1 # The 1 free interview consumed
         quota.save()
         self.assertEqual(quota.available_interviews, 0)
 

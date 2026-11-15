@@ -1706,7 +1706,7 @@ function InterviewScreen() {
           setCam={setCam}
           onStart={handleStart}
           isStarting={isStarting}
-          availableInterviews={quota ? quota.available_interviews : 3}
+          availableInterviews={quota ? quota.available_interviews : 1}
           onOpenBuyModal={() => {
             setBuyModalNote(null);
             setIsBuyModalOpen(true);

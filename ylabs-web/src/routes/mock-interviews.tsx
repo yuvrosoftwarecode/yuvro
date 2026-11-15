@@ -88,6 +88,25 @@ function MockHub() {
     <div className="min-h-screen">
       <TopNav />
       <main className="mx-auto max-w-[1200px] px-4 py-8">
+        {/* Beta Release Announcement Banner */}
+        <div className="mb-6 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-4 sm:p-5 shadow-sm">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="font-semibold text-amber-700 dark:text-amber-400">
+              Beta Release
+            </span>
+            <span className="text-muted-foreground">•</span>
+            <span className="font-medium text-amber-800/80 dark:text-amber-300/80">
+              Friday, November 20, 2026
+            </span>
+          </div>
+          <h3 className="mt-1.5 text-base font-semibold text-foreground">
+            Beta version is going to release on this Friday, November 20, 2026
+          </h3>
+          <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+            Mock interviews are currently in preview mode. Starting interview sessions is locked until the official beta release this Friday.
+          </p>
+        </div>
+
         <section>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -184,8 +203,8 @@ function checkCompleted(i: Interview, submissions: any[]): boolean {
 function MineCard({
   i,
   isCompleted,
-  availableInterviews,
-  onRequireBuy,
+  availableInterviews: _availableInterviews,
+  onRequireBuy: _onRequireBuy,
 }: {
   i: Interview;
   isCompleted: boolean;
@@ -193,7 +212,6 @@ function MineCard({
   onRequireBuy: () => void;
 }) {
   const completed = isCompleted;
-  const isBlocked = availableInterviews <= 0;
 
   return (
     <article className="flex min-w-0 flex-col rounded-lg bg-card p-6">
@@ -219,25 +237,19 @@ function MineCard({
             </Link>
           </Button>
         )}
-        {isBlocked ? (
+        <div
+          className="inline-block"
+          title="Beta version releasing on Friday, November 20, 2026. Start buttons are currently blocked."
+        >
           <Button
             size="sm"
             variant={completed ? "secondary" : "default"}
-            onClick={onRequireBuy}
+            disabled
+            className="cursor-not-allowed opacity-60"
           >
             {completed ? "Retake" : "Start interview"}
           </Button>
-        ) : (
-          <Button asChild size="sm" variant={completed ? "secondary" : "default"}>
-            <Link
-              to="/mock-interview/$slug"
-              params={{ slug: i.slug }}
-              search={{ report: false }}
-            >
-              {completed ? "Retake" : "Start interview"}
-            </Link>
-          </Button>
-        )}
+        </div>
       </div>
     </article>
   );

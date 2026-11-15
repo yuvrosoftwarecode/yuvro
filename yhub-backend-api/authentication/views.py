@@ -279,6 +279,13 @@ class UserRegistrationView(generics.CreateAPIView):
         except Exception as e:
             logger.error(f"Failed to award signup bonus to new user {user.id}: {e}", exc_info=True)
 
+        # Automatically initialize candidate mock interview quota with 1 free interview
+        try:
+            from mockinterviews.models import CandidateMockInterviewQuota
+            CandidateMockInterviewQuota.get_or_create_quota(user)
+        except Exception as e:
+            logger.error(f"Failed to award free mock interview to new user {user.id}: {e}", exc_info=True)
+
         try:
             from core.email_service import EmailService
             EmailService.send_welcome_email(

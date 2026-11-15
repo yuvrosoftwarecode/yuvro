@@ -1,8 +1,14 @@
+import logging
 import uuid
 from decimal import Decimal
+from django.conf import settings
 from django.db import models, transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -291,7 +297,7 @@ class CandidateMockInterviewQuota(BaseTimestampedModel):
         User, on_delete=models.CASCADE, related_name="mock_interview_quota"
     )
     free_interviews = models.IntegerField(
-        default=3, help_text="Initial free mock interviews granted"
+        default=1, help_text="Initial free mock interviews granted"
     )
     purchased_interviews = models.IntegerField(
         default=0, help_text="Total mock interviews purchased"
@@ -318,7 +324,7 @@ class CandidateMockInterviewQuota(BaseTimestampedModel):
             quota, created = cls.objects.select_for_update().get_or_create(
                 user=user,
                 defaults={
-                    "free_interviews": 3,
+                    "free_interviews": 1,
                     "purchased_interviews": 0,
                     "used_interviews": 0,
                 },
@@ -328,14 +334,30 @@ class CandidateMockInterviewQuota(BaseTimestampedModel):
                     user=user,
                     quota=quota,
                     entry_type=MockInterviewCreditLedger.TYPE_INITIAL_GRANT,
-                    delta=3,
-                    balance_after=3,
-                    description="Initial welcome grant: 3 free mock interviews",
+                    delta=1,
+                    balance_after=1,
+                    description="Initial welcome grant: 1 free mock interview",
                 )
             return quota
 
     def __str__(self):
         return f"{self.user.username} - Available: {self.available_interviews} (Free: {self.free_interviews}, Purchased: {self.purchased_interviews}, Used: {self.used_interviews})"
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def initialize_candidate_mock_interview_quota(sender, instance, created, **kwargs):
+    """
+    Automatically creates CandidateMockInterviewQuota with 1 free mock interview
+    whenever a new User is registered across any flow (Password, OTP, Google OAuth).
+    """
+    if created:
+        try:
+            CandidateMockInterviewQuota.get_or_create_quota(instance)
+        except Exception as e:
+            logger.error(
+                f"Failed to auto-initialize mock interview quota for new user {instance.id}: {e}",
+                exc_info=True,
+            )
 
 
 class MockInterviewPack(BaseTimestampedModel):
