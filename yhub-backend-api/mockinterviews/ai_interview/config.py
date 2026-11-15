@@ -11,7 +11,7 @@ class Settings:
     ANTHROPIC_MODEL: str = config("ANTHROPIC_MODEL", default="claude-3-haiku-20240307")
 
     GEMINI_API_KEY: str = config("GEMINI_API_KEY", default="")
-    GEMINI_MODEL: str = config("GEMINI_MODEL", default="gemini-2.5-flash")
+    GEMINI_MODEL: str = config("GEMINI_MODEL", default="gemini-3.8-flash")
 
     DEEPSEEK_API_KEY: str = config("DEEPSEEK_API_KEY", default="")
     DEEPSEEK_MODEL: str = config("DEEPSEEK_MODEL", default="deepseek-flash")

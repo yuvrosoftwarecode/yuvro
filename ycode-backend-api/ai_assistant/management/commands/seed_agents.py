@@ -50,7 +50,7 @@ class Command(BaseCommand):
             {
                 "name": "Gemini 2.5 Flash",
                 "provider": "gemini",
-                "model_name": "gemini-2.5-flash",
+                "model_name": "gemini-3.8-flash",
                 "description": "Google's latest Gemini 2.5 Flash model with high performance",
                 "is_active": True,
                 "max_tokens": 4096,

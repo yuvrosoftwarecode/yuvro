@@ -147,22 +147,21 @@ class AnthropicClient(BaseLLMClient):
 
 
 class GeminiClient(BaseLLMClient):
-    """Async Google Gemini client using google-generativeai."""
+    """Async Google Gemini client using google-genai."""
 
     def __init__(self, model_name: str | None = None) -> None:
         try:
-            import google.generativeai as genai
+            from google import genai
         except ImportError:
             raise RuntimeError(
-                "google-generativeai is not installed. Run: pip install google-generativeai"
+                "google-genai is not installed. Run: pip install google-genai"
             )
 
         if not settings.GEMINI_API_KEY:
             raise RuntimeError("GEMINI_API_KEY is not set in environment / .env")
 
-        genai.configure(api_key=settings.GEMINI_API_KEY)
+        self._client = genai.Client(api_key=settings.GEMINI_API_KEY)
         self._model_name = model_name or settings.GEMINI_MODEL
-        self._genai = genai
 
     async def generate(
         self,
@@ -171,35 +170,37 @@ class GeminiClient(BaseLLMClient):
         max_tokens: int = 512,
         temperature: float = 0.3,
     ) -> str:
-        import google.generativeai as genai
+        from google.genai import types
 
         logger.debug("Gemini request: model=%s, max_tokens=%d", self._model_name, max_tokens)
-
-        generation_config = {
-            "temperature": temperature,
-            "max_output_tokens": max_tokens,
-        }
 
         full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
 
         try:
-            model = genai.GenerativeModel(self._model_name)
-            response = await model.generate_content_async(
-                full_prompt,
-                generation_config=generation_config,
+            response = self._client.models.generate_content(
+                model=self._model_name,
+                contents=full_prompt,
+                config=types.GenerateContentConfig(
+                    temperature=temperature,
+                    max_output_tokens=max_tokens,
+                ),
             )
             text = response.text or ""
         except Exception as e:
             if "404" in str(e) or "not found" in str(e).lower():
                 logger.warning(
-                    "Gemini model %s failed (%s). Falling back to gemini-2.5-flash.",
+                    "Gemini model %s failed (%s). Falling back to gemini-3.8-flash.",
                     self._model_name,
                     e,
                 )
-                model = genai.GenerativeModel("gemini-2.5-flash")
-                response = await model.generate_content_async(
-                    full_prompt,
-                    generation_config=generation_config,
+                from google.genai import types
+                response = self._client.models.generate_content(
+                    model="gemini-3.8-flash",
+                    contents=full_prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=temperature,
+                        max_output_tokens=max_tokens,
+                    ),
                 )
                 text = response.text or ""
             else:

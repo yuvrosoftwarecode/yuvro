@@ -151,25 +151,22 @@ class ScoringLLMClient:
         temperature: float,
         max_tokens: int,
     ) -> Dict[str, Any]:
-        """Calls Google Gemini (e.g. gemini-2.5-flash)."""
-        import google.generativeai as genai
+        """Calls Google Gemini (e.g. gemini-3.8-flash)."""
+        from google import genai
+        from google.genai import types
 
-        genai.configure(api_key=api_key)
-        model_name = self.model_name if self.provider == "gemini" and self.model_name else "gemini-2.5-flash"
-        gemini_model = genai.GenerativeModel(
-            model_name=model_name,
-            system_instruction=system_prompt if system_prompt else None,
-        )
+        client = genai.Client(api_key=api_key)
+        model_name = self.model_name if self.provider == "gemini" and self.model_name else "gemini-3.8-flash"
 
-        generation_config = {
-            "temperature": temperature,
-            "max_output_tokens": max_tokens,
-            "response_mime_type": "application/json",
-        }
-
-        response = await gemini_model.generate_content_async(
-            prompt,
-            generation_config=generation_config,
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt if system_prompt else None,
+                temperature=temperature,
+                max_output_tokens=max_tokens,
+                response_mime_type="application/json",
+            ),
         )
 
         tokens = None

@@ -300,7 +300,7 @@ class GeminiService(BaseAIService):
     Service for Google Gemini API integration.
     """
 
-    def __init__(self, api_key: str, model_name: str = "gemini-2.5-flash"):
+    def __init__(self, api_key: str, model_name: str = "gemini-3.8-flash"):
         super().__init__(api_key, model_name)
         try:
             import google.generativeai as genai
@@ -357,10 +357,10 @@ class GeminiService(BaseAIService):
             except Exception as e:
                 # Fallback for deprecated models (e.g. gemini-pro)
                 if "404" in str(e) or "not found" in str(e).lower():
-                    logger.warning(f"Gemini model {self.model_name} failed. Attempting fallback to gemini-2.5-flash.")
+                    logger.warning(f"Gemini model {self.model_name} failed. Attempting fallback to gemini-3.8-flash.")
                     try:
                         import google.generativeai as genai
-                        fallback_model = genai.GenerativeModel("gemini-2.5-flash")
+                        fallback_model = genai.GenerativeModel("gemini-3.8-flash")
                         response = await fallback_model.generate_content_async(
                             conversation_text, generation_config=generation_config, stream=stream
                         )
