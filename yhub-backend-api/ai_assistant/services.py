@@ -273,16 +273,17 @@ class AnthropicService(BaseAIService):
 class GeminiService(BaseAIService):
 
 
-    def __init__(self, api_key: str, model_name: str = "gemini-2.5-flash"):
+    def __init__(self, api_key: str, model_name: str = "gemini-3.8-flash"):
         super().__init__(api_key, model_name)
         try:
-            import google.generativeai as genai
-
-            genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel(model_name)
+            from google import genai
+            
+            # Initialize client with API key (new SDK)
+            self.client = genai.Client(api_key=api_key)
+            self.model_name = model_name
         except ImportError:
             raise AIServiceError(
-                "Google Generative AI library not installed. Run: pip install google-generativeai"
+                "Google GenAI library not installed. Run: pip install google-genai"
             )
 
     async def generate_response(
@@ -307,68 +308,74 @@ class GeminiService(BaseAIService):
                 elif msg["role"] == "assistant":
                     conversation_text += f"Assistant: {msg['content']}\n"
 
-            generation_config = {
-                "temperature": temperature,
-                "max_output_tokens": max_tokens,
-            }
-
-            try:
-                response = await self.model.generate_content_async(
-                    conversation_text, generation_config=generation_config, stream=stream
-                )
-                  
-                if stream:
-                    return {
-                        "stream": response,
-                        "metadata": {"model": self.model_name},
-                    }
-                    
-            except Exception as e:
-                if "404" in str(e) or "not found" in str(e).lower():
-                    logger.warning(f"Gemini model {self.model_name} failed. Attempting fallback to gemini-2.5-flash.")
-                    try:
-                        import google.generativeai as genai
-                        fallback_model = genai.GenerativeModel("gemini-2.5-flash")
-                        response = await fallback_model.generate_content_async(
-                            conversation_text, generation_config=generation_config, stream=stream
-                        )
-                        
-                        if stream:
-                            return {
-                                "stream": response,
-                                "metadata": {"model": self.model_name},
-                            }
-                            
-                    except Exception as fallback_error:
-                         logger.error(f"Fallback failed: {fallback_error}")
-                         raise e
-                else:
-                    raise e
+            from google.genai import types
+            
+            # Use new SDK to generate content
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=conversation_text,
+                config=types.GenerateContentConfig(
+                    temperature=temperature,
+                    max_output_tokens=max_tokens,
+                ),
+            )
+            
+            if stream:
+                return {
+                    "stream": response,
+                    "metadata": {"model": self.model_name},
+                }
 
             end_time = time.time()
             response_time_ms = int((end_time - start_time) * 1000)
 
+            # Extract response text and token info from new SDK response format
+            response_text = response.text if hasattr(response, "text") else ""
+            
             return {
-                "response": response.text,
-                "tokens_used": response.usage_metadata.total_token_count
+                "response": response_text,
+                "tokens_used": getattr(response, "usage_metadata", {}).total_token_count
                 if hasattr(response, "usage_metadata")
                 else None,
                 "response_time_ms": response_time_ms,
                 "metadata": {
                     "model": self.model_name,
-                    "finish_reason": response.candidates[0].finish_reason.name
+                    "finish_reason": getattr(response.candidates[0], "finish_reason", "STOP").name
                     if response.candidates
                     else None,
-                    "prompt_tokens": response.usage_metadata.prompt_token_count
+                    "prompt_tokens": getattr(response, "usage_metadata", {}).prompt_token_count
                     if hasattr(response, "usage_metadata")
                     else None,
-                    "completion_tokens": response.usage_metadata.candidates_token_count
+                    "completion_tokens": getattr(response, "usage_metadata", {}).candidates_token_count
                     if hasattr(response, "usage_metadata")
                     else None,
                 },
             }
         except Exception as e:
             logger.error(f"Gemini API error: {str(e)}")
+            # Fallback attempt for model not found
+            if "404" in str(e) or "not found" in str(e).lower():
+                logger.warning(f"Model {self.model_name} not found. Attempting fallback to gemini-3.8-flash.")
+                try:
+                    from google.genai import types
+                    response = self.client.models.generate_content(
+                        model="gemini-3.8-flash",
+                        contents=conversation_text,
+                        config=types.GenerateContentConfig(
+                            temperature=temperature,
+                            max_output_tokens=max_tokens,
+                        ),
+                    )
+                    response_text = response.text if hasattr(response, "text") else ""
+                    return {
+                        "response": response_text,
+                        "tokens_used": None,
+                        "response_time_ms": int((time.time() - start_time) * 1000),
+                        "metadata": {"model": "gemini-3.8-flash (fallback)"},
+                    }
+                except Exception as fallback_error:
+                    logger.error(f"Fallback failed: {fallback_error}")
+                    raise AIServiceError(f"Gemini API error: {str(e)}")
             raise AIServiceError(f"Gemini API error: {str(e)}")
 
 
@@ -621,7 +628,7 @@ class InterviewReportGenerator:
         # 4. Final fallback to Gemini / Anthropic if DeepSeek is unavailable
         gemini_key = config("GEMINI_API_KEY", default=None)
         if gemini_key:
-            self.service = GeminiService(gemini_key, model_name="gemini-2.5-flash")
+            self.service = GeminiService(gemini_key, model_name="gemini-3.8-flash")
             return
 
         self.api_key = config("ANTHROPIC_API_KEY", default=None)

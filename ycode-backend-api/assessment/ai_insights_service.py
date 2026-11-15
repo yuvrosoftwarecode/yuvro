@@ -13,7 +13,7 @@ class ContestAIInsightsService:
 
     def __init__(self):
         self.provider = "gemini"
-        self.model_name = "gemini-2.5-flash"
+        self.model_name = "gemini-3.8-flash"
         
     async def generate_student_insights(
         self,

@@ -1696,7 +1696,7 @@ class AIMeteringAndReservationTests(APITransactionTestCase):
 
         self.gemini_agent, _ = AIAgent.objects.get_or_create(
             provider="gemini",
-            model_name="gemini-2.5-flash",
+            model_name="gemini-3.8-flash",
             defaults={"name": "Gemini 2.5 Flash", "is_active": True},
         )
         self.anthropic_agent, _ = AIAgent.objects.get_or_create(
@@ -1892,7 +1892,7 @@ class AIMeteringAndReservationTests(APITransactionTestCase):
         mock_svc = MagicMock()
         mock_svc.generate_response = AsyncMock(return_value={
             "stream": mock_stream,
-            "metadata": {"model": "gemini-2.5-flash"},
+            "metadata": {"model": "gemini-3.8-flash"},
         })
 
         with patch.object(AIServiceFactory, "create_service", return_value=mock_svc):
@@ -1977,7 +1977,7 @@ class AIMeteringAndReservationTests(APITransactionTestCase):
     def test_token_normalization_gemini(self):
         usage = CreditMeteringManager.extract_token_usage(
             provider="gemini",
-            model_name="gemini-2.5-flash",
+            model_name="gemini-3.8-flash",
             response_data={
                 "metadata": {
                     "prompt_tokens": 400,
@@ -2068,7 +2068,7 @@ class AIMeteringAndReservationTests(APITransactionTestCase):
         mock_gemini_svc = MagicMock()
         mock_gemini_svc.generate_response = AsyncMock(return_value={
             "stream": mock_gemini_stream,
-            "metadata": {"model": "gemini-2.5-flash"},
+            "metadata": {"model": "gemini-3.8-flash"},
         })
 
         def mock_create_service(provider, model_name):
@@ -2123,7 +2123,7 @@ class AIMeteringAndReservationTests(APITransactionTestCase):
             CreditMeteringManager.settle_for_chat(
                 reservation=res,
                 provider="gemini",
-                model_name="gemini-2.5-flash",
+                model_name="gemini-3.8-flash",
                 usage_dict=usage_dict,
             )
 
@@ -2219,7 +2219,7 @@ class Stage6EndToEndLifecycleTests(APITransactionTestCase):
         self.agent = AIAgent.objects.create(
             name="Stage 6 Gemini",
             provider="gemini",
-            model_name="gemini-2.5-flash",
+            model_name="gemini-3.8-flash",
             is_active=True,
             max_tokens=4096,
         )
@@ -2487,7 +2487,7 @@ class Stage7DeficitReconciliationAndStagingReadinessTests(APITransactionTestCase
         self.agent = AIAgent.objects.create(
             name="Stage 7 Gemini Agent",
             provider="gemini",
-            model_name="gemini-2.5-flash",
+            model_name="gemini-3.8-flash",
             is_active=True,
             max_tokens=4096,
         )

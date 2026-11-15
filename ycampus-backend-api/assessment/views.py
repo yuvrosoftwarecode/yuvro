@@ -1133,7 +1133,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             return {}
             
         try:
-            service = GeminiService(api_key, model_name="gemini-2.5-flash")
+            service = GeminiService(api_key, model_name="gemini-3.8-flash")
             prompt = f"""
             Extract the following information from the user's self-introduction.
             Return ONLY valid JSON. If a detail is missing, return null for it.

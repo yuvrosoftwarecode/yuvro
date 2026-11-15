@@ -161,11 +161,11 @@ class GeminiClient(BaseLLMClient):
         except Exception as e:
             if "404" in str(e) or "not found" in str(e).lower():
                 logger.warning(
-                    "Gemini model %s failed (%s). Falling back to gemini-2.5-flash.",
+                    "Gemini model %s failed (%s). Falling back to gemini-3.8-flash.",
                     self._model_name,
                     e,
                 )
-                model = genai.GenerativeModel("gemini-2.5-flash")
+                model = genai.GenerativeModel("gemini-3.8-flash")
                 response = await model.generate_content_async(
                     full_prompt,
                     generation_config=generation_config,
