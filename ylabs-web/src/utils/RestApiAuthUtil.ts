@@ -92,7 +92,8 @@ class RestApiAuthUtil extends RestApiUtil {
       typeof window !== "undefined" &&
       !window.location.pathname.includes("/auth") &&
       !window.location.pathname.includes("/evaluation") &&
-      !window.location.pathname.includes("/student/dashboard")
+      !window.location.pathname.includes("/student/dashboard") &&
+      !window.location.pathname.startsWith("/u/")
     ) {
       window.location.href = `/auth?tab=signin&redirect=${encodeURIComponent(
         currentPath,

@@ -269,4 +269,40 @@ export const performanceApi = {
       recentActivity: recentActivity.slice(0, 25),
     };
   },
+
+  async getPublicPerformance(username: string): Promise<PerformanceStats> {
+    const API_BASE =
+      (typeof import.meta !== "undefined" && import.meta.env?.VITE_BACKEND_API_BASE_URL) ||
+      "http://localhost:8003/api";
+    const res = await fetch(`${API_BASE}/lab/public/user-stats/${encodeURIComponent(username)}/`);
+    if (!res.ok) {
+      throw new Error(`Public stats not found (${res.status})`);
+    }
+    const data: any = await res.json();
+
+    // Build contribution heatmap from activityDates
+    const activityDates: string[] = data.activityDates || [];
+    const events = activityDates.map((d: string) => ({
+      created_at: d.includes("T") ? d : `${d}T00:00:00Z`,
+    }));
+    const contributions = generateContributionYearFromEvents(events);
+    const stats = data.stats || calculateStreaksAndTotals(contributions);
+
+    return {
+      labsCompleted: data.labsCompleted ?? 0,
+      sprintsShipped: data.sprintsShipped ?? 0,
+      ticketsClosed: data.ticketsClosed ?? 0,
+      mockInterviews: data.mockInterviews ?? 0,
+      contributions,
+      stats,
+      mockInterview: {
+        latestScore: 0,
+        maxScore: 100,
+        trendPoints: [],
+        dimensions: [],
+      },
+      achievements: [],
+      recentActivity: [],
+    };
+  },
 };

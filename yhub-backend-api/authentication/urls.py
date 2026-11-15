@@ -58,4 +58,5 @@ urlpatterns = [
     path("sessions/", views.sessions_view, name="sessions"),
     path("sessions/<uuid:session_id>/logout/", views.revoke_session_view, name="revoke_session"),
     path("sessions/logout-all/", views.revoke_other_sessions_view, name="revoke_other_sessions"),
+    path("public/profile/<str:username>/", views.public_profile_view, name="public_profile"),
 ]

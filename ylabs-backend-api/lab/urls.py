@@ -10,6 +10,7 @@ from .views import (
     student_stats_view,
     FrontendValidateView,
     public_milestone_view,
+    public_user_stats_view,
 )
 
 router = DefaultRouter()
@@ -24,5 +25,6 @@ urlpatterns = [
     path('stats/', student_stats_view, name='student-stats'),
     path('frontend-validate/', FrontendValidateView.as_view(), name='frontend-validate'),
     path('public/milestone/<slug:slug>/<uuid:user_id>/', public_milestone_view, name='public-milestone'),
+    path('public/user-stats/<str:username>/', public_user_stats_view, name='public-user-stats'),
     path('', include(router.urls)),
 ]

@@ -214,6 +214,7 @@ export interface ProfileApi {
   removeResume(): Promise<void>;
   // Connections
   updateConnection(platform: "github" | "linkedin", handle: string, connected: boolean): Promise<Connection>;
+  getPublicProfile(username: string): Promise<Profile>;
 }
 
 export const profileApi: ProfileApi = {
@@ -475,6 +476,76 @@ export const profileApi: ProfileApi = {
       platform,
       handle,
       connected,
+    };
+  },
+
+  async getPublicProfile(username: string): Promise<Profile> {
+    const YHUB_BASE =
+      (typeof import.meta !== "undefined" && import.meta.env?.VITE_YHUB_BACKEND_API_BASE_URL) ||
+      "http://localhost:8003/api";
+    const res = await fetch(`${YHUB_BASE}/auth/public/profile/${encodeURIComponent(username)}/`);
+    if (!res.ok) {
+      throw new Error(`Public profile not found (${res.status})`);
+    }
+    const user: any = await res.json();
+
+    const verifiedSkills: any[] = []; // will be provided by public stats endpoint
+
+    const resume: Resume | undefined = user.resume_file
+      ? {
+          id: `res-${user.id}`,
+          fileName: decodeURIComponent(
+            user.resume_file.split("/").pop()?.split("?")[0] || "Resume.pdf"
+          ),
+          fileSize: 1024 * 512,
+          uploadedAt: new Date().toISOString(),
+          url: user.resume_file,
+        }
+      : undefined;
+
+    const linkedinHandle = (user.linkedin_handle || user.github_username || "").trim();
+
+    const connections: Connection[] = [
+      {
+        platform: "github",
+        handle: user.github_username || "",
+        connected: Boolean(user.github_connected),
+      },
+      {
+        platform: "linkedin",
+        handle: linkedinHandle,
+        connected: Boolean(user.linkedin_connected),
+      },
+    ];
+
+    const backendWork = mapBackendEmployment(user.employment || []);
+    const backendEducation = mapBackendEducation(user.education || []);
+    const backendProjects = mapBackendProjects(user.projects || []);
+    const backendSkills = Array.isArray(user.skills) ? user.skills : [];
+
+    return {
+      id: user.id || "",
+      username: user.username || "",
+      firstName: user.first_name || "",
+      lastName: user.last_name || "",
+      headline: user.headline || "",
+      location: user.location || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      website: user.website || "",
+      about: user.about || "",
+      dateJoined: user.date_joined || undefined,
+      avatarUrl: user.profile_image || "",
+      coverUrl: user.cover_image || "",
+      emailPublic: user.email_public !== undefined ? Boolean(user.email_public) : true,
+      phonePublic: user.phone_public !== undefined ? Boolean(user.phone_public) : false,
+      userSkills: backendSkills,
+      verifiedSkills,
+      work: backendWork,
+      projects: backendProjects,
+      education: backendEducation,
+      resume,
+      connections,
     };
   },
 };

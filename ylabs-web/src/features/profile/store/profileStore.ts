@@ -10,6 +10,7 @@ interface ProfileState {
 
   // Actions
   fetchProfile: (force?: boolean) => Promise<void>;
+  fetchProfileByUsername: (username: string) => Promise<void>;
   initFromAuthUser: (authUser: any) => void;
   updateProfileLive: (updates: Partial<Profile>) => void; // for live preview typing in settings
   saveProfile: (updates: Partial<Profile>) => Promise<boolean>;
@@ -61,6 +62,16 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
     } catch (err: any) {
       set({ error: err.message || "Failed to load profile", loading: false });
       toast.error("Failed to load profile");
+    }
+  },
+
+  fetchProfileByUsername: async (username: string) => {
+    set({ loading: true, error: null });
+    try {
+      const data = await profileApi.getPublicProfile(username);
+      set({ profile: data, loading: false });
+    } catch (err: any) {
+      set({ error: err.message || "Failed to load profile", loading: false });
     }
   },
 
