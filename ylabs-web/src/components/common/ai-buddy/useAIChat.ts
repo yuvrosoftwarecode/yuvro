@@ -21,12 +21,13 @@ type ChatSessionSummary = {
   [key: string]: unknown;
 };
 
-type Agent = { id: string; name: string };
+type Agent = { id: string; name: string; provider?: string; model_name?: string };
 
 const useAIChat = (config?: {
   getContext?: () => string;
   persistenceKey?: string;
   chatTitle?: string;
+  selectedAgentId?: string | null;
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,6 +38,7 @@ const useAIChat = (config?: {
 
   const getContext = config?.getContext;
   const persistenceKey = config?.persistenceKey;
+  const selectedAgentId = config?.selectedAgentId;
 
   useEffect(() => {
     const storageKey = persistenceKey
@@ -91,51 +93,56 @@ const useAIChat = (config?: {
 
     if (!context) {
       setSuggestedPrompts([
-        "Summarize this topic",
-        "Give me key points",
-        "Ask me a quick question",
+        "Start coding",
+        "Show me an example",
+        "Run tests",
       ]);
       return;
     }
 
-    if (context.includes("video")) {
-      setSuggestedPrompts([
-        "Explain this video in simple terms",
-        "Give me 3 revision points",
-        "Ask me a quiz question",
-      ]);
-      return;
+    const prompts: string[] = [];
+
+    // Error/Bug context
+    if (context.includes("error") || context.includes("exception") || context.includes("failed")) {
+      prompts.push("Debug this error");
+      prompts.push("Fix the issue");
+      prompts.push("Explain the problem");
+    }
+    // Test context
+    else if (context.includes("test") || context.includes("pass") || context.includes("fail")) {
+      prompts.push("Make tests pass");
+      prompts.push("Check test output");
+      prompts.push("Review my solution");
+    }
+    // Code context
+    else if (context.includes("code") || context.includes("function") || context.includes("class")) {
+      prompts.push("Complete this code");
+      prompts.push("Optimize performance");
+      prompts.push("Add error handling");
+    }
+    // General fallback for ticket context
+    else {
+      prompts.push("Write the solution");
+      prompts.push("Create a plan");
+      prompts.push("Fix the bug");
     }
 
-    if (context.includes("note") || context.includes("material")) {
-      setSuggestedPrompts([
-        "Summarize the material",
-        "Create short revision notes",
-        "Generate practice questions",
-      ]);
-      return;
-    }
-
-    setSuggestedPrompts([
-      "Explain this topic",
-      "Give me key formulas",
-      "What should I revise first?",
-    ]);
-  }, [getContext, persistenceKey]);
+    setSuggestedPrompts(Array.from(new Set(prompts)).slice(0, 3));
+  }, []);
 
   const ensureSession = useCallback(async () => {
     if (sessionId) return sessionId;
 
     try {
-      const selectedAgent = agents[0]?.id;
-      if (!selectedAgent) {
+      const agentId = selectedAgentId || agents[0]?.id;
+      if (!agentId) {
         const localId = `local-${uuidv4()}`;
         setSessionId(localId);
         return localId;
       }
 
       const response = await yhubApiAuthUtil.post<{ id: string }>("/sessions/", {
-        ai_agent: selectedAgent,
+        ai_agent: agentId,
         page: "learn",
         title: config?.chatTitle || "AI Mentor Chat",
         page_content: getContext?.() || "",
@@ -156,7 +163,7 @@ const useAIChat = (config?: {
     const fallbackSessionId = `local-${uuidv4()}`;
     setSessionId(fallbackSessionId);
     return fallbackSessionId;
-  }, [agents, config?.chatTitle, getContext, sessionId]);
+  }, [agents, selectedAgentId, config?.chatTitle, getContext, sessionId]);
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -197,7 +204,7 @@ const useAIChat = (config?: {
           max_tokens: 4096,
           page_content: getContext?.() || "",
           stream: true,
-          ...(sid && !sid.startsWith("local-") ? {} : { ai_agent_id: agents[0]?.id ?? null }),
+          ...(sid && !sid.startsWith("local-") ? {} : { ai_agent_id: selectedAgentId || agents[0]?.id || null }),
         };
 
         const streamingBufferRef = { current: "" };
@@ -208,16 +215,69 @@ const useAIChat = (config?: {
         let typingTimer: ReturnType<typeof setTimeout> | null = null;
         let finalData: Record<string, unknown> | null = null;
 
-        const response = await fetch(endpoint, {
+        // Get the token using yhubApiAuthUtil which handles token refresh
+        let token = yhubApiAuthUtil.getAuthToken();
+        if (!token) {
+          console.error("No authentication token found. User may not be logged in.");
+          const errorMsg = "Please log in to use AI Chat";
+          setMessages((m) => m.filter((msg) => msg.id !== assistantMsgId));
+          setMessages((prev) => [...prev, {
+            id: `error-${uuidv4()}`,
+            message_type: "assistant",
+            content: errorMsg,
+            created_at: new Date().toISOString(),
+          }]);
+          setIsLoading(false);
+          return;
+        }
+
+        let response = await fetch(endpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access")}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(payload),
         });
 
+        // Handle 401 with token refresh retry
+        if (response.status === 401) {
+          console.warn("Initial request returned 401. Attempting to refresh token...");
+          try {
+            const refreshed = await yhubApiAuthUtil.forceRefreshToken();
+            if (refreshed) {
+              const newToken = yhubApiAuthUtil.getAuthToken();
+              if (newToken) {
+                console.log("Token refreshed successfully. Retrying request...");
+                response = await fetch(endpoint, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${newToken}`,
+                  },
+                  body: JSON.stringify(payload),
+                });
+              }
+            }
+          } catch (refreshError) {
+            console.error("Token refresh failed:", refreshError);
+          }
+        }
+
         if (!response.ok) {
+          if (response.status === 401) {
+            console.error("Authentication failed: Unable to authenticate. Please log in.");
+            const errorMsg = "Please log in to use AI Chat";
+            setMessages((m) => m.filter((msg) => msg.id !== assistantMsgId));
+            setMessages((prev) => [...prev, {
+              id: `error-${uuidv4()}`,
+              message_type: "assistant",
+              content: errorMsg,
+              created_at: new Date().toISOString(),
+            }]);
+            setIsLoading(false);
+            return;
+          }
           if (response.status === 402) {
             let errPayload: Record<string, unknown> = {};
             try {
@@ -236,8 +296,10 @@ const useAIChat = (config?: {
 
             setMessages((m) => m.filter((msg) => msg.id !== assistantMsgId));
             creditEvents.emitInsufficient({ available, required, message });
+            setIsLoading(false);
             return;
           }
+          console.error("API Response Error:", response.status, response.statusText);
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         if (!response.body) throw new Error("ReadableStream not supported.");
@@ -245,6 +307,9 @@ const useAIChat = (config?: {
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
         let buffer = "";
+        let chunkCount = 0;
+
+        console.log("Starting to read stream from endpoint:", endpoint);
 
         const processTyping = () => {
           if (typingTimer) return;
@@ -284,7 +349,14 @@ const useAIChat = (config?: {
 
         while (true) {
           const { value, done: readerDone } = await reader.read();
-          if (readerDone) break;
+          chunkCount++;
+          if (value) {
+            console.log(`Chunk ${chunkCount} received:`, value.length, "bytes");
+          }
+          if (readerDone) {
+            console.log("Stream reader done after", chunkCount, "chunks. Final buffer:", buffer);
+            break;
+          }
           buffer += decoder.decode(value, { stream: true });
           let newlineIndex;
           while ((newlineIndex = buffer.indexOf("\n\n")) >= 0) {
@@ -293,8 +365,14 @@ const useAIChat = (config?: {
             if (rawMessage.startsWith("data: ")) {
               try {
                 const dataStr = rawMessage.substring(6).trim();
-                if (dataStr === "[DONE]") continue;
+                if (dataStr === "[DONE]") {
+                  console.log("Stream completed with [DONE]");
+                  isStreamingDone = true;
+                  continue;
+                }
                 const data = JSON.parse(dataStr);
+                console.log("Received stream data:", data);
+                
                 if (data.chunk) {
                   if (!hasReceivedFirstToken) {
                     hasReceivedFirstToken = true;
@@ -305,6 +383,7 @@ const useAIChat = (config?: {
                     if (!typingTimer) processTyping();
                   }
                 } else if (data.done) {
+                  console.log("Stream marked as done");
                   isStreamingDone = true;
                   finalData = data;
                   if (data.credits_used !== undefined && typeof data.credits_used === "number") {
@@ -350,10 +429,24 @@ const useAIChat = (config?: {
                   setActiveStream(null);
                 }
               } catch (e) {
-                console.error("Parse error:", e);
+                console.error("Parse error:", e, "Raw message:", rawMessage);
               }
             }
           }
+        }
+
+        // Ensure final state is set
+        if (streamingBufferRef.current && !isStreamingDone) {
+          console.log("Stream ended but finalizing buffered content");
+          isStreamingDone = true;
+          setMessages((m) =>
+            m.map((msg) =>
+              msg.id === assistantMsgId
+                ? { ...msg, content: streamingBufferRef.current }
+                : msg,
+            ),
+          );
+          setActiveStream(null);
         }
       } catch (error) {
         const assistantMessage: ChatMessage = {
@@ -428,6 +521,7 @@ const useAIChat = (config?: {
     sessionHistory,
     fetchHistory,
     loadSession,
+    agents,
   };
 };
 

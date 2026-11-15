@@ -46,6 +46,7 @@ import {
   MessageSquare, Lock, Unlock, RotateCcw, Copy, Share2, Flag, HelpCircle,
   Sparkles, Gauge, Wand2, Globe, Check, ArrowLeft, PanelLeftClose, PanelLeftOpen, BookOpen,
   FilePlus, FolderPlus, Pencil, Trash2, X, FlaskConical, Key, Shield, Download,
+  Mic, Paperclip, ChevronUp,
 } from "lucide-react";
 
 import CodeMirror from "@uiw/react-codemirror";
@@ -3988,6 +3989,9 @@ export function TicketIDE({
         </button>
 
         <div className="ml-auto flex items-center gap-1.5">
+          <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
+            <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
+          </button>
           <button
             onClick={() => {
               if (sidePanel !== "preview") {
@@ -4003,12 +4007,42 @@ export function TicketIDE({
             Preview
           </button>
           {!isEvaluationMode && (
+            <button onClick={() => setIsCommitDialogOpen(true)}
+              className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium border border-border hover:bg-accent disabled:opacity-50">
+              <GitBranch className="h-3 w-3" />Commit
+            </button>
+          )}
+          {(!isEvaluationMode || slug !== "knowledge") && (
+            <button onClick={handleSubmit}
+              disabled={submitting}
+              className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 transition"
+              title="Submit lab solution permanently"
+            >
+              <Send className="h-3 w-3" />
+              {submitting ? "Submitting..." : "Submit"}
+            </button>
+          )}
+          {!isEvaluationMode && (
             <button
               onClick={() => setSidePanel((p) => (p === "mentor" ? null : "mentor"))}
               className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "mentor" ? "bg-accent text-foreground border-primary/40" : ""}`}
             >
               <Sparkles className="h-3 w-3" />
               AI Mentor
+            </button>
+          )}
+          {isEvaluationMode && slug !== "knowledge" && (
+            <button
+              onClick={() => {
+                handleSave(false);
+                window.parent.postMessage({ type: "LAB_SAVED", labId: ticket.id }, "*");
+              }}
+              disabled={submitting}
+              className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-50 transition"
+              title="Save progress and return to lab selection"
+            >
+              <Save className="h-3 w-3" />
+              Save
             </button>
           )}
           {/* {ticket.ticket_type !== 'database' && ticket.ticket_type !== 'web' && (
@@ -4026,39 +4060,6 @@ export function TicketIDE({
               ))}
             </select>
           )} */}
-          <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
-            <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
-          </button>
-          {!isEvaluationMode && (
-            <button onClick={() => setIsCommitDialogOpen(true)}
-              className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium border border-border hover:bg-accent disabled:opacity-50">
-              <GitBranch className="h-3 w-3" />Commit
-            </button>
-          )}
-          {isEvaluationMode && slug !== "knowledge" && (
-            <button
-              onClick={() => {
-                handleSave(false);
-                window.parent.postMessage({ type: "LAB_SAVED", labId: ticket.id }, "*");
-              }}
-              disabled={submitting}
-              className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-50 transition"
-              title="Save progress and return to lab selection"
-            >
-              <Save className="h-3 w-3" />
-              Save
-            </button>
-          )}
-          {(!isEvaluationMode || slug !== "knowledge") && (
-            <button onClick={handleSubmit}
-              disabled={submitting}
-              className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 transition"
-              title="Submit lab solution permanently"
-            >
-              <Send className="h-3 w-3" />
-              {submitting ? "Submitting..." : "Submit"}
-            </button>
-          )}
           {headerActions}
         </div>
       </div>
@@ -4995,21 +4996,12 @@ export function TicketIDE({
                       : `0 0 ${sidePanel === "preview" ? "clamp(360px, 44%, 680px)" : "clamp(320px, 36%, 540px)"}`,
                 }}
               >
-                <div className="flex items-center gap-2 border-b px-3 py-2 text-xs">
-                  <span className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap">
-                    {sidePanel === "preview" ? (
-                      <>
-                        <Globe className="h-3 w-3" />
-                        Live Preview
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-3 w-3 text-primary" />
-                        AI Mentor
-                      </>
-                    )}
-                  </span>
-                  {sidePanel === "preview" && (
+                {sidePanel === "preview" && (
+                  <div className="flex items-center gap-2 border-b px-3 py-2 text-xs">
+                    <span className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap">
+                      <Globe className="h-3 w-3" />
+                      Live Preview
+                    </span>
                     <div className="flex items-center gap-1">
                       {(["Mobile", "Tablet", "Desktop"] as const).map((d) => (
                         <button
@@ -5021,14 +5013,14 @@ export function TicketIDE({
                         </button>
                       ))}
                     </div>
-                  )}
-                  <button
-                    onClick={() => setSidePanel(null)}
-                    className="ml-auto text-muted-foreground hover:text-foreground"
-                  >
-                    ✕
-                  </button>
-                </div>
+                    <button
+                      onClick={() => setSidePanel(null)}
+                      className="ml-auto text-muted-foreground hover:text-foreground"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
                 <div className="flex-1 overflow-hidden p-0 min-w-0 min-h-0 flex flex-col">
                   {sidePanel === "preview"
                     ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} previewPort={previewPort} ticket={ticket} isEvaluationMode={isEvaluationMode} effectiveUserId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={evaluationId} isMysql={isMysql} isPostgres={isPostgres} isSql={isSql} /></div>
@@ -5037,10 +5029,14 @@ export function TicketIDE({
                         persistenceKey={`ticket-${ticket.id}`}
                         contextGetter={() => `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\nCurrent Code:\n${Object.entries(files).map(([name, content]) => `File: ${name}\n${content}`).join('\n\n')}`}
                         activeFile={activeFile}
+                        files={files}
+                        tasks={ticket.tasks || []}
+                        evalResult={evalResult}
                         onApplyCode={(code) => {
                           updateCode(code);
                           showToast(`Applied code to ${activeFile}`);
                         }}
+                        onClose={() => setSidePanel(null)}
                       />}
                 </div>
               </aside>
@@ -9243,286 +9239,406 @@ function MentorCodeBlock({
   );
 }
 
+// ── AI Mentor ──────────────────────────────────────────────────────────────
+type MentorMode = "ask" | "plan" | "agent" | "bugfix";
+
+const MENTOR_MODES: { id: MentorMode; label: string; icon: React.ReactNode; desc: string }[] = [
+  { id: "ask",    label: "Ask",    icon: <MessageSquare size={11} />, desc: "General code assistance and hints" },
+  { id: "plan",   label: "Plan",   icon: <Lightbulb size={11} />,     desc: "Break task into a step-by-step plan" },
+  { id: "agent",  label: "Agent",  icon: <Zap size={11} />,           desc: "Auto-write and apply code for the task" },
+  { id: "bugfix", label: "Bug Fix", icon: <Bug size={11} />,           desc: "Diagnose and fix errors in your code" },
+];
+
+type PlanStep = { id: string; text: string; done: boolean };
+
+function parsePlanSteps(content: string): PlanStep[] {
+  const steps: PlanStep[] = [];
+  let idx = 0;
+  for (const line of content.split("\n")) {
+    const t = line.trim();
+    const done = /^-\s*\[x\]\s+(.+)/i.exec(t);
+    const undone = /^-\s*\[\s*\]\s+(.+)/i.exec(t);
+    const numbered = /^(\d+)[.)]\s+(.+)/.exec(t);
+    const step = /^step\s*\d+[:.]\s*(.+)/i.exec(t);
+    const bullet = /^[-*•]\s+(.+)/.exec(t);
+    if (done)    { steps.push({ id: `s${idx++}`, text: done[1],    done: true  }); }
+    else if (undone)   { steps.push({ id: `s${idx++}`, text: undone[1],  done: false }); }
+    else if (numbered) { steps.push({ id: `s${idx++}`, text: numbered[2],done: false }); }
+    else if (step)     { steps.push({ id: `s${idx++}`, text: step[1],    done: false }); }
+    else if (bullet && t.length > 3) { steps.push({ id: `s${idx++}`, text: bullet[1], done: false }); }
+  }
+  return steps;
+}
+
 function SideMentor({
   contextGetter,
   chatTitle,
   persistenceKey,
   activeFile,
+  tasks,
+  evalResult,
   onApplyCode,
+  onClose,
 }: {
   contextGetter: () => string;
   chatTitle?: string;
   persistenceKey?: string;
   activeFile?: string;
+  tasks?: any[];
+  evalResult?: Record<string, { passed: boolean; reason: string }>;
   onApplyCode?: (code: string) => void;
+  onClose?: () => void;
 }) {
-  const [mentorMode, setMentorMode] = useState<"chat" | "agent">("chat");
+  const [mentorMode, setMentorMode] = useState<MentorMode>("ask");
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [planSteps, setPlanSteps] = useState<PlanStep[]>([]);
   const autoAppliedRef = useRef<Set<string>>(new Set());
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [input, setInput] = useState("");
+  const [useVoice, setUseVoice] = useState(false);
 
-  const dynamicContextGetter = useCallback(() => {
-    const baseContext = contextGetter ? contextGetter() : "";
-    if (mentorMode === "agent") {
-      return `${baseContext}\n\n[MODE: AGENT]\nYou are operating in AGENT mode. When writing or editing code for ${activeFile || 'the active file'}:
-1. Start with a very concise 1-2 sentence description of what was changed.
-2. Provide the complete updated code inside a single code block (\`\`\`<language> ... \`\`\`).
-Do NOT output extra code blocks for file names or extra boilerplate. The code will be directly applied to ${activeFile || 'the active file'}.`;
+  // Compute task completion
+  const ticketTasks = useMemo(() => {
+    if (!tasks || tasks.length === 0) return [];
+    return tasks
+      .filter((t: any) => {
+        const title = typeof t === "string" ? t : (t?.title ?? "");
+        return !title.toLowerCase().includes("hidden") && t?.is_hidden !== true;
+      })
+      .map((t: any, idx: number) => {
+        const slug = t?.task_slug || `task-${idx}`;
+        const result = evalResult && (evalResult[slug] || evalResult[`task${idx + 1}`] || evalResult[`task-${idx}`]);
+        return { slug, title: typeof t === "string" ? t : (t?.title ?? `Task ${idx + 1}`), passed: result ? result.passed : null };
+      });
+  }, [tasks, evalResult]);
+
+  const completedCount = ticketTasks.filter((t) => t.passed === true).length;
+  const hasAnyEval = ticketTasks.some((t) => t.passed !== null);
+
+  const getModeContext = useCallback((mode: MentorMode) => {
+    const base = contextGetter ? contextGetter() : "";
+    
+    // Get file paths from workspace or active file
+    const filePaths = activeFile ? `\nCurrent file: ${activeFile}` : "";
+    
+    // Vibe code tools context
+    const vibeTools = `\n\nVibe Code Tools Available (use when needed):
+- mkdir(path): Create directory structure
+- create_file(path, content): Create new file with content  
+- grep(pattern, path): Search files for pattern
+- cat(path): Read file content
+- modify(path, find, replace): Replace text in file
+- delete(path): Delete file or directory`;
+    
+    switch (mode) {
+      case "plan":
+        return `${base}${filePaths}\n\n[MODE: PLAN]\nCreate a numbered step-by-step plan to complete this ticket. Format as a numbered list. Keep each step short and actionable. Do NOT write any code yet.`;
+      case "bugfix":
+        return `${base}${filePaths}${vibeTools}\n\n[MODE: BUG FIX]\nYou are a debugging expert. Analyze the current code for errors, identify the root cause, explain WHY it's happening, then provide the corrected code or use vibe tools to fix it directly.`;
+      case "agent":
+        return `${base}${filePaths}${vibeTools}\n\n[MODE: AGENT]\nImplement the COMPLETE solution for ${activeFile || "the active file"}. Output rules:\n1. Use vibe tools to create/modify files as needed\n2. Output the COMPLETE file content in code blocks\n3. Implement ALL required functionality — no TODOs or placeholders\n4. Use vibe tools: mkdir, create_file, grep, cat, modify, delete\n5. Write a 1-sentence summary before showing changes.`;
+      default:
+        return `${base}${filePaths}${vibeTools}\n\n[MODE: ASK]\nYou are an AI code mentor. Give Socratic hints, guide step-by-step. Use vibe tools to show file structure, read code, or fix issues when asked.`;
     }
-    return `${baseContext}\n\n[MODE: CHAT]\nYou are operating in CHAT mentor mode. Give Socratic hints, explanations, and guidance step-by-step.`;
-  }, [contextGetter, mentorMode, activeFile]);
+  }, [contextGetter, activeFile]);
 
-  const { messages, isLoading, sendMessage, suggestedPrompts, activeStream, startNewChat, sessionHistory, fetchHistory, loadSession } = useAIChat({
-    getContext: dynamicContextGetter,
+  const { messages, isLoading, sendMessage, suggestedPrompts, activeStream, startNewChat, sessionHistory, fetchHistory, loadSession, agents } = useAIChat({
+    getContext: () => getModeContext(mentorMode),
     chatTitle,
     persistenceKey,
+    selectedAgentId,
   });
-  const [input, setInput] = useState("");
-  const [showHistory, setShowHistory] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, activeStream]);
-
-  // In Agent mode, automatically apply code from the latest assistant message
-  useEffect(() => {
-    if (mentorMode !== "agent" || !onApplyCode || isLoading) return;
-
-    const assistantMessages = messages.filter((m) => m.message_type === "assistant");
-    const latestAssistant = assistantMessages[assistantMessages.length - 1];
-    if (!latestAssistant || !latestAssistant.content) return;
-    if (autoAppliedRef.current.has(latestAssistant.id)) return;
-
-    const { mainCode, hasCode } = parseAgentResponse(latestAssistant.content, activeFile);
-    if (hasCode && mainCode) {
-      autoAppliedRef.current.add(latestAssistant.id);
-      onApplyCode(mainCode);
+    if (agents.length > 0 && !selectedAgentId) {
+      const deepseek = agents.find((a) => a.provider === "deepseek" && a.model_name === "deepseek-chat") || agents.find((a) => a.provider === "deepseek") || agents[0];
+      setSelectedAgentId(deepseek.id);
     }
-  }, [messages, isLoading, mentorMode, onApplyCode, activeFile]);
+  }, [agents, selectedAgentId]);
 
-  const send = () => {
-    if (!input.trim() || isLoading) return;
-    sendMessage(input.trim());
-    setInput("");
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages, activeStream, isLoading]);
+
+  // Autopilot: auto-apply completed code
+  useEffect(() => {
+    if (mentorMode !== "agent" || !onApplyCode) return;
+    const done = messages.filter((m) => m.message_type === "assistant" && m.content?.trim());
+    const latest = done[done.length - 1];
+    if (!latest) return;
+    if (activeStream && activeStream.id === latest.id) return;
+    if (autoAppliedRef.current.has(latest.id)) return;
+    const { mainCode, hasCode } = parseAgentResponse(latest.content, activeFile);
+    if (hasCode && mainCode) { autoAppliedRef.current.add(latest.id); onApplyCode(mainCode); }
+  }, [messages, activeStream, mentorMode, onApplyCode, activeFile]);
+
+  // Parse plan steps from latest plan response
+  useEffect(() => {
+    if (mentorMode !== "plan") return;
+    const done = messages.filter((m) => m.message_type === "assistant" && m.content);
+    const latest = done[done.length - 1];
+    if (!latest || (activeStream && activeStream.id === latest.id)) return;
+    const steps = parsePlanSteps(latest.content);
+    if (steps.length > 0) setPlanSteps(steps);
+  }, [messages, activeStream, mentorMode]);
+
+  const send = (text?: string) => {
+    const msg = text ?? input.trim();
+    if (!msg || isLoading) return;
+    if (!text) setInput("");
+    sendMessage(msg);
   };
 
-  return (
-    <div className="flex flex-1 min-h-0 flex-col gap-2 p-3 bg-editor-panel text-foreground w-full overflow-hidden">
-      <div className="flex justify-between items-center shrink-0 pb-1.5 border-b border-border/40 gap-2">
-        {/* Mode switcher: Chat vs Agent */}
-        <div className="flex items-center gap-0.5 bg-muted/60 p-0.5 rounded-lg border border-border/50">
-          <button
-            type="button"
-            onClick={() => setMentorMode("chat")}
-            className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-all ${
-              mentorMode === "chat"
-                ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <MessageSquare className="w-3 h-3" />
-            Chat
-          </button>
-          <button
-            type="button"
-            onClick={() => setMentorMode("agent")}
-            className={`flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-all ${
-              mentorMode === "agent"
-                ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-            title="Agent mode: Automatically updates the active file when code is generated"
-          >
-            <Zap className={`w-3 h-3 ${mentorMode === "agent" ? "text-amber-300" : ""}`} />
-            Agent
-          </button>
-        </div>
+  const selectedAgent = agents.find((a) => a.id === selectedAgentId);
 
-        <div className="flex items-center gap-2">
+  // Typing animation
+  const phrases = ["Thinking...", "Analyzing code...", "Planning...", "On it...", "Almost there..."];
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  const [typedText, setTypedText] = useState("");
+  const [charIdx, setCharIdx] = useState(0);
+  useEffect(() => {
+    if (!isLoading) { setPhraseIdx(0); setTypedText(""); setCharIdx(0); return; }
+    const phrase = phrases[phraseIdx % phrases.length];
+    if (charIdx < phrase.length) {
+      const t = setTimeout(() => { setTypedText(phrase.slice(0, charIdx + 1)); setCharIdx((c) => c + 1); }, 40);
+      return () => clearTimeout(t);
+    } else {
+      const t = setTimeout(() => { setPhraseIdx((p) => p + 1); setCharIdx(0); setTypedText(""); }, 700);
+      return () => clearTimeout(t);
+    }
+  }, [isLoading, phraseIdx, charIdx]);
+
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [appliedId, setAppliedId] = useState<string | null>(null);
+  const handleCopy = (code: string, id: string) => { navigator.clipboard.writeText(code); setCopiedId(id); setTimeout(() => setCopiedId(null), 2000); };
+  const handleApplyCode = (code: string, id: string) => { if (onApplyCode) { onApplyCode(code); setAppliedId(id); setTimeout(() => setAppliedId(null), 2000); } };
+
+  const renderMessage = (m: { id: string; message_type: string; content: string }, i: number) => {
+    const isUser = m.message_type === "user";
+    const isStreaming = !!(activeStream && activeStream.id === m.id);
+    const displayContent = isStreaming ? activeStream!.content : m.content;
+
+    if (!isUser && mentorMode === "agent" && !isStreaming) {
+      const { mainCode, explanation, hasCode } = parseAgentResponse(displayContent, activeFile);
+      if (hasCode) {
+        return (
+          <div key={i} className="w-full">
+            <AgentChangeCard fileName={activeFile || "main.py"} explanation={explanation} code={mainCode} onReapply={() => onApplyCode && onApplyCode(mainCode)} />
+          </div>
+        );
+      }
+    }
+
+    return (
+      <div key={i} className={`flex items-end gap-1.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+        <div className={`max-w-[92%] text-[12.5px] leading-relaxed ${isUser ? "bg-primary text-primary-foreground px-3 py-2 rounded-xl rounded-br-sm shadow-sm" : "bg-muted/50 text-foreground px-3 py-2.5 rounded-xl rounded-bl-sm border border-border/40"}`}>
+          {isUser ? (
+            <div className="whitespace-pre-wrap">{m.content}</div>
+          ) : (
+            <div className="prose prose-sm max-w-none dark:prose-invert [&_p]:leading-relaxed [&_p]:mb-1.5 [&_p:last-child]:mb-0 [&_ul]:my-1.5 [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:my-1.5 [&_ol]:list-decimal [&_ol]:pl-4 [&_li]:mb-0.5">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+                code({ node, inline, className, children, ...props }: any) {
+                  const match = /language-(\w+)/.exec(className || "");
+                  const codeString = String(children).replace(/\n$/, "");
+                  const codeId = `msg-${i}-${codeString.slice(0, 8)}`;
+                  if (inline) return <code className="bg-primary/10 text-primary px-1 py-0.5 rounded font-mono text-[10.5px]" {...props}>{children}</code>;
+                  return (
+                    <div className="relative group/code rounded-md overflow-hidden my-2 border border-border/60 bg-[#1e1e1e]">
+                      <div className="flex items-center justify-between px-3 py-1.5 bg-[#2d2d2d] border-b border-white/5">
+                        <span className="text-[9.5px] text-gray-400 font-semibold uppercase tracking-widest">{match?.[1] || "code"}</span>
+                        <div className="flex items-center gap-1.5">
+                          <button onClick={() => handleCopy(codeString, codeId)} className="p-1 rounded bg-white/5 hover:bg-white/10 text-gray-300 flex items-center gap-1 text-[10px] transition-all" title="Copy">
+                            {copiedId === codeId ? <><Check size={10} className="text-emerald-400" /><span className="text-emerald-400">Copied</span></> : <><Copy size={10} /><span>Copy</span></>}
+                          </button>
+                          {onApplyCode && (
+                            <button onClick={() => handleApplyCode(codeString, codeId)} className={`px-1.5 py-0.5 rounded text-[10px] font-medium flex items-center gap-1 transition-all ${appliedId === codeId ? "bg-emerald-600 text-white" : "bg-primary text-primary-foreground hover:opacity-80"}`}>
+                              {appliedId === codeId ? <><Check size={10} /><span>Applied ✓</span></> : <><Download size={10} /><span>Apply</span></>}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <pre className="p-3 overflow-x-auto font-mono text-[11px] leading-relaxed text-gray-100 whitespace-pre"><code>{codeString}</code></pre>
+                    </div>
+                  );
+                },
+              }}>{displayContent}</ReactMarkdown>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const currentMode = MENTOR_MODES.find((m) => m.id === mentorMode)!;
+
+  return (
+    <div className="flex flex-col h-full min-h-0 bg-background overflow-hidden">
+
+      {/* Header — Title + Credits + Controls in one row */}
+      <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-[13px] font-semibold text-foreground">AI Agent</span>
           <WalletBalanceBadge />
-          <button
-            onClick={() => {
-              if (!showHistory) fetchHistory();
-              setShowHistory(!showHistory);
-            }}
-            className={`text-[11px] flex items-center transition-colors ${showHistory ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            <Clock className="w-3 h-3 mr-1" /> History
-          </button>
-          <button
-            onClick={() => {
-              setShowHistory(false);
-              startNewChat();
-            }}
-            className="text-[11px] flex items-center text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <RotateCcw className="w-3 h-3 mr-1" /> New Chat
-          </button>
+        </div>
+        <div className="flex items-center gap-0.5 shrink-0">
+          <button onClick={() => { setShowHistory(false); startNewChat(); setPlanSteps([]); }} className="w-6 h-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors font-bold" title="New chat">+</button>
+          <button onClick={() => { if (!showHistory) fetchHistory(); setShowHistory(!showHistory); }} className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${showHistory ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`} title="Chat history"><Clock size={13} /></button>
+          <button onClick={() => { onClose?.(); }} className="w-6 h-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Close"><X size={13} /></button>
         </div>
       </div>
 
+      {/* History or Chat Content */}
       {showHistory ? (
-        <div className="flex-1 overflow-y-auto space-y-2 pr-2 scrollbar-thin mt-2">
-          <div className="text-xs font-semibold text-muted-foreground mb-3">Previous Chats</div>
+        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5">
           {sessionHistory.length === 0 ? (
-            <div className="text-xs text-muted-foreground italic">No past chats found.</div>
-          ) : (
-            sessionHistory.map((session: any) => (
-              <button
-                key={session.id}
-                onClick={() => {
-                  loadSession(session.id);
-                  setShowHistory(false);
-                }}
-                className="w-full text-left p-2.5 rounded-md border border-border/50 hover:bg-accent hover:border-border transition-colors group"
-              >
-                <div className="text-[12px] font-medium text-foreground truncate">{session.title || 'AI Mentor Chat'}</div>
-                <div className="text-[10px] text-muted-foreground mt-1.5 flex justify-between items-center">
-                  <span>{new Date(session.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                  <span className="bg-background px-1.5 py-0.5 rounded border border-border/50">{session.message_count || 0} msgs</span>
-                </div>
-              </button>
-            ))
-          )}
+            <div className="text-[12px] text-muted-foreground italic text-center pt-6">No past chats yet.</div>
+          ) : sessionHistory.map((session: any) => (
+            <button key={session.id} onClick={() => { loadSession(session.id); setShowHistory(false); }} className="w-full text-left px-3 py-2 rounded-lg border border-border/60 hover:border-primary/40 hover:bg-accent transition-all group">
+              <div className="text-[12px] font-medium text-foreground truncate group-hover:text-primary">{session.title || "Chat"}</div>
+              <div className="flex justify-between items-center mt-1 text-[10px] text-muted-foreground">
+                <span>{new Date(session.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                <span className="bg-muted px-1.5 py-0.5 rounded-full">{session.message_count || 0} msgs</span>
+              </div>
+            </button>
+          ))}
         </div>
       ) : (
         <>
-          <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin">
-            {messages.length === 0 && !activeStream && (
-              <div className="flex">
-                <div className="max-w-[90%] rounded-md px-3 py-2 text-[13px] bg-accent text-foreground">
-                  {mentorMode === "agent"
-                    ? `⚡ Agent Mode active. Tell me what changes or code to write for ${activeFile || 'your file'}, and I will directly update it!`
-                    : "Hi! I'm your AI mentor. I can give Socratic hints — what are you stuck on?"}
-                </div>
-              </div>
-            )}
-            {messages.map((m, i) => {
-              const isStreaming = !!(activeStream && activeStream.id === m.id);
-              const displayContent = isStreaming ? `${activeStream!.content}` : m.content;
+          {/* Messages */}
+          <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5" style={{ scrollBehavior: "auto" }}>
 
-              if (m.message_type === "assistant" && mentorMode === "agent" && !isStreaming) {
-                const { mainCode, explanation, hasCode } = parseAgentResponse(displayContent, activeFile);
-                if (hasCode) {
-                  return (
-                    <div key={i} className="flex">
-                      <div className="w-full">
-                        <AgentChangeCard
-                          fileName={activeFile || "main.py"}
-                          explanation={explanation}
-                          code={mainCode}
-                          onReapply={() => onApplyCode && onApplyCode(mainCode)}
-                        />
-                      </div>
+            {/* Task completion tracker */}
+            {ticketTasks.length > 0 && hasAnyEval && (
+              <div className="rounded-lg border border-border/60 bg-muted/20 p-2.5 space-y-1.5 mb-1">
+                {ticketTasks.map((t, idx) => (
+                  <div key={t.slug} className="flex items-start gap-2">
+                    <div className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[8px] font-bold ${t.passed === true ? "bg-emerald-500/20 text-emerald-500" : t.passed === false ? "bg-red-400/20 text-red-400" : "bg-muted text-muted-foreground"}`}>
+                      {t.passed === true ? <Check size={9} /> : t.passed === false ? <X size={9} /> : idx + 1}
                     </div>
-                  );
-                }
-              }
-
-              return (
-                <div key={i} className={`flex ${m.message_type === "user" ? "justify-end" : ""}`}>
-                  <div
-                    className={`max-w-[95%] rounded-md px-3 py-2 text-[13px] ${m.message_type === "user" ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"} overflow-hidden`}
-                  >
-                    {m.message_type === "user" ? (
-                      <div className="whitespace-pre-wrap">{m.content}</div>
-                    ) : (
-                      <div className="prose prose-sm dark:prose-invert max-w-full break-words [&>p]:mb-2 [&>p]:last:mb-0 [&>ul]:my-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:my-2 [&>ol]:list-decimal [&>ol]:pl-4">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            code({ node, inline, className, children, ...props }: any) {
-                              const match = /language-(\w+)/.exec(className || "");
-                              const codeString = String(children).replace(/\n$/, "");
-                              if (inline) {
-                                return (
-                                  <code className="bg-background/80 px-1.5 py-0.5 rounded font-mono text-[11px] text-primary" {...props}>
-                                    {children}
-                                  </code>
-                                );
-                              }
-                              return (
-                                <MentorCodeBlock
-                                  code={codeString}
-                                  language={match?.[1] || "text"}
-                                  activeFile={activeFile}
-                                  onApplyCode={onApplyCode}
-                                  isAgentMode={mentorMode === "agent"}
-                                />
-                              );
-                            },
-                          }}
-                        >
-                          {displayContent}
-                        </ReactMarkdown>
-                      </div>
-                    )}
+                    <span className={`text-[11px] leading-tight ${t.passed === true ? "text-emerald-600 dark:text-emerald-400 line-through" : t.passed === false ? "text-red-500 dark:text-red-400" : "text-muted-foreground"}`}>{t.title}</span>
                   </div>
+                ))}
+              </div>
+            )}
+
+            {/* Plan checklist */}
+            {mentorMode === "plan" && planSteps.length > 0 && (
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-2.5 space-y-1.5">
+                <div className="text-[10px] font-semibold text-primary uppercase tracking-wider flex items-center gap-1"><Lightbulb size={10} /> Plan</div>
+                {planSteps.map((step, idx) => (
+                  <div key={step.id} className="flex items-start gap-2 cursor-pointer group" onClick={() => setPlanSteps((prev) => prev.map((s, i) => i === idx ? { ...s, done: !s.done } : s))}>
+                    <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${step.done ? "bg-primary border-primary" : "border-border group-hover:border-primary/60"}`}>
+                      {step.done && <Check size={9} className="text-primary-foreground" />}
+                    </div>
+                    <span className={`text-[11px] leading-tight ${step.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{step.text}</span>
+                  </div>
+                ))}
+                <div className="text-[10px] text-muted-foreground pt-0.5">{planSteps.filter((s) => s.done).length}/{planSteps.length} steps done · click to check off</div>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {messages.length === 0 && !activeStream && !isLoading && (
+              <div className="flex flex-col items-center justify-center h-full gap-3 text-center select-none px-4 pt-4">
+                <div>
+                  <p className="text-[13px] font-semibold text-foreground">{currentMode.label}</p>
+                  <p className="text-[11.5px] text-muted-foreground max-w-[190px] leading-relaxed mt-1">{currentMode.desc}</p>
                 </div>
-              );
-            })}
-            {isLoading && (!messages.length || messages[messages.length - 1].message_type !== "assistant") && (
-              <div className="flex">
-                <div className="max-w-[90%] rounded-md px-3 py-2 text-[13px] bg-accent text-foreground animate-pulse">
-                  {mentorMode === "agent" ? "Agent is coding..." : "Thinking..."}
+                {mentorMode === "plan" && (
+                  <button onClick={() => send("Create a step-by-step plan to complete this ticket.")} className="px-3 py-1.5 text-[11px] font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">Generate Plan</button>
+                )}
+                {mentorMode === "autopilot" && (
+                  <button onClick={() => send(`Write the complete solution for ${activeFile || "the active file"} to pass all tasks.`)} className="px-3 py-1.5 text-[11px] font-medium bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-1.5">
+                    <Zap size={11} /> Run Autopilot
+                  </button>
+                )}
+                {mentorMode === "default" && suggestedPrompts.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 justify-center">
+                    {suggestedPrompts.slice(0, 3).map((s) => (
+                      <button key={s} onClick={() => !isLoading && sendMessage(s)} disabled={isLoading} className="px-2.5 py-1 text-[11px] font-medium text-primary bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20 transition-colors disabled:opacity-40">{s}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Message list */}
+            {messages.filter((m) => !(m.message_type === "assistant" && !m.content && isLoading && !(activeStream?.id === m.id))).map(renderMessage)}
+
+            {/* Loading dots */}
+            {isLoading && !activeStream && (
+              <div className="flex items-end gap-1.5">
+                <div className="bg-muted/50 text-muted-foreground px-3 py-2.5 rounded-xl rounded-bl-sm border border-border/40 flex items-center gap-2 text-[12px]">
+                  <div className="flex gap-0.5">{[0, 120, 240].map((d) => <span key={d} className="w-1 h-1 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: `${d}ms` }} />)}</div>
+                  <span className="text-[11.5px]">{typedText}<span className="animate-pulse">|</span></span>
                 </div>
               </div>
             )}
-            <div ref={messagesEndRef} />
           </div>
-          
-          {suggestedPrompts.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-1">
-              {suggestedPrompts.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => {
-                    if (!isLoading) {
-                      sendMessage(s);
-                    }
-                  }}
-                  disabled={isLoading}
-                  className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-accent disabled:opacity-50 transition-colors"
-                >
-                  {s}
-                </button>
-              ))}
+
+          {/* Input area */}
+          <div className="px-3 pb-3 pt-2 border-t border-border shrink-0 space-y-2">
+            {messages.length > 0 && suggestedPrompts.length > 0 && (
+              <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+                {suggestedPrompts.map((s) => (
+                  <button key={s} onClick={() => !isLoading && sendMessage(s)} disabled={isLoading} className="shrink-0 whitespace-nowrap px-2.5 py-1 text-[11px] font-medium text-primary bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20 transition-colors disabled:opacity-40">{s}</button>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 rounded-lg px-3 py-1.5 transition-all" style={{ background: "hsl(var(--muted)/0.5)", border: `1px solid ${input.trim() ? "hsl(var(--primary))" : "hsl(var(--border))"}`, boxShadow: input.trim() ? "0 0 0 2px hsl(var(--primary)/0.12)" : "none" }}>
+              <button onClick={() => setUseVoice(!useVoice)} className={`w-6 h-6 rounded flex items-center justify-center shrink-0 transition-all ${useVoice ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`} title="Voice input">
+                <Mic size={13} />
+              </button>
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                disabled={isLoading}
+                placeholder={
+                  mentorMode === "agent"  ? `Describe what to build in ${activeFile || "file"}…` :
+                  mentorMode === "plan"   ? "Ask to refine the plan…" :
+                  mentorMode === "bugfix" ? "Describe the bug or paste error…" :
+                                           "Ask AI mentor…"
+                }
+                className="flex-1 bg-transparent text-[12.5px] text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
+              />
+              <button onClick={() => send()} disabled={isLoading || !input.trim()} className={`w-6 h-6 rounded flex items-center justify-center shrink-0 transition-all ${input.trim() && !isLoading ? "bg-primary text-primary-foreground hover:opacity-90 active:scale-95" : "bg-muted-foreground/20 text-muted-foreground cursor-not-allowed"}`}>
+                <ArrowLeft size={11} strokeWidth={2.5} className="rotate-180" />
+              </button>
             </div>
-          )}
-          
-          <div className="flex gap-2 pt-1 shrink-0">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && send()}
-              disabled={isLoading}
-              placeholder={
-                mentorMode === "agent"
-                  ? `Instruct Agent to update ${activeFile || 'file'}...`
-                  : "Ask AI mentor..."
-              }
-              className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 text-xs outline-none focus:border-primary disabled:opacity-50 transition-colors min-w-0"
-            />
-            <button 
-              onClick={send} 
-              disabled={isLoading || !input.trim()} 
-              className={`rounded-md px-3.5 py-1.5 text-xs font-medium transition-colors shrink-0 flex items-center gap-1 ${
-                mentorMode === "agent"
-                  ? "bg-amber-600 hover:bg-amber-500 text-white"
-                  : "bg-primary text-primary-foreground hover:bg-primary/90"
-              } disabled:opacity-50`}
-            >
-              {mentorMode === "agent" ? (
-                <>
-                  <Zap className="w-3 h-3" />
-                  Run
-                </>
-              ) : (
-                "Ask"
-              )}
-            </button>
           </div>
         </>
       )}
+
+      {/* Bottom toolbar: Mode + Model selectors */}
+      <div className="border-t border-border shrink-0 bg-muted/20 px-3 py-2">
+        <div className="flex items-center gap-3">
+          {/* Mode selector dropdown */}
+          <div className="flex items-center gap-2">
+            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Mode:</label>
+            <select value={mentorMode} onChange={(e) => { setMentorMode(e.target.value as MentorMode); if (e.target.value === "plan") setPlanSteps([]); }} className="rounded border border-border bg-background px-2 py-1 text-[11px] text-foreground outline-none focus:border-primary cursor-pointer">
+              {MENTOR_MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+            </select>
+          </div>
+
+          {/* Model selector dropdown */}
+          {agents.length > 0 && (
+            <div className="flex items-center gap-2 flex-1">
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">Model:</label>
+              <select value={selectedAgentId || ""} onChange={(e) => { setSelectedAgentId(e.target.value || null); startNewChat(); }} className="flex-1 rounded border border-border bg-background px-2 py-1 text-[11px] text-foreground outline-none focus:border-primary cursor-pointer">
+                {agents.map((a) => <option key={a.id} value={a.id}>{a.name || a.provider}</option>)}
+              </select>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
+
+
+
+
+

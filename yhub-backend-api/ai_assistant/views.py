@@ -305,20 +305,20 @@ Rules:
                         stream=True,
                     )
                 except Exception as primary_err:
-                    if active_agent and active_agent.provider != "gemini":
+                    if active_agent and active_agent.provider != "deepseek":
                         logger.warning(
-                            f"Primary AI agent ({active_agent.provider}/{active_agent.model_name}) failed: {primary_err}. Attempting fallback to Gemini."
+                            f"Primary AI agent ({active_agent.provider}/{active_agent.model_name}) failed: {primary_err}. Attempting fallback to DeepSeek."
                         )
                         fallback_metadata = {
                             "fallback_from": f"{active_agent.provider}/{active_agent.model_name}"
                         }
-                        gemini_agent = await sync_to_async(
-                            lambda: AIAgent.objects.filter(provider="gemini", is_active=True).first()
+                        fallback_agent = await sync_to_async(
+                            lambda: AIAgent.objects.filter(provider="deepseek", model_name="deepseek-chat", is_active=True).first()
                         )()
-                        if gemini_agent:
-                            active_agent = gemini_agent
+                        if fallback_agent:
+                            active_agent = fallback_agent
                             ai_service = AIServiceFactory.create_service(
-                                gemini_agent.provider, gemini_agent.model_name
+                                fallback_agent.provider, fallback_agent.model_name
                             )
                             response_data = await ai_service.generate_response(
                                 messages=prepared_messages,
@@ -855,11 +855,14 @@ class ChatViewSet(ChatServiceMixin, viewsets.ViewSet):
                 if not ai_agent_id:
                     is_deep = any(kw in message_content.lower() for kw in ["explain", "why", "deep", "how does"]) or len(message_content) > 500
 
-                    if is_deep:
-                        ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="anthropic", is_active=True).first())()
+                    # Default to DeepSeek Chat for all quick chats (fastest + cheapest)
+                    ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="deepseek", model_name="deepseek-chat", is_active=True).first())()
 
-                    if not is_deep or not ai_agent:
-                        ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="gemini", is_active=True).first())()
+                    if not ai_agent:
+                        ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="deepseek", is_active=True).first())()
+
+                    if not ai_agent and is_deep:
+                        ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="anthropic", is_active=True).first())()
 
                     if not ai_agent:
                         ai_agent = await sync_to_async(AIAgent.objects.first)()
