@@ -15,17 +15,32 @@ import { loadStudentStats } from "@/lib/studentStats";
 export const performanceApi = {
   async getPerformance(): Promise<PerformanceStats> {
     // Fetch all real backend data in parallel
-    const [statsRes, submissionsRes, enrollmentsRes, interviewsRes] = await Promise.allSettled([
+    const [statsRes, submissionsRes, enrollmentsRes, interviewsRes, ticketsRes, labsRes] = await Promise.allSettled([
       loadStudentStats(true),
       restApiAuthUtil.get<any[]>("/lab/submissions/"),
       restApiAuthUtil.get<any[]>("/lab/enrollments/"),
       fetchUserInterviewSubmissions("ylabs", true),
+      restApiAuthUtil.get<any[]>("/lab/tickets/"),
+      restApiAuthUtil.get<any[]>("/lab/labs/"),
     ]);
 
     const statsData = statsRes.status === "fulfilled" ? statsRes.value : { day_streak: 0, total_yp: 0, rank: 1, activity_dates: [] };
     const rawSubmissions = submissionsRes.status === "fulfilled" && Array.isArray(submissionsRes.value) ? submissionsRes.value : [];
     const rawEnrollments = enrollmentsRes.status === "fulfilled" ? (Array.isArray(enrollmentsRes.value) ? enrollmentsRes.value : (enrollmentsRes.value as any)?.results || []) : [];
     const rawInterviews = interviewsRes.status === "fulfilled" && Array.isArray(interviewsRes.value) ? interviewsRes.value : [];
+    const rawTickets = ticketsRes.status === "fulfilled" ? (Array.isArray(ticketsRes.value) ? ticketsRes.value : (ticketsRes.value as any)?.results || []) : [];
+    const rawLabs = labsRes.status === "fulfilled" ? (Array.isArray(labsRes.value) ? labsRes.value : (labsRes.value as any)?.results || []) : [];
+
+    const ticketMap = new Map<string, any>();
+    rawTickets.forEach((t: any) => {
+      if (t.id) ticketMap.set(String(t.id), t);
+      if (t.ticket_slug) ticketMap.set(String(t.ticket_slug), t);
+    });
+
+    const labMap = new Map<string, any>();
+    rawLabs.forEach((l: any) => {
+      if (l.id) labMap.set(String(l.id), l);
+    });
 
     // Real closed tickets
     const closedSubmissions = rawSubmissions.filter(
@@ -207,26 +222,69 @@ export const performanceApi = {
       },
     ];
 
-    // Real Recent Activity from ticket submissions, interviews, and labs
+    // Real Recent Activity from ticket submissions, interviews, labs, and sprints
     const recentActivity: ActivityItem[] = [];
 
+    // 1. Tickets Activity
     rawSubmissions.forEach((s: any) => {
+      const ticketRefId = String(
+        (typeof s.lab_sprint_ticket === "object" ? s.lab_sprint_ticket?.id : s.lab_sprint_ticket) ||
+        s.lab_sprint_ticket_id ||
+        s.ticket_id ||
+        ""
+      );
+      const ticketObj = ticketMap.get(ticketRefId) || (typeof s.lab_sprint_ticket === "object" ? s.lab_sprint_ticket : null);
+
       const ticketTitle =
-        s.lab_sprint_ticket_title ||
         s.ticket_title ||
-        s.lab_sprint_ticket?.title ||
-        `Ticket #${s.lab_sprint_ticket_id || s.id}`;
+        s.lab_sprint_ticket_title ||
+        ticketObj?.title ||
+        (typeof s.lab_sprint_ticket === "object" ? s.lab_sprint_ticket?.title : undefined) ||
+        s.title ||
+        ticketObj?.ticket_slug?.replace(/[-_]/g, " ") ||
+        "Simulation Ticket";
+
+      const labId = String(s.lab_id || ticketObj?.sprint?.lab || ticketObj?.lab || s.lab || "");
+      const labTitle = s.lab_title || labMap.get(labId)?.title || "Engineering Lab";
+
       const isClosed = s.ticket_status === "done";
       recentActivity.push({
         id: `ticket-${s.id}`,
         type: "Tickets",
         title: ticketTitle,
-        subtitle: `Submission #${s.id || "1"}`,
+        subtitle: labTitle,
         result: isClosed ? "Closed" : "In Review",
         resultVariant: isClosed ? "success" : "primary",
         timestamp: s.updated_at || s.created_at || new Date().toISOString(),
       });
     });
+
+    // 2. Sprints Activity (Unique sprints worked on/shipped)
+    const sprintActivityMap = new Map<string, any>();
+    rawSubmissions.forEach((s: any) => {
+      const ticketRefId = String(
+        (typeof s.lab_sprint_ticket === "object" ? s.lab_sprint_ticket?.id : s.lab_sprint_ticket) ||
+        s.lab_sprint_ticket_id ||
+        ""
+      );
+      const ticketObj = ticketMap.get(ticketRefId);
+      const sprintId = s.sprint_id || s.lab_sprint_ticket?.sprint || ticketObj?.sprint || s.sprint;
+      if (sprintId && !sprintActivityMap.has(String(sprintId))) {
+        const sprintTitle = s.sprint_title || ticketObj?.sprint_title || "Engineering Sprint";
+        const labId = String(s.lab_id || ticketObj?.sprint?.lab || "");
+        const labTitle = s.lab_title || labMap.get(labId)?.title || "Engineering Lab";
+        sprintActivityMap.set(String(sprintId), {
+          id: `sprint-${sprintId}`,
+          type: "Sprints",
+          title: sprintTitle,
+          subtitle: labTitle,
+          result: s.ticket_status === "done" ? "Shipped" : "In Progress",
+          resultVariant: s.ticket_status === "done" ? "success" : "primary",
+          timestamp: s.updated_at || s.created_at || new Date().toISOString(),
+        });
+      }
+    });
+    recentActivity.push(...Array.from(sprintActivityMap.values()));
 
     rawInterviews.forEach((i: any) => {
       const score = typeof i.marks === "number" ? i.marks : i.report?.score || i.report?.overall_score || 0;

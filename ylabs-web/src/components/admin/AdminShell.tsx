@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Search,
   Sparkles,
+  CalendarDays,
 } from "lucide-react";
 
 const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[] = [
@@ -27,6 +28,7 @@ const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[
     group: "Content",
     items: [
       { to: "/admin/labs", label: "Labs", icon: FlaskConical },
+      { to: "/admin/weekly-tasks", label: "Recurring Tasks", icon: CalendarDays },
       { to: "/admin/questions", label: "Question Bank", icon: Database },
       { to: "/admin/research", label: "AI Research Papers", icon: Sparkles },
     ],

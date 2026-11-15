@@ -276,3 +276,71 @@ class SystemDesign(BaseTimestampedModel):
     def __str__(self):
         return f"{self.title or 'System Design'} ({self.user.email})"
 
+
+class LearnRecurringTask(BaseTimestampedAdminModel):
+    TYPE_WEEKLY = "weekly"
+    TYPE_MONTHLY = "monthly"
+    TYPE_CHOICES = [
+        (TYPE_WEEKLY, "Weekly"),
+        (TYPE_MONTHLY, "Monthly"),
+    ]
+
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    lab = models.ForeignKey(Lab, on_delete=models.CASCADE, related_name="recurring_tasks")
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_WEEKLY)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    days = models.JSONField(
+        default=list,
+        help_text="List of daily ticket assignments: [{'day_index': 0, 'day_name': 'Wednesday', 'sprint_id': '<uuid>', 'ticket_ids': ['<uuid>', ...], 'tickets': [...]}, ...]"
+    )
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["-start_date", "-created_at"]
+
+    def clean(self):
+        super().clean()
+        from django.core.exceptions import ValidationError
+        if self.start_date and self.end_date:
+            duration = (self.end_date - self.start_date).days + 1
+            expected = 7 if self.type == self.TYPE_WEEKLY else 30
+            if duration != expected:
+                raise ValidationError({
+                    "end_date": f"{self.get_type_display()} task duration must be exactly {expected} days (start_date to start_date + {expected - 1} days)."
+                })
+
+    def __str__(self):
+        return f"{self.name} [{self.get_type_display()}] ({self.lab.title}) [{self.start_date} to {self.end_date}]"
+
+
+class LearnRecurringTaskEnrollment(BaseTimestampedModel):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="learn_recurring_task_enrollments"
+    )
+    recurring_task = models.ForeignKey(
+        LearnRecurringTask,
+        on_delete=models.CASCADE,
+        related_name="enrollments"
+    )
+
+    class Meta:
+        unique_together = ("user", "recurring_task")
+        ordering = ["-created_at"]
+
+    @property
+    def weekly_task(self):
+        return self.recurring_task
+
+    def __str__(self):
+        return f"{self.user.email} -> {self.recurring_task.name}"
+
+
+# Backward compatibility aliases
+WeeklyTask = LearnRecurringTask
+WeeklyTaskEnrollment = LearnRecurringTaskEnrollment
+
+

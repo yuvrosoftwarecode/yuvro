@@ -155,24 +155,31 @@ async function fetchRealVerifiedSkills(): Promise<VerifiedSkill[]> {
     submissions.forEach((s: any) => {
       if (s.ticket_status === "done" || s.ticket_status === "in_review") {
         const labId = String(
+          s.lab_id ||
           s.lab_sprint_ticket?.sprint?.lab ||
           s.lab_sprint_ticket?.lab ||
-          s.lab_id ||
           s.lab ||
-          "core"
+          (labsList[0]?.id ? String(labsList[0].id) : "core")
         );
-        countPerLab[labId] = (countPerLab[labId] || 0) + 1;
+        const resolvedLabName =
+          s.lab_title ||
+          labMap.get(labId) ||
+          (labsList[0]?.title ? labsList[0].title : "Engineering Lab");
+
+        if (!countPerLab[labId]) {
+          countPerLab[labId] = { count: 0, name: resolvedLabName };
+        }
+        countPerLab[labId].count += 1;
       }
     });
 
     const verified: VerifiedSkill[] = [];
-    Object.entries(countPerLab).forEach(([labId, count]) => {
-      if (count > 0) {
-        const labName = labMap.get(labId) || `Engineering Lab #${labId}`;
-        const level = count >= 15 ? "Advanced" : count >= 5 ? "Intermediate" : "Beginner";
+    Object.entries(countPerLab).forEach(([labId, data]) => {
+      if (data.count > 0) {
+        const level = data.count >= 15 ? "Advanced" : data.count >= 5 ? "Intermediate" : "Beginner";
         verified.push({
           id: `vs-${labId}`,
-          name: labName,
+          name: data.name,
           level,
           tasksCount: count,
         });

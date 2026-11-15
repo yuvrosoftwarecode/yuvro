@@ -42,6 +42,7 @@ export function TopNav({
     });
 
     const handleRefresh = () => {
+      if (!user) return;
       loadStudentStats(true).then(setStats).catch(() => {});
     };
     window.addEventListener("yuvro-stats-refresh", handleRefresh);

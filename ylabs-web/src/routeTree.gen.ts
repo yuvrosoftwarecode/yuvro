@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as YuvrolabsPricingRouteImport } from './routes/yuvrolabs-pricing'
 import { Route as YuvrolabsRouteImport } from './routes/yuvrolabs'
+import { Route as WeeklyTaskRouteImport } from './routes/weekly-task'
 import { Route as VitarkaAiRouteImport } from './routes/vitarka-ai'
 import { Route as SystemDesignStudioRouteImport } from './routes/system-design-studio'
 import { Route as StudentRouteImport } from './routes/student'
@@ -34,6 +35,7 @@ import { Route as RecruiterIndexRouteImport } from './routes/recruiter.index'
 import { Route as EvaluationIndexRouteImport } from './routes/evaluation.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as StudentWeeklyTaskRouteImport } from './routes/student.weekly-task'
 import { Route as StudentResearchRouteImport } from './routes/student.research'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentLeaderboardRouteImport } from './routes/student.leaderboard'
@@ -56,11 +58,13 @@ import { Route as EvaluationProctoringRouteImport } from './routes/evaluation.pr
 import { Route as EvaluationOtpRouteImport } from './routes/evaluation.otp'
 import { Route as EvaluationInstructionsRouteImport } from './routes/evaluation.instructions'
 import { Route as EvaluationCompleteRouteImport } from './routes/evaluation.complete'
+import { Route as AdminWeeklyTasksRouteImport } from './routes/admin.weekly-tasks'
 import { Route as AdminResearchRouteImport } from './routes/admin.research'
 import { Route as AdminRecruitersRouteImport } from './routes/admin.recruiters'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminLabsRouteImport } from './routes/admin.labs'
 import { Route as RecruiterEvaluationsIndexRouteImport } from './routes/recruiter.evaluations.index'
+import { Route as AdminWeeklyTasksIndexRouteImport } from './routes/admin.weekly-tasks.index'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin.users.index'
 import { Route as AdminLabsIndexRouteImport } from './routes/admin.labs.index'
 import { Route as StudentProfileConnectionsRouteImport } from './routes/student.profile.connections'
@@ -68,12 +72,14 @@ import { Route as StudentLabSlugRouteImport } from './routes/student.lab.$slug'
 import { Route as SharedReportTokenRouteImport } from './routes/shared.report.$token'
 import { Route as ResetPasswordUidb64TokenRouteImport } from './routes/reset-password.$uidb64.$token'
 import { Route as RecruiterEvaluationsIdRouteImport } from './routes/recruiter.evaluations.$id'
+import { Route as AdminWeeklyTasksNewRouteImport } from './routes/admin.weekly-tasks.new'
 import { Route as AdminUsersIdRouteImport } from './routes/admin.users.$id'
 import { Route as AdminLabsNewRouteImport } from './routes/admin.labs.new'
 import { Route as StudentLabSlugReportRouteImport } from './routes/student.lab.$slug.report'
 import { Route as StudentCollaborationSprintIdRouteImport } from './routes/student.collaboration.sprint.$id'
 import { Route as RecruiterEvaluationsIdWorkspaceRouteImport } from './routes/recruiter.evaluations.$id.workspace'
 import { Route as PublicMilestoneSlugUserIdRouteImport } from './routes/public.milestone.$slug.$userId'
+import { Route as AdminWeeklyTasksIdEditRouteImport } from './routes/admin.weekly-tasks.$id.edit'
 import { Route as AdminStudentReportUserIdLabIdRouteImport } from './routes/admin.student-report.$userId.$labId'
 import { Route as AdminLabsIdSprintsRouteImport } from './routes/admin.labs.$id.sprints'
 import { Route as AdminLabsIdEditRouteImport } from './routes/admin.labs.$id.edit'
@@ -99,6 +105,11 @@ const YuvrolabsPricingRoute = YuvrolabsPricingRouteImport.update({
 const YuvrolabsRoute = YuvrolabsRouteImport.update({
   id: '/yuvrolabs',
   path: '/yuvrolabs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WeeklyTaskRoute = WeeklyTaskRouteImport.update({
+  id: '/weekly-task',
+  path: '/weekly-task',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VitarkaAiRoute = VitarkaAiRouteImport.update({
@@ -216,6 +227,11 @@ const UUsernameRoute = UUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentWeeklyTaskRoute = StudentWeeklyTaskRouteImport.update({
+  id: '/weekly-task',
+  path: '/weekly-task',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentResearchRoute = StudentResearchRouteImport.update({
   id: '/research',
   path: '/research',
@@ -326,6 +342,11 @@ const EvaluationCompleteRoute = EvaluationCompleteRouteImport.update({
   path: '/complete',
   getParentRoute: () => EvaluationRoute,
 } as any)
+const AdminWeeklyTasksRoute = AdminWeeklyTasksRouteImport.update({
+  id: '/weekly-tasks',
+  path: '/weekly-tasks',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminResearchRoute = AdminResearchRouteImport.update({
   id: '/research',
   path: '/research',
@@ -352,6 +373,11 @@ const RecruiterEvaluationsIndexRoute =
     path: '/evaluations/',
     getParentRoute: () => RecruiterRoute,
   } as any)
+const AdminWeeklyTasksIndexRoute = AdminWeeklyTasksIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminWeeklyTasksRoute,
+} as any)
 const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
@@ -389,6 +415,11 @@ const RecruiterEvaluationsIdRoute = RecruiterEvaluationsIdRouteImport.update({
   path: '/evaluations/$id',
   getParentRoute: () => RecruiterRoute,
 } as any)
+const AdminWeeklyTasksNewRoute = AdminWeeklyTasksNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AdminWeeklyTasksRoute,
+} as any)
 const AdminUsersIdRoute = AdminUsersIdRouteImport.update({
   id: '/users/$id',
   path: '/users/$id',
@@ -422,6 +453,11 @@ const PublicMilestoneSlugUserIdRoute =
     path: '/public/milestone/$slug/$userId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminWeeklyTasksIdEditRoute = AdminWeeklyTasksIdEditRouteImport.update({
+  id: '/$id/edit',
+  path: '/$id/edit',
+  getParentRoute: () => AdminWeeklyTasksRoute,
+} as any)
 const AdminStudentReportUserIdLabIdRoute =
   AdminStudentReportUserIdLabIdRouteImport.update({
     id: '/student-report/$userId/$labId',
@@ -536,12 +572,14 @@ export interface FileRoutesByFullPath {
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
   '/vitarka-ai': typeof VitarkaAiRoute
+  '/weekly-task': typeof WeeklyTaskRoute
   '/yuvrolabs': typeof YuvrolabsRoute
   '/yuvrolabs-pricing': typeof YuvrolabsPricingRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
   '/admin/research': typeof AdminResearchRoute
+  '/admin/weekly-tasks': typeof AdminWeeklyTasksRouteWithChildren
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -564,12 +602,14 @@ export interface FileRoutesByFullPath {
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
   '/student/research': typeof StudentResearchRoute
+  '/student/weekly-task': typeof StudentWeeklyTaskRoute
   '/u/$username': typeof UUsernameRoute
   '/admin/': typeof AdminIndexRoute
   '/evaluation/': typeof EvaluationIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
   '/admin/users/$id': typeof AdminUsersIdRouteWithChildren
+  '/admin/weekly-tasks/new': typeof AdminWeeklyTasksNewRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
@@ -577,11 +617,13 @@ export interface FileRoutesByFullPath {
   '/student/profile/connections': typeof StudentProfileConnectionsRoute
   '/admin/labs/': typeof AdminLabsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
+  '/admin/weekly-tasks/': typeof AdminWeeklyTasksIndexRoute
   '/recruiter/evaluations/': typeof RecruiterEvaluationsIndexRoute
   '/admin/labs/$id/analytics': typeof AdminLabsIdAnalyticsRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
   '/admin/student-report/$userId/$labId': typeof AdminStudentReportUserIdLabIdRouteWithChildren
+  '/admin/weekly-tasks/$id/edit': typeof AdminWeeklyTasksIdEditRoute
   '/public/milestone/$slug/$userId': typeof PublicMilestoneSlugUserIdRoute
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
@@ -616,6 +658,7 @@ export interface FileRoutesByTo {
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
   '/vitarka-ai': typeof VitarkaAiRoute
+  '/weekly-task': typeof WeeklyTaskRoute
   '/yuvrolabs': typeof YuvrolabsRoute
   '/yuvrolabs-pricing': typeof YuvrolabsPricingRoute
   '/admin/questions': typeof AdminQuestionsRoute
@@ -643,12 +686,14 @@ export interface FileRoutesByTo {
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
   '/student/research': typeof StudentResearchRoute
+  '/student/weekly-task': typeof StudentWeeklyTaskRoute
   '/u/$username': typeof UUsernameRoute
   '/admin': typeof AdminIndexRoute
   '/evaluation': typeof EvaluationIndexRoute
   '/recruiter': typeof RecruiterIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
   '/admin/users/$id': typeof AdminUsersIdRouteWithChildren
+  '/admin/weekly-tasks/new': typeof AdminWeeklyTasksNewRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
@@ -656,11 +701,13 @@ export interface FileRoutesByTo {
   '/student/profile/connections': typeof StudentProfileConnectionsRoute
   '/admin/labs': typeof AdminLabsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
+  '/admin/weekly-tasks': typeof AdminWeeklyTasksIndexRoute
   '/recruiter/evaluations': typeof RecruiterEvaluationsIndexRoute
   '/admin/labs/$id/analytics': typeof AdminLabsIdAnalyticsRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
   '/admin/student-report/$userId/$labId': typeof AdminStudentReportUserIdLabIdRouteWithChildren
+  '/admin/weekly-tasks/$id/edit': typeof AdminWeeklyTasksIdEditRoute
   '/public/milestone/$slug/$userId': typeof PublicMilestoneSlugUserIdRoute
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
@@ -699,12 +746,14 @@ export interface FileRoutesById {
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
   '/vitarka-ai': typeof VitarkaAiRoute
+  '/weekly-task': typeof WeeklyTaskRoute
   '/yuvrolabs': typeof YuvrolabsRoute
   '/yuvrolabs-pricing': typeof YuvrolabsPricingRoute
   '/admin/labs': typeof AdminLabsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
   '/admin/research': typeof AdminResearchRoute
+  '/admin/weekly-tasks': typeof AdminWeeklyTasksRouteWithChildren
   '/evaluation/complete': typeof EvaluationCompleteRoute
   '/evaluation/instructions': typeof EvaluationInstructionsRoute
   '/evaluation/otp': typeof EvaluationOtpRoute
@@ -727,12 +776,14 @@ export interface FileRoutesById {
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
   '/student/research': typeof StudentResearchRoute
+  '/student/weekly-task': typeof StudentWeeklyTaskRoute
   '/u/$username': typeof UUsernameRoute
   '/admin/': typeof AdminIndexRoute
   '/evaluation/': typeof EvaluationIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
   '/admin/labs/new': typeof AdminLabsNewRoute
   '/admin/users/$id': typeof AdminUsersIdRouteWithChildren
+  '/admin/weekly-tasks/new': typeof AdminWeeklyTasksNewRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
@@ -740,11 +791,13 @@ export interface FileRoutesById {
   '/student/profile/connections': typeof StudentProfileConnectionsRoute
   '/admin/labs/': typeof AdminLabsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
+  '/admin/weekly-tasks/': typeof AdminWeeklyTasksIndexRoute
   '/recruiter/evaluations/': typeof RecruiterEvaluationsIndexRoute
   '/admin/labs/$id/analytics': typeof AdminLabsIdAnalyticsRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
   '/admin/student-report/$userId/$labId': typeof AdminStudentReportUserIdLabIdRouteWithChildren
+  '/admin/weekly-tasks/$id/edit': typeof AdminWeeklyTasksIdEditRoute
   '/public/milestone/$slug/$userId': typeof PublicMilestoneSlugUserIdRoute
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
@@ -784,12 +837,14 @@ export interface FileRouteTypes {
     | '/student'
     | '/system-design-studio'
     | '/vitarka-ai'
+    | '/weekly-task'
     | '/yuvrolabs'
     | '/yuvrolabs-pricing'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
     | '/admin/research'
+    | '/admin/weekly-tasks'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -812,12 +867,14 @@ export interface FileRouteTypes {
     | '/student/leaderboard'
     | '/student/profile'
     | '/student/research'
+    | '/student/weekly-task'
     | '/u/$username'
     | '/admin/'
     | '/evaluation/'
     | '/recruiter/'
     | '/admin/labs/new'
     | '/admin/users/$id'
+    | '/admin/weekly-tasks/new'
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
     | '/shared/report/$token'
@@ -825,11 +882,13 @@ export interface FileRouteTypes {
     | '/student/profile/connections'
     | '/admin/labs/'
     | '/admin/users/'
+    | '/admin/weekly-tasks/'
     | '/recruiter/evaluations/'
     | '/admin/labs/$id/analytics'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
     | '/admin/student-report/$userId/$labId'
+    | '/admin/weekly-tasks/$id/edit'
     | '/public/milestone/$slug/$userId'
     | '/recruiter/evaluations/$id/workspace'
     | '/student/collaboration/sprint/$id'
@@ -864,6 +923,7 @@ export interface FileRouteTypes {
     | '/student'
     | '/system-design-studio'
     | '/vitarka-ai'
+    | '/weekly-task'
     | '/yuvrolabs'
     | '/yuvrolabs-pricing'
     | '/admin/questions'
@@ -891,12 +951,14 @@ export interface FileRouteTypes {
     | '/student/leaderboard'
     | '/student/profile'
     | '/student/research'
+    | '/student/weekly-task'
     | '/u/$username'
     | '/admin'
     | '/evaluation'
     | '/recruiter'
     | '/admin/labs/new'
     | '/admin/users/$id'
+    | '/admin/weekly-tasks/new'
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
     | '/shared/report/$token'
@@ -904,11 +966,13 @@ export interface FileRouteTypes {
     | '/student/profile/connections'
     | '/admin/labs'
     | '/admin/users'
+    | '/admin/weekly-tasks'
     | '/recruiter/evaluations'
     | '/admin/labs/$id/analytics'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
     | '/admin/student-report/$userId/$labId'
+    | '/admin/weekly-tasks/$id/edit'
     | '/public/milestone/$slug/$userId'
     | '/recruiter/evaluations/$id/workspace'
     | '/student/collaboration/sprint/$id'
@@ -946,12 +1010,14 @@ export interface FileRouteTypes {
     | '/student'
     | '/system-design-studio'
     | '/vitarka-ai'
+    | '/weekly-task'
     | '/yuvrolabs'
     | '/yuvrolabs-pricing'
     | '/admin/labs'
     | '/admin/questions'
     | '/admin/recruiters'
     | '/admin/research'
+    | '/admin/weekly-tasks'
     | '/evaluation/complete'
     | '/evaluation/instructions'
     | '/evaluation/otp'
@@ -974,12 +1040,14 @@ export interface FileRouteTypes {
     | '/student/leaderboard'
     | '/student/profile'
     | '/student/research'
+    | '/student/weekly-task'
     | '/u/$username'
     | '/admin/'
     | '/evaluation/'
     | '/recruiter/'
     | '/admin/labs/new'
     | '/admin/users/$id'
+    | '/admin/weekly-tasks/new'
     | '/recruiter/evaluations/$id'
     | '/reset-password/$uidb64/$token'
     | '/shared/report/$token'
@@ -987,11 +1055,13 @@ export interface FileRouteTypes {
     | '/student/profile/connections'
     | '/admin/labs/'
     | '/admin/users/'
+    | '/admin/weekly-tasks/'
     | '/recruiter/evaluations/'
     | '/admin/labs/$id/analytics'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
     | '/admin/student-report/$userId/$labId'
+    | '/admin/weekly-tasks/$id/edit'
     | '/public/milestone/$slug/$userId'
     | '/recruiter/evaluations/$id/workspace'
     | '/student/collaboration/sprint/$id'
@@ -1030,6 +1100,7 @@ export interface RootRouteChildren {
   StudentRoute: typeof StudentRouteWithChildren
   SystemDesignStudioRoute: typeof SystemDesignStudioRoute
   VitarkaAiRoute: typeof VitarkaAiRoute
+  WeeklyTaskRoute: typeof WeeklyTaskRoute
   YuvrolabsRoute: typeof YuvrolabsRoute
   YuvrolabsPricingRoute: typeof YuvrolabsPricingRoute
   GithubCallbackRoute: typeof GithubCallbackRoute
@@ -1055,6 +1126,13 @@ declare module '@tanstack/react-router' {
       path: '/yuvrolabs'
       fullPath: '/yuvrolabs'
       preLoaderRoute: typeof YuvrolabsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/weekly-task': {
+      id: '/weekly-task'
+      path: '/weekly-task'
+      fullPath: '/weekly-task'
+      preLoaderRoute: typeof WeeklyTaskRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vitarka-ai': {
@@ -1218,6 +1296,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/student/weekly-task': {
+      id: '/student/weekly-task'
+      path: '/weekly-task'
+      fullPath: '/student/weekly-task'
+      preLoaderRoute: typeof StudentWeeklyTaskRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/research': {
       id: '/student/research'
       path: '/research'
@@ -1372,6 +1457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EvaluationCompleteRouteImport
       parentRoute: typeof EvaluationRoute
     }
+    '/admin/weekly-tasks': {
+      id: '/admin/weekly-tasks'
+      path: '/weekly-tasks'
+      fullPath: '/admin/weekly-tasks'
+      preLoaderRoute: typeof AdminWeeklyTasksRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/research': {
       id: '/admin/research'
       path: '/research'
@@ -1406,6 +1498,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/recruiter/evaluations/'
       preLoaderRoute: typeof RecruiterEvaluationsIndexRouteImport
       parentRoute: typeof RecruiterRoute
+    }
+    '/admin/weekly-tasks/': {
+      id: '/admin/weekly-tasks/'
+      path: '/'
+      fullPath: '/admin/weekly-tasks/'
+      preLoaderRoute: typeof AdminWeeklyTasksIndexRouteImport
+      parentRoute: typeof AdminWeeklyTasksRoute
     }
     '/admin/users/': {
       id: '/admin/users/'
@@ -1456,6 +1555,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecruiterEvaluationsIdRouteImport
       parentRoute: typeof RecruiterRoute
     }
+    '/admin/weekly-tasks/new': {
+      id: '/admin/weekly-tasks/new'
+      path: '/new'
+      fullPath: '/admin/weekly-tasks/new'
+      preLoaderRoute: typeof AdminWeeklyTasksNewRouteImport
+      parentRoute: typeof AdminWeeklyTasksRoute
+    }
     '/admin/users/$id': {
       id: '/admin/users/$id'
       path: '/users/$id'
@@ -1497,6 +1603,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/public/milestone/$slug/$userId'
       preLoaderRoute: typeof PublicMilestoneSlugUserIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/weekly-tasks/$id/edit': {
+      id: '/admin/weekly-tasks/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/admin/weekly-tasks/$id/edit'
+      preLoaderRoute: typeof AdminWeeklyTasksIdEditRouteImport
+      parentRoute: typeof AdminWeeklyTasksRoute
     }
     '/admin/student-report/$userId/$labId': {
       id: '/admin/student-report/$userId/$labId'
@@ -1644,6 +1757,21 @@ const AdminLabsRouteWithChildren = AdminLabsRoute._addFileChildren(
   AdminLabsRouteChildren,
 )
 
+interface AdminWeeklyTasksRouteChildren {
+  AdminWeeklyTasksNewRoute: typeof AdminWeeklyTasksNewRoute
+  AdminWeeklyTasksIndexRoute: typeof AdminWeeklyTasksIndexRoute
+  AdminWeeklyTasksIdEditRoute: typeof AdminWeeklyTasksIdEditRoute
+}
+
+const AdminWeeklyTasksRouteChildren: AdminWeeklyTasksRouteChildren = {
+  AdminWeeklyTasksNewRoute: AdminWeeklyTasksNewRoute,
+  AdminWeeklyTasksIndexRoute: AdminWeeklyTasksIndexRoute,
+  AdminWeeklyTasksIdEditRoute: AdminWeeklyTasksIdEditRoute,
+}
+
+const AdminWeeklyTasksRouteWithChildren =
+  AdminWeeklyTasksRoute._addFileChildren(AdminWeeklyTasksRouteChildren)
+
 interface AdminUsersIdRouteChildren {
   AdminUsersIdLabsSlugReportRoute: typeof AdminUsersIdLabsSlugReportRoute
 }
@@ -1676,6 +1804,7 @@ interface AdminRouteChildren {
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminRecruitersRoute: typeof AdminRecruitersRoute
   AdminResearchRoute: typeof AdminResearchRoute
+  AdminWeeklyTasksRoute: typeof AdminWeeklyTasksRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
   AdminUsersIdRoute: typeof AdminUsersIdRouteWithChildren
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
@@ -1687,6 +1816,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminRecruitersRoute: AdminRecruitersRoute,
   AdminResearchRoute: AdminResearchRoute,
+  AdminWeeklyTasksRoute: AdminWeeklyTasksRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
   AdminUsersIdRoute: AdminUsersIdRouteWithChildren,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
@@ -1843,6 +1973,7 @@ interface StudentRouteChildren {
   StudentLeaderboardRoute: typeof StudentLeaderboardRoute
   StudentProfileRoute: typeof StudentProfileRouteWithChildren
   StudentResearchRoute: typeof StudentResearchRoute
+  StudentWeeklyTaskRoute: typeof StudentWeeklyTaskRoute
   StudentLabSlugRoute: typeof StudentLabSlugRouteWithChildren
   StudentCollaborationSprintIdRoute: typeof StudentCollaborationSprintIdRouteWithChildren
 }
@@ -1855,6 +1986,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentLeaderboardRoute: StudentLeaderboardRoute,
   StudentProfileRoute: StudentProfileRouteWithChildren,
   StudentResearchRoute: StudentResearchRoute,
+  StudentWeeklyTaskRoute: StudentWeeklyTaskRoute,
   StudentLabSlugRoute: StudentLabSlugRouteWithChildren,
   StudentCollaborationSprintIdRoute:
     StudentCollaborationSprintIdRouteWithChildren,
@@ -1883,6 +2015,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudentRoute: StudentRouteWithChildren,
   SystemDesignStudioRoute: SystemDesignStudioRoute,
   VitarkaAiRoute: VitarkaAiRoute,
+  WeeklyTaskRoute: WeeklyTaskRoute,
   YuvrolabsRoute: YuvrolabsRoute,
   YuvrolabsPricingRoute: YuvrolabsPricingRoute,
   GithubCallbackRoute: GithubCallbackRoute,

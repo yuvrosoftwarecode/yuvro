@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     Lab, LabSprint, LabSprintTicket,
     UserLabEnrollment, UserLabSprintTicketSubmission,
-    SystemDesign,
+    SystemDesign, LearnRecurringTask, LearnRecurringTaskEnrollment
 )
 
 @admin.register(Lab)
@@ -40,4 +40,16 @@ class SystemDesignAdmin(admin.ModelAdmin):
     list_display = ('title', 'user', 'lab', 'ticket', 'is_template', 'is_submitted', 'updated_at')
     list_filter = ('is_template', 'is_submitted', 'lab')
     search_fields = ('title', 'user__email', 'ticket__title')
+
+@admin.register(LearnRecurringTask)
+class LearnRecurringTaskAdmin(admin.ModelAdmin):
+    list_display = ('name', 'type', 'lab', 'start_date', 'end_date', 'is_active', 'created_at')
+    list_filter = ('type', 'is_active', 'lab', 'start_date')
+    search_fields = ('name', 'lab__title', 'description')
+
+@admin.register(LearnRecurringTaskEnrollment)
+class LearnRecurringTaskEnrollmentAdmin(admin.ModelAdmin):
+    list_display = ('user', 'recurring_task', 'created_at')
+    list_filter = ('recurring_task', 'created_at')
+    search_fields = ('user__email', 'recurring_task__name')
 
