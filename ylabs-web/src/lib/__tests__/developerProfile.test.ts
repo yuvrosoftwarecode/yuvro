@@ -838,6 +838,21 @@ describe("Developer Profile v3.8: Ticket Name Display & Recent Activity Formatti
     assert.ok(serializerContent.includes("lab_title = serializers.SerializerMethodField()"), "must define lab_title");
     assert.ok(serializerContent.includes("def get_ticket_title"), "must implement get_ticket_title");
   });
+
+  it("verifies PerformancePage no longer renders redundant HeatmapCard contributions", () => {
+    const perfPath = path.resolve(ylabsWebDir, "src/features/performance/components/PerformancePage.tsx");
+    const perfContent = fs.readFileSync(perfPath, "utf8");
+
+    assert.ok(!perfContent.includes("<HeatmapCard"), "PerformancePage must not render HeatmapCard");
+  });
+
+  it("verifies MockInterviewTrendChart has stable dot hover without transform scale jitter", () => {
+    const chartPath = path.resolve(ylabsWebDir, "src/features/performance/charts/MockInterviewTrendChart.tsx");
+    const chartContent = fs.readFileSync(chartPath, "utf8");
+
+    assert.ok(!chartContent.includes("hover:scale-125"), "must not use hover:scale-125 on SVG circles");
+    assert.ok(chartContent.includes("r={16}"), "must provide generous invisible hit target to prevent jitter");
+  });
 });
 
 
