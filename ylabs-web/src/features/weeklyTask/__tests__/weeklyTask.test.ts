@@ -48,7 +48,7 @@ describe("Weekly Task Feature: Core Architecture & Data Suite", () => {
     // Verify task, leaderboard and stats panels all reflect the switched task
     assert.notEqual(djTask?.id, dsTask?.id);
     assert.notEqual(djStats.totalEnrolled, dsStats.totalEnrolled);
-    assert.ok(dsLb.top.length > 0);
+    assert.ok(Array.isArray(dsLb.top));
   });
 
   test("2. Completed days show completed status, no solve button, and review action", async () => {
@@ -95,22 +95,17 @@ describe("Weekly Task Feature: Core Architecture & Data Suite", () => {
     assert.equal(Number(312).toLocaleString("en-IN"), "312");
   });
 
-  test("5. A user outside the top 5 is pinned with their real rank", async () => {
+  test("5. Returns clean empty state without synthetic leaderboard generation", async () => {
     // Reset Django task to have only 1 day done so points = 10, placing user far down
     saveStoredDone("dj", [0]);
 
     const { top, userEntry, rank } = await getLeaderboard("dj");
 
-    // The top list should have 5 entries
-    assert.equal(top.length, 5);
-
-    // Top 5 entries should not be the user when user rank is outside top 5
-    assert.ok(rank && rank > 5, `Expected rank > 5, got ${rank}`);
-    assert.ok(userEntry, "User entry must exist outside top 5");
-    assert.equal(userEntry?.name, "You");
-    assert.equal(userEntry?.isYou, true);
-    assert.equal(userEntry?.rank, rank);
-    assert.equal(userEntry?.daysDone, 1);
+    // Without backend data, returns empty top list and null rank (no fake generated leaderboard)
+    assert.ok(Array.isArray(top));
+    assert.equal(top.length, 0);
+    assert.equal(userEntry, null);
+    assert.equal(rank, null);
   });
 
   test("6. Completing a day updates progress, streak, and recalculates points", async () => {
