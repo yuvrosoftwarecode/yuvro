@@ -1,7 +1,7 @@
 import logging
+import time
 import traceback
 import random
-import asyncio
 import re
 import json
 
@@ -40,6 +40,8 @@ from ai_assistant.models import AIAgent, ChatSession, InterviewSession, ChatMess
 from ai_assistant.serializers import InterviewReportSerializer
 from ai_assistant.services import InterviewReportGenerator
 from asgiref.sync import async_to_sync
+# Evidence for the post-interview evaluation engine: records only, never changes a turn (see module).
+from mockinterviews.evaluation_v2 import recording as evidence_recording
 from mockinterviews.dynamic_engine.models import (
     InterviewCreateRequest,
     InterviewMode as DynMode,
@@ -63,6 +65,16 @@ from mockinterviews.dynamic_engine.llm import OpenAIInterviewLLM
 from mockinterviews.dynamic_engine.config import get_settings
 
 logger = logging.getLogger(__name__)
+
+# Mock interview silence handling (the client runs the timer and sends status="silence").
+SILENCE_TIMEOUT_SECONDS = 15   # react after 15s without speech
+WAIT_TIMEOUT_SECONDS = 60      # after "give me a minute", wait 60s before checking in
+# Introduction turns (self-intro and Alex's experience/role/project asks) are context, not graded answers.
+INTRO_QUESTION_TOPICS = {"self introduction", "intro"}
+
+
+def _is_intro_question(question) -> bool:
+    return isinstance(question, dict) and str(question.get("topic") or "").strip().lower() in INTRO_QUESTION_TOPICS
 
 
 INTERVIEW_TRANSITIONS = {
@@ -313,49 +325,102 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
             "quota": serializer.data,
         })
 
-    @action(detail=False, methods=["post"], permission_classes=[permissions.AllowAny])
+    @action(detail=False, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def polish_query(self, request):
         """
-        Takes raw spoken database query / code dictation and polishes it into
-        clean, syntactically correct, properly formatted code using the LLM.
-        """
-        raw_text = request.data.get("text", "")
-        language = request.data.get("language", "sql")
-        context = request.data.get("context", "")
+        Turns code the candidate DICTATED by voice into clean code for the editor.
 
-        if not raw_text or not raw_text.strip():
-            return Response({"polished_code": ""}, status=status.HTTP_200_OK)
+        It is a transcriber, never a solver:
+        - Conversation (thinking aloud, questions, "end the interview") is NOT code.
+          It is returned as speech (`is_speech`, `speech_text`) and `polished_code`
+          stays empty, so it never lands in the editor.
+        - An end-interview request is flagged with `end_intent` so the client can
+          send `speech_text` to the interview endpoint for confirmation.
+        - The LLM never sees the interview question, so it cannot write the answer,
+          and output much longer than what was dictated is rejected.
+        """
+        raw_text = (request.data.get("text") or "").strip()
+        language = (request.data.get("language") or "code").strip() or "code"
+
+        def speech_response(end_intent=False, error=None):
+            payload = {
+                "polished_code": "",
+                "is_speech": True,
+                "end_intent": end_intent,
+                "speech_text": raw_text,
+            }
+            if error:
+                payload["error"] = error
+            return Response(payload, status=status.HTTP_200_OK)
+
+        if not raw_text:
+            return Response(
+                {"polished_code": "", "is_speech": False, "end_intent": False, "speech_text": ""},
+                status=status.HTTP_200_OK,
+            )
+
+        from mockinterviews.ai_interview.interview_engine import detect_end_interview_intent
+
+        # Dictation only happens while coding, so "I'm done" here means the code is done.
+        has_end_intent, confidence = detect_end_interview_intent(raw_text, during_coding=True)
+        if has_end_intent and confidence >= 0.7:
+            return speech_response(end_intent=True)
 
         system_prompt = (
-            f"You are an expert database software engineer and SQL formatter. "
-            f"Your job is to take raw, unedited speech-to-text voice dictation of a {language.upper()} database query or code snippet "
-            f"and convert it into clean, syntactically correct, professionally formatted and indented {language.upper()} code.\n"
-            f"Rules:\n"
-            f"1. Fix obvious speech recognition phonetic mishearings (e.g. 'solid' -> 'sold', 'Order 0' -> 'orders o', 'is =' -> '=', 'some' -> 'SUM').\n"
-            f"2. Resolve speech stumbles or duplicates (e.g. 'total under score quant. Quantity under score solid' -> 'total_quantity_sold').\n"
-            f"3. Return ONLY the raw code itself. Do NOT enclose in markdown code fences (no ```sql or ```). Do NOT include any explanations or conversational chatter."
+            f"You transcribe {language} code that a candidate dictates out loud in a live coding interview.\n"
+            "You are a transcriber, NOT a programmer. The candidate must write the solution themselves.\n"
+            "Rules:\n"
+            "1. Output only code the speaker explicitly dictated: the keywords, names, operators and values they said.\n"
+            "2. Never add lines, logic, conditions, imports, fixes or completions the speaker did not say. "
+            "Never solve the problem or guess what comes next. Partial or broken code stays partial or broken.\n"
+            "3. You may fix speech-recognition mishearings and formatting only "
+            "(e.g. 'total under score count' -> 'total_count', 'equals equals' -> '==', indentation, casing of keywords).\n"
+            "4. If the transcript is conversation rather than dictated code (thinking aloud, explaining an approach, "
+            "asking a question, asking for a hint, saying they are stuck, asking to skip, stop or end), it is speech.\n"
+            'Return ONLY JSON: {"kind": "code" | "speech", "code": "<dictated code, or empty string for speech>"}'
         )
 
-        user_prompt = f"Raw dictated transcript:\n{raw_text}"
-        if context:
-            user_prompt = f"Interview Question Context:\n{context}\n\n{user_prompt}"
-
         try:
-            from mockinterviews.ai_interview.llm_client import get_llm_client
-            llm = get_llm_client()
             from asgiref.sync import async_to_sync
-            polished = async_to_sync(llm.generate)(
-                prompt=user_prompt,
+            from mockinterviews.ai_interview.json_parser import parse_json_response
+            from mockinterviews.ai_interview.llm_client import get_llm_client
+
+            llm = get_llm_client()
+            raw_reply = async_to_sync(llm.generate)(
+                prompt=f"Raw dictated transcript:\n{raw_text}",
                 system_prompt=system_prompt,
                 max_tokens=600,
-                temperature=0.1,
+                temperature=0.0,
             )
-            clean_code = re.sub(r"^```[a-zA-Z]*\n?", "", polished.strip())
-            clean_code = re.sub(r"\n?```$", "", clean_code).strip()
-            return Response({"polished_code": clean_code}, status=status.HTTP_200_OK)
+            parsed = parse_json_response(raw_reply)
         except Exception as e:
-            logger.warning(f"Error polishing query with LLM: {e}")
-            return Response({"polished_code": raw_text, "error": str(e)}, status=status.HTTP_200_OK)
+            logger.warning(f"Error polishing dictated code with LLM: {e}")
+            return speech_response(error=str(e))
+
+        if not isinstance(parsed, dict) or str(parsed.get("kind", "")).lower() != "code":
+            return speech_response()
+
+        clean_code = str(parsed.get("code") or "")
+        clean_code = re.sub(r"^```[a-zA-Z]*\n?", "", clean_code.strip())
+        clean_code = re.sub(r"\n?```$", "", clean_code).strip()
+        if not clean_code:
+            return speech_response()
+
+        # Guard against the model writing code nobody dictated.
+        dictated_tokens = len(re.findall(r"\w+", raw_text))
+        code_tokens = len(re.findall(r"\w+", clean_code))
+        if code_tokens > dictated_tokens * 2 + 10:
+            logger.warning(
+                "polish_query rejected invented code: %d code tokens from %d dictated tokens",
+                code_tokens,
+                dictated_tokens,
+            )
+            return speech_response(error="output_longer_than_dictation")
+
+        return Response(
+            {"polished_code": clean_code, "is_speech": False, "end_intent": False, "speech_text": ""},
+            status=status.HTTP_200_OK,
+        )
 
     search_fields = ["title", "description"]
     ordering_fields = ["created_at", "updated_at"]
@@ -366,6 +431,8 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         try:
             if not MockInterview.objects.filter(title__iexact="MongoDB Development").exists():
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
                 admin_user = User.objects.filter(is_superuser=True).first() or User.objects.first()
                 if admin_user:
                     MockInterview.objects.create(
@@ -419,11 +486,27 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
         extracted = {}
 
         # 1. Fast regex extraction (instant <1ms response)
-        name_match = re.search(r"(?:my name is|i am|i'm|this is|myself|call me)\s+([A-Za-z]+)", clean, re.IGNORECASE)
-        if name_match:
-            extracted["name"] = name_match.group(1).capitalize()
+        # "I'm a fresher" / "I am from Hyderabad" must not become the name "A" / "From".
+        not_names = {
+            "a", "an", "the", "from", "working", "currently", "fresher", "student", "studying", "here",
+            "going", "doing", "interested", "in", "at", "with", "and", "so", "also", "very", "really",
+            "just", "trying", "looking", "passionate", "learning", "pursuing", "graduate", "graduated",
+            "developer", "engineer", "software", "full", "backend", "frontend", "good", "fine", "ok", "okay",
+            "not", "ready", "sorry", "fine", "glad", "happy", "excited", "new", "into", "basically", "actually",
+            "having", "intern", "interning", "employed", "unemployed", "final", "third", "second", "first",
+        }
+        for name_match in re.finditer(r"\b(?:my name is|name is|i am|i'm|im|this is|myself|call me)\s+([A-Za-z]+)", clean, re.IGNORECASE):
+            candidate = name_match.group(1)
+            if candidate.lower() not in not_names and len(candidate) >= 2:
+                extracted["name"] = candidate.capitalize()
+                break
 
-        exp_match = re.search(r"(\d+\+?\s*(?:years?|yrs?)(?:\s+of\s+experience)?|fresher|graduate|intern)", clean, re.IGNORECASE)
+        # Digits or words: speech-to-text often writes "eight years" instead of "8 years".
+        exp_match = re.search(
+            r"((?:\d+(?:\.\d+)?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|a|an)"
+            r"(?:\s+and\s+a\s+half)?\s*\+?\s*(?:plus\s+)?(?:years?|yrs?|months?)(?:\s+of\s+experience)?|fresher|graduate|intern|student)",
+            clean, re.IGNORECASE,
+        )
         if exp_match:
             extracted["experience"] = exp_match.group(1)
 
@@ -432,52 +515,10 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
         if found_skills:
             extracted["skills"] = ", ".join(found_skills)
 
-        # If name is extracted via regex or text is brief, return immediately without slow LLM roundtrip
-        if extracted.get("name") or len(clean.split()) <= 10:
-            return extracted
-
-        from ai_assistant.services import AIServiceFactory
-        from django.conf import settings
-        import json
-
-        try:
-            prompt = f"""
-            Extract the following information from the user's self-introduction.
-            Return ONLY valid JSON. If a detail is missing, return null for it.
-
-            Text: "{text}"
-
-            Format:
-            {{
-                "name": "<string or null>",
-                "experience": "<string or null, e.g. '2 years' or 'fresher'>",
-                "skills": "<string or null, e.g. 'React, Python, Java'>"
-            }}
-            """
-
-            agent = AIAgent.objects.filter(is_active=True).first()
-            if not agent:
-                return extracted
-
-            service = AIServiceFactory.create_service(agent.provider, agent.model_name)
-
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            response = loop.run_until_complete(service.generate_response(
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1,
-                max_tokens=200
-            ))
-
-            resp_text = response.get("response", "").replace("```json", "").replace("```", "").strip()
-            llm_res = json.loads(resp_text)
-            for k, v in llm_res.items():
-                if v and not extracted.get(k):
-                    extracted[k] = v
-            return extracted
-        except Exception as e:
-            logger.error(f"Error extracting intro details: {str(e)}")
-            return extracted
+        # No LLM call here: it added a full extra round-trip before the first technical
+        # question. Alex reads the whole introduction itself and asks for missing details
+        # (experience, role, projects) politely in the following turns.
+        return extracted
 
     @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
     def start_interview(self, request, pk=None):
@@ -1342,6 +1383,22 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def get_next_ai_question(self, request, pk=None):
+        # TEST mock interview only: the test page sends a one-time answer_id so it can retry safely
+        # (each answer is processed once). Without it (the real interview) this is a plain pass-through.
+        answer_id = request.data.get('answer_id') if hasattr(request.data, 'get') else None
+        if answer_id and not getattr(request, '_answer_turn_claimed', False):
+            from mockinterviews.test_stt.answer_turns import run_once
+            if request.data.get('stream'):
+                # TEST interview: same single request, streamed as lines of JSON so Alex's spoken line
+                # can reach the browser as soon as it is written (see test_stt/turn_stream.py).
+                from mockinterviews.test_stt.turn_stream import stream_turn
+                return stream_turn(request, lambda: run_once(request, answer_id, lambda: self._get_next_ai_question_impl(request, pk)))
+            return run_once(request, answer_id, lambda: self._get_next_ai_question_impl(request, pk))
+        return self._get_next_ai_question_impl(request, pk)
+
+    def _get_next_ai_question_impl(self, request, pk=None):
+        turn_t0 = time.monotonic()
+        turn_timings = {}  # TEST interview: returned only when the test page sends answer_id
         try:
             mock_interview = self.get_object()
             interview_session_id = request.data.get('interview_session_id')
@@ -1387,6 +1444,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 confirmation = check_end_confirmation_response(clean_answer)
                 if confirmation == "yes":
                     state["awaiting_end_confirmation"] = False
+                    evidence_recording.record_end(state, "ended_by_learner_voice")
                     interview_session.state_data = state
                     interview_session.save()
                     if submission:
@@ -1408,6 +1466,12 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     })
                 elif confirmation == "no":
                     state["awaiting_end_confirmation"] = False
+                    # If Alex asked the end-confirmation as a turn, drop it so the next answer
+                    # is recorded against the real question, not "Do you want to end?".
+                    _interview = state.get("interview") or []
+                    if _interview and isinstance(_interview[-1], dict) and _interview[-1].get("next_action") == "confirm_end":
+                        _interview.pop()
+                        state["interview"] = _interview
                     interview_session.state_data = state
                     interview_session.save()
                     if submission:
@@ -1442,7 +1506,10 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
             # 2. Check if candidate explicitly expresses intent to end/stop/quit the interview
             if clean_answer:
-                has_end_intent, confidence = detect_end_interview_intent(clean_answer)
+                _last_q = (state.get("interview") or [{}])[-1] or {}
+                has_end_intent, confidence = detect_end_interview_intent(
+                    clean_answer, during_coding=_last_q.get("question_type") == "coding"
+                )
                 if has_end_intent and confidence >= 0.7:
                     state["awaiting_end_confirmation"] = True
                     interview_session.state_data = state
@@ -1498,6 +1565,47 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     }]
                     state["interview"] = interview
 
+                # Live coding coaching: idle / Run events from the editor. Not an answer: nothing is
+                # recorded or scored, and the reply is not added to the question list.
+                if status_code == 'coding_event':
+                    from mockinterviews.ai_interview.interview_engine import get_coding_event_reply
+                    event = {
+                        "type": request.data.get('event_type') or 'idle',
+                        "code": request.data.get('code') or '',
+                        "language": request.data.get('language') or '',
+                        "idle_seconds": request.data.get('idle_seconds') or 15,
+                        "idle_count": request.data.get('idle_count') or 1,
+                        "run": request.data.get('run') or None,
+                        "last_run": request.data.get('last_run') or None,
+                        "repeat_failure": bool(request.data.get('repeat_failure')),
+                    }
+                    reply = ""
+                    try:
+                        reply = async_to_sync(get_coding_event_reply)(state, event)
+                    except Exception as e:
+                        logger.warning(f"Coding event failed: {e}")
+                    evidence_recording.record_coding_event(state, interview[-1] if interview else None, event, reply)
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+                    if reply:
+                        ChatMessage.objects.create(
+                            chat_session=chat_session,
+                            message_type="assistant",
+                            content=reply
+                        )
+                    return Response({
+                        "question": reply,
+                        "is_finished": False,
+                        "question_id": interview[-1].get("id") if interview else None,
+                        "question_type": "coding",
+                        "coding_event": True,
+                        "hints_used": (state.get("master_state") or {}).get("hint_level_given", 0),
+                        "silence_timeout_seconds": SILENCE_TIMEOUT_SECONDS
+                    })
+
                 # If answering the introduction:
                 if current_question_index == 0:
                     is_meaningful = len(clean_answer.split()) >= 2 or len(clean_answer) >= 8
@@ -1533,8 +1641,9 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
                     answers["1"] = {
                         "answer": clean_answer,
-                        "score": 8,
-                        "feedback": "Self-introduction completed."
+                        "score": None,
+                        "feedback": "Self-introduction completed (not scored).",
+                        "exclude_from_score": True
                     }
                     state["answers"] = answers
                     state["current_question_index"] = 1
@@ -1688,14 +1797,36 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                         "question": final_q_text,
                         "is_finished": False,
                         "question_id": next_q["id"],
-                        "question_type": next_q.get("question_type", "technical")
+                        "question_type": next_q.get("question_type", "technical"),
+                        "sample_tests": next_q.get("sample_tests") or [],
+                        "silence_timeout_seconds": SILENCE_TIMEOUT_SECONDS
                     })
 
                 # Candidate is answering a technical question:
-                curr_q = interview[-1] if interview else {"id": 1, "question": "", "expected_points": []}
+                # Answer the last real question (an Alex "Do you want to end?" turn is not a question).
+                real_questions = [q for q in interview if isinstance(q, dict) and q.get("next_action") != "confirm_end"]
+                curr_q = real_questions[-1] if real_questions else (interview[-1] if interview else {"id": 1, "question": "", "expected_points": []})
 
-                if status_code == 'repeat':
+                # Spoken repeat requests ("can you repeat that?") are not answers: repeat without scoring.
+                is_repeat_request = bool(
+                    len(clean_answer.split()) <= 8
+                    and re.search(r"\b(repeat|say (that|it) again|once more|pardon|come again)\b", clean_answer.lower())
+                )
+                # "Yes" right after "Would you like me to repeat the question?" also means repeat.
+                presence_q = state.pop("presence_check_question_id", None)
+                if (
+                    presence_q == str(curr_q.get("id"))
+                    and len(clean_answer.split()) <= 4
+                    and re.match(r"^(yes|yeah|yep|yup|ok|okay|sure|please)\b", clean_answer.lower())
+                ):
+                    is_repeat_request = True
+                if status_code == 'repeat' or is_repeat_request:
                     rep = f"Certainly, let me repeat the question: {curr_q.get('question')}"
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
                     ChatMessage.objects.create(
                         chat_session=chat_session,
                         message_type="assistant",
@@ -1706,6 +1837,98 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                         "is_finished": False,
                         "question_id": curr_q.get("id")
                     })
+
+                # Candidate asks us to wait ("give me a minute, I'm charging my phone"): don't score it,
+                # tell the client to wait WAIT_TIMEOUT_SECONDS before the next silence check.
+                from mockinterviews.ai_interview.interview_engine import detect_wait_request
+                if clean_answer and detect_wait_request(clean_answer):
+                    state["wait_until"] = timezone.now().timestamp() + WAIT_TIMEOUT_SECONDS
+                    state.setdefault("silence_counts", {})[str(curr_q.get("id"))] = 0
+                    wait_msg = "Sure, take your time. I'll check back with you in a minute."
+                    interview_session.state_data = state
+                    interview_session.save()
+                    if submission:
+                        submission.state_data = state
+                        submission.save(update_fields=['state_data'])
+                    ChatMessage.objects.create(
+                        chat_session=chat_session,
+                        message_type="assistant",
+                        content=wait_msg
+                    )
+                    return Response({
+                        "question": wait_msg,
+                        "is_finished": False,
+                        "question_id": curr_q.get("id"),
+                        "question_type": curr_q.get("question_type", "technical"),
+                        "wait_seconds": WAIT_TIMEOUT_SECONDS,
+                        "silence_timeout_seconds": WAIT_TIMEOUT_SECONDS
+                    })
+
+                # Candidate silent / no answer: check presence instead of scoring an empty answer.
+                # The client sends status="silence" (or an empty answer) after SILENCE_TIMEOUT_SECONDS
+                # without speech (WAIT_TIMEOUT_SECONDS after a wait request).
+                silence_evaluation = None
+                if not clean_answer and status_code in ('normal', 'silence', 'idle', 'no_response', 'timeout'):
+                    wait_until = state.get("wait_until")
+                    now_ts = timezone.now().timestamp()
+                    if wait_until and now_ts < float(wait_until):
+                        # Still inside the minute they asked for: stay quiet, tell the client how long is left.
+                        return Response({
+                            "question": "",
+                            "is_finished": False,
+                            "question_id": curr_q.get("id"),
+                            "question_type": curr_q.get("question_type", "technical"),
+                            "waiting": True,
+                            "silence_timeout_seconds": max(1, int(float(wait_until) - now_ts))
+                        })
+                    returning_from_wait = bool(wait_until)
+                    state.pop("wait_until", None)
+                    silence_counts = state.get("silence_counts", {})
+                    q_key = str(curr_q.get("id"))
+                    silence_count = int(silence_counts.get(q_key, 0)) + 1
+                    silence_counts[q_key] = silence_count
+                    state["silence_counts"] = silence_counts
+
+                    if silence_count < 3:
+                        presence_messages = {
+                            1: "Take your time, there's no rush. Would you like me to repeat the question?",
+                            2: "Are you still with me? If this one feels tricky, just say 'next' and we'll try a different question.",
+                        }
+                        presence_msg = presence_messages[silence_count]
+                        if returning_from_wait and silence_count == 1:
+                            presence_msg = "Welcome back! Whenever you're ready, shall I repeat the question?"
+                        state["presence_check_question_id"] = q_key
+                        interview_session.state_data = state
+                        interview_session.save()
+                        if submission:
+                            submission.state_data = state
+                            submission.save(update_fields=['state_data'])
+                        ChatMessage.objects.create(
+                            chat_session=chat_session,
+                            message_type="assistant",
+                            content=presence_msg
+                        )
+                        return Response({
+                            "question": presence_msg,
+                            "is_finished": False,
+                            "question_id": curr_q.get("id"),
+                            "question_type": curr_q.get("question_type", "technical"),
+                            "presence_check": True,
+                            "silence_timeout_seconds": SILENCE_TIMEOUT_SECONDS
+                        })
+
+                    # Third silence on the same question: record no response and move on.
+                    clean_answer = "[no response]"
+                    silence_evaluation = {
+                        "score": 1,
+                        "feedback": "No response from the candidate after repeated check-ins.",
+                        "covered_points": [],
+                        "missed_points": curr_q.get("expected_points", []),
+                        "follow_up_suggestion": "Say warmly that it's fine and ask a different, more accessible question.",
+                        "no_response": True
+                    }
+
+                state.pop("wait_until", None)
 
                 # Detect candidate intent to revisit, recall, or answer a previous topic
                 backtrack_patterns = [
@@ -1731,11 +1954,26 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     "skip", "skip this", "haven't worked", "havent worked", "never used",
                     "pass", "not aware", "no clue"
                 ]
-                is_dont_know = any(p in clean_lower for p in dont_know_patterns)
+                # Only short replies count as "I don't know"; a full answer that says "not sure"
+                # or mentions "pass"/"bypass" must still be evaluated.
+                is_dont_know = (
+                    len(re.findall(r"[a-z']+", clean_lower)) <= 12
+                    and any(re.search(rf"\b{re.escape(p)}\b", clean_lower) for p in dont_know_patterns)
+                )
 
                 # Evaluate answer
                 evaluation = {"score": 6, "feedback": "Answer recorded."}
-                if is_backtrack_request:
+                if silence_evaluation:
+                    evaluation = silence_evaluation
+                elif _is_intro_question(curr_q):
+                    evaluation = {
+                        "score": None,
+                        "feedback": "Introduction detail (experience, role or projects); not scored.",
+                        "covered_points": [],
+                        "missed_points": [],
+                        "exclude_from_score": True
+                    }
+                elif is_backtrack_request:
                     evaluation = {
                         "score": 7,
                         "feedback": f"Candidate requested to return and elaborate on an earlier question: '{clean_answer}'.",
@@ -1760,21 +1998,34 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                         "follow_up_suggestion": "Reassure the candidate warmly with empathy (e.g. 'That is completely okay, no problem at all!' or 'No worries, that is totally fine!') and smoothly transition to a more accessible foundational concept in another topic."
                     }
                 elif clean_answer:
+                    scoring_started = time.monotonic()
                     try:
-                        evaluation = async_to_sync(evaluate_answer)(
+                        eval_kwargs = dict(
                             question=curr_q.get("question", ""),
                             expected_points=curr_q.get("expected_points", []),
                             answer=clean_answer,
                             question_type=curr_q.get("question_type", "technical")
                         )
+                        if request.data.get('answer_id'):
+                            # TEST interview: same scorer call, on a warm AI connection.
+                            from mockinterviews.test_stt import latency as test_latency
+                            evaluation = test_latency.run(lambda: evaluate_answer(**eval_kwargs), timeout=60)
+                        else:
+                            evaluation = async_to_sync(evaluate_answer)(**eval_kwargs)
                     except Exception as e:
                         logger.warning(f"AI answer evaluation failed: {e}")
+                    turn_timings["scoring_ms"] = round((time.monotonic() - scoring_started) * 1000)
 
                 answers[str(curr_q.get("id"))] = {
                     "answer": clean_answer or "Candidate skipped question.",
                     **evaluation
                 }
                 state["answers"] = answers
+                evidence_recording.record_answer(
+                    state, curr_q, status_code=status_code, clean_answer=clean_answer, evaluation=evaluation,
+                    backtrack=is_backtrack_request, remark=is_meta_comment, dont_know=is_dont_know,
+                    input_quality=request.data.get('input_quality'), end_reason=request.data.get('end_reason'),
+                )
 
                 # Save answer in state right away so evaluated answers are permanently recorded
                 interview_session.state_data = state
@@ -1802,10 +2053,19 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
 
                 # Generate next adaptive question without arbitrary count limitation
                 next_q = None
+                alex_started = time.monotonic()
                 try:
-                    next_q = async_to_sync(get_next_question)(state)
+                    if request.data.get('answer_id'):
+                        # TEST interview: same Alex call (after the scorer, with its output) on a warm
+                        # connection; his spoken line goes to the browser as soon as it is written.
+                        from mockinterviews.test_stt import latency as test_latency
+                        say_sink = getattr(request, '_say_sink', None)
+                        next_q = test_latency.run(lambda: get_next_question(state, on_say=say_sink), timeout=40)
+                    else:
+                        next_q = async_to_sync(get_next_question)(state)
                 except Exception as e:
                     logger.error(f"Error in get_next_question (full_ai turn): {e}")
+                turn_timings["alex_ms"] = round((time.monotonic() - alex_started) * 1000)
 
                 if not next_q:
                     # Never conclude prematurely on question failures; fall back to deterministic unique technical question
@@ -1821,6 +2081,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                 interview.append(next_q)
                 state["interview"] = interview
                 state["current_question_index"] = len(interview) - 1
+                evidence_recording.record_turn(state, curr_q, next_q)
 
                 interview_session.state_data = state
                 interview_session.save()
@@ -1834,12 +2095,21 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     message_type="assistant",
                     content=final_q_text
                 )
-                return Response({
+                turn_payload = {
                     "question": final_q_text,
                     "is_finished": False,
                     "question_id": next_q["id"],
-                    "question_type": next_q.get("question_type", "technical")
-                })
+                    "question_type": next_q.get("question_type", "technical"),
+                    "sample_tests": next_q.get("sample_tests") or [],
+                    "hints_used": (state.get("master_state") or {}).get("hint_level_given", 0),
+                    # Client: send status="silence" after this many seconds without speech.
+                    "silence_timeout_seconds": SILENCE_TIMEOUT_SECONDS
+                }
+                if request.data.get('answer_id'):
+                    turn_timings["server_total_ms"] = round((time.monotonic() - turn_t0) * 1000)
+                    turn_payload["timings"] = turn_timings
+                    logger.info("[test-timing] answer %s: %s", request.data.get('answer_id'), turn_timings)
+                return Response(turn_payload)
 
             # ==========================================================
             # 2. PREDEFINED TREE ENGINE MODE
@@ -2153,7 +2423,11 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
     def start_interview(self, request):
         try:
             user = request.user
-            active_session = has_active_submission(user)
+            force = request.data.get('force', False)
+            active_session = not force and MockInterviewSubmission.objects.filter(
+                user=user,
+                status__in=[MockInterviewSubmission.STATUS_STARTED, MockInterviewSubmission.STATUS_IN_PROGRESS]
+            ).exists()
             if active_session:
                 return Response(
                     {'error': 'You already have an active test, assessment, or interview session in progress. Please complete or cancel it before starting a new one.'},
@@ -2175,7 +2449,7 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
             analysis = request.data.get('analysis')
             difficulty = request.data.get('difficulty', 'medium').lower()
             num_questions = int(request.data.get('num_questions', 5))
-            adaptive = bool(request.data.get('adaptive', False))
+            adaptive = True  # Alex (Master Interviewer) is always adaptive; request flag kept for API compatibility
             # Raw texts for admin visibility
             jd_text = request.data.get('jd_text', '')
             resume_text = request.data.get('resume_text', '')
@@ -2232,16 +2506,12 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 "resume_text": resume_text,
             }
             
-            from mockinterviews.ai_interview.interview_engine import generate_questions, get_next_question
+            from mockinterviews.ai_interview.interview_engine import get_next_question
             
-            if not adaptive:
-                # Batch mode: generate all questions
-                state_data["interview"] = async_to_sync(generate_questions)(analysis, difficulty, num_questions)
-            else:
-                # Adaptive mode: generate first question
-                first_q = async_to_sync(get_next_question)(state_data, num_questions)
-                if first_q:
-                    state_data["interview"] = [first_q]
+            # Master Interviewer (Alex) drives every interview turn-by-turn; there is no batch mode.
+            first_q = async_to_sync(get_next_question)(state_data, num_questions)
+            if first_q:
+                state_data["interview"] = [first_q]
             
             if not state_data["interview"]:
                 return Response({"error": "Failed to generate interview questions. Please try again."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -2305,7 +2575,6 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
             interview = state.get("interview", [])
             current_index = state.get("current_question_index", 0)
             num_questions = state.get("num_questions", 5)
-            adaptive = state.get("adaptive", False)
             
             # Increment question index
             next_index = current_index + 1
@@ -2327,12 +2596,11 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 })
             
             next_q = None
-            if not adaptive:
-                # Batch mode: retrieve pre-generated question
-                if next_index < len(interview):
-                    next_q = interview[next_index]
+            if next_index < len(interview):
+                # Session started before the switch to Alex: use its pre-generated question
+                next_q = interview[next_index]
             else:
-                # Adaptive mode: generate next question on the fly
+                # Master Interviewer (Alex): generate the next turn on the fly
                 from mockinterviews.ai_interview.interview_engine import get_next_question
                 next_q = async_to_sync(get_next_question)(state, num_questions)
                 if next_q:
@@ -2438,6 +2706,11 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                     })
                 elif confirmation == "no":
                     state["awaiting_end_confirmation"] = False
+                    _interview = state.get("interview") or []
+                    if _interview and isinstance(_interview[-1], dict) and _interview[-1].get("next_action") == "confirm_end":
+                        _interview.pop()
+                        state["interview"] = _interview
+                        state["current_question_index"] = max(0, len(_interview) - 1)
                     submission.state_data = state
                     submission.save()
 
@@ -2479,7 +2752,10 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                     })
 
             # Case B: Check if user expresses intent to end the interview
-            has_end_intent, confidence = detect_end_interview_intent(user_answer)
+            _last_q = (state.get("interview") or [{}])[-1] or {}
+            has_end_intent, confidence = detect_end_interview_intent(
+                user_answer, during_coding=_last_q.get("question_type") == "coding"
+            )
             if has_end_intent and confidence >= 0.7:
                 state["awaiting_end_confirmation"] = True
                 submission.state_data = state
@@ -2536,15 +2812,25 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 if is_follow_up and previous_answer_data:
                     eval_answer = previous_answer_data.get("answer", "") + "\n" + user_answer
                 
-                # Evaluate answer
+                # Evaluate answer (introduction turns are context, not graded)
                 from mockinterviews.ai_interview.evaluator import evaluate_answer
                 
-                evaluation = async_to_sync(evaluate_answer)(
-                    question=target_q.get("question"),
-                    expected_points=target_q.get("expected_points", []),
-                    answer=eval_answer,
-                    question_type=target_q.get("question_type", "technical")
-                )
+                is_intro_q = _is_intro_question(target_q)
+                if is_intro_q:
+                    evaluation = {
+                        "score": None,
+                        "feedback": "Introduction detail; not scored.",
+                        "covered_points": [],
+                        "missed_points": [],
+                        "exclude_from_score": True
+                    }
+                else:
+                    evaluation = async_to_sync(evaluate_answer)(
+                        question=target_q.get("question"),
+                        expected_points=target_q.get("expected_points", []),
+                        answer=eval_answer,
+                        question_type=target_q.get("question_type", "technical")
+                    )
                 
                 answers[str(question_id)] = {
                     "answer": eval_answer,
@@ -2560,8 +2846,9 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 from mockinterviews.ai_interview.conversation_cues import cue_for_answer
                 cue, proceed = cue_for_answer(evaluation, answer_duration_seconds, is_finished)
                 
-                # Force proceed if it's a follow-up attempt to prevent infinite looping
-                if is_follow_up:
+                # Force proceed if it's a follow-up attempt (prevents loops) or an intro detail
+                # (a short "2 years" must not trigger "would you like to add anything else?")
+                if is_follow_up or is_intro_q:
                     proceed = True
                     from mockinterviews.ai_interview.conversation_cues import closing_ack, next_question_ack
                     cue = closing_ack() if is_finished else next_question_ack()
@@ -2786,12 +3073,19 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
             q_text = q_info.get("question") or f"Question {q_id}"
             q_type = q_info.get("question_type", "technical")
             topic = q_info.get("topic", "General")
-            if topic and topic != "Self introduction":
+            if topic and str(topic).strip().lower() not in INTRO_QUESTION_TOPICS:
                 skills_covered.add(topic)
 
             ans_text = a_data.get("answer", "")
             raw_score = a_data.get("score", 5)
-            score_100 = round(float(raw_score) * 10, 1) if float(raw_score) <= 10 else round(float(raw_score), 1)
+            # Introduction turns and anything without a numeric score don't count toward the grade.
+            if a_data.get("exclude_from_score") or str(topic).strip().lower() in INTRO_QUESTION_TOPICS:
+                continue
+            try:
+                raw_score = float(raw_score)
+            except (TypeError, ValueError):
+                continue
+            score_100 = round(raw_score * 10, 1) if raw_score <= 10 else round(raw_score, 1)
 
             total_score += score_100
             valid_count += 1
@@ -2908,6 +3202,10 @@ class MockInterviewSubmissionViewSet(viewsets.ModelViewSet):
                 return Response({"error": "No active interview session associated with this submission."}, status=status.HTTP_400_BAD_REQUEST)
 
             interview_session = chat_sess.interview_session
+            # Shadow mode: queue the post-interview evaluation (engine v2). Only a pending row is created
+            # here; a scheduled command processes it later. The report below is unchanged.
+            from mockinterviews.evaluation_v2 import queue as evaluation_queue
+            evaluation_queue.enqueue(submission)
             if hasattr(interview_session, 'report') and interview_session.report:
                 serializer = InterviewReportSerializer(interview_session.report)
                 report_data = dict(serializer.data)

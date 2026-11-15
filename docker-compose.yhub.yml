@@ -56,6 +56,32 @@ services:
       - yuvro-storage
 
 
+  # Test mock interview speech-to-text (WebSocket, OpenAI gpt-live-transcribe).
+  # Same image as yhub-backend; serves only /ws/ through Django Channels on uvicorn (host port 8013; 8004 is ymarketplace).
+  yhub-stt:
+    build:
+      context: ./yhub-backend-api
+      dockerfile: Dockerfile
+      args:
+        - CACHEBUST=${CACHEBUST:-1}
+    ports:
+      - "8013:8013"
+    env_file:
+      - path: ./yhub-backend-api/.env.local
+        required: false
+      - path: ./yhub-backend-api/.env.local-secrets
+        required: false
+    volumes:
+      - ./yhub-backend-api:/app
+    depends_on:
+      yhub-db:
+        condition: service_healthy
+    command: >
+      uvicorn "yhub-backend-api.asgi:application" --host 0.0.0.0 --port 8013 --reload
+    restart: on-failure
+    networks:
+      - yhub
+
 volumes:
   yhub_postgres_data:
 

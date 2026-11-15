@@ -34,6 +34,18 @@ COPY . .
 EXPOSE 8000
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
+# ── stt: test mock interview speech-to-text (WebSocket) ──────────────────────
+# Same code, separate process: serves /ws/ through Django Channels on uvicorn, next to the gunicorn
+# container (nginx routes /ws/ to port 8013; 8004 is ymarketplace). Build with --target stt; the default build target is
+# still production (the last stage), so existing builds are unchanged.
+#   docker build --target stt -t yhub-stt .
+#   docker run -d --name yhub-stt -p 8013:8013 --env-file <same env as backend> yhub-stt
+FROM base AS stt
+ARG CACHEBUST=1
+COPY . .
+EXPOSE 8013
+CMD ["uvicorn", "yhub-backend-api.asgi:application", "--host", "0.0.0.0", "--port", "8013", "--ws-ping-interval", "20", "--ws-ping-timeout", "30"]
+
 # ── production ────────────────────────────────────────────────────────────────
 FROM base AS production
 ARG CACHEBUST=1

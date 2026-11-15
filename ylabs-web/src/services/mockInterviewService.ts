@@ -132,6 +132,59 @@ export interface NextQuestionResponse {
   question_type?: string;
   competency_targets?: string[];
   rationale?: string;
+  /** Seconds of candidate silence before the client sends status "silence" (15 normally, 60 after a wait request). */
+  silence_timeout_seconds?: number;
+  /** Set when the candidate asked us to wait ("give me a minute"). */
+  wait_seconds?: number;
+  /** Silence arrived inside the wait window: stay quiet, nothing to speak. */
+  waiting?: boolean;
+  /** The reply is an "are you still there?" check, not a new question. */
+  presence_check?: boolean;
+  /** Coding questions: visible tests for the Run button (input = JSON array of arguments). */
+  sample_tests?: { input: string; expected_output: string }[];
+  /** Reply to an idle/Run event while coding (not a new question). */
+  coding_event?: boolean;
+  hints_used?: number;
+}
+
+export interface CodingEventPayload {
+  event_type: "idle" | "run";
+  code: string;
+  language: string;
+  idle_seconds?: number;
+  idle_count?: number;
+  /** Idle events: the last Run result for the current code, so hints can focus on a failing test. */
+  last_run?: CodingEventPayload["run"];
+  /** Run events: the same test failed again (Alex offers a hint instead of asking again). */
+  repeat_failure?: boolean;
+  run?: {
+    status: string;
+    error?: string;
+    output?: string;
+    passed: number;
+    total: number;
+    failures?: { input: string; expected: string; actual: string }[];
+  };
+}
+
+/** Live coding coaching: tell the interviewer the candidate is idle or ran their code (not scored). */
+export async function sendCodingEvent(
+  interviewId: string,
+  sessionId: string,
+  payload: CodingEventPayload
+): Promise<NextQuestionResponse | null> {
+  try {
+    return await yhubApiAuthUtil.post<NextQuestionResponse>(`/mock-interviews/${interviewId}/get_next_question/`, {
+      source: "student",
+      interview_session_id: sessionId,
+      user_answer: "",
+      status: "coding_event",
+      ...payload,
+    });
+  } catch (err) {
+    console.warn("Coding event failed:", err);
+    return null;
+  }
 }
 
 export function slugifyTitle(title: string): string {
@@ -458,6 +511,8 @@ export async function submitBackendAnswer(
     interview_session_id: string;
     user_answer: string;
     status?: string;
+    /** Why the interview ended (evidence for the post-interview evaluation). */
+    end_reason?: string;
   }
 ): Promise<NextQuestionResponse | null> {
   try {
@@ -587,6 +642,44 @@ export async function verifyMockInterviewPayment(
   );
 }
 
+export interface DictationResult {
+  /** Clean code to put in the editor ("" when the transcript was conversation). */
+  code: string;
+  /** The transcript was conversation (a question, "end the test", "give me a hint"...), not dictated code. */
+  isSpeech: boolean;
+  /** The candidate asked to end the interview. */
+  endIntent: boolean;
+  /** The original spoken text, to send to the interviewer when isSpeech is true. */
+  speechText: string;
+}
+
+/**
+ * Turns dictated code into clean code, and tells conversation apart from code.
+ * Conversation must never be written into the editor; send speechText to the interview instead.
+ */
+export async function polishDictation(text: string, language: string = "python"): Promise<DictationResult> {
+  const empty: DictationResult = { code: "", isSpeech: false, endIntent: false, speechText: "" };
+  if (!text || !text.trim()) return empty;
+  try {
+    const res = await yhubApiAuthUtil.post<{
+      polished_code?: string;
+      is_speech?: boolean;
+      end_intent?: boolean;
+      speech_text?: string;
+    }>("/mock-interviews/polish_query/", { text, language });
+    return {
+      code: (res?.polished_code || "").trim(),
+      isSpeech: !!res?.is_speech,
+      endIntent: !!res?.end_intent,
+      speechText: res?.speech_text || (res?.is_speech ? text : ""),
+    };
+  } catch (err) {
+    console.warn("Could not polish dictation with backend AI:", err);
+    // Keep what the candidate dictated; never invent code.
+    return { ...empty, code: text };
+  }
+}
+
 export async function polishDictatedQuery(
   text: string,
   language: string = "sql",
@@ -594,11 +687,13 @@ export async function polishDictatedQuery(
 ): Promise<string> {
   if (!text || !text.trim()) return text;
   try {
-    const res = await yhubApiAuthUtil.post<{ polished_code?: string }>("/mock-interviews/polish_query/", {
-      text,
-      language,
-      context,
-    });
+    const res = await yhubApiAuthUtil.post<{ polished_code?: string; is_speech?: boolean }>(
+      "/mock-interviews/polish_query/",
+      { text, language, context }
+    );
+    if (res && res.is_speech) {
+      return ""; // conversation, not code: nothing goes into the editor
+    }
     if (res && res.polished_code) {
       return res.polished_code;
     }
