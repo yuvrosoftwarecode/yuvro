@@ -13,7 +13,7 @@ import { Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 type View = "latest" | "following" | "topics";
-type Period = "today" | "week" | "month";
+type Period = "today" | "week" | "month" | "all";
 type Sort = "newest" | "cited" | "upvoted";
 
 const STORAGE_KEY = "yuvro-research-followed";
@@ -369,6 +369,7 @@ export default function Research({ embedded = false }: { embedded?: boolean }) {
                         ["today", "Today"],
                         ["week", "This week"],
                         ["month", "This month"],
+                        ["all", "All"],
                       ] as [Period, string][]
                     ).map(([k, l]) => (
                       <Button
@@ -427,9 +428,19 @@ export default function Research({ embedded = false }: { embedded?: boolean }) {
                     .
                   </p>
                 ) : groups.length === 0 ? (
-                  <p className="px-5 sm:px-8 py-10 text-[15px] text-muted-foreground">
-                    No papers match these filters. Try a longer period or clear the topic.
-                  </p>
+                  <div className="px-5 sm:px-8 py-10 text-[15px] text-muted-foreground flex flex-col items-center gap-3">
+                    <p>No papers match these filters. Try selecting a different topic or period.</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSyncLivePapers}
+                      disabled={syncing}
+                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      <RefreshCw className={`h-3.5 w-3.5 ${syncing ? "animate-spin" : ""}`} />
+                      {syncing ? "Fetching Trending Papers..." : "Fetch Trending Papers"}
+                    </Button>
+                  </div>
                 ) : (
                   groups.map(([label, list]) => (
                     <section key={label}>

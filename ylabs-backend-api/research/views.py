@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 from .services import (
     get_or_create_paper_summary,
     seed_default_topics,
+    seed_default_papers,
     fetch_arxiv_papers,
     ingest_huggingface_papers,
     ingest_openalex_papers,
@@ -84,6 +85,15 @@ class ResearchPaperListView(APIView):
         if not ResearchTopic.objects.exists():
             seed_default_topics()
 
+        if not ResearchPaper.objects.exists():
+            try:
+                ingest_res = ingest_huggingface_papers(limit=25)
+                if (not isinstance(ingest_res, dict) or ingest_res.get("ingested", 0) == 0) and not ResearchPaper.objects.exists():
+                    seed_default_papers()
+            except Exception as e:
+                logger.warning(f"Auto-ingestion of papers failed: {e}")
+                seed_default_papers()
+
         queryset = ResearchPaper.objects.select_related("primary_topic", "summary").all()
 
         if request.user.is_authenticated:
@@ -106,7 +116,13 @@ class ResearchPaperListView(APIView):
         elif period_param == "week":
             queryset = queryset.filter(published_date__gte=today - timedelta(days=7), published_date__lte=today)
         elif period_param == "month":
-            queryset = queryset.filter(published_date__gte=today - timedelta(days=30), published_date__lte=today)
+            month_qs = queryset.filter(published_date__gte=today - timedelta(days=30), published_date__lte=today)
+            if month_qs.exists() or period_param == "month_strict":
+                queryset = month_qs
+            else:
+                queryset = queryset.filter(published_date__lte=today)
+        elif period_param == "all":
+            queryset = queryset.filter(published_date__lte=today)
         else:
             queryset = queryset.filter(published_date__lte=today)
 
@@ -319,11 +335,15 @@ class IngestArxivPapersView(APIView):
                     if created:
                         arxiv_ingested += 1
 
+        new_count = hf_result["ingested"] + oa_result["ingested"] + arxiv_ingested
+        if new_count == 0 and not ResearchPaper.objects.exists():
+            new_count += seed_default_papers()
+
         return Response({
             "status": "success",
             "huggingface": hf_result,
             "openalex": oa_result,
-            "new_papers_ingested": hf_result["ingested"] + oa_result["ingested"] + arxiv_ingested,
+            "new_papers_ingested": new_count,
             "total_papers": ResearchPaper.objects.count(),
         })
 
