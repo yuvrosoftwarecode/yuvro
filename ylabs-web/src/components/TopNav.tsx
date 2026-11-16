@@ -16,6 +16,7 @@ import YuvroLogo from "@/assets/YuvroLogo.png";
 const primaryLinks = [
   { to: "/student/dashboard", label: "Simulation Labs" },
   { to: "/mock-interviews", label: "Mock Interviews" },
+  { to: "/research", label: "AI Research Papers" },
 ];
 
 let hasShownGithubPromptSession = false;
@@ -87,11 +88,14 @@ export function TopNav({
     if (to === "/mock-interviews") {
       return activePath.startsWith("/mock-interviews") || activePath.startsWith("/mock-interview");
     }
+    if (to === "/research") {
+      return activePath.startsWith("/research") || activePath.startsWith("/student/research");
+    }
     return activePath.startsWith(to);
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-white dark:bg-background">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-6 px-4">
         <Link
           to="/student/dashboard"
@@ -99,6 +103,9 @@ export function TopNav({
         >
           <img src={YuvroLogo} alt="Yuvro Labs" className="h-7 w-auto object-contain" />
           <span>Yuvro Labs</span>
+          <span className="rounded-full bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-medium leading-none text-orange-600 dark:text-orange-400 select-none">
+            Beta
+          </span>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm">
           {primaryLinks.map((l) => {

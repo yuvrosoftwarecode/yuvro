@@ -476,3 +476,113 @@ class EmailService:
             template_name="emails/transactional/evaluation_invitation.html",
             context=context,
         )
+
+    @classmethod
+    def send_support_feedback(
+        cls,
+        subject: str,
+        description: str,
+        sender_email: Optional[str] = None,
+        sender_name: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> bool:
+        """Send user improvement suggestion / support feedback email to support@yuvrolabs.com."""
+        to_email = cls.get_support_email()
+        app_name = cls.get_application_name()
+        email_subject = f"[{app_name} Feedback] {subject.strip()}"
+
+        sender_display = sender_name or "Anonymous / Platform User"
+        sender_email_display = sender_email or "Not provided"
+
+        plain_lines = [
+            f"=== {app_name} User Feedback & Improvement Suggestion ===",
+            "",
+            f"Subject: {subject.strip()}",
+            f"From: {sender_display} <{sender_email_display}>",
+        ]
+        if metadata:
+            for k, v in metadata.items():
+                if v:
+                    plain_lines.append(f"{k.replace('_', ' ').capitalize()}: {v}")
+
+        plain_lines.extend([
+            "",
+            "--- Feedback / Description ---",
+            description.strip(),
+            "",
+            "-----------------------------",
+            f"Sent automatically from {app_name} feedback widget.",
+        ])
+        plain_message = "\n".join(plain_lines)
+
+        meta_rows_html = ""
+        if metadata:
+            for k, v in metadata.items():
+                if v:
+                    label = k.replace("_", " ").title()
+                    meta_rows_html += f"""
+                    <tr>
+                        <td style="padding: 6px 12px; font-weight: 600; color: #4b5563; width: 140px; font-size: 13px;">{label}:</td>
+                        <td style="padding: 6px 12px; color: #111827; font-size: 13px;">{v}</td>
+                    </tr>
+                    """
+
+        html_message = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{email_subject}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 24px;">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 620px; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+        <tr>
+            <td style="background-color: #f97316; padding: 20px 24px;">
+                <h1 style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 700; letter-spacing: -0.02em;">{app_name} — Improvement Suggestion</h1>
+                <p style="margin: 4px 0 0; color: #ffedd5; font-size: 13px;">New user feedback received</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 24px;">
+                <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 20px;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 10px 12px; font-weight: 600; color: #4b5563; width: 140px; font-size: 13px; border-bottom: 1px solid #f3f4f6;">Subject:</td>
+                            <td style="padding: 10px 12px; color: #111827; font-weight: 600; font-size: 14px; border-bottom: 1px solid #f3f4f6;">{subject.strip()}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px; font-weight: 600; color: #4b5563; font-size: 13px; border-bottom: 1px solid #f3f4f6;">Submitted By:</td>
+                            <td style="padding: 8px 12px; color: #111827; font-size: 13px; border-bottom: 1px solid #f3f4f6;">{sender_display} &lt;{sender_email_display}&gt;</td>
+                        </tr>
+                        {meta_rows_html}
+                    </table>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <h2 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; margin: 0 0 10px;">Improvement Suggestion / Description</h2>
+                    <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-left: 4px solid #f97316; border-radius: 6px; padding: 16px; font-size: 14px; line-height: 1.6; color: #1f2937; white-space: pre-wrap;">{description.strip()}</div>
+                </div>
+
+                <div style="border-top: 1px solid #f3f4f6; padding-top: 16px; font-size: 12px; color: #9ca3af; text-align: center;">
+                    Delivered to <strong>support@yuvrolabs.com</strong> via {app_name} support system.
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>"""
+
+        sender = cls.get_default_from_email()
+        try:
+            send_mail(
+                subject=email_subject,
+                message=plain_message,
+                from_email=sender,
+                recipient_list=[to_email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+            logger.info("Successfully dispatched support feedback email to %s", to_email)
+            return True
+        except Exception as exc:
+            logger.error("Failed to send support feedback email: %s", exc, exc_info=True)
+            return False

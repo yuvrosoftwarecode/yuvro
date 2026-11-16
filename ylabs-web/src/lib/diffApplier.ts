@@ -164,6 +164,16 @@ export function parseMultiFileAgentResponse(
   explanation: string;
   hasCode: boolean;
 } {
+  const isPlanFile = (p?: string | null) =>
+    Boolean(
+      p &&
+        (p.includes(".yuvro-developer/plan/") ||
+          p.includes("/plan/") ||
+          p.startsWith("plan-") ||
+          (p.endsWith(".md") && p.includes("plan")))
+    );
+
+  const cleanDefaultFile = isPlanFile(defaultFile) ? undefined : defaultFile;
   const files: ParsedFileChange[] = [];
   const codeBlockRegex = /```([a-zA-Z0-9_-]+)?(?:\s+(?:file|filename|title)=["']?([^"'\s]+)["']?)?\s*([\s\S]*?)```/g;
 
@@ -221,13 +231,24 @@ export function parseMultiFileAgentResponse(
 
     // If still not found and this is the only code block or defaultFile is specified:
     if (!filePath) {
-      if (matches.length === 1 && defaultFile) {
-        filePath = normalizeFilePath(defaultFile);
-      } else if (!seenPaths.has(defaultFile || "main.py")) {
-        filePath = normalizeFilePath(defaultFile || "main.py");
+      if (matches.length === 1 && cleanDefaultFile) {
+        filePath = normalizeFilePath(cleanDefaultFile);
+      } else if (cleanDefaultFile && !seenPaths.has(cleanDefaultFile)) {
+        filePath = normalizeFilePath(cleanDefaultFile);
       } else {
-        filePath = `file_${i + 1}.${m.lang || "txt"}`;
+        // Find first non-plan file in existingFiles if available
+        const firstExisting = Object.keys(existingFiles).find((f) => !isPlanFile(f) && !f.endsWith(".md"));
+        if (firstExisting && !seenPaths.has(firstExisting)) {
+          filePath = normalizeFilePath(firstExisting);
+        } else {
+          filePath = `file_${i + 1}.${m.lang || "txt"}`;
+        }
       }
+    }
+
+    // Do NOT treat plan markdown documentation files as code targets
+    if (isPlanFile(filePath)) {
+      return;
     }
 
     seenPaths.add(filePath);

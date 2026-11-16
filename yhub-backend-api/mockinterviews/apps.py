@@ -1,5 +1,13 @@
 from django.apps import AppConfig
 
+
 class MockInterviewsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'mockinterviews'
+
+    def ready(self):
+        try:
+            import mockinterviews.models  # noqa
+        except Exception:
+            pass
+

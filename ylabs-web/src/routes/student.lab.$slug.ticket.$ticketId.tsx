@@ -8,7 +8,6 @@ import { SystemDesignStudio } from "@/routes/system-design-studio";
 import { getLab } from "@/lib/adminLabs";
 import React, { useState, useEffect } from "react";
 import { tickets } from "@/lib/dummy";
-
 import {
   TicketIDE,
   getCandidatePort,
@@ -97,7 +96,7 @@ export function StudentTicketView(props: {
           setLabType(lab.type);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       active = false;
     };
@@ -165,7 +164,7 @@ function CodeTicketView({
                   : "Beginner",
             xp: t.yuvro_points ?? 100,
             estMin: t.minutes_max ?? 30,
-            tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "bash",
+            tag: t.accepted_programming_languages?.[0] ?? t.tag ?? "",
             status: "in_progress",
             startup_command: t.startup_command || t.scoring_rules?.startup_command || "",
             test_command: t.test_command || t.scoring_rules?.test_command || "",
@@ -239,14 +238,14 @@ function CodeTicketView({
 
   const ticket = previewOverride
     ? {
-        ...resolvedTicket,
-        title: previewOverride.title ?? resolvedTicket.title,
-        description: previewOverride.description ?? resolvedTicket.description,
-        difficulty: (previewOverride.difficulty as any) ?? resolvedTicket.difficulty,
-        xp: previewOverride.xp ?? resolvedTicket.xp,
-        estMin: previewOverride.estMin ?? resolvedTicket.estMin,
-        tag: previewOverride.tag ?? resolvedTicket.tag,
-      }
+      ...resolvedTicket,
+      title: previewOverride.title ?? resolvedTicket.title,
+      description: previewOverride.description ?? resolvedTicket.description,
+      difficulty: (previewOverride.difficulty as any) ?? resolvedTicket.difficulty,
+      xp: previewOverride.xp ?? resolvedTicket.xp,
+      estMin: previewOverride.estMin ?? resolvedTicket.estMin,
+      tag: previewOverride.tag ?? resolvedTicket.tag,
+    }
     : resolvedTicket;
 
   return <TicketIDE slug={slug} ticket={ticket} previewOverride={previewOverride ?? null} />;

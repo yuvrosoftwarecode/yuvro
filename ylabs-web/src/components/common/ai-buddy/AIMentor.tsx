@@ -19,6 +19,9 @@ import {
   Loader2,
   ChevronDown,
   Sparkles,
+  History,
+  RotateCcw,
+  AtSign,
 } from "lucide-react";
 import useAIChat from "@/components/common/ai-buddy/useAIChat";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
@@ -37,7 +40,7 @@ export const MENTOR_MODES: { id: MentorMode; label: string; icon: React.ReactNod
   { id: "ask", label: "Ask", icon: <MessageSquare size={11} />, desc: "General code assistance and diff patching" },
   { id: "plan", label: "Plan", icon: <Lightbulb size={11} />, desc: "Tasks & subtasks saved to .yuvro-developer/plan/" },
   { id: "agent", label: "Agent", icon: <Zap size={11} />, desc: "Auto-write code with multi-file review" },
-  { id: "bugfix", label: "Bug Fix", icon: <Bug size={11} />, desc: "Diagnose & fix errors from console output" },
+  { id: "bugfix", label: "Fix", icon: <Bug size={11} />, desc: "Diagnose & fix errors from console output" },
 ];
 
 export interface PlanSubtask {
@@ -242,7 +245,17 @@ export interface AIMentorProps {
   onClose?: () => void;
   taskStatuses?: Record<string, { status: "idle" | "running" | "completed" | "error"; sessionId?: string; message?: string }>;
   onTaskStatusesChange?: React.Dispatch<React.SetStateAction<Record<string, { status: "idle" | "running" | "completed" | "error"; sessionId?: string; message?: string }>>>;
-  activeSessionId?: string | null;
+  activeSessionId?: string | { id?: string; title?: string; ts?: number } | null;
+  checkpoints?: {
+    id: string;
+    name: string;
+    timestamp: number;
+    files: Record<string, string>;
+    activeFile?: string;
+    source?: "initial" | "agent" | "manual";
+  }[];
+  onDiscardChanges?: () => void;
+  onRestoreCheckpoint?: (checkpointId: string) => void;
 }
 
 export function AIMentor({
@@ -262,6 +275,9 @@ export function AIMentor({
   taskStatuses: externalTaskStatuses,
   onTaskStatusesChange: externalSetTaskStatuses,
   activeSessionId,
+  checkpoints,
+  onDiscardChanges,
+  onRestoreCheckpoint,
 }: AIMentorProps) {
   const [mentorMode, setMentorMode] = useState<MentorMode>("ask");
 
@@ -271,7 +287,7 @@ export function AIMentor({
       try {
         const saved = localStorage.getItem(STORAGE_MODE_AGENTS_KEY);
         if (saved) return JSON.parse(saved);
-      } catch {}
+      } catch { }
     }
     return {
       ask: null,
@@ -287,7 +303,7 @@ export function AIMentor({
       if (typeof window !== "undefined") {
         try {
           localStorage.setItem(STORAGE_MODE_AGENTS_KEY, JSON.stringify(updated));
-        } catch {}
+        } catch { }
       }
       return updated;
     });
@@ -315,6 +331,116 @@ export function AIMentor({
   const [input, setInput] = useState("");
   const [useVoice, setUseVoice] = useState(false);
 
+  // @ file tagging state
+  const [tagMenuOpen, setTagMenuOpen] = useState(false);
+  const [tagQuery, setTagQuery] = useState("");
+  const [tagSelectedIndex, setTagSelectedIndex] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const tagMenuRef = useRef<HTMLDivElement>(null);
+
+  const fileList = useMemo(() => Object.keys(files || {}), [files]);
+
+  const matchingFiles = useMemo(() => {
+    if (!tagMenuOpen) return [];
+    const q = tagQuery.toLowerCase().trim();
+    if (!q) return fileList.slice(0, 10);
+    return fileList
+      .filter((f) => f.toLowerCase().includes(q) || f.split("/").pop()?.toLowerCase().includes(q))
+      .slice(0, 10);
+  }, [fileList, tagMenuOpen, tagQuery]);
+
+  const insertTag = useCallback(
+    (filePath: string) => {
+      const inputEl = inputRef.current;
+      const val = input;
+      const pos = inputEl ? inputEl.selectionStart ?? val.length : val.length;
+      const before = val.slice(0, pos);
+      const after = val.slice(pos);
+      const lastAt = before.lastIndexOf("@");
+      if (lastAt !== -1) {
+        const newBefore = before.slice(0, lastAt) + `@${filePath} `;
+        const newVal = newBefore + after;
+        setInput(newVal);
+        setTagMenuOpen(false);
+        setTimeout(() => {
+          if (inputEl) {
+            inputEl.focus();
+            const nextPos = newBefore.length;
+            inputEl.setSelectionRange(nextPos, nextPos);
+          }
+        }, 0);
+      }
+    },
+    [input]
+  );
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const pos = e.target.selectionStart ?? val.length;
+    setInput(val);
+
+    const beforeCursor = val.slice(0, pos);
+    const lastAt = beforeCursor.lastIndexOf("@");
+    if (lastAt !== -1) {
+      const charBeforeAt = lastAt > 0 ? beforeCursor[lastAt - 1] : " ";
+      const textAfterAt = beforeCursor.slice(lastAt + 1);
+      // Valid @ tag if preceded by space/newline/start and contains no spaces
+      if ((charBeforeAt === " " || charBeforeAt === "\n" || lastAt === 0) && !textAfterAt.includes(" ")) {
+        setTagQuery(textAfterAt);
+        setTagSelectedIndex(0);
+        setTagMenuOpen(true);
+        return;
+      }
+    }
+    setTagMenuOpen(false);
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (tagMenuOpen && matchingFiles.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setTagSelectedIndex((prev) => (prev + 1) % matchingFiles.length);
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setTagSelectedIndex((prev) => (prev - 1 + matchingFiles.length) % matchingFiles.length);
+        return;
+      }
+      if (e.key === "Enter" || e.key === "Tab") {
+        e.preventDefault();
+        insertTag(matchingFiles[tagSelectedIndex]);
+        return;
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setTagMenuOpen(false);
+        return;
+      }
+    }
+
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  };
+
+  useEffect(() => {
+    if (!tagMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        tagMenuRef.current &&
+        !tagMenuRef.current.contains(e.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(e.target as Node)
+      ) {
+        setTagMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [tagMenuOpen]);
+
   // Compute ticket task completion if running in ticket context
   const ticketTasks = useMemo(() => {
     if (!tasks || tasks.length === 0) return [];
@@ -340,9 +466,9 @@ export function AIMentor({
     const failedTasks = ticketTasks.filter((t) => t.passed === false);
     const failureContext = failedTasks.length > 0
       ? `\n\nFailed Tasks / Tests:\n` + failedTasks.map((t) => {
-          const reason = evalResult && (evalResult[t.slug]?.reason || evalResult[`task${t.slug}`]?.reason);
-          return `- Task: "${t.title}" (FAILED)${reason ? ` - Error: ${reason}` : ""}`;
-        }).join("\n")
+        const reason = evalResult && (evalResult[t.slug]?.reason || evalResult[`task${t.slug}`]?.reason);
+        return `- Task: "${t.title}" (FAILED)${reason ? ` - Error: ${reason}` : ""}`;
+      }).join("\n")
       : "";
 
     const consoleContext = consoleOutput
@@ -370,10 +496,12 @@ export function AIMentor({
 
   const {
     messages,
+    setMessages,
     isLoading,
     sendMessage,
     suggestedPrompts,
     activeStream,
+    setActiveStream,
     startNewChat,
     sessionHistory,
     fetchHistory,
@@ -383,6 +511,7 @@ export function AIMentor({
     getContext: () => getModeContext(mentorMode),
     chatTitle,
     persistenceKey,
+    mode: mentorMode,
   });
 
   // Determine current active agent for the current mentor mode
@@ -422,11 +551,49 @@ export function AIMentor({
     };
   }, [modelDropdownOpen]);
 
+  const lastLoadedSessionKeyRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (activeSessionId) {
-      loadSession(activeSessionId);
+    if (!activeSessionId) return;
+    const targetId = typeof activeSessionId === "object" ? activeSessionId.id : activeSessionId;
+    const targetTitle = typeof activeSessionId === "object" ? activeSessionId.title : undefined;
+    const ts = typeof activeSessionId === "object" ? activeSessionId.ts : undefined;
+    const sessionKey = `${targetId || targetTitle || ""}_${ts || ""}`;
+
+    if (!sessionKey || lastLoadedSessionKeyRef.current === sessionKey) return;
+    lastLoadedSessionKeyRef.current = sessionKey;
+
+    if (targetId) {
+      loadSession(targetId);
+      setShowHistory(false);
+      setMentorMode("agent");
+    } else if (targetTitle) {
+      // Find matching session by title, or refetch history to locate it
+      const match = sessionHistory?.find(
+        (s: any) => s.title?.trim().toLowerCase() === targetTitle.trim().toLowerCase()
+      );
+      if (match?.id) {
+        loadSession(match.id);
+        setShowHistory(false);
+        setMentorMode("agent");
+      } else {
+        fetchHistory().then(() => {
+          yhubApiAuthUtil.get<any[]>("/sessions/").then((latest) => {
+            if (Array.isArray(latest)) {
+              const found = latest.find(
+                (s: any) => s.title?.trim().toLowerCase() === targetTitle.trim().toLowerCase()
+              );
+              if (found?.id) {
+                loadSession(found.id);
+                setShowHistory(false);
+                setMentorMode("agent");
+              }
+            }
+          }).catch(console.warn);
+        });
+      }
     }
-  }, [activeSessionId, loadSession]);
+  }, [activeSessionId, loadSession, sessionHistory, fetchHistory]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -538,6 +705,11 @@ export function AIMentor({
       // Subtasks execute within the parent task's session
       if (subtask && (task.sessionId || taskStatuses[task.id]?.sessionId)) {
         sessionId = task.sessionId || taskStatuses[task.id]?.sessionId || null;
+        if (sessionId) {
+          setMentorMode("agent");
+          loadSession(sessionId);
+          setShowHistory(false);
+        }
       }
 
       if (!sessionId) {
@@ -546,7 +718,9 @@ export function AIMentor({
         try {
           const sessionResp = await yhubApiAuthUtil.post<{ id: string }>("/sessions/", {
             title: sessionTitle,
-            ai_agent_id: currentSelectedAgentId,
+            page: "vitarka-ide",
+            ai_agent: currentSelectedAgentId || undefined,
+            ai_agent_id: currentSelectedAgentId || undefined,
             page_content: getModeContext("agent"),
           });
           if (sessionResp?.id) {
@@ -559,6 +733,10 @@ export function AIMentor({
                 [task.id]: { ...prevTask, sessionId: sessionId || prevTask.sessionId },
               };
             });
+            // Automatically switch to Agent mode and open the session
+            setMentorMode("agent");
+            loadSession(sessionId);
+            setShowHistory(false);
           }
         } catch (e) {
           console.warn("Could not create dedicated task session", e);
@@ -577,6 +755,27 @@ export function AIMentor({
       const promptMessage = subtask
         ? `Implement Subtask ${subtask.number}: "${subtask.text}" for Task "${task.title}".\n\nOutput complete code in code blocks.`
         : `Implement Task ${task.number}: "${task.title}".\n${task.subtasks.length > 0 ? "Subtasks:\n" + task.subtasks.map((s) => `- ${s.number}: ${s.text}`).join("\n") : ""}\n\nWrite the complete implementation. Output code in code blocks.`;
+
+      const userMsgId = `user-${Date.now()}`;
+      const assistantMsgId = `srv-${Date.now()}`;
+
+      // Show user execution prompt and initial streaming bubble in Agent chat window
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: userMsgId,
+          message_type: "user",
+          content: promptMessage,
+          created_at: new Date().toISOString(),
+        },
+        {
+          id: assistantMsgId,
+          message_type: "assistant",
+          content: "",
+          created_at: new Date().toISOString(),
+        },
+      ]);
+      setActiveStream({ id: assistantMsgId, content: "" });
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -610,13 +809,22 @@ export function AIMentor({
             if (line.startsWith("data:")) {
               try {
                 const data = JSON.parse(line.slice(5).trim());
-                const delta = data.delta || data.text || data.content || "";
-                fullContent += delta;
-              } catch {}
+                const delta = data.chunk || data.delta || data.text || data.content || "";
+                if (delta) {
+                  fullContent += delta;
+                  setActiveStream({ id: assistantMsgId, content: fullContent });
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === assistantMsgId ? { ...msg, content: fullContent } : msg
+                    )
+                  );
+                }
+              } catch { }
             }
           }
         }
       }
+      setActiveStream(null);
 
       // Parse multi-file changes and apply
       const { files: parsedFiles, hasCode } = parseMultiFileAgentResponse(fullContent, activeFile, files);
@@ -699,7 +907,25 @@ export function AIMentor({
     const msg = text ?? input.trim();
     if (!msg || isLoading) return;
     if (!text) setInput("");
-    sendMessage(msg);
+    setTagMenuOpen(false);
+
+    // Extract any tagged files e.g. @app.py or @src/index.ts
+    const taggedFileMatches = Array.from(msg.matchAll(/@([^\s]+)/g)).map((m) => m[1]);
+    let taggedContext = "";
+    if (taggedFileMatches.length > 0) {
+      const added = new Set<string>();
+      taggedFileMatches.forEach((target) => {
+        const found = Object.keys(files || {}).find(
+          (f) => f === target || f.endsWith("/" + target) || f.split("/").pop() === target
+        );
+        if (found && files[found] && !added.has(found)) {
+          added.add(found);
+          taggedContext += `[USER TAGGED FILE: ${found}]\n${files[found]}\n\n`;
+        }
+      });
+    }
+
+    sendMessage(msg, taggedContext);
   };
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -989,11 +1215,38 @@ export function AIMentor({
       }
     }
 
+    const renderUserMessageWithTags = (content: string) => {
+      const parts = content.split(/(@[^\s]+)/g);
+      return parts.map((part, idx) => {
+        if (part.startsWith("@")) {
+          const potentialPath = part.slice(1);
+          const matched = Object.keys(files || {}).find(
+            (f) => f === potentialPath || f.endsWith("/" + potentialPath) || f.split("/").pop() === potentialPath
+          );
+          if (matched) {
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => onOpenFile?.(matched)}
+                className="inline-flex items-center gap-1 mx-0.5 px-1.5 py-0.5 rounded-md bg-white/20 text-white hover:bg-white/30 font-mono text-[11px] underline-offset-2 hover:underline cursor-pointer transition-colors align-baseline"
+                title={`Open ${matched}`}
+              >
+                <FileCode2 size={11} className="shrink-0" />
+                <span>{part}</span>
+              </button>
+            );
+          }
+        }
+        return <span key={idx}>{part}</span>;
+      });
+    };
+
     return (
       <div key={i} className={`flex items-end gap-1.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
         <div className={`max-w-[92%] text-[12.5px] leading-relaxed ${isUser ? "bg-primary text-primary-foreground px-3 py-2 rounded-xl rounded-br-sm shadow-sm" : "bg-muted/50 text-foreground px-3 py-2.5 rounded-xl rounded-bl-sm border border-border/40"}`}>
           {isUser ? (
-            <div className="whitespace-pre-wrap">{m.content}</div>
+            <div className="whitespace-pre-wrap">{renderUserMessageWithTags(m.content)}</div>
           ) : (
             <div className="prose prose-sm max-w-none dark:prose-invert [&_p]:leading-relaxed [&_p]:mb-1.5 [&_p:last-child]:mb-0 [&_ul]:my-1.5 [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:my-1.5 [&_ol]:list-decimal [&_ol]:pl-4 [&_li]:mb-0.5">
               <ReactMarkdown
@@ -1029,11 +1282,10 @@ export function AIMentor({
                             {onApplyCode && (
                               <button
                                 onClick={() => handleApplyDiffOrCode(codeString, codeId, activeFile)}
-                                className={`px-2 py-0.5 rounded text-[10px] font-medium flex items-center gap-1 transition-all cursor-pointer ${
-                                  appliedId === codeId
-                                    ? "bg-emerald-600 text-white"
-                                    : "bg-primary text-primary-foreground hover:opacity-80"
-                                }`}
+                                className={`px-2 py-0.5 rounded text-[10px] font-medium flex items-center gap-1 transition-all cursor-pointer ${appliedId === codeId
+                                  ? "bg-emerald-600 text-white"
+                                  : "bg-primary text-primary-foreground hover:opacity-80"
+                                  }`}
                                 title={isDiff ? "Apply Diff Changes" : `Apply to ${activeFile || "file"}`}
                               >
                                 {appliedId === codeId ? (
@@ -1066,90 +1318,40 @@ export function AIMentor({
     <div className="flex flex-col h-full min-h-0 bg-background overflow-hidden relative">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border shrink-0">
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <span className="text-[13px] font-semibold text-foreground">AI Mentor</span>
-          <WalletBalanceBadge />
-        </div>
-
-        {/* Model Selector per mode */}
-        <div ref={modelDropdownRef} className="relative flex-1 min-w-0 max-w-[190px]">
-          <button
-            type="button"
-            onClick={() => setModelDropdownOpen((prev) => !prev)}
-            className="w-full flex items-center justify-between gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium bg-muted/60 hover:bg-muted text-foreground border border-border/60 transition-all cursor-pointer shadow-2xs"
-            title={`Configured model for ${currentMode.label} mode: ${activeAgent?.name || "Auto"}`}
-          >
-            <div className="flex items-center gap-1 min-w-0 truncate">
-              <span className="text-primary shrink-0">{currentMode.icon}</span>
-              <span className="font-semibold text-muted-foreground text-[10px] shrink-0">{currentMode.label}:</span>
-              <span className="truncate">{activeAgent?.name?.replace(/\(.*\)/, "") || "Model"}</span>
-            </div>
-            <ChevronDown size={10} className={`text-muted-foreground shrink-0 transition-transform ${modelDropdownOpen ? "rotate-180" : ""}`} />
-          </button>
-
-          {modelDropdownOpen && (
-            <div className="absolute right-0 mt-1 w-64 rounded-xl bg-popover/95 backdrop-blur-md border border-border shadow-2xl z-50 p-2 space-y-2 animate-in fade-in-50 zoom-in-95">
-              {/* Mode Selector Tabs inside Dropdown */}
-              <div className="space-y-1">
-                <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                  Configure Model for Mode:
-                </div>
-                <div className="grid grid-cols-4 gap-1 p-0.5 bg-muted/70 rounded-lg">
-                  {MENTOR_MODES.map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => setMentorMode(m.id)}
-                      className={`py-1 px-1 rounded text-[10px] font-medium flex flex-col items-center gap-0.5 transition-all cursor-pointer ${
-                        mentorMode === m.id
-                          ? "bg-background text-foreground font-semibold shadow-xs"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <span>{m.icon}</span>
-                      <span>{m.label}</span>
-                    </button>
+          {/* Checkpoints shown in the position of AI Credits */}
+          {((checkpoints && checkpoints.length > 0) || onDiscardChanges) && (
+            <div className="flex items-center gap-1">
+              {checkpoints && checkpoints.length > 0 && onRestoreCheckpoint && (
+                <select
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      onRestoreCheckpoint(e.target.value);
+                      e.target.value = "";
+                    }
+                  }}
+                  defaultValue=""
+                  className="bg-muted/50 border border-border/70 text-[10.5px] rounded px-1.5 py-0.5 text-foreground cursor-pointer outline-none hover:bg-accent max-w-[130px] truncate"
+                  title="Restore checkpoint"
+                >
+                  <option value="" disabled>Checkpoints ({checkpoints.length})...</option>
+                  {checkpoints.map((cp) => (
+                    <option key={cp.id} value={cp.id}>
+                      {cp.name}
+                    </option>
                   ))}
-                </div>
-              </div>
-
-              {/* Model List for currently selected mode */}
-              <div className="space-y-1 pt-1 border-t border-border/50">
-                <div className="flex items-center justify-between text-[10px] px-1 text-muted-foreground">
-                  <span>Available Models for <strong className="text-foreground">{currentMode.label}</strong>:</span>
-                </div>
-
-                <div className="max-h-56 overflow-y-auto space-y-0.5" style={{ scrollbarWidth: "thin" }}>
-                  {agents.map((ag) => {
-                    const isSelected = ag.id === (activeAgent?.id);
-                    return (
-                      <button
-                        key={ag.id}
-                        type="button"
-                        onClick={() => {
-                          handleSetModeAgent(mentorMode, ag.id);
-                          setModelDropdownOpen(false);
-                        }}
-                        className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-[11px] transition-colors text-left cursor-pointer ${
-                          isSelected
-                            ? "bg-primary text-primary-foreground font-semibold"
-                            : "hover:bg-accent text-foreground"
-                        }`}
-                      >
-                        <div className="min-w-0 flex-1 pr-1.5">
-                          <div className="truncate font-medium">{ag.name}</div>
-                          {(ag.provider || ag.model_name) && (
-                            <div className={`text-[9.5px] truncate ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
-                              {ag.provider ? `${ag.provider} · ` : ""}{ag.model_name || ""}
-                            </div>
-                          )}
-                        </div>
-                        {isSelected && <Check size={12} className="shrink-0" />}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                </select>
+              )}
+              {onDiscardChanges && (
+                <button
+                  onClick={onDiscardChanges}
+                  className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors cursor-pointer"
+                  title="Discard recent changes and restore previous checkpoint"
+                >
+                  <RotateCcw size={10} /> Discard
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -1188,10 +1390,28 @@ export function AIMentor({
       {/* History or Chat Content */}
       {showHistory ? (
         <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5">
-          {sessionHistory.length === 0 ? (
-            <div className="text-[12px] text-muted-foreground italic text-center pt-6">No past chats yet.</div>
+          {sessionHistory.filter((session: any) => {
+            const mode = session.metadata?.mode || session.extra_params?.mode || session.mode;
+            if (mode) return mode === mentorMode;
+            const title = (session.title || "").toLowerCase();
+            if (mentorMode === "plan") return title.includes("plan");
+            if (mentorMode === "agent") return title.includes("task") || title.includes("agent") || title.includes("fix");
+            if (mentorMode === "bugfix") return title.includes("fix") || title.includes("bug");
+            return !title.includes("plan:") && !title.includes("task:");
+          }).length === 0 ? (
+            <div className="text-[12px] text-muted-foreground italic text-center pt-6">
+              No past {MENTOR_MODES.find((m) => m.id === mentorMode)?.label || mentorMode} chats yet.
+            </div>
           ) : (
-            sessionHistory.map((session: any) => (
+            sessionHistory.filter((session: any) => {
+              const mode = session.metadata?.mode || session.extra_params?.mode || session.mode;
+              if (mode) return mode === mentorMode;
+              const title = (session.title || "").toLowerCase();
+              if (mentorMode === "plan") return title.includes("plan");
+              if (mentorMode === "agent") return title.includes("task") || title.includes("agent") || title.includes("fix");
+              if (mentorMode === "bugfix") return title.includes("fix") || title.includes("bug");
+              return !title.includes("plan:") && !title.includes("task:");
+            }).map((session: any) => (
               <button
                 key={session.id}
                 onClick={() => {
@@ -1215,7 +1435,7 @@ export function AIMentor({
         <>
           {/* Messages container */}
           <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2.5" style={{ scrollBehavior: "auto" }}>
-            
+
             {/* Task completion tracker for tickets */}
             {ticketTasks.length > 0 && hasAnyEval && (
               <div className="rounded-lg border border-border/60 bg-muted/20 p-2.5 space-y-1.5 mb-1">
@@ -1240,7 +1460,9 @@ export function AIMentor({
 
                 {mentorMode === "plan" && (
                   <button
-                    onClick={() => send("Create a minimal, focused step-by-step implementation plan with 2-4 essential tasks and concise subtasks.")}
+                    onClick={() => {
+                      setInput("Create a minimal, focused step-by-step implementation plan with 2-4 essential tasks and concise subtasks.");
+                    }}
                     className="px-3 py-1.5 text-[11px] font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1.5 shadow-sm cursor-pointer"
                   >
                     <Lightbulb size={12} /> Generate Minimal Plan in .yuvro-developer/plan/
@@ -1249,7 +1471,9 @@ export function AIMentor({
 
                 {mentorMode === "agent" && (
                   <button
-                    onClick={() => send(`Write the complete implementation for ${activeFile || "the project"} to pass all requirements.`)}
+                    onClick={() => {
+                      setInput(`Write the complete implementation for ${activeFile || "the project"} to pass all requirements.`);
+                    }}
                     className="px-3 py-1.5 text-[11px] font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-1.5 shadow-sm cursor-pointer"
                   >
                     <Zap size={12} /> Generate Solution & Review
@@ -1269,7 +1493,9 @@ export function AIMentor({
                       </div>
                     )}
                     <button
-                      onClick={() => send(consoleOutput ? "Analyze the Editor console output and fix the error in my code." : "Analyze the current code and any task failures, identify all bugs, and provide the fixed code.")}
+                      onClick={() => {
+                        setInput(consoleOutput ? "Analyze the Editor console output and fix the error in my code." : "Analyze the current code and any task failures, identify all bugs, and provide the fixed code.");
+                      }}
                       className="px-3.5 py-1.5 text-[11px] font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-1.5 shadow-sm cursor-pointer"
                     >
                       <Bug size={12} /> Diagnose & Fix Errors
@@ -1282,7 +1508,9 @@ export function AIMentor({
                     {(suggestedPrompts.length > 0 ? suggestedPrompts.slice(0, 3) : ["How do I start?", "Explain requirements", "Review my approach"]).map((s: string) => (
                       <button
                         key={s}
-                        onClick={() => !isLoading && sendMessage(s)}
+                        onClick={() => {
+                          setInput(s);
+                        }}
                         disabled={isLoading}
                         className="px-2.5 py-1 text-[11px] font-medium text-primary bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20 transition-colors disabled:opacity-40 cursor-pointer"
                       >
@@ -1314,65 +1542,92 @@ export function AIMentor({
 
           {/* Input area */}
           <div className="px-3 pb-3 pt-2 border-t border-border shrink-0 space-y-2">
-            {messages.length > 0 && suggestedPrompts.length > 0 && (
-              <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-                {suggestedPrompts.map((s: string) => (
-                  <button
-                    key={s}
-                    onClick={() => !isLoading && sendMessage(s)}
-                    disabled={isLoading}
-                    className="shrink-0 whitespace-nowrap px-2.5 py-1 text-[11px] font-medium text-primary bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20 transition-colors disabled:opacity-40"
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Mode selection pills */}
-            <div className="flex items-center gap-1 p-0.5 bg-muted/60 rounded-lg border border-border/40">
-              {MENTOR_MODES.map((mode) => (
-                <button
-                  key={mode.id}
-                  onClick={() => setMentorMode(mode.id)}
-                  className={`flex-1 py-1 px-1.5 rounded-md text-[11px] font-medium flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                    mentorMode === mode.id
-                      ? "bg-background text-foreground shadow-xs font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  title={mode.desc}
-                >
-                  {mode.icon}
-                  <span>{mode.label}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Input box */}
+            {/* Input box above mode and model selection */}
             <div className="relative flex items-center">
+              {/* @ File Tag Suggestions Autocomplete */}
+              {tagMenuOpen && matchingFiles.length > 0 && (
+                <div
+                  ref={tagMenuRef}
+                  className="absolute bottom-full mb-1.5 left-0 right-0 z-30 max-h-56 overflow-y-auto bg-popover/95 backdrop-blur-md border border-border rounded-xl shadow-xl p-1 animate-in fade-in slide-in-from-bottom-2"
+                >
+                  <div className="px-2 py-1 text-[10.5px] text-muted-foreground border-b border-border/40 font-semibold flex items-center justify-between">
+                    <span>Tag file in context</span>
+                    <span className="font-mono text-[9.5px]">↑↓ to navigate, ↵ to select</span>
+                  </div>
+                  <div className="space-y-0.5 mt-1">
+                    {matchingFiles.map((f, idx) => {
+                      const isSelected = idx === tagSelectedIndex;
+                      return (
+                        <div
+                          key={f}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            insertTag(f);
+                          }}
+                          className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition-colors ${
+                            isSelected
+                              ? "bg-primary text-primary-foreground font-medium shadow-xs"
+                              : "text-foreground hover:bg-accent"
+                          }`}
+                        >
+                          <FileCode2 size={13} className={isSelected ? "text-primary-foreground" : "text-primary"} />
+                          <span className="font-mono truncate flex-1">{f}</span>
+                          <span className={`text-[10px] ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                            {files[f]?.split("\n").length || 0} lines
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <input
+                ref={inputRef}
                 type="text"
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
+                onChange={handleInputChange}
+                onKeyDown={handleInputKeyDown}
                 placeholder={
                   mentorMode === "plan"
-                    ? "Generate plan with minimal tasks..."
+                    ? "Generate plan with minimal tasks... (type @ to tag files)"
                     : mentorMode === "agent"
-                    ? "Prompt agent to implement features..."
-                    : mentorMode === "bugfix"
-                    ? "Describe error or fix console issues..."
-                    : "Ask AI Mentor for hints or diffs..."
+                      ? "Prompt agent to implement features... (type @ to tag files)"
+                      : mentorMode === "bugfix"
+                        ? "Describe error or fix console issues... (type @ to tag files)"
+                        : "Ask AI Mentor for hints or diffs... (type @ to tag files)"
                 }
-                className="w-full pl-3 pr-16 py-2 text-[12px] bg-muted/40 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-foreground placeholder:text-muted-foreground/60 transition-all"
+                className="w-full pl-3 pr-22 py-2 text-[12px] bg-muted/40 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-foreground placeholder:text-muted-foreground/60 transition-all"
                 disabled={isLoading}
               />
               <div className="absolute right-1.5 flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (tagMenuOpen) {
+                      setTagMenuOpen(false);
+                    } else {
+                      setTagMenuOpen(true);
+                      setTagQuery("");
+                      setTagSelectedIndex(0);
+                      const inputEl = inputRef.current;
+                      if (inputEl) {
+                        const val = input;
+                        const pos = inputEl.selectionStart ?? val.length;
+                        const newVal = (pos > 0 && val[pos - 1] !== " " ? val.slice(0, pos) + " @" : val.slice(0, pos) + "@") + val.slice(pos);
+                        setInput(newVal);
+                        setTimeout(() => {
+                          inputEl.focus();
+                          inputEl.setSelectionRange(newVal.length, newVal.length);
+                        }, 0);
+                      }
+                    }
+                  }}
+                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${tagMenuOpen ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/60"}`}
+                  title="Tag a file (@file)"
+                >
+                  <AtSign size={13} />
+                </button>
                 <button
                   onClick={() => setUseVoice(!useVoice)}
                   className={`p-1.5 rounded-lg transition-colors cursor-pointer ${useVoice ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"}`}
@@ -1388,6 +1643,85 @@ export function AIMentor({
                 >
                   <ArrowLeft size={13} className="rotate-180" />
                 </button>
+              </div>
+            </div>
+
+            {/* Bottom Controls: Mode selection pills + Model selector for mode */}
+            <div className="flex items-center gap-1.5">
+              {/* Mode selection pills with prominent chosen highlight */}
+              <div className="flex-1 flex items-center gap-1 p-0.5 bg-muted/60 rounded-lg border border-border/50">
+                {MENTOR_MODES.map((mode) => {
+                  const isCurrent = mentorMode === mode.id;
+                  return (
+                    <button
+                      key={mode.id}
+                      onClick={() => setMentorMode(mode.id)}
+                      className={`flex-1 py-1.5 px-1.5 rounded-md text-[11px] font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer group/mode relative ${isCurrent
+                        ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/40 font-bold"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                        }`}
+                      title={`${mode.label}: ${mode.desc}`}
+                      aria-label={mode.label}
+                    >
+                      <span className="scale-110">{mode.icon}</span>
+                      <span className="text-[10px] hidden sm:inline">{mode.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Model selection dropdown for current mode */}
+              <div ref={modelDropdownRef} className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setModelDropdownOpen((prev) => !prev)}
+                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10.5px] font-medium bg-muted/60 hover:bg-muted text-foreground border border-border/60 transition-all cursor-pointer shadow-2xs max-w-[130px]"
+                  title={`Model for ${currentMode.label} mode: ${activeAgent?.name || "Auto"}`}
+                >
+                  <span className="truncate">{activeAgent?.name?.replace(/\(.*\)/, "") || "Model"}</span>
+                  <ChevronDown size={10} className={`text-muted-foreground shrink-0 transition-transform ${modelDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {modelDropdownOpen && (
+                  <div className="absolute right-0 bottom-full mb-1 w-64 rounded-xl bg-popover/95 backdrop-blur-md border border-border shadow-2xl z-50 p-2 space-y-2 animate-in fade-in-50 zoom-in-95">
+                    {/* Header info */}
+                    <div className="flex items-center justify-between text-[10px] px-1 text-muted-foreground border-b border-border/40 pb-1.5">
+                      <span>Model for <strong className="text-foreground">{currentMode.label}</strong> mode:</span>
+                      <span className="text-primary font-medium">{currentMode.icon}</span>
+                    </div>
+
+                    {/* Model List for currently selected mode */}
+                    <div className="max-h-56 overflow-y-auto space-y-0.5" style={{ scrollbarWidth: "thin" }}>
+                      {agents.map((ag) => {
+                        const isSelected = ag.id === (activeAgent?.id);
+                        return (
+                          <button
+                            key={ag.id}
+                            type="button"
+                            onClick={() => {
+                              handleSetModeAgent(mentorMode, ag.id);
+                              setModelDropdownOpen(false);
+                            }}
+                            className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-[11px] transition-colors text-left cursor-pointer ${isSelected
+                              ? "bg-primary text-primary-foreground font-semibold"
+                              : "hover:bg-accent text-foreground"
+                              }`}
+                          >
+                            <div className="min-w-0 flex-1 pr-1.5">
+                              <div className="truncate font-medium">{ag.name}</div>
+                              {(ag.provider || ag.model_name) && (
+                                <div className={`text-[9.5px] truncate ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                                  {ag.provider ? `${ag.provider} · ` : ""}{ag.model_name || ""}
+                                </div>
+                              )}
+                            </div>
+                            {isSelected && <Check size={12} className="shrink-0" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

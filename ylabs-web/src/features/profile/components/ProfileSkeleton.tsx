@@ -226,11 +226,6 @@ export const PerformanceTabSkeleton: React.FC = () => {
           </div>
         ))}
       </div>
-      {/* Heatmap Card */}
-      <div className="h-48 rounded-card bg-card border border-line p-5 space-y-3">
-        <div className="h-5 w-40 rounded bg-line/60 animate-pulse" />
-        <div className="h-28 rounded bg-line/20 animate-pulse" />
-      </div>
       {/* Bottom Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="h-64 rounded-card bg-card border border-line p-5 space-y-3">

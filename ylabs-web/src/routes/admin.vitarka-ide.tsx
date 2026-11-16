@@ -8,7 +8,7 @@ export const Route = createFileRoute("/admin/vitarka-ide")({
 
 function AdminVitarkaIDEPage() {
   return (
-    <AdminShell title="Yuvro Vitarka IDE" fullBleed>
+    <AdminShell title="Vitarka IDE" fullBleed hideHeader>
       <div className="flex-1 min-h-0 w-full h-full flex flex-col overflow-hidden">
         <VitarkaIDE />
       </div>

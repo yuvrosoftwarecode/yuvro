@@ -102,19 +102,16 @@ export function VitarkaIDE({
   }, [activeTemplate]);
 
   const templateSelectorButton = (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        onClick={() => setIsModalOpen(true)}
-        className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 flex items-center gap-1.5 transition-all shadow-xs"
-        title="Create new project or switch framework"
-      >
-        <FolderPlus className="w-3.5 h-3.5" />
-        <span>New Project / Stack</span>
-        <ChevronDown className="w-3 h-3 text-muted-foreground" />
-      </button>
-      {headerActions}
-    </div>
+    <button
+      type="button"
+      onClick={() => setIsModalOpen(true)}
+      className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 flex items-center gap-1.5 transition-all shadow-xs"
+      title="Create new project or switch framework"
+    >
+      <FolderPlus className="w-3.5 h-3.5" />
+      <span>New Project / Stack</span>
+      <ChevronDown className="w-3 h-3 text-muted-foreground" />
+    </button>
   );
 
   return (
@@ -126,7 +123,8 @@ export function VitarkaIDE({
         previewOverride={null}
         initialFiles={projectFiles}
         onCodeChange={handleCodeChange}
-        headerActions={templateSelectorButton}
+        newProjectButton={templateSelectorButton}
+        headerActions={headerActions}
       />
 
       {/* New Project / Template Switcher Modal */}

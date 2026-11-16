@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 interface MockInterviewTrendChartProps {
   scores: number[];
@@ -11,6 +11,8 @@ export const MockInterviewTrendChart: React.FC<MockInterviewTrendChartProps> = (
   width = 300,
   height = 90,
 }) => {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
   if (!scores || scores.length === 0) {
     return null;
   }
@@ -70,18 +72,50 @@ export const MockInterviewTrendChart: React.FC<MockInterviewTrendChartProps> = (
           />
         )}
 
-        {coordinates.map((coord, idx) => (
-          <circle
-            key={idx}
-            cx={coord.x}
-            cy={coord.y}
-            r={idx === coordinates.length - 1 ? 5 : 3.5}
-            className="cursor-pointer transition-transform hover:scale-125"
-            fill="var(--color-primary, #ea580c)"
-          >
-            <title>{`Interview #${idx + 1}: ${coord.val} / 10`}</title>
-          </circle>
-        ))}
+        {coordinates.map((coord, idx) => {
+          const isLatest = idx === coordinates.length - 1;
+          const isHovered = hoveredIdx === idx;
+          const coreRadius = isHovered ? (isLatest ? 6.5 : 5) : (isLatest ? 5 : 3.5);
+
+          return (
+            <g
+              key={idx}
+              className="cursor-pointer"
+              onMouseEnter={() => setHoveredIdx(idx)}
+              onMouseLeave={() => setHoveredIdx(null)}
+            >
+              {/* Invisible larger hit target (32px diameter) to prevent any mouse boundary jitter */}
+              <circle
+                cx={coord.x}
+                cy={coord.y}
+                r={16}
+                fill="transparent"
+                style={{ pointerEvents: "all" }}
+              />
+
+              {/* Smooth halo on hover */}
+              {isHovered && (
+                <circle
+                  cx={coord.x}
+                  cy={coord.y}
+                  r={coreRadius + 3.5}
+                  fill="var(--color-primary, #ea580c)"
+                  opacity={0.2}
+                />
+              )}
+
+              {/* Core dot - radius transition without any scale transform shifts */}
+              <circle
+                cx={coord.x}
+                cy={coord.y}
+                r={coreRadius}
+                fill="var(--color-primary, #ea580c)"
+                style={{ transition: "r 150ms ease" }}
+              />
+              <title>{`Interview #${idx + 1}: ${coord.val} / 10`}</title>
+            </g>
+          );
+        })}
       </svg>
     </div>
   );

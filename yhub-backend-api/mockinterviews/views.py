@@ -129,7 +129,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
     def quota(self, request):
         """
         Returns the candidate's available mock interview quota.
-        Guarantees 3 initial free mock interviews for every candidate.
+        Guarantees 1 initial free mock interview for every candidate.
         """
         quota = CandidateMockInterviewQuota.get_or_create_quota(request.user)
         serializer = CandidateMockInterviewQuotaSerializer(quota)

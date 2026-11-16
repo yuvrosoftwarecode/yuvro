@@ -495,12 +495,14 @@ setup_build_args() {
     local code_executor_url="https://code-executer-dev.yuvro.ai"
     local ycampus_backend_url="https://backend-campus-dev.yuvro.ai/api"
     local ylabs_backend_url="https://backend-dev.yuvrolabs.com/api"
+    local ylabs_public_profile_base_url="https://dev.yuvrolabs.com"
     local ymarketplace_backend_url="https://backend-marketplace-dev.yuvro.ai/api"
     
     # Try to read from .env files if they exist
     [ -f "$PROJECT_ROOT/ycode-web/.env.dev" ] && ycode_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ycode-web/.env.dev" | cut -d= -f2- | tr -d '"')
     [ -f "$PROJECT_ROOT/ycampus-web/.env.dev" ] && ycampus_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ycampus-web/.env.dev" | cut -d= -f2- | tr -d '"')
     [ -f "$PROJECT_ROOT/ylabs-web/.env.dev" ] && ylabs_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ylabs-web/.env.dev" | cut -d= -f2- | tr -d '"')
+    [ -f "$PROJECT_ROOT/ylabs-web/.env.dev" ] && ylabs_public_profile_base_url=$(grep '^VITE_PUBLIC_PROFILE_BASE_URL=' "$PROJECT_ROOT/ylabs-web/.env.dev" | cut -d= -f2- | tr -d '"')
     [ -f "$PROJECT_ROOT/ymarketplace/ymarketplace-web/.env.dev" ] && ymarketplace_backend_url=$(grep '^VITE_BACKEND_API_BASE_URL=' "$PROJECT_ROOT/ymarketplace/ymarketplace-web/.env.dev" | cut -d= -f2- | tr -d '"')
     
     # Export all build args (used by docker build)
@@ -512,6 +514,7 @@ setup_build_args() {
     export YLABS_VITE_BACKEND_API_BASE_URL="$ylabs_backend_url"
     export YLABS_VITE_YHUB_BACKEND_API_BASE_URL="$yhub_backend_url"
     export YLABS_VITE_YCODE_BACKEND_API_BASE_URL="$ycode_backend_url"
+    export YLABS_VITE_PUBLIC_PROFILE_BASE_URL="${ylabs_public_profile_base_url:-https://dev.yuvrolabs.com}"
     export YMARKETPLACE_VITE_BACKEND_API_BASE_URL="$ymarketplace_backend_url"
     export YMARKETPLACE_VITE_YHUB_BACKEND_API_BASE_URL="$yhub_backend_url"
     

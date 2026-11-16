@@ -20,12 +20,13 @@ export interface TaskLensConfig {
   taskStatuses: Record<string, TaskStatusInfo>;
   onStartTask: (
     taskId: string,
-    taskText: string,
+    taskTitle: string,
+    fullTaskText: string,
     isSubtask?: boolean,
     parentTaskId?: string,
     parentTaskTitle?: string
   ) => void;
-  onViewSession: (sessionId: string | null) => void;
+  onViewSession: (sessionId: string | null, taskTitle?: string) => void;
 }
 
 export function slugifyTask(text: string): string {
@@ -39,7 +40,8 @@ export function slugifyTask(text: string): string {
 class TaskLensWidget extends WidgetType {
   constructor(
     readonly taskId: string,
-    readonly taskText: string,
+    readonly taskTitle: string,
+    readonly fullTaskText: string,
     readonly isCompleted: boolean,
     readonly isRunning: boolean,
     readonly sessionId: string | null,
@@ -49,12 +51,13 @@ class TaskLensWidget extends WidgetType {
     readonly parentTaskTitle: string | undefined,
     readonly onStartTask: (
       taskId: string,
-      taskText: string,
+      taskTitle: string,
+      fullTaskText: string,
       isSubtask?: boolean,
       parentTaskId?: string,
       parentTaskTitle?: string
     ) => void,
-    readonly onViewSession: (sessionId: string | null) => void
+    readonly onViewSession: (sessionId: string | null, taskTitle?: string) => void
   ) {
     super();
   }
@@ -122,7 +125,7 @@ class TaskLensWidget extends WidgetType {
       viewBtn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.onViewSession(this.sessionId);
+        this.onViewSession(this.sessionId, this.taskTitle);
       };
       container.appendChild(viewBtn);
     } else {
@@ -140,7 +143,8 @@ class TaskLensWidget extends WidgetType {
         e.stopPropagation();
         this.onStartTask(
           this.taskId,
-          this.taskText,
+          this.taskTitle,
+          this.fullTaskText,
           this.isSubtask,
           this.parentTaskId,
           this.parentTaskTitle
@@ -158,6 +162,7 @@ function buildTaskLensDecorations(
   cfg: TaskLensConfig
 ): DecorationSet {
   if (!cfg.enabled) return Decoration.none;
+
   const builder = new RangeSetBuilder<Decoration>();
   const doc = state.doc;
 
@@ -173,6 +178,26 @@ function buildTaskLensDecorations(
     const isDocCompleted = match[2].toLowerCase() === "x";
     const taskContent = match[3].trim();
     if (!taskContent) continue;
+
+    // Collect any indented detail lines immediately following this task
+    let fullTaskText = taskContent;
+    for (let j = i + 1; j <= doc.lines; j++) {
+      const nextLine = doc.line(j);
+      if (/^\s*[-*]\s*\[([ xX])\]/.test(nextLine.text) || /^#+/.test(nextLine.text.trim())) {
+        break;
+      }
+      if (nextLine.text.trim() === "") {
+        if (j + 1 <= doc.lines && !/^\s+/.test(doc.line(j + 1).text)) {
+          break;
+        }
+        continue;
+      }
+      if (/^\s+/.test(nextLine.text)) {
+        fullTaskText += `\n${nextLine.text}`;
+      } else {
+        break;
+      }
+    }
 
     const taskId = slugifyTask(taskContent);
     const isSubtask = indent > 0;
@@ -197,6 +222,7 @@ function buildTaskLensDecorations(
         widget: new TaskLensWidget(
           taskId,
           taskContent,
+          fullTaskText,
           isCompleted,
           isRunning,
           sessionId,

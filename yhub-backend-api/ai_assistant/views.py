@@ -494,14 +494,44 @@ class ChatSessionViewSet(ChatServiceMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedUser, IsOwnerOrReadOnly]
 
     def get_queryset(self):
-        """Return chat sessions for the current user."""
-        return ChatSession.objects.filter(user=self.request.user)
+        """Return chat sessions for the current user, optionally filtered by mode."""
+        qs = ChatSession.objects.filter(user=self.request.user)
+        mode = self.request.query_params.get("mode")
+        if mode:
+            # Match mode in context JSON field
+            qs = qs.filter(context__mode=mode)
+        return qs
 
     def get_serializer_class(self):
         """Return appropriate serializer based on action."""
         if self.action == "retrieve":
             return ChatSessionSerializer
         return ChatSessionBasicSerializer
+
+    def create(self, request, *args, **kwargs):
+        """Create a chat session, resolving ai_agent if passed as ai_agent_id or defaulting to active agent."""
+        data = request.data.copy() if hasattr(request.data, "copy") else dict(request.data)
+        if "ai_agent" not in data or not data["ai_agent"]:
+            if "ai_agent_id" in data and data["ai_agent_id"]:
+                data["ai_agent"] = data["ai_agent_id"]
+            else:
+                default_agent = AIAgent.objects.filter(is_active=True).first()
+                if default_agent:
+                    data["ai_agent"] = default_agent.id
+
+        # Preserve mentor mode in session context
+        mode = data.get("mode") or request.query_params.get("mode")
+        if mode:
+            ctx = data.get("context") or {}
+            if isinstance(ctx, dict):
+                ctx["mode"] = mode
+                data["context"] = ctx
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         """Set the user to the current user."""

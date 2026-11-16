@@ -10,7 +10,10 @@ import { getSystemDesignLab } from "@/lib/systemDesign";
 import { SystemDesignStudio } from "@/routes/system-design-studio";
 import { getLab } from "@/lib/adminLabs";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { EditorView } from "@codemirror/view";
+import { EditorView, keymap } from "@codemirror/view";
+import { indentWithTab } from "@codemirror/commands";
+import { indentUnit } from "@codemirror/language";
+import { EditorState } from "@codemirror/state";
 import { useTheme } from "@/hooks/use-theme";
 import {
   fetchFileTree,
@@ -28,6 +31,7 @@ import { ExecutionOutputView } from "@/components/ExecutionOutputView";
 import { formatSourceCode } from "@/lib/codeFormatter";
 import { TopNav } from "@/components/TopNav";
 import useAIChat from "@/components/common/ai-buddy/useAIChat";
+import { parsePlanStructure, type PlanTask } from "@/components/common/ai-buddy/AIMentor";
 import { WalletBalanceBadge } from "@/components/credits/WalletBalanceBadge";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -46,7 +50,8 @@ import {
   MessageSquare, Lock, Unlock, RotateCcw, Copy, Share2, Flag, HelpCircle,
   Sparkles, Gauge, Wand2, Globe, Check, ArrowLeft, PanelLeftClose, PanelLeftOpen, BookOpen,
   FilePlus, FolderPlus, Pencil, Trash2, X, FlaskConical, Key, Shield, Download,
-  Mic, Paperclip, ChevronUp,
+  Mic, Paperclip, ChevronUp, Code, LayoutList, Loader2, History, CheckSquare,
+  Columns3, PanelRight, PanelLeft, Square, Maximize2, Minimize2, Code2,
 } from "lucide-react";
 
 import CodeMirror from "@uiw/react-codemirror";
@@ -114,6 +119,7 @@ export function TicketIDE({
   evaluationId,
   onCodeChange,
   headerActions,
+  newProjectButton,
   initialFiles,
 }: {
   slug: string;
@@ -124,6 +130,7 @@ export function TicketIDE({
   evaluationId?: string;
   onCodeChange?: (files: Record<string, string>) => void;
   headerActions?: React.ReactNode;
+  newProjectButton?: React.ReactNode;
   initialFiles?: Record<string, string>;
 }) {
   const navigate = useNavigate();
@@ -440,7 +447,7 @@ export function TicketIDE({
 
   // Task execution state across Editor CodeLens & AI Mentor plan
   const [taskStatuses, setTaskStatuses] = useState<Record<string, TaskStatusInfo>>({});
-  const [activeAiSessionId, setActiveAiSessionId] = useState<string | null>(null);
+  const [activeAiSessionId, setActiveAiSessionId] = useState<{ id?: string; title?: string; ts: number } | string | null>(null);
 
   const handleStartTaskFromEditor = async (
     taskId: string,
@@ -475,12 +482,21 @@ export function TicketIDE({
           const sessionTitle = isSubtask ? (parentTaskTitle || taskText) : taskText;
           const resp = await yhubApiAuthUtil.post<{ id: string }>("/sessions/", {
             title: sessionTitle,
+            page: "learn",
+            mode: "agent",
             page_content: `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\nCurrent Code:\n${codeContext}`.trim(),
           });
-          if (resp?.id) sessionId = resp.id;
+          if (resp?.id) {
+            sessionId = resp.id;
+            setActiveAiSessionId({ id: sessionId, title: sessionTitle, ts: Date.now() });
+            setSidePanel("mentor");
+          }
         } catch (e) {
           console.warn("Could not create dedicated task session", e);
         }
+      } else {
+        setActiveAiSessionId({ id: sessionId, title: isSubtask ? parentTaskTitle : taskText, ts: Date.now() });
+        setSidePanel("mentor");
       }
 
       const baseUrl =
@@ -581,9 +597,9 @@ export function TicketIDE({
     }
   };
 
-  const handleViewSession = (sessionId: string | null) => {
+  const handleViewSession = (sessionId: string | null, title?: string) => {
     if (sessionId) {
-      setActiveAiSessionId(sessionId);
+      setActiveAiSessionId({ id: sessionId, title, ts: Date.now() });
     }
     setSidePanel("mentor");
   };
@@ -784,8 +800,8 @@ export function TicketIDE({
   }, [activeFile, isReal, wsLoaded, effectiveUserId]);
 
   const [tab, setTab] = useState<"problem" | "hints" | "discuss" | "solution">("problem");
-  const [activeSidebarView, setActiveSidebarView] = useState<"problem" | "explorer" | "search" | "git" | "debug" | "containers" | null>("problem");
-  const [sidebarWidth, setSidebarWidth] = useState<number>(360);
+  const [activeSidebarView, setActiveSidebarView] = useState<"problem" | "explorer" | "search" | "git" | "debug" | "containers" | null>("explorer");
+  const [sidebarWidth, setSidebarWidth] = useState<number>(260);
   const [bottomTab, setBottomTab] = useState<BottomTab>("terminal");
   const [uiDiffResult, setUiDiffResult] = useState<any>(null);
   const [hintLevel, setHintLevel] = useState(2);
@@ -807,14 +823,144 @@ export function TicketIDE({
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
   const toggleFolder = (k: string) => setOpenFolders((o) => ({ ...o, [k]: !(o[k] ?? true) }));
   const isFolderOpen = (k: string) => openFolders[k] ?? true;
-  const [sidePanel, setSidePanel] = useState<null | "preview" | "mentor">(null);
+  const [sidePanel, setSidePanel] = useState<null | "preview" | "mentor">("mentor");
   const [previewDevice, setPreviewDevice] = useState<"Mobile" | "Tablet" | "Desktop">("Desktop");
-  const [sideWidth, setSideWidth] = useState<number | null>(null);
+  const [sideWidth, setSideWidth] = useState<number | null>(420);
   const [bottomHeight, setBottomHeight] = useState<number>(240);
   const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false);
   const [quickSearchQuery, setQuickSearchQuery] = useState("");
   const [quickSearchSelectedIndex, setQuickSearchSelectedIndex] = useState(0);
   const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
+  const [planViewMode, setPlanViewMode] = useState<"markdown" | "ui">("markdown");
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
+  const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+
+  // Checkpoint history for reverting/restoring code states
+  const [checkpoints, setCheckpoints] = useState<{
+    id: string;
+    name: string;
+    timestamp: number;
+    files: Record<string, string>;
+    activeFile?: string;
+    source?: "initial" | "agent" | "manual";
+  }[]>([]);
+  const hasInitCheckpointRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasInitCheckpointRef.current && Object.keys(files).length > 0) {
+      hasInitCheckpointRef.current = true;
+      setCheckpoints([
+        {
+          id: `checkpoint-initial-${Date.now()}`,
+          name: "Initial Ticket State",
+          timestamp: Date.now(),
+          files: { ...files },
+          activeFile,
+          source: "initial",
+        },
+      ]);
+    }
+  }, [files, activeFile]);
+
+  const createCheckpoint = useCallback(
+    (name: string, snapshotFiles: Record<string, string>, source: "agent" | "manual" = "agent") => {
+      const timeStr = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      const newCp = {
+        id: `checkpoint-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        name: name || `Checkpoint (${timeStr})`,
+        timestamp: Date.now(),
+        files: { ...snapshotFiles },
+        activeFile,
+        source,
+      };
+      setCheckpoints((prev) => [newCp, ...prev.slice(0, 19)]);
+      return newCp;
+    },
+    [activeFile]
+  );
+
+  const handleDiscardChanges = useCallback(() => {
+    if (checkpoints.length === 0) {
+      showToast("No checkpoint to restore");
+      return;
+    }
+    const targetCp = checkpoints[0];
+    setFiles({ ...targetCp.files });
+    if (targetCp.activeFile && targetCp.files[targetCp.activeFile] !== undefined) {
+      updateCode(targetCp.files[targetCp.activeFile]);
+      setActiveFile(targetCp.activeFile);
+    } else if (activeFile && targetCp.files[activeFile] !== undefined) {
+      updateCode(targetCp.files[activeFile]);
+    }
+    if (effectiveUserId) {
+      Object.entries(targetCp.files).forEach(([f, c]) => {
+        wsWriteFile(effectiveUserId, labId, sprintId, f, c, evaluationId).catch(console.error);
+      });
+    }
+    showToast(`Discarded changes: Reverted to "${targetCp.name}"`);
+  }, [checkpoints, activeFile, effectiveUserId, labId, sprintId, evaluationId, updateCode, showToast]);
+
+  const handleRestoreCheckpoint = useCallback(
+    (checkpointId: string) => {
+      const cp = checkpoints.find((c) => c.id === checkpointId);
+      if (!cp) return;
+      createCheckpoint(`Before restoring ${cp.name}`, files, "manual");
+      setFiles({ ...cp.files });
+      if (cp.activeFile && cp.files[cp.activeFile] !== undefined) {
+        updateCode(cp.files[cp.activeFile]);
+        setActiveFile(cp.activeFile);
+      } else if (activeFile && cp.files[activeFile] !== undefined) {
+        updateCode(cp.files[activeFile]);
+      }
+      if (effectiveUserId) {
+        Object.entries(cp.files).forEach(([f, c]) => {
+          wsWriteFile(effectiveUserId, labId, sprintId, f, c, evaluationId).catch(console.error);
+        });
+      }
+      showToast(`Restored checkpoint: "${cp.name}"`);
+    },
+    [checkpoints, files, activeFile, createCheckpoint, effectiveUserId, labId, sprintId, evaluationId, updateCode, showToast]
+  );
+
+  const handleOpenPlanMode = useCallback(() => {
+    const allFiles = Object.keys(files);
+    const planFile =
+      allFiles.find((f) => f.includes(".yuvro-developer/plan/") || (f.endsWith(".md") && f.includes("plan"))) ||
+      allFiles.find((f) => f.endsWith(".md"));
+
+    if (planFile) {
+      if (!openTabs.includes(planFile)) {
+        setOpenTabs((prev) => [...prev, planFile]);
+      }
+      setActiveFile(planFile);
+      setPlanViewMode("markdown");
+      showToast(`Viewing plan: ${planFile.split("/").pop()}`);
+    } else {
+      setSidePanel("mentor");
+      showToast("Opened Plan mode in AI Mentor");
+    }
+  }, [files, openTabs, showToast]);
   const splitContainerRef = useRef<HTMLDivElement>(null);
   const mainIdeRef = useRef<HTMLDivElement>(null);
 
@@ -2668,18 +2814,26 @@ export function TicketIDE({
     if (!silent) showToast("Saved");
   }
 
-  function handleFormatCode() {
-    if (!activeFile) return;
-    const currentCode = files[activeFile] ?? "";
+  function handleFormatCode(targetFilePath?: string) {
+    const fileToFormat = targetFilePath || activeFile;
+    if (!fileToFormat) return;
+    const currentCode = files[fileToFormat] ?? "";
     if (!currentCode.trim()) return;
-    const ext = activeFile.split(".").pop() || progLang || "py";
-    const res = formatSourceCode(currentCode, ext, activeFile);
+    const ext = fileToFormat.split(".").pop() || progLang || "py";
+    const res = formatSourceCode(currentCode, ext, fileToFormat);
     if (res.changed) {
-      setFiles((prev) => ({ ...prev, [activeFile]: res.formatted }));
-      setDirty((prev) => ({ ...prev, [activeFile]: true }));
+      setFiles((prev) => ({ ...prev, [fileToFormat]: res.formatted }));
+      setDirty((prev) => ({ ...prev, [fileToFormat]: true }));
       showToast("Code formatted");
     } else {
       showToast("Already formatted");
+    }
+  }
+
+  function handleCopyFilePath(path: string) {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(path);
+      showToast(`Copied file path: ${path}`);
     }
   }
 
@@ -2785,8 +2939,8 @@ export function TicketIDE({
   return (
     <div className="h-screen flex-1 min-h-0 flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
-      <div className="flex flex-wrap items-center gap-3 border-b bg-card/60 px-3 py-2 text-xs">
-        {!previewOverride && !isEvaluationMode && (
+      <div className="h-11 shrink-0 flex items-center gap-2.5 border-b bg-card/60 px-3 text-xs whitespace-nowrap min-w-0 select-none overflow-x-auto">
+        {!previewOverride && !isEvaluationMode && !isAdminRoute && (
           isFromWeeklyTask ? (
             <button
               type="button"
@@ -2838,39 +2992,55 @@ export function TicketIDE({
           )
         )}
 
-        <StatusBadge value={ticketStatus} />
-        <DiffBadge value={ticket.difficulty} />
-        {!isEvaluationMode && (
-          <span className="text-muted-foreground inline-flex items-center gap-1">
-            <Zap className="h-3 w-3 text-primary" />+{ticket.xp} YP
+        {/* System Design Studio / Vitarka IDE branding */}
+        <div className="flex items-center gap-2 mr-1">
+          <div className="grid h-6 w-6 place-items-center rounded bg-primary/10 text-primary">
+            <Code2 className="h-3.5 w-3.5" />
+          </div>
+          <span className="font-semibold text-xs text-foreground tracking-tight whitespace-nowrap">
+            Vitarka IDE
           </span>
-        )}
-        <span className="text-muted-foreground inline-flex items-center gap-1">
-          <Clock className="h-3 w-3" />
-          Elapsed{" "}
-          <span className="font-mono text-foreground">{timeStr}</span>
-        </span>
-        {savedAt && (
-          <span className="text-success inline-flex items-center gap-1">
-            <Check className="h-3 w-3" />
-            Saved {savedAt}
-          </span>
-        )}
-        <button
-          onClick={handleResetProgress}
-          title="Reset Progress"
-          className="text-destructive inline-flex items-center gap-1 rounded-md border border-destructive/20 bg-destructive/10 px-2 py-1 hover:bg-destructive/20 font-medium ml-1"
-        >
-          <RotateCcw className="h-3 w-3" />
-          Reset
-        </button>
+        </div>
 
+        {/* Next option: New Project */}
+        {newProjectButton}
+
+        {/* Checkpoints dropdown - left aligned */}
+        {checkpoints.length > 0 && (
+          <div className="relative inline-flex items-center">
+            <select
+              value=""
+              onChange={(e) => {
+                if (e.target.value === "discard") {
+                  handleDiscardChanges();
+                } else if (e.target.value) {
+                  handleRestoreCheckpoint(e.target.value);
+                }
+              }}
+              className="text-[11px] font-medium h-7 rounded-md border border-border/70 bg-muted/30 px-2 pr-6 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer appearance-none outline-none"
+              title="Restore code to a previous checkpoint"
+            >
+              <option value="" disabled>
+                Checkpoints ({checkpoints.length})...
+              </option>
+              <option value="discard">↶ Discard changes (latest checkpoint)</option>
+              {checkpoints.map((cp, idx) => (
+                <option key={cp.id} value={cp.id}>
+                  {idx + 1}. {cp.name} ({new Date(cp.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })})
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="h-3 w-3 text-muted-foreground pointer-events-none absolute right-2" />
+          </div>
+        )}
+
+        {/* Find files - left aligned */}
         <button
           onClick={() => {
             setQuickSwitcherOpen(true);
             setQuickSearchSelectedIndex(0);
           }}
-          className="hidden md:inline-flex items-center gap-2 rounded-md border border-border/70 bg-muted/30 px-2.5 py-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          className="hidden md:inline-flex items-center gap-2 rounded-md border border-border/70 bg-muted/30 px-2.5 py-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
           title="Quick open file (⌘P)"
         >
           <Search className="h-3 w-3" />
@@ -2880,8 +3050,22 @@ export function TicketIDE({
           </kbd>
         </button>
 
+        {savedAt && (
+          <span className="text-success inline-flex items-center gap-1 text-xs">
+            <Check className="h-3 w-3" />
+            Saved {savedAt}
+          </span>
+        )}
+
         <div className="ml-auto flex items-center gap-1.5">
-          <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60">
+          {/* Elapsed Time - placed right before the Run button */}
+          <span className="text-muted-foreground inline-flex items-center gap-1 mr-1 text-xs">
+            <Clock className="h-3 w-3" />
+            Elapsed{" "}
+            <span className="font-mono text-foreground">{timeStr}</span>
+          </span>
+
+          <button onClick={handleRun} disabled={running} className="inline-flex items-center gap-1 rounded-md bg-success/20 text-success border border-success/40 px-3 py-1 hover:bg-success/30 font-medium disabled:opacity-60 cursor-pointer">
             <Play className="h-3 w-3" />{running ? "Running…" : "Run"} <kbd className="hidden md:inline rounded bg-success/20 px-1 text-[10px]">⌘↵</kbd>
           </button>
           <button
@@ -2893,34 +3077,19 @@ export function TicketIDE({
                 setSidePanel(null);
               }
             }}
-            className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "preview" ? "bg-accent text-foreground border-primary/40" : ""}`}
+            className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent cursor-pointer ${sidePanel === "preview" ? "bg-accent text-foreground border-primary/40" : ""}`}
           >
             <Globe className="h-3 w-3" />
             Preview
           </button>
-          {!isEvaluationMode && (
-            <button onClick={() => setIsCommitDialogOpen(true)}
-              className="inline-flex items-center gap-1 rounded-md px-3 py-1 font-medium border border-border hover:bg-accent disabled:opacity-50">
-              <GitBranch className="h-3 w-3" />Commit
-            </button>
-          )}
           {(!isEvaluationMode || slug !== "knowledge") && (
             <button onClick={handleSubmit}
               disabled={submitting}
-              className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 transition"
+              className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 transition cursor-pointer"
               title="Submit lab solution permanently"
             >
               <Send className="h-3 w-3" />
               {submitting ? "Submitting..." : "Submit"}
-            </button>
-          )}
-          {!isEvaluationMode && (
-            <button
-              onClick={() => setSidePanel((p) => (p === "mentor" ? null : "mentor"))}
-              className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 hover:bg-accent ${sidePanel === "mentor" ? "bg-accent text-foreground border-primary/40" : ""}`}
-            >
-              <Sparkles className="h-3 w-3" />
-              AI Mentor
             </button>
           )}
           {isEvaluationMode && slug !== "knowledge" && (
@@ -2930,29 +3099,83 @@ export function TicketIDE({
                 window.parent.postMessage({ type: "LAB_SAVED", labId: ticket.id }, "*");
               }}
               disabled={submitting}
-              className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-50 transition"
+              className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-50 transition cursor-pointer"
               title="Save progress and return to lab selection"
             >
               <Save className="h-3 w-3" />
               Save
             </button>
           )}
-          {/* {ticket.ticket_type !== 'database' && ticket.ticket_type !== 'web' && (
-            <select
-              value={selectedLanguage}
-              onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="h-7 rounded-md border bg-background px-2 text-xs text-foreground focus:ring-1"
-              title="Execution Language"
-            >
-              <option value="">Auto-detect</option>
-              {Object.keys(supportedLanguages).map((lang) => (
-                <option key={lang} value={lang}>
-                  {supportedLanguages[lang].name || lang.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          )} */}
           {headerActions}
+
+          {/* View presets and Fullscreen icons */}
+          <div className="h-4 w-px bg-border mx-1" />
+          <div className="flex items-center gap-0.5 bg-muted/40 p-0.5 rounded-md border border-border/60">
+            <button
+              onClick={() => {
+                setActiveSidebarView("explorer");
+                setSidePanel("mentor");
+              }}
+              title="All panels (File Browser, Editor, AI Mentor)"
+              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${
+                activeSidebarView !== null && sidePanel === "mentor"
+                  ? "bg-background text-foreground shadow-2xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+              }`}
+            >
+              <Columns3 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => {
+                setActiveSidebarView(null);
+                setSidePanel("mentor");
+              }}
+              title="Code Editor & AI Mentor"
+              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${
+                activeSidebarView === null && sidePanel === "mentor"
+                  ? "bg-background text-foreground shadow-2xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+              }`}
+            >
+              <PanelRight className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => {
+                setActiveSidebarView("explorer");
+                setSidePanel(null);
+              }}
+              title="File Browser & Code Editor"
+              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${
+                activeSidebarView !== null && sidePanel === null
+                  ? "bg-background text-foreground shadow-2xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+              }`}
+            >
+              <PanelLeft className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={() => {
+                setActiveSidebarView(null);
+                setSidePanel(null);
+              }}
+              title="Only Code Editor"
+              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${
+                activeSidebarView === null && sidePanel === null
+                  ? "bg-background text-foreground shadow-2xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+              }`}
+            >
+              <Square className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+            className="grid h-7 w-7 place-items-center rounded-md border border-border/70 hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
+            {isFullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+          </button>
         </div>
       </div>
 
@@ -2984,6 +3207,19 @@ export function TicketIDE({
             }`}
           >
             <FileCode2 className="h-4 w-4" />
+          </button>
+
+          {/* Plan mode button */}
+          <button
+            onClick={handleOpenPlanMode}
+            title="Plan & Tasks (Preview Plan UI)"
+            className={`grid h-9 w-9 place-items-center rounded transition-colors ${
+              (activeFile?.endsWith(".md") || activeFile?.includes("plan")) && planViewMode === "ui"
+                ? "text-primary bg-primary/15"
+                : "hover:text-foreground hover:bg-accent/40"
+            }`}
+          >
+            <LayoutList className="h-4 w-4" />
           </button>
           {[
             { id: "search", icon: Search, label: "Search in Files (⌘⇧F)" },
@@ -3040,6 +3276,13 @@ export function TicketIDE({
                         {t.label}
                       </button>
                     ))}
+                    <button
+                      onClick={() => setActiveSidebarView(null)}
+                      title="Collapse Sidebar"
+                      className="ml-auto mr-2 p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    >
+                      <PanelLeftClose className="h-3.5 w-3.5" />
+                    </button>
                   </div>
               <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
                 {tab === "problem" && (
@@ -3143,7 +3386,7 @@ export function TicketIDE({
                     <button
                       title="Refresh Workspace"
                       onClick={() => loadWorkspaceFiles(true)}
-                      className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1"
+                      className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1 cursor-pointer"
                     >
                       <svg
                         width="14"
@@ -3158,6 +3401,13 @@ export function TicketIDE({
                         <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                         <path d="M3 3v5h5" />
                       </svg>
+                    </button>
+                    <button
+                      title="Collapse Sidebar"
+                      onClick={() => setActiveSidebarView(null)}
+                      className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1 cursor-pointer"
+                    >
+                      <PanelLeftClose className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
@@ -3174,6 +3424,8 @@ export function TicketIDE({
                     onRenameFile={renameFile}
                     onDeleteFile={deleteFile}
                     onDeleteFolder={deleteFolder}
+                    onFormatFile={handleFormatCode}
+                    onCopyFilePath={handleCopyFilePath}
                     isFolderOpen={isFolderOpen}
                     toggleFolder={toggleFolder}
                   />
@@ -3381,6 +3633,13 @@ export function TicketIDE({
                 <div className="flex flex-col h-full min-h-0">
                   <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
                     <span>Search in Files</span>
+                    <button
+                      title="Collapse Sidebar"
+                      onClick={() => setActiveSidebarView(null)}
+                      className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      <PanelLeftClose className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                   <div className="p-3 border-b border-border/40 space-y-2">
                     <input
@@ -3489,10 +3748,19 @@ export function TicketIDE({
               {activeSidebarView === "git" && (
                 <div className="flex flex-col h-full min-h-0">
                   <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
-                    <span>Source Control</span>
-                    <span className="rounded bg-primary/10 text-primary px-1.5 py-0.2 text-[10px] font-semibold">
-                      git
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span>Source Control</span>
+                      <span className="rounded bg-primary/10 text-primary px-1.5 py-0.2 text-[10px] font-semibold">
+                        git
+                      </span>
+                    </div>
+                    <button
+                      title="Collapse Sidebar"
+                      onClick={() => setActiveSidebarView(null)}
+                      className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      <PanelLeftClose className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                   <div className="p-3 border-b border-border/40 space-y-2">
                     <button
@@ -3544,6 +3812,13 @@ export function TicketIDE({
                 <div className="flex flex-col h-full min-h-0">
                   <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
                     <span>Run & Debug</span>
+                    <button
+                      title="Collapse Sidebar"
+                      onClick={() => setActiveSidebarView(null)}
+                      className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      <PanelLeftClose className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                   <div className="p-3 border-b border-border/40 space-y-2">
                     <button
@@ -3616,6 +3891,13 @@ export function TicketIDE({
                 <div className="flex flex-col h-full min-h-0">
                   <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
                     <span>Containers & Env</span>
+                    <button
+                      title="Collapse Sidebar"
+                      onClick={() => setActiveSidebarView(null)}
+                      className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      <PanelLeftClose className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                   <div className="p-3 border-b border-border/40 space-y-2">
                     <div className="flex items-center gap-2">
@@ -3676,29 +3958,95 @@ export function TicketIDE({
           <div ref={splitContainerRef} className="flex flex-1 min-h-0">
             <div className="flex flex-1 min-w-0 flex-col">
               {/* Tabs row */}
-              <div className="flex items-center border-b bg-editor-panel text-xs overflow-x-auto">
+              <div
+                className="flex items-center border-b bg-editor-panel text-xs overflow-x-auto no-scrollbar hide-scrollbar relative"
+                style={{ scrollbarWidth: "none" }}
+              >
                 {openTabs.map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setActiveFile(f)}
-                    className={`flex items-center gap-2 border-r pl-3 pr-2 py-2 whitespace-nowrap group ${activeFile === f ? "bg-editor-bg text-foreground" : "text-muted-foreground hover:bg-editor-bg/50 hover:text-foreground"}`}
-                  >
-                    <FileCode2 className="h-3 w-3" />
-                    {f.split("/").pop()}
-                    {dirty[f] && <CircleDot className="h-2.5 w-2.5 text-warning" />}
-                    <div
-                      onClick={(e) => closeTab(f, e)}
-                      className="ml-1 opacity-0 group-hover:opacity-100 hover:text-destructive p-0.5 rounded-sm hover:bg-muted/50"
-                    >
-                      <X className="h-3 w-3" />
-                    </div>
-                  </button>
+                  <ContextMenu key={f}>
+                    <ContextMenuTrigger asChild>
+                      <button
+                        onClick={() => setActiveFile(f)}
+                        className={`flex items-center gap-2 border-r pl-3 pr-2 py-2 whitespace-nowrap group cursor-pointer ${activeFile === f ? "bg-editor-bg text-foreground font-medium" : "text-muted-foreground hover:bg-editor-bg/50 hover:text-foreground"}`}
+                      >
+                        <FileCode2 className="h-3 w-3" />
+                        {f.split("/").pop()}
+                        {dirty[f] && <CircleDot className="h-2.5 w-2.5 text-warning" />}
+                        <div
+                          onClick={(e) => closeTab(f, e)}
+                          className="ml-1 opacity-0 group-hover:opacity-100 hover:text-destructive p-0.5 rounded-sm hover:bg-muted/50 cursor-pointer"
+                          title="Close file"
+                        >
+                          <X className="h-3 w-3" />
+                        </div>
+                      </button>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent className="w-48">
+                      <ContextMenuItem onSelect={() => handleFormatCode(f)}>
+                        <Wand2 className="mr-2 h-3.5 w-3.5 text-primary" />
+                        Format
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={() => handleCopyFilePath(f)}>
+                        <Copy className="mr-2 h-3.5 w-3.5" />
+                        Copy File Path
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem onSelect={() => closeTab(f)}>
+                        Close
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        onSelect={() => {
+                          setOpenTabs([f]);
+                          setActiveFile(f);
+                        }}
+                      >
+                        Close Others
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        onSelect={() => {
+                          const idx = openTabs.indexOf(f);
+                          if (idx !== -1) {
+                            const remaining = openTabs.slice(0, idx + 1);
+                            setOpenTabs(remaining);
+                            if (!remaining.includes(activeFile)) {
+                              setActiveFile(f);
+                            }
+                          }
+                        }}
+                      >
+                        Close to the Right
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        onSelect={() => {
+                          const idx = openTabs.indexOf(f);
+                          if (idx !== -1) {
+                            const remaining = openTabs.slice(idx);
+                            setOpenTabs(remaining);
+                            if (!remaining.includes(activeFile)) {
+                              setActiveFile(f);
+                            }
+                          }
+                        }}
+                      >
+                        Close to the Left
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem
+                        onSelect={() => {
+                          setOpenTabs([]);
+                          setActiveFile("");
+                        }}
+                      >
+                        Close All
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
                 ))}
                 <div className="ml-auto flex items-center gap-2 pr-3 text-[11px] text-muted-foreground whitespace-nowrap">
                   {isMultiLang && (
                     <button
                       onClick={() => setIsExamplesPanelOpen(true)}
-                      className="flex items-center gap-1.5 rounded border border-border bg-background px-2 py-0.5 font-medium hover:bg-accent text-foreground transition-colors"
+                      className="flex items-center gap-1.5 rounded border border-border bg-background px-2 py-0.5 font-medium hover:bg-accent text-foreground transition-colors cursor-pointer"
                     >
                       <BookOpen className="h-3 w-3 text-primary" />
                       Examples
@@ -3710,7 +4058,7 @@ export function TicketIDE({
                       <select
                         value={progLang}
                         onChange={(e) => switchProgLang(e.target.value as ProgLang)}
-                        className="rounded border bg-background px-1.5 py-0.5 text-[11px] text-foreground"
+                        className="rounded border bg-background px-1.5 py-0.5 text-[11px] text-foreground cursor-pointer"
                       >
                         <option value="python">Python</option>
                         <option value="c">C</option>
@@ -3721,23 +4069,71 @@ export function TicketIDE({
                     </label>
                   )}
                   {isJava && <CompileBadge state={compileState} />}
-                  <button
-                    title="Format Document (Shift+Alt+F)"
-                    onClick={handleFormatCode}
-                    className="flex items-center gap-1.5 rounded border border-border bg-background px-2 py-0.5 font-medium hover:bg-accent text-foreground transition-colors"
-                  >
-                    <Wand2 className="h-3 w-3 text-primary" />
-                    <span>Format</span>
-                  </button>
                 </div>
               </div>
 
               {/* Editor */}
-              <div className="flex flex-1 min-h-0">
+              <div className="flex flex-1 min-h-0 relative">
+                {(activeFile.endsWith(".md") || activeFile.includes("plan")) && planViewMode === "markdown" && (
+                  <div className="absolute top-2 right-4 z-20 flex items-center gap-1 bg-background/95 backdrop-blur-xs p-0.5 rounded-lg border border-border shadow-xs text-[11px]">
+                    <button
+                      onClick={() => setPlanViewMode("markdown")}
+                      className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-accent text-foreground shadow-2xs cursor-pointer"
+                      title="Current: Markdown code"
+                    >
+                      Markdown
+                    </button>
+                    <button
+                      onClick={() => setPlanViewMode("ui")}
+                      className="px-2.5 py-1 rounded-md text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      title="Switch to Tasks UI view"
+                    >
+                      Tasks UI
+                    </button>
+                  </div>
+                )}
                 {activeFile.startsWith("schema:") ? (
                   <SchemaViewer
                     tablePath={activeFile.replace("schema:", "")}
                     dbSchemas={dbSchemas}
+                  />
+                ) : (activeFile.endsWith(".md") || activeFile.includes("plan")) && planViewMode === "ui" ? (
+                  <PlanTasksPreviewPanel
+                    content={code}
+                    activeFile={activeFile}
+                    taskStatuses={taskStatuses}
+                    onStartTask={(t, s) => {
+                      const taskId = s ? s.id : t.id;
+                      const taskTitle = s ? `${t.number}.${s.number}: ${s.text}` : `Task ${t.number}: ${t.title}`;
+                      const fullText = s ? s.text : t.title;
+                      handleStartTaskFromEditor(taskId, taskTitle, fullText, !!s, t.id, t.title);
+                    }}
+                    onViewSession={handleViewSession}
+                    planViewMode={planViewMode}
+                    onSwitchView={setPlanViewMode}
+                    onToggleCheckbox={(taskNumber, subNumber) => {
+                      const currentContent = code;
+                      let updatedContent = currentContent;
+                      if (subNumber) {
+                        const escapedSub = subNumber.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                        updatedContent = currentContent.replace(
+                          new RegExp(`(-\\s*\\[)([ xX])(\\]\\s*${escapedSub})`),
+                          (_, p1, mark, p3) => `${p1}${mark.toLowerCase() === "x" ? " " : "x"}${p3}`
+                        );
+                      } else {
+                        const escapedNum = taskNumber.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                        updatedContent = currentContent.replace(
+                          new RegExp(`(-\\s*\\[)([ xX])(\\]\\s*Task\\s*${escapedNum}[:.]?)`),
+                          (_, p1, mark, p3) => `${p1}${mark.toLowerCase() === "x" ? " " : "x"}${p3}`
+                        );
+                      }
+                      if (updatedContent !== currentContent) {
+                        updateCode(updatedContent);
+                        if (effectiveUserId) {
+                          wsWriteFile(effectiveUserId, labId, sprintId, activeFile, updatedContent, evaluationId).catch(console.error);
+                        }
+                      }
+                    }}
                   />
                 ) : (
                   <CodeEditor
@@ -3890,12 +4286,24 @@ export function TicketIDE({
                         </button>
                       ))}
                     </div>
-                    <button
-                      onClick={() => setSidePanel(null)}
-                      className="ml-auto text-muted-foreground hover:text-foreground"
-                    >
-                      ✕
-                    </button>
+                    <div className="ml-auto flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          setSideWidth((w) => (w && w > 700 ? 460 : (typeof window !== "undefined" ? window.innerWidth - 60 : 900)));
+                        }}
+                        className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-accent cursor-pointer"
+                        title="Toggle full screen preview"
+                      >
+                        <Maximize2 className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => setSidePanel(null)}
+                        className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-accent cursor-pointer"
+                        title="Close preview"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                 )}
                 <div className="flex-1 overflow-hidden p-0 min-w-0 min-h-0 flex flex-col">
@@ -3939,6 +4347,9 @@ export function TicketIDE({
                         taskStatuses={taskStatuses}
                         onTaskStatusesChange={setTaskStatuses}
                         activeSessionId={activeAiSessionId}
+                        checkpoints={checkpoints}
+                        onDiscardChanges={handleDiscardChanges}
+                        onRestoreCheckpoint={handleRestoreCheckpoint}
                         onOpenFile={(filePath) => {
                           if (!openTabs.includes(filePath)) {
                             setOpenTabs((prev) => [...prev, filePath]);
@@ -3947,6 +4358,7 @@ export function TicketIDE({
                         }}
                         onApplyCode={(code, target) => {
                           const targetFile = target || activeFile || defaultPrimaryFile;
+                          createCheckpoint(`Before editing ${targetFile || "file"}`, files, "agent");
                           if (targetFile === activeFile || !target) {
                             updateCode(code);
                           } else {
@@ -3958,6 +4370,7 @@ export function TicketIDE({
                           showToast(`Applied code to ${targetFile || "file"}`);
                         }}
                         onApplyFiles={(filesMap) => {
+                          createCheckpoint(`Before editing ${Object.keys(filesMap).length} files`, files, "agent");
                           setFiles((prev) => ({ ...prev, ...filesMap }));
                           if (activeFile && filesMap[activeFile] !== undefined) {
                             updateCode(filesMap[activeFile]);
@@ -3985,47 +4398,70 @@ export function TicketIDE({
       </div>
 
       {/* Status bar */}
-      <div className="flex items-center gap-3 border-t bg-primary/90 px-3 py-1 text-[11px] text-primary-foreground">
-        <span className="inline-flex items-center gap-1">
-          <GitBranch className="h-3 w-3" /> main
-        </span>
-        <span>{kit.runtime}</span>
-        <span>UTF-8</span>
-        <span>LF</span>
-        {isJava && (
-          <span className="inline-flex items-center gap-1">
-            {compileState === "ok" && (
-              <>
-                <CheckCircle2 className="h-3 w-3" />
-                Compiled
-              </>
-            )}
-            {compileState === "warn" && (
-              <>
-                <AlertTriangle className="h-3 w-3" />1 warning
-              </>
-            )}
-            {compileState === "err" && (
-              <>
-                <XCircle className="h-3 w-3" />
-                Compile error
-              </>
-            )}
-          </span>
-        )}
-        <div className="ml-auto flex items-center gap-3.5 text-[11px] font-mono select-none">
-          <span className="text-muted-foreground truncate max-w-[280px]" title={activeFile}>
+      <div className="flex items-center gap-3.5 border-t bg-editor-panel px-3 py-1 text-[11px] text-muted-foreground select-none">
+        {/* Left side: file path, line numbers, branch name, language/runtime */}
+        <div className="flex items-center gap-3 font-mono text-[11px] select-none text-foreground">
+          <span className="font-medium text-foreground truncate max-w-[280px]" title={activeFile}>
             {activeFile}
           </span>
           <span className="text-muted-foreground">
             {code.split("\n").length} {code.split("\n").length === 1 ? "line" : "lines"}
           </span>
-          <span className="text-foreground font-medium">
+          <span className="text-foreground font-semibold">
             Ln {cursorPos.line}, Col {cursorPos.col}
           </span>
-          <span className="uppercase tracking-wider text-[10px] text-muted-foreground border-l border-border pl-3">
-            {editorLanguage(activeFile)}
+          <span className="inline-flex items-center gap-1 text-muted-foreground border-l border-border/60 pl-3">
+            <GitBranch className="h-3 w-3 text-muted-foreground" /> main
           </span>
+          <span className="text-muted-foreground">
+            {activeFile.endsWith(".py")
+              ? "Python"
+              : activeFile.endsWith(".js") || activeFile.endsWith(".jsx")
+              ? "JavaScript"
+              : activeFile.endsWith(".ts") || activeFile.endsWith(".tsx")
+              ? "TypeScript"
+              : activeFile.endsWith(".html")
+              ? "HTML"
+              : activeFile.endsWith(".css")
+              ? "CSS"
+              : activeFile.endsWith(".java")
+              ? "Java"
+              : activeFile.endsWith(".cpp")
+              ? "C++"
+              : activeFile.endsWith(".c")
+              ? "C"
+              : activeFile.endsWith(".sql")
+              ? "SQL"
+              : activeFile.endsWith(".md")
+              ? "Markdown"
+              : kit.runtime || "Python"}
+          </span>
+          {isJava && (
+            <span className="inline-flex items-center gap-1">
+              {compileState === "ok" && (
+                <>
+                  <CheckCircle2 className="h-3 w-3 text-success" />
+                  Compiled
+                </>
+              )}
+              {compileState === "warn" && (
+                <>
+                  <AlertTriangle className="h-3 w-3 text-warning" />1 warning
+                </>
+              )}
+              {compileState === "err" && (
+                <>
+                  <XCircle className="h-3 w-3 text-destructive" />
+                  Compile error
+                </>
+              )}
+            </span>
+          )}
+        </div>
+
+        {/* Right side: AI credits positioned safely to the left of the floating Feedback button */}
+        <div className="ml-auto flex items-center pr-32 select-none text-[11px]">
+          <WalletBalanceBadge variant="minimal" className="!text-[11px] !text-[#f7931e] font-mono cursor-pointer" />
         </div>
       </div>
 
@@ -4417,21 +4853,72 @@ function CodeEditor({
       default:
         langExt = [];
     }
-    return [...langExt, taskLensExtension];
+    return [
+      ...langExt,
+      taskLensExtension,
+      indentUnit.of("    "),
+      EditorState.tabSize.of(4),
+      keymap.of([indentWithTab]),
+    ];
   }, [language, taskLensExtension]);
 
   const transparentTheme = useMemo(() => {
+    const isDark = theme === "dark";
     return EditorView.theme({
       "&": { backgroundColor: "transparent !important" },
       ".cm-gutters": {
         backgroundColor: "transparent !important",
-        borderRight: "1px solid var(--color-border) !important",
+        border: "none !important",
+        borderRight: "none !important",
+        borderRightWidth: "0 !important",
+        borderRightColor: "transparent !important",
+        borderLeft: "none !important",
         color: "var(--color-muted-foreground)",
       },
-      ".cm-activeLine": { backgroundColor: "var(--color-muted) !important" },
-      ".cm-activeLineGutter": { backgroundColor: "var(--color-muted) !important" },
+      "&.cm-editor .cm-gutters": {
+        border: "none !important",
+        borderRight: "none !important",
+        borderRightWidth: "0 !important",
+        borderRightColor: "transparent !important",
+      },
+      ".cm-gutters.cm-gutters-before": {
+        border: "none !important",
+        borderRight: "none !important",
+        borderRightWidth: "0 !important",
+        borderRightColor: "transparent !important",
+      },
+      ".cm-lineNumbers": {
+        border: "none !important",
+        borderRight: "none !important",
+        borderRightWidth: "0 !important",
+      },
+      ".cm-gutter": {
+        border: "none !important",
+        borderRight: "none !important",
+        borderRightWidth: "0 !important",
+      },
+      ".cm-foldGutter": {
+        border: "none !important",
+        borderRight: "none !important",
+        borderRightWidth: "0 !important",
+      },
+      ".cm-gutterElement": {
+        border: "none !important",
+        borderRight: "none !important",
+        borderRightWidth: "0 !important",
+      },
+      ".cm-activeLine": {
+        backgroundColor: isDark
+          ? "rgba(255, 255, 255, 0.05) !important"
+          : "rgba(0, 0, 0, 0.035) !important",
+      },
+      ".cm-activeLineGutter": {
+        backgroundColor: isDark
+          ? "rgba(255, 255, 255, 0.08) !important"
+          : "rgba(0, 0, 0, 0.05) !important",
+      },
     });
-  }, []);
+  }, [theme]);
 
   if (!mounted) {
     return (
@@ -4470,6 +4957,7 @@ function CodeEditor({
           bracketMatching: true,
           closeBrackets: true,
           indentOnInput: true,
+          tabSize: 4,
         }}
         height="100%"
         style={{ flex: 1, fontSize: 13, height: "100%" }}
@@ -6455,6 +6943,8 @@ type FileTreeProps = {
   onRenameFile: (oldPath: string, newPath: string) => void;
   onDeleteFile: (path: string) => void;
   onDeleteFolder: (prefix: string) => void;
+  onFormatFile?: (path: string) => void;
+  onCopyFilePath?: (path: string) => void;
   isFolderOpen: (key: string) => boolean;
   toggleFolder: (key: string) => void;
 };
@@ -6486,6 +6976,8 @@ function TreeFolderNode({
   onRenameFile,
   onDeleteFile,
   onDeleteFolder,
+  onFormatFile,
+  onCopyFilePath,
   isFolderOpen,
   toggleFolder,
 }: { node: TreeNode; depth: number; isRoot?: boolean } & Omit<
@@ -6633,6 +7125,8 @@ function TreeFolderNode({
                 onOpenFile={onOpenFile}
                 onRenameFile={onRenameFile}
                 onDeleteFile={onDeleteFile}
+                onFormatFile={onFormatFile}
+                onCopyFilePath={onCopyFilePath}
               />
             ) : (
               <TreeFolderNode
@@ -6648,6 +7142,8 @@ function TreeFolderNode({
                 onRenameFile={onRenameFile}
                 onDeleteFile={onDeleteFile}
                 onDeleteFolder={onDeleteFolder}
+                onFormatFile={onFormatFile}
+                onCopyFilePath={onCopyFilePath}
                 isFolderOpen={isFolderOpen}
                 toggleFolder={toggleFolder}
               />
@@ -6680,6 +7176,8 @@ function TreeFileNode({
   onOpenFile,
   onRenameFile,
   onDeleteFile,
+  onFormatFile,
+  onCopyFilePath,
 }: {
   node: TreeNode;
   depth: number;
@@ -6690,6 +7188,8 @@ function TreeFileNode({
   onOpenFile: (path: string) => void;
   onRenameFile: (oldPath: string, newPath: string) => void;
   onDeleteFile: (path: string) => void;
+  onFormatFile?: (path: string) => void;
+  onCopyFilePath?: (path: string) => void;
 }) {
   const pad = { paddingLeft: depth * 10 + 4 };
   const isRenaming = inlineAction?.type === "rename-file" && inlineAction.path === node.path;
@@ -6730,8 +7230,17 @@ function TreeFileNode({
           {modified && <span className="h-1.5 w-1.5 rounded-full bg-warning" />}
         </button>
       </ContextMenuTrigger>
-      <ContextMenuContent className="w-44">
+      <ContextMenuContent className="w-48">
         <ContextMenuItem onSelect={() => onOpenFile(node.path)}>Open</ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem onSelect={() => onFormatFile?.(node.path)}>
+          <Wand2 className="mr-2 h-3.5 w-3.5 text-primary" />
+          Format
+        </ContextMenuItem>
+        <ContextMenuItem onSelect={() => onCopyFilePath?.(node.path)}>
+          <Copy className="mr-2 h-3.5 w-3.5" />
+          Copy File Path
+        </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem
           onSelect={() => {
@@ -8035,6 +8544,216 @@ export function SolutionPanel({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---------- Plan Tasks Preview Panel (Markdown to Tasks UI) ---------- */
+
+function PlanTasksPreviewPanel({
+  content,
+  activeFile,
+  taskStatuses,
+  onStartTask,
+  onViewSession,
+  onToggleCheckbox,
+  planViewMode = "ui",
+  onSwitchView,
+}: {
+  content: string;
+  activeFile: string;
+  taskStatuses: Record<string, TaskStatusInfo>;
+  onStartTask: (task: PlanTask, subtask?: any) => void;
+  onViewSession: (sessionId: string | null, title?: string) => void;
+  onToggleCheckbox: (taskNum: string, subNum?: string) => void;
+  planViewMode?: "markdown" | "ui";
+  onSwitchView?: (mode: "markdown" | "ui") => void;
+}) {
+  const parsedTasks = useMemo(() => parsePlanStructure(content), [content]);
+
+  return (
+    <div className="flex-1 overflow-y-auto p-4 bg-background/50 space-y-4">
+      {/* Header Banner */}
+      <div className="flex items-center justify-between pb-3 border-b border-border/60">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
+            <LayoutList size={16} />
+          </div>
+          <div>
+            <h2 className="text-[13px] font-semibold text-foreground">
+              Plan Tasks & Subtasks
+            </h2>
+            <p className="text-[11px] text-muted-foreground font-mono mt-0.5">
+              {activeFile}
+            </p>
+          </div>
+        </div>
+
+        {/* Top-right viewer toggle */}
+        {onSwitchView && (
+          <div className="flex items-center gap-1 bg-muted/60 p-0.5 rounded-lg border border-border/80">
+            <button
+              onClick={() => onSwitchView("markdown")}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                planViewMode === "markdown"
+                  ? "bg-background text-foreground shadow-xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Switch to Markdown source"
+            >
+              Markdown
+            </button>
+            <button
+              onClick={() => onSwitchView("ui")}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                planViewMode === "ui"
+                  ? "bg-background text-foreground shadow-xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Switch to Tasks UI view"
+            >
+              Tasks UI
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Task List */}
+      <div className="space-y-3">
+        {parsedTasks.length === 0 ? (
+          <div className="p-8 text-center text-xs text-muted-foreground border border-dashed rounded-xl">
+            No checklist tasks found in this plan markdown file.
+          </div>
+        ) : (
+          parsedTasks.map((task) => {
+            const taskStatus = taskStatuses[task.id]?.status || (task.done ? "completed" : "idle");
+            const isTaskRunning = taskStatus === "running";
+            const isTaskDone = task.done || taskStatus === "completed";
+            const taskSessionId = taskStatuses[task.id]?.sessionId || task.sessionId;
+
+            return (
+              <div
+                key={task.id}
+                className="rounded-xl border border-border/70 bg-card p-3.5 space-y-3 transition-all shadow-xs"
+              >
+                {/* Main Task Header */}
+                <div className="flex items-center justify-between gap-2">
+                  <div
+                    className="flex items-start gap-2.5 cursor-pointer flex-1 min-w-0"
+                    onClick={() => onToggleCheckbox(task.number)}
+                  >
+                    <div className="mt-0.5 text-primary">
+                      {isTaskDone ? (
+                        <CheckCircle2 size={16} className="text-emerald-500 fill-emerald-500/20" />
+                      ) : (
+                        <div className="w-4 h-4 rounded border border-muted-foreground/50 hover:border-primary transition-colors" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className={`text-[12.5px] font-medium ${isTaskDone ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                        {task.number}. {task.title}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {taskSessionId && (
+                      <button
+                        onClick={() => onViewSession(taskSessionId, `Task ${task.number}: ${task.title}`)}
+                        className="px-2 py-0.5 rounded text-[10.5px] font-medium bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                        title="View agent chat session"
+                      >
+                        View session
+                      </button>
+                    )}
+                    <button
+                      onClick={() => onStartTask(task)}
+                      disabled={isTaskRunning}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-medium inline-flex items-center gap-1.5 transition-all shadow-xs cursor-pointer ${
+                        isTaskDone
+                          ? "bg-muted text-muted-foreground hover:bg-muted/80"
+                          : isTaskRunning
+                            ? "bg-amber-500/10 text-amber-500 border border-amber-500/30"
+                            : "bg-primary text-primary-foreground hover:opacity-90"
+                      }`}
+                      title={isTaskDone ? "Re-run task in Agent mode" : "Execute task in Agent mode"}
+                    >
+                      {isTaskRunning ? (
+                        <>
+                          <Loader2 size={11} className="animate-spin" />
+                          <span>Running...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play size={10} fill="currentColor" />
+                          <span>{isTaskDone ? "Re-run" : "Start task"}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Subtasks */}
+                {task.subtasks && task.subtasks.length > 0 && (
+                  <div className="pl-6 space-y-2 border-l border-border/60 ml-2">
+                    {task.subtasks.map((sub) => {
+                      const subStatus = taskStatuses[sub.id]?.status || (sub.done ? "completed" : "idle");
+                      const isSubRunning = subStatus === "running";
+                      const isSubDone = sub.done || subStatus === "completed";
+                      const subSessionId = taskStatuses[sub.id]?.sessionId || sub.sessionId;
+
+                      return (
+                        <div key={sub.id} className="flex items-center justify-between gap-2 text-xs">
+                          <div
+                            className="flex items-center gap-2 cursor-pointer flex-1 min-w-0"
+                            onClick={() => onToggleCheckbox(task.number, sub.number)}
+                          >
+                            <div className="text-primary">
+                              {isSubDone ? (
+                                <CheckCircle2 size={13} className="text-emerald-500" />
+                              ) : (
+                                <div className="w-3.5 h-3.5 rounded border border-muted-foreground/40 hover:border-primary transition-colors" />
+                              )}
+                            </div>
+                            <span className={`text-[11.5px] truncate ${isSubDone ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                              {sub.number} {sub.text}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {subSessionId && (
+                              <button
+                                onClick={() => onViewSession(subSessionId, `${task.number}.${sub.number}: ${sub.text}`)}
+                                className="px-1.5 py-0.5 rounded text-[10px] text-muted-foreground hover:text-foreground bg-muted/60 hover:bg-muted cursor-pointer"
+                                title="View agent session"
+                              >
+                                View session
+                              </button>
+                            )}
+                            <button
+                              onClick={() => onStartTask(task, sub)}
+                              disabled={isSubRunning}
+                              className="px-2 py-0.5 rounded text-[10.5px] font-medium bg-muted/80 hover:bg-accent text-foreground inline-flex items-center gap-1 transition-colors cursor-pointer"
+                            >
+                              {isSubRunning ? (
+                                <Loader2 size={10} className="animate-spin" />
+                              ) : (
+                                <Play size={9} fill="currentColor" />
+                              )}
+                              <span>Start</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }

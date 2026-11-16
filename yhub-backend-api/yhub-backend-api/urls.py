@@ -9,6 +9,7 @@ from drf_spectacular.views import (
 from django.conf import settings
 from django.conf.urls.static import static
 from authentication.views import check_username_view, check_email_view, username_available_view
+from core.views import SupportFeedbackView
 
 
 def health_check(request):
@@ -27,6 +28,8 @@ urlpatterns = [
     path("api/me/username-available/", username_available_view, name="api_me_username_available"),
     path("api/users/check-username/", check_username_view, name="check_username_users"),
     path("api/users/check-email/", check_email_view, name="check_email_users"),
+    path("api/support/feedback/", SupportFeedbackView.as_view(), name="support_feedback"),
+    path("api/feedback/", SupportFeedbackView.as_view(), name="feedback"),
     path("api/", include("ai_assistant.urls")),
     path("api/", include("mockinterviews.urls")),
     path("api/payment/", include("payment.urls")),

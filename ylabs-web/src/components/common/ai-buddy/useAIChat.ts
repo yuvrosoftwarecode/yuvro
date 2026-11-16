@@ -28,6 +28,7 @@ const useAIChat = (config?: {
   persistenceKey?: string;
   chatTitle?: string;
   selectedAgentId?: string | null;
+  mode?: string;
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +40,7 @@ const useAIChat = (config?: {
   const getContext = config?.getContext;
   const persistenceKey = config?.persistenceKey;
   const selectedAgentId = config?.selectedAgentId;
+  const mode = config?.mode;
 
   useEffect(() => {
     const storageKey = persistenceKey
@@ -102,14 +104,8 @@ const useAIChat = (config?: {
 
     const prompts: string[] = [];
 
-    // Test context
-    if (context.includes("test") || context.includes("pass") || context.includes("fail")) {
-      prompts.push("Make tests pass");
-      prompts.push("Check test output");
-      prompts.push("Review my solution");
-    }
-    // Code context
-    else if (context.includes("code") || context.includes("function") || context.includes("class")) {
+    // Only show general contextual prompts (exclude repetitive test prompt actions)
+    if (context.includes("code") || context.includes("function") || context.includes("class")) {
       prompts.push("Complete this code");
       prompts.push("Optimize performance");
       prompts.push("Add error handling");
@@ -140,6 +136,7 @@ const useAIChat = (config?: {
         page: "learn",
         title: config?.chatTitle || "AI Mentor Chat",
         page_content: getContext?.() || "",
+        mode: mode || "ask",
       });
 
       if (response?.id) {
@@ -160,7 +157,7 @@ const useAIChat = (config?: {
   }, [agents, selectedAgentId, config?.chatTitle, getContext, sessionId]);
 
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string, extraContext?: string) => {
       const assistantMsgId = `srv-${uuidv4()}`;
       const userMessage: ChatMessage = {
         id: `user-${uuidv4()}`,
@@ -192,11 +189,12 @@ const useAIChat = (config?: {
             ? `${baseUrl}/sessions/${sid}/send_message/`
             : `${baseUrl}/chat/quick_chat/`;
 
+        const fullPageContent = [getContext?.() || "", extraContext || ""].filter(Boolean).join("\n\n");
         const payload = {
           message: content,
           temperature: 0.7,
           max_tokens: 4096,
-          page_content: getContext?.() || "",
+          page_content: fullPageContent,
           stream: true,
           ai_agent_id: selectedAgentId || agents[0]?.id || null,
         };
@@ -475,14 +473,15 @@ const useAIChat = (config?: {
 
   const fetchHistory = useCallback(async () => {
     try {
-      const data = await yhubApiAuthUtil.get<ChatSessionSummary[]>("/sessions/");
+      const url = mode ? `/sessions/?mode=${encodeURIComponent(mode)}` : "/sessions/";
+      const data = await yhubApiAuthUtil.get<ChatSessionSummary[]>(url);
       if (Array.isArray(data)) {
         setSessionHistory(data);
       }
     } catch (error) {
       console.warn("Failed to fetch session history", error);
     }
-  }, []);
+  }, [mode]);
 
   useEffect(() => {
     fetchHistory();
@@ -511,10 +510,12 @@ const useAIChat = (config?: {
 
   return {
     messages,
+    setMessages,
     sendMessage,
     isLoading,
     suggestedPrompts,
     activeStream,
+    setActiveStream,
     startNewChat,
     sessionHistory,
     fetchHistory,

@@ -23,12 +23,15 @@ export function parseEnv(rawEnv: Record<string, any> = {}) {
   let rawUrl = rawEnv.VITE_PUBLIC_PROFILE_BASE_URL;
 
   if (!rawUrl || typeof rawUrl !== "string" || rawUrl.trim() === "") {
-    if (isProd) {
+    if (typeof window !== "undefined" && window.location?.origin) {
+      rawUrl = window.location.origin;
+    } else if (isProd) {
       throw new Error(
         "Missing required environment variable: VITE_PUBLIC_PROFILE_BASE_URL"
       );
+    } else {
+      rawUrl = "http://localhost:3002";
     }
-    rawUrl = "http://localhost:3002";
   }
 
   const parsed = envSchema.safeParse({

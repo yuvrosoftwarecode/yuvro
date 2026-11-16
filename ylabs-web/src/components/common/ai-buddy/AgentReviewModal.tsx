@@ -91,11 +91,11 @@ export function AgentReviewModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-      <div className="relative w-full max-w-5xl h-[85vh] bg-background border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 animate-in fade-in duration-150">
+      <div className="relative w-[96vw] max-w-[96vw] h-[92vh] bg-background border border-border rounded-xl shadow-2xl flex flex-col overflow-hidden">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0 bg-muted/20">
+        <div className="flex items-center justify-between px-6 py-3.5 border-b border-border shrink-0 bg-editor-panel">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
               <Sparkles className="w-4 h-4" />
@@ -108,13 +108,13 @@ export function AgentReviewModal({
                 </span>
               </div>
               {explanation && (
-                <p className="text-xs text-muted-foreground truncate max-w-lg mt-0.5">{explanation}</p>
+                <p className="text-xs text-muted-foreground truncate max-w-xl mt-0.5">{explanation}</p>
               )}
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
             title="Close"
           >
             <X className="w-4 h-4" />
@@ -125,14 +125,14 @@ export function AgentReviewModal({
         <div className="flex-1 min-h-0 flex overflow-hidden">
           
           {/* Left: Files List */}
-          <div className="w-72 shrink-0 border-r border-border flex flex-col bg-muted/10">
+          <div className="w-80 shrink-0 border-r border-border flex flex-col bg-editor-panel/70">
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 text-xs">
               <span className="font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Changed Files</span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={selectAll}
-                  className="text-[11px] text-primary hover:underline font-medium"
+                  className="text-[11px] text-primary hover:underline font-medium cursor-pointer"
                 >
                   All
                 </button>
@@ -140,7 +140,7 @@ export function AgentReviewModal({
                 <button
                   type="button"
                   onClick={deselectAll}
-                  className="text-[11px] text-muted-foreground hover:text-foreground font-medium"
+                  className="text-[11px] text-muted-foreground hover:text-foreground font-medium cursor-pointer"
                 >
                   None
                 </button>
@@ -202,18 +202,18 @@ export function AgentReviewModal({
             </div>
           </div>
 
-          {/* Right: Code / Preview View */}
-          <div className="flex-1 min-h-0 flex flex-col bg-[#141416]">
+          {/* Right: Code / Preview View following Vitarka IDE theme */}
+          <div className="flex-1 min-h-0 flex flex-col bg-editor-bg">
             
             {/* View Mode Bar */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-[#1c1c1f] text-xs">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-editor-panel text-xs">
               <div className="flex items-center gap-2">
                 <FileCode2 className="w-4 h-4 text-primary" />
-                <span className="font-mono text-zinc-200 font-semibold text-[12px]">
+                <span className="font-mono text-foreground font-semibold text-[12px]">
                   {activeChange?.path}
                 </span>
                 {activeChange?.isDiff && (
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 font-medium border border-amber-500/30">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-600 dark:text-amber-400 font-medium border border-amber-500/30">
                     Patch / Diff
                   </span>
                 )}
@@ -221,12 +221,12 @@ export function AgentReviewModal({
 
               <div className="flex items-center gap-2">
                 {originalContent && (
-                  <div className="flex rounded-md bg-white/5 p-0.5 border border-white/10">
+                  <div className="flex rounded-md bg-muted/60 p-0.5 border border-border">
                     <button
                       type="button"
                       onClick={() => setViewMode("proposed")}
-                      className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                        viewMode === "proposed" ? "bg-primary text-primary-foreground" : "text-zinc-400 hover:text-white"
+                      className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+                        viewMode === "proposed" ? "bg-background text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       Proposed ({activeChange?.code?.split("\n").length || 0} lines)
@@ -234,8 +234,8 @@ export function AgentReviewModal({
                     <button
                       type="button"
                       onClick={() => setViewMode("original")}
-                      className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
-                        viewMode === "original" ? "bg-primary text-primary-foreground" : "text-zinc-400 hover:text-white"
+                      className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+                        viewMode === "original" ? "bg-background text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       Current ({originalContent.split("\n").length} lines)
@@ -246,17 +246,17 @@ export function AgentReviewModal({
                 <button
                   type="button"
                   onClick={() => handleCopyCode(viewMode === "proposed" ? proposedContent : originalContent)}
-                  className="px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white flex items-center gap-1 text-[11px] transition-colors"
+                  className="px-2.5 py-1 rounded bg-muted/60 hover:bg-muted text-foreground border border-border/80 flex items-center gap-1 text-[11px] transition-colors cursor-pointer"
                   title="Copy code"
                 >
                   {copied ? (
                     <>
-                      <Check className="w-3 h-3 text-emerald-400" />
-                      <span className="text-emerald-400">Copied</span>
+                      <Check className="w-3 h-3 text-emerald-500" />
+                      <span className="text-emerald-500">Copied</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3 h-3" />
+                      <Copy className="w-3 h-3 text-muted-foreground" />
                       <span>Copy</span>
                     </>
                   )}
@@ -264,17 +264,32 @@ export function AgentReviewModal({
               </div>
             </div>
 
-            {/* Code Content */}
-            <div className="flex-1 overflow-auto p-4 custom-scrollbar font-mono text-[11.5px] leading-relaxed text-zinc-100">
-              <pre className="whitespace-pre">
-                <code>{viewMode === "proposed" ? proposedContent : originalContent}</code>
-              </pre>
+            {/* Code Content with subtle line numbers and NO orange vertical line */}
+            <div className="flex-1 overflow-auto p-4 custom-scrollbar font-mono text-[12px] leading-relaxed bg-editor-bg text-foreground">
+              <div className="flex font-mono">
+                <div className="select-none pr-3 text-right text-muted-foreground/40 border-r border-border/50 mr-3 shrink-0">
+                  {(viewMode === "proposed" ? proposedContent : originalContent)
+                    .split("\n")
+                    .map((_, i) => (
+                      <div key={i}>{i + 1}</div>
+                    ))}
+                </div>
+                <div className="flex-1 overflow-x-auto text-foreground">
+                  {(viewMode === "proposed" ? proposedContent : originalContent)
+                    .split("\n")
+                    .map((line, i) => (
+                      <div key={i} className="whitespace-pre">
+                        {line || " "}
+                      </div>
+                    ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-t border-border shrink-0 bg-muted/20">
+        <div className="flex items-center justify-between px-6 py-3.5 border-t border-border shrink-0 bg-editor-panel">
           <div className="text-xs text-muted-foreground flex items-center gap-1.5">
             <span className="font-semibold text-foreground">{selectedPaths.size}</span> files will be written to workspace
           </div>
