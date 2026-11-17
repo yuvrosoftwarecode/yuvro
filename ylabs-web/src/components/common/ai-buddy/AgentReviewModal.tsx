@@ -12,7 +12,7 @@ import {
   Layers,
   Sparkles,
 } from "lucide-react";
-import type { ParsedFileChange } from "@/lib/diffApplier";
+import { applyDiffOrCode, type ParsedFileChange } from "@/lib/diffApplier";
 
 interface AgentReviewModalProps {
   isOpen: boolean;
@@ -44,8 +44,10 @@ export function AgentReviewModal({
   const [activePreviewIndex, setActivePreviewIndex] = useState<number>(0);
   const activeChange = changes[activePreviewIndex] || changes[0];
 
-  // View mode for active file: proposed vs diff vs original
-  const [viewMode, setViewMode] = useState<"proposed" | "original">("proposed");
+  // View mode for active file: diff vs proposed/patched vs current/original
+  const [viewMode, setViewMode] = useState<"diff" | "proposed" | "original">(() =>
+    activeChange?.isDiff ? "diff" : "proposed"
+  );
   const [copied, setCopied] = useState(false);
 
   const toggleSelectPath = (path: string) => {
@@ -65,11 +67,25 @@ export function AgentReviewModal({
     setSelectedPaths(new Set());
   };
 
+  const originalContent = activeChange ? existingFiles[activeChange.path] || "" : "";
+  const proposedContent = activeChange ? activeChange.code : "";
+
+  const patchedContent = useMemo(() => {
+    if (!activeChange) return "";
+    if (activeChange.isDiff) {
+      const res = applyDiffOrCode(originalContent, activeChange.code, activeChange.path);
+      return res.result;
+    }
+    return activeChange.code;
+  }, [activeChange, originalContent]);
+
   const handleApplySelected = () => {
     const toApply: Record<string, string> = {};
     for (const c of changes) {
       if (selectedPaths.has(c.path)) {
-        toApply[c.path] = c.code;
+        const orig = existingFiles[c.path] || "";
+        const patched = c.isDiff ? applyDiffOrCode(orig, c.code, c.path).result : c.code;
+        toApply[c.path] = patched;
       }
     }
     onApplySelected(toApply);
@@ -81,9 +97,6 @@ export function AgentReviewModal({
     onClose();
   };
 
-  const originalContent = activeChange ? existingFiles[activeChange.path] || "" : "";
-  const proposedContent = activeChange ? activeChange.code : "";
-
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopied(true);
@@ -91,8 +104,8 @@ export function AgentReviewModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 animate-in fade-in duration-150">
-      <div className="relative w-[96vw] max-w-[96vw] h-[92vh] bg-background border border-border rounded-xl shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 animate-in fade-in duration-150">
+      <div className="relative w-[98vw] max-w-[98vw] h-[95vh] bg-background border border-border rounded-xl shadow-2xl flex flex-col overflow-hidden">
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-3.5 border-b border-border shrink-0 bg-editor-panel">
@@ -220,34 +233,59 @@ export function AgentReviewModal({
               </div>
 
               <div className="flex items-center gap-2">
-                {originalContent && (
-                  <div className="flex rounded-md bg-muted/60 p-0.5 border border-border">
+                <div className="flex rounded-md bg-muted/60 p-0.5 border border-border">
+                  {activeChange?.isDiff && (
                     <button
                       type="button"
-                      onClick={() => setViewMode("proposed")}
+                      onClick={() => setViewMode("diff")}
                       className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
-                        viewMode === "proposed" ? "bg-background text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"
+                        viewMode === "diff"
+                          ? "bg-background text-foreground shadow-xs font-semibold"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      Proposed ({activeChange?.code?.split("\n").length || 0} lines)
+                      Diff View
                     </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("proposed")}
+                    className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+                      viewMode === "proposed"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {activeChange?.isDiff ? "Patched File" : "Proposed"}
+                  </button>
+                  {originalContent && (
                     <button
                       type="button"
                       onClick={() => setViewMode("original")}
                       className={`px-2.5 py-0.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
-                        viewMode === "original" ? "bg-background text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"
+                        viewMode === "original"
+                          ? "bg-background text-foreground shadow-xs font-semibold"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      Current ({originalContent.split("\n").length} lines)
+                      Current File
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 <button
                   type="button"
-                  onClick={() => handleCopyCode(viewMode === "proposed" ? proposedContent : originalContent)}
+                  onClick={() =>
+                    handleCopyCode(
+                      viewMode === "diff"
+                        ? (activeChange?.gitPatch || proposedContent)
+                        : viewMode === "proposed"
+                        ? patchedContent
+                        : originalContent
+                    )
+                  }
                   className="px-2.5 py-1 rounded bg-muted/60 hover:bg-muted text-foreground border border-border/80 flex items-center gap-1 text-[11px] transition-colors cursor-pointer"
-                  title="Copy code"
+                  title={viewMode === "diff" ? "Copy Git diff patch" : "Copy code"}
                 >
                   {copied ? (
                     <>
@@ -257,33 +295,65 @@ export function AgentReviewModal({
                   ) : (
                     <>
                       <Copy className="w-3 h-3 text-muted-foreground" />
-                      <span>Copy</span>
+                      <span>{viewMode === "diff" ? "Copy Patch" : "Copy"}</span>
                     </>
                   )}
                 </button>
               </div>
             </div>
 
-            {/* Code Content with subtle line numbers and NO orange vertical line */}
+            {/* Code Content with subtle line numbers */}
             <div className="flex-1 overflow-auto p-4 custom-scrollbar font-mono text-[12px] leading-relaxed bg-editor-bg text-foreground">
-              <div className="flex font-mono">
-                <div className="select-none pr-3 text-right text-muted-foreground/40 border-r border-border/50 mr-3 shrink-0">
-                  {(viewMode === "proposed" ? proposedContent : originalContent)
-                    .split("\n")
-                    .map((_, i) => (
-                      <div key={i}>{i + 1}</div>
-                    ))}
-                </div>
-                <div className="flex-1 overflow-x-auto text-foreground">
-                  {(viewMode === "proposed" ? proposedContent : originalContent)
-                    .split("\n")
-                    .map((line, i) => (
-                      <div key={i} className="whitespace-pre">
+              {viewMode === "diff" ? (
+                <div className="space-y-0.5">
+                  {(activeChange?.gitPatch || proposedContent).split("\n").map((line, lIdx) => {
+                    let lineCls = "text-foreground";
+                    if (
+                      line.startsWith("+") ||
+                      line.startsWith(">>>>>>> REPLACE") ||
+                      line.startsWith("=======")
+                    ) {
+                      lineCls = "text-emerald-400 bg-emerald-500/10 px-1 rounded-xs block";
+                    } else if (line.startsWith("-") || line.startsWith("<<<<<<< SEARCH")) {
+                      lineCls = "text-rose-400 bg-rose-500/10 px-1 rounded-xs block";
+                    } else if (
+                      line.startsWith("@@") ||
+                      line.startsWith("---") ||
+                      line.startsWith("+++") ||
+                      line.startsWith("Index:")
+                    ) {
+                      lineCls = "text-cyan-400 font-semibold block";
+                    }
+                    return (
+                      <div key={lIdx} className={`whitespace-pre font-mono text-[11.5px] ${lineCls}`}>
+                        <span className="inline-block w-8 text-right pr-3 select-none text-muted-foreground/40 font-mono">
+                          {lIdx + 1}
+                        </span>
                         {line || " "}
                       </div>
-                    ))}
+                    );
+                  })}
                 </div>
-              </div>
+              ) : (
+                <div className="flex font-mono">
+                  <div className="select-none pr-3 text-right text-muted-foreground/40 border-r border-border/50 mr-3 shrink-0">
+                    {(viewMode === "proposed" ? patchedContent : originalContent)
+                      .split("\n")
+                      .map((_, i) => (
+                        <div key={i}>{i + 1}</div>
+                      ))}
+                  </div>
+                  <div className="flex-1 overflow-x-auto text-foreground">
+                    {(viewMode === "proposed" ? patchedContent : originalContent)
+                      .split("\n")
+                      .map((line, i) => (
+                        <div key={i} className="whitespace-pre">
+                          {line || " "}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

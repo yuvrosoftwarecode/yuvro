@@ -521,6 +521,8 @@ const useAIChat = (config?: {
     fetchHistory,
     loadSession,
     agents,
+    sessionId,
+    setSessionId,
   };
 };
 

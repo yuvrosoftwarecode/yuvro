@@ -16,6 +16,7 @@ import {
   FileCode2,
   Play,
   Layers,
+  Eye,
   Loader2,
   ChevronDown,
   Sparkles,
@@ -29,6 +30,8 @@ import { WalletBalanceBadge } from "@/components/credits/WalletBalanceBadge";
 import {
   applyDiffOrCode,
   parseMultiFileAgentResponse,
+  parseConsolidatedFileDiffs,
+  normalizeFilePath,
   isDiffContent,
   type ParsedFileChange,
 } from "@/lib/diffApplier";
@@ -79,26 +82,41 @@ export function parsePlanStructure(content: string): PlanTask[] {
 
   for (const rawLine of lines) {
     const trimmed = rawLine.trim();
-    if (!trimmed || trimmed.startsWith("---") || trimmed.startsWith("# Implementation") || trimmed.startsWith("# Plan")) {
+    if (
+      !trimmed ||
+      trimmed.startsWith("---") ||
+      trimmed.startsWith("# Implementation") ||
+      trimmed.startsWith("# Plan") ||
+      trimmed.startsWith("## Tasks & Subtasks") ||
+      trimmed.startsWith("*Created:") ||
+      trimmed.startsWith("*Mode:") ||
+      trimmed.startsWith("*Tip:")
+    ) {
       continue;
     }
 
-    const isIndented = rawLine.length - rawLine.trimStart().length >= 2;
+    const indentLength = rawLine.length - rawLine.trimStart().length;
+    const isIndented = indentLength >= 2;
 
-    const subCheckbox = /^[-*]\s*\[([ xX])\]\s*(?:(\d+\.\d+|\w\.)\s*)?(.+)/.exec(trimmed);
-    const subBullet = /^[-*]\s*(?:(\d+\.\d+|\w\.)\s*)?(.+)/.exec(trimmed);
+    const isExplicitSubtaskNum = /^(?:[-*]\s*(?:\[[ xX]\]\s*)?)?(\d+\.\d+|\w\.)\s+(.+)/.exec(trimmed);
+    const isExplicitSubtaskWord = /^(?:[-*]\s*(?:\[[ xX]\]\s*)?)?Subtask\s*(\d+(?:\.\d+)?|\w)[:.]?\s*(.+)/i.exec(trimmed);
 
-    const taskHeader = /^#+\s+(?:Task\s*(\d+)[:.]?\s*)?(.+)/.exec(trimmed);
-    const taskNum = /^(\d+)[\.:]\s+(.+)/.exec(trimmed);
-    const taskCheckbox = /^[-*]\s*\[([ xX])\]\s*(?:Task\s*(\d+)[:.]?\s*)?(.+)/.exec(trimmed);
+    const taskHeader = /^#+\s+(?:Task\s*(\d+)[:.]?\s*)?(.+)/i.exec(trimmed);
+    const taskExplicitCheckbox = !isIndented && /^[-*]\s*\[([ xX])\]\s*(?:Task\s*(\d+)[:.]?\s*|(\d+)[\.:]\s*)?(.+)/i.exec(trimmed);
+    const taskNumLine = !isIndented && /^Task\s*(\d+)[:.]?\s*(.+)/i.exec(trimmed);
+    const rootNumbered = !isIndented && /^(\d+)[\.:]\s+(.+)/.exec(trimmed);
 
-    if ((isIndented || (subCheckbox && currentTask)) && currentTask) {
+    if (isIndented && currentTask) {
+      const subCheckbox = /^[-*]\s*\[([ xX])\]\s*(?:(\d+(?:\.\d+)?|\w\.)\s*)?(.+)/.exec(trimmed);
+      const subBullet = /^[-*]\s*(?:(\d+(?:\.\d+)?|\w\.)\s*)?(.+)/.exec(trimmed);
+      const subNumbered = /^(\d+(?:\.\d+)?|\w\.)[\.:]?\s*(.+)/.exec(trimmed);
+
       if (subCheckbox) {
         const done = subCheckbox[1].toLowerCase() === "x";
         const num = subCheckbox[2] || `${currentTask.number}.${currentTask.subtasks.length + 1}`;
         const text = subCheckbox[3].trim();
         currentTask.subtasks.push({
-          id: slugifyTask(text),
+          id: slugifyTask(`${currentTask.id}-${num}-${text}`),
           number: num,
           text,
           done,
@@ -108,18 +126,50 @@ export function parsePlanStructure(content: string): PlanTask[] {
         const num = subBullet[1] || `${currentTask.number}.${currentTask.subtasks.length + 1}`;
         const text = subBullet[2].trim();
         currentTask.subtasks.push({
-          id: slugifyTask(text),
+          id: slugifyTask(`${currentTask.id}-${num}-${text}`),
+          number: num,
+          text,
+          done: false,
+          status: "idle",
+        });
+      } else if (subNumbered) {
+        const num = subNumbered[1];
+        const text = subNumbered[2].trim();
+        currentTask.subtasks.push({
+          id: slugifyTask(`${currentTask.id}-${num}-${text}`),
           number: num,
           text,
           done: false,
           status: "idle",
         });
       }
+    } else if (isExplicitSubtaskNum && currentTask) {
+      const num = isExplicitSubtaskNum[1];
+      const text = isExplicitSubtaskNum[2].trim();
+      const isDone = /\[[xX]\]/.test(trimmed);
+      currentTask.subtasks.push({
+        id: slugifyTask(`${currentTask.id}-${num}-${text}`),
+        number: num,
+        text,
+        done: isDone,
+        status: isDone ? "completed" : "idle",
+      });
+    } else if (isExplicitSubtaskWord && currentTask) {
+      const num = isExplicitSubtaskWord[1];
+      const text = isExplicitSubtaskWord[2].trim();
+      const isDone = /\[[xX]\]/.test(trimmed);
+      currentTask.subtasks.push({
+        id: slugifyTask(`${currentTask.id}-${num}-${text}`),
+        number: num,
+        text,
+        done: isDone,
+        status: isDone ? "completed" : "idle",
+      });
     } else if (taskHeader) {
       const num = taskHeader[1] || `${tasks.length + 1}`;
       const title = taskHeader[2].replace(/^Task\s*\d+[:.]?\s*/i, "").trim();
       currentTask = {
-        id: slugifyTask(title),
+        id: slugifyTask(`task-${num}-${title}`),
         number: num,
         title,
         done: false,
@@ -127,28 +177,40 @@ export function parsePlanStructure(content: string): PlanTask[] {
         subtasks: [],
       };
       tasks.push(currentTask);
-    } else if (taskNum && !isIndented) {
-      const num = taskNum[1];
-      const title = taskNum[2].replace(/^Task\s*\d+[:.]?\s*/i, "").trim();
+    } else if (taskExplicitCheckbox) {
+      const done = taskExplicitCheckbox[1].toLowerCase() === "x";
+      const num = taskExplicitCheckbox[2] || taskExplicitCheckbox[3] || `${tasks.length + 1}`;
+      const title = taskExplicitCheckbox[4].trim();
       currentTask = {
-        id: slugifyTask(title),
-        number: num,
-        title,
-        done: false,
-        status: "idle",
-        subtasks: [],
-      };
-      tasks.push(currentTask);
-    } else if (taskCheckbox && !isIndented) {
-      const done = taskCheckbox[1].toLowerCase() === "x";
-      const num = taskCheckbox[2] || `${tasks.length + 1}`;
-      const title = taskCheckbox[3].replace(/^Task\s*\d+[:.]?\s*/i, "").trim();
-      currentTask = {
-        id: slugifyTask(title),
+        id: slugifyTask(`task-${num}-${title}`),
         number: num,
         title,
         done,
         status: done ? "completed" : "idle",
+        subtasks: [],
+      };
+      tasks.push(currentTask);
+    } else if (taskNumLine) {
+      const num = taskNumLine[1];
+      const title = taskNumLine[2].trim();
+      currentTask = {
+        id: slugifyTask(`task-${num}-${title}`),
+        number: num,
+        title,
+        done: false,
+        status: "idle",
+        subtasks: [],
+      };
+      tasks.push(currentTask);
+    } else if (rootNumbered) {
+      const num = rootNumbered[1];
+      const title = rootNumbered[2].replace(/^Task\s*\d+[:.]?\s*/i, "").trim();
+      currentTask = {
+        id: slugifyTask(`task-${num}-${title}`),
+        number: num,
+        title,
+        done: false,
+        status: "idle",
         subtasks: [],
       };
       tasks.push(currentTask);
@@ -166,7 +228,7 @@ export function parsePlanStructure(content: string): PlanTask[] {
       if (done) {
         const text = done[1].trim();
         tasks.push({
-          id: slugifyTask(text),
+          id: slugifyTask(`task-${fallbackIdx}-${text}`),
           number: `${fallbackIdx++}`,
           title: text,
           done: true,
@@ -176,7 +238,7 @@ export function parsePlanStructure(content: string): PlanTask[] {
       } else if (undone) {
         const text = undone[1].trim();
         tasks.push({
-          id: slugifyTask(text),
+          id: slugifyTask(`task-${fallbackIdx}-${text}`),
           number: `${fallbackIdx++}`,
           title: text,
           done: false,
@@ -186,7 +248,7 @@ export function parsePlanStructure(content: string): PlanTask[] {
       } else if (numbered) {
         const text = numbered[2].trim();
         tasks.push({
-          id: slugifyTask(text),
+          id: slugifyTask(`task-${numbered[1]}-${text}`),
           number: numbered[1] || `${fallbackIdx++}`,
           title: text,
           done: false,
@@ -237,6 +299,10 @@ export interface AIMentorProps {
   tasks?: any[];
   evalResult?: Record<string, { passed: boolean; reason: string }>;
   consoleOutput?: string;
+  outputJson?: any;
+  testResults?: any;
+  onExecuteRun?: () => Promise<void> | void;
+  isExecutingRun?: boolean;
   files?: Record<string, string>;
   onApplyCode?: (code: string, targetFile?: string) => void;
   onApplyFiles?: (files: Record<string, string>) => void;
@@ -246,6 +312,9 @@ export interface AIMentorProps {
   taskStatuses?: Record<string, { status: "idle" | "running" | "completed" | "error"; sessionId?: string; message?: string }>;
   onTaskStatusesChange?: React.Dispatch<React.SetStateAction<Record<string, { status: "idle" | "running" | "completed" | "error"; sessionId?: string; message?: string }>>>;
   activeSessionId?: string | { id?: string; title?: string; ts?: number } | null;
+  pendingTaskExecution?: { task: PlanTask; subtask?: PlanSubtask; ts: number } | null;
+  requestedMode?: MentorMode | null;
+  onTaskCompleted?: (taskNumber: string, subNumber?: string, taskId?: string, sessionId?: string) => void;
   checkpoints?: {
     id: string;
     name: string;
@@ -266,6 +335,10 @@ export function AIMentor({
   tasks,
   evalResult,
   consoleOutput,
+  outputJson,
+  testResults,
+  onExecuteRun,
+  isExecutingRun,
   files = {},
   onApplyCode,
   onApplyFiles,
@@ -275,6 +348,9 @@ export function AIMentor({
   taskStatuses: externalTaskStatuses,
   onTaskStatusesChange: externalSetTaskStatuses,
   activeSessionId,
+  pendingTaskExecution,
+  requestedMode,
+  onTaskCompleted,
   checkpoints,
   onDiscardChanges,
   onRestoreCheckpoint,
@@ -458,7 +534,7 @@ export function AIMentor({
 
   const hasAnyEval = ticketTasks.some((t) => t.passed !== null);
 
-  // Minimal tasks & subtasks prompt for Plan mode; console output ONLY for Bug Fix mode
+  // Minimal tasks & subtasks prompt for Plan mode; console output & JSON output for Bug Fix mode
   const getModeContext = useCallback((mode: MentorMode) => {
     const base = contextGetter ? contextGetter() : "";
     const filePaths = activeFile ? `\nCurrent active file: ${activeFile}` : "";
@@ -470,6 +546,49 @@ export function AIMentor({
         return `- Task: "${t.title}" (FAILED)${reason ? ` - Error: ${reason}` : ""}`;
       }).join("\n")
       : "";
+
+    // 1. Output JSON context for Bug Fix Mode
+    let jsonContext = "";
+    let effectiveOutputJson = outputJson;
+    if (!effectiveOutputJson && consoleOutput) {
+      const trimmed = consoleOutput.trim();
+      if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+        try {
+          effectiveOutputJson = JSON.parse(trimmed);
+        } catch {}
+      } else {
+        const match = /\{[\s\S]*"tasks"[\s\S]*\}|\{[\s\S]*"test_results"[\s\S]*\}|\{[\s\S]*"error"[\s\S]*\}/.exec(consoleOutput);
+        if (match) {
+          try {
+            effectiveOutputJson = JSON.parse(match[0]);
+          } catch {}
+        }
+      }
+    }
+
+    if (effectiveOutputJson) {
+      try {
+        const str = typeof effectiveOutputJson === "string" ? effectiveOutputJson : JSON.stringify(effectiveOutputJson, null, 2);
+        if (str.trim() && str !== "{}" && str !== "null") {
+          jsonContext = `\n\n[TEST EXECUTION OUTPUT JSON / FAILURE CONTEXT]:\n${str.length > 10000 ? str.slice(0, 10000) + "\n... (truncated)" : str}`;
+        }
+      } catch {}
+    }
+
+    // 2. Structured Test Results details
+    let testCasesDetail = "";
+    if (testResults?.results && Array.isArray(testResults.results)) {
+      const failedCases = testResults.results.filter((r: any) => !r.passed);
+      if (failedCases.length > 0) {
+        testCasesDetail = `\n\n[FAILED TEST CASES DETAILS]:\n` + failedCases.map((tc: any, idx: number) => {
+          return `- Test #${tc.test_case_id !== undefined ? tc.test_case_id + 1 : idx + 1}:
+  Input: ${tc.input || "(none)"}
+  Expected Output: ${tc.expected_output || "(none)"}
+  Actual Output: ${tc.actual_output || "(none)"}
+  Error: ${tc.error || tc.console_output || "Output mismatch"}`;
+        }).join("\n");
+      }
+    }
 
     const consoleContext = consoleOutput
       ? `\n\n[EDITOR CONSOLE OUTPUT / RECENT ERRORS]:\n${consoleOutput.length > 5000 ? consoleOutput.slice(-5000) : consoleOutput}`
@@ -485,14 +604,56 @@ export function AIMentor({
           `3. OUTPUT FORMAT: Output ONLY the tasks and subtasks markdown checklist without chatty introductions or conversational filler.\n` +
           `4. Keep each item actionable and self-contained so the developer or agent can execute it directly.\n` +
           `Do NOT write full code implementations yet.`;
+
       case "bugfix":
-        return `${base}${filePaths}${failureContext}${consoleContext}\n\n[MODE: BUG FIX]\nYou are a debugging expert. Analyze the current code, the Editor Console Output, and any failed tasks. Identify the exact root cause of any error or test failure, explain why it happened, and provide the corrected code in markdown code blocks to fix it.`;
+        return `${base}${filePaths}${failureContext}${testCasesDetail}${jsonContext}${consoleContext}
+
+[MODE: BUG FIX]
+You are an expert debugger.
+You have been provided with the user's code, the failed tasks, the exact [TEST EXECUTION OUTPUT JSON], and the console output/errors above.
+Analyze the output JSON and error traces to pinpoint the exact root cause.
+
+STRICT INSTRUCTIONS:
+1. PLAIN ENGLISH EXPLANATION: Write a short explanation in plain English (1 to 2 sentences) describing ONLY the root cause and why your proposed code fix resolves the bug. Do NOT provide verbose line-by-line commentary.
+2. ONE CONSOLIDATED DIFF PER FILE: Provide exactly ONE SEARCH/REPLACE diff block per file. Never output fragmented snippets or multiple disjoint blocks for the same file:
+\`\`\`${activeFile?.split('.').pop() || 'python'} file="${activeFile || 'file'}"
+<<<<<<< SEARCH
+// exact lines from the existing file that need to be changed
+=======
+// corrected lines that fix the bug
+>>>>>>> REPLACE
+\`\`\`
+3. SHOW ONLY DIFF CODE: Do NOT output unchanged code or entire file dumps. Provide only the short plain English description explaining why it fixes the bug, followed immediately by the SEARCH/REPLACE diff block.`;
+
       case "agent":
-        return `${base}${filePaths}${failureContext}\n\n[MODE: AGENT]\nImplement the COMPLETE solution. If modifying multiple files, clearly specify each file with \`\`\`python file="path/filename"\`\`\` or \`File: filename\`.\nOutput rules:\n1. Output complete file content in code blocks\n2. Implement all functionality without placeholders\n3. Write a concise 1-sentence summary before code.`;
-      default:
-        return `${base}${filePaths}${failureContext}\n\n[MODE: ASK]\nYou are an AI code mentor. Give Socratic hints, guide step-by-step, explain concepts, and help the user think through requirements. If providing diffs, use SEARCH/REPLACE format or clear code blocks for the active file.`;
+        return `${base}${filePaths}${failureContext}
+
+[MODE: AGENT]
+Implement the COMPLETE solution. If modifying multiple files, clearly specify each file with \`\`\`python file="path/filename"\`\`\` or \`File: filename\`.
+Output rules:
+1. Output complete file content in code blocks.
+2. Implement all functionality without placeholders.
+3. Write a concise 1-sentence summary before code.`;
+
+      default: // "ask" mode
+        return `${base}${filePaths}${failureContext}${jsonContext}
+
+[MODE: ASK]
+You are an AI code mentor.
+STRICT INSTRUCTIONS:
+1. PLAIN ENGLISH EXPLANATION: Explain the overall code in plain English with a shorter description focusing ONLY on the main code changes.
+2. ONE CONSOLIDATED DIFF PER FILE: If suggesting or providing code changes, show ONLY DIFF CODE! Do NOT output the entire file. Group all changes for a file into ONE consolidated diff block targeting the file:
+\`\`\`${activeFile?.split('.').pop() || 'python'} file="${activeFile || 'file'}"
+<<<<<<< SEARCH
+// exact lines from existing file to replace
+=======
+// updated lines
+>>>>>>> REPLACE
+\`\`\`
+Never output fragmented individual lines or disjoint blocks for the same file.
+3. Keep your answers direct and focused. Never re-print full files when a targeted diff suffices.`;
     }
-  }, [contextGetter, activeFile, ticketTasks, evalResult, consoleOutput]);
+  }, [contextGetter, activeFile, ticketTasks, evalResult, consoleOutput, outputJson, testResults]);
 
   const {
     messages,
@@ -507,6 +668,8 @@ export function AIMentor({
     fetchHistory,
     loadSession,
     agents,
+    sessionId,
+    setSessionId,
   } = useAIChat({
     getContext: () => getModeContext(mentorMode),
     chatTitle,
@@ -649,6 +812,32 @@ export function AIMentor({
     }
   }, [messages, activeStream, mentorMode, chatTitle, activePlanFilePath, onSaveFile]);
 
+  // Listen for externally requested mode switches
+  useEffect(() => {
+    if (requestedMode) {
+      setMentorMode(requestedMode);
+    }
+  }, [requestedMode]);
+
+  // Sync planTasks from existing plan markdown file if planTasks is empty
+  useEffect(() => {
+    if (planTasks.length === 0 && files) {
+      const planEntry = Object.entries(files).find(
+        ([p]) =>
+          p.includes(".yuvro-developer/plan/") ||
+          (p.endsWith(".md") && (p.includes("plan") || p.startsWith("plan-")))
+      );
+      if (planEntry) {
+        const [filePath, content] = planEntry;
+        setActivePlanFilePath(filePath);
+        const parsed = parsePlanStructure(content);
+        if (parsed.length > 0) {
+          setPlanTasks(parsed);
+        }
+      }
+    }
+  }, [files, planTasks.length]);
+
   // View particular AI session on any task or subtask
   const handleViewSession = useCallback((sessionId?: string | null) => {
     if (sessionId) {
@@ -707,7 +896,7 @@ export function AIMentor({
         sessionId = task.sessionId || taskStatuses[task.id]?.sessionId || null;
         if (sessionId) {
           setMentorMode("agent");
-          loadSession(sessionId);
+          setSessionId(sessionId);
           setShowHistory(false);
         }
       }
@@ -735,12 +924,15 @@ export function AIMentor({
             });
             // Automatically switch to Agent mode and open the session
             setMentorMode("agent");
-            loadSession(sessionId);
+            setSessionId(sessionId);
             setShowHistory(false);
           }
         } catch (e) {
           console.warn("Could not create dedicated task session", e);
         }
+      } else {
+        setMentorMode("agent");
+        setSessionId(sessionId);
       }
 
       const baseUrl =
@@ -753,8 +945,8 @@ export function AIMentor({
 
       const token = yhubApiAuthUtil.getAuthToken();
       const promptMessage = subtask
-        ? `Implement Subtask ${subtask.number}: "${subtask.text}" for Task "${task.title}".\n\nOutput complete code in code blocks.`
-        : `Implement Task ${task.number}: "${task.title}".\n${task.subtasks.length > 0 ? "Subtasks:\n" + task.subtasks.map((s) => `- ${s.number}: ${s.text}`).join("\n") : ""}\n\nWrite the complete implementation. Output code in code blocks.`;
+        ? `Implement Subtask ${subtask.number}: "${subtask.text}" for Task "${task.title}".\n\nWrite the complete implementation. Output code in code blocks with clear file path headers (e.g. File: app.py or File: templates/index.html).`
+        : `Implement Task ${task.number}: "${task.title}".\n${task.subtasks.length > 0 ? "Subtasks:\n" + task.subtasks.map((s) => `- ${s.number}: ${s.text}`).join("\n") : ""}\n\nWrite the complete implementation. Output code in code blocks with clear file path headers (e.g. File: app.py or File: templates/index.html).`;
 
       const userMsgId = `user-${Date.now()}`;
       const assistantMsgId = `srv-${Date.now()}`;
@@ -881,6 +1073,8 @@ export function AIMentor({
         }
         return updated;
       });
+
+      onTaskCompleted?.(task.number, subtask?.number, targetId, sessionId || undefined);
     } catch (err: any) {
       console.error("Task execution error", err);
       setTaskStatuses((prev) => ({
@@ -889,6 +1083,12 @@ export function AIMentor({
       }));
     }
   };
+
+  // Execute task triggered externally (e.g. from editor Markdown view or CodeLens)
+  useEffect(() => {
+    if (!pendingTaskExecution) return;
+    handleStartTask(pendingTaskExecution.task, pendingTaskExecution.subtask);
+  }, [pendingTaskExecution?.ts]);
 
   const handleStartNewChat = () => {
     setShowHistory(false);
@@ -903,11 +1103,20 @@ export function AIMentor({
     );
   };
 
-  const send = (text?: string) => {
+  const send = async (text?: string) => {
     const msg = text ?? input.trim();
     if (!msg || isLoading) return;
     if (!text) setInput("");
     setTagMenuOpen(false);
+
+    // If in bugfix mode and no execution results/console output are available, run tests first
+    if (mentorMode === "bugfix" && !outputJson && !consoleOutput && onExecuteRun) {
+      try {
+        await onExecuteRun();
+      } catch (e) {
+        console.warn("Could not auto-execute run before bugfix:", e);
+      }
+    }
 
     // Extract any tagged files e.g. @app.py or @src/index.ts
     const taggedFileMatches = Array.from(msg.matchAll(/@([^\s]+)/g)).map((m) => m[1]);
@@ -937,17 +1146,219 @@ export function AIMentor({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Ask Mode: Apply Diff or Code
+  // Ask & Bug Fix Mode: Apply Diff or Code
   const handleApplyDiffOrCode = (code: string, id: string, targetFile?: string) => {
-    const fileToPatch = targetFile || activeFile;
-    if (!fileToPatch || !onApplyCode) return;
+    const rawFile = targetFile || activeFile;
+    if (!rawFile || !onApplyCode) return;
 
-    const originalContent = files[fileToPatch] || "";
-    const patchResult = applyDiffOrCode(originalContent, code);
+    // Resolve matching file path in workspace files
+    const cleanRaw = normalizeFilePath(rawFile);
+    const matchingFile =
+      Object.keys(files).find((k) => k === rawFile) ||
+      Object.keys(files).find((k) => normalizeFilePath(k) === cleanRaw) ||
+      Object.keys(files).find((k) => k.endsWith("/" + cleanRaw) || cleanRaw.endsWith("/" + k)) ||
+      rawFile;
 
-    onApplyCode(patchResult.result, fileToPatch);
+    const originalContent = files[matchingFile] ?? files[rawFile] ?? "";
+    const patchResult = applyDiffOrCode(originalContent, code, matchingFile);
+
+    onApplyCode(patchResult.result, matchingFile);
     setAppliedId(id);
     setTimeout(() => setAppliedId(null), 2500);
+  };
+
+  const renderPlanCard = (tasksToRender: PlanTask[], isCardStreaming?: boolean, key: string | number = "plan-card") => {
+    const rawTitle = chatTitle || "task";
+    const slugTitle =
+      rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 30) || "plan";
+    const planFilePath = activePlanFilePath || `.yuvro-developer/plan/plan-${slugTitle}.md`;
+
+    return (
+      <div key={key} className="w-full space-y-2">
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 space-y-3 text-left shadow-xs">
+          {/* Header with Generated Plan File */}
+          <div className="flex items-center justify-between pb-2 border-b border-primary/10">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 font-bold shrink-0">
+                <Lightbulb size={13} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[12.5px] font-semibold text-foreground">
+                    Implementation Plan
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded text-[9.5px] font-mono font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                    {isCardStreaming ? "Generating..." : "Saved"}
+                  </span>
+                </div>
+                <div className="text-[10px] font-mono text-muted-foreground flex items-center gap-1 mt-0.5 truncate">
+                  <FileCode2 size={10} className="shrink-0" />
+                  <span className="truncate">{planFilePath}</span>
+                </div>
+              </div>
+            </div>
+
+            {onOpenFile && (
+              <button
+                type="button"
+                onClick={() => onOpenFile(planFilePath)}
+                className="shrink-0 px-2 py-1 rounded-md text-[10.5px] font-semibold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 flex items-center gap-1 transition-all cursor-pointer"
+                title="Open plan in editor"
+              >
+                <span>Open file</span>
+                <ArrowLeft size={10} className="rotate-180" />
+              </button>
+            )}
+          </div>
+
+          {/* Only Tasks and Subtasks shown */}
+          <div className="space-y-2.5">
+            {tasksToRender.map((task) => {
+              const taskStatus = taskStatuses[task.id]?.status || (task.done ? "completed" : "idle");
+              const isTaskRunning = taskStatus === "running";
+              const isTaskDone = task.done || taskStatus === "completed";
+              const taskSessionId = taskStatuses[task.id]?.sessionId || task.sessionId;
+
+              return (
+                <div
+                  key={task.id}
+                  className="rounded-lg bg-background/80 border border-border/60 p-2 space-y-2 transition-all shadow-xs"
+                >
+                  {/* Main Task Row */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div
+                      className="flex items-start gap-2 cursor-pointer flex-1 min-w-0"
+                      onClick={() => handleToggleTask(task.id)}
+                    >
+                      <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${isTaskDone ? "bg-primary border-primary" : "border-border hover:border-primary/60"}`}>
+                        {isTaskDone && <Check size={9} className="text-primary-foreground" />}
+                      </div>
+                      <span className={`text-[12px] leading-tight ${isTaskDone ? "line-through text-muted-foreground" : "text-foreground font-semibold"}`}>
+                        {task.number}. {task.title}
+                      </span>
+                    </div>
+
+                    {/* Task Level Action */}
+                    <div className="shrink-0 flex items-center gap-1">
+                      {isTaskRunning ? (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-1 shadow-xs">
+                          <Loader2 size={10} className="animate-spin" />
+                          <span>Running task...</span>
+                        </span>
+                      ) : isTaskDone ? (
+                        <div className="flex items-center gap-1">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-0.5 shadow-xs">
+                            <Check size={10} />
+                            <span>Done</span>
+                          </span>
+                          {taskSessionId && (
+                            <button
+                              type="button"
+                              onClick={() => handleViewSession(taskSessionId)}
+                              className="px-1.5 py-0.5 rounded text-[10px] font-medium text-muted-foreground hover:text-foreground hover:underline transition-colors flex items-center gap-0.5 cursor-pointer"
+                              title="View session"
+                            >
+                              <Clock size={10} />
+                              <span>View session</span>
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleStartTask(task)}
+                          className="px-2 py-0.5 rounded text-[10px] font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs flex items-center gap-1 transition-all cursor-pointer"
+                          title="Trigger start task at task level"
+                        >
+                          <Play size={9} />
+                          <span>Start task</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Subtasks (if any) */}
+                  {task.subtasks.length > 0 && (
+                    <div className="pl-4 space-y-1.5 border-l-2 border-muted ml-2">
+                      {task.subtasks.map((sub) => {
+                        const subStatus = taskStatuses[sub.id]?.status || (sub.done ? "completed" : "idle");
+                        const isSubRunning = subStatus === "running";
+                        const isSubDone = sub.done || subStatus === "completed";
+                        const subSessionId = taskStatuses[sub.id]?.sessionId || sub.sessionId;
+
+                        return (
+                          <div
+                            key={sub.id}
+                            className="flex items-center justify-between gap-2 p-1 rounded hover:bg-muted/30 transition-colors"
+                          >
+                            <div
+                              className="flex items-start gap-1.5 cursor-pointer flex-1 min-w-0"
+                              onClick={() => handleToggleTask(task.id, sub.id)}
+                            >
+                              <div className={`mt-0.5 w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-all ${isSubDone ? "bg-primary/80 border-primary" : "border-border"}`}>
+                                {isSubDone && <Check size={8} className="text-primary-foreground" />}
+                              </div>
+                              <span className={`text-[11px] leading-tight ${isSubDone ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                                <span className="font-mono text-[10px] text-muted-foreground mr-1">{sub.number}</span>
+                                {sub.text}
+                              </span>
+                            </div>
+
+                            <div className="shrink-0 flex items-center gap-1">
+                              {isSubRunning ? (
+                                <span className="px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-1">
+                                  <Loader2 size={9} className="animate-spin" />
+                                  <span>Running subtask...</span>
+                                </span>
+                              ) : isSubDone ? (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-[9.5px] text-emerald-500 font-medium flex items-center gap-0.5">
+                                    <Check size={9} />
+                                    <span>Done</span>
+                                  </span>
+                                  {subSessionId && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleViewSession(subSessionId)}
+                                      className="text-[9.5px] text-muted-foreground hover:text-foreground hover:underline transition-colors flex items-center gap-0.5 cursor-pointer"
+                                      title="View session"
+                                    >
+                                      <Clock size={9} />
+                                      <span>View session</span>
+                                    </button>
+                                  )}
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartTask(task, sub)}
+                                  className="px-1.5 py-0.2 rounded text-[9.5px] font-medium bg-muted hover:bg-primary hover:text-primary-foreground text-foreground border border-border transition-all flex items-center gap-0.5 cursor-pointer"
+                                  title="Trigger start subtask at subtask level"
+                                >
+                                  <Play size={8} />
+                                  <span>Start subtask</span>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {isCardStreaming && (
+            <div className="flex items-center gap-1.5 text-[11px] text-primary pt-1">
+              <Loader2 size={11} className="animate-spin" />
+              <span>Generating minimal tasks & subtasks...</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   const renderMessage = (m: { id: string; message_type: string; content: string }, i: number) => {
@@ -961,197 +1372,7 @@ export function AIMentor({
       const isCardStreaming = isStreaming;
 
       if (parsed.length > 0 || isCardStreaming) {
-        const rawTitle = chatTitle || "task";
-        const slugTitle =
-          rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 30) || "plan";
-        const planFilePath = activePlanFilePath || `.yuvro-developer/plan/plan-${slugTitle}.md`;
-
-        return (
-          <div key={i} className="w-full space-y-2">
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 space-y-3 text-left shadow-xs">
-              {/* Header with Generated Plan File */}
-              <div className="flex items-center justify-between pb-2 border-b border-primary/10">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 font-bold shrink-0">
-                    <Lightbulb size={13} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[12.5px] font-semibold text-foreground">
-                        Implementation Plan
-                      </span>
-                      <span className="px-1.5 py-0.2 rounded text-[9.5px] font-mono font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                        {isCardStreaming ? "Generating..." : "Saved"}
-                      </span>
-                    </div>
-                    <div className="text-[10px] font-mono text-muted-foreground flex items-center gap-1 mt-0.5 truncate">
-                      <FileCode2 size={10} className="shrink-0" />
-                      <span className="truncate">{planFilePath}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {onOpenFile && (
-                  <button
-                    type="button"
-                    onClick={() => onOpenFile(planFilePath)}
-                    className="shrink-0 px-2 py-1 rounded-md text-[10.5px] font-semibold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 flex items-center gap-1 transition-all cursor-pointer"
-                    title="Open plan in editor"
-                  >
-                    <span>Open file</span>
-                    <ArrowLeft size={10} className="rotate-180" />
-                  </button>
-                )}
-              </div>
-
-              {/* Only Tasks and Subtasks shown */}
-              <div className="space-y-2.5">
-                {parsed.map((task) => {
-                  const taskStatus = taskStatuses[task.id]?.status || (task.done ? "completed" : "idle");
-                  const isTaskRunning = taskStatus === "running";
-                  const isTaskDone = task.done || taskStatus === "completed";
-                  const taskSessionId = taskStatuses[task.id]?.sessionId || task.sessionId;
-
-                  return (
-                    <div
-                      key={task.id}
-                      className="rounded-lg bg-background/80 border border-border/60 p-2 space-y-2 transition-all shadow-xs"
-                    >
-                      {/* Main Task Row */}
-                      <div className="flex items-center justify-between gap-2">
-                        <div
-                          className="flex items-start gap-2 cursor-pointer flex-1 min-w-0"
-                          onClick={() => handleToggleTask(task.id)}
-                        >
-                          <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${isTaskDone ? "bg-primary border-primary" : "border-border hover:border-primary/60"}`}>
-                            {isTaskDone && <Check size={9} className="text-primary-foreground" />}
-                          </div>
-                          <span className={`text-[12px] leading-tight ${isTaskDone ? "line-through text-muted-foreground" : "text-foreground font-semibold"}`}>
-                            {task.number}. {task.title}
-                          </span>
-                        </div>
-
-                        {/* Task Level Action */}
-                        <div className="shrink-0 flex items-center gap-1">
-                          {isTaskRunning ? (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-1 shadow-xs">
-                              <Loader2 size={10} className="animate-spin" />
-                              <span>Running task...</span>
-                            </span>
-                          ) : isTaskDone ? (
-                            <div className="flex items-center gap-1">
-                              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-0.5 shadow-xs">
-                                <Check size={10} />
-                                <span>Done</span>
-                              </span>
-                              {taskSessionId && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleViewSession(taskSessionId)}
-                                  className="px-1.5 py-0.5 rounded text-[10px] font-medium text-muted-foreground hover:text-foreground hover:underline transition-colors flex items-center gap-0.5 cursor-pointer"
-                                  title="View session"
-                                >
-                                  <Clock size={10} />
-                                  <span>View session</span>
-                                </button>
-                              )}
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => handleStartTask(task)}
-                              className="px-2 py-0.5 rounded text-[10px] font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs flex items-center gap-1 transition-all cursor-pointer"
-                              title="Trigger start task at task level"
-                            >
-                              <Play size={9} />
-                              <span>Start task</span>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Subtasks (if any) */}
-                      {task.subtasks.length > 0 && (
-                        <div className="pl-4 space-y-1.5 border-l-2 border-muted ml-2">
-                          {task.subtasks.map((sub) => {
-                            const subStatus = taskStatuses[sub.id]?.status || (sub.done ? "completed" : "idle");
-                            const isSubRunning = subStatus === "running";
-                            const isSubDone = sub.done || subStatus === "completed";
-                            const subSessionId = taskStatuses[sub.id]?.sessionId || sub.sessionId;
-
-                            return (
-                              <div
-                                key={sub.id}
-                                className="flex items-center justify-between gap-2 p-1 rounded hover:bg-muted/30 transition-colors"
-                              >
-                                <div
-                                  className="flex items-start gap-1.5 cursor-pointer flex-1 min-w-0"
-                                  onClick={() => handleToggleTask(task.id, sub.id)}
-                                >
-                                  <div className={`mt-0.5 w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-all ${isSubDone ? "bg-primary/80 border-primary" : "border-border"}`}>
-                                    {isSubDone && <Check size={8} className="text-primary-foreground" />}
-                                  </div>
-                                  <span className={`text-[11px] leading-tight ${isSubDone ? "line-through text-muted-foreground" : "text-foreground"}`}>
-                                    <span className="font-mono text-[10px] text-muted-foreground mr-1">{sub.number}</span>
-                                    {sub.text}
-                                  </span>
-                                </div>
-
-                                <div className="shrink-0 flex items-center gap-1">
-                                  {isSubRunning ? (
-                                    <span className="px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-1">
-                                      <Loader2 size={9} className="animate-spin" />
-                                      <span>Running subtask...</span>
-                                    </span>
-                                  ) : isSubDone ? (
-                                    <div className="flex items-center gap-1">
-                                      <span className="text-[9.5px] text-emerald-500 font-medium flex items-center gap-0.5">
-                                        <Check size={9} />
-                                        <span>Done</span>
-                                      </span>
-                                      {subSessionId && (
-                                        <button
-                                          type="button"
-                                          onClick={() => handleViewSession(subSessionId)}
-                                          className="text-[9.5px] text-muted-foreground hover:text-foreground hover:underline transition-colors flex items-center gap-0.5 cursor-pointer"
-                                          title="View session"
-                                        >
-                                          <Clock size={9} />
-                                          <span>View session</span>
-                                        </button>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleStartTask(task, sub)}
-                                      className="px-1.5 py-0.2 rounded text-[9.5px] font-medium bg-muted hover:bg-primary hover:text-primary-foreground text-foreground border border-border transition-all flex items-center gap-0.5 cursor-pointer"
-                                      title="Trigger start subtask at subtask level"
-                                    >
-                                      <Play size={8} />
-                                      <span>Start subtask</span>
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {isCardStreaming && (
-                <div className="flex items-center gap-1.5 text-[11px] text-primary pt-1">
-                  <Loader2 size={11} className="animate-spin" />
-                  <span>Generating minimal tasks & subtasks...</span>
-                </div>
-              )}
-            </div>
-          </div>
-        );
+        return renderPlanCard(parsed, isCardStreaming, i);
       }
     }
 
@@ -1215,6 +1436,172 @@ export function AIMentor({
       }
     }
 
+    // Bug Fix & Ask mode (and Agent fallback): Exactly 1 consolidated diff per file with Apply Diff button
+    if (!isUser && !isStreaming && (mentorMode === "bugfix" || mentorMode === "ask")) {
+      const parsedDiffs = parseConsolidatedFileDiffs(displayContent, activeFile, files);
+
+      if (parsedDiffs.hasCode && parsedDiffs.files.length > 0) {
+        return (
+          <div key={i} className="flex items-start gap-1.5 flex-row w-full">
+            <div className="w-full text-[12.5px] leading-relaxed bg-muted/50 text-foreground px-3.5 py-3 rounded-xl rounded-bl-sm border border-border/40 shadow-2xs space-y-3">
+              {/* Plain English explanation of the code changes */}
+              {parsedDiffs.explanation && (
+                <div className="prose prose-sm max-w-none dark:prose-invert text-foreground text-[12.5px] leading-relaxed [&_p]:leading-relaxed [&_p]:mb-1.5 [&_p:last-child]:mb-0">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {parsedDiffs.explanation}
+                  </ReactMarkdown>
+                </div>
+              )}
+
+              {/* Dedicated Consolidated Diff Cards: Exactly 1 card and 1 apply button per file */}
+              <div className="space-y-2.5 pt-1">
+                {parsedDiffs.files.length > 1 && (
+                  <div className="flex items-center justify-between pb-1 px-0.5">
+                    <span className="text-[11px] font-medium text-muted-foreground">
+                      Proposed changes in {parsedDiffs.files.length} files
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setReviewChanges(parsedDiffs.files);
+                          setReviewExplanation(parsedDiffs.explanation);
+                          setReviewModalOpen(true);
+                        }}
+                        className="px-2.5 py-1 rounded-md text-[10.5px] font-medium bg-muted/80 hover:bg-accent text-foreground border border-border/80 flex items-center gap-1 shadow-2xs cursor-pointer"
+                      >
+                        <Eye size={11} className="text-primary" />
+                        <span>Review All ({parsedDiffs.files.length})</span>
+                      </button>
+                      {onApplyFiles && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const patchMap: Record<string, string> = {};
+                            parsedDiffs.files.forEach((f) => {
+                              const orig = files[f.path] || "";
+                              const res = applyDiffOrCode(orig, f.code, f.path);
+                              patchMap[f.path] = res.result;
+                            });
+                            onApplyFiles(patchMap);
+                            setAppliedId(`apply-all-${i}`);
+                            setTimeout(() => setAppliedId(null), 2500);
+                          }}
+                          className="px-2.5 py-1 rounded-md text-[10.5px] font-semibold bg-primary text-primary-foreground hover:opacity-90 flex items-center gap-1 shadow-2xs cursor-pointer"
+                        >
+                          {appliedId === `apply-all-${i}` ? (
+                            <>
+                              <Check size={11} />
+                              <span>Applied All ✓</span>
+                            </>
+                          ) : (
+                            <>
+                              <Download size={11} />
+                              <span>Apply All ({parsedDiffs.files.length} files)</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {parsedDiffs.files.map((fileDiff, fileIdx) => {
+                  const fileCardId = `file-diff-${i}-${fileIdx}`;
+                  const isApplied = appliedId === fileCardId;
+                  const hunkLabel = fileDiff.hunkCount && fileDiff.hunkCount > 1 ? `${fileDiff.hunkCount} hunks` : "Diff";
+
+                  return (
+                    <div key={fileDiff.path} className="rounded-lg border border-border/70 overflow-hidden bg-[#1e1e1e] shadow-xs">
+                      {/* Card Header: 1 per file */}
+                      <div className="flex items-center justify-between px-3 py-1.5 bg-[#252526] border-b border-white/5 select-none">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <FileCode2 size={13} className="text-primary shrink-0" />
+                          <button
+                            type="button"
+                            onClick={() => onOpenFile?.(fileDiff.path)}
+                            className="text-[11.5px] font-mono text-gray-200 hover:text-white hover:underline truncate max-w-[180px] text-left cursor-pointer"
+                            title={`Open ${fileDiff.path}`}
+                          >
+                            {fileDiff.path}
+                          </button>
+                          <span className="text-[9.5px] px-1.5 py-0.2 rounded font-medium bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            {hunkLabel}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setReviewChanges([fileDiff]);
+                              setReviewExplanation(parsedDiffs.explanation);
+                              setReviewModalOpen(true);
+                            }}
+                            className="px-2 py-0.5 rounded text-[10px] font-medium bg-white/5 hover:bg-white/10 text-gray-200 border border-white/10 flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                            title={`Review diff for ${fileDiff.path}`}
+                          >
+                            <Eye size={10} className="text-primary" />
+                            <span>Review</span>
+                          </button>
+                          {onApplyCode && (
+                            <button
+                              type="button"
+                              onClick={() => handleApplyDiffOrCode(fileDiff.code, fileCardId, fileDiff.path)}
+                              className={`px-2.5 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 transition-all shadow-xs cursor-pointer ${
+                                isApplied
+                                  ? "bg-emerald-600 text-white"
+                                  : "bg-primary text-primary-foreground hover:opacity-90"
+                              }`}
+                              title={`Apply diff to ${fileDiff.path}`}
+                            >
+                              {isApplied ? (
+                                <>
+                                  <Check size={10} />
+                                  <span>Applied ✓</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Download size={10} />
+                                  <span>Apply Diff</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Diff Content with Emerald/Rose styling */}
+                      <pre className="p-3 overflow-x-auto font-mono text-[11px] leading-relaxed text-gray-100 whitespace-pre max-h-[360px] overflow-y-auto">
+                        <code>
+                          {(fileDiff.gitPatch || fileDiff.code).split("\n").map((line, lIdx) => {
+                            let lineCls = "text-gray-200";
+                            if (line.startsWith("+") || line.startsWith(">>>>>>> REPLACE") || line.startsWith("=======")) {
+                              lineCls = "text-emerald-400 bg-emerald-500/10 px-1 rounded-xs block";
+                            } else if (line.startsWith("-") || line.startsWith("<<<<<<< SEARCH")) {
+                              lineCls = "text-rose-400 bg-rose-500/10 px-1 rounded-xs block";
+                            } else if (
+                              line.startsWith("@@") ||
+                              line.startsWith("---") ||
+                              line.startsWith("+++") ||
+                              line.startsWith("Index:")
+                            ) {
+                              lineCls = "text-cyan-400 font-semibold block";
+                            }
+                            return <span key={lIdx} className={lineCls}>{line + "\n"}</span>;
+                          })}
+                        </code>
+                      </pre>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      }
+    }
+
     const renderUserMessageWithTags = (content: string) => {
       const parts = content.split(/(@[^\s]+)/g);
       return parts.map((part, idx) => {
@@ -1256,7 +1643,7 @@ export function AIMentor({
                     const match = /language-(\w+)/.exec(className || "");
                     const codeString = String(children).replace(/\n$/, "");
                     const codeId = `msg-${i}-${codeString.slice(0, 8)}`;
-                    const isDiff = isDiffContent(codeString);
+                    const isDiff = isDiffContent(codeString, match?.[1]);
 
                     if (inline) {
                       return <code className="bg-primary/10 text-primary px-1 py-0.5 rounded font-mono text-[10.5px]" {...props}>{children}</code>;
@@ -1267,9 +1654,11 @@ export function AIMentor({
                         <div className="flex items-center justify-between px-3 py-1.5 bg-[#2d2d2d] border-b border-white/5">
                           <div className="flex items-center gap-1.5">
                             <span className="text-[9.5px] text-gray-400 font-semibold uppercase tracking-widest">{match?.[1] || "code"}</span>
-                            {isDiff && (
-                              <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 font-medium">Diff</span>
-                            )}
+                            {isDiff ? (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30">
+                                Diff Patch
+                              </span>
+                            ) : null}
                           </div>
                           <div className="flex items-center gap-1.5">
                             <button
@@ -1279,25 +1668,25 @@ export function AIMentor({
                             >
                               {copiedId === codeId ? <><Check size={10} className="text-emerald-400" /><span className="text-emerald-400">Copied</span></> : <><Copy size={10} /><span>Copy</span></>}
                             </button>
-                            {onApplyCode && (
-                              <button
-                                onClick={() => handleApplyDiffOrCode(codeString, codeId, activeFile)}
-                                className={`px-2 py-0.5 rounded text-[10px] font-medium flex items-center gap-1 transition-all cursor-pointer ${appliedId === codeId
-                                  ? "bg-emerald-600 text-white"
-                                  : "bg-primary text-primary-foreground hover:opacity-80"
-                                  }`}
-                                title={isDiff ? "Apply Diff Changes" : `Apply to ${activeFile || "file"}`}
-                              >
-                                {appliedId === codeId ? (
-                                  <><Check size={10} /><span>Applied ✓</span></>
-                                ) : (
-                                  <><Download size={10} /><span>{isDiff ? "Apply Diff" : "Apply"}</span></>
-                                )}
-                              </button>
-                            )}
                           </div>
                         </div>
-                        <pre className="p-3 overflow-x-auto font-mono text-[11px] leading-relaxed text-gray-100 whitespace-pre"><code>{codeString}</code></pre>
+                        <pre className="p-3 overflow-x-auto font-mono text-[11px] leading-relaxed text-gray-100 whitespace-pre">
+                          <code>
+                            {isDiff ? (
+                              codeString.split("\n").map((line, lIdx) => {
+                                let lineCls = "text-gray-200";
+                                if (line.startsWith("+") || line.startsWith(">>>>>>> REPLACE") || line.startsWith("=======")) {
+                                  lineCls = "text-emerald-400 bg-emerald-500/10 px-1 rounded-xs block";
+                                } else if (line.startsWith("-") || line.startsWith("<<<<<<< SEARCH")) {
+                                  lineCls = "text-rose-400 bg-rose-500/10 px-1 rounded-xs block";
+                                }
+                                return <span key={lIdx} className={lineCls}>{line + "\n"}</span>;
+                              })
+                            ) : (
+                              codeString
+                            )}
+                          </code>
+                        </pre>
                       </div>
                     );
                   },
@@ -1451,7 +1840,7 @@ export function AIMentor({
             )}
 
             {/* Empty state per mode */}
-            {messages.length === 0 && !activeStream && !isLoading && (
+            {messages.length === 0 && !activeStream && !isLoading && !(mentorMode === "plan" && planTasks.length > 0) && (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-center select-none px-4 pt-4">
                 <div>
                   <p className="text-[13px] font-semibold text-foreground">{currentMode.label}</p>
@@ -1482,24 +1871,84 @@ export function AIMentor({
 
                 {mentorMode === "bugfix" && (
                   <div className="flex flex-col items-center gap-2.5 w-full">
-                    {consoleOutput && (
-                      <div className="w-full max-w-[290px] rounded-lg border border-amber-500/20 bg-amber-500/5 p-2.5 text-left shadow-xs">
-                        <div className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1 mb-1">
-                          <Bug size={11} /> Editor Console Output Detected
+                    {outputJson || consoleOutput ? (
+                      <div className="w-full max-w-[300px] rounded-lg border border-amber-500/20 bg-amber-500/5 p-2.5 text-left shadow-xs">
+                        <div className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 flex items-center justify-between gap-1 mb-1">
+                          <span className="flex items-center gap-1">
+                            <Bug size={11} /> Test Output / Failure Context Detected
+                          </span>
+                          {onExecuteRun && (
+                            <button
+                              type="button"
+                              onClick={() => onExecuteRun()}
+                              disabled={isExecutingRun}
+                              className="text-[9.5px] text-primary hover:underline font-mono inline-flex items-center gap-0.5 cursor-pointer"
+                              title="Re-run tests"
+                            >
+                              <RotateCcw size={9} /> Re-run
+                            </button>
+                          )}
                         </div>
                         <p className="text-[9.5px] text-muted-foreground line-clamp-3 font-mono">
-                          {consoleOutput.split("\n").filter(Boolean).slice(-3).join("\n")}
+                          {outputJson
+                            ? (typeof outputJson === "string" ? outputJson : JSON.stringify(outputJson)).slice(0, 160)
+                            : consoleOutput?.split("\n").filter(Boolean).slice(-3).join("\n")}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="w-full max-w-[300px] rounded-lg border border-border/70 bg-muted/40 p-2.5 text-center shadow-xs">
+                        <p className="text-[11px] text-muted-foreground">
+                          No test run output or errors recorded yet.
                         </p>
                       </div>
                     )}
-                    <button
-                      onClick={() => {
-                        setInput(consoleOutput ? "Analyze the Editor console output and fix the error in my code." : "Analyze the current code and any task failures, identify all bugs, and provide the fixed code.");
-                      }}
-                      className="px-3.5 py-1.5 text-[11px] font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-1.5 shadow-sm cursor-pointer"
-                    >
-                      <Bug size={12} /> Diagnose & Fix Errors
-                    </button>
+
+                    <div className="flex items-center gap-2 flex-wrap justify-center">
+                      {onExecuteRun && (
+                        <button
+                          type="button"
+                          onClick={() => onExecuteRun()}
+                          disabled={isExecutingRun}
+                          className="px-3 py-1.5 text-[11px] font-medium bg-muted/80 hover:bg-accent text-foreground border border-border/80 rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          {isExecutingRun ? (
+                            <>
+                              <Loader2 size={11} className="animate-spin text-primary" />
+                              <span>Running Tests...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Play size={10} className="text-emerald-500" fill="currentColor" />
+                              <span>Run Tests</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!outputJson && !consoleOutput && onExecuteRun) {
+                            try {
+                              await onExecuteRun();
+                            } catch (e) {
+                              console.warn("Could not execute run:", e);
+                            }
+                          }
+                          const prompt = outputJson
+                            ? "Analyze the test execution output JSON, explain why the bug occurred, and provide the exact diff to fix it."
+                            : consoleOutput
+                            ? "Analyze the console error output, explain the bug, and provide the diff to fix it."
+                            : "Analyze the current code and test failures, explain the bug, and provide the diff to fix it.";
+                          sendMessage(prompt);
+                        }}
+                        disabled={isExecutingRun || isLoading}
+                        className="px-3.5 py-1.5 text-[11px] font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+                      >
+                        <Bug size={12} />
+                        <span>{outputJson ? "Fix Bug from Output JSON" : "Diagnose & Fix Bug"}</span>
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -1520,6 +1969,11 @@ export function AIMentor({
                   </div>
                 )}
               </div>
+            )}
+
+            {/* Active Plan Card when in Plan mode if no plan card is in messages */}
+            {mentorMode === "plan" && !messages.some((m: any) => m.message_type === "assistant" && parsePlanStructure(m.content).length > 0) && planTasks.length > 0 && (
+              renderPlanCard(planTasks, false, "active-plan-card")
             )}
 
             {/* Message list */}
@@ -1738,7 +2192,11 @@ export function AIMentor({
         onApplyAll={() => {
           if (onApplyFiles) {
             const map: Record<string, string> = {};
-            for (const c of reviewChanges) map[c.path] = c.code;
+            for (const c of reviewChanges) {
+              const orig = files[c.path] || "";
+              const patched = c.isDiff ? applyDiffOrCode(orig, c.code).result : c.code;
+              map[c.path] = patched;
+            }
             onApplyFiles(map);
           }
           setReviewModalOpen(false);

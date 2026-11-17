@@ -230,10 +230,10 @@ export function TicketIDE({
         if (cand?.userId) return String(cand.userId);
       } catch {}
     }
-    return "anon";
-  }, [userId, evaluationId]);
-  const labId = isAlgo ? `${slug}_${ticket.id}` : slug;
-  const sprintId = ticket.id?.toString() ?? "0";
+    return isVitarka ? "admin" : "anon";
+  }, [userId, evaluationId, isVitarka]);
+  const labId = isVitarka ? (slug || "vitarka-ide") : (isAlgo ? `${slug}_${ticket.id}` : slug);
+  const sprintId = isVitarka ? "0" : (ticket.id?.toString() ?? "0");
 
   const candidateKey = useMemo(() => {
     if (isRecruiterPreview) return "preview_recruiter";
@@ -448,154 +448,53 @@ export function TicketIDE({
   // Task execution state across Editor CodeLens & AI Mentor plan
   const [taskStatuses, setTaskStatuses] = useState<Record<string, TaskStatusInfo>>({});
   const [activeAiSessionId, setActiveAiSessionId] = useState<{ id?: string; title?: string; ts: number } | string | null>(null);
+  const [pendingTaskExecution, setPendingTaskExecution] = useState<{ task: PlanTask; subtask?: any; ts: number } | null>(null);
+  const [requestedMentorMode, setRequestedMentorMode] = useState<any | null>(null);
 
-  const handleStartTaskFromEditor = async (
-    taskId: string,
-    taskText: string,
-    isSubtask?: boolean,
-    parentTaskId?: string,
-    parentTaskTitle?: string
-  ) => {
+  const handleTaskCompleted = useCallback((taskNumber: string, subNumber?: string, taskId?: string, sessionId?: string) => {
+    const targetKey = taskId || (subNumber ? `${taskNumber}.${subNumber}` : taskNumber);
     setTaskStatuses((prev) => ({
       ...prev,
-      [taskId]: { status: "running" },
+      [targetKey]: { status: "completed", sessionId },
     }));
 
-    try {
-      let sessionId: string | null = null;
-      if (isSubtask && parentTaskId && taskStatuses[parentTaskId]?.sessionId) {
-        // Reuse parent task session
-        sessionId = taskStatuses[parentTaskId].sessionId || null;
-      }
+    // Update markdown plan files in files map
+    const planFiles = Object.entries(files).filter(
+      ([p]) => p.includes(".yuvro-developer/plan/") || (p.endsWith(".md") && p.includes("plan"))
+    );
 
-      if (!sessionId) {
-        try {
-          const fileEntries = Object.entries(files);
-          let codeContext = "";
-          for (const [name, content] of fileEntries) {
-            if ((codeContext + content).length < 25000) {
-              codeContext += `File: ${name}\n${content}\n\n`;
-            }
-          }
-
-          // Session name should be task name
-          const sessionTitle = isSubtask ? (parentTaskTitle || taskText) : taskText;
-          const resp = await yhubApiAuthUtil.post<{ id: string }>("/sessions/", {
-            title: sessionTitle,
-            page: "learn",
-            mode: "agent",
-            page_content: `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\nCurrent Code:\n${codeContext}`.trim(),
-          });
-          if (resp?.id) {
-            sessionId = resp.id;
-            setActiveAiSessionId({ id: sessionId, title: sessionTitle, ts: Date.now() });
-            setSidePanel("mentor");
-          }
-        } catch (e) {
-          console.warn("Could not create dedicated task session", e);
-        }
+    for (const [filePath, content] of planFiles) {
+      let updated = content;
+      if (subNumber) {
+        const esc = subNumber.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        updated = updated.replace(
+          new RegExp(`(-\\s*\\[)[ \\]](\\s*${esc})`, "m"),
+          "$1x]$2"
+        );
       } else {
-        setActiveAiSessionId({ id: sessionId, title: isSubtask ? parentTaskTitle : taskText, ts: Date.now() });
-        setSidePanel("mentor");
-      }
-
-      const baseUrl =
-        import.meta.env.VITE_YHUB_BACKEND_API_BASE_URL ||
-        import.meta.env.VITE_BACKEND_API_BASE_URL ||
-        "/api";
-      const endpoint = sessionId
-        ? `${baseUrl}/sessions/${sessionId}/send_message/`
-        : `${baseUrl}/chat/quick_chat/`;
-
-      const token = yhubApiAuthUtil.getAuthToken();
-      const promptMessage = isSubtask
-        ? `Implement subtask: "${taskText}". Write complete code in markdown code blocks.`
-        : `Implement task: "${taskText}". Write complete code in markdown code blocks.`;
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          message: promptMessage,
-          stream: true,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Execution request failed: ${response.statusText}`);
-      }
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let fullContent = "";
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          for (const line of chunk.split("\n")) {
-            if (line.startsWith("data:")) {
-              try {
-                const data = JSON.parse(line.slice(5).trim());
-                const delta = data.delta || data.text || data.content || "";
-                fullContent += delta;
-              } catch {}
-            }
-          }
-        }
-      }
-
-      // Parse multi-file code and apply
-      const { files: parsedFiles, hasCode } = parseMultiFileAgentResponse(fullContent, activeFile, files);
-      if (hasCode) {
-        for (const pf of parsedFiles) {
-          const target = pf.path || activeFile;
-          if (target === activeFile) {
-            updateCode(pf.code);
-          } else {
-            setFiles((prev) => ({ ...prev, [target]: pf.code }));
-          }
-          if (target && effectiveUserId) {
-            wsWriteFile(effectiveUserId, labId, sprintId, target, pf.code, evaluationId).catch(console.error);
-          }
-        }
-      }
-
-      // Update - [ ] to - [x] in the active plan file
-      if (activeFile) {
-        setFiles((prev) => {
-          const currentContent = prev[activeFile] || "";
-          const escaped = taskText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-          const updatedContent = currentContent.replace(
-            new RegExp(`(-\\s*\\[)[ \\]](\\s*${escaped})`, "m"),
+        const esc = taskNumber.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        updated = updated.replace(
+          new RegExp(`(-\\s*\\[)[ \\]](.*Task\\s*${esc}[:.]?)`, "mi"),
+          "$1x]$2"
+        );
+        if (updated === content) {
+          updated = updated.replace(
+            new RegExp(`(-\\s*\\[)[ \\]](\\s*${esc}[:.]?)`, "mi"),
             "$1x]$2"
           );
-          if (updatedContent !== currentContent && effectiveUserId) {
-            wsWriteFile(effectiveUserId, labId, sprintId, activeFile, updatedContent, evaluationId).catch(console.error);
-          }
-          return { ...prev, [activeFile]: updatedContent };
-        });
+        }
       }
-
-      setTaskStatuses((prev) => ({
-        ...prev,
-        [taskId]: { status: "completed", sessionId: sessionId || undefined },
-        ...(parentTaskId ? { [parentTaskId]: { ...(prev[parentTaskId] || { status: "idle" }), sessionId: sessionId || undefined } } : {}),
-      }));
-      showToast(`${isSubtask ? "Subtask" : "Task"} completed: ${taskText}`);
-    } catch (err: any) {
-      console.error("Task execution error", err);
-      setTaskStatuses((prev) => ({
-        ...prev,
-        [taskId]: { status: "error", message: err.message },
-      }));
-      showToast(`Execution error: ${err.message || "Error"}`);
+      if (updated !== content) {
+        setFiles((prev) => ({ ...prev, [filePath]: updated }));
+        if (filePath === activeFile) {
+          updateCode(updated);
+        }
+        if (effectiveUserId) {
+          wsWriteFile(effectiveUserId, labId, sprintId, filePath, updated, evaluationId).catch(console.error);
+        }
+      }
     }
-  };
+  }, [files, activeFile, updateCode, effectiveUserId, labId, sprintId, evaluationId]);
 
   const handleViewSession = (sessionId: string | null, title?: string) => {
     if (sessionId) {
@@ -958,6 +857,7 @@ export function TicketIDE({
       showToast(`Viewing plan: ${planFile.split("/").pop()}`);
     } else {
       setSidePanel("mentor");
+      setRequestedMentorMode("plan");
       showToast("Opened Plan mode in AI Mentor");
     }
   }, [files, openTabs, showToast]);
@@ -1626,7 +1526,9 @@ export function TicketIDE({
   };
 
   async function handleRun() {
-    if (isReal) {
+    const effectiveTestCommand = (ticket.test_command || ticket.scoring_rules?.test_command || "").trim();
+    const shouldSaveWorkspaceFiles = isReal || (isVitarka && Boolean(effectiveTestCommand || ticket.startup_command || ticket.ticket_type === "project"));
+    if (shouldSaveWorkspaceFiles) {
       const filesToSave = getFilesToSave();
       try {
         await Promise.all(
@@ -1640,7 +1542,6 @@ export function TicketIDE({
     const src = files[activeFile] ?? "";
     const file = activeFile;
 
-    const effectiveTestCommand = (ticket.test_command || ticket.scoring_rules?.test_command || "").trim();
     if (effectiveTestCommand) {
       try {
         const { runTestCommand } = await import("@/services/workspaceService");
@@ -4074,24 +3975,6 @@ export function TicketIDE({
 
               {/* Editor */}
               <div className="flex flex-1 min-h-0 relative">
-                {(activeFile.endsWith(".md") || activeFile.includes("plan")) && planViewMode === "markdown" && (
-                  <div className="absolute top-2 right-4 z-20 flex items-center gap-1 bg-background/95 backdrop-blur-xs p-0.5 rounded-lg border border-border shadow-xs text-[11px]">
-                    <button
-                      onClick={() => setPlanViewMode("markdown")}
-                      className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-accent text-foreground shadow-2xs cursor-pointer"
-                      title="Current: Markdown code"
-                    >
-                      Markdown
-                    </button>
-                    <button
-                      onClick={() => setPlanViewMode("ui")}
-                      className="px-2.5 py-1 rounded-md text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                      title="Switch to Tasks UI view"
-                    >
-                      Tasks UI
-                    </button>
-                  </div>
-                )}
                 {activeFile.startsWith("schema:") ? (
                   <SchemaViewer
                     tablePath={activeFile.replace("schema:", "")}
@@ -4103,10 +3986,8 @@ export function TicketIDE({
                     activeFile={activeFile}
                     taskStatuses={taskStatuses}
                     onStartTask={(t, s) => {
-                      const taskId = s ? s.id : t.id;
-                      const taskTitle = s ? `${t.number}.${s.number}: ${s.text}` : `Task ${t.number}: ${t.title}`;
-                      const fullText = s ? s.text : t.title;
-                      handleStartTaskFromEditor(taskId, taskTitle, fullText, !!s, t.id, t.title);
+                      setPendingTaskExecution({ task: t, subtask: s, ts: Date.now() });
+                      setSidePanel("mentor");
                     }}
                     onViewSession={handleViewSession}
                     planViewMode={planViewMode}
@@ -4144,7 +4025,26 @@ export function TicketIDE({
                     onCursorChange={setCursorPos}
                     activeFile={activeFile}
                     taskStatuses={taskStatuses}
-                    onStartTask={handleStartTaskFromEditor}
+                    onStartTask={(taskId, taskTitle) => {
+                      const currentPlanTasks = parsePlanStructure(code);
+                      const foundTask = currentPlanTasks.find((t) => t.id === taskId || t.number === taskId);
+                      if (foundTask) {
+                        setPendingTaskExecution({ task: foundTask, ts: Date.now() });
+                      } else {
+                        setPendingTaskExecution({
+                          task: {
+                            id: taskId,
+                            number: "1",
+                            title: taskTitle,
+                            done: false,
+                            status: "idle",
+                            subtasks: [],
+                          },
+                          ts: Date.now(),
+                        });
+                      }
+                      setSidePanel("mentor");
+                    }}
                     onViewSession={handleViewSession}
                   />
                 )}
@@ -4343,9 +4243,16 @@ export function TicketIDE({
                         tasks={ticket.tasks || []}
                         evalResult={evalResult}
                         consoleOutput={(executionOutput || output || "").trim()}
+                        outputJson={taskExecutionData || testResults || undefined}
+                        testResults={testResults}
+                        onExecuteRun={handleRun}
+                        isExecutingRun={running}
                         files={files}
                         taskStatuses={taskStatuses}
                         onTaskStatusesChange={setTaskStatuses}
+                        pendingTaskExecution={pendingTaskExecution}
+                        requestedMode={requestedMentorMode}
+                        onTaskCompleted={handleTaskCompleted}
                         activeSessionId={activeAiSessionId}
                         checkpoints={checkpoints}
                         onDiscardChanges={handleDiscardChanges}
@@ -4359,10 +4266,16 @@ export function TicketIDE({
                         onApplyCode={(code, target) => {
                           const targetFile = target || activeFile || defaultPrimaryFile;
                           createCheckpoint(`Before editing ${targetFile || "file"}`, files, "agent");
+                          if (targetFile) {
+                            if (!openTabs.includes(targetFile)) {
+                              setOpenTabs((prev) => [...prev, targetFile]);
+                            }
+                            setActiveFile(targetFile);
+                            setFiles((prev) => ({ ...prev, [targetFile]: code }));
+                            setDirty((prev) => ({ ...prev, [targetFile]: true }));
+                          }
                           if (targetFile === activeFile || !target) {
                             updateCode(code);
-                          } else {
-                            setFiles((prev) => ({ ...prev, [targetFile]: code }));
                           }
                           if (targetFile && effectiveUserId) {
                             wsWriteFile(effectiveUserId, labId, sprintId, targetFile, code, evaluationId).catch(console.error);
@@ -4370,17 +4283,35 @@ export function TicketIDE({
                           showToast(`Applied code to ${targetFile || "file"}`);
                         }}
                         onApplyFiles={(filesMap) => {
-                          createCheckpoint(`Before editing ${Object.keys(filesMap).length} files`, files, "agent");
-                          setFiles((prev) => ({ ...prev, ...filesMap }));
-                          if (activeFile && filesMap[activeFile] !== undefined) {
-                            updateCode(filesMap[activeFile]);
+                          const filteredMap: Record<string, string> = {};
+                          for (const [k, v] of Object.entries(filesMap)) {
+                            // Never overwrite plan markdown files from review changes
+                            if (!k.includes(".yuvro-developer/plan/") && !k.endsWith(".md")) {
+                              filteredMap[k] = v;
+                            }
                           }
-                          Object.entries(filesMap).forEach(([targetFile, code]) => {
+                          const changedCount = Object.keys(filteredMap).length;
+                          createCheckpoint(`Before editing ${changedCount} files`, files, "agent");
+                          setFiles((prev) => ({ ...prev, ...filteredMap }));
+
+                          const targetKeys = Object.keys(filteredMap);
+                          const firstFile = targetKeys[0];
+                          if (firstFile) {
+                            if (!openTabs.includes(firstFile)) {
+                              setOpenTabs((prev) => [...prev, firstFile]);
+                            }
+                            setActiveFile(firstFile);
+                            updateCode(filteredMap[firstFile]);
+                          } else if (activeFile && filteredMap[activeFile] !== undefined) {
+                            updateCode(filteredMap[activeFile]);
+                          }
+
+                          Object.entries(filteredMap).forEach(([targetFile, code]) => {
                             if (effectiveUserId) {
                               wsWriteFile(effectiveUserId, labId, sprintId, targetFile, code, evaluationId).catch(console.error);
                             }
                           });
-                          showToast(`Applied changes to ${Object.keys(filesMap).length} files`);
+                          showToast(`Applied changes to ${changedCount} files`);
                         }}
                         onSaveFile={(filePath, content) => {
                           setFiles((prev) => ({ ...prev, [filePath]: content }));
@@ -5468,6 +5399,29 @@ function FormattedResultsView({
   // 3. UI preview
   if (isUi) {
     return <UiPreview files={files} />;
+  }
+
+  // 3.5. Command output (e.g. Pytest, npm test, Python execution output)
+  if (output || executionOutput) {
+    const rawText = (output || executionOutput).trim();
+    if (rawText) {
+      const isPass = !rawText.includes("FAILED") && !rawText.includes("ERROR") && !rawText.includes("Process exited with code") && !rawText.includes("error:");
+      return (
+        <div className="space-y-3 max-w-4xl pb-4 font-mono text-xs">
+          <div className={`p-3.5 rounded-lg border ${isPass ? "bg-success/5 border-success/30" : "bg-destructive/5 border-destructive/30"}`}>
+            <div className="flex items-center gap-2 mb-2 font-sans font-semibold text-xs">
+              {isPass ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
+              <span className={isPass ? "text-success" : "text-destructive"}>
+                {isPass ? "Tests Executed Successfully" : "Test Execution Finished with Issues"}
+              </span>
+            </div>
+            <pre className="whitespace-pre-wrap break-all text-[11px] leading-relaxed text-foreground bg-muted/30 p-3 rounded-md border border-border/50 max-h-[360px] overflow-auto">
+              {rawText}
+            </pre>
+          </div>
+        </div>
+      );
+    }
   }
 
   // 4. Empty State fallback
