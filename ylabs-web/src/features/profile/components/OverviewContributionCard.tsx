@@ -6,10 +6,12 @@ import { ContributionStats } from "@/lib/heatmapHelpers";
 
 interface OverviewContributionCardProps {
   onSeePerformance?: () => void;
+  isOwner?: boolean;
 }
 
 export const OverviewContributionCard: React.FC<OverviewContributionCardProps> = ({
   onSeePerformance,
+  isOwner = true,
 }) => {
   const { data, fetchPerformance } = usePerformanceStore();
 
@@ -48,7 +50,7 @@ export const OverviewContributionCard: React.FC<OverviewContributionCardProps> =
 
       <HeatmapChart contributions={contributions} compact={true} />
 
-      {stats.total === 0 && (
+      {stats.total === 0 && isOwner && (
         <div className="pt-2 border-t border-line text-xs text-muted flex items-center justify-between flex-wrap gap-2">
           <span>No contributions yet. Complete a lab or close a ticket to light up your first square.</span>
           <a

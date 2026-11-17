@@ -41,6 +41,7 @@ function UsersPage() {
 
           return {
             id: u.id,
+            username: u.username,
             name:
               u.first_name || u.last_name
                 ? `${u.first_name || ""} ${u.last_name || ""}`.trim()
@@ -200,13 +201,23 @@ function UsersPage() {
                     </Badge>
                   </td>
                   <td className="px-4 py-2.5">
-                    <Link
-                      to="/admin/users/$id"
-                      params={{ id: u.id }}
-                      className="text-xs text-primary hover:underline"
-                    >
-                      View &rarr;
-                    </Link>
+                    {u.role === "Student" ? (
+                      <Link
+                        to="/u/$username"
+                        params={{ username: u.username }}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        View &rarr;
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/admin/users/$id"
+                        params={{ id: u.id }}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        View &rarr;
+                      </Link>
+                    )}
                   </td>
                 </tr>
               ))}
