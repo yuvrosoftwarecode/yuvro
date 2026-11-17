@@ -110,13 +110,13 @@ export function AgentReviewModal({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-3.5 border-b border-border shrink-0 bg-editor-panel">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
+            <div className="w-8 h-8 rounded-lg bg-[#f7931e]/10 text-[#f7931e] flex items-center justify-center border border-[#f7931e]/20">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-semibold text-foreground">Review Agent Changes</h2>
-                <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-primary/10 text-primary border border-primary/20">
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#f7931e]/10 text-[#f7931e] border border-[#f7931e]/20">
                   {changes.length} {changes.length === 1 ? "file" : "files"}
                 </span>
               </div>
@@ -172,7 +172,7 @@ export function AgentReviewModal({
                     onClick={() => setActivePreviewIndex(idx)}
                     className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors text-xs select-none ${
                       isActive
-                        ? "bg-accent border border-primary/40 shadow-xs"
+                        ? "bg-[#f7931e]/10 border border-[#f7931e]/40 shadow-xs"
                         : "hover:bg-muted/50 border border-transparent"
                     }`}
                   >
@@ -184,12 +184,12 @@ export function AgentReviewModal({
                           e.stopPropagation();
                           toggleSelectPath(change.path);
                         }}
-                        className="rounded border-border text-primary focus:ring-0 cursor-pointer"
+                        className="rounded border-border text-[#f7931e] focus:ring-0 cursor-pointer accent-[#f7931e]"
                       />
                       {isNew ? (
                         <FilePlus className="w-4 h-4 text-emerald-500 shrink-0" />
                       ) : (
-                        <FileEdit className="w-4 h-4 text-blue-500 shrink-0" />
+                        <FileEdit className="w-4 h-4 text-[#f7931e] shrink-0" />
                       )}
                       <span className="font-mono text-foreground font-medium truncate" title={change.path}>
                         {change.path}
@@ -200,7 +200,7 @@ export function AgentReviewModal({
                       className={`text-[9.5px] px-1.5 py-0.5 rounded font-medium shrink-0 ml-1.5 ${
                         isNew
                           ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-                          : "bg-blue-500/10 text-blue-500 border border-blue-500/20"
+                          : "bg-[#f7931e]/10 text-[#f7931e] border border-[#f7931e]/20"
                       }`}
                     >
                       {isNew ? "New" : "Modified"}
@@ -306,33 +306,49 @@ export function AgentReviewModal({
             <div className="flex-1 overflow-auto p-4 custom-scrollbar font-mono text-[12px] leading-relaxed bg-editor-bg text-foreground">
               {viewMode === "diff" ? (
                 <div className="space-y-0.5">
-                  {(activeChange?.gitPatch || proposedContent).split("\n").map((line, lIdx) => {
-                    let lineCls = "text-foreground";
-                    if (
-                      line.startsWith("+") ||
-                      line.startsWith(">>>>>>> REPLACE") ||
-                      line.startsWith("=======")
-                    ) {
-                      lineCls = "text-emerald-400 bg-emerald-500/10 px-1 rounded-xs block";
-                    } else if (line.startsWith("-") || line.startsWith("<<<<<<< SEARCH")) {
-                      lineCls = "text-rose-400 bg-rose-500/10 px-1 rounded-xs block";
-                    } else if (
-                      line.startsWith("@@") ||
-                      line.startsWith("---") ||
-                      line.startsWith("+++") ||
-                      line.startsWith("Index:")
-                    ) {
-                      lineCls = "text-cyan-400 font-semibold block";
-                    }
-                    return (
-                      <div key={lIdx} className={`whitespace-pre font-mono text-[11.5px] ${lineCls}`}>
-                        <span className="inline-block w-8 text-right pr-3 select-none text-muted-foreground/40 font-mono">
-                          {lIdx + 1}
-                        </span>
-                        {line || " "}
-                      </div>
-                    );
-                  })}
+                  {(() => {
+                    let inSearch = false;
+                    let inReplace = false;
+                    return (activeChange?.gitPatch || proposedContent).split("\n").map((line, lIdx) => {
+                      let lineCls = "text-foreground";
+                      if (line.startsWith("<<<<<<< SEARCH")) {
+                        inSearch = true;
+                        inReplace = false;
+                        lineCls = "text-rose-400 bg-rose-500/20 font-semibold px-1 rounded-xs block";
+                      } else if (line.startsWith("=======")) {
+                        inSearch = false;
+                        inReplace = true;
+                        lineCls = "text-emerald-400 bg-emerald-500/20 font-semibold px-1 rounded-xs block";
+                      } else if (line.startsWith(">>>>>>> REPLACE")) {
+                        inSearch = false;
+                        inReplace = false;
+                        lineCls = "text-emerald-400 bg-emerald-500/20 font-semibold px-1 rounded-xs block";
+                      } else if (inSearch) {
+                        lineCls = "text-rose-300 bg-rose-500/10 px-1 block";
+                      } else if (inReplace) {
+                        lineCls = "text-emerald-300 bg-emerald-500/10 px-1 block";
+                      } else if (line.startsWith("+")) {
+                        lineCls = "text-emerald-400 bg-emerald-500/10 px-1 block";
+                      } else if (line.startsWith("-")) {
+                        lineCls = "text-rose-400 bg-rose-500/10 px-1 block";
+                      } else if (
+                        line.startsWith("@@") ||
+                        line.startsWith("---") ||
+                        line.startsWith("+++") ||
+                        line.startsWith("Index:")
+                      ) {
+                        lineCls = "text-cyan-400 font-semibold block";
+                      }
+                      return (
+                        <div key={lIdx} className={`whitespace-pre font-mono text-[11.5px] ${lineCls}`}>
+                          <span className="inline-block w-8 text-right pr-3 select-none text-muted-foreground/40 font-mono">
+                            {lIdx + 1}
+                          </span>
+                          {line || " "}
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               ) : (
                 <div className="flex font-mono">
@@ -377,7 +393,7 @@ export function AgentReviewModal({
                 type="button"
                 onClick={handleApplySelected}
                 disabled={selectedPaths.size === 0}
-                className="px-4 py-2 rounded-lg text-xs font-medium border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-40"
+                className="px-4 py-2 rounded-lg text-xs font-medium border border-[#f7931e]/40 bg-[#f7931e]/10 text-[#f7931e] hover:bg-[#f7931e]/20 transition-colors disabled:opacity-40 cursor-pointer"
               >
                 Apply Selected ({selectedPaths.size})
               </button>
@@ -385,7 +401,7 @@ export function AgentReviewModal({
             <button
               type="button"
               onClick={handleApplyAll}
-              className="px-5 py-2 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:opacity-90 shadow-sm flex items-center gap-1.5 transition-all"
+              className="px-5 py-2 rounded-lg text-xs font-semibold bg-[#f7931e] hover:bg-[#e5820f] active:bg-[#d6750d] text-white shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Apply All ({changes.length})</span>

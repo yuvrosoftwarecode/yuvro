@@ -1407,7 +1407,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                       setReviewExplanation(explanation);
                       setReviewModalOpen(true);
                     }}
-                    className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-primary text-primary-foreground hover:opacity-90 flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                    className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-[#f7931e] hover:bg-[#e5820f] active:bg-[#d6750d] text-white flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
                   >
                     <Layers size={11} />
                     <span>Review ({parsedFiles.length})</span>
@@ -1468,9 +1468,9 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                           setReviewExplanation(parsedDiffs.explanation);
                           setReviewModalOpen(true);
                         }}
-                        className="px-2.5 py-1 rounded-md text-[10.5px] font-medium bg-muted/80 hover:bg-accent text-foreground border border-border/80 flex items-center gap-1 shadow-2xs cursor-pointer"
+                        className="px-2.5 py-1 rounded-md text-[10.5px] font-medium bg-[#f7931e]/10 hover:bg-[#f7931e]/20 text-[#f7931e] border border-[#f7931e]/30 flex items-center gap-1 shadow-2xs cursor-pointer transition-colors"
                       >
-                        <Eye size={11} className="text-primary" />
+                        <Eye size={11} className="text-[#f7931e]" />
                         <span>Review All ({parsedDiffs.files.length})</span>
                       </button>
                       {onApplyFiles && (
@@ -1487,7 +1487,11 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                             setAppliedId(`apply-all-${i}`);
                             setTimeout(() => setAppliedId(null), 2500);
                           }}
-                          className="px-2.5 py-1 rounded-md text-[10.5px] font-semibold bg-primary text-primary-foreground hover:opacity-90 flex items-center gap-1 shadow-2xs cursor-pointer"
+                          className={`px-2.5 py-1 rounded-md text-[10.5px] font-semibold flex items-center gap-1 shadow-2xs cursor-pointer transition-colors ${
+                            appliedId === `apply-all-${i}`
+                              ? "bg-emerald-600 text-white"
+                              : "bg-[#f7931e] hover:bg-[#e5820f] active:bg-[#d6750d] text-white"
+                          }`}
                         >
                           {appliedId === `apply-all-${i}` ? (
                             <>
@@ -1510,22 +1514,24 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                   const fileCardId = `file-diff-${i}-${fileIdx}`;
                   const isApplied = appliedId === fileCardId;
                   const hunkLabel = fileDiff.hunkCount && fileDiff.hunkCount > 1 ? `${fileDiff.hunkCount} hunks` : "Diff";
+                  let inSearch = false;
+                  let inReplace = false;
 
                   return (
                     <div key={fileDiff.path} className="rounded-lg border border-border/70 overflow-hidden bg-[#1e1e1e] shadow-xs">
                       {/* Card Header: 1 per file */}
-                      <div className="flex items-center justify-between px-3 py-1.5 bg-[#252526] border-b border-white/5 select-none">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <FileCode2 size={13} className="text-primary shrink-0" />
+                      <div className="flex items-center justify-between px-3 py-1.5 bg-[#252526] border-b border-white/5 select-none gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                          <FileCode2 size={13} className="text-[#f7931e] shrink-0" />
                           <button
                             type="button"
                             onClick={() => onOpenFile?.(fileDiff.path)}
-                            className="text-[11.5px] font-mono text-gray-200 hover:text-white hover:underline truncate max-w-[180px] text-left cursor-pointer"
+                            className="text-[11.5px] font-mono text-gray-200 hover:text-white hover:underline truncate text-left cursor-pointer"
                             title={`Open ${fileDiff.path}`}
                           >
                             {fileDiff.path}
                           </button>
-                          <span className="text-[9.5px] px-1.5 py-0.2 rounded font-medium bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                          <span className="text-[9.5px] px-1.5 py-0.2 rounded font-medium bg-[#f7931e]/20 text-[#f7931e] border border-[#f7931e]/30 shrink-0">
                             {hunkLabel}
                           </span>
                         </div>
@@ -1538,10 +1544,10 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                               setReviewExplanation(parsedDiffs.explanation);
                               setReviewModalOpen(true);
                             }}
-                            className="px-2 py-0.5 rounded text-[10px] font-medium bg-white/5 hover:bg-white/10 text-gray-200 border border-white/10 flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                            className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#f7931e]/10 hover:bg-[#f7931e]/20 text-orange-200 border border-[#f7931e]/30 flex items-center gap-1 transition-all cursor-pointer shadow-xs"
                             title={`Review diff for ${fileDiff.path}`}
                           >
-                            <Eye size={10} className="text-primary" />
+                            <Eye size={10} className="text-[#f7931e]" />
                             <span>Review</span>
                           </button>
                           {onApplyCode && (
@@ -1551,7 +1557,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                               className={`px-2.5 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1 transition-all shadow-xs cursor-pointer ${
                                 isApplied
                                   ? "bg-emerald-600 text-white"
-                                  : "bg-primary text-primary-foreground hover:opacity-90"
+                                  : "bg-[#f7931e] hover:bg-[#e5820f] active:bg-[#d6750d] text-white"
                               }`}
                               title={`Apply diff to ${fileDiff.path}`}
                             >
@@ -1575,11 +1581,27 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                       <pre className="p-3 overflow-x-auto font-mono text-[11px] leading-relaxed text-gray-100 whitespace-pre max-h-[360px] overflow-y-auto">
                         <code>
                           {(fileDiff.gitPatch || fileDiff.code).split("\n").map((line, lIdx) => {
-                            let lineCls = "text-gray-200";
-                            if (line.startsWith("+") || line.startsWith(">>>>>>> REPLACE") || line.startsWith("=======")) {
-                              lineCls = "text-emerald-400 bg-emerald-500/10 px-1 rounded-xs block";
-                            } else if (line.startsWith("-") || line.startsWith("<<<<<<< SEARCH")) {
-                              lineCls = "text-rose-400 bg-rose-500/10 px-1 rounded-xs block";
+                            let lineCls = "text-gray-200 block";
+                            if (line.startsWith("<<<<<<< SEARCH")) {
+                              inSearch = true;
+                              inReplace = false;
+                              lineCls = "text-rose-400 bg-rose-500/20 font-semibold px-1 rounded-xs block";
+                            } else if (line.startsWith("=======")) {
+                              inSearch = false;
+                              inReplace = true;
+                              lineCls = "text-emerald-400 bg-emerald-500/20 font-semibold px-1 rounded-xs block";
+                            } else if (line.startsWith(">>>>>>> REPLACE")) {
+                              inSearch = false;
+                              inReplace = false;
+                              lineCls = "text-emerald-400 bg-emerald-500/20 font-semibold px-1 rounded-xs block";
+                            } else if (inSearch) {
+                              lineCls = "text-rose-300 bg-rose-500/10 px-1 block";
+                            } else if (inReplace) {
+                              lineCls = "text-emerald-300 bg-emerald-500/10 px-1 block";
+                            } else if (line.startsWith("+")) {
+                              lineCls = "text-emerald-400 bg-emerald-500/10 px-1 block";
+                            } else if (line.startsWith("-")) {
+                              lineCls = "text-rose-400 bg-rose-500/10 px-1 block";
                             } else if (
                               line.startsWith("@@") ||
                               line.startsWith("---") ||
@@ -1759,7 +1781,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
               if (!showHistory) fetchHistory();
               setShowHistory(!showHistory);
             }}
-            className={`w-6 h-6 flex items-center justify-center rounded transition-colors cursor-pointer ${showHistory ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
+            className={`w-6 h-6 flex items-center justify-center rounded transition-colors cursor-pointer ${showHistory ? "text-[#f7931e] bg-[#f7931e]/10" : "text-muted-foreground hover:text-foreground hover:bg-[#f7931e]/10"}`}
             title="Chat history"
           >
             <Clock size={13} />
@@ -1943,7 +1965,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                           sendMessage(prompt);
                         }}
                         disabled={isExecutingRun || isLoading}
-                        className="px-3.5 py-1.5 text-[11px] font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+                        className="px-3.5 py-1.5 text-[11px] font-semibold bg-[#f7931e] hover:bg-[#e5820f] active:bg-[#d6750d] text-white rounded-lg flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50 transition-colors"
                       >
                         <Bug size={12} />
                         <span>{outputJson ? "Fix Bug from Output JSON" : "Diagnose & Fix Bug"}</span>
@@ -1961,7 +1983,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                           setInput(s);
                         }}
                         disabled={isLoading}
-                        className="px-2.5 py-1 text-[11px] font-medium text-primary bg-primary/10 border border-primary/20 rounded-full hover:bg-primary/20 transition-colors disabled:opacity-40 cursor-pointer"
+                        className="px-2.5 py-1 text-[11px] font-medium text-[#f7931e] bg-[#f7931e]/10 border border-[#f7931e]/20 rounded-full hover:bg-[#f7931e]/20 transition-colors disabled:opacity-40 cursor-pointer"
                       >
                         {s}
                       </button>
@@ -2051,7 +2073,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                         ? "Describe error or fix console issues... (type @ to tag files)"
                         : "Ask AI Mentor for hints or diffs... (type @ to tag files)"
                 }
-                className="w-full pl-3 pr-22 py-2 text-[12px] bg-muted/40 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-foreground placeholder:text-muted-foreground/60 transition-all"
+                className="w-full pl-3 pr-22 py-2 text-[12px] bg-muted/40 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-[#f7931e] focus:border-[#f7931e] text-foreground placeholder:text-muted-foreground/60 transition-all"
                 disabled={isLoading}
               />
               <div className="absolute right-1.5 flex items-center gap-1">
@@ -2077,14 +2099,14 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                       }
                     }
                   }}
-                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${tagMenuOpen ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/60"}`}
+                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${tagMenuOpen ? "text-[#f7931e] bg-[#f7931e]/10" : "text-muted-foreground hover:text-foreground hover:bg-[#f7931e]/10"}`}
                   title="Tag a file (@file)"
                 >
                   <AtSign size={13} />
                 </button>
                 <button
                   onClick={() => setUseVoice(!useVoice)}
-                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${useVoice ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${useVoice ? "text-[#f7931e] bg-[#f7931e]/10" : "text-muted-foreground hover:text-foreground hover:bg-[#f7931e]/10"}`}
                   title="Voice input"
                 >
                   <Mic size={13} />
@@ -2092,7 +2114,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                 <button
                   onClick={() => send()}
                   disabled={!input.trim() || isLoading}
-                  className="p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-40 hover:opacity-90 transition-opacity cursor-pointer shadow-xs"
+                  className="p-1.5 rounded-lg bg-[#f7931e] text-white disabled:opacity-40 hover:bg-[#e5820f] active:bg-[#d6750d] transition-colors cursor-pointer shadow-xs"
                   title="Send message"
                 >
                   <ArrowLeft size={13} className="rotate-180" />
@@ -2111,8 +2133,8 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                       key={mode.id}
                       onClick={() => setMentorMode(mode.id)}
                       className={`flex-1 py-1.5 px-1.5 rounded-md text-[11px] font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer group/mode relative ${isCurrent
-                        ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/40 font-bold"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                        ? "bg-[#f7931e] text-white shadow-sm ring-1 ring-[#f7931e]/50 font-bold hover:bg-[#e5820f]"
+                        : "text-muted-foreground hover:text-foreground hover:bg-[#f7931e]/10"
                         }`}
                       title={`${mode.label}: ${mode.desc}`}
                       aria-label={mode.label}
