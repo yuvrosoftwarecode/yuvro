@@ -3115,6 +3115,66 @@
       "predefined_tree": []
     },
     {
+      "title": "Django Development",
+      "description": "Adaptive AI-powered backend technical interview assessing Django and Django REST Framework (DRF) engineering. Evaluates Django MVT architecture, ORM query optimization (select_related, prefetch_related, indexing, N+1 query prevention), custom serializers, authentication & permissions, middleware lifecycle, asynchronous task handling with Celery & Redis, and database transaction management.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine adapts questions dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs",
+        "ycode",
+        "ycampus"
+      ],
+      "required_skills": [
+        "Django",
+        "Django REST Framework (DRF)",
+        "Django ORM & Query Optimization",
+        "Python Backend Development",
+        "Authentication & Permissions (JWT / Session)",
+        "Database Migrations & Transactions (ATOMIC)"
+      ],
+      "optional_skills": [
+        "Celery & Redis Asynchronous Tasks",
+        "Custom Middleware & Request Lifecycle",
+        "Django Channels & WebSockets (ASGI)",
+        "Testing with pytest-django & APITestCase",
+        "Caching Strategies & Low-Level Cache API",
+        "Gunicorn / Uvicorn Deployment & Dockerization"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
+    },
+    {
+      "title": "Forward Deployed Engineer (FDE)",
+      "description": "Scenario-based technical interview assessing Forward Deployed Software Engineering at the intersection of client deployment, rapid product delivery, and technical architecture. Evaluates enterprise integrations, custom API connectors, data pipeline engineering (ingesting messy client schemas), cloud and on-prem VPC deployments (Docker, K8s), enterprise auth & compliance (SAML, OAuth2, RBAC), live production troubleshooting, and technical stakeholder management.",
+      "instructions": "Hands-free interactive AI interview. Answer aloud through your microphone or text. The Vitarka Dynamic Engine poses real-world deployment scenarios, architectural trade-offs, and client integration challenges dynamically based on your candidate responses.",
+      "max_duration": 30,
+      "interview_mode": "automatic",
+      "products": [
+        "ylabs",
+        "ycode",
+        "ycampus"
+      ],
+      "required_skills": [
+        "Enterprise Systems Integration & APIs (REST, GraphQL, gRPC)",
+        "Full-Stack Systems Engineering & Rapid Prototyping",
+        "Data Pipeline Engineering & Schema Reconciliation",
+        "Client Infrastructure & Deployments (Docker, Kubernetes, Cloud VPCs)",
+        "Enterprise Security, Auth (SSO/SAML, OAuth2) & Compliance",
+        "Technical Architecture & Stakeholder Communication"
+      ],
+      "optional_skills": [
+        "Live Production Debugging & Incident Triage",
+        "Distributed Systems Observability (OpenTelemetry, Logging)",
+        "On-Premise & Air-Gapped Deployments",
+        "Data Ingestion & ETL (SQL, Pandas, PySpark)",
+        "CI/CD & Release Management",
+        "Requirement Deconstruction & MVP Scoping"
+      ],
+      "publish_status": "active",
+      "predefined_tree": []
+    },
+    {
       "title": "Frontend Development",
       "description": "Comprehensive assessment of frontend development skills, including HTML, CSS, JavaScript, React, browser behavior, performance optimization, and frontend architecture.",
       "instructions": "HTML semantics, CSS layouts, JavaScript fundamentals and advanced concepts, React hooks and state management, performance optimization, and frontend security.",
