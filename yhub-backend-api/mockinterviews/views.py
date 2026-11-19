@@ -1791,7 +1791,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Impact of index selection on write amplification, memory footprint, and query execution speed with EXPLAIN"
                                 ]
                             }
-                        else:
+                        elif "python" in title_lower:
                             next_q = {
                                 "id": 2,
                                 "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In Python, can you explain the difference between a list and a tuple?",
@@ -1802,6 +1802,23 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Lists are mutable while tuples are immutable",
                                     "Syntax differences [] vs ()",
                                     "Use cases when to choose a tuple over a list"
+                                ]
+                            }
+                        else:
+                            primary_topic = (
+                                (mock_interview.required_skills[0] if mock_interview.required_skills else None)
+                                or mock_interview.title
+                            )
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In {mock_interview.title}, could you explain the core concepts of {primary_topic} and how you apply them in real-world software development?",
+                                "topic": f"{primary_topic} Core Principles",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    f"Fundamental principles and best practices in {primary_topic}",
+                                    "Common architecture patterns and usage scenarios",
+                                    "Key trade-offs and error handling strategies"
                                 ]
                             }
 

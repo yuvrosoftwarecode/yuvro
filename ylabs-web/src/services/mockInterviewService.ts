@@ -450,6 +450,59 @@ export async function fetchMockInterviewBySlugOrId(slugOrId: string): Promise<In
   return null;
 }
 
+export async function adminFetchMockInterviews(options?: {
+  product?: string;
+  search?: string;
+}): Promise<BackendMockInterview[]> {
+  const queryParams = new URLSearchParams();
+  if (options?.product && options.product !== "all") {
+    queryParams.append("product", options.product);
+  }
+  if (options?.search) {
+    queryParams.append("search", options.search);
+  }
+  const qs = queryParams.toString();
+  const url = qs ? `/mock-interviews/?${qs}` : "/mock-interviews/";
+  const res = await yhubApiAuthUtil.get<any>(url);
+  const rawList: BackendMockInterview[] = Array.isArray(res)
+    ? res
+    : res?.results && Array.isArray(res.results)
+    ? res.results
+    : [];
+  return rawList;
+}
+
+export async function adminGetMockInterview(id: string): Promise<BackendMockInterview | null> {
+  try {
+    return await yhubApiAuthUtil.get<BackendMockInterview>(`/mock-interviews/${id}/`);
+  } catch (err) {
+    console.error(`Failed to fetch mock interview ${id}:`, err);
+    return null;
+  }
+}
+
+export async function createMockInterview(
+  payload: Partial<BackendMockInterview>
+): Promise<BackendMockInterview> {
+  const res = await yhubApiAuthUtil.post<BackendMockInterview>("/mock-interviews/", payload);
+  clearMockInterviewCache();
+  return res;
+}
+
+export async function updateMockInterview(
+  id: string,
+  payload: Partial<BackendMockInterview>
+): Promise<BackendMockInterview> {
+  const res = await yhubApiAuthUtil.put<BackendMockInterview>(`/mock-interviews/${id}/`, payload);
+  clearMockInterviewCache();
+  return res;
+}
+
+export async function deleteMockInterview(id: string): Promise<void> {
+  await yhubApiAuthUtil.delete(`/mock-interviews/${id}/`);
+  clearMockInterviewCache();
+}
+
 export async function fetchUserInterviewSubmissions(
   product: string = "ylabs",
   forceRefresh = false
