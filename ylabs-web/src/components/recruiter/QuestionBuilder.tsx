@@ -5,13 +5,20 @@ import { fetchTopics, checkDuplicateQuestion } from "@/lib/recruiter";
 import { Button } from "@/components/ui/button";
 import { GithubAppIntegration } from "./GithubAppIntegration";
 import { toast } from "sonner";
-import { labTaskAIService } from "@/services/labTaskAIService";
+import {
+  labTaskAIService,
+  type InspectRepoResponse,
+  type ScoringRulesResponse,
+} from "@/services/labTaskAIService";
 import { ScoringRulesModal } from "./ScoringRulesModal";
-import { Sparkles, RefreshCw } from "lucide-react";
+import { LabTasksChatStep } from "./LabTasksChatStep";
+import { LabScoringLiveTestStep } from "./LabScoringLiveTestStep";
 
 
 export interface QuestionBuilderProps {
   initialCategory?: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE";
+  category?: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE";
+  onCategoryChange?: (category: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE") => void;
   editingId?: string | null;
   initialData?: any;
   courses: { id: string; name: string }[];
@@ -56,7 +63,15 @@ const DATABASES = ["SQLite", "PostgreSQL", "MySQL", "MongoDB", "Redis", "Elastic
 const BACKEND_FRAMEWORKS = ["Django", "Django REST Framework", "FastAPI", "Flask", "Spring Boot", "NodeJS", "Express", "NestJS"];
 const FRONTEND_FRAMEWORKS = ["React", "NextJS", "Vue", "Angular", "Svelte"];
 
-const STEPS = [
+const LAB_STEPS = [
+  { id: 0, label: "Basics" },
+  { id: 1, label: "Repository & Stack" },
+  { id: 2, label: "Codebase Scan" },
+  { id: 3, label: "Tasks" },
+  { id: 4, label: "Scoring & Testing" },
+];
+
+const DEFAULT_STEPS = [
   { id: 0, label: "Basics" },
   { id: 1, label: "Configuration" },
   { id: 2, label: "Tasks" },
@@ -134,6 +149,8 @@ const getSolutionString = (solution: any) => {
 
 export function QuestionBuilder({
   initialCategory = "LAB",
+  category: controlledCategory,
+  onCategoryChange,
   editingId = null,
   initialData = null,
   courses = [],
@@ -142,7 +159,23 @@ export function QuestionBuilder({
 }: QuestionBuilderProps) {
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(0);
-  const [category, setCategory] = useState<"LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE">(initialCategory);
+  const [internalCategory, setInternalCategory] = useState<"LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE">(
+    controlledCategory || initialCategory
+  );
+
+  useEffect(() => {
+    if (controlledCategory && controlledCategory !== internalCategory) {
+      setInternalCategory(controlledCategory);
+    }
+  }, [controlledCategory]);
+
+  const category = controlledCategory || internalCategory;
+
+  const handleSelectCategory = (newCat: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE") => {
+    if (editingId) return;
+    setInternalCategory(newCat);
+    onCategoryChange?.(newCat);
+  };
 
   // LAB STATE
   const [labFormData, setLabFormData] = useState<any>({
@@ -217,13 +250,21 @@ export function QuestionBuilder({
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
   const [duplicateMeta, setDuplicateMeta] = useState<any>(null);
 
-  // AI Task Assistant State (Step 3)
-  const [isAISuggesting, setIsAISuggesting] = useState(false);
-  const [isAIBulkGenerating, setIsAIBulkGenerating] = useState(false);
+  // AI Task Assistant & Verification State (Steps 3, 4, 5)
   const [standardizingIndex, setStandardizingIndex] = useState<number | null>(null);
   const [estimatingIndex, setEstimatingIndex] = useState<number | null>(null);
   const [scoringRulesModalOpen, setScoringRulesModalOpen] = useState(false);
-  const [isGeneratingLifecycle, setIsGeneratingLifecycle] = useState(false);
+  const [repoInspection, setRepoInspection] = useState<InspectRepoResponse | null>(null);
+  const [isInspectingRepo, setIsInspectingRepo] = useState(false);
+  const [scoringRules, setScoringRules] = useState<ScoringRulesResponse | null>(null);
+
+  const activeSteps = category === "LAB" ? LAB_STEPS : DEFAULT_STEPS;
+
+  useEffect(() => {
+    if (currentStep > activeSteps.length - 1) {
+      setCurrentStep(activeSteps.length - 1);
+    }
+  }, [category, activeSteps.length, currentStep]);
 
 
   // Initialize editing data
@@ -377,7 +418,7 @@ export function QuestionBuilder({
       onClose();
     },
     onError: (err: any) => {
-      alert(err?.message || "Failed to create lab question");
+      toast.error(err?.message || "Failed to create lab question");
     },
   });
 
@@ -389,7 +430,7 @@ export function QuestionBuilder({
       onClose();
     },
     onError: (err: any) => {
-      alert(err?.message || "Failed to update lab question");
+      toast.error(err?.message || "Failed to update lab question");
     },
   });
 
@@ -401,7 +442,7 @@ export function QuestionBuilder({
       onClose();
     },
     onError: (err: any) => {
-      alert(err?.message || "Failed to create system design challenge");
+      toast.error(err?.message || "Failed to create system design challenge");
     },
   });
 
@@ -414,7 +455,7 @@ export function QuestionBuilder({
       onClose();
     },
     onError: (err: any) => {
-      alert(err?.message || "Failed to update system design challenge");
+      toast.error(err?.message || "Failed to update system design challenge");
     },
   });
 
@@ -426,7 +467,7 @@ export function QuestionBuilder({
       onClose();
     },
     onError: (err: any) => {
-      alert(err?.message || "Failed to create knowledge question");
+      toast.error(err?.message || "Failed to create knowledge question");
     },
   });
 
@@ -439,7 +480,7 @@ export function QuestionBuilder({
       onClose();
     },
     onError: (err: any) => {
-      alert(err?.message || "Failed to update knowledge question");
+      toast.error(err?.message || "Failed to update knowledge question");
     },
   });
 
@@ -496,92 +537,51 @@ export function QuestionBuilder({
       domain: labFormData.domain || "BACKEND",
       type: labFormData.type || "BACKEND",
       scenario: labFormData.scenario || "FEATURE_DEVELOPMENT",
+      marks: Number(labFormData.marks) || 100,
+      duration_minutes: Number(labFormData.duration_minutes) || 45,
       programming_languages: labFormData.programming_languages || [],
       backend_frameworks: labFormData.backend_frameworks || [],
       frontend_frameworks: labFormData.frontend_frameworks || [],
       databases: labFormData.databases || [],
       git_repo_starter_url: labFormData.git_repo_starter_url || "",
       git_repo_starter_branch: labFormData.git_repo_starter_branch || "main",
+      startup_command: labFormData.startup_command || "",
+      test_command: labFormData.test_command || "",
       tech_stack: [
         ...(labFormData.programming_languages || []),
         ...(labFormData.databases || []),
         ...(labFormData.backend_frameworks || []),
         ...(labFormData.frontend_frameworks || []),
       ],
-      repo_name: cleanRepo,
-      repo_description: labFormData.description || "",
+      repo_name: repoInspection?.full_name || cleanRepo,
+      repo_description: repoInspection?.description || labFormData.description || "",
+      repo_readme: repoInspection?.readme || "",
+      repo_tree: repoInspection?.files || [],
+      repo_files: repoInspection?.key_files || {},
     };
   };
 
-  const handleAISuggestTask = async () => {
-    setIsAISuggesting(true);
-    try {
-      const context = getLabContext();
-      const res = await labTaskAIService.suggestTask(context, labFormData.tasks, "deepseek");
-      setLabFormData((prev: any) => ({
-        ...prev,
-        tasks: [
-          ...prev.tasks,
-          {
-            id: `task_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-            title: res.title || "Untitled Task",
-            description: res.description || "",
-            solution: (res as any).solution || res.solution_code || "",
-            difficulty: (res as any).difficulty || "MEDIUM",
-            marks: res.marks || 25,
-            duration_minutes: (res as any).duration_minutes || res.estimated_minutes || 20,
-            order_index: prev.tasks.length,
-            parent_task_id: null,
-          },
-        ],
-      }));
-      toast.success(`Task suggested: ${res.title}`);
-    } catch (err: any) {
-      console.error("AI Suggest Task error", err);
-      toast.error(err?.response?.data?.error || err?.message || "Failed to suggest task.");
-    } finally {
-      setIsAISuggesting(false);
+  const handleInspectRepo = async () => {
+    const url = (labFormData.git_repo_starter_url || "").trim();
+    if (!url) {
+      toast.error("Configure a Starter Repository URL in Step 2 first.");
+      return;
     }
-  };
-
-  const handleAIGenerateBulkTasks = async (count: number) => {
-    if (labFormData.tasks.length > 0) {
-      const ok = window.confirm(
-        `Generate ${count} tasks with AI? This will replace your existing ${labFormData.tasks.length} task(s).`
-      );
-      if (!ok) return;
-    }
-
-    setIsAIBulkGenerating(true);
+    setIsInspectingRepo(true);
     try {
-      const context = getLabContext();
-      const targetMarks = labFormData.marks || 100;
-      const res = await labTaskAIService.generateBulkTasks(context, count, targetMarks, "deepseek");
-      const taskList = Array.isArray(res.tasks) ? res.tasks : [];
-      const newTasks = taskList.map((t: any, idx: number) => ({
-        id: `task_${Date.now()}_${idx}`,
-        title: t.title || `Task ${idx + 1}`,
-        description: t.description || "",
-        solution: t.solution || t.solution_code || "",
-        difficulty: t.difficulty || (idx === 0 ? "EASY" : idx === taskList.length - 1 ? "HARD" : "MEDIUM"),
-        marks: t.marks || Math.round((res.total_marks || targetMarks) / (taskList.length || count)),
-        duration_minutes: t.duration_minutes || t.estimated_minutes || 15,
-        order_index: idx,
-        parent_task_id: idx > 0 ? `task_${Date.now()}_${idx - 1}` : null,
-      }));
-
-      setLabFormData((prev: any) => ({
-        ...prev,
-        tasks: newTasks,
-        marks: res.total_marks || prev.marks,
-        duration_minutes: res.total_estimated_minutes || prev.duration_minutes,
-      }));
-      toast.success(`Generated ${newTasks.length} progressive tasks with marks & duration`);
+      const res = await labTaskAIService.inspectRepo({
+        repo_identifier: url,
+        branch: labFormData.git_repo_starter_branch || "main",
+        installation_id: labFormData.github_app_installation || labFormData.github_installation_id || null,
+        include_clone_token: false,
+      });
+      setRepoInspection(res);
+      toast.success(`Scanned ${res.full_name} (${res.file_count} files indexed for AI)`);
     } catch (err: any) {
-      console.error("Bulk tasks error", err);
-      toast.error(err?.response?.data?.error || err?.message || "Failed to generate bulk tasks.");
+      console.error("Repo inspection error", err);
+      toast.error(err?.response?.data?.error || err?.message || "Failed to inspect repository.");
     } finally {
-      setIsAIBulkGenerating(false);
+      setIsInspectingRepo(false);
     }
   };
 
@@ -627,9 +627,10 @@ export function QuestionBuilder({
     setEstimatingIndex(index);
     try {
       const context = getLabContext();
-      const res = await labTaskAIService.estimateDuration(currentTask, context);
-      updateLabTask(index, "duration_minutes", res.estimated_minutes);
-      toast.success(`Estimated: ${res.estimated_minutes} min (${res.complexity})`);
+      const res = await labTaskAIService.estimateDuration(currentTask, context, "deepseek");
+      const mins = res.recommended_duration_minutes || res.estimated_minutes || 15;
+      updateLabTask(index, "duration_minutes", mins);
+      toast.success(`Estimated: ${mins} min${res.rationale ? ` — ${res.rationale}` : ""}`);
     } catch (err: any) {
       console.error("Estimate duration error", err);
       toast.error(err?.response?.data?.error || err?.message || "Failed to estimate duration.");
@@ -637,81 +638,6 @@ export function QuestionBuilder({
       setEstimatingIndex(null);
     }
   };
-
-  const handleGenerateLifecycleCommands = async () => {
-    setIsGeneratingLifecycle(true);
-    try {
-      const context = getLabContext();
-      let startupCmd = "";
-      let testCmd = "";
-
-      try {
-        const res = await labTaskAIService.generateLifecycleCommands(context, labFormData.tasks, "deepseek");
-        if (res?.startup_command || res?.test_command) {
-          startupCmd = res.startup_command || "";
-          testCmd = res.test_command || "";
-        }
-      } catch (backendErr) {
-        console.warn("AI lifecycle commands endpoint unreachable, falling back to smart heuristic deduction:", backendErr);
-      }
-
-      if (!startupCmd || !testCmd) {
-        const langs = (labFormData.programming_languages || []).map((l: string) => l.toLowerCase());
-        const beFrameworks = (labFormData.backend_frameworks || []).map((f: string) => f.toLowerCase());
-        const feFrameworks = (labFormData.frontend_frameworks || []).map((f: string) => f.toLowerCase());
-        const repoStr = (labFormData.git_repo_starter_url || "").toLowerCase();
-
-        const isDjango = beFrameworks.some((f: string) => f.includes("django")) || repoStr.includes("django");
-        const isFastAPI = beFrameworks.some((f: string) => f.includes("fastapi")) || repoStr.includes("fastapi");
-        const isFlask = beFrameworks.some((f: string) => f.includes("flask")) || repoStr.includes("flask");
-        const isSpringBoot = beFrameworks.some((f: string) => f.includes("spring")) || repoStr.includes("spring");
-        const isNode = beFrameworks.some((f: string) => f.includes("node") || f.includes("express") || f.includes("nest")) ||
-          langs.some((l: string) => l.includes("javascript") || l.includes("typescript")) ||
-          feFrameworks.length > 0 || repoStr.includes("node") || repoStr.includes("express");
-        const isGo = langs.some((l: string) => l.includes("go") || l === "golang") || repoStr.includes("go");
-        const isPython = langs.some((l: string) => l.includes("python")) || repoStr.includes("python");
-
-        if (isDjango) {
-          if (!startupCmd) startupCmd = "python manage.py runserver 0.0.0.0:8000";
-          if (!testCmd) testCmd = "python manage.py test";
-        } else if (isFastAPI) {
-          if (!startupCmd) startupCmd = "uvicorn main:app --host 0.0.0.0 --port 8000 --reload";
-          if (!testCmd) testCmd = "pytest";
-        } else if (isFlask) {
-          if (!startupCmd) startupCmd = "python app.py";
-          if (!testCmd) testCmd = "pytest";
-        } else if (isSpringBoot) {
-          if (!startupCmd) startupCmd = "./mvnw spring-boot:run";
-          if (!testCmd) testCmd = "./mvnw test";
-        } else if (isGo) {
-          if (!startupCmd) startupCmd = "go run main.go";
-          if (!testCmd) testCmd = "go test ./...";
-        } else if (isNode) {
-          if (!startupCmd) startupCmd = "npm start";
-          if (!testCmd) testCmd = "npm test";
-        } else if (isPython) {
-          if (!startupCmd) startupCmd = "python main.py";
-          if (!testCmd) testCmd = "pytest";
-        } else {
-          if (!startupCmd) startupCmd = "npm start";
-          if (!testCmd) testCmd = "npm test";
-        }
-      }
-
-      setLabFormData((prev: any) => ({
-        ...prev,
-        startup_command: startupCmd,
-        test_command: testCmd,
-      }));
-      toast.success("Lifecycle commands generated successfully");
-    } catch (err: any) {
-      console.error("Failed to generate lifecycle commands", err);
-      toast.error(err?.message || "Failed to generate lifecycle commands.");
-    } finally {
-      setIsGeneratingLifecycle(false);
-    }
-  };
-
 
   // Task Helpers for System Design
   const addSystemDesignTask = () => {
@@ -976,22 +902,39 @@ export function QuestionBuilder({
 
       {/* STEP TABS (Identical to Question Bank Category Tabs) */}
       <div role="tablist" aria-label="Creation steps" className="mb-6 flex flex-wrap gap-x-6 gap-y-2 border-b border-border">
-        {STEPS.map((step, idx) => (
-          <Button
-            key={step.id}
-            role="tab"
-            aria-selected={currentStep === idx}
-            variant="ghost"
-            onClick={() => setCurrentStep(idx)}
-            className={`qb-tab -mb-px h-auto rounded-none border-b-2 px-0 pb-3 pt-0 text-[15px] leading-5 ${
-              currentStep === idx
-                ? "border-primary font-medium text-foreground"
-                : "border-transparent font-normal text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {idx + 1}. {step.label}
-          </Button>
-        ))}
+        {activeSteps.map((step, idx) => {
+          const isScanGateLocked = category === "LAB" && idx >= 3 && !repoInspection;
+          return (
+            <Button
+              key={step.id}
+              role="tab"
+              aria-selected={currentStep === idx}
+              variant="ghost"
+              onClick={() => {
+                if (isScanGateLocked) {
+                  toast.error("Please scan the starter repository in Step 3 before proceeding to Tasks or Scoring.");
+                  return;
+                }
+                setCurrentStep(idx);
+              }}
+              title={isScanGateLocked ? "Complete Codebase Scan in Step 3 to unlock" : undefined}
+              className={`qb-tab -mb-px h-auto rounded-none border-b-2 px-0 pb-3 pt-0 text-[15px] leading-5 ${
+                currentStep === idx
+                  ? "border-primary font-medium text-foreground"
+                  : isScanGateLocked
+                  ? "border-transparent font-normal text-muted-foreground/50 hover:text-muted-foreground cursor-not-allowed"
+                  : "border-transparent font-normal text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {idx + 1}. {step.label}
+              {isScanGateLocked && (
+                <span className="ml-1.5 rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase font-mono tracking-wider text-muted-foreground">
+                  Locked
+                </span>
+              )}
+            </Button>
+          );
+        })}
       </div>
 
       {/* STEP CONTENT */}
@@ -1004,7 +947,7 @@ export function QuestionBuilder({
             {/* Format Cards (Text-only, no logos or icons) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div
-                onClick={() => !editingId && setCategory("LAB")}
+                onClick={() => handleSelectCategory("LAB")}
                 className={`flex flex-col rounded-xl border p-5 transition-colors ${
                   category === "LAB"
                     ? "border-primary bg-accent"
@@ -1019,7 +962,7 @@ export function QuestionBuilder({
               </div>
 
               <div
-                onClick={() => !editingId && setCategory("SYSTEM_DESIGN")}
+                onClick={() => handleSelectCategory("SYSTEM_DESIGN")}
                 className={`flex flex-col rounded-xl border p-5 transition-colors ${
                   category === "SYSTEM_DESIGN"
                     ? "border-primary bg-accent"
@@ -1034,7 +977,7 @@ export function QuestionBuilder({
               </div>
 
               <div
-                onClick={() => !editingId && setCategory("KNOWLEDGE")}
+                onClick={() => handleSelectCategory("KNOWLEDGE")}
                 className={`flex flex-col rounded-xl border p-5 transition-colors ${
                   category === "KNOWLEDGE"
                     ? "border-primary bg-accent"
@@ -1465,295 +1408,105 @@ export function QuestionBuilder({
         )}
 
         {/* ========================================================================================= */}
-        {/* STEP 2: TASKS                                                                             */}
+        {/* STEP 2: WORKSPACE & COMMANDS (LAB) / TASKS (SYSTEM DESIGN & KNOWLEDGE)                    */}
         {/* ========================================================================================= */}
         {currentStep === 2 && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {category === "LAB" && (
               <>
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-base font-medium text-foreground">Tasks ({labFormData.tasks.length})</h3>
-                    <p className="text-sm text-muted-foreground">Break this lab into scored sub-tasks and milestones.</p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setScoringRulesModalOpen(true)}
-                      className="h-9 px-3 text-xs border-border bg-background text-foreground hover:bg-muted font-medium cursor-pointer"
-                    >
-                      Scoring rules
-                    </Button>
-                    <Button onClick={addLabTask} className="rec-btn">Add task</Button>
-                  </div>
-                </div>
-
-                {/* AI Assistant Action Bar */}
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card/60 p-3 text-xs">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-medium text-foreground">AI Assistant:</span>
-                    <button
-                      type="button"
-                      onClick={handleAISuggestTask}
-                      disabled={isAISuggesting || isAIBulkGenerating}
-                      className="qb-action text-xs text-foreground font-medium disabled:opacity-50 cursor-pointer"
-                    >
-                      {isAISuggesting ? "Suggesting..." : "Suggest new task"}
-                    </button>
-                    <span className="text-muted-foreground/40">|</span>
-                    <span className="text-muted-foreground">Generate:</span>
-                    <button
-                      type="button"
-                      onClick={() => handleAIGenerateBulkTasks(2)}
-                      disabled={isAISuggesting || isAIBulkGenerating}
-                      className="qb-action text-xs text-foreground font-medium disabled:opacity-50 cursor-pointer"
-                    >
-                      2 tasks
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleAIGenerateBulkTasks(3)}
-                      disabled={isAISuggesting || isAIBulkGenerating}
-                      className="qb-action text-xs text-foreground font-medium disabled:opacity-50 cursor-pointer"
-                    >
-                      3 tasks
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleAIGenerateBulkTasks(4)}
-                      disabled={isAISuggesting || isAIBulkGenerating}
-                      className="qb-action text-xs text-foreground font-medium disabled:opacity-50 cursor-pointer"
-                    >
-                      4 tasks
-                    </button>
-                  </div>
-                  {(isAIBulkGenerating || isAISuggesting) && (
-                    <span className="text-muted-foreground italic">
-                      {isAIBulkGenerating ? "Generating progressive task sequence..." : "Synthesizing lab task..."}
-                    </span>
-                  )}
-                </div>
-
-                {labFormData.tasks.length === 0 ? (
-                  <div className="rounded-xl border border-border bg-card p-10 text-center space-y-3">
-                    <p className="text-sm text-muted-foreground">No tasks added yet.</p>
-                    <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-                      <Button onClick={addLabTask} className="rec-btn">Add first task</Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleAISuggestTask}
-                        disabled={isAISuggesting || isAIBulkGenerating}
-                        className="h-10 px-4 text-sm border-border bg-background text-foreground hover:bg-muted font-medium cursor-pointer"
-                      >
-                        {isAISuggesting ? "Suggesting..." : "Suggest task with AI"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleAIGenerateBulkTasks(3)}
-                        disabled={isAISuggesting || isAIBulkGenerating}
-                        className="h-10 px-4 text-sm border-border bg-background text-foreground hover:bg-muted font-medium cursor-pointer"
-                      >
-                        {isAIBulkGenerating ? "Generating..." : "Generate 3 tasks with AI"}
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {labFormData.tasks.map((task: any, index: number) => (
-                      <div key={task.id || index} className="rounded-xl border border-border bg-card p-5 space-y-3">
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
-                          <span className="text-sm font-medium text-foreground">
-                            Task {index + 1}: {task.title || "Untitled"}
-                          </span>
-                          <div className="flex items-center gap-3">
-                            <button
-                              type="button"
-                              disabled={standardizingIndex === index}
-                              onClick={() => handleAIStandardizeTask(index)}
-                              className="qb-action text-xs text-muted-foreground hover:text-foreground disabled:opacity-50 cursor-pointer"
-                            >
-                              {standardizingIndex === index ? "Standardizing..." : "Standardize with AI"}
-                            </button>
-                            <button
-                              type="button"
-                              disabled={estimatingIndex === index}
-                              onClick={() => handleAIEstimateDuration(index)}
-                              className="qb-action text-xs text-muted-foreground hover:text-foreground disabled:opacity-50 cursor-pointer"
-                            >
-                              {estimatingIndex === index ? "Estimating..." : "Estimate duration"}
-                            </button>
-                            <Button
-                              variant="link"
-                              className="qb-action hover:text-destructive cursor-pointer"
-                              onClick={() => removeLabTask(index)}
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div>
-                            <label className="text-xs font-medium text-muted-foreground">Title *</label>
-                            <input
-                              value={task.title}
-                              onChange={(e) => updateLabTask(index, "title", e.target.value)}
-                              placeholder="e.g. Implement GET /api/orders endpoint"
-                              className="mt-1 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="text-xs font-medium text-muted-foreground">Description</label>
-                            <textarea
-                              rows={2}
-                              value={task.description}
-                              onChange={(e) => updateLabTask(index, "description", e.target.value)}
-                              placeholder="Task instructions and requirements..."
-                              className="mt-1 w-full rounded-lg border border-input bg-background p-3 text-sm text-foreground"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="text-xs font-medium text-muted-foreground">Reference Solution / Query</label>
-                            <textarea
-                              rows={2}
-                              value={getSolutionString(task.solution)}
-                              onChange={(e) => updateLabTask(index, "solution", e.target.value)}
-                              placeholder="SELECT * FROM orders WHERE ... or code snippet"
-                              className="mt-1 w-full rounded-lg border border-input bg-background p-3 text-xs font-mono text-foreground"
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div>
-                              <label className="text-xs font-medium text-muted-foreground">Difficulty</label>
-                              <select
-                                value={task.difficulty}
-                                onChange={(e) => updateLabTask(index, "difficulty", e.target.value)}
-                                className="mt-1 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground"
-                              >
-                                <option value="EASY">Easy</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="HARD">Hard</option>
-                              </select>
-                            </div>
-
-                            <div>
-                              <label className="text-xs font-medium text-muted-foreground">Marks</label>
-                              <input
-                                type="number"
-                                value={task.marks}
-                                onChange={(e) => updateLabTask(index, "marks", parseInt(e.target.value) || 0)}
-                                className="mt-1 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground"
-                              />
-                            </div>
-
-                            <div>
-                              <label className="text-xs font-medium text-muted-foreground">Duration (min)</label>
-                              <input
-                                type="number"
-                                value={task.duration_minutes}
-                                onChange={(e) =>
-                                  updateLabTask(index, "duration_minutes", parseInt(e.target.value) || 0)
-                                }
-                                className="mt-1 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground"
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="text-xs font-medium text-muted-foreground">Linked Task / Dependency</label>
-                            <select
-                              value={task.parent_task_id || task.parent_task || ""}
-                              onChange={(e) => updateLabTask(index, "parent_task_id", e.target.value || null)}
-                              className="mt-1 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground"
-                            >
-                              <option value="">None (Independent task)</option>
-                              {labFormData.tasks.map((otherTask: any, otherIdx: number) => {
-                                if (otherIdx === index) return null;
-                                const otherId = otherTask.id || `task_idx_${otherIdx}`;
-                                return (
-                                  <option key={otherId} value={otherId}>
-                                    Task {otherIdx + 1}: {otherTask.title || `Task ${otherIdx + 1}`}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Lifecycle Commands shifted to Step 3 */}
+                {/* Repository Codebase Inspection */}
                 <div className="rounded-xl border border-border bg-card p-5 space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
                     <div>
-                      <span className="text-base font-medium text-foreground">Lifecycle Commands</span>
+                      <span className="text-base font-medium text-foreground">Repository Codebase Scan</span>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        Commands executed in the candidate container for startup and automated test grading.
+                        Index the starter repository so AI Task Architect (Step 4) and Scoring Rules (Step 5) use your real files and imports.
                       </p>
                     </div>
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={handleGenerateLifecycleCommands}
-                      disabled={isGeneratingLifecycle}
-                      className="h-9 px-3 text-xs border-border bg-background text-foreground hover:bg-muted font-medium cursor-pointer flex items-center gap-1.5"
+                      onClick={handleInspectRepo}
+                      disabled={isInspectingRepo || !labFormData.git_repo_starter_url}
+                      className="h-9 px-3.5 text-xs border-border bg-background text-foreground hover:bg-muted font-medium cursor-pointer"
                     >
-                      {isGeneratingLifecycle ? (
-                        <>
-                          <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                          <span>Generating commands...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-3.5 w-3.5 text-primary" />
-                          <span>Generate lifecycle commands</span>
-                        </>
-                      )}
+                      {isInspectingRepo
+                        ? "Scanning repository…"
+                        : repoInspection
+                        ? "Rescan repository"
+                        : "Scan repository"}
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground">Startup Command</label>
-                      <input
-                        value={labFormData.startup_command}
-                        onChange={(e) => setLabFormData({ ...labFormData, startup_command: e.target.value })}
-                        placeholder="npm start or python main.py"
-                        className="mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground"
-                      />
+                  {!labFormData.git_repo_starter_url ? (
+                    <div className="rounded-lg border border-dashed border-border p-4 text-xs text-muted-foreground space-y-2">
+                      <p className="font-medium text-foreground">No starter repository configured.</p>
+                      <p>Go back to Step 2 (Repository &amp; Stack) to enter or select a GitHub repository URL. A starter repository scan is required before proceeding to Tasks.</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setCurrentStep(1)}
+                        className="h-7 text-xs px-2.5 mt-1 cursor-pointer"
+                      >
+                        ← Back to Step 2
+                      </Button>
                     </div>
-
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground">Test Command</label>
-                      <input
-                        value={labFormData.test_command}
-                        onChange={(e) => setLabFormData({ ...labFormData, test_command: e.target.value })}
-                        placeholder="npm test or pytest"
-                        className="mt-1.5 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground"
-                      />
+                  ) : repoInspection ? (
+                    <div className="space-y-3 text-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background px-3.5 py-2.5">
+                        <div>
+                          <span className="font-mono font-medium text-foreground">
+                            {repoInspection.full_name}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {" "}· {repoInspection.default_branch} · {repoInspection.private ? "Private" : "Public"}
+                            {repoInspection.language ? ` · ${repoInspection.language}` : ""}
+                          </span>
+                        </div>
+                        <span className="text-muted-foreground">
+                          {repoInspection.file_count} files · {Object.keys(repoInspection.key_files || {}).length} key files indexed
+                        </span>
+                      </div>
+                      {repoInspection.description && (
+                        <p className="text-muted-foreground">{repoInspection.description}</p>
+                      )}
+                      {repoInspection.files && repoInspection.files.length > 0 && (
+                        <div className="max-h-40 overflow-y-auto rounded-lg border border-border bg-background p-3 font-mono text-[11px] text-foreground grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
+                          {repoInspection.files.slice(0, 60).map((f) => (
+                            <div key={f} className="truncate">
+                              {f}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-2 border-t border-border">
-                    <input
-                      type="checkbox"
-                      id="allow_task_selection_cb"
-                      checked={labFormData.allow_task_selection !== false}
-                      onChange={(e) => setLabFormData({ ...labFormData, allow_task_selection: e.target.checked })}
-                      className="h-4 w-4 rounded border-border"
-                    />
-                    <label htmlFor="allow_task_selection_cb" className="text-sm text-foreground cursor-pointer">
-                      Allow recruiters to select individual tasks when assigning this lab in an evaluation
-                    </label>
-                  </div>
+                  ) : (
+                    <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <span className="text-foreground">
+                          Target repo:{" "}
+                          <span className="font-mono font-medium text-foreground">{labFormData.git_repo_starter_url}</span>{" "}
+                          <span className="text-muted-foreground">({labFormData.git_repo_starter_branch || "main"})</span>
+                        </span>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
+                          Scan required before Step 4
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        The repository must be scanned before proceeding. AI Task Architect (Step 4) and Live Scoring (Step 5) use the indexed source files and dependencies to generate tailored challenge tasks.
+                      </p>
+                      <div className="pt-1">
+                        <Button
+                          type="button"
+                          onClick={handleInspectRepo}
+                          disabled={isInspectingRepo}
+                          className="h-8 px-4 text-xs rec-btn cursor-pointer"
+                        >
+                          {isInspectingRepo ? "Scanning repository…" : "Scan repository now"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -1911,22 +1664,43 @@ export function QuestionBuilder({
         )}
 
         {/* ========================================================================================= */}
-        {/* STEP 3: REVIEW                                                                            */}
+        {/* STEP 3: TASKS AI CHAT (LAB) / REVIEW (SYSTEM DESIGN & KNOWLEDGE)                          */}
         {/* ========================================================================================= */}
-        {currentStep === 3 && (
+        {currentStep === 3 && category === "LAB" && (
+          <LabTasksChatStep
+            labFormData={labFormData}
+            repoInspection={repoInspection}
+            getLabContext={getLabContext}
+            onTasksChange={(nextTasks, meta) => {
+              setLabFormData((prev: any) => ({
+                ...prev,
+                tasks: nextTasks,
+                ...(meta?.marks ? { marks: meta.marks } : {}),
+                ...(meta?.duration_minutes ? { duration_minutes: meta.duration_minutes } : {}),
+              }));
+            }}
+            onAddManualTask={addLabTask}
+            onUpdateTask={updateLabTask}
+            onRemoveTask={removeLabTask}
+            onStandardizeTask={handleAIStandardizeTask}
+            onEstimateDuration={handleAIEstimateDuration}
+            standardizingIndex={standardizingIndex}
+            estimatingIndex={estimatingIndex}
+            onProceedToScoring={() => setCurrentStep(4)}
+            getSolutionString={getSolutionString}
+          />
+        )}
+
+        {currentStep === 3 && category !== "LAB" && (
           <div className="space-y-6">
             <div className="rounded-xl border border-border bg-card p-5 space-y-3">
               <div className="text-sm leading-5 text-muted-foreground">
                 {categoryLabels[category]} ·{" "}
-                {category === "LAB"
-                  ? labFormData.difficulty
-                  : category === "SYSTEM_DESIGN"
+                {category === "SYSTEM_DESIGN"
                   ? systemDesignFormData.difficulty
                   : knowledgeFormData.difficulty}{" "}
                 ·{" "}
-                {category === "LAB"
-                  ? `${labFormData.marks} marks · ${labFormData.duration_minutes} min`
-                  : category === "SYSTEM_DESIGN"
+                {category === "SYSTEM_DESIGN"
                   ? `${systemDesignFormData.marks} marks · ${systemDesignFormData.duration_minutes} min`
                   : `${knowledgeFormData.marks} marks · ${knowledgeFormData.duration_minutes} min`}
               </div>
@@ -1936,9 +1710,7 @@ export function QuestionBuilder({
               </h2>
 
               <p className="text-sm leading-6 text-secondary-foreground whitespace-pre-wrap">
-                {category === "LAB"
-                  ? labFormData.description || "No description provided."
-                  : category === "SYSTEM_DESIGN"
+                {category === "SYSTEM_DESIGN"
                   ? systemDesignFormData.description || "No description provided."
                   : knowledgeFormData.content || "No content provided."}
               </p>
@@ -1947,19 +1719,6 @@ export function QuestionBuilder({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="rounded-xl border border-border bg-card p-5 space-y-2 text-sm">
                 <div className="font-medium text-foreground pb-2 border-b border-border">Configuration Details</div>
-                {category === "LAB" && (
-                  <>
-                    <div className="text-muted-foreground">
-                      Repository: <span className="text-foreground">{labFormData.git_repo_starter_url || "None"}</span>
-                    </div>
-                    <div className="text-muted-foreground">
-                      Branch: <span className="text-foreground">{labFormData.git_repo_starter_branch || "main"}</span>
-                    </div>
-                    <div className="text-muted-foreground">
-                      Startup: <span className="text-foreground">{labFormData.startup_command || "None"}</span>
-                    </div>
-                  </>
-                )}
                 {category === "SYSTEM_DESIGN" && (
                   <>
                     <div className="text-muted-foreground">
@@ -1984,16 +1743,6 @@ export function QuestionBuilder({
 
               <div className="rounded-xl border border-border bg-card p-5 space-y-2 text-sm">
                 <div className="font-medium text-foreground pb-2 border-b border-border">Tasks and Deliverables</div>
-                {category === "LAB" && (
-                  <div className="space-y-1">
-                    <div className="text-foreground font-medium">{labFormData.tasks.length} tasks configured</div>
-                    {labFormData.tasks.map((t: any, idx: number) => (
-                      <div key={idx} className="text-xs text-muted-foreground truncate">
-                        • {t.title || `Task ${idx + 1}`} ({t.marks} marks)
-                      </div>
-                    ))}
-                  </div>
-                )}
                 {category === "SYSTEM_DESIGN" && (
                   <div className="space-y-1">
                     <div className="text-foreground font-medium">{systemDesignFormData.tasks.length} deliverables configured</div>
@@ -2031,6 +1780,36 @@ export function QuestionBuilder({
             </div>
           </div>
         )}
+
+        {/* ========================================================================================= */}
+        {/* STEP 4: SCORING RULES & LIVE TESTING (ENGINEERING LAB ONLY)                               */}
+        {/* ========================================================================================= */}
+        {currentStep === 4 && category === "LAB" && (
+          <LabScoringLiveTestStep
+            labFormData={labFormData}
+            repoInspection={repoInspection}
+            onRepoInspected={setRepoInspection}
+            getLabContext={getLabContext}
+            scoringRules={scoringRules}
+            onScoringRulesChange={setScoringRules}
+            onApplyStartupCommand={(cmd) => {
+              setLabFormData((prev: any) => ({ ...prev, startup_command: cmd }));
+            }}
+            onApplyTestCommand={(cmd) => {
+              setLabFormData((prev: any) => ({ ...prev, test_command: cmd }));
+            }}
+            onApplySolution={(solutionFiles) => {
+              setLabFormData((prev: any) => ({ ...prev, solution: solutionFiles }));
+            }}
+            onToggleTaskSelection={(allow) => {
+              setLabFormData((prev: any) => ({ ...prev, allow_task_selection: allow }));
+            }}
+            onSave={handleSave}
+            isSaving={isSaving}
+            canSave={canSave}
+            editingId={editingId}
+          />
+        )}
       </div>
 
       {/* FOOTER NAVIGATION */}
@@ -2044,12 +1823,30 @@ export function QuestionBuilder({
           ← Previous
         </Button>
 
-        {currentStep < STEPS.length - 1 ? (
+        {currentStep < activeSteps.length - 1 ? (
           <Button
-            onClick={() => setCurrentStep((s) => Math.min(STEPS.length - 1, s + 1))}
+            onClick={() => {
+              if (category === "LAB" && currentStep === 2 && !repoInspection) {
+                toast.error("Please scan the starter repository before proceeding to Tasks.");
+                return;
+              }
+              setCurrentStep((s) => Math.min(activeSteps.length - 1, s + 1));
+            }}
+            disabled={
+              category === "LAB" && currentStep === 2 && (!repoInspection || isInspectingRepo)
+            }
+            title={
+              category === "LAB" && currentStep === 2 && !repoInspection
+                ? "Scan the repository in Step 3 to proceed"
+                : undefined
+            }
             className="rec-btn"
           >
-            Next step →
+            {category === "LAB" && currentStep === 2 && isInspectingRepo
+              ? "Scanning repository…"
+              : category === "LAB" && currentStep === 2 && !repoInspection
+              ? "Scan repository to continue →"
+              : "Next step →"}
           </Button>
         ) : (
           <Button

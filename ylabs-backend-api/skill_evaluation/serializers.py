@@ -382,6 +382,8 @@ class LabQuestionBankSerializer(serializers.ModelSerializer):
                     d = "PAYMENT"
                 elif d in ("SUPPLYCHAIN", "LOGISTICS"):
                     d = "SUPPLY_CHAIN"
+                valid_domains = [c[0] for c in QuestionDomain.choices]
+                data["domain"] = d if d in valid_domains else QuestionDomain.OTHER
             if "solution_files" in data and isinstance(data["solution_files"], list):
                 sol_dict = {}
                 for item in data["solution_files"]:

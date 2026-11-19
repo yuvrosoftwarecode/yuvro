@@ -2452,6 +2452,460 @@ async def run_test_command_endpoint(body: RunTestCommandRequest):
         if mounted_rules and target_scoring_rules.exists():
             shutil.rmtree(target_scoring_rules, ignore_errors=True)
 
+
+# =============================================================================
+# Temporary Verification Workspaces (Recruiter Step 5: Scoring Rules Live Test)
+# =============================================================================
+
+import uuid as _uuid
+
+
+class TempWorkspaceCreateRequest(BaseModel):
+    repo_url: Optional[str] = None
+    branch: str = "main"
+    auth_token: Optional[str] = None
+    seed_files: Optional[Dict[str, str]] = None
+    scoring_files: Optional[Dict[str, str]] = None
+    setup_command: Optional[str] = None
+
+
+class TempRunScoringRequest(BaseModel):
+    temp_workspace_id: str
+    test_command: str
+    scoring_files: Dict[str, str] = {}
+    mode: str = "fail_case"  # "fail_case" | "pass_case"
+    solution_files: Optional[Dict[str, str]] = None
+    restore_after: bool = True
+
+
+class TempWorkspaceResetRequest(BaseModel):
+    temp_workspace_id: str
+
+
+def _temp_verify_root() -> Path:
+    root = WORKSPACES_ROOT / "temp_verify"
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _temp_workspace_dir(temp_id: str) -> Path:
+    if not _re.match(r"^[a-zA-Z0-9_-]{4,80}$", temp_id or ""):
+        raise HTTPException(status_code=400, detail="Invalid temp_workspace_id")
+    ws = (_temp_verify_root() / temp_id).resolve()
+    if not str(ws).startswith(str(_temp_verify_root().resolve())):
+        raise HTTPException(status_code=400, detail="Invalid workspace path")
+    return ws
+
+
+def _cleanup_stale_temp_workspaces(max_age_seconds: int = 7200) -> None:
+    try:
+        root = _temp_verify_root()
+        now = time.time()
+        for child in root.iterdir():
+            if child.is_dir():
+                try:
+                    mtime = child.stat().st_mtime
+                    if now - mtime > max_age_seconds:
+                        shutil.rmtree(child, ignore_errors=True)
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
+
+def _collect_temp_workspace_snapshot(ws: Path, max_total_bytes: int = 28000):
+    ignored_dirs = {
+        ".git", "node_modules", "__pycache__", ".venv", "venv",
+        "yuvro_scoring_rules", "scoring_rules", "dist", "build", ".next", ".pytest_cache",
+    }
+    text_exts = {
+        ".py", ".js", ".ts", ".jsx", ".tsx", ".json", ".sql", ".go", ".java",
+        ".md", ".txt", ".yml", ".yaml", ".toml", ".cfg", ".ini", ".sh", ".html", ".css",
+    }
+    priority_names = {
+        "requirements.txt", "package.json", "manage.py", "settings.py", "urls.py",
+        "models.py", "views.py", "serializers.py", "app.py", "main.py", "index.js",
+        "server.js", "app.js", "index.ts", "server.ts", "go.mod", "pom.xml", "readme.md",
+    }
+
+    all_files: List[str] = []
+    candidate_files: List[tuple[int, str, Path]] = []
+
+    for root_dir, dirs, filenames in os.walk(ws):
+        dirs[:] = sorted(d for d in dirs if d not in ignored_dirs)
+        for fname in sorted(filenames):
+            if fname.endswith(".pyc") or fname == ".DS_Store":
+                continue
+            fpath = Path(root_dir) / fname
+            rel = str(fpath.relative_to(ws)).replace("\\", "/")
+            all_files.append(rel)
+            ext = fpath.suffix.lower()
+            if ext in text_exts or fname.lower() in priority_names:
+                prio = 0 if fname.lower() in priority_names else (1 if ext in {".py", ".js", ".ts", ".go", ".java", ".sql"} else 2)
+                candidate_files.append((prio, rel, fpath))
+
+    candidate_files.sort(key=lambda item: (item[0], len(item[1]), item[1]))
+    key_files: Dict[str, str] = {}
+    used_bytes = 0
+    for _, rel, fpath in candidate_files:
+        if used_bytes >= max_total_bytes:
+            break
+        try:
+            size = fpath.stat().st_size
+            if size > 12000:
+                continue
+            content = fpath.read_text(encoding="utf-8", errors="replace")
+            if used_bytes + len(content) > max_total_bytes:
+                remaining = max_total_bytes - used_bytes
+                if remaining > 400:
+                    key_files[rel] = content[:remaining] + "\n# ... (truncated)"
+                    used_bytes = max_total_bytes
+                break
+            key_files[rel] = content
+            used_bytes += len(content)
+        except Exception:
+            pass
+
+    return all_files[:300], key_files
+
+
+def _reset_temp_to_pristine(ws: Path) -> None:
+    if (ws / ".git").exists():
+        subprocess.run(
+            ["git", "-c", "safe.directory=*", "reset", "--hard", "yuvro-pristine-baseline"],
+            cwd=str(ws),
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-c", "safe.directory=*", "clean", "-fd"],
+            cwd=str(ws),
+            capture_output=True,
+        )
+
+
+def _is_long_running_server_cmd(cmd: str) -> bool:
+    lower = (cmd or "").lower()
+    server_markers = [
+        "runserver", "npm start", "npm run dev", "yarn dev", "vite",
+        "uvicorn", "gunicorn", "nodemon", "flask run", "next dev", "node server",
+    ]
+    return any(m in lower for m in server_markers)
+
+
+@workspace_router.post("/temp/create")
+async def create_temp_workspace_endpoint(body: TempWorkspaceCreateRequest):
+    """Creates an isolated temporary workspace from a starter repo for live scoring rule verification."""
+    _cleanup_stale_temp_workspaces()
+
+    temp_id = f"tmp_{_uuid.uuid4().hex[:14]}"
+    ws = _temp_workspace_dir(temp_id)
+    ws.mkdir(parents=True, exist_ok=True)
+
+    clone_log = ""
+    setup_log = ""
+    branch_used = (body.branch or "main").strip() or "main"
+
+    try:
+        if body.repo_url and body.repo_url.strip():
+            clean_url = body.repo_url.strip()
+            clone_url = clean_url
+            if body.auth_token and clean_url.startswith("https://github.com/"):
+                clone_url = clean_url.replace(
+                    "https://github.com/",
+                    f"https://x-access-token:{body.auth_token.strip()}@github.com/",
+                    1,
+                )
+
+            clone_env = os.environ.copy()
+            clone_env["GIT_TERMINAL_PROMPT"] = "0"
+
+            proc = await asyncio.create_subprocess_exec(
+                "git", "clone", "--depth", "1", "--branch", branch_used, clone_url, str(ws),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                env=clone_env,
+            )
+            out, err = await asyncio.wait_for(proc.communicate(), timeout=45.0)
+            if proc.returncode != 0:
+                # Retry without explicit --branch (uses repo default branch)
+                shutil.rmtree(ws, ignore_errors=True)
+                ws.mkdir(parents=True, exist_ok=True)
+                proc = await asyncio.create_subprocess_exec(
+                    "git", "clone", "--depth", "1", clone_url, str(ws),
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    env=clone_env,
+                )
+                out, err = await asyncio.wait_for(proc.communicate(), timeout=45.0)
+
+            raw_log = (out.decode(errors="replace") + "\n" + err.decode(errors="replace")).strip()
+            # Redact token if ever echoed
+            if body.auth_token:
+                raw_log = raw_log.replace(body.auth_token.strip(), "***")
+            clone_log = raw_log
+
+            if proc.returncode != 0:
+                shutil.rmtree(ws, ignore_errors=True)
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Failed to clone starter repository ({clean_url}): {clone_log[:400]}",
+                )
+
+            # Immediately scrub token from .git/config remote URL
+            subprocess.run(
+                ["git", "-c", "safe.directory=*", "remote", "set-url", "origin", clean_url],
+                cwd=str(ws),
+                capture_output=True,
+            )
+
+        # Write seed_files if provided (or if no repo_url)
+        if body.seed_files:
+            for rel_path, content in body.seed_files.items():
+                target = _safe_path(ws, rel_path)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content, encoding="utf-8")
+
+        # Remove any pre-existing yuvro_scoring_rules before creating pristine baseline
+        existing_rules = ws / "yuvro_scoring_rules"
+        if existing_rules.exists():
+            shutil.rmtree(existing_rules, ignore_errors=True)
+
+        # Create pristine baseline git tag so Fail/Pass cases always start from exact starter code
+        if not (ws / ".git").exists():
+            subprocess.run(["git", "init"], cwd=str(ws), capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "config", "user.email", "verify@yuvro.ai"], cwd=str(ws), capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "config", "user.name", "Yuvro Verifier"], cwd=str(ws), capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "add", "-A"], cwd=str(ws), capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "commit", "--allow-empty", "-m", "Pristine starter baseline"], cwd=str(ws), capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "tag", "-f", "yuvro-pristine-baseline"], cwd=str(ws), capture_output=True)
+
+        # Optional one-shot setup command (skip long-running dev servers)
+        if body.setup_command and body.setup_command.strip():
+            if _is_long_running_server_cmd(body.setup_command):
+                setup_log = f"Skipped server startup command during temp workspace prep: {body.setup_command}"
+            else:
+                try:
+                    sproc = await asyncio.create_subprocess_shell(
+                        body.setup_command,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                        cwd=str(ws),
+                    )
+                    sout, serr = await asyncio.wait_for(sproc.communicate(), timeout=45.0)
+                    setup_log = (sout.decode(errors="replace") + "\n" + serr.decode(errors="replace")).strip()
+                except asyncio.TimeoutError:
+                    try:
+                        kill_process_tree(sproc.pid)
+                    except Exception:
+                        pass
+                    setup_log = "Setup command timed out (45s); continuing with workspace."
+
+        # Snapshot files before mounting scoring_files
+        file_list, key_files = _collect_temp_workspace_snapshot(ws)
+
+        # Write initial scoring_files if provided
+        if body.scoring_files:
+            for rel_path, content in body.scoring_files.items():
+                target = _safe_path(ws, rel_path)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content, encoding="utf-8")
+
+        return {
+            "temp_workspace_id": temp_id,
+            "branch": branch_used,
+            "file_count": len(file_list),
+            "files": file_list,
+            "key_files": key_files,
+            "clone_log": clone_log or "Workspace initialized successfully.",
+            "setup_log": setup_log,
+        }
+    except HTTPException:
+        raise
+    except asyncio.TimeoutError:
+        shutil.rmtree(ws, ignore_errors=True)
+        raise HTTPException(status_code=504, detail="Repository clone timed out (45s limit).")
+    except Exception as e:
+        shutil.rmtree(ws, ignore_errors=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@workspace_router.post("/temp/run-scoring")
+async def run_temp_scoring_endpoint(body: TempRunScoringRequest):
+    """
+    Runs the scoring rules inside the temporary verification workspace.
+    - mode == 'fail_case': Runs against pristine unmodified starter repo (expects all tasks to FAIL, score 0).
+    - mode == 'pass_case': Applies solution_files over pristine starter repo, runs scoring rules (expects all tasks to PASS, full score).
+    """
+    ws = _temp_workspace_dir(body.temp_workspace_id)
+    if not ws.exists():
+        raise HTTPException(status_code=404, detail="Temporary workspace not found or expired. Please recreate it.")
+
+    started = time.time()
+    applied_files: List[str] = []
+
+    try:
+        # Always reset to pristine baseline first for deterministic isolation
+        _reset_temp_to_pristine(ws)
+
+        # For pass_case, apply the candidate/reference solution patches
+        if body.mode == "pass_case" and body.solution_files:
+            for rel_path, content in body.solution_files.items():
+                target = _safe_path(ws, rel_path)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content, encoding="utf-8")
+                applied_files.append(rel_path)
+
+            # Auto-apply database migrations for Django projects so tables exist for tests
+            if (ws / "manage.py").exists():
+                try:
+                    make_migs = await asyncio.create_subprocess_exec(
+                        "python", "manage.py", "makemigrations",
+                        cwd=str(ws),
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                    )
+                    await asyncio.wait_for(make_migs.communicate(), timeout=20.0)
+
+                    mig = await asyncio.create_subprocess_exec(
+                        "python", "manage.py", "migrate", "--noinput",
+                        cwd=str(ws),
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                    )
+                    await asyncio.wait_for(mig.communicate(), timeout=20.0)
+                except Exception as mig_err:
+                    logger.warning(f"Pass case auto-migration skipped or error: {mig_err}")
+
+        # Write latest scoring rules files
+        rules_dir = ws / "yuvro_scoring_rules"
+        if rules_dir.exists():
+            shutil.rmtree(rules_dir, ignore_errors=True)
+        for rel_path, content in (body.scoring_files or {}).items():
+            target = _safe_path(ws, rel_path)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(content, encoding="utf-8")
+
+        proc = await asyncio.create_subprocess_shell(
+            body.test_command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=str(ws),
+        )
+        try:
+            stdout_bytes, stderr_bytes = await asyncio.wait_for(proc.communicate(), timeout=45.0)
+        except asyncio.TimeoutError:
+            try:
+                kill_process_tree(proc.pid)
+            except Exception:
+                pass
+            return {
+                "mode": body.mode,
+                "verified": False,
+                "valid_json": False,
+                "exit_code": -1,
+                "duration_ms": int((time.time() - started) * 1000),
+                "stdout": "",
+                "stderr": "Test command timed out (45s limit exceeded).",
+                "data": None,
+                "total_score": 0,
+                "max_possible_score": 100,
+                "percentage": 0,
+                "applied_files": applied_files,
+                "verdict_reason": "Execution timed out.",
+            }
+
+        duration_ms = int((time.time() - started) * 1000)
+        stdout = stdout_bytes.decode(errors="replace")
+        stderr = stderr_bytes.decode(errors="replace")
+        exit_code = proc.returncode
+
+        parsed_data = None
+        try:
+            parsed_data = json.loads(stdout.strip())
+        except Exception:
+            json_match = _re.search(r'(\{[\s\S]*"tasks"[\s\S]*\})', stdout)
+            if json_match:
+                try:
+                    parsed_data = json.loads(json_match.group(1))
+                except Exception:
+                    pass
+
+        valid_json = isinstance(parsed_data, dict) and isinstance(parsed_data.get("tasks"), dict) and len(parsed_data["tasks"]) > 0
+        total_score = 0
+        max_possible_score = 100
+        percentage = 0
+        verified = False
+        verdict_reason = ""
+
+        if valid_json:
+            tasks_map = parsed_data["tasks"]
+            total_score = parsed_data.get("total_score", 0)
+            max_possible_score = parsed_data.get("max_possible_score", 100) or 100
+            if max_possible_score > 0:
+                percentage = int(round((total_score / max_possible_score) * 100))
+
+            task_results = [str(v.get("result", "")).lower() for v in tasks_map.values() if isinstance(v, dict)]
+            if body.mode == "fail_case":
+                all_failed = len(task_results) > 0 and all(r == "failed" for r in task_results)
+                verified = all_failed and total_score == 0
+                if verified:
+                    verdict_reason = f"Starter repo fails all {len(task_results)} task(s) as expected (0/{max_possible_score})."
+                else:
+                    passed_cnt = sum(1 for r in task_results if r == "passed")
+                    verdict_reason = f"Warning: {passed_cnt}/{len(task_results)} task(s) passed on unmodified starter code ({total_score}/{max_possible_score}). Scoring tests may be too lenient."
+            else:
+                all_passed = len(task_results) > 0 and all(r == "passed" for r in task_results)
+                verified = all_passed and total_score >= max_possible_score
+                if verified:
+                    verdict_reason = f"Reference solution passes all {len(task_results)} task(s) ({total_score}/{max_possible_score})."
+                else:
+                    failed_cnt = sum(1 for r in task_results if r != "passed")
+                    verdict_reason = f"{failed_cnt}/{len(task_results)} task(s) failed against the reference solution ({total_score}/{max_possible_score})."
+        else:
+            verdict_reason = "Scoring command did not output valid Yuvro JSON ({ tasks, total_score, max_possible_score })."
+
+        return {
+            "mode": body.mode,
+            "verified": verified,
+            "valid_json": valid_json,
+            "exit_code": exit_code,
+            "duration_ms": duration_ms,
+            "stdout": stdout,
+            "stderr": stderr,
+            "data": parsed_data,
+            "total_score": total_score,
+            "max_possible_score": max_possible_score,
+            "percentage": percentage,
+            "applied_files": applied_files,
+            "verdict_reason": verdict_reason,
+        }
+    finally:
+        if body.restore_after:
+            try:
+                _reset_temp_to_pristine(ws)
+            except Exception:
+                pass
+
+
+@workspace_router.post("/temp/reset")
+async def reset_temp_workspace_endpoint(body: TempWorkspaceResetRequest):
+    """Resets the temporary verification workspace back to pristine starter repo state."""
+    ws = _temp_workspace_dir(body.temp_workspace_id)
+    if not ws.exists():
+        raise HTTPException(status_code=404, detail="Temporary workspace not found.")
+    _reset_temp_to_pristine(ws)
+    file_list, _ = _collect_temp_workspace_snapshot(ws)
+    return {"success": True, "temp_workspace_id": body.temp_workspace_id, "file_count": len(file_list)}
+
+
+@workspace_router.delete("/temp/{temp_workspace_id}")
+async def delete_temp_workspace_endpoint(temp_workspace_id: str):
+    """Deletes a temporary verification workspace."""
+    ws = _temp_workspace_dir(temp_workspace_id)
+    if ws.exists():
+        shutil.rmtree(ws, ignore_errors=True)
+    return {"success": True, "deleted": temp_workspace_id}
+
 @workspace_router.post("/database_run")
 async def database_run_endpoint(body: DatabaseRunRequest):
     ws = _workspace_dir(body.user_id, body.lab_id, body.sprint_id, getattr(body, "evaluation_id", None))

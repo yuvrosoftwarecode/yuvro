@@ -9,6 +9,7 @@ from .prompts import (
     BULK_TASKS_SYSTEM_PROMPT,
     ESTIMATE_DURATION_SYSTEM_PROMPT,
     LIFECYCLE_COMMANDS_SYSTEM_PROMPT,
+    TASK_CHAT_SYSTEM_PROMPT,
 )
 
 logger = logging.getLogger(__name__)
@@ -327,4 +328,119 @@ Please generate the optimal `startup_command` and `test_command` for this lab.""
 
         data["provider"] = self.provider
         return data
+
+    async def chat_tasks(
+        self,
+        lab_context: Dict[str, Any],
+        current_tasks: Optional[List[Dict[str, Any]]] = None,
+        messages: Optional[List[Dict[str, str]]] = None,
+        user_message: str = "",
+    ) -> Dict[str, Any]:
+        """Conversational AI Task Architect for Step 4 with structured task actions and next-action suggestions."""
+        tasks_list = current_tasks or []
+        history = (messages or [])[-8:]
+
+        repo_files = lab_context.get("repo_files") or {}
+        repo_tree = lab_context.get("repo_tree") or []
+        repo_block = ""
+        if repo_tree:
+            repo_block += f"\nStarter Repo Files ({len(repo_tree)} total): {', '.join(repo_tree[:60])}\n"
+        if isinstance(repo_files, dict) and repo_files:
+            snippets = []
+            used = 0
+            for path, content in repo_files.items():
+                if used >= 9000:
+                    break
+                piece = f"--- {path} ---\n{str(content)[:2500]}"
+                snippets.append(piece)
+                used += len(piece)
+            repo_block += "\nKEY REPOSITORY FILES:\n" + "\n\n".join(snippets)
+
+        current_tasks_text = "None added yet."
+        if tasks_list:
+            lines = []
+            for idx, t in enumerate(tasks_list):
+                lines.append(
+                    f"Task {idx + 1}: {t.get('title') or 'Untitled'} "
+                    f"[{t.get('difficulty', 'MEDIUM')}, {t.get('marks', 0)} marks, {t.get('duration_minutes', 15)} min]\n"
+                    f"  Description: {(t.get('description') or '')[:400]}\n"
+                    f"  Solution: {str(t.get('solution') or '')[:250]}"
+                )
+            current_tasks_text = "\n".join(lines)
+
+        history_text = ""
+        if history:
+            history_lines = [
+                f"{str(m.get('role', 'user')).upper()}: {str(m.get('content', ''))[:800]}"
+                for m in history
+            ]
+            history_text = "\nCONVERSATION HISTORY:\n" + "\n".join(history_lines) + "\n"
+
+        prompt = f"""LAB CONTEXT:
+Title: {lab_context.get('title', 'Engineering Lab')}
+Description: {lab_context.get('description', '')}
+Domain: {lab_context.get('domain', 'BACKEND')}
+Lab Type: {lab_context.get('type', 'BACKEND')}
+Scenario: {lab_context.get('scenario', 'FEATURE_DEVELOPMENT')}
+Difficulty: {lab_context.get('difficulty', 'MEDIUM')}
+Total Lab Marks: {lab_context.get('marks', 100)}
+Total Lab Duration: {lab_context.get('duration_minutes', 45)} minutes
+Programming Languages: {', '.join(lab_context.get('programming_languages', []) or ['Not specified'])}
+Backend Frameworks: {', '.join(lab_context.get('backend_frameworks', []) or ['Not specified'])}
+Frontend Frameworks: {', '.join(lab_context.get('frontend_frameworks', []) or ['Not specified'])}
+Databases: {', '.join(lab_context.get('databases', []) or ['Not specified'])}
+Starter Repo URL: {lab_context.get('git_repo_starter_url', 'Not configured')}
+Startup Command: {lab_context.get('startup_command', 'Not set')}
+Test Command: {lab_context.get('test_command', 'Not set')}
+{repo_block}
+
+CURRENT LAB TASKS ({len(tasks_list)}):
+{current_tasks_text}
+{history_text}
+RECRUITER MESSAGE:
+{user_message}
+
+Respond with clean JSON containing `reply`, `proposed_action`, and `next_actions`."""
+
+        res = await self.client.agenerate(
+            prompt=prompt,
+            system_prompt=TASK_CHAT_SYSTEM_PROMPT,
+            temperature=0.3,
+            max_tokens=4500,
+        )
+        parsed = _clean_json_response(res.get("content", ""))
+        if not isinstance(parsed, dict):
+            parsed = {"reply": str(parsed)}
+
+        proposed = parsed.get("proposed_action")
+        if not isinstance(proposed, dict):
+            proposed = {"type": "none", "label": "", "task_index": None, "tasks": []}
+        else:
+            proposed.setdefault("type", "none")
+            proposed.setdefault("label", "Apply changes")
+            proposed.setdefault("task_index", None)
+            if not isinstance(proposed.get("tasks"), list):
+                proposed["tasks"] = []
+
+        next_actions = parsed.get("next_actions")
+        if not isinstance(next_actions, list) or len(next_actions) == 0:
+            if len(tasks_list) == 0 and len(proposed.get("tasks", [])) == 0:
+                next_actions = [
+                    {"label": "Generate 3 progressive tasks", "prompt": "Generate 3 progressive tasks matching the lab description and repository."},
+                    {"label": "Suggest 1 starter task", "prompt": "Suggest 1 focused starter task based on the repository."},
+                    {"label": "Generate 2 tasks", "prompt": "Generate 2 concise tasks covering core implementation and edge cases."},
+                ]
+            else:
+                next_actions = [
+                    {"label": "Standardize all tasks", "prompt": "Standardize all tasks with clear requirements, edge cases, and reference solutions."},
+                    {"label": "Estimate durations", "prompt": "Review and calibrate realistic completion durations in minutes for every task."},
+                    {"label": "Proceed to Scoring & Testing", "action": "next_step"},
+                ]
+
+        return {
+            "reply": parsed.get("reply") or "Here is my recommendation based on your lab setup.",
+            "proposed_action": proposed,
+            "next_actions": next_actions[:4],
+            "provider": res.get("provider", self.provider),
+        }
 

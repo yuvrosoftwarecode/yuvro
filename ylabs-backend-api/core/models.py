@@ -49,6 +49,12 @@ class QuestionDomain(models.TextChoices):
     PAYMENT = "PAYMENT", "Payment"
     SUPPLY_CHAIN = "SUPPLY_CHAIN", "Supply Chain"
     ERP = "ERP", "ERP"
+    BACKEND = "BACKEND", "Backend Engineering"
+    FRONTEND = "FRONTEND", "Frontend Engineering"
+    FULLSTACK = "FULLSTACK", "Fullstack Engineering"
+    DEVOPS = "DEVOPS", "DevOps & Cloud"
+    DATA = "DATA", "Data Engineering"
+    SECURITY = "SECURITY", "Cybersecurity"
     OTHER = "OTHER", "Other"
 
 class ExperienceLevel(models.TextChoices):
