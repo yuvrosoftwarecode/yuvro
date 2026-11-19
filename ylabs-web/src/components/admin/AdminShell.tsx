@@ -17,6 +17,7 @@ import {
   Code2,
   Layers,
   LayoutDashboard,
+  Bot,
 } from "lucide-react";
 
 const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[] = [
@@ -37,6 +38,7 @@ const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[
     group: "Developer",
     items: [
       { to: "/admin/labs", label: "Labs", icon: FlaskConical },
+      { to: "/admin/mock-interviews", label: "Mock Interviews", icon: Bot },
       { to: "/admin/weekly-tasks", label: "Recurring Tasks", icon: CalendarDays },
       { to: "/admin/research", label: "AI Research Papers", icon: Sparkles },
     ],
