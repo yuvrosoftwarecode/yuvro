@@ -66,6 +66,7 @@ import { Route as AdminRecruitersRouteImport } from './routes/admin.recruiters'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminMockInterviewsRouteImport } from './routes/admin.mock-interviews'
 import { Route as AdminLabsRouteImport } from './routes/admin.labs'
+import { Route as RecruiterQuestionsIndexRouteImport } from './routes/recruiter.questions.index'
 import { Route as RecruiterEvaluationsIndexRouteImport } from './routes/recruiter.evaluations.index'
 import { Route as AdminWeeklyTasksIndexRouteImport } from './routes/admin.weekly-tasks.index'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin.users.index'
@@ -75,6 +76,7 @@ import { Route as StudentProfileConnectionsRouteImport } from './routes/student.
 import { Route as StudentLabSlugRouteImport } from './routes/student.lab.$slug'
 import { Route as SharedReportTokenRouteImport } from './routes/shared.report.$token'
 import { Route as ResetPasswordUidb64TokenRouteImport } from './routes/reset-password.$uidb64.$token'
+import { Route as RecruiterQuestionsNewRouteImport } from './routes/recruiter.questions.new'
 import { Route as RecruiterEvaluationsIdRouteImport } from './routes/recruiter.evaluations.$id'
 import { Route as AdminWeeklyTasksNewRouteImport } from './routes/admin.weekly-tasks.new'
 import { Route as AdminUsersIdRouteImport } from './routes/admin.users.$id'
@@ -82,6 +84,7 @@ import { Route as AdminMockInterviewsNewRouteImport } from './routes/admin.mock-
 import { Route as AdminLabsNewRouteImport } from './routes/admin.labs.new'
 import { Route as StudentLabSlugReportRouteImport } from './routes/student.lab.$slug.report'
 import { Route as StudentCollaborationSprintIdRouteImport } from './routes/student.collaboration.sprint.$id'
+import { Route as RecruiterQuestionsIdEditRouteImport } from './routes/recruiter.questions.$id.edit'
 import { Route as RecruiterEvaluationsIdWorkspaceRouteImport } from './routes/recruiter.evaluations.$id.workspace'
 import { Route as PublicMilestoneSlugUserIdRouteImport } from './routes/public.milestone.$slug.$userId'
 import { Route as AdminWeeklyTasksIdEditRouteImport } from './routes/admin.weekly-tasks.$id.edit'
@@ -388,6 +391,11 @@ const AdminLabsRoute = AdminLabsRouteImport.update({
   path: '/labs',
   getParentRoute: () => AdminRoute,
 } as any)
+const RecruiterQuestionsIndexRoute = RecruiterQuestionsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RecruiterQuestionsRoute,
+} as any)
 const RecruiterEvaluationsIndexRoute =
   RecruiterEvaluationsIndexRouteImport.update({
     id: '/evaluations/',
@@ -437,6 +445,11 @@ const ResetPasswordUidb64TokenRoute =
     path: '/reset-password/$uidb64/$token',
     getParentRoute: () => rootRouteImport,
   } as any)
+const RecruiterQuestionsNewRoute = RecruiterQuestionsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => RecruiterQuestionsRoute,
+} as any)
 const RecruiterEvaluationsIdRoute = RecruiterEvaluationsIdRouteImport.update({
   id: '/evaluations/$id',
   path: '/evaluations/$id',
@@ -472,6 +485,12 @@ const StudentCollaborationSprintIdRoute =
     id: '/collaboration/sprint/$id',
     path: '/collaboration/sprint/$id',
     getParentRoute: () => StudentRoute,
+  } as any)
+const RecruiterQuestionsIdEditRoute =
+  RecruiterQuestionsIdEditRouteImport.update({
+    id: '/$id/edit',
+    path: '/$id/edit',
+    getParentRoute: () => RecruiterQuestionsRoute,
   } as any)
 const RecruiterEvaluationsIdWorkspaceRoute =
   RecruiterEvaluationsIdWorkspaceRouteImport.update({
@@ -633,7 +652,7 @@ export interface FileRoutesByFullPath {
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
-  '/recruiter/questions': typeof RecruiterQuestionsRoute
+  '/recruiter/questions': typeof RecruiterQuestionsRouteWithChildren
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/recruiter/vitarka-ai': typeof RecruiterVitarkaAiRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -653,6 +672,7 @@ export interface FileRoutesByFullPath {
   '/admin/users/$id': typeof AdminUsersIdRouteWithChildren
   '/admin/weekly-tasks/new': typeof AdminWeeklyTasksNewRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
+  '/recruiter/questions/new': typeof RecruiterQuestionsNewRoute
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/lab/$slug': typeof StudentLabSlugRouteWithChildren
@@ -662,6 +682,7 @@ export interface FileRoutesByFullPath {
   '/admin/users/': typeof AdminUsersIndexRoute
   '/admin/weekly-tasks/': typeof AdminWeeklyTasksIndexRoute
   '/recruiter/evaluations/': typeof RecruiterEvaluationsIndexRoute
+  '/recruiter/questions/': typeof RecruiterQuestionsIndexRoute
   '/admin/labs/$id/analytics': typeof AdminLabsIdAnalyticsRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
@@ -670,6 +691,7 @@ export interface FileRoutesByFullPath {
   '/admin/weekly-tasks/$id/edit': typeof AdminWeeklyTasksIdEditRoute
   '/public/milestone/$slug/$userId': typeof PublicMilestoneSlugUserIdRoute
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
+  '/recruiter/questions/$id/edit': typeof RecruiterQuestionsIdEditRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
   '/student/lab/$slug/report': typeof StudentLabSlugReportRoute
   '/admin/labs/$id/sprints/$sprintId': typeof AdminLabsIdSprintsSprintIdRoute
@@ -722,7 +744,6 @@ export interface FileRoutesByTo {
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
-  '/recruiter/questions': typeof RecruiterQuestionsRoute
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/recruiter/vitarka-ai': typeof RecruiterVitarkaAiRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -742,6 +763,7 @@ export interface FileRoutesByTo {
   '/admin/users/$id': typeof AdminUsersIdRouteWithChildren
   '/admin/weekly-tasks/new': typeof AdminWeeklyTasksNewRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
+  '/recruiter/questions/new': typeof RecruiterQuestionsNewRoute
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/lab/$slug': typeof StudentLabSlugRouteWithChildren
@@ -751,6 +773,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersIndexRoute
   '/admin/weekly-tasks': typeof AdminWeeklyTasksIndexRoute
   '/recruiter/evaluations': typeof RecruiterEvaluationsIndexRoute
+  '/recruiter/questions': typeof RecruiterQuestionsIndexRoute
   '/admin/labs/$id/analytics': typeof AdminLabsIdAnalyticsRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
@@ -759,6 +782,7 @@ export interface FileRoutesByTo {
   '/admin/weekly-tasks/$id/edit': typeof AdminWeeklyTasksIdEditRoute
   '/public/milestone/$slug/$userId': typeof PublicMilestoneSlugUserIdRoute
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
+  '/recruiter/questions/$id/edit': typeof RecruiterQuestionsIdEditRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
   '/student/lab/$slug/report': typeof StudentLabSlugReportRoute
   '/admin/labs/$id/sprints/$sprintId': typeof AdminLabsIdSprintsSprintIdRoute
@@ -818,7 +842,7 @@ export interface FileRoutesById {
   '/recruiter/billing': typeof RecruiterBillingRoute
   '/recruiter/dashboard': typeof RecruiterDashboardRoute
   '/recruiter/github': typeof RecruiterGithubRoute
-  '/recruiter/questions': typeof RecruiterQuestionsRoute
+  '/recruiter/questions': typeof RecruiterQuestionsRouteWithChildren
   '/recruiter/settings': typeof RecruiterSettingsRoute
   '/recruiter/vitarka-ai': typeof RecruiterVitarkaAiRoute
   '/student/analytics': typeof StudentAnalyticsRoute
@@ -838,6 +862,7 @@ export interface FileRoutesById {
   '/admin/users/$id': typeof AdminUsersIdRouteWithChildren
   '/admin/weekly-tasks/new': typeof AdminWeeklyTasksNewRoute
   '/recruiter/evaluations/$id': typeof RecruiterEvaluationsIdRouteWithChildren
+  '/recruiter/questions/new': typeof RecruiterQuestionsNewRoute
   '/reset-password/$uidb64/$token': typeof ResetPasswordUidb64TokenRoute
   '/shared/report/$token': typeof SharedReportTokenRoute
   '/student/lab/$slug': typeof StudentLabSlugRouteWithChildren
@@ -847,6 +872,7 @@ export interface FileRoutesById {
   '/admin/users/': typeof AdminUsersIndexRoute
   '/admin/weekly-tasks/': typeof AdminWeeklyTasksIndexRoute
   '/recruiter/evaluations/': typeof RecruiterEvaluationsIndexRoute
+  '/recruiter/questions/': typeof RecruiterQuestionsIndexRoute
   '/admin/labs/$id/analytics': typeof AdminLabsIdAnalyticsRoute
   '/admin/labs/$id/edit': typeof AdminLabsIdEditRoute
   '/admin/labs/$id/sprints': typeof AdminLabsIdSprintsRouteWithChildren
@@ -855,6 +881,7 @@ export interface FileRoutesById {
   '/admin/weekly-tasks/$id/edit': typeof AdminWeeklyTasksIdEditRoute
   '/public/milestone/$slug/$userId': typeof PublicMilestoneSlugUserIdRoute
   '/recruiter/evaluations/$id/workspace': typeof RecruiterEvaluationsIdWorkspaceRoute
+  '/recruiter/questions/$id/edit': typeof RecruiterQuestionsIdEditRoute
   '/student/collaboration/sprint/$id': typeof StudentCollaborationSprintIdRouteWithChildren
   '/student/lab/$slug/report': typeof StudentLabSlugReportRoute
   '/admin/labs/$id/sprints/$sprintId': typeof AdminLabsIdSprintsSprintIdRoute
@@ -935,6 +962,7 @@ export interface FileRouteTypes {
     | '/admin/users/$id'
     | '/admin/weekly-tasks/new'
     | '/recruiter/evaluations/$id'
+    | '/recruiter/questions/new'
     | '/reset-password/$uidb64/$token'
     | '/shared/report/$token'
     | '/student/lab/$slug'
@@ -944,6 +972,7 @@ export interface FileRouteTypes {
     | '/admin/users/'
     | '/admin/weekly-tasks/'
     | '/recruiter/evaluations/'
+    | '/recruiter/questions/'
     | '/admin/labs/$id/analytics'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
@@ -952,6 +981,7 @@ export interface FileRouteTypes {
     | '/admin/weekly-tasks/$id/edit'
     | '/public/milestone/$slug/$userId'
     | '/recruiter/evaluations/$id/workspace'
+    | '/recruiter/questions/$id/edit'
     | '/student/collaboration/sprint/$id'
     | '/student/lab/$slug/report'
     | '/admin/labs/$id/sprints/$sprintId'
@@ -1004,7 +1034,6 @@ export interface FileRouteTypes {
     | '/recruiter/billing'
     | '/recruiter/dashboard'
     | '/recruiter/github'
-    | '/recruiter/questions'
     | '/recruiter/settings'
     | '/recruiter/vitarka-ai'
     | '/student/analytics'
@@ -1024,6 +1053,7 @@ export interface FileRouteTypes {
     | '/admin/users/$id'
     | '/admin/weekly-tasks/new'
     | '/recruiter/evaluations/$id'
+    | '/recruiter/questions/new'
     | '/reset-password/$uidb64/$token'
     | '/shared/report/$token'
     | '/student/lab/$slug'
@@ -1033,6 +1063,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/weekly-tasks'
     | '/recruiter/evaluations'
+    | '/recruiter/questions'
     | '/admin/labs/$id/analytics'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
@@ -1041,6 +1072,7 @@ export interface FileRouteTypes {
     | '/admin/weekly-tasks/$id/edit'
     | '/public/milestone/$slug/$userId'
     | '/recruiter/evaluations/$id/workspace'
+    | '/recruiter/questions/$id/edit'
     | '/student/collaboration/sprint/$id'
     | '/student/lab/$slug/report'
     | '/admin/labs/$id/sprints/$sprintId'
@@ -1119,6 +1151,7 @@ export interface FileRouteTypes {
     | '/admin/users/$id'
     | '/admin/weekly-tasks/new'
     | '/recruiter/evaluations/$id'
+    | '/recruiter/questions/new'
     | '/reset-password/$uidb64/$token'
     | '/shared/report/$token'
     | '/student/lab/$slug'
@@ -1128,6 +1161,7 @@ export interface FileRouteTypes {
     | '/admin/users/'
     | '/admin/weekly-tasks/'
     | '/recruiter/evaluations/'
+    | '/recruiter/questions/'
     | '/admin/labs/$id/analytics'
     | '/admin/labs/$id/edit'
     | '/admin/labs/$id/sprints'
@@ -1136,6 +1170,7 @@ export interface FileRouteTypes {
     | '/admin/weekly-tasks/$id/edit'
     | '/public/milestone/$slug/$userId'
     | '/recruiter/evaluations/$id/workspace'
+    | '/recruiter/questions/$id/edit'
     | '/student/collaboration/sprint/$id'
     | '/student/lab/$slug/report'
     | '/admin/labs/$id/sprints/$sprintId'
@@ -1586,6 +1621,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLabsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/recruiter/questions/': {
+      id: '/recruiter/questions/'
+      path: '/'
+      fullPath: '/recruiter/questions/'
+      preLoaderRoute: typeof RecruiterQuestionsIndexRouteImport
+      parentRoute: typeof RecruiterQuestionsRoute
+    }
     '/recruiter/evaluations/': {
       id: '/recruiter/evaluations/'
       path: '/evaluations'
@@ -1649,6 +1691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordUidb64TokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recruiter/questions/new': {
+      id: '/recruiter/questions/new'
+      path: '/new'
+      fullPath: '/recruiter/questions/new'
+      preLoaderRoute: typeof RecruiterQuestionsNewRouteImport
+      parentRoute: typeof RecruiterQuestionsRoute
+    }
     '/recruiter/evaluations/$id': {
       id: '/recruiter/evaluations/$id'
       path: '/evaluations/$id'
@@ -1697,6 +1746,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/student/collaboration/sprint/$id'
       preLoaderRoute: typeof StudentCollaborationSprintIdRouteImport
       parentRoute: typeof StudentRoute
+    }
+    '/recruiter/questions/$id/edit': {
+      id: '/recruiter/questions/$id/edit'
+      path: '/$id/edit'
+      fullPath: '/recruiter/questions/$id/edit'
+      preLoaderRoute: typeof RecruiterQuestionsIdEditRouteImport
+      parentRoute: typeof RecruiterQuestionsRoute
     }
     '/recruiter/evaluations/$id/workspace': {
       id: '/recruiter/evaluations/$id/workspace'
@@ -1984,6 +2040,21 @@ const EvaluationRouteWithChildren = EvaluationRoute._addFileChildren(
   EvaluationRouteChildren,
 )
 
+interface RecruiterQuestionsRouteChildren {
+  RecruiterQuestionsNewRoute: typeof RecruiterQuestionsNewRoute
+  RecruiterQuestionsIndexRoute: typeof RecruiterQuestionsIndexRoute
+  RecruiterQuestionsIdEditRoute: typeof RecruiterQuestionsIdEditRoute
+}
+
+const RecruiterQuestionsRouteChildren: RecruiterQuestionsRouteChildren = {
+  RecruiterQuestionsNewRoute: RecruiterQuestionsNewRoute,
+  RecruiterQuestionsIndexRoute: RecruiterQuestionsIndexRoute,
+  RecruiterQuestionsIdEditRoute: RecruiterQuestionsIdEditRoute,
+}
+
+const RecruiterQuestionsRouteWithChildren =
+  RecruiterQuestionsRoute._addFileChildren(RecruiterQuestionsRouteChildren)
+
 interface RecruiterEvaluationsIdRouteChildren {
   RecruiterEvaluationsIdWorkspaceRoute: typeof RecruiterEvaluationsIdWorkspaceRoute
   RecruiterEvaluationsIdCandidatesCandidateIdRoute: typeof RecruiterEvaluationsIdCandidatesCandidateIdRoute
@@ -2005,7 +2076,7 @@ interface RecruiterRouteChildren {
   RecruiterBillingRoute: typeof RecruiterBillingRoute
   RecruiterDashboardRoute: typeof RecruiterDashboardRoute
   RecruiterGithubRoute: typeof RecruiterGithubRoute
-  RecruiterQuestionsRoute: typeof RecruiterQuestionsRoute
+  RecruiterQuestionsRoute: typeof RecruiterQuestionsRouteWithChildren
   RecruiterSettingsRoute: typeof RecruiterSettingsRoute
   RecruiterVitarkaAiRoute: typeof RecruiterVitarkaAiRoute
   RecruiterIndexRoute: typeof RecruiterIndexRoute
@@ -2017,7 +2088,7 @@ const RecruiterRouteChildren: RecruiterRouteChildren = {
   RecruiterBillingRoute: RecruiterBillingRoute,
   RecruiterDashboardRoute: RecruiterDashboardRoute,
   RecruiterGithubRoute: RecruiterGithubRoute,
-  RecruiterQuestionsRoute: RecruiterQuestionsRoute,
+  RecruiterQuestionsRoute: RecruiterQuestionsRouteWithChildren,
   RecruiterSettingsRoute: RecruiterSettingsRoute,
   RecruiterVitarkaAiRoute: RecruiterVitarkaAiRoute,
   RecruiterIndexRoute: RecruiterIndexRoute,

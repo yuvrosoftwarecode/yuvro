@@ -385,3 +385,132 @@ class GitHubScoringRulesPusher:
             "commit_url": commit_html_url,
             "files_pushed": list(files.keys()),
         }
+
+    def inspect_repository(
+        self,
+        repo_identifier: str,
+        branch: str = "main",
+        installation_id: Optional[str] = None,
+        custom_token: Optional[str] = None,
+        include_clone_token: bool = False,
+        max_bytes: int = 16000,
+    ) -> Dict[str, Any]:
+        """
+        Inspects a starter GitHub repository to extract metadata, file tree, and key source/config files
+        for AI task design, scoring rules synthesis, and live verification workspaces.
+        """
+        owner, repo = _parse_repo_owner_name(repo_identifier)
+        if not owner or not repo:
+            raise ValueError(f"Could not parse GitHub repository owner/name from '{repo_identifier}'")
+
+        token = custom_token
+        if not token and installation_id:
+            try:
+                token = self.get_installation_token(str(installation_id))
+            except Exception as e:
+                logger.warning(f"inspect_repository: installation token failed for '{installation_id}': {e}")
+
+        if not token and self.has_app_credentials():
+            try:
+                token = self.get_repo_installation_token(owner, repo)
+            except Exception as e:
+                logger.warning(f"inspect_repository: auto-resolve repo installation failed: {e}")
+
+        headers = {"Accept": "application/vnd.github.v3+json"}
+        if token:
+            headers["Authorization"] = f"token {token}"
+
+        meta_res = requests.get(f"https://api.github.com/repos/{owner}/{repo}", headers=headers, timeout=15)
+        if meta_res.status_code != 200:
+            raise RuntimeError(f"Could not access repository '{owner}/{repo}' (HTTP {meta_res.status_code}).")
+        meta = meta_res.json()
+        resolved_branch = branch or meta.get("default_branch") or "main"
+
+        # Fetch git tree recursively
+        tree_res = requests.get(
+            f"https://api.github.com/repos/{owner}/{repo}/git/trees/{resolved_branch}?recursive=1",
+            headers=headers,
+            timeout=15,
+        )
+        if tree_res.status_code != 200 and meta.get("default_branch") and resolved_branch != meta.get("default_branch"):
+            resolved_branch = meta.get("default_branch")
+            tree_res = requests.get(
+                f"https://api.github.com/repos/{owner}/{repo}/git/trees/{resolved_branch}?recursive=1",
+                headers=headers,
+                timeout=15,
+            )
+
+        ignored_parts = {"node_modules", "__pycache__", ".git", ".venv", "venv", "dist", "build", "yuvro_scoring_rules"}
+        file_paths = []
+        if tree_res.status_code == 200:
+            for entry in tree_res.json().get("tree", []):
+                if entry.get("type") != "blob":
+                    continue
+                p = entry.get("path", "")
+                if any(part in ignored_parts for part in p.split("/")):
+                    continue
+                if p.endswith(".pyc") or p.endswith(".png") or p.endswith(".jpg") or p.endswith(".ico"):
+                    continue
+                file_paths.append(p)
+
+        priority_names = {
+            "readme.md", "requirements.txt", "package.json", "manage.py", "settings.py",
+            "urls.py", "models.py", "views.py", "serializers.py", "app.py", "main.py",
+            "index.js", "server.js", "app.js", "index.ts", "server.ts", "go.mod", "pom.xml",
+        }
+        code_exts = {".py", ".js", ".ts", ".jsx", ".tsx", ".go", ".java", ".sql", ".json", ".md", ".txt", ".yml", ".yaml"}
+
+        ranked = []
+        for p in file_paths:
+            lower = p.lower()
+            base = lower.rsplit("/", 1)[-1]
+            ext = "." + base.rsplit(".", 1)[-1] if "." in base else ""
+            if base in priority_names:
+                ranked.append((0, len(p), p))
+            elif ext in code_exts:
+                ranked.append((1, len(p), p))
+        ranked.sort()
+
+        key_files: Dict[str, str] = {}
+        used = 0
+        for _, _, p in ranked[:14]:
+            if used >= max_bytes:
+                break
+            try:
+                fres = requests.get(
+                    f"https://api.github.com/repos/{owner}/{repo}/contents/{p}?ref={resolved_branch}",
+                    headers=headers,
+                    timeout=10,
+                )
+                if fres.status_code != 200:
+                    continue
+                fjson = fres.json()
+                if fjson.get("encoding") == "base64" and fjson.get("content"):
+                    decoded = base64.b64decode(fjson["content"]).decode("utf-8", errors="replace")
+                    if used + len(decoded) > max_bytes:
+                        rem = max_bytes - used
+                        if rem > 400:
+                            key_files[p] = decoded[:rem] + "\n# ... (truncated)"
+                            used = max_bytes
+                        break
+                    key_files[p] = decoded
+                    used += len(decoded)
+            except Exception:
+                continue
+
+        result: Dict[str, Any] = {
+            "owner": owner,
+            "repo": repo,
+            "full_name": f"{owner}/{repo}",
+            "description": meta.get("description") or "",
+            "default_branch": resolved_branch,
+            "language": meta.get("language") or "",
+            "private": bool(meta.get("private")),
+            "files": file_paths[:250],
+            "file_count": len(file_paths),
+            "key_files": key_files,
+            "readme": key_files.get("README.md") or key_files.get("readme.md") or "",
+        }
+        if include_clone_token and token:
+            result["clone_token"] = token
+        return result
