@@ -1,8 +1,10 @@
 from django.urls import path
 
 from .views import (
+    AdminAddCreditsView,
     AdminDeficitListView,
     AdminDeficitReconcileView,
+    AdminUserWalletView,
     CreateCreditOrderView,
     CreditLedgerHistoryView,
     CreditPackListView,
@@ -27,4 +29,6 @@ urlpatterns = [
     path("webhooks/razorpay/", RazorpayWebhookView.as_view(), name="razorpay_webhook"),
     path("admin/deficits/", AdminDeficitListView.as_view(), name="admin_deficits"),
     path("admin/reconcile/", AdminDeficitReconcileView.as_view(), name="admin_reconcile"),
+    path("admin/add/", AdminAddCreditsView.as_view(), name="admin_add_credits"),
+    path("admin/user-wallet/", AdminUserWalletView.as_view(), name="admin_user_wallet"),
 ]
