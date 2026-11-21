@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 import type { EvaluationSummaryData } from "./evaluationSummary";
 
 export interface ReportInput {
@@ -228,4 +229,8 @@ export function buildCandidateReportPdf(d: ReportInput) {
 export function downloadCandidateReportPdf(d: ReportInput) {
   const doc = buildCandidateReportPdf(d);
   doc.save(`${d.name.replace(/\s+/g, "-")}-Yuvro-Report.pdf`);
+  analytics.trackEvent(GA4_EVENTS.REPORT_DOWNLOADED, {
+    report_type: "candidate_evaluation",
+    format: "pdf",
+  });
 }

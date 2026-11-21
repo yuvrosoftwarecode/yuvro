@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { getSharedReportByToken } from "@/lib/recruiter";
 import { getCandidates } from "@/lib/recruiterCandidates";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 import { yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import {
   getCandidateDetail,
@@ -143,6 +144,7 @@ function SharedReportWorkspace() {
         } else if (data.timelineEvents) {
           setTimelineEvents(data.timelineEvents);
         }
+        analytics.trackEvent(GA4_EVENTS.REPORT_VIEWED, { report_type: "candidate" });
         setLoading(false);
       } catch (err) {
         setError(`Failed to load report data: ${err}`);

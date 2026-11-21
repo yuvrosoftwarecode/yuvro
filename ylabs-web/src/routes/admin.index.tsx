@@ -11,6 +11,8 @@ import {
   Timer,
   ListChecks,
 } from "lucide-react";
+import { useEffect } from "react";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminIndex,
@@ -35,6 +37,9 @@ const kpis = [
 ];
 
 function AdminIndex() {
+  useEffect(() => {
+    analytics.trackEvent(GA4_EVENTS.DASHBOARD_VIEWED, { dashboard_type: "admin" });
+  }, []);
   return (
     <AdminShell
       title="Yuvro Labs Admin"

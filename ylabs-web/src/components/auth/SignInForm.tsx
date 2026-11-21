@@ -5,6 +5,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { PasswordField } from "./PasswordField";
 import { showToast } from "./toastService";
 import type { AuthTab } from "./types";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 interface SignInFormProps {
   redirectUrl?: string;
@@ -46,6 +47,7 @@ export function SignInForm({ redirectUrl, onNavigateTab }: SignInFormProps) {
       login(res.user, res.access);
       const role = res.user.roles?.ylabs || res.user.roles?.ycode || res.user.role;
       const r = role?.toLowerCase();
+      analytics.trackEvent(GA4_EVENTS.LOGIN, { method: "google", role: r });
       const defaultDest =
         r === "admin"
           ? "/admin"
@@ -101,6 +103,7 @@ export function SignInForm({ redirectUrl, onNavigateTab }: SignInFormProps) {
 
       const role = res.user.roles?.ylabs || res.user.roles?.ycode || res.user.role;
       const r = role?.toLowerCase();
+      analytics.trackEvent(GA4_EVENTS.LOGIN, { method: "email", role: r });
       const defaultDest =
         r === "admin"
           ? "/admin"

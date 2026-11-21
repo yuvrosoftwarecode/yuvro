@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowRight, Eye, EyeOff, KeyRound, ShieldCheck, Loader2 } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, KeyRound, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import authService from "@/services/authService";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 export const Route = createFileRoute("/recruiter-login")({
   head: () => ({
@@ -35,6 +36,7 @@ function RecruiterLoginPage() {
       setLoading(true);
       setError("");
       const response = await authService.login(email, password);
+      analytics.trackEvent(GA4_EVENTS.LOGIN, { method: "recruiter", role: "recruiter" });
       login(response.user, response.access);
       nav({ to: "/recruiter" });
     } catch (err: any) {
@@ -46,7 +48,7 @@ function RecruiterLoginPage() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    enter();
+    setError("Recruiter login is currently disabled. Please book a demo.");
   };
 
   const handleSSO = () => {
@@ -110,6 +112,27 @@ function RecruiterLoginPage() {
               </div>
             </div>
 
+            {/* Disabled Notice */}
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-sm">Recruiter Login Disabled</p>
+                  <p className="mt-1 text-[13px] text-amber-800 leading-relaxed">
+                    Recruiter self-serve login is currently disabled. Access to the company evaluation workspace is available via scheduled demo.
+                  </p>
+                  <div className="mt-3">
+                    <Link
+                      to="/book-demo"
+                      className="inline-flex items-center justify-center font-semibold text-[13px] text-white px-3.5 py-1.5 rounded-lg bg-[#f7931e] hover:bg-[#e08215] transition-colors"
+                    >
+                      Book a demo
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <form onSubmit={submit} className="mt-5 space-y-3">
               {error && (
                 <div className="rounded-md bg-red-50 p-2 text-sm text-red-600 border border-red-100">
@@ -125,8 +148,8 @@ function RecruiterLoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
                   required
-                  disabled={loading}
-                  className="mt-1.5 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                  disabled={true}
+                  className="mt-1.5 w-full rounded-md border border-black/10 bg-neutral-100 px-3 py-2 text-[14px] outline-none transition placeholder:text-[#9A9A9A] cursor-not-allowed opacity-60"
                 />
               </div>
 
@@ -139,14 +162,14 @@ function RecruiterLoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    disabled={loading}
-                    className="w-full rounded-md border border-black/15 bg-white px-3 py-2 pr-9 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                    disabled={true}
+                    className="w-full rounded-md border border-black/10 bg-neutral-100 px-3 py-2 pr-9 text-[14px] outline-none transition placeholder:text-[#9A9A9A] cursor-not-allowed opacity-60"
                   />
                   <button
                     type="button"
                     onClick={() => setShow((s) => !s)}
-                    disabled={loading}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-1 text-[#6B6B6B] hover:text-[#0A0A0A] disabled:opacity-50"
+                    disabled={true}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-1 text-[#6B6B6B] disabled:opacity-40 cursor-not-allowed"
                     aria-label="Toggle password visibility"
                   >
                     {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -156,26 +179,16 @@ function RecruiterLoginPage() {
 
               <button
                 type="submit"
-                disabled={loading}
-                className="group inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#0A0A0A] px-4 py-2.5 text-[14px] font-medium text-white transition hover:bg-black disabled:opacity-70"
+                disabled={true}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-neutral-300 px-4 py-2.5 text-[14px] font-medium text-neutral-500 cursor-not-allowed"
               >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    Sign In
-                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-                  </>
-                )}
+                Sign In (Disabled)
               </button>
 
-              <div className="text-center">
-                <span className="text-[13px] text-[#6B6B6B]">Don't have an account? </span>
-                <Link to="/recruiter-signup" className="text-[13px] font-medium text-[#0A0A0A] hover:underline">
-                  Sign up
+              <div className="text-center pt-2">
+                <span className="text-[13px] text-[#6B6B6B]">Need access for your team? </span>
+                <Link to="/book-demo" className="text-[13px] font-medium text-[#f7931e] hover:underline">
+                  Book a demo
                 </Link>
               </div>
 
@@ -193,11 +206,11 @@ function RecruiterLoginPage() {
               <button
                 type="button"
                 onClick={handleSSO}
-                disabled={loading}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-black/15 bg-white px-4 py-2 text-[14px] font-medium text-[#0A0A0A] transition hover:border-[#0A0A0A] disabled:opacity-50"
+                disabled={true}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-black/10 bg-neutral-100 px-4 py-2 text-[14px] font-medium text-neutral-400 cursor-not-allowed"
               >
-                <KeyRound className="h-4 w-4" />
-                Continue with SSO
+                <KeyRound className="h-4 w-4 text-neutral-400" />
+                Continue with SSO (Disabled)
               </button>
             </form>
           </div>

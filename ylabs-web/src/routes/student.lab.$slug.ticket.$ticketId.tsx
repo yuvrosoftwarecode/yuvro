@@ -14,6 +14,7 @@ import { EditorView, keymap, MatchDecorator, ViewPlugin, Decoration } from "@cod
 import { defaultHighlightStyle, syntaxTree } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 import { useTheme } from "@/hooks/use-theme";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 import {
   fetchFileTree,
   fetchFile,
@@ -161,6 +162,17 @@ function TicketEditorRoute() {
 function TicketEditorContent() {
   const { slug, ticketId } = useParams({ from: "/student/lab/$slug/ticket/$ticketId" });
   const [previewOverride, setPreviewOverride] = useState<StudentPreviewOverride | null>(null);
+
+  useEffect(() => {
+    const isSysDesign =
+      slug.toLowerCase().includes("system-design") ||
+      slug.toLowerCase().includes("systemdesign");
+    analytics.trackEvent(GA4_EVENTS.TASK_OPENED, {
+      lab_id: slug,
+      task_id: ticketId,
+      task_type: isSysDesign ? "system_design" : "coding",
+    });
+  }, [slug, ticketId]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

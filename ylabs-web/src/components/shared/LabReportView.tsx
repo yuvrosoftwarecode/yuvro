@@ -129,7 +129,13 @@ export function LabReportView({ realLab, realSprints, statusOverrides, slug, bac
       {/* Breadcrumb & Header */}
       <div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-          <Link to={backLinkTo} params={backLinkParams} className="hover:text-foreground">
+          <Link
+            to={backLinkTo}
+            params={backLinkParams}
+            data-analytics-action="report_breadcrumb_back"
+            data-analytics-component="navigation"
+            className="hover:text-foreground"
+          >
             Practical Labs
           </Link>{" "}
           › <span>Report Dashboard</span>
@@ -165,6 +171,8 @@ export function LabReportView({ realLab, realSprints, statusOverrides, slug, bac
                     },
                   });
                 }}
+                data-analytics-action="share_milestone_linkedin"
+                data-analytics-component="button"
                 className="rounded-md bg-[#0A66C2] text-white px-4 py-2 text-sm hover:bg-[#0A66C2]/90 flex items-center gap-2 font-medium shadow-sm transition-transform active:scale-95"
               >
                 <Linkedin className="h-4 w-4 fill-current" />
@@ -174,6 +182,8 @@ export function LabReportView({ realLab, realSprints, statusOverrides, slug, bac
             <Link
               to={backLinkTo}
               params={backLinkParams}
+              data-analytics-action="report_back_to_lab"
+              data-analytics-component="button"
               className="rounded-md border bg-card px-4 py-2 text-sm hover:bg-accent flex items-center gap-2 font-medium"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -187,6 +197,8 @@ export function LabReportView({ realLab, realSprints, statusOverrides, slug, bac
       <div className="flex items-center gap-6 border-b border-border pt-4 overflow-x-auto whitespace-nowrap">
         <button
           onClick={() => setActiveTab("lab")}
+          data-analytics-action="select_report_tab_overall"
+          data-analytics-component="tab"
           className={`pb-3 text-sm font-medium flex items-center gap-2 transition-colors ${
             activeTab === "lab"
               ? "border-b-2 border-primary text-foreground"
@@ -197,6 +209,8 @@ export function LabReportView({ realLab, realSprints, statusOverrides, slug, bac
         </button>
         <button
           onClick={() => setActiveTab("sprint")}
+          data-analytics-action="select_report_tab_sprints"
+          data-analytics-component="tab"
           className={`pb-3 text-sm font-medium flex items-center gap-2 transition-colors ${
             activeTab === "sprint"
               ? "border-b-2 border-primary text-foreground"
@@ -207,6 +221,8 @@ export function LabReportView({ realLab, realSprints, statusOverrides, slug, bac
         </button>
         <button
           onClick={() => setActiveTab("ticket")}
+          data-analytics-action="select_report_tab_tickets"
+          data-analytics-component="tab"
           className={`pb-3 text-sm font-medium flex items-center gap-2 transition-colors ${
             activeTab === "ticket"
               ? "border-b-2 border-primary text-foreground"

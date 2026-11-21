@@ -48,6 +48,7 @@ import {
   sendCodingEvent,
   type CodingEventPayload,
 } from "@/services/mockInterviewService";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 // Mock interview: speech-to-text via OpenAI gpt-live-transcribe through the Yuvro backend
 // Alex's voice: Sarvam AI text-to-speech (browser voice as fallback)
 import { speakWithSarvam, type SarvamSpeech } from "@/services/sarvamTts";
@@ -833,10 +834,14 @@ function InterviewScreen() {
   }, [iv.slug]);
 
   useEffect(() => {
+    analytics.trackEvent(GA4_EVENTS.INTERVIEW_VIEWED, {
+      interview_id: iv.slug,
+      interview_mode: (iv.interviewMode?.toLowerCase() as any) || "automatic",
+    });
     fetchMockInterviewQuota().then((q) => {
       if (q) setQuota(q);
     });
-  }, []);
+  }, [iv.slug]);
 
   useEffect(() => {
     if (!backendId) return;
@@ -1107,6 +1112,11 @@ function InterviewScreen() {
     isEndingRef.current = true;
     stopEarlyVoice(); // Alex's early voice (started from a reply still in flight) must not outlive the interview
     setPhase("done");
+    analytics.trackEvent(GA4_EVENTS.INTERVIEW_COMPLETED, {
+      interview_id: iv.slug,
+      interview_mode: (iv.interviewMode?.toLowerCase() as any) || "automatic",
+      instance_id: sessionId || undefined,
+    });
     setIsGeneratingReport(true);
 
     const backendId = iv.backendId || (iv.slug.length > 20 ? iv.slug : null);
@@ -1394,6 +1404,11 @@ function InterviewScreen() {
             setLog([{ who: "ai", text: firstQ }]);
             setQuestionType(res.first_question_type || "behavioral");
           }
+          analytics.trackEvent(GA4_EVENTS.INTERVIEW_STARTED, {
+            interview_id: iv.slug,
+            interview_mode: (iv.interviewMode?.toLowerCase() as any) || "automatic",
+            role_category: iv.category,
+          });
           setPhase("live");
           setIsStarting(false);
           return;

@@ -10,6 +10,7 @@ import ProctoringGate, { ProctoringData } from "@/components/evaluation/Proctori
 import { useProctoring } from "@/hooks/useProctoring";
 import { getGlobalProctoringData, setGlobalProctoringData, clearGlobalProctoringData } from "@/utils/proctoringStore";
 import { EvaluationSystemDesignSection } from "@/components/evaluation/EvaluationSystemDesignSection";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 // Extracted from route file to fix code-split warning
 
 
@@ -419,6 +420,25 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     const activeSection = useMemo(() => appSections.find(s => s.id === section), [appSections, section]);
     const proctoringConfig = activeSection?.proctoring || {};
     
+    useEffect(() => {
+      if (!activeSection) return;
+      if (activeSection.type === "KNOWLEDGE_ASSESSMENT") {
+        analytics.trackEvent(GA4_EVENTS.ASSESSMENT_VIEWED, {
+          assessment_id: evaluationId,
+          assessment_title: activeSection.title,
+        });
+        analytics.trackEvent(GA4_EVENTS.ASSESSMENT_STARTED, {
+          assessment_id: evaluationId,
+          question_count: activeSection.questions?.length,
+        });
+      } else if (activeSection.type === "VITARKA_AI_INTERVIEW") {
+        analytics.trackEvent(GA4_EVENTS.INTERVIEW_VIEWED, {
+          interview_id: evaluationId,
+          interview_mode: "automatic",
+        });
+      }
+    }, [section, activeSection?.type, evaluationId]);
+
     const anySectionNeedsProctoring = useMemo(() => !isPreviewMode && appSections.some(s => s.proctoring?.enableProctoring), [appSections, isPreviewMode]);
 
   // Section completion & unlocking helper
@@ -1028,6 +1048,10 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
         }
       }
       await evaluationService.finishEvaluation?.(evaluationId, autoSubmit);
+      analytics.trackEvent(GA4_EVENTS.EVALUATION_COMPLETED, {
+        evaluation_id: evaluationId,
+        total_sections: appSections.length,
+      });
     } catch (e) {
       console.error(e);
     }
@@ -1123,6 +1147,11 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
       const sec = appSections.find(s => s.id === secId);
       const richAnswers: any[] = [];
       if (sec && sec.type === "KNOWLEDGE_ASSESSMENT" && sec.questions) {
+        analytics.trackEvent(GA4_EVENTS.ASSESSMENT_SUBMITTED, {
+          assessment_id: evaluationId,
+          answered_count: Object.keys(answers).length,
+          total_questions: sec.questions.length,
+        });
         let secElapsed = 0;
         try {
           const startedAtStr = getStorageItem(`eval_${evalPrefix}_timer_sec_${sec.id}`);
@@ -1205,6 +1234,11 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
   const setAnswer = (qId: string, opt: any) => {
     setAnswers(prev => ({ ...prev, [qId]: opt }));
     touchAutosave();
+    analytics.trackEvent(GA4_EVENTS.QUESTION_ANSWERED, {
+      assessment_id: evaluationId,
+      question_index: qIndex,
+      question_type: activeSection?.type === "KNOWLEDGE_ASSESSMENT" ? activeSection.questions?.[qIndex]?.format || "mcq" : undefined,
+    });
   };
   const clearAnswer = (qId: string) => {
     setAnswers(prev => {

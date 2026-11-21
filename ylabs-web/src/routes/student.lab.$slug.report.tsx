@@ -4,6 +4,7 @@ import { getLab, type AdminLab } from "@/lib/adminLabs";
 import { loadSprints, type LabSprint } from "@/lib/labSprints";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
 import { LabReportView } from "@/components/shared/LabReportView";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 export const Route = createFileRoute("/student/lab/$slug/report")({
   component: LabReportWrapper,
@@ -46,6 +47,16 @@ function LabReportWrapper() {
         });
         setStatusOverrides(overrides);
         
+        analytics.trackEvent(GA4_EVENTS.REPORT_VIEWED, { report_type: "lab", lab_id: String(slug) });
+        const allDone = Array.isArray(subs) && subs.length > 0 && subs.every((s: any) => s.ticket_status === "done");
+        if (allDone) {
+          const latestSub = subs[subs.length - 1];
+          analytics.trackEvent(GA4_EVENTS.LAB_COMPLETED, {
+            lab_id: String(slug),
+            completion_status: "completed",
+            instance_id: latestSub?.id ? String(latestSub.id) : undefined,
+          });
+        }
         loadSprints(lab.id).then((s) => {
           if (active) {
             setRealSprints(s);

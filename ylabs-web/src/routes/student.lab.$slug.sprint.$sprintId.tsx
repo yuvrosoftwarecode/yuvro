@@ -72,6 +72,8 @@ function SprintPage() {
           <Link
             to="/student/lab/$slug"
             params={{ slug }}
+            data-analytics-action="nav_back_to_sprints"
+            data-analytics-component="navigation"
             className="inline-flex items-center gap-1 rounded-md border bg-card px-3 py-1.5 text-xs font-medium hover:bg-accent transition"
           >
             <ArrowLeft className="h-3 w-3" />
@@ -79,6 +81,8 @@ function SprintPage() {
           </Link>
           <button
             onClick={onUnlock}
+            data-analytics-action="unlock_track"
+            data-analytics-component="button"
             className="inline-flex items-center gap-1.5 rounded-md bg-warning px-4 py-1.5 text-xs font-medium text-warning-foreground hover:opacity-90 cursor-pointer shadow-xs transition"
           >
             <Zap className="h-3.5 w-3.5" />
@@ -95,6 +99,8 @@ function SprintPage() {
         <Link
           to="/student/lab/$slug"
           params={{ slug }}
+          data-analytics-action="nav_back_to_sprints"
+          data-analytics-component="navigation"
           className="inline-flex items-center gap-1 rounded-md border bg-card px-2.5 py-1.5 text-xs font-medium hover:bg-accent transition shadow-2xs"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
@@ -143,6 +149,8 @@ function SprintPage() {
                       onClick={handleTicketClick}
                       to="/student/lab/$slug/ticket/$ticketId"
                       params={{ slug: lab.slug || slug, ticketId: t.id }}
+                      data-analytics-action="ticket_select"
+                      data-analytics-component="card"
                       className="block rounded-lg border bg-card p-3 hover:border-primary/50 transition cursor-pointer shadow-2xs"
                     >
                       <div className="text-sm font-medium leading-snug">{t.title}</div>
