@@ -48,6 +48,7 @@ import { toast } from "sonner";
 import { loadRazorpayScript } from "@/lib/razorpay";
 import { StartLabModal } from "@/components/student/StartLabModal";
 import { loadStudentStats, type StudentStats } from "@/lib/studentStats";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 export const Route = createFileRoute("/student/lab/$slug")({
   component: LabDashboard,
@@ -679,6 +680,17 @@ function LabDashboard() {
     return labs.find((l) => l.slug === slug) ?? labs[0];
   }, [realLab, realSprints, slug, statusOverrides]);
 
+  useEffect(() => {
+    if (!slug || !isDashboardView) return;
+    const labTitle = realLab?.title || lab?.name || String(slug);
+    const category = (realLab as any)?.category || realLab?.type || (lab as any)?.category || "engineering";
+    analytics.trackEvent(GA4_EVENTS.LAB_VIEWED, {
+      lab_id: String(slug),
+      lab_title: labTitle,
+      category,
+    });
+  }, [slug, isDashboardView, realLab?.id]);
+
   const dummyTickets = useMemo(
     () => (getSystemDesignLab(slug) ? tickets.filter((t) => t.id.startsWith("SD-")) : tickets),
     [slug],
@@ -969,7 +981,15 @@ function LabDashboard() {
     try {
       const { default: api } = await import("@/utils/RestApiAuthUtil");
       const enrollRes: any = await api.post("/lab/enrollments/", { lab: realLab.id, lab_id: parseInt(realLab.id) || realLab.id, github_repo_name: repoNameToUse });
-      if (enrollRes) setEnrollmentInfo(enrollRes);
+      if (enrollRes) {
+        setEnrollmentInfo(enrollRes);
+        analytics.trackEvent(GA4_EVENTS.LAB_STARTED, {
+          lab_id: String(realLab.id),
+          lab_type: (realLab as any).category || realLab.type || "engineering",
+          difficulty: realLab.difficulty,
+          technology: (realLab as any).technology || realLab.type,
+        });
+      }
       setIsEnrolled(true);
       setEnrollModalOpen(false);
       const userMockKey = user?.id ? `mock_enrollments_${user.id}` : "mock_enrollments";
@@ -1303,6 +1323,8 @@ function LabDashboard() {
                       <button
                         key={s.id}
                         disabled={!isDsa}
+                        data-analytics-action="select_sprint"
+                        data-analytics-component="button"
                         onClick={() => openSprint(s.id, idx, realSprint)}
                         className={`text-left relative overflow-hidden rounded-xl border bg-card p-4 transition ${
                           !isDsa
@@ -1435,6 +1457,8 @@ function LabDashboard() {
                   href={enrollmentInfo.github_repo_url || (user?.github_username && enrollmentInfo.github_repo_name ? `https://github.com/${user.github_username}/${enrollmentInfo.github_repo_name}` : "#")}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-analytics-action="view_github_repo"
+                  data-analytics-component="link"
                   className="mt-3 inline-flex items-center gap-1.5 rounded-md border bg-accent/40 px-2.5 py-1.5 text-xs font-mono text-primary hover:bg-accent hover:text-foreground transition max-w-full"
                 >
                   <Github className="h-3.5 w-3.5 shrink-0" />
@@ -1522,6 +1546,8 @@ function LabDashboard() {
               <Link
                 to="/student/lab/$slug/report"
                 params={{ slug: lab.slug }}
+                data-analytics-action="view_lab_report"
+                data-analytics-component="button"
                 className="flex items-center justify-center gap-2 w-full rounded-md border bg-accent/40 px-3 py-2 text-xs font-medium hover:bg-accent hover:text-foreground transition-colors"
               >
                 View Full Report <ArrowRight className="h-3 w-3" />

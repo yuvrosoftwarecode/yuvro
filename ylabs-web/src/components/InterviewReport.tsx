@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import type { CSSProperties } from "react";
 import { ChevronDown, History } from "lucide-react";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 export const IR_CSS = `
 .ir{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif !important;--page:#f3f5fa;--card:#ffffff;--ink:#14192b;--body:#3f475c;--muted:#6f7890;--soft:#eef2fb;--brand:#4a7bdc;--bar:#e6eaf4;--bad:#c9372c;--bad-bg:#fdeae7;--warn:#9a5b00;--warn-bg:#fdf1d6;--good:#17744d;--good-bg:#e1f4ea;background:var(--page);color:var(--ink);font-family:inherit;line-height:1.5;padding:32px 20px 60px}
@@ -514,6 +515,16 @@ export default function InterviewReport({
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
+    analytics.trackEvent(GA4_EVENTS.INTERVIEW_REPORT_VIEWED, {
+      interview_id: r.id || "interview",
+    });
+    analytics.trackEvent(GA4_EVENTS.REPORT_VIEWED, {
+      report_type: "interview",
+      report_id: r.id || "interview",
+    });
+  }, [r.id]);
+
+  useEffect(() => {
     const t = setTimeout(() => setMeter(Math.max(r.score, 2)), 80);
     return () => clearTimeout(t);
   }, [r.score]);
@@ -566,7 +577,20 @@ export default function InterviewReport({
           <div className="ir-acts">
             <button className="ir-link" onClick={onTryAgain}>Try again</button>
             <button className="ir-link" onClick={copy}>Copy link</button>
-            <button className="ir-dl" onClick={() => (onDownload ? onDownload() : window.print())}>Download PDF</button>
+            <button
+              className="ir-dl"
+              onClick={() => {
+                analytics.trackEvent(GA4_EVENTS.REPORT_DOWNLOADED, {
+                  report_type: "interview",
+                  report_id: r.id || "interview",
+                  format: "pdf",
+                });
+                if (onDownload) onDownload();
+                else window.print();
+              }}
+            >
+              Download PDF
+            </button>
           </div>
         </header>
 

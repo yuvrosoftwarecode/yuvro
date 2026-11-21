@@ -28,6 +28,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import type { Evaluation } from "@/lib/recruiter";
 import type { Candidate } from "@/lib/recruiterCandidates";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 import { experienceBucket, vitarkaLabel } from "@/lib/recruiterCandidates";
 import EmptyState from "@/components/common/EmptyState";
 
@@ -1220,6 +1221,11 @@ function DownloadCenter({
     a.click();
     URL.revokeObjectURL(url);
     setGen(null);
+    analytics.trackEvent(GA4_EVENTS.REPORT_DOWNLOADED, {
+      report_type: label,
+      report_id: ev.id,
+      format: "pdf",
+    });
     notify(`${label} downloaded`);
   };
   const csv = () => {

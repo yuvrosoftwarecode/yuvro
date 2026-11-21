@@ -153,6 +153,9 @@ export function AdminShell({
                       to={n.to as any}
                       title={collapsed && !mobileOpen ? n.label : undefined}
                       onClick={() => setMobileOpen(false)}
+                      data-analytics-action={`admin_nav_${n.label.toLowerCase().replace(/\s+/g, "_")}`}
+                      data-analytics-component="navigation"
+                      data-analytics-category="admin"
                       className={`w-full flex items-center gap-2.5 rounded-md ${collapsed && !mobileOpen ? "justify-center px-0 py-2" : "px-3 py-1.5"} transition ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                     >
                       <n.icon className="h-4 w-4 shrink-0" />{" "}
@@ -170,6 +173,9 @@ export function AdminShell({
               logout();
               nav({ to: "/" });
             }}
+            data-analytics-action="admin_sign_out"
+            data-analytics-component="button"
+            data-analytics-category="admin"
             title="Sign out"
             className={`w-full flex items-center gap-2.5 rounded-md ${collapsed && !mobileOpen ? "justify-center px-0 py-2" : "px-3 py-2"} text-sm text-muted-foreground hover:bg-accent hover:text-foreground`}
           >

@@ -4,6 +4,7 @@ import LearnerHero from "@/components/LearnerHero";
 import UpcomingLabsCarousel, { type Lab as UpcomingLabItem } from "@/components/UpcomingLabsCarousel";
 import { ProgressRing } from "@/components/ProgressRing";
 import { useAuth } from "@/lib/auth";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 import { loadLabs } from "@/lib/adminLabs";
 import { invalidateStudentStats } from "@/lib/studentStats";
 import restApiAuthUtil from "@/utils/RestApiAuthUtil";
@@ -73,6 +74,7 @@ function Hub() {
   const [weeklyTasks, setWeeklyTasks] = useState<WeeklyTask[]>([]);
 
   useEffect(() => {
+    analytics.trackEvent(GA4_EVENTS.DASHBOARD_VIEWED, { dashboard_type: "student" });
     loadActiveWeeklyTasks().then((wts) => setWeeklyTasks(wts)).catch(() => {});
     invalidateStudentStats();
     loadLabs()
@@ -578,6 +580,8 @@ function Hub() {
                       key={wt.id}
                       to="/student/weekly-task"
                       search={{ id: wt.id }}
+                      data-analytics-action="select_weekly_task"
+                      data-analytics-component="card"
                       className="flex items-center justify-between gap-4 rounded-xl border bg-card p-5 hover:bg-muted/40 transition-colors shadow-sm"
                     >
                       <div className="min-w-0">
@@ -747,7 +751,11 @@ function FeaturedCard({
   const tierLabel = tier === "premium" ? "Premium" : tier === "freemium" ? "Freemium" : "Free";
 
   return (
-    <div className="group relative flex flex-col justify-between h-full w-full overflow-hidden rounded-xl border bg-card p-5 hover:border-primary/50 transition">
+    <div
+      data-analytics-action="lab_card_select"
+      data-analytics-component="card"
+      className="group relative flex flex-col justify-between h-full w-full overflow-hidden rounded-xl border bg-card p-5 hover:border-primary/50 transition"
+    >
       <div>
         <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground inline-flex items-center gap-1">
           {tier === "premium" && <Lock className="h-3 w-3" />}
@@ -768,6 +776,8 @@ function FeaturedCard({
           <Link
             to="/student/lab/$slug"
             params={{ slug: lab.id }}
+            data-analytics-action="view_lab"
+            data-analytics-component="button"
             className="inline-flex items-center justify-center rounded-md border px-4 py-1.5 text-xs font-medium hover:bg-accent/50 transition"
           >
             View
@@ -775,6 +785,8 @@ function FeaturedCard({
           <button
             onClick={onToggle}
             disabled={isLoading}
+            data-analytics-action="enroll_lab"
+            data-analytics-component="button"
             className={`flex-1 inline-flex items-center justify-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition ${
               isEnrolled
                 ? "border border-success/40 bg-success/10 text-success"
@@ -805,7 +817,11 @@ function EnrolledCard({ lab }: { lab: CatalogLab }) {
   const tierLabel = tier === "premium" ? "Premium" : tier === "freemium" ? "Freemium" : "Free";
 
   return (
-    <div className="group relative flex flex-col justify-between h-full w-full overflow-hidden rounded-xl border bg-card p-5 hover:border-primary/50 hover:ring-glow transition">
+    <div
+      data-analytics-action="lab_card_select"
+      data-analytics-component="card"
+      className="group relative flex flex-col justify-between h-full w-full overflow-hidden rounded-xl border bg-card p-5 hover:border-primary/50 hover:ring-glow transition"
+    >
       <div>
         <div className="flex items-start justify-between">
           <div className="min-w-0 pr-3">
@@ -833,6 +849,8 @@ function EnrolledCard({ lab }: { lab: CatalogLab }) {
         <Link
           to="/student/lab/$slug"
           params={{ slug: lab.id }}
+          data-analytics-action={lab.completed > 0 ? "continue_lab" : "start_lab"}
+          data-analytics-component="button"
           className="w-full inline-flex items-center justify-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition"
         >
           {lab.completed > 0 ? "Continue" : "Start"} <ArrowRight className="h-3.5 w-3.5" />

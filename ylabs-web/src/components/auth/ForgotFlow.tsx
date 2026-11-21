@@ -7,6 +7,7 @@ import { OtpInput, OtpInputHandle } from "./OtpInput";
 import { SuccessView } from "./SuccessView";
 import { showToast } from "./toastService";
 import type { AuthTab } from "./types";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 interface ForgotFlowProps {
   initialUidb64?: string;
@@ -93,6 +94,7 @@ export function ForgotFlow({ initialUidb64, initialToken, redirectUrl, onNavigat
 
     setIsLoading(true);
     try {
+      analytics.trackEvent(GA4_EVENTS.PASSWORD_RESET, { step: "requested" });
       if (method === "link") {
         // Send reset link
         await authService.forgotPassword(email.trim());
@@ -234,6 +236,7 @@ export function ForgotFlow({ initialUidb64, initialToken, redirectUrl, onNavigat
 
       setNewPassword("");
       setConfirmPassword("");
+      analytics.trackEvent(GA4_EVENTS.PASSWORD_RESET, { step: "completed" });
       setSubStep("done");
 
       // Auto signin: smoothly redirect to destination

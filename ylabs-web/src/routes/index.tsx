@@ -193,7 +193,7 @@ function LandingPage() {
   };
 
   /* Navigation actions */
-  const goCompany = () => nav({ to: "/recruiter-login" });
+  const goCompany = () => nav({ to: "/book-demo" });
   const goDeveloper = () => {
     nav({ to: "/student/dashboard" });
   };
@@ -330,7 +330,7 @@ function LandingPage() {
                   goCompany();
                 }}
               >
-                Log in as a company
+                Book a demo
               </button>
             </section>
           </div>
@@ -390,20 +390,20 @@ function LandingPage() {
           </div>
         </div>
 
-        <section className="trial" aria-label="Free trial">
+        <section className="trial" aria-label="Book a demo">
           <div className="tl">
             <h3>
               Don’t take our word for it. <em>See it work.</em>
             </h3>
             <p>
-              Skip the long product tour. Run real simulations, coding assessments and AI interviews
-              with your own hiring team for 14 days, and see how candidates actually perform.
+              Skip the long product tour. Book a demo to see how candidates perform on real simulations,
+              coding assessments and AI interviews with your own hiring team.
             </p>
             <button
               className="tbtn"
-              onClick={() => nav({ to: "/auth", search: { tab: "signup" } })}
+              onClick={() => nav({ to: "/book-demo" })}
             >
-              Start your free 14-day trial
+              Book a demo
             </button>
           </div>
           <ul className="tr">
