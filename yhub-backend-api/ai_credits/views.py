@@ -1,5 +1,6 @@
 import logging
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status, views
 from rest_framework.response import Response
 
@@ -12,6 +13,7 @@ from .models import CreditLedgerEntry, CreditPack, CreditUsageRecord
 from .pagination import CreditHistoryPagination
 from .payment_service import CreditPaymentService
 from .serializers import (
+    AdminAddCreditsRequestSerializer,
     AdminReconcileRequestSerializer,
     CreateOrderRequestSerializer,
     CreditDeficitResolutionSerializer,
@@ -333,5 +335,125 @@ class DeductCreditsView(views.APIView):
         except Exception as e:
             logger.error(f"Error deducting credits: {e}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+User = get_user_model()
+
+
+def is_admin_or_staff(user) -> bool:
+    if not user or not user.is_authenticated:
+        return False
+    if getattr(user, "is_staff", False) or getattr(user, "is_superuser", False):
+        return True
+    if hasattr(user, "is_admin") and callable(user.is_admin) and user.is_admin():
+        return True
+    if getattr(user, "role", None) == "admin":
+        return True
+    roles = getattr(user, "roles", None)
+    if isinstance(roles, dict) and any(r == "admin" for r in roles.values()):
+        return True
+    return False
+
+
+class AdminAddCreditsView(views.APIView):
+    """
+    Administrative endpoint to grant bonus or purchased AI credits to a student/user account.
+    Records an auditable ledger entry.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        if not is_admin_or_staff(request.user):
+            return Response(
+                {"error": "forbidden", "message": "Administrative privileges required."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        serializer = AdminAddCreditsRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = serializer.validated_data["email"]
+        amount = serializer.validated_data["amount"]
+        bucket = serializer.validated_data.get("bucket", "bonus")
+        description = serializer.validated_data.get("description", "Admin credit top-up")
+        idempotency_key = serializer.validated_data.get("idempotency_key")
+
+        try:
+            wallet, entry = WalletService.add_admin_credits(
+                email=email,
+                amount=amount,
+                bucket=bucket,
+                description=description,
+                admin_user=request.user,
+                idempotency_key=idempotency_key,
+            )
+            return Response(
+                {
+                    "status": "success",
+                    "message": f"Successfully added {amount:,} {bucket} credits to {email}.",
+                    "wallet": CreditWalletSerializer(wallet).data,
+                    "ledger_entry": {
+                        "id": str(entry.id),
+                        "entry_type": entry.entry_type,
+                        "bucket": entry.bucket,
+                        "delta": entry.delta,
+                        "balance_after_bonus": entry.balance_after_bonus,
+                        "balance_after_purchased": entry.balance_after_purchased,
+                        "description": entry.description,
+                        "created_at": entry.created_at.isoformat() if hasattr(entry, "created_at") else None,
+                    },
+                },
+                status=status.HTTP_200_OK,
+            )
+        except ValueError as e:
+            return Response({"error": "invalid_request", "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Failed to add admin credits for {email}: {e}", exc_info=True)
+            return Response({"error": "server_error", "message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AdminUserWalletView(views.APIView):
+    """
+    Administrative endpoint to inspect a specific user's wallet breakdown by email.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if not is_admin_or_staff(request.user):
+            return Response(
+                {"error": "forbidden", "message": "Administrative privileges required."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        email = request.query_params.get("email")
+        if not email:
+            return Response(
+                {"error": "missing_email", "message": "Email query parameter is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email = email.strip()
+        user = User.objects.filter(email__iexact=email).first()
+        if not user:
+            # If user hasn't accessed YHub yet, return default empty wallet
+            return Response(
+                {
+                    "bonus_balance": 0,
+                    "purchased_balance": 0,
+                    "reserved_bonus": 0,
+                    "reserved_purchased": 0,
+                    "total_available": 0,
+                    "total_reserved": 0,
+                    "total_balance": 0,
+                    "signup_bonus_granted": False,
+                    "uncollected_deficit": 0,
+                    "reconciliation_status": "settled",
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        wallet, _ = WalletService.get_or_create_wallet(user=user)
+        return Response(CreditWalletSerializer(wallet).data, status=status.HTTP_200_OK)
 
 

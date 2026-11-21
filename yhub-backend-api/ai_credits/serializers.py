@@ -186,3 +186,24 @@ class AdminReconcileRequestSerializer(serializers.Serializer):
     )
     notes = serializers.CharField(required=False, allow_blank=True, default="")
     idempotency_key = serializers.CharField(required=False, allow_blank=True, max_length=255)
+
+
+class AdminAddCreditsRequestSerializer(serializers.Serializer):
+    """Validates administrative request to add credits to a user's wallet."""
+    email = serializers.EmailField(required=True)
+    amount = serializers.IntegerField(required=True, min_value=1)
+    bucket = serializers.ChoiceField(
+        choices=[("bonus", "Bonus"), ("purchased", "Purchased")],
+        default="bonus",
+    )
+    description = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        default="Admin credit top-up",
+        max_length=255,
+    )
+    idempotency_key = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        max_length=255,
+    )

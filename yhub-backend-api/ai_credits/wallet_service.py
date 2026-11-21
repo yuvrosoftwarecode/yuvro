@@ -963,3 +963,95 @@ class WalletService:
             logger.info(f"Deducted {amount} credits from user {user.id} ({description})")
             return wallet, entry
 
+    @classmethod
+    def add_admin_credits(
+        cls,
+        user=None,
+        email: Optional[str] = None,
+        amount: int = 0,
+        bucket: str = CreditBucket.BONUS,
+        description: str = "Admin credit top-up",
+        admin_user=None,
+        idempotency_key: Optional[str] = None,
+        metadata: Optional[dict] = None,
+    ) -> Tuple[CreditWallet, CreditLedgerEntry]:
+        """
+        Administratively adds bonus or purchased credits to a user's wallet with an auditable ledger entry.
+        If user is not provided, looks up or creates user by email.
+        """
+        if amount <= 0:
+            raise ValueError("Amount of credits must be greater than 0.")
+
+        if user is None:
+            if not email:
+                raise ValueError("Either user or email must be provided.")
+            email = email.strip()
+            user = User.objects.filter(email__iexact=email).first()
+            if not user:
+                # Create stub user if student was registered in another service
+                username = email.split("@")[0]
+                base_username = username
+                counter = 1
+                while User.objects.filter(username__iexact=username).exists():
+                    username = f"{base_username}_{counter}"
+                    counter += 1
+                user = User.objects.create(
+                    email=email,
+                    username=username,
+                )
+
+        bucket_enum = (
+            CreditBucket.PURCHASED
+            if str(bucket).lower() == "purchased"
+            else CreditBucket.BONUS
+        )
+        idem = idempotency_key or f"admin_adj:{user.id}:{uuid.uuid4().hex}"
+
+        if idempotency_key:
+            existing = CreditLedgerEntry.objects.filter(idempotency_key=idempotency_key).first()
+            if existing:
+                return existing.wallet, existing
+
+        with transaction.atomic():
+            if idempotency_key:
+                existing = CreditLedgerEntry.objects.filter(idempotency_key=idempotency_key).first()
+                if existing:
+                    return existing.wallet, existing
+
+            wallet, _ = CreditWallet.objects.select_for_update().get_or_create(user=user)
+
+            if bucket_enum == CreditBucket.BONUS:
+                wallet.bonus_balance += amount
+                wallet.save(update_fields=["bonus_balance", "updated_at"])
+            else:
+                wallet.purchased_balance += amount
+                wallet.save(update_fields=["purchased_balance", "updated_at"])
+
+            entry_metadata = {
+                **(metadata or {}),
+            }
+            if admin_user:
+                entry_metadata["admin_id"] = str(getattr(admin_user, "id", ""))
+                entry_metadata["admin_email"] = str(getattr(admin_user, "email", ""))
+
+            entry = CreditLedgerEntry.objects.create(
+                wallet=wallet,
+                user=user,
+                entry_type=CreditEntryType.ADMIN_ADJUSTMENT,
+                bucket=bucket_enum,
+                delta=amount,
+                balance_after_bonus=wallet.bonus_balance,
+                balance_after_purchased=wallet.purchased_balance,
+                reserved_after_bonus=wallet.reserved_bonus,
+                reserved_after_purchased=wallet.reserved_purchased,
+                idempotency_key=idem,
+                description=description,
+                metadata=entry_metadata,
+            )
+
+            logger.info(
+                f"Successfully added {amount:,} {bucket_enum} credits to user {user.id} ({user.email}). "
+                f"New total available: {wallet.total_available:,}"
+            )
+            return wallet, entry
+
