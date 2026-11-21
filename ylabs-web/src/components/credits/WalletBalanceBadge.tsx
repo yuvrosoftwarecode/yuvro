@@ -113,7 +113,7 @@ export const WalletBalanceBadge: React.FC<WalletBalanceBadgeProps> = ({
                   ? "text-amber-600 dark:text-amber-400"
                   : isFlagged
                   ? "text-amber-600 dark:text-amber-400"
-                  : "text-foreground"
+                  : "text-[#f7931e]"
               }`}
             >
               {hasDeficit ? "Deficit" : isFlagged ? "Alert" : formatNumber(availableCredits)}

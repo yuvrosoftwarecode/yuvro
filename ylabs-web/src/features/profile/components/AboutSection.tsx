@@ -93,9 +93,7 @@ export const AboutSection: React.FC<{ isOwner?: boolean }> = ({ isOwner = true }
             </button>
           )}
         </div>
-      ) : !isOwner ? (
-        <p className="text-sm text-muted">No information provided.</p>
-      ) : (
+      ) : !isOwner ? null : (
         <EmptyState
           title="No summary provided yet"
           description="Click 'Edit' to tell people about yourself."

@@ -129,6 +129,29 @@ class CodeExecutorService {
     return data;
   }
 
+  async executeRaw(code: string, language: string): Promise<{ success: boolean; output: string; error?: string; status: string; execution_time?: number }> {
+    try {
+      const res: any = await restApiUtilCodeExecuter.post('/execute', {
+        code,
+        language,
+      });
+      return {
+        success: res.success ?? (res.status === 'completed'),
+        output: res.output || '',
+        error: res.error || '',
+        status: res.status || (res.success ? 'completed' : 'error'),
+        execution_time: res.execution_time || 0,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        output: '',
+        error: err.message || 'Execution error',
+        status: 'error',
+      };
+    }
+  }
+
   async executeCode(request: CodeExecutionRequest): Promise<ExecutionResult> {
     const timeLimit = request.time_limit || 10;
     const memoryLimit = request.memory_limit || 256;
