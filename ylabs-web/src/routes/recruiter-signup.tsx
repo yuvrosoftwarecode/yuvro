@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { ArrowRight, Eye, EyeOff, KeyRound, ShieldCheck, Loader2 } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, KeyRound, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import authService from "@/services/authService";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/components/ui/input-otp";
 
 export const Route = createFileRoute("/recruiter-signup")({
@@ -135,7 +136,8 @@ function RecruiterSignUpPage() {
       }
       
       const response = await authService.registerRecruiter(payload);
-      
+      analytics.trackEvent(GA4_EVENTS.SIGN_UP, { method: "recruiter", role: "recruiter" });
+      analytics.trackEvent(GA4_EVENTS.ONBOARDING_COMPLETED, { user_type: "recruiter" });
       login(response.user, response.access);
       nav({ to: "/recruiter" });
     } catch (err: any) {
@@ -159,7 +161,7 @@ function RecruiterSignUpPage() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    enter();
+    setError("Recruiter registration is currently disabled. Please book a demo.");
   };
 
   const handleSSO = () => {
@@ -223,6 +225,27 @@ function RecruiterSignUpPage() {
               </div>
             </div>
 
+            {/* Disabled Notice */}
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-sm">Recruiter Registration Disabled</p>
+                  <p className="mt-1 text-[13px] text-amber-800 leading-relaxed">
+                    New recruiter signups are currently closed. Company evaluation workspaces are set up exclusively through our team via demo.
+                  </p>
+                  <div className="mt-3">
+                    <Link
+                      to="/book-demo"
+                      className="inline-flex items-center justify-center font-semibold text-[13px] text-white px-3.5 py-1.5 rounded-lg bg-[#f7931e] hover:bg-[#e08215] transition-colors"
+                    >
+                      Book a demo
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <form onSubmit={submit} className="mt-5 space-y-3">
               {error && (
                 <div className="rounded-md bg-red-50 p-2 text-sm text-red-600 border border-red-100">
@@ -239,8 +262,8 @@ function RecruiterSignUpPage() {
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Enter first name"
                     required
-                    disabled={loading}
-                    className="mt-1.5 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                    disabled={true}
+                    className="mt-1.5 w-full rounded-md border border-black/10 bg-neutral-100 px-3 py-2 text-[14px] outline-none transition placeholder:text-[#9A9A9A] cursor-not-allowed opacity-60"
                   />
                 </div>
                 <div>
@@ -250,8 +273,8 @@ function RecruiterSignUpPage() {
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Enter last name"
-                    disabled={loading}
-                    className="mt-1.5 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                    disabled={true}
+                    className="mt-1.5 w-full rounded-md border border-black/10 bg-neutral-100 px-3 py-2 text-[14px] outline-none transition placeholder:text-[#9A9A9A] cursor-not-allowed opacity-60"
                   />
                 </div>
               </div>
@@ -265,8 +288,8 @@ function RecruiterSignUpPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@company.com"
                     required
-                    disabled={loading}
-                    className="mt-1.5 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                    disabled={true}
+                    className="mt-1.5 w-full rounded-md border border-black/10 bg-neutral-100 px-3 py-2 text-[14px] outline-none transition placeholder:text-[#9A9A9A] cursor-not-allowed opacity-60"
                   />
                 </div>
 
@@ -276,8 +299,8 @@ function RecruiterSignUpPage() {
                     value={selectedCompanyId}
                     onChange={(e) => setSelectedCompanyId(e.target.value)}
                     required
-                    disabled={loading}
-                    className="mt-1.5 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-[14px] outline-none transition focus:border-[#0A0A0A] disabled:opacity-50"
+                    disabled={true}
+                    className="mt-1.5 w-full rounded-md border border-black/10 bg-neutral-100 px-3 py-2 text-[14px] outline-none transition cursor-not-allowed opacity-60"
                   >
                     <option value="" disabled>Select a company</option>
                     {companies.map((company: any) => (
@@ -300,8 +323,8 @@ function RecruiterSignUpPage() {
                       onChange={(e) => setNewCompanyName(e.target.value)}
                       placeholder="Acme Corp"
                       required={selectedCompanyId === "other"}
-                      disabled={loading}
-                      className="mt-1 w-full rounded-md border border-black/15 bg-white px-2.5 py-1.5 text-[13px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                      disabled={true}
+                      className="mt-1 w-full rounded-md border border-black/10 bg-neutral-100 px-2.5 py-1.5 text-[13px] outline-none transition placeholder:text-[#9A9A9A] cursor-not-allowed opacity-60"
                     />
                   </div>
                   <div className="col-span-3 sm:col-span-1">
@@ -312,8 +335,8 @@ function RecruiterSignUpPage() {
                       onChange={(e) => setNewCompanyWebsite(e.target.value)}
                       placeholder="https://acme.com"
                       required={selectedCompanyId === "other"}
-                      disabled={loading}
-                      className="mt-1 w-full rounded-md border border-black/15 bg-white px-2.5 py-1.5 text-[13px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                      disabled={true}
+                      className="mt-1 w-full rounded-md border border-black/10 bg-neutral-100 px-2.5 py-1.5 text-[13px] outline-none transition placeholder:text-[#9A9A9A] cursor-not-allowed opacity-60"
                     />
                   </div>
                   <div className="col-span-3 sm:col-span-1">
@@ -324,8 +347,8 @@ function RecruiterSignUpPage() {
                       onChange={(e) => setNewCompanyDomain(e.target.value)}
                       placeholder="acme.com"
                       required={selectedCompanyId === "other"}
-                      disabled={loading}
-                      className="mt-1 w-full rounded-md border border-black/15 bg-white px-2.5 py-1.5 text-[13px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                      disabled={true}
+                      className="mt-1 w-full rounded-md border border-black/10 bg-neutral-100 px-2.5 py-1.5 text-[13px] outline-none transition placeholder:text-[#9A9A9A] cursor-not-allowed opacity-60"
                     />
                   </div>
                 </div>
@@ -343,14 +366,14 @@ function RecruiterSignUpPage() {
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••"
                           required
-                          disabled={loading}
-                          className="w-full rounded-md border border-black/15 bg-white px-3 py-2 pr-9 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                          disabled={true}
+                          className="w-full rounded-md border border-black/10 bg-neutral-100 px-3 py-2 pr-9 text-[14px] outline-none transition placeholder:text-[#9A9A9A] cursor-not-allowed opacity-60"
                         />
                         <button
                           type="button"
                           onClick={() => setShow((s) => !s)}
-                          disabled={loading}
-                          className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-1 text-[#6B6B6B] hover:text-[#0A0A0A] disabled:opacity-50"
+                          disabled={true}
+                          className="absolute right-1 top-1/2 -translate-y-1/2 rounded p-1 text-[#6B6B6B] disabled:opacity-40 cursor-not-allowed"
                           aria-label="Toggle password visibility"
                         >
                           {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -367,8 +390,8 @@ function RecruiterSignUpPage() {
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           placeholder="••••••••"
                           required
-                          disabled={loading}
-                          className="w-full rounded-md border border-black/15 bg-white px-3 py-2 pr-9 text-[14px] outline-none transition placeholder:text-[#9A9A9A] focus:border-[#0A0A0A] disabled:opacity-50"
+                          disabled={true}
+                          className="w-full rounded-md border border-black/10 bg-neutral-100 px-3 py-2 pr-9 text-[14px] outline-none transition placeholder:text-[#9A9A9A] cursor-not-allowed opacity-60"
                         />
                       </div>
                     </div>
@@ -376,20 +399,10 @@ function RecruiterSignUpPage() {
 
                   <button
                     type="submit"
-                    disabled={loading}
-                    className="mt-4 group inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#0A0A0A] px-4 py-2.5 text-[14px] font-medium text-white transition hover:bg-black disabled:opacity-70"
+                    disabled={true}
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-neutral-300 px-4 py-2.5 text-[14px] font-medium text-neutral-500 cursor-not-allowed"
                   >
-                    {loading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Sending OTP...
-                      </>
-                    ) : (
-                      <>
-                        Continue
-                        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-                      </>
-                    )}
+                    Registration Disabled
                   </button>
                 </>
               ) : (
@@ -397,7 +410,7 @@ function RecruiterSignUpPage() {
                   <p className="text-sm text-muted-foreground mb-4 text-center">
                     We sent a 6-digit code to <strong>{email}</strong>
                   </p>
-                  <InputOTP maxLength={6} value={otp} onChange={setOtp} disabled={loading}>
+                  <InputOTP maxLength={6} value={otp} onChange={setOtp} disabled={true}>
                     <InputOTPGroup>
                       <InputOTPSlot index={0} className="w-11 h-12 sm:w-12 sm:h-14 text-lg" />
                       <InputOTPSlot index={1} className="w-11 h-12 sm:w-12 sm:h-14 text-lg" />
@@ -411,41 +424,20 @@ function RecruiterSignUpPage() {
                     </InputOTPGroup>
                   </InputOTP>
 
-                  <div className="mt-4 flex items-center gap-2">
-                    <button
-                      type="button"
-                      disabled={cooldown > 0 || loading}
-                      onClick={sendOtp}
-                      className="text-xs text-[#6B6B6B] hover:text-[#0A0A0A] disabled:opacity-50"
-                    >
-                      {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend OTP"}
-                    </button>
-                  </div>
-
                   <button
                     type="submit"
-                    disabled={loading || otp.length !== 6}
-                    className="mt-6 group inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#0A0A0A] px-4 py-2.5 text-[14px] font-medium text-white transition hover:bg-black disabled:opacity-70"
+                    disabled={true}
+                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-neutral-300 px-4 py-2.5 text-[14px] font-medium text-neutral-500 cursor-not-allowed"
                   >
-                    {loading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Verifying...
-                      </>
-                    ) : (
-                      <>
-                        Verify & Register
-                        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-                      </>
-                    )}
+                    Registration Disabled
                   </button>
                 </div>
               )}
 
-              <div className="text-center">
-                <span className="text-[13px] text-[#6B6B6B]">Already have an account? </span>
-                <Link to="/recruiter-login" className="text-[13px] font-medium text-[#0A0A0A] hover:underline">
-                  Sign in
+              <div className="text-center pt-2">
+                <span className="text-[13px] text-[#6B6B6B]">Want to explore Yuvro Labs? </span>
+                <Link to="/book-demo" className="text-[13px] font-medium text-[#f7931e] hover:underline">
+                  Book a demo
                 </Link>
               </div>
 
@@ -463,11 +455,11 @@ function RecruiterSignUpPage() {
               <button
                 type="button"
                 onClick={handleSSO}
-                disabled={loading}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-black/15 bg-white px-4 py-2 text-[14px] font-medium text-[#0A0A0A] transition hover:border-[#0A0A0A] disabled:opacity-50"
+                disabled={true}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-black/10 bg-neutral-100 px-4 py-2 text-[14px] font-medium text-neutral-400 cursor-not-allowed"
               >
-                <KeyRound className="h-4 w-4" />
-                Continue with SSO
+                <KeyRound className="h-4 w-4 text-neutral-400" />
+                Continue with SSO (Disabled)
               </button>
             </form>
           </div>

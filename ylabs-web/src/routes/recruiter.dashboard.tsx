@@ -18,6 +18,7 @@ import {
 } from "@/lib/recruiter";
 import LoadingSkeleton from "@/components/common/LoadingSkeleton";
 import ErrorState from "@/components/common/ErrorState";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 export const Route = createFileRoute("/recruiter/dashboard")({
   head: () => ({
@@ -51,6 +52,7 @@ function RecruiterDashboard() {
   };
 
   useEffect(() => {
+    analytics.trackEvent(GA4_EVENTS.DASHBOARD_VIEWED, { dashboard_type: "recruiter" });
     loadData();
   }, []);
 
@@ -83,11 +85,22 @@ function RecruiterDashboard() {
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <Link
             to="/recruiter/billing"
+            data-analytics-action="recruiter_manage_plan"
+            data-analytics-component="button"
+            data-analytics-category="recruiter"
             className="rec-btn-secondary inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition hover:bg-neutral-50 shadow-sm"
           >
             <Sparkles className="h-4 w-4 text-[#F7931E]" /> Manage Plan
           </Link>
-          <button onClick={onCreate} className="rec-btn w-full sm:w-auto">Create evaluation</button>
+          <button
+            onClick={onCreate}
+            data-analytics-action="recruiter_create_evaluation"
+            data-analytics-component="button"
+            data-analytics-category="recruiter"
+            className="rec-btn w-full sm:w-auto"
+          >
+            Create evaluation
+          </button>
         </div>
       </div>
 
@@ -232,14 +245,30 @@ function RecruiterDashboard() {
         <div className="mt-10">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="rec-fg">Recent evaluations</h2>
-            <Link to="/recruiter/evaluations" className="rec-link">View all</Link>
+            <Link
+              to="/recruiter/evaluations"
+              data-analytics-action="view_all_evaluations"
+              data-analytics-component="navigation"
+              data-analytics-category="recruiter"
+              className="rec-link"
+            >
+              View all
+            </Link>
           </div>
           <div className="rec-card overflow-hidden">
             {safeEvals.length === 0 ? (
               <div className="p-8 text-center">
                 <div className="rec-fg text-[16px] font-medium">No evaluations yet</div>
                 <p className="rec-muted mt-1 text-[14px]">Create your first evaluation to start testing candidates.</p>
-                <button onClick={onCreate} className="rec-btn mt-4">Create evaluation</button>
+                <button
+                  onClick={onCreate}
+                  data-analytics-action="recruiter_create_evaluation"
+                  data-analytics-component="button"
+                  data-analytics-category="recruiter"
+                  className="rec-btn mt-4"
+                >
+                  Create evaluation
+                </button>
               </div>
             ) : (
               safeEvals.slice(0, 5).map((e, i) => {
@@ -250,6 +279,9 @@ function RecruiterDashboard() {
                     to="/recruiter/evaluations/$id/workspace"
                     params={{ id: e.id }}
                     search={{ tab: "overview", view: "edit" } as any}
+                    data-analytics-action="select_evaluation_card"
+                    data-analytics-component="card"
+                    data-analytics-category="recruiter"
                     className={`rec-row rec-border flex items-center gap-6 px-5 py-4 transition-colors ${i ? "border-t" : ""}`}
                   >
                     <div className="min-w-0 flex-1">

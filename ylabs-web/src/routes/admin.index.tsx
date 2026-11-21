@@ -16,6 +16,7 @@ import { restApiAuthUtil, yhubApiAuthUtil } from "@/utils/RestApiAuthUtil";
 import { loadLabs, type AdminLab } from "@/lib/adminLabs";
 import { loadWeeklyTasks } from "@/lib/weeklyTasks";
 import { questionBankService } from "@/services/questionBankService";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminIndex,
@@ -41,6 +42,7 @@ function AdminIndex() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    analytics.trackEvent(GA4_EVENTS.DASHBOARD_VIEWED, { dashboard_type: "admin" });
     let mounted = true;
     async function loadDashboardData() {
       setLoading(true);
@@ -105,7 +107,6 @@ function AdminIndex() {
       mounted = false;
     };
   }, []);
-
   return (
     <AdminShell
       title="Dashboard"

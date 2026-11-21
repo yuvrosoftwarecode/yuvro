@@ -6,6 +6,7 @@ import { clearGlobalProctoringData } from "@/utils/proctoringStore";
 import { evaluationService } from "../services/evaluationService";
 import authService from "../services/authService";
 import { restApiAuthUtil, yhubApiAuthUtil, ycodeApiAuthUtil } from "../utils/RestApiAuthUtil";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 export const Route = createFileRoute("/evaluation/complete")({
   head: () => ({
@@ -60,6 +61,9 @@ function CompletePage() {
     }).catch(() => {});
     
     if (evaluationId) {
+      analytics.trackEvent(GA4_EVENTS.REPORT_VIEWED, {
+        report_type: "evaluation",
+      });
       evaluationService.getWorkspaceData(evaluationId).then((res) => {
         let tot = 0;
         (res.sections || []).forEach((sec: any) => {

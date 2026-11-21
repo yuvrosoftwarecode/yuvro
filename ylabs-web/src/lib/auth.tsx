@@ -1,5 +1,6 @@
 import { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
 import authService from "../services/authService";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 export interface User {
   id: string;
@@ -210,6 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     localStorage.removeItem("user");
     authService.logoutUser();
+    analytics.trackEvent(GA4_EVENTS.LOGOUT);
     dispatch({ type: "LOGOUT" });
   };
 

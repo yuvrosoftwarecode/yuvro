@@ -203,7 +203,7 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
 
   // Determine Category dynamically based on backend skills / text
   let category: Category = "Backend";
-  if (titleLower.includes("node") || titleLower.includes("express")) {
+  if (titleLower.includes("node") || titleLower.includes("express") || titleLower.includes("django")) {
     category = "Backend";
   } else if (titleLower.includes("python") && !titleLower.includes("machine learning")) {
     category = "Backend";
@@ -230,6 +230,8 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   ) {
     category = "Frontend";
   } else if (
+    titleLower.includes("forward deployed") ||
+    titleLower.includes("fde") ||
     allText.includes("system design") ||
     allText.includes("hld") ||
     allText.includes("lld") ||
@@ -290,6 +292,12 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("llm") || titleLower.includes("agent")) {
     icon = "🧠";
     color = "info";
+  } else if (titleLower.includes("django")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg";
+    color = "emerald";
+  } else if (titleLower.includes("forward deployed") || titleLower.includes("fde")) {
+    icon = "🚀";
+    color = "primary";
   } else if (category === "AI/ML" || titleLower.includes("machine learning")) {
     icon = "🤖";
     color = "info";
