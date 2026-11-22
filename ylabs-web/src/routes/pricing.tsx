@@ -15,13 +15,13 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "Simple pricing for Yuvro Labs, the developer-hiring platform. Coding assessments, simulation labs and AI mock interviews with a shared submission pool. Start free for 14 days.",
+          "Simple pricing for Yuvro Labs, the developer-hiring platform. Coding assessments, simulation labs and AI mock interviews with a shared submission pool. Book a demo today.",
       },
       { property: "og:title", content: "Pricing — Yuvro Labs" },
       {
         property: "og:description",
         content:
-          "Startup, Growth and Enterprise plans. Shared submission pool, repository setups and the Work Trail add-on. Start free for 14 days.",
+          "Startup, Growth and Enterprise plans. Shared submission pool, repository setups and the Work Trail add-on. Book a demo today.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -35,12 +35,6 @@ export const Route = createFileRoute("/pricing")({
    ============================================================ */
 
 const BRAND = "#F7931E";
-
-const TRIAL = {
-  days: 14,
-  submissions: 10,
-  repos: 1,
-};
 
 type FeatureItem = {
   text: string;
@@ -164,11 +158,11 @@ export function PricingContent({ onSubscribe }: { onSubscribe?: () => void }) {
       <style>{YLP_CSS}</style>
       <div className="mx-auto w-full max-w-[1120px] px-6 py-6">
         <Hero billing={billing} setBilling={setBilling} />
-        <TrialStrip onSubscribe={onSubscribe} />
+        <DemoBanner />
         <Plans billing={billing} onSubscribe={onSubscribe} />
         <HowSubmissionsWork />
         <Faq />
-        <ClosingBanner onSubscribe={onSubscribe} />
+        <ClosingBanner />
       </div>
     </div>
   );
@@ -183,7 +177,7 @@ export function PricingPage() {
       <StandardHeader />
       <div className="mx-auto w-full max-w-[1120px] px-6 py-12">
         <Hero billing={billing} setBilling={setBilling} />
-        <TrialStrip />
+        <DemoBanner />
         <Plans billing={billing} />
         <HowSubmissionsWork />
         <Faq />
@@ -275,71 +269,7 @@ function ToggleOption({
   );
 }
 
-function StartFreeButton({
-  className = "",
-  onSubscribe,
-}: {
-  className?: string;
-  onSubscribe?: () => void;
-}) {
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleStartTrial = async () => {
-    if (!isAuthenticated) {
-      selectPlan("trial", "monthly");
-      navigate({ to: "/auth", search: { tab: "signup" } });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      try {
-        await yhubApiAuthUtil.post("/payment/start_trial/", {});
-      } catch (e) {
-        // Fallback / sync with local ylabs backend if needed
-      }
-      await restApiAuthUtil.post("/recruiter/my-quota/", { plan_code: "free", billing_cycle: "trial" });
-      toast.success("Free trial activated successfully!");
-      if (onSubscribe) {
-        onSubscribe();
-      } else {
-        navigate({ to: "/recruiter/dashboard" });
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Failed to start trial");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isAuthenticated) {
-    return (
-      <button
-        type="button"
-        onClick={handleStartTrial}
-        disabled={isLoading}
-        className={`ylp-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-50 ${className}`}
-      >
-        {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-        {isLoading ? "Starting..." : "Start free"}
-      </button>
-    );
-  }
-
-  return (
-    <Link
-      to="/auth"
-      search={{ tab: "signup" }}
-      className={`ylp-btn-primary inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 ${className}`}
-    >
-      Start free
-    </Link>
-  );
-}
-
-function TrialStrip({ onSubscribe }: { onSubscribe?: () => void }) {
+function DemoBanner() {
   return (
     <section
       className="mb-14 flex flex-col items-center justify-between gap-4 rounded-2xl border px-6 py-5 sm:flex-row shadow-sm"
@@ -349,13 +279,17 @@ function TrialStrip({ onSubscribe }: { onSubscribe?: () => void }) {
       }}
     >
       <div className="text-center sm:text-left">
-        <p className="text-[15px] font-bold text-[#14192b] dark:text-white">Start free. No credit card needed.</p>
+        <p className="text-[15px] font-bold text-[#14192b] dark:text-white">See Yuvro Labs in action.</p>
         <p className="mt-1 text-sm text-[#646d84] dark:text-[#a1abc4]">
-          {TRIAL.days} days, {TRIAL.submissions} submissions to use anywhere, and {TRIAL.repos}{" "}
-          codebase repository setup.
+          Book a personalized live demo to explore simulation labs, AI interviews, and custom hiring pipelines.
         </p>
       </div>
-      <StartFreeButton className="shrink-0" onSubscribe={onSubscribe} />
+      <Link
+        to="/book-demo"
+        className="ylp-btn-primary inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 shrink-0"
+      >
+        Book a demo
+      </Link>
     </section>
   );
 }
@@ -480,8 +414,7 @@ function PlanCard({
 
   const handleBuyPlan = async () => {
     if (!isAuthenticated) {
-      selectPlan(planAny.id, billing);
-      navigate({ to: "/auth", search: { tab: "signup" } });
+      navigate({ to: "/book-demo" });
       return;
     }
 
@@ -684,9 +617,9 @@ function PlanCard({
           to="/book-demo"
           className="ylp-btn-outline inline-flex items-center justify-center rounded-full border border-[#646d84]/25 px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
         >
-          Contact us
+          Book a demo
         </Link>
-      ) : (
+      ) : isAuthenticated ? (
         <button
           type="button"
           onClick={handleBuyPlan}
@@ -694,8 +627,15 @@ function PlanCard({
           className="ylp-btn-primary inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-50"
         >
           {isPaying && <Loader2 className="h-4 w-4 animate-spin" />}
-          {isPaying ? "Processing..." : isAuthenticated ? "Upgrade plan" : "Start free"}
+          {isPaying ? "Processing..." : "Upgrade plan"}
         </button>
+      ) : (
+        <Link
+          to="/book-demo"
+          className="ylp-btn-primary inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95"
+        >
+          Book a demo
+        </Link>
       )}
     </div>
   );
@@ -834,7 +774,7 @@ function Faq() {
   );
 }
 
-function ClosingBanner({ onSubscribe }: { onSubscribe?: () => void }) {
+function ClosingBanner() {
   return (
     <section
       className="mt-16 flex flex-col items-center justify-between gap-4 rounded-2xl border px-8 py-6 sm:flex-row shadow-sm"
@@ -843,8 +783,16 @@ function ClosingBanner({ onSubscribe }: { onSubscribe?: () => void }) {
         backgroundColor: "rgba(247, 147, 30, 0.07)",
       }}
     >
-      <p className="text-[16px] font-bold text-[#14192b] dark:text-white">Try Yuvro free for {TRIAL.days} days</p>
-      <StartFreeButton className="shrink-0" onSubscribe={onSubscribe} />
+      <div className="text-center sm:text-left">
+        <p className="text-[16px] font-bold text-[#14192b] dark:text-white">Ready to hire engineers who can actually do the job?</p>
+        <p className="mt-1 text-sm text-[#646d84] dark:text-[#a1abc4]">Book a 1-on-1 walkthrough tailored to your team's needs.</p>
+      </div>
+      <Link
+        to="/book-demo"
+        className="ylp-btn-primary inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 shrink-0"
+      >
+        Book a demo
+      </Link>
     </section>
   );
 }

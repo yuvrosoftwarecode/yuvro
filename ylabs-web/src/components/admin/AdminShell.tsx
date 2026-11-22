@@ -17,6 +17,7 @@ import {
   Code2,
   Layers,
   LayoutDashboard,
+  Bot,
 } from "lucide-react";
 
 const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[] = [
@@ -37,6 +38,7 @@ const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[
     group: "Developer",
     items: [
       { to: "/admin/labs", label: "Labs", icon: FlaskConical },
+      { to: "/admin/mock-interviews", label: "Mock Interviews", icon: Bot },
       { to: "/admin/weekly-tasks", label: "Recurring Tasks", icon: CalendarDays },
       { to: "/admin/research", label: "AI Research Papers", icon: Sparkles },
     ],
@@ -178,6 +180,9 @@ export function AdminShell({
                       to={n.to as any}
                       title={collapsed && !mobileOpen ? n.label : undefined}
                       onClick={() => setMobileOpen(false)}
+                      data-analytics-action={`admin_nav_${n.label.toLowerCase().replace(/\s+/g, "_")}`}
+                      data-analytics-component="navigation"
+                      data-analytics-category="admin"
                       className={`w-full flex items-center gap-2.5 rounded-lg transition-colors ${
                         collapsed && !mobileOpen ? "justify-center px-0 py-2" : "px-3 py-2 text-[14px]"
                       } ${
@@ -201,6 +206,9 @@ export function AdminShell({
               logout();
               nav({ to: "/" });
             }}
+            data-analytics-action="admin_sign_out"
+            data-analytics-component="button"
+            data-analytics-category="admin"
             title="Sign out"
             className={`w-full flex items-center gap-2.5 rounded-md ${
               collapsed && !mobileOpen ? "justify-center px-0 py-2" : "px-3 py-2"

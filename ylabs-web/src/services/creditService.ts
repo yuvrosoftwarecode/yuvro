@@ -120,6 +120,36 @@ export const creditService = {
       params: { page: String(page), page_size: String(pageSize) },
     });
   },
+
+  async getUserWallet(email: string): Promise<CreditWallet> {
+    return await yhubApiAuthUtil.get<CreditWallet>("/credits/admin/user-wallet/", {
+      params: { email },
+    });
+  },
+
+  async addAdminCredits(payload: {
+    email: string;
+    amount: number;
+    bucket?: "bonus" | "purchased";
+    description?: string;
+    idempotency_key?: string;
+  }): Promise<{
+    status: string;
+    message: string;
+    wallet: CreditWallet;
+    ledger_entry: {
+      id: string;
+      entry_type: string;
+      bucket: string;
+      delta: number;
+      balance_after_bonus: number;
+      balance_after_purchased: number;
+      description: string;
+      created_at?: string;
+    };
+  }> {
+    return await yhubApiAuthUtil.post("/credits/admin/add/", payload);
+  },
 };
 
 export default creditService;

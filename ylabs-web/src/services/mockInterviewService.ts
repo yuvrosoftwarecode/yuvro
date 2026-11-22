@@ -203,7 +203,7 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
 
   // Determine Category dynamically based on backend skills / text
   let category: Category = "Backend";
-  if (titleLower.includes("node") || titleLower.includes("express")) {
+  if (titleLower.includes("node") || titleLower.includes("express") || titleLower.includes("django")) {
     category = "Backend";
   } else if (titleLower.includes("python") && !titleLower.includes("machine learning")) {
     category = "Backend";
@@ -230,6 +230,8 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   ) {
     category = "Frontend";
   } else if (
+    titleLower.includes("forward deployed") ||
+    titleLower.includes("fde") ||
     allText.includes("system design") ||
     allText.includes("hld") ||
     allText.includes("lld") ||
@@ -290,6 +292,12 @@ export function mapBackendToInterview(item: BackendMockInterview): Interview {
   } else if (titleLower.includes("llm") || titleLower.includes("agent")) {
     icon = "🧠";
     color = "info";
+  } else if (titleLower.includes("django")) {
+    icon = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg";
+    color = "emerald";
+  } else if (titleLower.includes("forward deployed") || titleLower.includes("fde")) {
+    icon = "🚀";
+    color = "primary";
   } else if (category === "AI/ML" || titleLower.includes("machine learning")) {
     icon = "🤖";
     color = "info";
@@ -448,6 +456,59 @@ export async function fetchMockInterviewBySlugOrId(slugOrId: string): Promise<In
   }
 
   return null;
+}
+
+export async function adminFetchMockInterviews(options?: {
+  product?: string;
+  search?: string;
+}): Promise<BackendMockInterview[]> {
+  const queryParams = new URLSearchParams();
+  if (options?.product && options.product !== "all") {
+    queryParams.append("product", options.product);
+  }
+  if (options?.search) {
+    queryParams.append("search", options.search);
+  }
+  const qs = queryParams.toString();
+  const url = qs ? `/mock-interviews/?${qs}` : "/mock-interviews/";
+  const res = await yhubApiAuthUtil.get<any>(url);
+  const rawList: BackendMockInterview[] = Array.isArray(res)
+    ? res
+    : res?.results && Array.isArray(res.results)
+    ? res.results
+    : [];
+  return rawList;
+}
+
+export async function adminGetMockInterview(id: string): Promise<BackendMockInterview | null> {
+  try {
+    return await yhubApiAuthUtil.get<BackendMockInterview>(`/mock-interviews/${id}/`);
+  } catch (err) {
+    console.error(`Failed to fetch mock interview ${id}:`, err);
+    return null;
+  }
+}
+
+export async function createMockInterview(
+  payload: Partial<BackendMockInterview>
+): Promise<BackendMockInterview> {
+  const res = await yhubApiAuthUtil.post<BackendMockInterview>("/mock-interviews/", payload);
+  clearMockInterviewCache();
+  return res;
+}
+
+export async function updateMockInterview(
+  id: string,
+  payload: Partial<BackendMockInterview>
+): Promise<BackendMockInterview> {
+  const res = await yhubApiAuthUtil.put<BackendMockInterview>(`/mock-interviews/${id}/`, payload);
+  clearMockInterviewCache();
+  return res;
+}
+
+export async function deleteMockInterview(id: string): Promise<void> {
+  await yhubApiAuthUtil.delete(`/mock-interviews/${id}/`);
+  clearMockInterviewCache();
 }
 
 export async function fetchUserInterviewSubmissions(

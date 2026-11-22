@@ -99,6 +99,8 @@ export function TopNav({
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-6 px-4">
         <Link
           to="/student/dashboard"
+          data-analytics-action="nav_logo"
+          data-analytics-component="navigation"
           className="flex items-center gap-2 font-semibold tracking-tight"
         >
           <img src={YuvroLogo} alt="Yuvro Labs" className="h-7 w-auto object-contain" />
@@ -110,10 +112,18 @@ export function TopNav({
         <nav className="hidden md:flex items-center gap-6 text-sm">
           {primaryLinks.map((l) => {
             const active = isActive(l.to);
+            const action =
+              l.to === "/student/dashboard"
+                ? "nav_simulation_labs"
+                : l.to === "/mock-interviews"
+                  ? "nav_mock_interviews"
+                  : "nav_research";
             return (
               <Link
                 key={l.to}
                 to={l.to}
+                data-analytics-action={action}
+                data-analytics-component="navigation"
                 className={`relative py-1.5 transition-colors after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-[2px] after:rounded-full after:transition-opacity ${
                   active
                     ? "text-foreground font-medium after:bg-[#f7931e] after:opacity-100"
@@ -129,6 +139,8 @@ export function TopNav({
           {rightSlot}
           <button
             onClick={toggle}
+            data-analytics-action="toggle_theme"
+            data-analytics-component="button"
             title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             className="grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
           >
@@ -154,6 +166,8 @@ export function TopNav({
                 </div>
               )}
               <button
+                data-analytics-action="connect_github"
+                data-analytics-component="button"
                 onClick={async () => {
                   if (!(user as any).github_connected) {
                     try {
@@ -229,6 +243,8 @@ export function TopNav({
             <Link
               to="/auth"
               search={{ tab: "signin" }}
+              data-analytics-action="nav_signin"
+              data-analytics-component="navigation"
               className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-colors"
             >
               Sign In
@@ -271,6 +287,8 @@ function ProfileMenu({
     <div ref={ref} className="relative">
       <button
         type="button"
+        data-analytics-action="toggle_profile_menu"
+        data-analytics-component="button"
         onClick={() => setOpen((v) => !v)}
         className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 overflow-hidden"
       >
@@ -290,12 +308,16 @@ function ProfileMenu({
           </div>
           <Link
             to={username ? `/u/${username}` : "/student/profile"}
+            data-analytics-action="nav_profile"
+            data-analytics-component="navigation"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/60"
           >
             <User className="h-3.5 w-3.5" /> Profile
           </Link>
           <button
+            data-analytics-action="logout_click"
+            data-analytics-component="button"
             onClick={() => {
               setOpen(false);
               onLogout();

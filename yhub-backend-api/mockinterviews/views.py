@@ -1257,6 +1257,38 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                     for lt in llm_agent_core_topics:
                         if lt not in all_skills:
                             all_skills.append(lt)
+                elif "django" in mock_interview.title.lower():
+                    django_core_topics = [
+                        "Django Request-Response Lifecycle & Custom Middleware",
+                        "Django ORM Optimization (select_related, prefetch_related, N+1 query problem, indexing)",
+                        "Django REST Framework (Serializers, ModelSerializer validation, ViewSets, Permissions)",
+                        "Authentication & Security (Custom User Models, JWT, Session auth, CSRF & XSS protection)",
+                        "Database Migrations, Schema Evolution & Transaction Management (atomic)",
+                        "Asynchronous Background Processing (Celery, Redis, Task queuing & Retry policies)",
+                        "Caching Strategies (Redis cache backend, per-view caching, low-level cache API)",
+                        "Django Channels, WebSockets & ASGI Architecture",
+                        "Automated Testing (pytest-django, APITestCase, factory_boy, mocking)",
+                        "Production Deployment & Performance Tuning (Gunicorn, Uvicorn, Database connection pooling)"
+                    ]
+                    for dt in django_core_topics:
+                        if dt not in all_skills:
+                            all_skills.append(dt)
+                elif "forward deployed" in mock_interview.title.lower() or "fde" in mock_interview.title.lower():
+                    fde_core_topics = [
+                        "Enterprise Systems Integration & Custom API Connectors (REST, GraphQL, gRPC, Webhooks)",
+                        "Data Pipeline Engineering, Ingestion & Schema Reconciliation for Messy Client Data",
+                        "Cloud Infrastructure, Containerization & On-prem / Air-gapped VPC Deployments (Docker, K8s)",
+                        "Enterprise Security, Single Sign-On (SAML/OAuth2) & Compliance (SOC2, RBAC, Encryption)",
+                        "Rapid Prototyping, MVP Scoping & Translating Ambiguous Business Needs into Architecture",
+                        "Production Troubleshooting & Live Incident Resolution in Distributed Environments",
+                        "Data Synchronization, Conflict Resolution & Idempotency in Enterprise Integrations",
+                        "Stakeholder Management, Requirement Negotiation & Cross-Functional Technical Communication",
+                        "Observability, Telemetry & Logging in Hybrid/Multi-Cloud Deployments (OpenTelemetry)",
+                        "Feedback Loop Engineering: Feeding Client Edge Cases & Feature Requests back to Core Platform"
+                    ]
+                    for ft in fde_core_topics:
+                        if ft not in all_skills:
+                            all_skills.append(ft)
                 elif "ai" in mock_interview.title.lower() or "machine learning" in mock_interview.title.lower():
                     ai_core_topics = [
                         "Machine Learning Fundamentals & Optimization",
@@ -1726,6 +1758,34 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Handling partial failures: Maintaining task state so failed steps can resume without restarting the entire workflow"
                                 ]
                             }
+                        elif "django" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In Django and Django REST Framework, can you explain the N+1 query problem in the Django ORM, how select_related and prefetch_related differ under the hood, and how you profile and optimize heavy database queries?",
+                                "topic": "Django ORM Query Optimization & Database Performance",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "N+1 query issue occurs when accessing related models inside a loop executing a separate query per iteration",
+                                    "select_related performs a SQL JOIN for single-valued relationships (ForeignKey, OneToOne)",
+                                    "prefetch_related executes a separate batch query with IN operator in Python for multi-valued relationships (ManyToMany, reverse ForeignKey)",
+                                    "Profiling tools like django-debug-toolbar and connection.queries to evaluate execution plans"
+                                ]
+                            }
+                        elif "forward deployed" in title_lower or "fde" in title_lower:
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first practical scenario question: As a Forward Deployed Engineer, suppose an enterprise client needs our platform to integrate with their legacy internal system that has inconsistent data schemas, rate-limited APIs, and strict on-premise VPC security constraints. How would you approach the technical discovery, architect the ingestion pipeline, and ensure reliable data synchronization without disrupting their production systems?",
+                                "topic": "Enterprise Integration Architecture & Legacy System Ingestion",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    "Technical discovery: Auditing schema contracts, rate limits, network access, and failure modes",
+                                    "Pipeline architecture: Decoupled asynchronous ingestion (event queues/webhooks), idempotency keys, and dead-letter queues",
+                                    "Schema reconciliation & validation: Intermediate canonical data model with transformation layer",
+                                    "Security compliance: Secure proxies, VPN/privatelink VPC peering, and credential rotation"
+                                ]
+                            }
                         elif "ai" in title_lower or "machine learning" in title_lower:
                             next_q = {
                                 "id": 2,
@@ -1791,7 +1851,7 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Impact of index selection on write amplification, memory footprint, and query execution speed with EXPLAIN"
                                 ]
                             }
-                        else:
+                        elif "python" in title_lower:
                             next_q = {
                                 "id": 2,
                                 "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In Python, can you explain the difference between a list and a tuple?",
@@ -1802,6 +1862,23 @@ class MockInterviewViewSet(viewsets.ModelViewSet):
                                     "Lists are mutable while tuples are immutable",
                                     "Syntax differences [] vs ()",
                                     "Use cases when to choose a tuple over a list"
+                                ]
+                            }
+                        else:
+                            primary_topic = (
+                                (mock_interview.required_skills[0] if mock_interview.required_skills else None)
+                                or mock_interview.title
+                            )
+                            next_q = {
+                                "id": 2,
+                                "question": f"Nice to meet you, {first_name}! Let's start with our first technical question: In {mock_interview.title}, could you explain the core concepts of {primary_topic} and how you apply them in real-world software development?",
+                                "topic": f"{primary_topic} Core Principles",
+                                "difficulty": "easy",
+                                "question_type": "technical",
+                                "expected_points": [
+                                    f"Fundamental principles and best practices in {primary_topic}",
+                                    "Common architecture patterns and usage scenarios",
+                                    "Key trade-offs and error handling strategies"
                                 ]
                             }
 

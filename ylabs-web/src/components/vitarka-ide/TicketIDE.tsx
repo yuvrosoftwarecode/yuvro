@@ -39,6 +39,7 @@ import { evaluationService } from "@/services/evaluationService";
 import { DiffBadge, StatusBadge } from "@/components/Badges";
 import { tickets, labs, type Status } from "@/lib/dummy";
 import { invalidateStudentStats } from "@/lib/studentStats";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 import ExamplesPanel from "@/components/ExamplesPanel";
 import { runDynamicSqlQuery, runDynamicMongoQuery, getAlasqlSchema, getMongoSchema } from "@/lib/dbEngine";
 import { executeExternalDbQuery, fetchExternalDbSchema } from "@/services/codeExecutorService";
@@ -2186,6 +2187,12 @@ export function TicketIDE({
         localStorage.setItem(`kanban_${slug}`, JSON.stringify(kanban));
       } catch (e) {}
       invalidateStudentStats();
+      analytics.trackEvent(GA4_EVENTS.TASK_SUBMITTED, {
+        lab_id: slug,
+        task_id: ticket.id,
+        status,
+        evaluation_type: isEvaluationMode ? "evaluation" : "practice",
+      });
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("yuvro:ticket_submission_updated", {
           detail: { ticketId: ticket.id, status }

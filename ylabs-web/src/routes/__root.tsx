@@ -12,6 +12,7 @@ import { AuthProvider } from "@/lib/auth";
 import { CreditWalletProvider } from "@/context/CreditWalletContext";
 import { Toaster } from "@/components/ui/sonner";
 import { SupportFeedbackButton } from "@/components/support/SupportFeedbackButton";
+import { AnalyticsProvider } from "@/services/analytics";
 
 function NotFoundComponent() {
   return (
@@ -92,10 +93,12 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CreditWalletProvider>
-          <HeadContent />
-          <Outlet />
-          <SupportFeedbackButton />
-          <Toaster position="top-right" />
+          <AnalyticsProvider>
+            <HeadContent />
+            <Outlet />
+            <SupportFeedbackButton />
+            <Toaster position="top-right" />
+          </AnalyticsProvider>
         </CreditWalletProvider>
       </AuthProvider>
     </QueryClientProvider>

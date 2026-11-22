@@ -10,6 +10,7 @@ import { SuccessView } from "./SuccessView";
 import { COUNTRY_CODES } from "./constants";
 import YuvroLogo from "@/assets/YuvroLogo.png";
 import type { AuthTab } from "./types";
+import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 interface ApiErrorResponse {
   response?: {
@@ -444,6 +445,7 @@ export function SignUpFlow({ redirectUrl, onNavigateTab }: SignUpFlowProps) {
       });
 
       if (loginResponse?.user) {
+        analytics.trackEvent(GA4_EVENTS.SIGN_UP, { method: "email", role: "student" });
         login(loginResponse.user, loginResponse.access);
         if (loginResponse.user.id) {
           localStorage.setItem(`is_first_login_${loginResponse.user.id}`, "true");
@@ -469,6 +471,7 @@ export function SignUpFlow({ redirectUrl, onNavigateTab }: SignUpFlowProps) {
 
   // Step 4: Continue action after registration
   const handleContinue = () => {
+    analytics.trackEvent(GA4_EVENTS.ONBOARDING_COMPLETED, { user_type: "student" });
     const defaultDest = "/student/dashboard";
     const isSafeRedirect =
       redirectUrl && redirectUrl !== "/" && !redirectUrl.startsWith("/auth");

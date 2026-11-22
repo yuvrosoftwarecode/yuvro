@@ -303,7 +303,12 @@ export default function LearnerHero({
             </div>
           </div>
 
-          <button className="lh-cta" onClick={onContinue}>
+          <button
+            className="lh-cta"
+            onClick={onContinue}
+            data-analytics-action="hero_continue_lab"
+            data-analytics-component="button"
+          >
             {continueLabel}
             <svg viewBox="0 0 24 24">
               <path d="M5 12h14M13 6l6 6-6 6" />
