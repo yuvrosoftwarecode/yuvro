@@ -84,13 +84,19 @@ class MockInterviewSerializer(serializers.ModelSerializer):
         return mock_interview
 
     def _save_predefined_tree(self, mock_interview, tree_data):
-        user = self.context['request'].user
-        
+        if not tree_data:
+            return
+
+        request = self.context.get('request') if hasattr(self, 'context') else None
+        user = getattr(request, 'user', None) if request else None
+        if not user or not getattr(user, 'is_authenticated', False):
+            user = getattr(mock_interview, 'created_by', None)
+
         def _create_node(node_data, parent=None, level=1):
             text = node_data.get('text')
             if not text:
                 return
-            
+
             q_obj = PredefinedInterviewQuestion.objects.create(
                 mock_interview=mock_interview,
                 text=text,

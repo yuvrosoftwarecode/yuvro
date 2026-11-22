@@ -314,7 +314,7 @@ export function SupportFeedbackButton() {
       )}
 
       {/* Floating Support Button in Bottom Right */}
-      <div className="fixed bottom-6 right-6 z-40 print:hidden">
+      <div className="fixed bottom-2 right-4 z-40 print:hidden">
         <button
           ref={buttonRef}
           type="button"
@@ -327,10 +327,10 @@ export function SupportFeedbackButton() {
             }
           }}
           aria-label={isOpen ? "Close feedback" : "Give feedback or improvement suggestion"}
-          className={`group flex items-center justify-center rounded-full px-4 py-2 text-xs font-medium tracking-tight shadow-md backdrop-blur-sm transition-all duration-200 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500/30 ${
+          className={`group flex items-center justify-center rounded-full px-3 py-1 text-[11px] font-medium tracking-tight shadow-md backdrop-blur-sm transition-all duration-200 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-orange-500/30 border border-[#f7931e] ${
             isOpen
-              ? "border-0 border-transparent bg-orange-500/10 text-orange-600 dark:text-orange-400"
-              : "border border-border/80 bg-background/95 text-foreground hover:border-orange-500/50 hover:scale-105"
+              ? "bg-[#f7931e]/15 text-[#f7931e]"
+              : "bg-background/95 text-foreground hover:bg-[#f7931e]/10 hover:scale-105"
           }`}
         >
           {isOpen ? "Close" : "Feedback"}

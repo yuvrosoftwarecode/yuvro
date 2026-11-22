@@ -85,6 +85,7 @@ import { ApiDesigner, ApiDocs, type ApiEndpoint } from "@/components/sysdesign/A
 import { ErdBoard } from "@/components/sysdesign/ErdBoard";
 import { NotesPanel, MarkdownPreview } from "@/components/sysdesign/MarkdownNotes";
 import { DiagramBoard, HldEditor, type SDNode, type SDEdge } from "@/components/sysdesign/DesignCanvas";
+import { AdminShell } from "@/components/admin/AdminShell";
 
 export const Route = createFileRoute("/system-design-studio")({
   head: () => ({ meta: [{ title: "System Design Studio · Yuvro Labs" }] }),
@@ -431,6 +432,19 @@ function ExamplesDialog({ tab, scenario, subject, onClose, onUseTab, onLoadAll }
 
 
 function Studio() {
+  const { user } = useAuth();
+  const isAdmin = user && (user.roles?.ylabs === "admin" || user.role === "admin");
+
+  if (isAdmin) {
+    return (
+      <AdminShell title="System Design Studio" fullBleed>
+        <div className="flex-1 min-h-0 w-full h-full flex flex-col overflow-hidden">
+          <SystemDesignStudio slug="systemdesign-url-shortener" isStandaloneStudio={true} />
+        </div>
+      </AdminShell>
+    );
+  }
+
   return <SystemDesignStudio slug="systemdesign-url-shortener" isStandaloneStudio={true} />;
 }
 

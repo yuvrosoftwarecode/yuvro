@@ -107,9 +107,7 @@ export const SkillsSection: React.FC<{ isOwner?: boolean }> = ({
                 </div>
               ))}
             </div>
-          ) : !isOwner ? (
-            <p className="text-xs text-muted">No skills to show.</p>
-          ) : (
+          ) : !isOwner ? null : (
             <EmptyState
               title="No verified skills yet"
               description="Complete simulation labs and challenges in Yuvro Labs to prove your skills with verifiable evidence."
@@ -174,9 +172,7 @@ export const SkillsSection: React.FC<{ isOwner?: boolean }> = ({
                 )}
               </div>
             </div>
-          ) : !isOwner ? (
-            <p className="text-xs text-muted">No skills added yet.</p>
-          ) : (
+          ) : !isOwner ? null : (
             <div className="space-y-2">
               <p className="text-xs text-muted">Add technologies, frameworks, and tools you use:</p>
               <div className="flex flex-wrap gap-1.5 items-center">

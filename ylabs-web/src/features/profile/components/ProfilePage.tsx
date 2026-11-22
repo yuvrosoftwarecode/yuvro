@@ -22,6 +22,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       <div id="contributions-section">
         <OverviewContributionCard
           onSeePerformance={isOwner ? () => onNavigateTab?.("performance") : undefined}
+          isOwner={isOwner}
         />
       </div>
 
