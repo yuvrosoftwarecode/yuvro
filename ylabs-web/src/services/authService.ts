@@ -28,6 +28,7 @@ export interface RegisterRequest {
   phone?: string;
   country_code?: string;
   roles?: Record<string, string>;
+  referral_code?: string;
 }
 
 class AuthService {

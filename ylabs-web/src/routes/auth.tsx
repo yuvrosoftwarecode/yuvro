@@ -13,12 +13,19 @@ const searchSchema = z.object({
   redirect: z.string().optional(),
   token: z.string().optional(),
   uidb64: z.string().optional(),
+  ref: z.string().optional(),
 });
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s) => searchSchema.parse(s),
-  beforeLoad: () => {
+  beforeLoad: ({ search }) => {
     if (typeof window !== "undefined") {
+      if (search?.ref) {
+        try {
+          localStorage.setItem("ylabs_referral_code", search.ref);
+          sessionStorage.setItem("ylabs_referral_code", search.ref);
+        } catch {}
+      }
       const token = localStorage.getItem("access");
       if (token) {
         const userStr = localStorage.getItem("user");

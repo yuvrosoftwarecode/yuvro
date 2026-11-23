@@ -14,6 +14,7 @@ import {
   Search,
   Sparkles,
   CalendarDays,
+  Gift,
 } from "lucide-react";
 
 const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[] = [
@@ -21,6 +22,7 @@ const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[
     group: "People",
     items: [
       { to: "/admin/users", label: "Users", icon: Users },
+      { to: "/admin/referrals", label: "Referrals", icon: Gift },
       { to: "/admin/recruiters", label: "Recruiters", icon: Briefcase },
     ],
   },

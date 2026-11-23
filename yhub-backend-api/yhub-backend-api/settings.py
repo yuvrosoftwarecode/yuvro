@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "mockinterviews",
     "payment",
     "ai_credits",
+    "referrals",
 ]
 
 MIDDLEWARE = [

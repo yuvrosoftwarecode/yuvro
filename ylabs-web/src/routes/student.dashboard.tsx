@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import LearnerHero from "@/components/LearnerHero";
+import { ReferralShareModal } from "@/components/referrals/ReferralShareModal";
 import UpcomingLabsCarousel, { type Lab as UpcomingLabItem } from "@/components/UpcomingLabsCarousel";
 import { ProgressRing } from "@/components/ProgressRing";
 import { useAuth } from "@/lib/auth";
@@ -68,6 +69,7 @@ function Hub() {
   const displayName = currentName || lastDisplayNameRef.current || "Student";
 
   const [labsLoading, setLabsLoading] = useState(true);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [allCatalogLabs, setAllCatalogLabs] = useState<CatalogLab[]>([]);
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
   const [enrollLoading, setEnrollLoading] = useState<Record<string, boolean>>({});
@@ -556,7 +558,9 @@ function Hub() {
           isFirstLogin={isFirstLogin}
           continueLabel={recentLab ? `Continue ${recentLab.name}` : "Explore Labs"}
           onContinue={handleContinue}
+          onRefer={() => setShareModalOpen(true)}
         />
+        <ReferralShareModal open={shareModalOpen} onOpenChange={setShareModalOpen} />
 
         <div className="mt-8 space-y-10">
           {/* Weekly tasks section */}
