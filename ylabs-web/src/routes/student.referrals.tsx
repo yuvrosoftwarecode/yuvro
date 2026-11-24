@@ -33,6 +33,9 @@ function MyReferralsPage() {
   const [error, setError] = useState<string | null>(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [generatingCode, setGeneratingCode] = useState(false);
+  const [generateSuccessMsg, setGenerateSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -76,6 +79,32 @@ function MyReferralsPage() {
       setTimeout(() => setCopied(false), 2500);
     } catch {
       // fallback
+    }
+  };
+
+  const handleCopyCodeOnly = async () => {
+    if (!referralCodeData?.code) return;
+    try {
+      await navigator.clipboard.writeText(referralCodeData.code);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    } catch {}
+  };
+
+  const handleGenerateCode = async () => {
+    setGeneratingCode(true);
+    setGenerateSuccessMsg(null);
+    setError(null);
+    try {
+      const res = await referralService.generateMyReferralCode(true);
+      setReferralCodeData(res);
+      setGenerateSuccessMsg("Referral code generated successfully!");
+      setTimeout(() => setGenerateSuccessMsg(null), 3000);
+    } catch (err: any) {
+      console.error("Failed to generate code:", err);
+      setError("Failed to generate referral code. Please try again.");
+    } finally {
+      setGeneratingCode(false);
     }
   };
 
@@ -131,6 +160,86 @@ function MyReferralsPage() {
             <span>{error}</span>
           </div>
         )}
+
+        {/* Success Notification */}
+        {generateSuccessMsg && (
+          <div className="mb-6 p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2.5">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            <span>{generateSuccessMsg}</span>
+          </div>
+        )}
+
+        {/* Referral Code Showcase & Generation Card */}
+        <div className="mb-8 p-5 rounded-xl border border-border/80 bg-gradient-to-r from-primary/5 via-card to-card shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Your Unique Referral Code
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-2xl font-bold font-mono text-primary tracking-wide">
+                {loading ? (
+                  <span className="inline-block h-7 w-32 bg-muted/60 animate-pulse rounded" />
+                ) : (
+                  referralCodeData?.code || "No Code Yet"
+                )}
+              </div>
+              {referralCodeData?.code && (
+                <button
+                  type="button"
+                  onClick={handleCopyCodeOnly}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-border bg-background hover:bg-accent text-foreground transition"
+                >
+                  {copiedCode ? (
+                    <>
+                      <Check className="h-3 w-3 text-emerald-500" />
+                      <span className="text-emerald-500 font-semibold">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3" />
+                      <span>Copy Code</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Share your code or link with friends. When they create an account, you will be credited automatically.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              disabled={generatingCode}
+              onClick={handleGenerateCode}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium rounded-lg border border-border bg-background hover:bg-accent text-foreground transition shadow-sm disabled:opacity-50"
+            >
+              {generatingCode ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                  <span>{referralCodeData?.code ? "Generate New Code" : "Generate Referral Code"}</span>
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShareModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition shadow-sm"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+              <span>Share Referral Link</span>
+            </button>
+          </div>
+        </div>
 
         {/* Summary Statistics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">

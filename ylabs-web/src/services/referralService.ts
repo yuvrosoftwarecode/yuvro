@@ -81,6 +81,14 @@ class ReferralService {
     return yhubApiAuthUtil.get<ReferralCodeResponse>("/referrals/my-code/");
   }
 
+  async generateMyReferralCode(force: boolean = false): Promise<ReferralCodeResponse> {
+    return yhubApiAuthUtil.post<ReferralCodeResponse>("/referrals/my-code/", { force });
+  }
+
+  async adminGenerateReferralCode(payload: { user_id?: string; email?: string }): Promise<any> {
+    return yhubApiAuthUtil.post<any>("/referrals/admin/generate/", payload);
+  }
+
   async validateReferralCode(code: string): Promise<ValidateReferralResponse> {
     try {
       return await yhubApiAuthUtil.get<ValidateReferralResponse>(

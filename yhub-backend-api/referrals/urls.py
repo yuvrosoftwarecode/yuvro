@@ -14,4 +14,5 @@ urlpatterns = [
     path("admin/summary/", views.AdminReferralSummaryView.as_view(), name="admin_referral_summary"),
     path("admin/students/", views.AdminReferrersListView.as_view(), name="admin_referral_students"),
     path("admin/students/<uuid:user_id>/", views.AdminReferrerDetailView.as_view(), name="admin_referral_student_detail"),
+    path("admin/generate/", views.AdminGenerateReferralCodeView.as_view(), name="admin_referral_generate"),
 ]

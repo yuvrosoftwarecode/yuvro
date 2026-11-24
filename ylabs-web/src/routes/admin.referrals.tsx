@@ -29,6 +29,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ExternalLink,
+  Plus,
+  Sparkles,
 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/referrals")({
@@ -59,6 +61,13 @@ function AdminReferralsPage() {
 
   // Copy feedback
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  // Generate Referral Code Modal State
+  const [generateModalOpen, setGenerateModalOpen] = useState(false);
+  const [targetStudentEmail, setTargetStudentEmail] = useState("");
+  const [generateLoading, setGenerateLoading] = useState(false);
+  const [generateResult, setGenerateResult] = useState<any | null>(null);
+  const [generateModalError, setGenerateModalError] = useState<string | null>(null);
 
   // Load KPI summary once
   useEffect(() => {
@@ -133,13 +142,55 @@ function AdminReferralsPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  const handleAdminGenerateCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!targetStudentEmail.trim()) return;
+    setGenerateLoading(true);
+    setGenerateModalError(null);
+    setGenerateResult(null);
+
+    try {
+      const res = await referralService.adminGenerateReferralCode({
+        email: targetStudentEmail.trim(),
+      });
+      setGenerateResult(res);
+      // Reload stats and referrers
+      referralService.getAdminSummary().then((s) => setSummary(s)).catch(() => {});
+      referralService.getAdminStudents(page, pageSize, search, statusFilter).then((r) => {
+        setReferrers(r.results || []);
+        setTotalCount(r.count || 0);
+        setTotalPages(r.total_pages || 1);
+      }).catch(() => {});
+    } catch (err: any) {
+      console.error("Admin code generation failed:", err);
+      setGenerateModalError(
+        err?.response?.data?.detail || "Failed to generate referral code. Please verify the student email."
+      );
+    } finally {
+      setGenerateLoading(false);
+    }
+  };
+
   return (
     <AdminShell
       title="Referral Management"
       breadcrumb={["People", "Referrals"]}
       right={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <Badge tone="primary">Centralized YHub Data</Badge>
+          <button
+            type="button"
+            onClick={() => {
+              setGenerateModalOpen(true);
+              setGenerateResult(null);
+              setGenerateModalError(null);
+              setTargetStudentEmail("");
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:opacity-90 transition shadow-sm cursor-pointer"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>Generate Referral Code</span>
+          </button>
         </div>
       }
     >
@@ -254,21 +305,37 @@ function AdminReferralsPage() {
                       <div className="text-[11px] text-muted-foreground">{r.email}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="inline-flex items-center gap-1.5 font-mono text-xs px-2 py-0.5 rounded border border-border bg-background/50">
-                        <span>{r.referral_code}</span>
+                      {r.referral_code ? (
+                        <div className="inline-flex items-center gap-1.5 font-mono text-xs px-2 py-0.5 rounded border border-border bg-background/50">
+                          <span>{r.referral_code}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyCode(r.referral_code)}
+                            title="Copy code"
+                            className="hover:text-primary transition"
+                          >
+                            {copiedCode === r.referral_code ? (
+                              <Check className="h-3 w-3 text-emerald-500" />
+                            ) : (
+                              <Copy className="h-3 w-3 text-muted-foreground" />
+                            )}
+                          </button>
+                        </div>
+                      ) : (
                         <button
                           type="button"
-                          onClick={() => handleCopyCode(r.referral_code)}
-                          title="Copy code"
-                          className="hover:text-primary transition"
+                          onClick={() => {
+                            setTargetStudentEmail(r.email);
+                            setGenerateModalOpen(true);
+                            setGenerateResult(null);
+                            setGenerateModalError(null);
+                          }}
+                          className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline cursor-pointer"
                         >
-                          {copiedCode === r.referral_code ? (
-                            <Check className="h-3 w-3 text-emerald-500" />
-                          ) : (
-                            <Copy className="h-3 w-3 text-muted-foreground" />
-                          )}
+                          <Sparkles className="h-3 w-3" />
+                          <span>Generate Code</span>
                         </button>
-                      </div>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center font-semibold text-foreground">
                       {r.total_referred}
@@ -287,10 +354,10 @@ function AdminReferralsPage() {
                       <button
                         type="button"
                         onClick={() => handleOpenDetails(r.id)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-border hover:bg-accent text-foreground transition shadow-sm"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-border hover:bg-accent text-foreground transition shadow-sm cursor-pointer"
                       >
                         <Eye className="h-3.5 w-3.5 text-primary" />
-                        <span>View Details</span>
+                        <span>View Referral</span>
                       </button>
                     </td>
                   </tr>
@@ -334,7 +401,7 @@ function AdminReferralsPage() {
           <DialogHeader>
             <DialogTitle className="text-base font-semibold flex items-center gap-2">
               <Gift className="h-4 w-4 text-primary" />
-              Referral Ledger Details
+              View Referral
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
               Individual referrals and account registrations for this student.
@@ -436,6 +503,99 @@ function AdminReferralsPage() {
               </div>
             </div>
           ) : null}
+        </DialogContent>
+      </Dialog>
+
+      {/* Generate Referral Code Modal */}
+      <Dialog open={generateModalOpen} onOpenChange={setGenerateModalOpen}>
+        <DialogContent className="sm:max-w-md bg-card border-border text-foreground">
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Generate Referral Code
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Generate a unique referral code for a student using their registered email.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleAdminGenerateCode} className="space-y-4 pt-2">
+            <div>
+              <label className="text-xs font-medium text-foreground block mb-1">
+                Student Email
+              </label>
+              <input
+                type="email"
+                required
+                value={targetStudentEmail}
+                onChange={(e) => setTargetStudentEmail(e.target.value)}
+                placeholder="e.g. student@gmail.com"
+                className="w-full text-xs px-3 py-2 rounded-md border border-border bg-background text-foreground outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
+            {generateModalError && (
+              <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-xs border border-destructive/20 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{generateModalError}</span>
+              </div>
+            )}
+
+            {generateResult && (
+              <div className="p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs space-y-1.5">
+                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span>Referral Code Generated Successfully!</span>
+                </div>
+                <div className="pt-1">
+                  <span className="text-muted-foreground">Student: </span>
+                  <span className="font-medium text-foreground">{generateResult.name} ({generateResult.email})</span>
+                </div>
+                <div className="flex items-center gap-2 pt-0.5">
+                  <span className="text-muted-foreground">Code: </span>
+                  <span className="font-mono font-bold text-primary text-sm">{generateResult.code}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyCode(generateResult.code)}
+                    className="p-1 hover:text-primary transition"
+                  >
+                    {copiedCode === generateResult.code ? (
+                      <Check className="h-3.5 w-3.5 text-emerald-500" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setGenerateModalOpen(false)}
+                className="px-3 py-1.5 text-xs font-medium rounded-md border border-border hover:bg-accent text-foreground transition"
+              >
+                Close
+              </button>
+              <button
+                type="submit"
+                disabled={generateLoading || !targetStudentEmail.trim()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
+              >
+                {generateLoading ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>Generate Code</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </AdminShell>

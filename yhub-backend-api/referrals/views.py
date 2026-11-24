@@ -44,6 +44,48 @@ class MyReferralCodeView(APIView):
         serializer = ReferralCodeSerializer(ref_obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def post(self, request):
+        force_new = request.data.get("force", False)
+        ref_obj = ReferralService.generate_code(request.user, force_new=force_new)
+        serializer = ReferralCodeSerializer(ref_obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AdminGenerateReferralCodeView(APIView):
+    permission_classes = [IsAdminOrStaff]
+
+    def post(self, request):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
+        user_id = request.data.get("user_id")
+        email = request.data.get("email")
+
+        target_user = None
+        if user_id:
+            target_user = User.objects.filter(id=user_id).first()
+        elif email:
+            target_user = User.objects.filter(email__iexact=email.strip()).first()
+
+        if not target_user:
+            return Response(
+                {"detail": "User not found with the specified id or email."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        ref_obj = ReferralService.generate_code(target_user, force_new=True)
+        serializer = ReferralCodeSerializer(ref_obj)
+        user_name = f"{target_user.first_name or ''} {target_user.last_name or ''}".strip() or target_user.username
+        return Response(
+            {
+                "user_id": str(target_user.id),
+                "email": target_user.email,
+                "name": user_name,
+                **serializer.data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
 
 class ValidateReferralCodeView(APIView):
     permission_classes = [permissions.AllowAny]

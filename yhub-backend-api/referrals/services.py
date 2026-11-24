@@ -24,6 +24,21 @@ class ReferralService:
         return referral_code
 
     @classmethod
+    def generate_code(cls, user, force_new=False):
+        """
+        Retrieves or generates a unique ReferralCode for the specified user.
+        If force_new=True, generates a fresh unique code.
+        """
+        if force_new:
+            new_code = generate_unique_referral_code(user)
+            ref_obj, _ = ReferralCode.objects.update_or_create(
+                user=user,
+                defaults={"code": new_code, "is_active": True},
+            )
+            return ref_obj
+        return cls.get_or_create_code(user)
+
+    @classmethod
     def validate_code(cls, code: str, prospective_user=None):
         """
         Validates if a referral code exists, is active, and doesn't belong to the prospective user.
