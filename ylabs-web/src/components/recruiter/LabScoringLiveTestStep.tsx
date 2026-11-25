@@ -290,7 +290,7 @@ export function LabScoringLiveTestStep({
         repo_identifier: repoFullName,
         branch: branchName,
         files: scoringRules.files,
-        installation_id: labFormData.github_app_installation,
+        installation_id: labFormData.github_installation_id || labFormData.github_app_installation || null,
         commit_message: `feat(eval): add yuvro scoring rules for ${labFormData.title || "engineering lab"}`,
       });
       setPushResult({
@@ -330,7 +330,7 @@ export function LabScoringLiveTestStep({
           const inspected = await labTaskAIService.inspectRepo({
             repo_identifier: repoFullName,
             branch: branchName,
-            installation_id: labFormData.github_app_installation,
+            installation_id: labFormData.github_installation_id || labFormData.github_app_installation || null,
             include_clone_token: true,
           });
           authToken = inspected.clone_token;

@@ -66,6 +66,7 @@ describe("Weekly Task Feature: Core Architecture & Data Suite", () => {
   });
 
   test("3. Locked days show 'Opens <day>' and have locked status", async () => {
+    saveStoredDone("dj", []);
     const ti = getTodayIndex();
     const task = await getTask("dj");
     assert.ok(task);

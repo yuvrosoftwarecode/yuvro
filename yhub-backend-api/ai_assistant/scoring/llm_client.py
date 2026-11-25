@@ -69,7 +69,7 @@ class ScoringLLMClient:
             if fallback not in providers_to_try:
                 providers_to_try.append(fallback)
 
-        last_error = None
+        errors = {}
         for prov in providers_to_try:
             key = self._get_api_key(prov)
             if not key:
@@ -96,9 +96,10 @@ class ScoringLLMClient:
 
             except Exception as e:
                 logger.warning(f"ScoringLLMClient: Provider {prov} failed: {e}. Trying fallback...")
-                last_error = e
+                errors[prov] = str(e)
 
-        raise RuntimeError(f"All LLM scoring providers failed. Last error: {last_error}")
+        error_details = "; ".join(f"{p}: {err}" for p, err in errors.items()) or "No active providers with API keys configured"
+        raise RuntimeError(f"All LLM scoring providers failed. Details: {error_details}")
 
     async def _call_deepseek(
         self,
@@ -220,13 +221,23 @@ class ScoringLLMClient:
         client = anthropic.AsyncAnthropic(api_key=api_key)
         model = self.model_name if self.provider == "anthropic" and self.model_name else "claude-3-5-haiku-20241022"
 
-        response = await client.messages.create(
-            model=model,
-            max_tokens=max_tokens,
-            system=system_prompt or "You are an expert system design grader.",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=temperature,
-        )
+        create_kwargs: Dict[str, Any] = {
+            "model": model,
+            "max_tokens": max_tokens,
+            "system": system_prompt or "You are an expert system design grader.",
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        if temperature is not None:
+            create_kwargs["temperature"] = temperature
+
+        try:
+            response = await client.messages.create(**create_kwargs)
+        except TypeError as te:
+            if "unexpected keyword argument 'temperature'" in str(te):
+                create_kwargs.pop("temperature", None)
+                response = await client.messages.create(**create_kwargs)
+            else:
+                raise
 
         content = response.content[0].text if response.content else ""
         tokens = (response.usage.input_tokens + response.usage.output_tokens) if response.usage else None
