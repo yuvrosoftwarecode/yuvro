@@ -10,6 +10,7 @@ import {
   OPT,
   TYPES,
 } from "./types";
+import { splitDistribution } from "./adapters/architectAdapter";
 
 export const getDefaultWizardState = (): WizardState => ({
   step: 1,
@@ -115,6 +116,7 @@ export interface WizardContextType {
   warnMsg: string;
   canPublish: boolean;
   publishBlockReason: string;
+  normalizeMarksAndTime: () => void;
   nextStep: () => void;
   prevStep: () => void;
 }
@@ -134,6 +136,17 @@ export function WizardProvider({
   editingId?: string | null;
   initialData?: any;
 }) {
+  // Purge any stale wizard drafts from localStorage so creating questions always starts fresh
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.removeItem("yuvro_wizard_draft_v2");
+      localStorage.removeItem("yuvro_wizard_draft_new");
+      localStorage.removeItem("yuvro_wizard_draft");
+    } catch {
+      // ignore
+    }
+  }
+
   const [state, setState] = useState<WizardState>(() => {
     const base = getDefaultWizardState();
     if (initialCategory) {
@@ -142,43 +155,7 @@ export function WizardProvider({
       else base.type = "lab";
     }
 
-    // Try restoring draft from localStorage if not editing an existing persisted question
-    if (!editingId && typeof window !== "undefined") {
-      try {
-        // Clear any legacy draft containing dummy data
-        localStorage.removeItem("yuvro_wizard_draft_new");
-        const saved = localStorage.getItem("yuvro_wizard_draft_v2");
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed && typeof parsed === "object") {
-            // Discard draft if it contains legacy dummy title
-            if (parsed.f?.title === "Build a payment webhook retry service") {
-              localStorage.removeItem("yuvro_wizard_draft_v2");
-            } else {
-              return {
-                ...base,
-                ...parsed,
-                f: { ...base.f, ...parsed.f },
-                scan: { ...base.scan, ...parsed.scan, scanning: false },
-                t: { ...base.t, ...parsed.t, busy: false, ed: null },
-                sc: {
-                  ...base.sc,
-                  ...parsed.sc,
-                  genCmd: false,
-                  genRules: false,
-                  pushing: false,
-                  ver: { ...base.sc.ver, ...parsed.sc?.ver, st: "idle" },
-                },
-              };
-            }
-          }
-        }
-      } catch {
-        // ignore
-      }
-    }
-
-    // If editing existing question, populate with initialData
+    // If editing existing question from database, populate with initialData
     if (initialData) {
       base.f.title = initialData.title || base.f.title;
       base.f.desc = initialData.description || base.f.desc;
@@ -204,45 +181,51 @@ export function WizardProvider({
           min: Number(t.duration_minutes || t.estimated_minutes) || 10,
           dep: t.parent_task_id || t.parent_task || "",
         }));
-        base.reached = Math.max(base.reached, 4);
+        base.reached = Math.max(base.reached, 3);
       }
     }
 
     return base;
   });
 
-  // Auto-persist draft to localStorage (when not editing an existing DB question)
+  // Ensure localStorage is kept clean of any wizard drafts
   useEffect(() => {
-    if (editingId) return;
-    try {
-      if (typeof window !== "undefined") {
-        const toSave = {
-          type: state.type,
-          step: state.step,
-          reached: state.reached,
-          f: state.f,
-          stack: state.stack,
-          custom: state.custom,
-          scan: { files: state.scan.files, fileCount: state.scan.fileCount },
-          t: { tasks: state.t.tasks, runs: state.t.runs, msgs: state.t.msgs, chats: state.t.chats },
-          sc: {
-            startup: state.sc.startup,
-            test: state.sc.test,
-            allow: state.sc.allow,
-            rules: state.sc.rules,
-            pushed: state.sc.pushed,
-            ver: state.sc.ver,
-          },
-        };
-        localStorage.setItem("yuvro_wizard_draft_v2", JSON.stringify(toSave));
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("yuvro_wizard_draft_v2");
+        localStorage.removeItem("yuvro_wizard_draft_new");
+        localStorage.removeItem("yuvro_wizard_draft");
+      } catch {
+        // ignore
       }
-    } catch {
-      // ignore
     }
-  }, [state, editingId]);
+  }, []);
+
+  // Sync category changes from route/parent
+  useEffect(() => {
+    if (initialCategory) {
+      const targetType: QuestionCategory =
+        initialCategory === "SYSTEM_DESIGN" ? "design" : initialCategory === "KNOWLEDGE" ? "know" : "lab";
+      setState((prev) => {
+        if (prev.type === targetType) return prev;
+        return {
+          ...prev,
+          type: targetType,
+          step: 1,
+          reached: 1,
+        };
+      });
+    }
+  }, [initialCategory]);
 
   const setType = useCallback((type: QuestionCategory) => {
-    setState((prev) => ({ ...prev, type }));
+    setState((prev) => ({
+      ...prev,
+      type,
+      step: 1,
+      reached: 1,
+      e: {},
+    }));
     if (onCategoryChange) {
       if (type === "design") onCategoryChange("SYSTEM_DESIGN");
       else if (type === "know") onCategoryChange("KNOWLEDGE");
@@ -269,6 +252,9 @@ export function WizardProvider({
         const m = /github\.com\/([^/\s]+)\/([^/\s]+?)(?:\.git)?\/?$/.exec(val.trim());
         if (m) {
           nextF.repo = `${m[1]}/${m[2]}`;
+          if (!prev.f.title || prev.f.title === prev.f.repo || prev.f.title === prev.f.repo.split("/")[1]) {
+            nextF.title = m[2];
+          }
         }
       }
 
@@ -358,19 +344,29 @@ export function WizardProvider({
     }));
   }, []);
 
-  const selectRepo = useCallback((repo: { o: string; n: string; v: string; b: string; id: string }) => {
-    setState((prev) => ({
-      ...prev,
-      f: {
-        ...prev.f,
-        repo: repo.id,
-        url: `https://github.com/${repo.id}`,
-        branch: repo.b || "main",
-      },
-      rp: { ...prev.rp, open: false, q: "" },
-      scan: { ...prev.scan, files: null, fileCount: 0 },
-    }));
-  }, []);
+  const selectRepo = useCallback(
+    (repo: { o: string; n: string; v: string; b: string; id: string; installation_id?: string }) => {
+      setState((prev) => {
+        const repoName = repo.n || repo.id.split("/")[1] || repo.id;
+        return {
+          ...prev,
+          f: {
+            ...prev.f,
+            repo: repo.id,
+            url: `https://github.com/${repo.id}`,
+            branch: repo.b || "main",
+            github_installation_id: (repo as any).installation_id || prev.f.github_installation_id,
+            github_app_installation: (repo as any).installation_id || prev.f.github_app_installation,
+            title: repoName,
+          },
+          rp: { ...prev.rp, open: false, q: "" },
+          scan: { ...prev.scan, files: null, fileCount: 0 },
+          e: { ...prev.e, title: "", url: "", branch: "" },
+        };
+      });
+    },
+    []
+  );
 
   // Totals
   const tsum = useMemo(() => {
@@ -383,6 +379,18 @@ export function WizardProvider({
 
   // Publish validation check
   const publishBlockReason = useMemo(() => {
+    if (state.type === "know") {
+      if (!state.f.title.trim()) return "Title is required before publishing";
+      if (!state.f.desc.trim()) return "Description is required before publishing";
+      return "";
+    }
+    if (state.type === "design") {
+      if (!state.f.title.trim()) return "Title is required before publishing";
+      if (!state.f.desc.trim()) return "Description is required before publishing";
+      if (!state.t.tasks.length) return "Add at least one task before publishing";
+      return "";
+    }
+    // LAB:
     if (!state.t.tasks.length) return "Add at least one task before publishing";
     if (!state.sc.test.trim()) return "Configure a test command before publishing";
     if (!state.sc.rules || !state.sc.rules.files || Object.keys(state.sc.rules.files).length === 0) {
@@ -396,7 +404,7 @@ export function WizardProvider({
       return "Push scoring rules to repository before publishing";
     }
     return "";
-  }, [state.t.tasks.length, state.sc.test, state.sc.rules, state.sc.ver, state.sc.pushed]);
+  }, [state.type, state.f.title, state.f.desc, state.t.tasks.length, state.sc.test, state.sc.rules, state.sc.ver, state.sc.pushed]);
 
   const canPublish = useMemo(() => {
     return !publishBlockReason;
@@ -404,59 +412,121 @@ export function WizardProvider({
 
   // Step lock message
   const lockMsg = useMemo(() => {
-    if (state.step === 3 && !(state.scan && state.scan.files)) {
-      return "Scan the repository to continue";
-    }
-    if (state.step === 4) {
-      if (state.t.busy) return "The architect is working…";
-      if (state.t.ed) return "Save or cancel your edit to continue";
-      if (!state.t.tasks.length) return "Add tasks to continue";
-    }
-    if (state.step === 5) {
-      return publishBlockReason;
+    if (state.type === "lab") {
+      if (state.step === 1 && !(state.scan && state.scan.files)) {
+        return "Scan the repository to continue";
+      }
+      if (state.step === 3) {
+        if (state.t.busy) return "The architect is working…";
+        if (state.t.ed) return "Save or cancel your edit to continue";
+        if (!state.t.tasks.length) return "Add tasks to continue";
+      }
+      if (state.step === 4) {
+        return publishBlockReason;
+      }
+    } else if (state.type === "design") {
+      if (state.step === 2) {
+        if (state.t.busy) return "The architect is working…";
+        if (state.t.ed) return "Save or cancel your edit to continue";
+        if (!state.t.tasks.length) return "Add tasks to continue";
+        return publishBlockReason;
+      }
+    } else if (state.type === "know") {
+      if (state.step === 1) {
+        return publishBlockReason;
+      }
     }
     return "";
-  }, [state.step, state.scan, state.t.busy, state.t.ed, state.t.tasks.length, publishBlockReason]);
+  }, [state.step, state.type, state.scan, state.t.busy, state.t.ed, state.t.tasks.length, publishBlockReason]);
 
   const warnMsg = useMemo(() => {
-    if (state.step !== 4 || !state.t.tasks.length) return "";
+    const isTasks = (state.type === "lab" && state.step === 3) || (state.type === "design" && state.step === 2);
+    if (!isTasks || !state.t.tasks.length) return "";
     if (tsum !== Number(state.f.marks)) {
       return `Marks add up to ${tsum} of ${state.f.marks}`;
     }
     return "";
-  }, [state.step, state.t.tasks.length, tsum, state.f.marks]);
+  }, [state.step, state.type, state.t.tasks.length, tsum, state.f.marks]);
+
+  const normalizeMarksAndTime = useCallback(() => {
+    setState((prev) => {
+      const tasks = prev.t.tasks;
+      if (!tasks.length) return prev;
+
+      const targetMarks = Number(prev.f.marks) || 10;
+      const targetMin = Number(prev.f.dur) || 30;
+
+      const marksWeights = tasks.map((t) => Number(t.marks) || 1);
+      const minWeights = tasks.map((t) => Number(t.min) || 1);
+
+      const newMarks = splitDistribution(marksWeights, targetMarks);
+      const newMins = splitDistribution(minWeights, targetMin);
+
+      const nextTasks = tasks.map((t, idx) => ({
+        ...t,
+        marks: newMarks[idx],
+        min: newMins[idx],
+      }));
+
+      return {
+        ...prev,
+        t: {
+          ...prev.t,
+          tasks: nextTasks,
+        },
+      };
+    });
+  }, []);
 
   const nextStep = useCallback(() => {
-    if (state.step === 1) {
-      // Validate step 1
-      const e: Record<string, string> = {};
-      if (!state.f.title.trim()) e.title = "Title is required";
-      if (!state.f.desc.trim()) e.desc = "Description is required";
-      if (Number(state.f.marks) <= 0) e.marks = "Marks must be greater than 0";
-      if (Number(state.f.dur) <= 0) e.dur = "Duration must be greater than 0";
-      if (Object.keys(e).length > 0) {
-        setState((prev) => ({ ...prev, e }));
-        return;
+    if (state.type === "lab") {
+      if (state.step === 1) {
+        // Step 1: Repository and scan
+        const e: Record<string, string> = {};
+        if (!state.f.url.trim()) e.url = "Starter repository URL is required";
+        if (!state.f.branch.trim()) e.branch = "Branch is required";
+        if (!state.scan.files) {
+          // Cannot proceed without scanning repository
+          return;
+        }
+        if (Object.keys(e).length > 0) {
+          setState((prev) => ({ ...prev, e }));
+          return;
+        }
+        setStep(2);
+      } else if (state.step === 2) {
+        // Step 2: Basics
+        const e: Record<string, string> = {};
+        if (!state.f.title.trim()) e.title = "Title is required";
+        if (!state.f.desc.trim()) e.desc = "Description is required";
+        if (Number(state.f.marks) <= 0) e.marks = "Marks must be greater than 0";
+        if (Number(state.f.dur) <= 0) e.dur = "Duration must be greater than 0";
+        if (Object.keys(e).length > 0) {
+          setState((prev) => ({ ...prev, e }));
+          return;
+        }
+        setStep(3);
+      } else if (state.step === 3) {
+        // Step 3: Tasks
+        if (!state.t.tasks.length || state.t.busy || state.t.ed) return;
+        setStep(4);
       }
-      setStep(2);
-    } else if (state.step === 2) {
-      // Validate step 2
-      const e: Record<string, string> = {};
-      if (!state.f.url.trim()) e.url = "Starter repository URL is required";
-      if (!state.f.branch.trim()) e.branch = "Branch is required";
-      if (Object.keys(e).length > 0) {
-        setState((prev) => ({ ...prev, e }));
-        return;
+    } else if (state.type === "design") {
+      if (state.step === 1) {
+        // Step 1: Basics
+        const e: Record<string, string> = {};
+        if (!state.f.title.trim()) e.title = "Title is required";
+        if (!state.f.desc.trim()) e.desc = "Description is required";
+        if (Number(state.f.marks) <= 0) e.marks = "Marks must be greater than 0";
+        if (Number(state.f.dur) <= 0) e.dur = "Duration must be greater than 0";
+        if (Object.keys(e).length > 0) {
+          setState((prev) => ({ ...prev, e }));
+          return;
+        }
+        setStep(2);
       }
-      setStep(3);
-    } else if (state.step === 3) {
-      if (!state.scan.files) return;
-      setStep(4);
-    } else if (state.step === 4) {
-      if (!state.t.tasks.length || state.t.busy || state.t.ed) return;
-      setStep(5);
     }
-  }, [state.step, state.f, state.scan.files, state.t, setStep]);
+  }, [state.step, state.type, state.f, state.scan.files, state.t, setStep]);
 
   const prevStep = useCallback(() => {
     if (state.step > 1) {
@@ -486,6 +556,7 @@ export function WizardProvider({
         warnMsg,
         canPublish,
         publishBlockReason,
+        normalizeMarksAndTime,
         nextStep,
         prevStep,
       }}

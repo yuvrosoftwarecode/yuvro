@@ -15,7 +15,7 @@ export function ScanStep() {
 
   const handleStartScan = async () => {
     if (!targetRepo.trim()) {
-      setScanError("Please enter or select a starter repository in Step 2 first.");
+      setScanError("Please enter or select a starter repository in Step 1 first.");
       return;
     }
 
@@ -37,7 +37,7 @@ export function ScanStep() {
 
       setState((prev) => ({
         ...prev,
-        reached: Math.max(prev.reached, 4),
+        reached: Math.max(prev.reached, 3),
         scan: {
           scanning: false,
           stageIndex: 2,
@@ -65,7 +65,7 @@ export function ScanStep() {
 
       {/* Target repo indication */}
       <p className="mut sm" style={{ margin: "16px 0 20px" }}>
-        Target repository: {targetRepo ? `${targetRepo} (${state.f.branch || "main"})` : "None selected (go to Step 2 to configure)"}
+        Target repository: {targetRepo ? `${targetRepo} (${state.f.branch || "main"})` : "None selected (go to Step 1 to configure)"}
       </p>
 
       {!isScanned && !isScanning && (

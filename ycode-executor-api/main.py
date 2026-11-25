@@ -2747,13 +2747,58 @@ async def run_temp_scoring_endpoint(body: TempRunScoringRequest):
         # Always reset to pristine baseline first for deterministic isolation
         _reset_temp_to_pristine(ws)
 
-        # For pass_case, apply the candidate/reference solution patches
+        # For pass_case, apply the candidate/reference solution patches or full files
         if body.mode == "pass_case" and body.solution_files:
             for rel_path, content in body.solution_files.items():
-                target = _safe_path(ws, rel_path)
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_text(content, encoding="utf-8")
-                applied_files.append(rel_path)
+                if not content or not str(content).strip():
+                    continue
+                content_str = str(content).strip()
+                # Clean any markdown code blocks wrapper (e.g. ```diff ... ``` or ```python ... ```)
+                if content_str.startswith("```"):
+                    lines = content_str.splitlines()
+                    if len(lines) >= 2 and lines[0].startswith("```") and lines[-1].strip() == "```":
+                        content_str = "\n".join(lines[1:-1]).strip()
+
+                is_patch = (
+                    rel_path.endswith(".patch")
+                    or rel_path.endswith(".diff")
+                    or content_str.startswith("diff --git")
+                    or content_str.startswith("--- ")
+                    or ("\n--- " in content_str and "\n+++ " in content_str and "\n@@ " in content_str)
+                )
+
+                if is_patch and (ws / ".git").exists():
+                    patch_path = ws / f"_temp_{_uuid.uuid4().hex[:8]}.patch"
+                    try:
+                        patch_path.write_text(content_str + "\n", encoding="utf-8")
+                        apply_res = subprocess.run(
+                            ["git", "-c", "safe.directory=*", "apply", "--whitespace=nowarn", "--recount", "--ignore-space-change", str(patch_path)],
+                            cwd=str(ws),
+                            capture_output=True,
+                            text=True,
+                        )
+                        if apply_res.returncode == 0:
+                            applied_files.append(f"{rel_path} (patch)")
+                        else:
+                            # Try 3-way apply
+                            apply_res3 = subprocess.run(
+                                ["git", "-c", "safe.directory=*", "apply", "-3", "--whitespace=nowarn", str(patch_path)],
+                                cwd=str(ws),
+                                capture_output=True,
+                                text=True,
+                            )
+                            if apply_res3.returncode == 0:
+                                applied_files.append(f"{rel_path} (3-way patch)")
+                            else:
+                                logger.warning(f"git apply failed for {rel_path}: {apply_res.stderr or apply_res3.stderr}")
+                    finally:
+                        if patch_path.exists():
+                            patch_path.unlink()
+                else:
+                    target = _safe_path(ws, rel_path)
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_text(content_str, encoding="utf-8")
+                    applied_files.append(rel_path)
 
             # Auto-apply database migrations for Django projects so tables exist for tests
             if (ws / "manage.py").exists():

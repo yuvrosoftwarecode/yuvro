@@ -25,12 +25,21 @@ export const TYPES: Record<QuestionCategory, QuestionTypeInfo> = {
 };
 
 export const STEPS = [
+  "Repository and scan",
   "Basics",
-  "Repository and stack",
-  "Codebase scan",
   "Tasks",
   "Scoring and testing",
 ];
+
+export function getStepsForCategory(type: QuestionCategory): string[] {
+  if (type === "design") {
+    return ["Basics", "Tasks"];
+  }
+  if (type === "know") {
+    return ["Basics"];
+  }
+  return ["Repository and scan", "Basics", "Tasks", "Scoring and testing"];
+}
 
 export const OPT = {
   domain: [
@@ -160,6 +169,9 @@ export interface ScoringState {
     timestamp: string;
     test_command?: string;
   };
+  solutionFiles?: Record<string, string>;
+  activeFile?: string;
+  rulesOutOfDate?: boolean;
   pushed: string | null;
   ver: VerificationState;
   open: Record<string, boolean>;

@@ -1,13 +1,14 @@
 import React from "react";
-import { STEPS } from "./types";
+import { getStepsForCategory } from "./types";
 import { useWizard } from "./WizardContext";
 
 export function StepTabs() {
   const { state, setStep } = useWizard();
+  const steps = getStepsForCategory(state.type);
 
   return (
     <nav className="steps" role="tablist" aria-label="Creation steps">
-      {STEPS.map((name, index) => {
+      {steps.map((name, index) => {
         const stepNum = index + 1;
         const isActive = state.step === stepNum;
         const isReached = stepNum <= state.reached;

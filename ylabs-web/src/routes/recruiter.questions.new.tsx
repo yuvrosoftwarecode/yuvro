@@ -157,7 +157,7 @@ function RecruiterNewQuestionPage() {
 
   return (
     <QuestionBuilder
-      key={edit || "new"}
+      key={`${category}-${edit || "new"}`}
       category={category}
       initialCategory={category}
       onCategoryChange={handleCategoryChange}

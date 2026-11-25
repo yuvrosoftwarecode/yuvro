@@ -1,22 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useWizard } from "./WizardContext";
 import { useRecruiterSidebar } from "@/lib/recruiterSidebarContext";
-import { ChatHistoryItem } from "./types";
+import { ChatHistoryItem, getStepsForCategory } from "./types";
 
 interface TopBarProps {
   onCancel?: () => void;
+  onPublish?: () => void;
+  isPublishing?: boolean;
 }
 
-const STEP_LABELS = [
-  "Basics",
-  "Repository and stack",
-  "Codebase scan",
-  "Tasks",
-  "Scoring and testing",
-];
-
-export const TopBar: React.FC<TopBarProps> = ({ onCancel }) => {
-  const { state, setState, setStep, lockMsg, warnMsg, nextStep, prevStep } = useWizard();
+export const TopBar: React.FC<TopBarProps> = ({ onCancel, onPublish, isPublishing }) => {
+  const { state, setState, setStep, lockMsg, warnMsg, nextStep, prevStep, canPublish, normalizeMarksAndTime } = useWizard();
   const { toggleDrawer } = useRecruiterSidebar();
 
   const [stepMenuOpen, setStepMenuOpen] = useState(false);
@@ -24,6 +18,9 @@ export const TopBar: React.FC<TopBarProps> = ({ onCancel }) => {
 
   const stepMenuRef = useRef<HTMLDivElement>(null);
   const historyMenuRef = useRef<HTMLDivElement>(null);
+
+  const steps = getStepsForCategory(state.type);
+  const isLastStep = state.step === steps.length;
 
   // Close menus on outside click or Escape
   useEffect(() => {
@@ -225,7 +222,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onCancel }) => {
 
           {stepMenuOpen && (
             <div className="smenu" role="menu">
-              {STEP_LABELS.map((name, i) => {
+              {steps.map((name, i) => {
                 const k = i + 1;
                 const dis = k > state.reached;
                 return (
@@ -307,6 +304,16 @@ export const TopBar: React.FC<TopBarProps> = ({ onCancel }) => {
         <span className={`sm ${warnMsg ? "wr" : "mut"}`}>
           {lockMsg || warnMsg}
         </span>
+        {warnMsg && (
+          <button
+            type="button"
+            className="lk sm"
+            onClick={normalizeMarksAndTime}
+            style={{ textDecoration: "underline", fontWeight: 500 }}
+          >
+            Normalize
+          </button>
+        )}
         <button
           type="button"
           className="lk"
@@ -314,14 +321,25 @@ export const TopBar: React.FC<TopBarProps> = ({ onCancel }) => {
         >
           Cancel
         </button>
-        <button
-          type="button"
-          className="btn"
-          onClick={nextStep}
-          disabled={!!lockMsg}
-        >
-          Continue
-        </button>
+        {isLastStep ? (
+          <button
+            type="button"
+            className="btn"
+            onClick={onPublish}
+            disabled={!canPublish || isPublishing}
+          >
+            {isPublishing ? "Publishing..." : "Publish question"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn"
+            onClick={nextStep}
+            disabled={!!lockMsg}
+          >
+            Continue
+          </button>
+        )}
       </div>
     </div>
   );

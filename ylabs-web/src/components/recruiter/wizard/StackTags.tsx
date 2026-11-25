@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { STACK_CONFIG, StackKey } from "./types";
 import { useWizard } from "./WizardContext";
 
-export function StackTags() {
+export function StackTags({ variant = "default" }: { variant?: "default" | "stacked" } = {}) {
   const {
     state,
     toggleStackTag,
@@ -44,8 +44,10 @@ export function StackTags() {
     }
   };
 
+  const isStacked = variant === "stacked";
+
   return (
-    <div style={{ marginTop: 14 }}>
+    <div style={{ marginTop: isStacked ? 8 : 14 }}>
       {STACK_CONFIG.map(([cat, label, baseOptions]) => {
         const customs = state.custom[cat] || [];
         const allItems = [...baseOptions, ...customs];
@@ -53,7 +55,7 @@ export function StackTags() {
         const isAdding = state.addTagCategory === cat;
 
         return (
-          <div key={cat} className="sk">
+          <div key={cat} className={`sk ${isStacked ? "sk-stacked" : ""}`}>
             <div className="skl">{label}</div>
             <div className="skc">
               {allItems.map((tag) => {

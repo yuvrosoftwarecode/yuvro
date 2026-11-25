@@ -1,7 +1,58 @@
 import React, { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useWizard } from "./WizardContext";
 import { TaskItem } from "./types";
 import { standardizeTaskWithAI, estimateDurationWithAI } from "./adapters/architectAdapter";
+
+function DiffViewer({ diff }: { diff: string }) {
+  if (!diff || !diff.trim()) {
+    return <pre className="dcode">No reference solution yet</pre>;
+  }
+
+  // Clean out markdown code blocks if wrapped with ```diff or ```
+  const cleanDiff = diff.replace(/^```(?:diff|patch|[a-z0-9_-]+)?\n?/i, "").replace(/\n?```\s*$/i, "");
+  const lines = cleanDiff.split("\n");
+
+  // Check if it looks like a diff
+  const isDiff = lines.some((l) =>
+    l.startsWith("--- ") ||
+    l.startsWith("+++ ") ||
+    l.startsWith("@@ ") ||
+    l.startsWith("diff --git ") ||
+    l.startsWith("+") ||
+    l.startsWith("-")
+  );
+
+  if (!isDiff) {
+    // If not a git diff, render as standard code block
+    return <pre className="dcode">{cleanDiff}</pre>;
+  }
+
+  return (
+    <div className="diff-box">
+      {lines.map((line, idx) => {
+        let lineClass = "";
+        if (line.startsWith("+++ ") || line.startsWith("--- ") || line.startsWith("diff --git ")) {
+          lineClass = "diff-header";
+        } else if (line.startsWith("@@ ")) {
+          lineClass = "diff-hunk";
+        } else if (line.startsWith("+")) {
+          lineClass = "diff-add";
+        } else if (line.startsWith("-")) {
+          lineClass = "diff-del";
+        }
+
+        return (
+          <div key={idx} className={`diff-line ${lineClass}`}>
+            <span className="diff-ln">{idx + 1}</span>
+            <span className="diff-content">{line || " "}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export function TaskDetail({
   onClose,
@@ -477,10 +528,14 @@ export function TaskDetail({
 
       <div className="db">
         <h4 className="h4">Description</h4>
-        <div className="dtx">{x.desc}</div>
+        <div className="dtx md-rendered">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {x.desc || "No description provided"}
+          </ReactMarkdown>
+        </div>
 
         <h4 className="h4">Reference solution</h4>
-        <pre className="dcode">{x.ref || "No reference solution yet"}</pre>
+        <DiffViewer diff={x.ref} />
 
         <h4 className="h4">Linked task</h4>
         <p style={{ margin: 0 }}>

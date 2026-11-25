@@ -12,9 +12,15 @@ import { chatArchitect, genUid } from "./adapters/architectAdapter";
 
 interface TasksWorkspaceProps {
   onCancel?: () => void;
+  onPublish?: () => void;
+  isPublishing?: boolean;
 }
 
-export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({ onCancel }) => {
+export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
+  onCancel,
+  onPublish,
+  isPublishing,
+}) => {
   const { state, setState } = useWizard();
   const { setIsStep4Workspace } = useRecruiterSidebar();
 
@@ -319,8 +325,8 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({ onCancel }) => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", width: "100%" }}>
-      {/* Top Bar with Sidebar Drawer Toggle, Step Switcher, Chat History, and Continue */}
-      <TopBar onCancel={onCancel} />
+      {/* Top Bar with Sidebar Drawer Toggle, Step Switcher, Chat History, and Continue / Publish */}
+      <TopBar onCancel={onCancel} onPublish={onPublish} isPublishing={isPublishing} />
 
       {/* 3-Column Resizable Grid Container */}
       <div

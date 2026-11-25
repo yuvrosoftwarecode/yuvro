@@ -27,29 +27,11 @@
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   box-sizing: border-box;
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .wizard-scope {
-    --bg: #141414;
-    --fg: #F2F2F2;
-    --sec: #C4C4C4;
-    --mut: #9A9A9A;
-    --bd: #2E2E2E;
-    --act: #3A2A14;
-    --acc: #1F1A14;
-    --hov: #1A1713;
-    --tip: #F2F2F2;
-    --tipfg: #141414;
-    --trk: #232323;
-    --gh: #1B1B1B;
-    --gs: #232323;
-    --gt: #333;
-    color-scheme: dark;
-  }
-}
-
-:root[data-theme="dark"] .wizard-scope {
+:root[data-theme="dark"] .wizard-scope,
+.dark .wizard-scope {
   --bg: #141414;
   --fg: #F2F2F2;
   --sec: #C4C4C4;
@@ -106,6 +88,11 @@
 .wizard-scope .bar {
   max-width: 840px;
   margin-inline: auto;
+}
+
+.wizard-scope.split-step .wrap,
+.wizard-scope.split-step .bar {
+  max-width: 1120px;
 }
 
 .wizard-scope.wide .wrap,
@@ -381,6 +368,46 @@
   font-weight: 600;
 }
 
+/* Step 1 Split-screen Studio Layout */
+.wizard-scope .split-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.wizard-scope .split-col {
+  min-width: 0;
+}
+
+.wizard-scope .split-left {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding-right: 48px;
+  border-right: 1px solid var(--bd);
+}
+
+.wizard-scope .split-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 960px) {
+  .wizard-scope .split-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .wizard-scope .split-left {
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--bd);
+    padding-bottom: 32px;
+  }
+}
+
 .wizard-scope .lr {
   display: flex;
   justify-content: space-between;
@@ -507,6 +534,25 @@
   gap: 16px;
   padding: 10px 0;
   align-items: start;
+}
+
+.wizard-scope .sk.sk-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--trk);
+}
+
+.wizard-scope .sk.sk-stacked:last-child {
+  border-bottom: none;
+}
+
+.wizard-scope .sk.sk-stacked .skl {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sec);
+  padding: 0;
 }
 
 .wizard-scope .skl {
@@ -1287,6 +1333,93 @@
   color: var(--sec);
 }
 
+.wizard-scope .dtx.md-rendered {
+  white-space: normal;
+}
+.wizard-scope .dtx.md-rendered p {
+  margin: 0 0 10px;
+}
+.wizard-scope .dtx.md-rendered ul,
+.wizard-scope .dtx.md-rendered ol {
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+.wizard-scope .dtx.md-rendered li {
+  margin: 3px 0;
+}
+.wizard-scope .dtx.md-rendered strong {
+  font-weight: 600;
+  color: var(--fg);
+}
+.wizard-scope .dtx.md-rendered code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  background: var(--trk);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.wizard-scope .diff-box {
+  margin: 0;
+  border: 1px solid var(--hl);
+  border-radius: 6px;
+  background: var(--bg);
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 20px;
+  max-height: 380px;
+}
+.wizard-scope .diff-line {
+  display: flex;
+  padding: 1px 8px;
+  min-height: 20px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.wizard-scope .diff-ln {
+  user-select: none;
+  width: 36px;
+  flex-shrink: 0;
+  color: var(--mut);
+  text-align: right;
+  padding-right: 12px;
+  opacity: 0.6;
+}
+.wizard-scope .diff-content {
+  flex: 1;
+}
+.wizard-scope .diff-add {
+  background-color: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+}
+.dark .wizard-scope .diff-add {
+  background-color: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+}
+.wizard-scope .diff-del {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+}
+.dark .wizard-scope .diff-del {
+  background-color: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+}
+.wizard-scope .diff-hunk {
+  background-color: rgba(59, 130, 246, 0.08);
+  color: #2563eb;
+  font-weight: 500;
+}
+.dark .wizard-scope .diff-hunk {
+  background-color: rgba(59, 130, 246, 0.14);
+  color: #60a5fa;
+}
+.wizard-scope .diff-header {
+  background-color: var(--trk);
+  color: var(--sec);
+  font-weight: 600;
+}
+
 .wizard-scope .dcode {
   margin: 0;
   padding: 12px 14px;
@@ -1607,6 +1740,383 @@
 /* Animations */
 .wizard-scope .fi {
   animation: fi 0.35s ease both;
+}
+
+/* Step 4 Scoring IDE */
+.wizard-scope .ide-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.wizard-scope .ide-ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--hl);
+  background: var(--bg);
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.wizard-scope .ide-ribbon-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.wizard-scope .ide-ribbon-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.wizard-scope .ide-cmd-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wizard-scope .ide-cmd-input label {
+  font-size: 12px;
+  color: var(--mut);
+  white-space: nowrap;
+}
+
+.wizard-scope .ide-cmd-input input {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--hl);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  width: 220px;
+}
+
+.wizard-scope .ide-cmd-input input:focus {
+  outline: none;
+  border-color: var(--fg);
+}
+
+.wizard-scope .ide-split {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wizard-scope .ide-explorer {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--hl);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.wizard-scope .ide-exp-search {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--hl);
+}
+
+.wizard-scope .ide-exp-search input {
+  width: 100%;
+  height: 26px;
+  padding: 0 8px;
+  border: 1px solid var(--hl);
+  border-radius: 4px;
+  background: var(--trk);
+  color: var(--fg);
+  font-size: 12px;
+}
+
+.wizard-scope .ide-exp-search input:focus {
+  outline: none;
+  background: var(--bg);
+  border-color: var(--fg);
+}
+
+.wizard-scope .ide-tree-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.wizard-scope .ide-section-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mut);
+  cursor: pointer;
+  user-select: none;
+}
+
+.wizard-scope .ide-section-hdr:hover {
+  color: var(--fg);
+}
+
+.wizard-scope .ide-tree-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 20px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--sec);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  border-radius: 0;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wizard-scope .ide-tree-item:hover {
+  background: var(--hov);
+  color: var(--fg);
+}
+
+.wizard-scope .ide-tree-item.active {
+  background: var(--sel);
+  color: var(--fg);
+  font-weight: 500;
+}
+
+/* Tree row styling for nested folder structure */
+.wizard-scope .ide-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  height: 24px;
+  padding-right: 8px;
+  border: none;
+  background: transparent;
+  color: var(--sec);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 24px;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: 4px;
+  margin: 1px 0;
+}
+
+.wizard-scope .ide-tree-row:hover {
+  background: var(--hov);
+  color: var(--fg);
+}
+
+.wizard-scope .ide-tree-row.active {
+  background: var(--sel);
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.wizard-scope .ide-tree-chevron {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--mut);
+  transition: transform 0.15s ease;
+}
+
+.wizard-scope .ide-tree-chevron.open {
+  transform: rotate(90deg);
+}
+
+.wizard-scope .ide-tree-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mut);
+}
+
+.wizard-scope .ide-tree-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wizard-scope .ide-editor-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.wizard-scope .ide-tab-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 34px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--hl);
+  background: var(--bg);
+  flex-shrink: 0;
+  font-size: 12.5px;
+}
+
+.wizard-scope .ide-active-tab {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--fg);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wizard-scope .ide-tab-badge {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  color: var(--mut);
+}
+
+.wizard-scope .ide-editor-canvas {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wizard-scope .ide-editor-canvas .cm-editor {
+  height: 100% !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+}
+
+.wizard-scope .ide-console {
+  height: 250px;
+  border-top: 1px solid var(--hl);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.wizard-scope .ide-console-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 34px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--hl);
+  background: var(--trk);
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.wizard-scope .ide-console-tabs {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 100%;
+}
+
+.wizard-scope .ide-console-tab {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  height: 100%;
+  font-size: 12px;
+  color: var(--mut);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.wizard-scope .ide-console-tab:hover {
+  color: var(--fg);
+}
+
+.wizard-scope .ide-console-tab.active {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.wizard-scope .ide-console-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--or);
+}
+
+.wizard-scope .ide-console-acts {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wizard-scope .ide-console-body {
+  flex: 1;
+  overflow: auto;
+  padding: 10px 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 18px;
+  background: var(--bg);
+  color: var(--fg);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.wizard-scope .ide-task-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-family: Inter, sans-serif;
+}
+
+.wizard-scope .ide-task-table th {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--hl);
+  color: var(--mut);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.wizard-scope .ide-task-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--hl);
+  vertical-align: top;
 }
 
 @keyframes fi {

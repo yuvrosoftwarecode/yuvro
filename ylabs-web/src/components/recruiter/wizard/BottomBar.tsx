@@ -1,4 +1,5 @@
 import React from "react";
+import { getStepsForCategory } from "./types";
 import { useWizard } from "./WizardContext";
 
 export function BottomBar({
@@ -10,11 +11,13 @@ export function BottomBar({
 }) {
   const { state, prevStep, nextStep, lockMsg, warnMsg, canPublish, publishBlockReason } = useWizard();
 
-  const isLastStep = state.step === 5;
+  const steps = getStepsForCategory(state.type);
+  const totalSteps = steps.length;
+  const isLastStep = state.step === totalSteps;
   const isFirstStep = state.step === 1;
 
   // Bottom hint text
-  let hint = `Step ${state.step} of 5`;
+  let hint = `Step ${state.step} of ${totalSteps}`;
   if (isLastStep) {
     hint = publishBlockReason || "Ready to publish";
   } else if (lockMsg) {
@@ -27,7 +30,7 @@ export function BottomBar({
 
   return (
     <footer className="bar" id="bar">
-      <span className={`sm ${isLastStep && !canPublish ? "mut" : "mut"}`}>{hint}</span>
+      <span className="sm mut">{hint}</span>
       <div className="row">
         {!isFirstStep && (
           <button type="button" className="lk" onClick={prevStep} disabled={isPublishing}>

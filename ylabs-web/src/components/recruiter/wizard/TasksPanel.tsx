@@ -9,7 +9,7 @@ export function TasksPanel({
   onSelectTask: (id: string) => void;
   onNewTask: () => void;
 }) {
-  const { state, tsum, tmin } = useWizard();
+  const { state, tsum, tmin, normalizeMarksAndTime } = useWizard();
   const t = state.t;
   const targetMarks = Number(state.f.marks);
   const targetMin = Number(state.f.dur);
@@ -34,15 +34,27 @@ export function TasksPanel({
 
   return (
     <>
-      <p className="mut sm" id="t-tot" style={{ margin: "0 0 10px" }}>
-        <span style={marksMismatch ? { color: "var(--red)" } : undefined}>
-          {tsum} of {state.f.marks} marks
-        </span>{" "}
-        ·{" "}
-        <span style={minMismatch ? { color: "var(--red)" } : undefined}>
-          {tmin} of {state.f.dur} min
-        </span>
-      </p>
+      <div className="lr" style={{ margin: "0 0 10px", alignItems: "center" }}>
+        <p className="mut sm" id="t-tot" style={{ margin: 0 }}>
+          <span style={marksMismatch ? { color: "var(--red)" } : undefined}>
+            {tsum} of {state.f.marks} marks
+          </span>{" "}
+          ·{" "}
+          <span style={minMismatch ? { color: "var(--red)" } : undefined}>
+            {tmin} of {state.f.dur} min
+          </span>
+        </p>
+        {(marksMismatch || minMismatch) && (
+          <button
+            type="button"
+            className="lk sm"
+            onClick={normalizeMarksAndTime}
+            style={{ textDecoration: "underline", fontWeight: 500 }}
+          >
+            Normalize
+          </button>
+        )}
+      </div>
 
       {t.tasks.map((x) => {
         const isSelected = t.sel === x.id;

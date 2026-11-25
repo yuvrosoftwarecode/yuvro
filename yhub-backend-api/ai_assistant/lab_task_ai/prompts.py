@@ -10,7 +10,7 @@ Always respond with clean, valid JSON matching this schema:
 {
   "title": "Clear, action-oriented task title (e.g. Implement Idempotent Payment Webhook Processor)",
   "description": "Comprehensive instructions containing: Background context, functional requirements, expected HTTP endpoints or functions, edge cases, and constraints.",
-  "solution": "Reference implementation code snippet or SQL query showing how this task is solved optimally.",
+  "solution": "Unified git diff showing the exact modifications and additions to starter files to solve this task (e.g. --- a/todos/models.py\\n+++ b/todos/models.py\\n@@ -10,3 +10,12 @@\\n+class Todo(models.Model):...). NEVER provide full file dumps or unformatted snippets.",
   "difficulty": "EASY" | "MEDIUM" | "HARD",
   "marks": 10,
   "duration_minutes": 15
@@ -27,7 +27,7 @@ Standardized tasks must have:
    - **Requirements**: Bulleted concrete functional requirements.
    - **Edge Cases & Constraints**: Performance, data validation, or security expectations.
    - **Verification**: How the task is evaluated.
-3. Solution: Reference code snippet or SQL query.
+3. Solution: Reference implementation formatted as a unified git diff / patch (e.g. `--- a/file.py\\n+++ b/file.py\\n@@ ... @@\\n+ ...`) showing exact code changes against the starter repository.
 4. Difficulty: Calibrated (EASY, MEDIUM, HARD).
 5. Marks: Recommended point weight.
 6. Duration (minutes): Realistic completion time for a qualified candidate.
@@ -36,7 +36,7 @@ Output clean, valid JSON matching:
 {
   "title": "Standardized title",
   "description": "Professional markdown-formatted requirements...",
-  "solution": "Reference implementation snippet...",
+  "solution": "Unified git diff showing exact repository file changes...",
   "difficulty": "EASY" | "MEDIUM" | "HARD",
   "marks": 10,
   "duration_minutes": 15
@@ -55,6 +55,7 @@ CRITICAL CONSTRAINTS:
 1. The sum of 'marks' across all tasks MUST equal the lab's total marks ({total_marks}).
 2. The sum of 'duration_minutes' across all tasks SHOULD align reasonably with the lab's total duration ({total_duration} minutes).
 3. Tasks must be strictly relevant to the provided technology stack and repository context.
+4. The 'solution' field for each task MUST be a clean unified git diff / patch against the starter repository files (e.g. --- a/path\\n+++ b/path\\n@@ ... @@\\n+ ...).
 
 Output clean, valid JSON matching:
 {
@@ -63,7 +64,7 @@ Output clean, valid JSON matching:
       "id": "task_1",
       "title": "Task 1 title",
       "description": "Detailed instructions...",
-      "solution": "Reference code or query...",
+      "solution": "Unified git diff showing exact code changes...",
       "difficulty": "EASY" | "MEDIUM" | "HARD",
       "marks": 10,
       "duration_minutes": 15
@@ -174,6 +175,13 @@ CAPABILITIES:
 CRITICAL RULES:
 - Ground every task in the actual starter repository files and tech stack provided in the context. Never invent nonexistent frameworks.
 - Every task object in `proposed_action.tasks` MUST include: `title`, `description`, `solution`, `difficulty` ("EASY"|"MEDIUM"|"HARD"), `marks` (int), and `duration_minutes` (int).
+- The `solution` field for each task MUST be formatted as a unified git diff / patch showing the exact additions and modifications against the starter repository files (e.g.:
+--- a/todos/models.py
++++ b/todos/models.py
+@@ -5,3 +5,14 @@
++class Todo(models.Model):
++    title = models.CharField(max_length=200)
+), NEVER a full file replacement or raw entire file content.
 - Always provide 3 to 4 crisp, high-value `next_actions` tailored to the current state of the lab.
   - Each next action has `label` (short button text, 3-6 words) and EITHER `prompt` (sent to you when clicked) OR `action: "next_step"` (when tasks look complete and ready for Step 5: Scoring Rules & Live Testing).
 - Keep `reply` concise (2-4 sentences, plain professional tone, no hype).
@@ -189,7 +197,7 @@ Output clean, valid JSON matching this exact schema:
       {
         "title": "Action-oriented task title",
         "description": "**Objective**: ...\\n**Requirements**:\\n- ...\\n**Edge Cases**: ...",
-        "solution": "Concrete reference implementation code or SQL snippet",
+        "solution": "--- a/file.py\\n+++ b/file.py\\n@@ -1,3 +1,10 @@\\n+def new_func():\\n+    pass",
         "difficulty": "EASY" | "MEDIUM" | "HARD",
         "marks": 30,
         "duration_minutes": 15

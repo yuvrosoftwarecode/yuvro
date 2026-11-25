@@ -5,7 +5,6 @@ import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 export const IR_CSS = `
 .ir{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif !important;--page:#f3f5fa;--card:#ffffff;--ink:#14192b;--body:#3f475c;--muted:#6f7890;--soft:#eef2fb;--brand:#4a7bdc;--bar:#e6eaf4;--bad:#c9372c;--bad-bg:#fdeae7;--warn:#9a5b00;--warn-bg:#fdf1d6;--good:#17744d;--good-bg:#e1f4ea;background:var(--page);color:var(--ink);font-family:inherit;line-height:1.5;padding:32px 20px 60px}
-@media (prefers-color-scheme:dark){.ir{--page:#0b1020;--card:#141b33;--ink:#f1f4fc;--body:#c3cbe0;--muted:#97a2bf;--soft:#1b2546;--bar:#232d4f;--bad:#ff8a7e;--bad-bg:#3a1f26;--warn:#f5c26b;--warn-bg:#3a3017;--good:#6fd9a4;--good-bg:#173528}}
 .dark .ir{--page:#0b1020;--card:#141b33;--ink:#f1f4fc;--body:#c3cbe0;--muted:#97a2bf;--soft:#1b2546;--bar:#232d4f;--bad:#ff8a7e;--bad-bg:#3a1f26;--warn:#f5c26b;--warn-bg:#3a3017;--good:#6fd9a4;--good-bg:#173528}
 .ir,.ir *{box-sizing:border-box}
 :where(.ir) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
@@ -31,7 +30,6 @@ export const IR_CSS = `
 .ir-msg.low{background:#edf1f9}
 .ir-msg.mid{background:#fdf6e0}
 .ir-msg.high{background:#e6f4ec}
-@media (prefers-color-scheme:dark){.ir-msg.low{background:#1b2546}.ir-msg.mid{background:#3a3017}.ir-msg.high{background:#173528}}
 .dark .ir-msg.low{background:#1b2546}
 .dark .ir-msg.mid{background:#3a3017}
 .dark .ir-msg.high{background:#173528}

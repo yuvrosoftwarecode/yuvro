@@ -2,11 +2,11 @@ import React from "react";
 import { useWizard } from "./WizardContext";
 import { StepTabs } from "./StepTabs";
 import { BottomBar } from "./BottomBar";
-import { BasicsStep } from "./BasicsStep";
 import { RepositoryStep } from "./RepositoryStep";
-import { ScanStep } from "./ScanStep";
+import { BasicsStep } from "./BasicsStep";
 import { TasksWorkspace } from "./TasksWorkspace";
 import { ScoringStep } from "./ScoringStep";
+import { TopBar } from "./TopBar";
 import "./wizard.css";
 
 interface WizardShellProps {
@@ -22,8 +22,14 @@ export const WizardShell: React.FC<WizardShellProps> = ({
 }) => {
   const { state } = useWizard();
 
-  // Step 4 uses full-screen chat workspace
-  if (state.step === 4) {
+  // Full-screen chat workspace for tasks (Step 3 for Lab, Step 2 for System Design)
+  const isTasksWorkspace =
+    (state.type === "lab" && state.step === 3) ||
+    (state.type === "design" && state.step === 2);
+
+  const isScoringIDE = state.type === "lab" && state.step === 4;
+
+  if (isTasksWorkspace) {
     return (
       <div
         className="wizard-scope"
@@ -35,15 +41,54 @@ export const WizardShell: React.FC<WizardShellProps> = ({
           overflow: "hidden",
         }}
       >
-        <TasksWorkspace onCancel={onCancel} />
+        <TasksWorkspace
+          onCancel={onCancel}
+          onPublish={() => onPublish(state)}
+          isPublishing={isPublishing}
+        />
       </div>
     );
   }
 
-  // Steps 1, 2, 3, and 5 use the centered 840px column shell
+  if (isScoringIDE) {
+    return (
+      <div
+        className="wizard-scope"
+        style={{
+          height: "100vh",
+          maxHeight: "100vh",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        <TopBar
+          onCancel={onCancel}
+          onPublish={() => onPublish(state)}
+          isPublishing={isPublishing}
+        />
+        <div
+          style={{
+            flex: "1 1 0",
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
+          <ScoringStep isIDE />
+        </div>
+      </div>
+    );
+  }
+
+  // Centered 840px column shell for standard steps (expands to 1120px for Step 1 split-screen experiment)
+  const isSplitStep = state.type === "lab" && state.step === 1;
+
   return (
     <div
-      className="wizard-scope"
+      className={`wizard-scope ${isSplitStep ? "split-step" : ""}`}
       style={{
         minHeight: "100%",
         width: "100%",
@@ -80,15 +125,15 @@ export const WizardShell: React.FC<WizardShellProps> = ({
               </button>
             </div>
 
-            {/* Step Tabs: 1 Basics, 2 Repository and stack, 3 Codebase scan, 4 Tasks, 5 Scoring and testing */}
+            {/* Dynamic Step Tabs based on question category */}
             <StepTabs />
 
             {/* Active Step Content */}
             <div style={{ marginTop: "28px" }}>
-              {state.step === 1 && <BasicsStep />}
-              {state.step === 2 && <RepositoryStep />}
-              {state.step === 3 && <ScanStep />}
-              {state.step === 5 && <ScoringStep />}
+              {state.type === "lab" && state.step === 1 && <RepositoryStep />}
+              {((state.type === "lab" && state.step === 2) ||
+                (state.type !== "lab" && state.step === 1)) && <BasicsStep />}
+              {state.type === "lab" && state.step === 4 && <ScoringStep />}
             </div>
           </div>
         </div>
