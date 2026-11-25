@@ -109,6 +109,14 @@ class InterviewLLM(Protocol):
         ...
 
 
+def _clean_role(role: str | None) -> str:
+    if not role:
+        return "Software Engineer"
+    cleaned = re.sub(r"^\[.*?\]\s*:?\s*", "", str(role)).strip()
+    cleaned = re.sub(r"^(role|title|target\s+role)\s*[:-]\s*", "", cleaned, flags=re.IGNORECASE).strip()
+    return cleaned or "Software Engineer"
+
+
 class OpenAIInterviewLLM:
     def __init__(
         self,
@@ -617,7 +625,7 @@ class OpenAIInterviewLLM:
         return {
             "candidate_id": session.candidate.candidate_id,
             "candidate_name": session.candidate.metadata.get("name") or "",
-            "target_role": session.candidate.target_role,
+            "target_role": _clean_role(session.candidate.target_role),
             "resume": self._compact(session.candidate.resume, 900),
             "job_description": self._compact(session.candidate.job_description, 900),
         }

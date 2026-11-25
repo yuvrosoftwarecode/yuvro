@@ -54,7 +54,7 @@ function RecruiterLayout() {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("access");
       if (!token) {
-        nav({ to: "/auth", search: { tab: "signin", redirect: window.location.pathname } });
+        nav({ to: "/recruiter-login", search: { redirect: window.location.pathname } });
         return;
       }
     }
@@ -82,7 +82,7 @@ function RecruiterLayout() {
       } catch (err: any) {
         console.error("Failed to fetch entitlements", err);
         if (err?.status === 401 || !localStorage.getItem("access")) {
-          nav({ to: "/auth", search: { tab: "signin", redirect: window.location.pathname } });
+          nav({ to: "/recruiter-login", search: { redirect: window.location.pathname } });
           return;
         }
         setHasPlan(false);

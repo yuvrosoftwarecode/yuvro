@@ -709,6 +709,7 @@ export function Workspace({ previewData, evaluationId: propEvaluationId }: { pre
     tabSwitchThreshold: proctoringConfig.tabSwitchLimit || 3,
     enableCopyPaste: proctoringConfig.enableCopyPaste,
     tabSwitchAllowed: proctoringConfig.tabSwitchAllowed,
+    pauseAudioChecks: () => activeSection?.type === "DISCUSSION" || section === "discussion",
     onViolation: (type, data) => {
       console.warn("Proctoring violation:", type, data);
       if (type === "devtools_opened") {

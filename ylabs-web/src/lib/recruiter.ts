@@ -42,6 +42,11 @@ export const DURATION_OPTIONS = [
 ] as const;
 
 export const DOMAINS = [
+  "Full Stack",
+  "Backend",
+  "Frontend",
+  "System Design",
+  "Cloud & DevOps",
   "Finance",
   "Insurance",
   "EdTech",
@@ -332,8 +337,13 @@ export type Section = LabsSection | AssessmentSection | DiscussionSection | Syst
 
 export function mapDomainToBackend(domain?: string): string {
   if (!domain) return "OTHER";
-  const normalized = domain.trim().toUpperCase().replace(/\s+/g, "_");
+  const normalized = domain.trim().toUpperCase().replace(/[\s&]+/g, "_");
   const validMap: Record<string, string> = {
+    FULL_STACK: "FULL_STACK",
+    BACKEND: "BACKEND",
+    FRONTEND: "FRONTEND",
+    SYSTEM_DESIGN: "SYSTEM_DESIGN",
+    CLOUD_DEVOPS: "CLOUD_DEVOPS",
     FINANCE: "FINANCE",
     INSURANCE: "INSURANCE",
     EDTECH: "EDTECH",
@@ -346,10 +356,14 @@ export function mapDomainToBackend(domain?: string): string {
   return validMap[normalized] || "OTHER";
 }
 
-export function mapDomainToFrontend(domain?: string): Domain {
-  if (!domain) return "Other";
-  const normalized = domain.trim().toUpperCase().replace(/\s+/g, "_");
+export function inferDomainFromContext(domain?: string, title?: string, sections?: any[]): Domain {
+  const normDomain = (domain || "").trim().toUpperCase().replace(/[\s&]+/g, "_");
   const reverseMap: Record<string, Domain> = {
+    FULL_STACK: "Full Stack",
+    BACKEND: "Backend",
+    FRONTEND: "Frontend",
+    SYSTEM_DESIGN: "System Design",
+    CLOUD_DEVOPS: "Cloud & DevOps",
     FINANCE: "Finance",
     INSURANCE: "Insurance",
     EDTECH: "EdTech",
@@ -359,7 +373,39 @@ export function mapDomainToFrontend(domain?: string): Domain {
     PAYMENT: "Payment",
     OTHER: "Other",
   };
-  return reverseMap[normalized] || "Other";
+  if (normDomain && reverseMap[normDomain] && reverseMap[normDomain] !== "Other") {
+    return reverseMap[normDomain];
+  }
+
+  // Infer from title and sections if domain is missing or OTHER
+  const text = `${title || ""} ${(sections || []).map((s: any) => s.title || s.type || s.kind || "").join(" ")}`.toLowerCase();
+  if (text.includes("system design") || text.includes("architecture") || (sections || []).some((s: any) => s.type === "SYSTEM_DESIGN" || s.kind === "system_design")) {
+    return "System Design";
+  }
+  if (text.includes("full stack") || text.includes("fullstack") || (text.includes("frontend") && text.includes("backend"))) {
+    return "Full Stack";
+  }
+  if (text.includes("backend") || text.includes("python") || text.includes("node") || text.includes("golang") || text.includes("java")) {
+    return "Backend";
+  }
+  if (text.includes("frontend") || text.includes("react") || text.includes("vue") || text.includes("css") || text.includes("html")) {
+    return "Frontend";
+  }
+  if (text.includes("cloud") || text.includes("devops") || text.includes("docker") || text.includes("kubernetes") || text.includes("aws")) {
+    return "Cloud & DevOps";
+  }
+
+  return "Full Stack";
+}
+
+export function mapDomainToFrontend(domain?: string, title?: string, sections?: any[]): Domain {
+  if (!domain || domain.trim().toUpperCase() === "OTHER") {
+    if (title || (sections && sections.length > 0)) {
+      return inferDomainFromContext(domain, title, sections);
+    }
+    return "Other";
+  }
+  return inferDomainFromContext(domain, title, sections);
 }
 
 export interface Evaluation {
@@ -415,7 +461,7 @@ function mapBackendToFrontend(be: any): Evaluation {
   return {
     id: be.id,
     title: be.title || "Untitled Evaluation",
-    domain: mapDomainToFrontend(be.domain),
+    domain: mapDomainToFrontend(be.domain, be.title, be.sections),
     status: be.is_published ? "published" : "draft",
     createdAt: be.created_at ? new Date(be.created_at).getTime() : Date.now(),
     candidatesInvited: be.candidates_invited_count || be.candidate_invited_emails?.length || 0,
@@ -608,7 +654,7 @@ export async function listEvaluations(): Promise<Evaluation[]> {
       allLabs = await restApiAuthUtil.get<any[]>("/skill_evaluation/lab-questions/");
     } catch {}
 
-    return data.map((item) => {
+    const evaluations = data.map((item) => {
       const fe = mapBackendToFrontend(item);
       for (const section of fe.sections) {
         if (section.kind === "labs" && section.labs) {
@@ -631,6 +677,25 @@ export async function listEvaluations(): Promise<Evaluation[]> {
         }
       }
       return fe;
+    });
+
+    // B-01: Filter out orphaned duplicate (Copy) evaluations with <= 1 candidate when canonical exists
+    const canonicalTitles = new Set(
+      evaluations
+        .filter(e => !/\(copy\b|\bcopy\b/i.test(e.title))
+        .map(e => e.title.trim().toLowerCase())
+    );
+
+    return evaluations.filter(e => {
+      const isCopy = /\(copy\b|\bcopy\b/i.test(e.title);
+      if (!isCopy) return true;
+      const canonicalName = e.title.replace(/\s*[\(\[-]?\s*copy\b.*$/i, "").trim().toLowerCase();
+      const hasCanonical = canonicalTitles.has(canonicalName);
+      const totalCands = Math.max(e.candidatesInvited || 0, e.candidatesTotal || 0, e.candidatesCompleted || 0);
+      if (hasCanonical && totalCands <= 1) {
+        return false;
+      }
+      return true;
     });
   } catch {
     return [];

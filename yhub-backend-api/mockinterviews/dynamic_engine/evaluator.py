@@ -160,6 +160,7 @@ class InterviewEvaluator:
                 CompetencyScore(
                     competency=comp,
                     score=0,
+                    observed=False,
                     evidence=[
                         EvaluationEvidence(
                             source="system",
@@ -498,6 +499,7 @@ class InterviewEvaluator:
         neg = negative_counts.get(competency, 0)
         adj = adjustments.get(competency, 0)
         evidence = evidence_by_competency.get(competency, [])
+        observed = True
 
         if pos > 0 or neg > 0:
             if neg > 0 and pos == 0:
@@ -517,7 +519,8 @@ class InterviewEvaluator:
             raw_score = 5
             guidance = "Observed in background activity and lab work."
         else:
-            raw_score = 5
+            raw_score = 0
+            observed = False
             evidence = [
                 EvaluationEvidence(
                     source="system",
@@ -525,11 +528,12 @@ class InterviewEvaluator:
                     note="Not directly probed during this interview session.",
                 )
             ]
-            guidance = "Neutral evaluation (not directly probed during session)."
+            guidance = "Not assessed (not directly probed during session)."
 
         return CompetencyScore(
             competency=competency,
             score=max(0, min(10, raw_score)),
+            observed=observed,
             evidence=evidence[:4],
             guidance=guidance,
         )

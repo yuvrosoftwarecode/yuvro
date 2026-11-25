@@ -19,7 +19,7 @@ describe("Weekly Task Feature: Core Architecture & Data Suite", () => {
   beforeEach(() => {
     // Reset stored completions for clean state
     saveStoredDone("mk", [0, 1, 2, 3, 4]);
-    saveStoredDone("dj", [0, 1, 2, 3]);
+    saveStoredDone("dj", [0, 1]);
     saveStoredDone("ds", [0, 1, 2]);
     saveStoredDone("sd", [0, 1, 2, 3, 4]);
   });

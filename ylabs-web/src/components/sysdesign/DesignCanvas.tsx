@@ -42,7 +42,7 @@ function fitView(nodes: SDNode[], el: HTMLElement | null): View {
   const minX = Math.min(...nodes.map(n => n.x)), minY = Math.min(...nodes.map(n => n.y));
   const maxX = Math.max(...nodes.map(n => n.x + W)), maxY = Math.max(...nodes.map(n => n.y + H));
   const pad = 40, r = el.getBoundingClientRect();
-  const k = Math.min(1.4, Math.max(0.25, Math.min((r.width - pad * 2) / (maxX - minX), (r.height - pad * 2) / (maxY - minY))));
+  const k = Math.min(1.2, Math.max(0.85, Math.min((r.width - pad * 2) / (maxX - minX), (r.height - pad * 2) / (maxY - minY))));
   return { k, x: (r.width - (maxX - minX) * k) / 2 - minX * k, y: (r.height - (maxY - minY) * k) / 2 - minY * k };
 }
 
