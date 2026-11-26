@@ -1,0 +1,1297 @@
+/* Evaluation builder styles matching the reference prototype */
+
+.eval-builder-scope {
+  --bg: #fff;
+  --fg: #171717;
+  --mut: #6B7280;
+  --bd: #E7E5E4;
+  --card: #FDFCFA;
+  --dark: #111827;
+  --darkfg: #fff;
+  --org: #E89B3C;
+  --ibox: #F3F4F6;
+  --info: #F8FAFC;
+  --infobd: #E2E8F0;
+  --dash: #E5E7EB;
+  --hair: #EDEBE7;
+  --dim: #B4B8BF;
+  --gh: #F8F8F8;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark .eval-builder-scope,
+[data-theme="dark"] .eval-builder-scope {
+  --bg: #111111;
+  --fg: #F2F2F2;
+  --mut: #9CA3AF;
+  --bd: #2A2A2A;
+  --card: #161616;
+  --dark: #F2F2F2;
+  --darkfg: #111;
+  --ibox: #222;
+  --info: #181B20;
+  --infobd: #2A2F38;
+  --dash: #333;
+  --hair: #2A2A2A;
+  --dim: #555;
+  --gh: #222222;
+  color-scheme: dark;
+}
+
+.eval-builder-scope * {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.eval-builder-scope *:hover {
+  scrollbar-color: #D4D4D4 transparent;
+}
+
+.eval-builder-scope ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+
+.eval-builder-scope ::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.eval-builder-scope ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.eval-builder-scope ::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.eval-builder-scope *:hover::-webkit-scrollbar-thumb {
+  background-color: #D4D4D4;
+}
+
+.eval-builder-scope ::-webkit-scrollbar-thumb:hover {
+  background-color: #BDBDBD;
+}
+
+.eval-builder-scope button,
+.eval-builder-scope input,
+.eval-builder-scope select {
+  font: inherit;
+  color: inherit;
+}
+
+.eval-builder-scope svg {
+  flex: none;
+}
+
+.eval-builder-scope .wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.eval-builder-scope .wrap.lib {
+  grid-template-columns: minmax(0, 1fr) minmax(620px, 54%);
+}
+
+.eval-builder-scope .wrap.lib .main {
+  padding-left: 28px;
+  padding-right: 28px;
+}
+
+.eval-builder-scope .wrap.lib .right-summary {
+  display: none !important;
+}
+
+.eval-builder-scope .wrap.lib + .fb {
+  display: none;
+}
+
+.eval-builder-scope .main {
+  overflow: auto;
+  min-height: 0;
+  padding: 32px max(32px, env(safe-area-inset-left, 0px)) 80px;
+  display: flex;
+  justify-content: center;
+}
+
+.eval-builder-scope .col {
+  width: 100%;
+  max-width: 780px;
+}
+
+.eval-builder-scope .top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.eval-builder-scope .back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  color: var(--mut);
+  cursor: pointer;
+  padding: 0;
+}
+
+.eval-builder-scope .back:hover {
+  color: var(--fg);
+}
+
+.eval-builder-scope .tb {
+  display: flex;
+  gap: 8px;
+}
+
+.eval-builder-scope .ob {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  color: var(--mut);
+}
+
+.eval-builder-scope .ob:hover {
+  color: var(--fg);
+}
+
+.eval-builder-scope .db {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--dark);
+  color: var(--darkfg);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.eval-builder-scope .db:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.eval-builder-scope .title {
+  display: block;
+  width: 100%;
+  margin-top: 48px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+
+.eval-builder-scope .title:focus {
+  outline: 0;
+}
+
+.eval-builder-scope .title::placeholder {
+  color: var(--fg);
+}
+
+.eval-builder-scope .meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  color: var(--mut);
+  flex-wrap: wrap;
+}
+
+.eval-builder-scope .sel {
+  position: relative;
+}
+
+.eval-builder-scope .sel select {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 34px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 0 34px 0 10px;
+  background: var(--bg);
+  cursor: pointer;
+  min-width: 164px;
+  color: var(--fg);
+}
+
+.eval-builder-scope .sel svg {
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  pointer-events: none;
+  color: var(--fg);
+}
+
+.eval-builder-scope .card {
+  border: 1px solid var(--hair);
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.eval-builder-scope .sec {
+  margin-top: 36px;
+}
+
+.eval-builder-scope .sh {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.eval-builder-scope .grip {
+  color: var(--mut);
+  cursor: grab;
+}
+
+.eval-builder-scope .oi {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--org);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eval-builder-scope .sh .t {
+  flex: 1;
+  min-width: 0;
+}
+
+.eval-builder-scope .sh .t small {
+  display: block;
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--mut);
+}
+
+.eval-builder-scope .sh .t b {
+  display: block;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.eval-builder-scope .ic {
+  display: flex;
+  gap: 4px;
+}
+
+.eval-builder-scope .ib {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: none;
+  border-radius: 8px;
+  color: var(--fg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eval-builder-scope .ib:hover:not(:disabled) {
+  background: var(--ibox);
+}
+
+.eval-builder-scope .ib.dim {
+  color: var(--dim);
+  cursor: default;
+}
+
+.eval-builder-scope .body {
+  padding: 16px;
+}
+
+.eval-builder-scope .stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: var(--bg);
+  padding: 16px;
+}
+
+.eval-builder-scope .stats small {
+  display: block;
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--mut);
+}
+
+.eval-builder-scope .stats b {
+  display: block;
+  margin-top: 6px;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.eval-builder-scope .add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px dashed var(--dash);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--mut);
+  cursor: pointer;
+}
+
+.eval-builder-scope .add:hover {
+  color: var(--fg);
+}
+
+.eval-builder-scope .lrows {
+  margin-top: 12px;
+}
+
+.eval-builder-scope .hr {
+  height: 1px;
+  background: var(--hair);
+  margin: 20px 0 14px;
+  border: 0;
+}
+
+.eval-builder-scope .pc {
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: var(--bg);
+  padding: 16px;
+}
+
+.eval-builder-scope .ph {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.eval-builder-scope .ph .ibx {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--ibox);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg);
+}
+
+.eval-builder-scope .ph .tx {
+  flex: 1;
+  min-width: 0;
+}
+
+.eval-builder-scope .ph .tx b {
+  display: block;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.eval-builder-scope .ph .tx span {
+  display: block;
+  color: var(--mut);
+}
+
+.eval-builder-scope .en {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mut);
+}
+
+.eval-builder-scope .sw {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  border: 1px solid var(--dark);
+  background: var(--dark);
+  cursor: pointer;
+  padding: 0;
+  flex: none;
+}
+
+.eval-builder-scope .sw::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--darkfg);
+  transition: transform 0.15s;
+}
+
+.eval-builder-scope .sw[aria-checked="true"]::after {
+  transform: translateX(14px);
+}
+
+.eval-builder-scope .sw[aria-checked="false"] {
+  background: var(--bg);
+}
+
+.eval-builder-scope .sw[aria-checked="false"]::after {
+  background: var(--dark);
+}
+
+.eval-builder-scope .info {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--infobd);
+  border-radius: 10px;
+  background: var(--info);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.eval-builder-scope .info svg {
+  margin-top: 2px;
+  color: var(--mut);
+}
+
+.eval-builder-scope .line {
+  height: 1px;
+  background: var(--hair);
+  margin: 14px 0 6px;
+}
+
+.eval-builder-scope .opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.eval-builder-scope .opt b {
+  display: block;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.eval-builder-scope .opt span {
+  display: block;
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.eval-builder-scope .num {
+  display: flex;
+  align-items: stretch;
+  width: 84px;
+  height: 34px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.eval-builder-scope .num input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0 10px;
+  appearance: textfield;
+  -moz-appearance: textfield;
+  color: var(--fg);
+}
+
+.eval-builder-scope .num input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.eval-builder-scope .num input:focus {
+  outline: 0;
+}
+
+.eval-builder-scope .num .st {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--bd);
+}
+
+.eval-builder-scope .num .st button {
+  flex: 1;
+  width: 22px;
+  border: 0;
+  background: none;
+  color: var(--mut);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eval-builder-scope .num .st button:hover {
+  background: var(--ibox);
+}
+
+.eval-builder-scope .addsec {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+  height: 60px;
+  border: 1px dashed var(--dash);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--mut);
+  cursor: pointer;
+}
+
+.eval-builder-scope .addsec:hover {
+  color: var(--fg);
+}
+
+.eval-builder-scope .vit {
+  margin-top: 16px;
+}
+
+.eval-builder-scope .vit .pc {
+  background: var(--card);
+  padding: 16px;
+}
+
+.eval-builder-scope .vit .oi {
+  width: 32px;
+  height: 32px;
+}
+
+.eval-builder-scope .slab {
+  display: block;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  margin: 6px 0 8px;
+  color: var(--fg);
+}
+
+.eval-builder-scope .vit .hp {
+  margin: 10px 0 2px;
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.eval-builder-scope .vq {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 7px 0;
+}
+
+.eval-builder-scope .vq .n {
+  width: 16px;
+  color: var(--mut);
+  flex: none;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.eval-builder-scope .vqt {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--fg);
+}
+
+.eval-builder-scope .endsp {
+  height: 96px;
+}
+
+.eval-builder-scope .right-summary {
+  border-left: 1px solid var(--hair);
+  padding: 32px;
+  overflow: auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.eval-builder-scope .right-summary h4 {
+  margin: 0;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--mut);
+}
+
+.eval-builder-scope .rows {
+  margin-top: 22px;
+}
+
+.eval-builder-scope .rows div {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  color: var(--mut);
+}
+
+.eval-builder-scope .rows div b {
+  font-weight: 400;
+  color: var(--fg);
+}
+
+.eval-builder-scope .rows .gap {
+  margin-top: 14px;
+}
+
+.eval-builder-scope .pv {
+  display: block;
+  width: 100%;
+  margin-top: 22px;
+  height: 40px;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.eval-builder-scope .pb {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--dark);
+  color: var(--darkfg);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.eval-builder-scope .pb:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.eval-builder-scope .fb {
+  position: fixed;
+  right: 16px;
+  bottom: 14px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--bd);
+  border-radius: 999px;
+  background: var(--bg);
+  font-weight: 500;
+  cursor: pointer;
+  z-index: 5;
+  color: var(--fg);
+}
+
+.eval-builder-scope .collapsed .body {
+  display: none;
+}
+
+.eval-builder-scope .collapsed .sh {
+  border-bottom: 0;
+}
+
+.eval-builder-scope .lrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--hair);
+}
+
+.eval-builder-scope .lrow:first-of-type {
+  margin-top: 12px;
+}
+
+.eval-builder-scope .lrow b {
+  display: block;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--fg);
+}
+
+.eval-builder-scope .lrow span {
+  display: block;
+  color: var(--mut);
+  font-size: 13px;
+}
+
+/* Question Library Panel */
+.eval-builder-scope .libp {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--hair);
+  background: var(--bg);
+  position: relative;
+}
+
+.eval-builder-scope .rz {
+  position: absolute;
+  left: -5px;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  cursor: col-resize;
+  z-index: 6;
+  touch-action: none;
+}
+
+.eval-builder-scope .rz::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: transparent;
+  transition: background 0.12s;
+}
+
+.eval-builder-scope .rz:hover::after,
+.eval-builder-scope .rz.drag::after,
+.eval-builder-scope .rz:focus-visible::after {
+  background: #9CA3AF;
+}
+
+.eval-builder-scope .rz:focus-visible {
+  outline: 0;
+}
+
+.eval-builder-scope .lh {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.eval-builder-scope .lh h3 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.eval-builder-scope .lh p {
+  margin: 2px 0 0;
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.eval-builder-scope .lf {
+  padding: 16px 24px 8px;
+}
+
+.eval-builder-scope .srch {
+  position: relative;
+}
+
+.eval-builder-scope .srch svg {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  color: var(--mut);
+}
+
+.eval-builder-scope .srch input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: var(--bg);
+  padding: 0 12px 0 38px;
+  color: var(--fg);
+}
+
+.eval-builder-scope .srch input:focus,
+.eval-builder-scope .fsel select:focus {
+  outline: 0;
+  border-color: var(--fg);
+}
+
+.eval-builder-scope .fgrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.eval-builder-scope .fsel {
+  position: relative;
+}
+
+.eval-builder-scope .fsel label {
+  display: block;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--mut);
+  margin-bottom: 4px;
+}
+
+.eval-builder-scope .fsel select {
+  width: 100%;
+  height: 36px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 0 28px 0 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--fg);
+  text-overflow: ellipsis;
+}
+
+.eval-builder-scope .fsel svg {
+  position: absolute;
+  right: 8px;
+  bottom: 10px;
+  pointer-events: none;
+  color: var(--mut);
+}
+
+.eval-builder-scope .fsel select option {
+  color: #171717;
+}
+
+.eval-builder-scope .cnt {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px 6px;
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.eval-builder-scope .sortw {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eval-builder-scope .sortw select {
+  height: 30px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 0 8px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--fg);
+}
+
+.eval-builder-scope .sortw select option {
+  color: #171717;
+}
+
+.eval-builder-scope .ll {
+  flex: 1;
+  overflow: auto;
+  padding: 0 24px;
+}
+
+.eval-builder-scope .li {
+  padding: 16px 0;
+  border-top: 1px solid var(--hair);
+}
+
+.eval-builder-scope .li:first-child {
+  border-top: 0;
+}
+
+.eval-builder-scope .lit {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.eval-builder-scope .lit b {
+  display: block;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.eval-builder-scope .lm {
+  margin-top: 2px;
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.eval-builder-scope .la {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: none;
+}
+
+.eval-builder-scope .tl {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--mut);
+  text-decoration: underline;
+  font-size: 13px;
+}
+
+.eval-builder-scope .tl:hover {
+  color: var(--fg);
+}
+
+.eval-builder-scope .tl.red:hover {
+  color: #DC2626;
+}
+
+.eval-builder-scope .ad {
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--fg);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.eval-builder-scope .ad:hover:not(:disabled) {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.eval-builder-scope .ad:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.eval-builder-scope .addd {
+  color: var(--mut);
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.eval-builder-scope .tk {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--card);
+}
+
+.eval-builder-scope .tkh {
+  display: flex;
+  justify-content: space-between;
+  color: var(--mut);
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.eval-builder-scope .tkr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.eval-builder-scope .tkr input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #9A9A9A;
+  border-radius: 3px;
+  background: var(--bg);
+  cursor: pointer;
+  flex: none;
+  display: grid;
+  place-content: center;
+  margin: 0;
+}
+
+.eval-builder-scope .tkr input:checked {
+  border-color: var(--fg);
+  background: var(--fg);
+}
+
+.eval-builder-scope .tkr input:checked::after {
+  content: "";
+  width: 4px;
+  height: 8px;
+  border: solid var(--bg);
+  border-width: 0 2px 2px 0;
+  transform: translateY(-1px) rotate(45deg);
+}
+
+.eval-builder-scope .tkr span:first-of-type {
+  flex: 1;
+  min-width: 0;
+  color: var(--fg);
+}
+
+.eval-builder-scope .tkr .mut {
+  white-space: nowrap;
+  color: var(--mut);
+}
+
+.eval-builder-scope .lfoot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--hair);
+  background: var(--bg);
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.eval-builder-scope .none {
+  padding: 32px 0;
+  color: var(--mut);
+  text-align: center;
+}
+
+.eval-builder-scope .more {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0 24px;
+  border-top: 1px solid var(--hair);
+  color: var(--mut);
+  font-size: 13px;
+}
+
+/* Detail Preview View */
+.eval-builder-scope .dv {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 20px 24px 24px;
+}
+
+.eval-builder-scope .dd {
+  margin: 0;
+  color: var(--fg);
+  line-height: 24px;
+  max-width: 70ch;
+  font-size: 14px;
+}
+
+.eval-builder-scope .facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 20px;
+  margin: 22px 0 0;
+}
+
+.eval-builder-scope .facts dt {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--mut);
+}
+
+.eval-builder-scope .facts dd {
+  margin: 2px 0 0;
+  font-weight: 500;
+  color: var(--fg);
+  font-size: 14px;
+}
+
+.eval-builder-scope .lang {
+  margin-top: 18px;
+  font-size: 14px;
+}
+
+.eval-builder-scope .lang .mut {
+  display: block;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--mut);
+  margin-bottom: 2px;
+}
+
+.eval-builder-scope .tkhd {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 30px;
+}
+
+.eval-builder-scope .tkhd h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.eval-builder-scope .tkl {
+  margin-top: 4px;
+}
+
+.eval-builder-scope .tkr2 {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 10px;
+  margin: 0 -10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.eval-builder-scope .tkr2:hover {
+  background: var(--gh);
+}
+
+.eval-builder-scope .tkr2 input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #9A9A9A;
+  border-radius: 3px;
+  background: var(--bg);
+  cursor: pointer;
+  flex: none;
+  display: grid;
+  place-content: center;
+  margin: 3px 0 0;
+}
+
+.eval-builder-scope .tkr2 input:checked {
+  border-color: var(--fg);
+  background: var(--fg);
+}
+
+.eval-builder-scope .tkr2 input:checked::after {
+  content: "";
+  width: 4px;
+  height: 8px;
+  border: solid var(--bg);
+  border-width: 0 2px 2px 0;
+  transform: translateY(-1px) rotate(45deg);
+}
+
+.eval-builder-scope .tkm {
+  flex: 1;
+  min-width: 0;
+}
+
+.eval-builder-scope .tkm b {
+  display: block;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--fg);
+}
+
+.eval-builder-scope .tkm .mut {
+  display: block;
+  color: var(--mut);
+  font-size: 13px;
+}
+
+.eval-builder-scope .tkn {
+  white-space: nowrap;
+  color: var(--mut);
+  font-size: 13px;
+}
+
+@media (max-width: 860px) {
+  .eval-builder-scope .rz {
+    display: none;
+  }
+  .eval-builder-scope .libp {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    height: 100dvh;
+    width: 100%;
+  }
+  .eval-builder-scope .fgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .eval-builder-scope .wrap {
+    display: block;
+    height: auto;
+    width: 100%;
+  }
+  .eval-builder-scope .main {
+    overflow: visible;
+  }
+  .eval-builder-scope .right-summary {
+    border-left: 0;
+    border-top: 1px solid var(--hair);
+  }
+  .eval-builder-scope .title {
+    font-size: 28px;
+    line-height: 36px;
+    margin-top: 32px;
+  }
+  .eval-builder-scope .stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eval-builder-scope .sw::after {
+    transition: none;
+  }
+}

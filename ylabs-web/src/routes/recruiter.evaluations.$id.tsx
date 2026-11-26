@@ -71,12 +71,17 @@ import {
   syncMockInterviews,
   getVitarkaDiscussionConfig,
   syncDiscussionConfig,
+  VITARKA_INTERVIEW_QUESTIONS,
 } from "@/lib/recruiter";
+import "@/components/evaluation/evaluation-builder.css";
+import { EngineeringLabsSectionCard } from "@/components/evaluation/EngineeringLabsSectionCard";
+import { QuestionLibraryPanel } from "@/components/evaluation/QuestionLibraryPanel";
 import { CreateQuestionForm } from "@/components/evaluation/CreateQuestionForm";
 import { Workspace } from "@/components/evaluation/WorkspaceApp";
 import { createPortal } from "react-dom";
 import ProctoringSettingsCard from "@/components/evaluation/ProctoringSettingsCard";
 import { questionBankService } from "@/services/questionBankService";
+import { ReadyToPublishPage } from "@/components/evaluation/ReadyToPublishPage";
 
 const search = z.object({
   view: z.enum(["edit", "preview", "publish", "publish-done"]).default("edit").catch("edit"),
@@ -242,6 +247,12 @@ function EvaluationWorkspace() {
     actionText?: string;
   } | null>(null);
 
+  // Question Library split screen state
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [libraryWidth, setLibraryWidth] = useState<number | null>(null);
+  const [previewLabId, setPreviewLabId] = useState<string | null>(null);
+  const [selectedTasksMap, setSelectedTasksMap] = useState<Record<string, Set<number>>>({});
+
   // Child route matched (e.g. /workspace, /candidates/...) — defer to it.
   const isChild = loc.pathname.replace(/\/$/, "") !== `/recruiter/evaluations/${id}`;
 
@@ -260,11 +271,46 @@ function EvaluationWorkspace() {
         if (!e) nav({ to: "/recruiter/evaluations" });
         else {
           syncDiscussionConfig(e);
+          if (!e.sections || e.sections.length === 0) {
+            e.sections = [
+              {
+                id: newUid(),
+                kind: "labs",
+                title: "Engineering Labs",
+                labs: [],
+                proctoring: { enableProctoring: true, enableCopyPaste: false, tabSwitchAllowed: false, tabSwitchLimit: 3 },
+              },
+            ];
+          }
           setEv(e);
         }
       });
     }
   }, [id, nav, isChild]);
+
+  // Sync selected tasks map from ev.sections
+  useEffect(() => {
+    if (!ev) return;
+    const newMap: Record<string, Set<number>> = {};
+    for (const s of ev.sections) {
+      if (s.kind === "labs" && s.labs) {
+        for (const l of s.labs) {
+          if (l.selected_task_ids && l.selected_task_ids.length > 0) {
+            const indices = new Set<number>();
+            l.selected_task_ids.forEach((tid: any) => {
+              const m = String(tid).match(/^task-(\d+)$/);
+              if (m) indices.add(parseInt(m[1], 10));
+              else if (!isNaN(Number(tid))) indices.add(Number(tid));
+            });
+            newMap[l.id] = indices;
+          } else if (l.tasks && l.tasks.length > 0) {
+            newMap[l.id] = new Set(l.tasks.map((_, i) => i));
+          }
+        }
+      }
+    }
+    setSelectedTasksMap((prev) => ({ ...newMap, ...prev }));
+  }, [ev]);
 
   if (isChild) return <Outlet />;
   if (!ev) return null;
@@ -300,182 +346,537 @@ function EvaluationWorkspace() {
   const setView = (v: "edit" | "preview" | "publish" | "publish-done") =>
     nav({ to: "/recruiter/evaluations/$id", params: { id }, search: { view: v } });
 
-  if (view === "publish-done") return <PublishedScreen ev={ev} onBack={() => setView("edit")} />;
-  if (view === "publish")
+  const allAddedLabIds = ev.sections
+    .filter((s) => s.kind === "labs")
+    .flatMap((s: any) => (s.labs || []).map((l: any) => String(l.id)));
+
+  const totalLabsCount = allAddedLabIds.length;
+  const totalQuestionsCount = ev.sections
+    .filter((s) => s.kind === "assessment")
+    .reduce((a, s: any) => a + (s.questions?.length || 0), 0);
+  const totalDiscussionMinutes = ev.sections
+    .filter((s) => s.kind === "discussion")
+    .reduce((a, s: any) => a + (s.duration || 0), 0);
+  const vitarkaEnabled = ev.vitarkaEnabled ?? true;
+
+  const handleToggleTaskSelection = (labId: string, taskIndex: number, checked: boolean) => {
+    setSelectedTasksMap((prev) => {
+      const existing = prev[labId] ? new Set(prev[labId]) : new Set([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+      if (checked) existing.add(taskIndex);
+      else existing.delete(taskIndex);
+
+      update((x) => {
+        for (const sec of x.sections) {
+          if (sec.kind === "labs" && sec.labs) {
+            const found = sec.labs.find((l: any) => String(l.id) === String(labId));
+            if (found) {
+              found.selected_task_ids = Array.from(existing).map((i) => `task-${i}`);
+              const stats = getLabCalculatedStats(found);
+              found.duration_minutes = stats.minutes;
+              found.marks = stats.marks;
+            }
+          }
+        }
+      });
+
+      return { ...prev, [labId]: existing };
+    });
+  };
+
+  const handleSelectAllTasks = (labId: string, allCount: number) => {
+    const allSet = new Set<number>();
+    for (let i = 0; i < allCount; i++) allSet.add(i);
+    setSelectedTasksMap((prev) => {
+      update((x) => {
+        for (const sec of x.sections) {
+          if (sec.kind === "labs" && sec.labs) {
+            const found = sec.labs.find((l: any) => String(l.id) === String(labId));
+            if (found) {
+              found.selected_task_ids = Array.from(allSet).map((i) => `task-${i}`);
+              const stats = getLabCalculatedStats(found);
+              found.duration_minutes = stats.minutes;
+              found.marks = stats.marks;
+            }
+          }
+        }
+      });
+      return { ...prev, [labId]: allSet };
+    });
+  };
+
+  const handleClearTasks = (labId: string) => {
+    const emptySet = new Set<number>();
+    setSelectedTasksMap((prev) => {
+      update((x) => {
+        for (const sec of x.sections) {
+          if (sec.kind === "labs" && sec.labs) {
+            const found = sec.labs.find((l: any) => String(l.id) === String(labId));
+            if (found) {
+              found.selected_task_ids = [];
+              found.duration_minutes = 0;
+              found.marks = 0;
+            }
+          }
+        }
+      });
+      return { ...prev, [labId]: emptySet };
+    });
+  };
+
+  const handleAddLabToSection = (lab: any, selectedIndices: Set<number>) => {
+    update((x) => {
+      let labSec = x.sections.find((s) => s.kind === "labs") as LabsSection | undefined;
+      if (!labSec) {
+        labSec = {
+          id: newUid(),
+          kind: "labs",
+          title: "Engineering Labs",
+          labs: [],
+          proctoring: { enableProctoring: true, enableCopyPaste: false, tabSwitchAllowed: false, tabSwitchLimit: 3 },
+        };
+        x.sections.unshift(labSec);
+      }
+
+      const taskIds = Array.from(selectedIndices).map((i) => lab.tasks?.[i]?.id || `task-${i}`);
+      const labItem: LabItem = {
+        id: lab.id,
+        title: lab.title,
+        domain: lab.domain as any,
+        programming_languages: lab.programming_languages as any,
+        databases: lab.databases as any,
+        scenario: lab.scenario as any,
+        difficulty: lab.difficulty,
+        duration_minutes: lab.duration_minutes,
+        marks: lab.marks,
+        tasks: lab.tasks,
+        selected_task_ids: taskIds,
+      };
+      const stats = getLabCalculatedStats(labItem);
+      labItem.duration_minutes = stats.minutes;
+      labItem.marks = stats.marks;
+
+      if (!labSec.labs.some((l) => String(l.id) === String(lab.id))) {
+        labSec.labs.push(labItem);
+      }
+    });
+  };
+
+  const handleRemoveLabFromSection = (labId: string) => {
+    update((x) => {
+      for (const sec of x.sections) {
+        if (sec.kind === "labs" && sec.labs) {
+          sec.labs = sec.labs.filter((l) => String(l.id) !== String(labId));
+        }
+      }
+    });
+  };
+
+  if (view === "publish" || view === "publish-done") {
     return (
-      <PublishScreen
-        ev={ev}
-        onBack={() => setView("edit")}
-        onPublish={async (invite) => {
-          setIsSaving(true);
-
-          const syncedEv = await syncMockInterviews(ev);
-
-          const c = {
-            ...syncedEv,
-            status: "published" as const,
-            publishedAt: Date.now(),
-            invite,
-            candidatesInvited: invite.emails.length || (invite.type === "link" ? 0 : 0),
-            sections: JSON.parse(JSON.stringify(syncedEv.sections)),
-          };
-          const saved = await saveEvaluation(c);
-          if (saved) {
-            if (ev.id === "draft") {
-              setEv(saved);
+      <ReadyToPublishPage
+        evaluationId={ev.id}
+        initialEv={ev}
+        initialPublished={view === "publish-done"}
+        onCancel={() => setView("edit")}
+        onBackToEvaluations={() => nav({ to: "/recruiter/evaluations" })}
+        onPublished={(savedEv) => {
+          if (savedEv) {
+            setEv(savedEv);
+            if (ev.id === "draft" && savedEv.id !== "draft") {
               nav({
                 to: "/recruiter/evaluations/$id",
-                params: { id: saved.id },
+                params: { id: savedEv.id },
                 search: { view: "publish-done" },
                 replace: true,
               });
-            } else {
-              setEv(saved);
-              setView("publish-done");
+              return;
             }
+          } else {
+            setEv((prev) => ({
+              ...prev,
+              status: "published",
+              publishedAt: Date.now(),
+            }));
           }
-          setIsSaving(false);
+          setView("publish-done");
         }}
       />
     );
+  }
   if (view === "preview") return <PreviewScreen ev={ev} onBack={() => setView("edit")} />;
 
   return (
-    <div className="grid grid-cols-[1fr_320px] gap-0">
-      {/* Main workspace */}
-      <div className="min-h-screen p-8 pb-24">
-        <div className="mx-auto max-w-3xl">
-          <div className="flex items-center justify-between">
-            <Link
-              to="/recruiter/evaluations"
-              className="inline-flex items-center gap-1.5 text-[12px] text-neutral-500 hover:text-white"
-            >
-              <ChevronLeft className="h-3.5 w-3.5" /> All evaluations
-            </Link>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setView("preview")}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-[12px] text-neutral-300 hover:bg-white/5"
-              >
-                <Eye className="h-3.5 w-3.5" /> Preview
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={isSaving || saveSuccess}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[12px] font-medium text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50 transition-all"
-              >
-                {isSaving ? (
-                  "Saving..."
-                ) : saveSuccess ? (
-                  <>
-                    <Check className="h-3.5 w-3.5" /> Saved!
-                  </>
-                ) : (
-                  "Save Draft"
-                )}
-              </button>
-              <button
-                onClick={() => setView("publish")}
-                disabled={ev.sections.length === 0}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-1.5 text-[12px] font-medium text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors disabled:opacity-40"
-              >
-                <Rocket className="h-3.5 w-3.5" /> Publish
-              </button>
+    <div className="eval-builder-scope h-[100dvh] w-full overflow-hidden" style={{ zoom: 0.9 }}>
+      <div
+        className={`wrap ${isLibraryOpen ? "lib" : ""}`}
+        id="wrap"
+        style={{
+          gridTemplateColumns:
+            isLibraryOpen && libraryWidth && typeof window !== "undefined" && window.innerWidth > 860
+              ? `minmax(0, 1fr) ${libraryWidth}px`
+              : undefined,
+        }}
+      >
+        {/* Main builder column */}
+        <div className="main">
+          <div className="col">
+            {/* Top Bar */}
+            <div className="top">
+              <Link to="/recruiter/evaluations" className="back">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M15 6l-6 6 6 6" />
+                </svg>
+                All evaluations
+              </Link>
+              <div className="tb">
+                <button className="ob" type="button" onClick={() => setView("preview")}>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  Preview
+                </button>
+                <button className="ob" type="button" onClick={handleSave} disabled={isSaving}>
+                  {isSaving ? "Saving..." : saveSuccess ? "Saved!" : "Save Draft"}
+                </button>
+                <button
+                  className="db"
+                  type="button"
+                  onClick={() => setView("publish")}
+                  disabled={ev.sections.length === 0}
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2.1-.1-2.9-.8-.8-2.1-.8-2.9-.1z" />
+                    <path d="M12 15l-3-3a22 22 0 0 1 2-3.9A12.9 12.9 0 0 1 22 2c0 2.7-.8 7.5-6 11a22 22 0 0 1-4 2z" />
+                    <path d="M9 12H4s.6-3 2-4c1.6-1.1 5 0 5 0M12 15v5s3-.6 4-2c1.1-1.6 0-5 0-5" />
+                  </svg>
+                  Publish
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="mt-8">
+            {/* Title & Domain */}
             <input
+              className="title"
+              placeholder="Untitled Evaluation"
+              aria-label="Evaluation title"
               value={ev.title}
               onChange={(e) =>
                 update((x) => {
                   x.title = e.target.value;
                 })
               }
-              placeholder="Untitled Evaluation"
-              className="w-full border-0 bg-transparent text-[42px] font-semibold tracking-tight text-white placeholder-neutral-600 outline-none"
             />
-            <div className="mt-2 flex items-center gap-3">
-              <select
-                value={ev.domain}
-                onChange={(e) =>
-                  update((x) => {
-                    x.domain = e.target.value as any;
-                  })
-                }
-                className="rounded-md border border-white/10 bg-black/20 px-2 py-1 text-[12px] text-neutral-300 outline-none"
-              >
-                <option value="">Set domain…</option>
-                {DOMAINS.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
-              <span className="text-[12px] text-neutral-500">·</span>
-              <span className="text-[12px] text-neutral-500">
+            <div className="meta">
+              <div className="sel">
+                <select
+                  aria-label="Domain"
+                  value={ev.domain || ""}
+                  onChange={(e) =>
+                    update((x) => {
+                      x.domain = e.target.value as any;
+                    })
+                  }
+                >
+                  <option value="">Set domain...</option>
+                  <option value="Backend engineering">Backend engineering</option>
+                  <option value="Frontend engineering">Frontend engineering</option>
+                  <option value="Full stack engineering">Full stack engineering</option>
+                  <option value="Data engineering">Data engineering</option>
+                  {DOMAINS.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 10l5 5 5-5" />
+                </svg>
+              </div>
+              <span>·</span>
+              <span id="meta">
                 {ev.sections.length} sections · {totals.minutes} min · {totals.marks} marks
               </span>
             </div>
-          </div>
 
-          <div className="mt-10 space-y-4">
-            {ev.sections.map((s, idx) => (
-              <SectionBlock
-                key={s.id}
-                section={s}
-                index={idx}
-                total={ev.sections.length}
-                allSections={ev.sections}
-                onChange={(next) =>
-                  update((x) => {
-                    x.sections[idx] = next;
-                  })
-                }
-                onDelete={() =>
-                  update((x) => {
-                    x.sections.splice(idx, 1);
-                  })
-                }
-                onDuplicate={() =>
-                  update((x) => {
-                    x.sections.splice(idx + 1, 0, {
-                      ...JSON.parse(JSON.stringify(s)),
-                      id: newUid(),
-                    });
-                  })
-                }
-                onMove={(dir) =>
-                  update((x) => {
-                    const to = idx + (dir === "up" ? -1 : 1);
-                    if (to < 0 || to >= x.sections.length) return;
-                    const [it] = x.sections.splice(idx, 1);
-                    x.sections.splice(to, 0, it);
-                  })
-                }
-                onAddLab={() => setLabDrawerFor({ sectionId: s.id })}
-                onConfigureLab={(lab) => setLabDrawerFor({ sectionId: s.id, labId: lab.id })}
-                onAddQuestions={() => setQDrawerFor({ sectionId: s.id })}
-                onPickSystemDesignChallenge={() => setSdDrawerFor({ sectionId: s.id })}
-              />
-            ))}
+            {/* Sections */}
+            {ev.sections.map((s, idx) => {
+              if (s.kind === "labs") {
+                return (
+                  <EngineeringLabsSectionCard
+                    key={s.id}
+                    section={s}
+                    index={idx}
+                    totalSections={ev.sections.length}
+                    onChange={(next) =>
+                      update((x) => {
+                        x.sections[idx] = next;
+                      })
+                    }
+                    onDelete={() =>
+                      update((x) => {
+                        x.sections.splice(idx, 1);
+                      })
+                    }
+                    onDuplicate={() =>
+                      update((x) => {
+                        x.sections.splice(idx + 1, 0, {
+                          ...JSON.parse(JSON.stringify(s)),
+                          id: newUid(),
+                        });
+                      })
+                    }
+                    onMove={(dir) =>
+                      update((x) => {
+                        const to = idx + (dir === "up" ? -1 : 1);
+                        if (to < 0 || to >= x.sections.length) return;
+                        const [it] = x.sections.splice(idx, 1);
+                        x.sections.splice(to, 0, it);
+                      })
+                    }
+                    onOpenLibrary={() => setIsLibraryOpen(true)}
+                  />
+                );
+              }
 
-            <button
-              onClick={() => setAddSectionOpen(true)}
-              className="group flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-white/10 py-6 text-[13px] text-neutral-500 transition hover:border-emerald-400/40 hover:bg-emerald-400/[0.03] hover:text-white"
-            >
-              <Plus className="h-4 w-4 transition group-hover:rotate-90" /> Add Section
+              return (
+                <SectionBlock
+                  key={s.id}
+                  section={s}
+                  index={idx}
+                  total={ev.sections.length}
+                  allSections={ev.sections}
+                  onChange={(next) =>
+                    update((x) => {
+                      x.sections[idx] = next;
+                    })
+                  }
+                  onDelete={() =>
+                    update((x) => {
+                      x.sections.splice(idx, 1);
+                    })
+                  }
+                  onDuplicate={() =>
+                    update((x) => {
+                      x.sections.splice(idx + 1, 0, {
+                        ...JSON.parse(JSON.stringify(s)),
+                        id: newUid(),
+                      });
+                    })
+                  }
+                  onMove={(dir) =>
+                    update((x) => {
+                      const to = idx + (dir === "up" ? -1 : 1);
+                      if (to < 0 || to >= x.sections.length) return;
+                      const [it] = x.sections.splice(idx, 1);
+                      x.sections.splice(to, 0, it);
+                    })
+                  }
+                  onAddLab={() => setIsLibraryOpen(true)}
+                  onConfigureLab={() => {}}
+                  onAddQuestions={() => setQDrawerFor({ sectionId: s.id })}
+                  onPickSystemDesignChallenge={() => setSdDrawerFor({ sectionId: s.id })}
+                />
+              );
+            })}
+
+            {/* Vitarka AI discussion Card: placed directly under Engineering Labs section card and ABOVE Add Section */}
+            <div className="vit">
+              <div className="pc">
+                <div className="ph">
+                  <div className="oi">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                  </div>
+                  <div className="tx">
+                    <b>Vitarka AI discussion</b>
+                    <span>AI conversation with candidates about their submissions</span>
+                  </div>
+                  <div className="en">
+                    <span id="vst">{vitarkaEnabled ? "Enabled" : "Disabled"}</span>
+                    <button
+                      className="sw"
+                      role="switch"
+                      aria-checked={vitarkaEnabled}
+                      aria-label="Vitarka AI discussion"
+                      type="button"
+                      onClick={() =>
+                        update((x) => {
+                          x.vitarkaEnabled = !(x.vitarkaEnabled ?? true);
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                {vitarkaEnabled && (
+                  <div id="vsc">
+                    <div className="line" />
+                    <div className="slab">Interview questions</div>
+                    <p className="hp" style={{ margin: "0 0 6px" }}>
+                      After the coding simulation, Vitarka asks every candidate these same questions,
+                      in this order. They stay constant for the whole evaluation.
+                    </p>
+                    <div id="vqs">
+                      {VITARKA_INTERVIEW_QUESTIONS.map((q, i) => (
+                        <div className="vq" key={i}>
+                          <span className="n">{i + 1}</span>
+                          <span className="vqt">{q}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Add Section Button */}
+            <button className="addsec" type="button" onClick={() => setAddSectionOpen(true)}>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Add Section
             </button>
+
+            <div className="endsp" />
           </div>
         </div>
+
+        {/* Right side: Evaluation Summary (when library is closed) */}
+        {!isLibraryOpen && (
+          <aside className="right right-summary" id="right">
+            <h4>Evaluation Summary</h4>
+            <div className="rows" id="rows">
+              <div>
+                Sections<b>{ev.sections.length}</b>
+              </div>
+              <div>
+                Labs<b>{totalLabsCount}</b>
+              </div>
+              <div>
+                Assessment<b>{totalQuestionsCount} Q</b>
+              </div>
+              <div>
+                Discussion<b>{totalDiscussionMinutes} min</b>
+              </div>
+              <div className="gap">
+                Total Duration<b>{totals.minutes} min</b>
+              </div>
+              <div>
+                Total Marks<b>{totals.marks}</b>
+              </div>
+            </div>
+            <button className="pv" type="button" onClick={() => setView("preview")}>
+              Preview Candidate Experience
+            </button>
+            <button
+              className="pb"
+              type="button"
+              onClick={() => setView("publish")}
+              disabled={ev.sections.length === 0}
+            >
+              Publish Evaluation
+            </button>
+          </aside>
+        )}
+
+        {/* Question Library Split Screen (when library is open) */}
+        {isLibraryOpen && (
+          <QuestionLibraryPanel
+            isOpen={isLibraryOpen}
+            onClose={() => {
+              setIsLibraryOpen(false);
+              setPreviewLabId(null);
+            }}
+            addedLabIds={allAddedLabIds}
+            onAddLab={handleAddLabToSection}
+            onRemoveLab={handleRemoveLabFromSection}
+            selectedTasksMap={selectedTasksMap}
+            onToggleTask={handleToggleTaskSelection}
+            onSelectAllTasks={handleSelectAllTasks}
+            onClearTasks={handleClearTasks}
+            addedTotals={{ minutes: totals.minutes, marks: totals.marks }}
+            libraryWidth={libraryWidth}
+            onResizeWidth={(w) => setLibraryWidth(w)}
+            previewLabId={previewLabId}
+            onSetPreviewLabId={setPreviewLabId}
+          />
+        )}
       </div>
 
-      {/* Right summary */}
-      <SummarySidebar
-        ev={ev}
-        onPublish={() => setView("publish")}
-        onPreview={() => setView("preview")}
-      />
+      {/* Fixed bottom-right feedback button (hidden when library is open) */}
+      {!isLibraryOpen && (
+        <button
+          className="fb"
+          type="button"
+          onClick={() => {
+            const form = document.querySelector(".feedback-trigger");
+            if (form) (form as HTMLElement).click();
+          }}
+        >
+          Feedback
+        </button>
+      )}
 
       {/* Modals & drawers */}
       {addSectionOpen && (
@@ -1166,7 +1567,7 @@ function LabsSectionBody({
         onClick={onAddLab}
         className="mt-3 inline-flex items-center gap-2 rounded-lg border border-dashed border-white/10 px-3 py-2 text-[12px] text-neutral-400 hover:border-emerald-400/40 hover:text-white"
       >
-        <Plus className="h-3.5 w-3.5" /> Add Lab
+        <Plus className="h-3.5 w-3.5" /> Add Question
       </button>
 
       <div className="mt-6 border-t border-white/5 pt-4">
@@ -3646,552 +4047,4 @@ function parseCSVLine(text: string) {
   }
   ret.push(val);
   return ret;
-}
-
-function PublishScreen({
-  ev,
-  onBack,
-  onPublish,
-}: {
-  ev: Evaluation;
-  onBack: () => void;
-  onPublish: (invite: NonNullable<Evaluation["invite"]>) => Promise<void> | void;
-}) {
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [type, setType] = useState<"email" | "link" | "csv">("email");
-  const [recipients, setRecipients] = useState<Array<{name: string, email: string}>>([]);
-  const [nameInput, setNameInput] = useState("");
-  const [emailsInput, setEmailsInput] = useState("");
-  const [subject, setSubject] = useState(`Invitation: ${ev.title}`);
-  const [body, setBody] = useState(`Hi {{name}},\n\nYou've been invited to take the {{evaluation}} assessment by {{company}}.\n\nClick the button below to get started:\n\n{{link}}\n\nGood luck!\n{{company}} Team`);
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
-  const [csvError, setCsvError] = useState("");
-  const [csvSuccess, setCsvSuccess] = useState("");
-  const [scheduleType, setScheduleType] = useState<"none" | "scheduled">(ev.start_datetime || ev.expiry_datetime ? "scheduled" : "none");
-  const [startDate, setStartDate] = useState(() => {
-    if (!ev.start_datetime) return "";
-    const d = new Date(ev.start_datetime);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  });
-  const [startTime, setStartTime] = useState(() => {
-    if (!ev.start_datetime) return "";
-    const d = new Date(ev.start_datetime);
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-  });
-  const [expiryDate, setExpiryDate] = useState(() => {
-    if (!ev.expiry_datetime) return "";
-    const d = new Date(ev.expiry_datetime);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  });
-  const [expiryTime, setExpiryTime] = useState(() => {
-    if (!ev.expiry_datetime) return "";
-    const d = new Date(ev.expiry_datetime);
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-  });
-
-  const link = useMemo(
-    () => `${typeof window !== "undefined" ? window.location.origin : ""}/evaluation?e=${ev.id}`,
-    [ev.id],
-  );
-  const [copied, setCopied] = useState(false);
-
-  const handleCsvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCsvError("");
-    setCsvSuccess("");
-    const f = e.target.files?.[0];
-    if (!f) return;
-
-    try {
-      const arrayBuffer = await f.arrayBuffer();
-      const XLSX = await import("xlsx");
-      const workbook = XLSX.read(arrayBuffer, { type: "array" });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json<any>(worksheet);
-
-      if (data.length === 0) {
-        setCsvError("File is empty.");
-        return;
-      }
-
-      const emailKey = Object.keys(data[0]).find((h) => h.toLowerCase().trim() === "email" || h.toLowerCase().trim() === "email address");
-      const nameKey = Object.keys(data[0]).find((h) => h.toLowerCase().trim() === "name" || h.toLowerCase().trim() === "full name" || h.toLowerCase().trim() === "first name");
-
-      if (!emailKey) {
-        setCsvError("Invalid format. Missing 'email' column header.");
-        return;
-      }
-
-      const parsedEmails = new Map<string, string>();
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      let invalidCount = 0;
-
-      data.forEach((row) => {
-        const email = row[emailKey]?.toString().trim();
-        const name = nameKey ? row[nameKey]?.toString().trim() || "" : "";
-        
-        if (email) {
-          if (emailRegex.test(email)) {
-            parsedEmails.set(email.toLowerCase(), name);
-          } else {
-            invalidCount++;
-          }
-        }
-      });
-
-      if (parsedEmails.size === 0) {
-        setCsvError(`No valid emails found. ${invalidCount} invalid entries.`);
-        return;
-      }
-
-      const newRecipients = Array.from(parsedEmails.entries()).map(([email, name]) => ({ email, name }));
-      setRecipients(newRecipients);
-      setCsvSuccess(`Successfully loaded ${parsedEmails.size} valid emails.` + (invalidCount > 0 ? ` Ignored ${invalidCount} invalid.` : ""));
-    } catch (err) {
-      setCsvError("Failed to parse file.");
-    }
-  };
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const addRecipients = () => {
-    const raw = emailsInput;
-    if (!raw.trim()) return;
-    const list = raw.split(/[,\n\s]+/).map(s => s.trim()).filter(Boolean);
-    const valid = list.filter(e => emailRegex.test(e));
-    if (valid.length > 0) {
-      setRecipients(prev => {
-        let next = [...prev];
-        valid.forEach((e, idx) => {
-            const lowerE = e.toLowerCase();
-            const existingIdx = next.findIndex(r => r.email.toLowerCase() === lowerE);
-            const newName = idx === 0 && valid.length === 1 ? nameInput.trim() : "";
-            if (existingIdx !== -1) {
-                if (newName) next[existingIdx].name = newName;
-            } else {
-                next.push({ email: e, name: newName });
-            }
-        });
-        return next;
-      });
-      setEmailsInput("");
-      setNameInput("");
-    }
-  };
-
-  const handleEmailInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" || e.key === "," || e.key === " ") {
-      e.preventDefault();
-      addRecipients();
-    } else if (e.key === "Backspace" && !emailsInput && recipients.length > 0) {
-      setRecipients(prev => prev.slice(0, -1));
-    }
-  };
-
-  const removeRecipient = (r: string) => setRecipients(prev => prev.filter(x => x.email !== r));
-
-  const insertPlaceholder = (ph: string) => {
-    if (bodyRef.current) {
-      const start = bodyRef.current.selectionStart;
-      const end = bodyRef.current.selectionEnd;
-      const newBody = body.substring(0, start) + ph + body.substring(end);
-      setBody(newBody);
-      setTimeout(() => {
-        if (bodyRef.current) {
-          bodyRef.current.focus();
-          bodyRef.current.setSelectionRange(start + ph.length, start + ph.length);
-        }
-      }, 0);
-    } else {
-      setBody(body + ph);
-    }
-  };
-
-  const submit = async () => {
-    if (isPublishing) return;
-    const pendingInputEmails = emailsInput ? emailsInput.split(/[,\n\s]+/).map(s => s.trim()).filter(e => emailRegex.test(e)) : [];
-    
-    let finalRecipients = [...recipients];
-    if (pendingInputEmails.length > 0) {
-        pendingInputEmails.forEach((e, idx) => {
-            const lowerE = e.toLowerCase();
-            const existingIdx = finalRecipients.findIndex(r => r.email.toLowerCase() === lowerE);
-            const newName = idx === 0 && pendingInputEmails.length === 1 ? nameInput.trim() : "";
-            if (existingIdx !== -1) {
-                // Update name if new name is provided
-                if (newName) finalRecipients[existingIdx].name = newName;
-            } else {
-                finalRecipients.push({ email: e, name: newName });
-            }
-        });
-    }
-    
-    if (type === "csv" && finalRecipients.length === 0) {
-      alert("Please upload a valid CSV/Excel file first.");
-      return;
-    }
-    if ((type === "email" || type === "csv") && finalRecipients.length === 0) {
-      alert("Please provide at least one valid email.");
-      return;
-    }
-    const publishType = type === "csv" ? "email" : type;
-    setIsPublishing(true);
-    try {
-      let start_datetime: string | undefined;
-      let expiry_datetime: string | undefined;
-      
-      if (scheduleType === "scheduled") {
-        if (startDate) {
-          const d = new Date(`${startDate}T${startTime || "00:00"}:00`);
-          start_datetime = d.toISOString();
-        }
-        if (expiryDate) {
-          const d = new Date(`${expiryDate}T${expiryTime || "23:59"}:00`);
-          expiry_datetime = d.toISOString();
-        }
-      }
-      
-      ev.start_datetime = start_datetime;
-      ev.expiry_datetime = expiry_datetime;
-
-      await onPublish({ type: publishType, emails: finalRecipients as any, subject, body });
-    } catch (err) {
-      console.error(err);
-      setIsPublishing(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen p-10">
-      <button
-        onClick={onBack}
-        disabled={isPublishing}
-        className="inline-flex items-center gap-1.5 text-[12px] text-neutral-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <ChevronLeft className="h-3.5 w-3.5" /> Back
-      </button>
-      <div className="mx-auto mt-8 max-w-2xl">
-        <div className="text-[10px] uppercase tracking-widest text-emerald-400">
-          Ready to publish
-        </div>
-        <h1 className="mt-1 text-[32px] font-semibold tracking-tight">{ev.title}</h1>
-        <p className="mt-1 text-[13px] text-neutral-400">
-          Choose how candidates receive this evaluation.
-        </p>
-
-        <div className="mt-8 grid grid-cols-4 gap-2">
-          {[
-            { k: "email", label: "Email", icon: Mail },
-            { k: "link", label: "Public Link", icon: LinkIcon },
-            { k: "csv", label: "Bulk CSV", icon: Upload },
-            { k: "ats", label: "ATS", icon: Sparkles, soon: true },
-          ].map((o: any) => (
-            <button
-              key={o.k}
-              disabled={o.soon || isPublishing}
-              onClick={() => setType(o.k)}
-              className={`rounded-xl border p-4 text-left transition ${o.soon ? "border-white/5 opacity-40" : type === o.k ? "border-emerald-400/40 bg-emerald-400/5" : "border-white/10 hover:bg-white/[0.02]"}`}
-            >
-              <o.icon className="h-4 w-4 text-neutral-300" />
-              <div className="mt-2 text-[12px] text-white">{o.label}</div>
-              {o.soon && <div className="text-[10px] text-neutral-500">Coming soon</div>}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-6 rounded-2xl border border-white/5 bg-white/[0.02] p-5">
-          {type === "email" && (
-            <div>
-              <div className="text-[11px] uppercase tracking-widest text-neutral-500 mb-2">
-                Candidate Emails
-              </div>
-              <div className="flex flex-col gap-3">
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="text"
-                    value={nameInput}
-                    onChange={(e) => setNameInput(e.target.value)}
-                    disabled={isPublishing}
-                    placeholder="Name (Optional)"
-                    className="w-1/3 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 placeholder:text-neutral-500 disabled:opacity-50"
-                  />
-                  <input
-                    type="text"
-                    value={emailsInput}
-                    onChange={(e) => setEmailsInput(e.target.value)}
-                    onKeyDown={handleEmailInput}
-                    disabled={isPublishing}
-                    placeholder="candidate@example.com"
-                    className="flex-1 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 placeholder:text-neutral-500 disabled:opacity-50"
-                  />
-                  <button onClick={() => addRecipients()} disabled={isPublishing || !emailsInput.trim()} className="rounded-lg bg-emerald-500/20 px-4 py-2 text-[12px] font-medium text-emerald-400 hover:bg-emerald-500/30 disabled:opacity-50 transition-colors">
-                    Add
-                  </button>
-                </div>
-                
-                {recipients.length > 0 && (
-                  <div className="mt-2 flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-2">
-                    {recipients.map((r, idx) => (
-                      <div key={idx} className="flex items-center justify-between rounded-md border border-white/5 bg-white/5 px-3 py-2">
-                        <div className="flex flex-col">
-                           {r.name && <span className="text-[12px] font-medium text-neutral-200">{r.name}</span>}
-                           <span className="text-[11px] text-neutral-400">{r.email}</span>
-                        </div>
-                        <button onClick={() => removeRecipient(r.email)} disabled={isPublishing} className="p-1 text-neutral-400 hover:text-red-400">
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          {type === "link" && (
-            <div>
-              <div className="text-[11px] uppercase tracking-widest text-neutral-500">
-                Public Link
-              </div>
-              <div className="mt-2 flex items-center gap-2 rounded-lg border border-white/10 bg-black/30 p-3 text-[12px] text-neutral-300">
-                {ev.id === "draft" ? (
-                  <span className="flex-1 truncate font-mono text-neutral-500">
-                    Link will be generated upon publish
-                  </span>
-                ) : (
-                  <>
-                    <span className="flex-1 truncate font-mono">{link}</span>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard?.writeText(link);
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 1500);
-                      }}
-                      className="rounded-md bg-white/10 px-2 py-1 text-[11px] text-white"
-                    >
-                      {copied ? "Copied" : "Copy"}
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-          {type === "csv" && (
-            <div>
-              <div className="text-[11px] uppercase tracking-widest text-neutral-500">
-                Upload CSV
-              </div>
-              <label className={`mt-2 flex items-center justify-between rounded-lg border border-dashed border-white/10 p-4 text-[12px] text-neutral-400 ${isPublishing ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-emerald-400/40 hover:text-white"}`}>
-                <span className="flex items-center gap-2">
-                  <Upload className="h-4 w-4" /> Drop CSV or browse (email,name,role)
-                </span>
-                <input type="file" accept=".csv" disabled={isPublishing} className="sr-only" onChange={handleCsvUpload} />
-              </label>
-              <div className="mt-2 flex justify-between items-center text-[11px]">
-                <a
-                  href={`data:text/csv;charset=utf-8,email\ncandidate1@example.com\ncandidate2@example.com\ncandidate3@example.com`}
-                  download="sample_template.csv"
-                  className="text-emerald-400 hover:underline"
-                >
-                  Download Sample CSV
-                </a>
-              </div>
-              {csvError && <div className="mt-2 text-[12px] text-red-400">{csvError}</div>}
-              {csvSuccess && <div className="mt-2 text-[12px] text-emerald-400">{csvSuccess}</div>}
-            </div>
-          )}
-        </div>
-
-        {(type === "email" || type === "csv") && (
-            <div className="mt-6 space-y-4 pt-6 border-t border-white/5">
-              <div>
-                <div className="text-[11px] uppercase tracking-widest text-neutral-500 mb-2">
-                  Email Subject
-                </div>
-                <input
-                  type="text"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  disabled={isPublishing}
-                  className="w-full rounded-lg border border-white/10 bg-black/30 p-3 text-[12px] outline-none focus:border-emerald-400/60 disabled:opacity-50 text-white"
-                />
-              </div>
-              <div>
-                <div className="text-[11px] uppercase tracking-widest text-neutral-500 mb-2 flex items-center justify-between">
-                  <span>Email Body</span>
-                  <div className="flex gap-2">
-                    <button onClick={() => insertPlaceholder('{{name}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Name</button>
-                    <button onClick={() => insertPlaceholder('{{evaluation}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Evaluation</button>
-                    <button onClick={() => insertPlaceholder('{{company}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Company</button>
-                    <button onClick={() => insertPlaceholder('{{link}}')} disabled={isPublishing} className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-400 hover:bg-white/10">+ Link</button>
-                  </div>
-                </div>
-                <textarea
-                  ref={bodyRef}
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  disabled={isPublishing}
-                  rows={8}
-                  className="w-full rounded-lg border border-white/10 bg-black/30 p-3 text-[12px] outline-none focus:border-emerald-400/60 disabled:opacity-50 text-white font-mono leading-relaxed resize-none"
-                />
-              </div>
-            </div>
-          )}
-
-        <div className="mt-4">
-          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-[11px] uppercase tracking-widest text-neutral-500">Schedule</div>
-              <div className="flex gap-1.5">
-                <button
-                  onClick={() => setScheduleType("none")}
-                  disabled={isPublishing}
-                  className={`rounded-md border px-2.5 py-1 text-[11px] ${scheduleType === "none" ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
-                >
-                  No time limit
-                </button>
-                <button
-                  onClick={() => setScheduleType("scheduled")}
-                  disabled={isPublishing}
-                  className={`rounded-md border px-2.5 py-1 text-[11px] ${scheduleType === "scheduled" ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/10 text-neutral-400"} disabled:opacity-50`}
-                >
-                  Set dates
-                </button>
-              </div>
-            </div>
-
-            {scheduleType === "scheduled" && (
-              <div className="grid grid-cols-2 gap-6 mt-4 border-t border-white/5 pt-4">
-                <div>
-                  <label className="mb-2 block text-[11px] font-medium text-neutral-300">Start Date & Time (Optional)</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      disabled={isPublishing}
-                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
-                    />
-                    <input
-                      type="time"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                      disabled={isPublishing}
-                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
-                    />
-                  </div>
-                  <p className="mt-1.5 text-[10px] text-neutral-500">Leave blank to make it immediately accessible.</p>
-                </div>
-                
-                <div>
-                  <label className="mb-2 block text-[11px] font-medium text-neutral-300">Expiry Date & Time (Optional)</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="date"
-                      value={expiryDate}
-                      onChange={(e) => setExpiryDate(e.target.value)}
-                      disabled={isPublishing}
-                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
-                    />
-                    <input
-                      type="time"
-                      value={expiryTime}
-                      onChange={(e) => setExpiryTime(e.target.value)}
-                      disabled={isPublishing}
-                      className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-[12px] text-white outline-none focus:border-emerald-400/60 disabled:opacity-50"
-                    />
-                  </div>
-                  <p className="mt-1.5 text-[10px] text-neutral-500">Leave blank to never expire.</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-8 flex items-center justify-end gap-2">
-          <button
-            onClick={onBack}
-            disabled={isPublishing}
-            className="rounded-lg border border-white/10 px-4 py-2 text-[12px] text-neutral-300 hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={submit}
-            disabled={isPublishing}
-            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-5 py-2 text-[13px] font-medium text-black hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100"
-          >
-            {isPublishing ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" /> Publishing...
-              </>
-            ) : (
-              <>
-                <Rocket className="h-4 w-4" /> Publish Evaluation
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PublishedScreen({ ev, onBack }: { ev: Evaluation; onBack: () => void }) {
-  const link =
-    typeof window !== "undefined" ? `${window.location.origin}/evaluation?e=${ev.id}` : "";
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard?.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="grid min-h-screen place-items-center p-10">
-      <div className="w-full max-w-lg text-center">
-        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-emerald-400/10 text-emerald-400">
-          <Check className="h-6 w-6" />
-        </div>
-        <h1 className="mt-6 text-[26px] font-semibold tracking-tight">Evaluation published</h1>
-        <p className="mt-1 text-[13px] text-neutral-400">{ev.title} is now live.</p>
-
-        {ev.invite?.type === "email" ? (
-          <div className="mt-6 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 text-center">
-            <div className="text-[14px] text-emerald-400">
-              Emails have been successfully sent to all invited candidates.
-            </div>
-          </div>
-        ) : (
-          <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.02] p-3 text-left">
-            <div className="text-[10px] uppercase tracking-widest text-neutral-500">
-              Shareable link
-            </div>
-            <div className="mt-1 flex items-center justify-between">
-              <div className="truncate font-mono text-[12px] text-neutral-300">{link}</div>
-              <button
-                onClick={handleCopy}
-                className="ml-2 rounded-md bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white transition hover:bg-white/20"
-              >
-                {copied ? "Copied!" : "Copy Link"}
-              </button>
-            </div>
-          </div>
-        )}
-        <div className="mt-8 flex items-center justify-center gap-2">
-          <button
-            onClick={onBack}
-            className="rounded-lg border border-white/10 px-4 py-2 text-[12px] text-neutral-300 hover:bg-white/5"
-          >
-            Back to workspace
-          </button>
-          <Link
-            to="/recruiter/evaluations"
-            className="rounded-lg bg-gradient-to-r from-emerald-400 to-cyan-400 px-4 py-2 text-[12px] font-medium text-black"
-          >
-            View all evaluations
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
 }

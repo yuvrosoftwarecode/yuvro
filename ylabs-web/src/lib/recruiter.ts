@@ -362,6 +362,12 @@ export function mapDomainToFrontend(domain?: string): Domain {
   return reverseMap[normalized] || "Other";
 }
 
+export const VITARKA_INTERVIEW_QUESTIONS = [
+  "Walk me through the approach you took and why you chose it.",
+  "What was the hardest part of this lab, and how did you work through it?",
+  "If this code ran in production under ten times the load, what would you change?",
+] as const;
+
 export interface Evaluation {
   id: string;
   title: string;
@@ -373,6 +379,8 @@ export interface Evaluation {
   candidatesTotal: number;
   candidatesCompleted: number;
   sections: Section[];
+  vitarkaEnabled?: boolean;
+  company?: string;
   invite?: {
     type: "email" | "link" | "csv";
     emails: Array<{name: string; email: string}> | string[];
@@ -423,6 +431,7 @@ function mapBackendToFrontend(be: any): Evaluation {
     candidatesCompleted: be.completed_candidates_count || 0,
     createdBy: be.created_by || "",
     settings: settings,
+    vitarkaEnabled: be.vitarka_enabled ?? be.vitarkaEnabled ?? be.settings?.vitarkaEnabled ?? true,
     start_datetime: be.start_datetime || null,
     expiry_datetime: be.expiry_datetime || null,
     invite: be.candidate_invited_emails && Object.keys(be.candidate_invited_emails).length > 0 || be.expiry_datetime
@@ -521,13 +530,15 @@ export function syncDiscussionConfig(e: Evaluation): Evaluation {
 }
 
 function mapFrontendToBackend(fe: Evaluation): any {
-  const settings = { ...(fe.settings || {}) };
+  const isVitarka = fe.vitarkaEnabled ?? true;
+  const settings = { ...(fe.settings || {}), vitarkaEnabled: isVitarka };
 
   const payload: any = {
     title: fe.title,
     domain: mapDomainToBackend(fe.domain),
     is_published: fe.status === "published",
     status: fe.status || "draft",
+    vitarka_enabled: isVitarka,
     start_datetime: fe.start_datetime || null,
     expiry_datetime: fe.expiry_datetime || null,
     settings: settings,
@@ -796,7 +807,17 @@ export async function createEvaluation(): Promise<Evaluation> {
     createdAt: Date.now(),
     candidatesInvited: 0,
     candidatesCompleted: 0,
-    sections: [],
+    candidatesTotal: 0,
+    vitarkaEnabled: true,
+    sections: [
+      {
+        id: newUid(),
+        kind: "labs",
+        title: "Engineering Labs",
+        labs: [],
+        proctoring: { enableProctoring: true, enableCopyPaste: false, tabSwitchAllowed: false, tabSwitchLimit: 3 },
+      },
+    ],
   };
 }
 
