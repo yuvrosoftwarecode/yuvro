@@ -204,7 +204,7 @@ function UsersPage() {
                     </Badge>
                   </td>
                   <td className="px-4 py-2.5">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-end gap-2">
                       {u.role === "Student" && (
                         <button
                           type="button"
@@ -213,17 +213,16 @@ function UsersPage() {
                             setIsCreditModalOpen(true);
                           }}
                           title="Add AI Credits"
-                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 transition-colors"
+                          className="p-2.5 rounded-md text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 transition-colors"
                         >
-                          <Coins className="h-3.5 w-3.5" />
-                          <span className="hidden sm:inline">Add Credits</span>
+                          <Coins className="h-4 w-4" />
                         </button>
                       )}
                       {u.role === "Student" ? (
                         <Link
                           to="/u/$username"
                           params={{ username: u.username }}
-                          className="text-xs text-primary hover:underline"
+                          className="text-xs text-primary hover:underline whitespace-nowrap"
                         >
                           View &rarr;
                         </Link>
@@ -231,7 +230,7 @@ function UsersPage() {
                         <Link
                           to="/admin/users/$id"
                           params={{ id: u.id }}
-                          className="text-xs text-primary hover:underline"
+                          className="text-xs text-primary hover:underline whitespace-nowrap"
                         >
                           View &rarr;
                         </Link>

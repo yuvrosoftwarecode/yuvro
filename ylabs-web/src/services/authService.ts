@@ -160,6 +160,41 @@ class AuthService {
     });
   }
 
+  // Sends a one-time login code to the user's email
+  async sendLoginOtp(email: string): Promise<any> {
+    return await yhubApiAuthUtil.post(`/auth/public_send_otp/`, {
+      email: email.trim(),
+      resource_id: "otp_login",
+      resource_type: "login",
+      contest_title: "Sign In",
+    });
+  }
+
+  // Verifies the OTP code and returns a full login session
+  async verifyLoginOtp(email: string, otp: string): Promise<LoginResponse> {
+    const response = await yhubApiAuthUtil.post<any>(`/auth/public_verify_otp/`, {
+      email: email.trim(),
+      resource_id: "otp_login",
+      resource_type: "login",
+      otp: otp.trim(),
+    });
+
+    // Map access_token / access to a consistent LoginResponse shape
+    const access = response.access || response.access_token;
+    const refresh = response.refresh || response.refresh_token;
+
+    if (access) {
+      localStorage.setItem("access", access);
+      if (refresh) localStorage.setItem("refresh", refresh);
+      if (response.user) localStorage.setItem("user", JSON.stringify(response.user));
+      restApiAuthUtil.setAuthToken(access);
+      yhubApiAuthUtil.setAuthToken(access);
+      ycodeApiAuthUtil.setAuthToken(access);
+    }
+
+    return { access, refresh, user: response.user };
+  }
+
   async loginWithGoogle(token: string): Promise<LoginResponse> {
     const response = await yhubApiAuthUtil.post<LoginResponse>("/auth/google/?product=ylabs", {
       token,
