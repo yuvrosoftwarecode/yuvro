@@ -40,12 +40,15 @@ const useAIChat = (config?: {
   const getContext = config?.getContext;
   const persistenceKey = config?.persistenceKey;
   const selectedAgentId = config?.selectedAgentId;
-  const mode = config?.mode;
+  const mode = config?.mode || "ask";
+
+  const getScopedStorageKey = useCallback(() => {
+    const base = persistenceKey || "default";
+    return `ai-mentor-session-${base}-${mode}`;
+  }, [persistenceKey, mode]);
 
   useEffect(() => {
-    const storageKey = persistenceKey
-      ? `ai-mentor-session-${persistenceKey}`
-      : "ai-mentor-session-default";
+    const storageKey = getScopedStorageKey();
 
     const initSession = async () => {
       setMessages([]);
@@ -73,7 +76,7 @@ const useAIChat = (config?: {
     };
 
     initSession();
-  }, [persistenceKey]);
+  }, [getScopedStorageKey]);
 
   useEffect(() => {
     const loadAgents = async () => {
@@ -141,9 +144,7 @@ const useAIChat = (config?: {
 
       if (response?.id) {
         setSessionId(response.id);
-        const storageKey = persistenceKey
-          ? `ai-mentor-session-${persistenceKey}`
-          : "ai-mentor-session-default";
+        const storageKey = getScopedStorageKey();
         localStorage.setItem(storageKey, response.id);
         return response.id;
       }
@@ -154,7 +155,7 @@ const useAIChat = (config?: {
     const fallbackSessionId = `local-${uuidv4()}`;
     setSessionId(fallbackSessionId);
     return fallbackSessionId;
-  }, [agents, selectedAgentId, config?.chatTitle, getContext, sessionId]);
+  }, [agents, selectedAgentId, config?.chatTitle, getContext, sessionId, mode, getScopedStorageKey]);
 
   const sendMessage = useCallback(
     async (content: string, extraContext?: string) => {
@@ -413,16 +414,19 @@ const useAIChat = (config?: {
                     );
                   } else {
                     console.error("Backend sent error in stream:", data.error);
+                    const errorText = typeof data.error === "string" ? data.error : JSON.stringify(data.error);
+                    const finalErrContent = (streamingBufferRef.current ? `${streamingBufferRef.current}\n\n` : "") + errorText;
                     setMessages((m) =>
                       m.map((msg) =>
                         msg.id === assistantMsgId
-                          ? { ...msg, content: "Error: " + data.error }
+                          ? { ...msg, content: finalErrContent }
                           : msg,
                       ),
                     );
                   }
                   isStreamingDone = true;
                   setActiveStream(null);
+                  setIsLoading(false);
                 }
               } catch (e) {
                 console.error("Parse error:", e, "Raw message:", rawMessage);
@@ -444,11 +448,12 @@ const useAIChat = (config?: {
           );
           setActiveStream(null);
         }
-      } catch (error) {
+      } catch (error: any) {
+        const errorText = error?.message || "I hit an error while processing your request. Please try again.";
         const assistantMessage: ChatMessage = {
           id: `assistant-${uuidv4()}`,
           message_type: "assistant",
-          content: "I hit an error while processing your request. Please try again.",
+          content: `Error: ${errorText}`,
           created_at: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, assistantMessage]);
@@ -461,13 +466,11 @@ const useAIChat = (config?: {
   );
 
   const startNewChat = useCallback(() => {
-    const storageKey = persistenceKey
-      ? `ai-mentor-session-${persistenceKey}`
-      : "ai-mentor-session-default";
+    const storageKey = getScopedStorageKey();
     localStorage.removeItem(storageKey);
     setSessionId(null);
     setMessages([]);
-  }, [persistenceKey]);
+  }, [getScopedStorageKey]);
 
   const [sessionHistory, setSessionHistory] = useState<ChatSessionSummary[]>([]);
 
@@ -489,9 +492,7 @@ const useAIChat = (config?: {
 
   const loadSession = useCallback(
     async (id: string) => {
-      const storageKey = persistenceKey
-        ? `ai-mentor-session-${persistenceKey}`
-        : "ai-mentor-session-default";
+      const storageKey = getScopedStorageKey();
       try {
         const data = await yhubApiAuthUtil.get<{ id: string; messages: ChatMessage[] }>(
           `/sessions/${id}/`,
@@ -505,7 +506,7 @@ const useAIChat = (config?: {
         console.warn("Failed to load session", e);
       }
     },
-    [persistenceKey],
+    [getScopedStorageKey],
   );
 
   return {

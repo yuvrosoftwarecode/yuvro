@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as YuvrolabsPricingRouteImport } from './routes/yuvrolabs-pricing'
 import { Route as YuvrolabsRouteImport } from './routes/yuvrolabs'
 import { Route as WeeklyTaskRouteImport } from './routes/weekly-task'
+import { Route as VitarkaIdeRouteImport } from './routes/vitarka-ide'
 import { Route as VitarkaAiRouteImport } from './routes/vitarka-ai'
 import { Route as SystemDesignStudioRouteImport } from './routes/system-design-studio'
 import { Route as StudentRouteImport } from './routes/student'
@@ -36,6 +37,7 @@ import { Route as EvaluationIndexRouteImport } from './routes/evaluation.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as StudentWeeklyTaskRouteImport } from './routes/student.weekly-task'
+import { Route as StudentVitarkaIdeRouteImport } from './routes/student.vitarka-ide'
 import { Route as StudentResearchRouteImport } from './routes/student.research'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentLeaderboardRouteImport } from './routes/student.leaderboard'
@@ -116,6 +118,11 @@ const YuvrolabsRoute = YuvrolabsRouteImport.update({
 const WeeklyTaskRoute = WeeklyTaskRouteImport.update({
   id: '/weekly-task',
   path: '/weekly-task',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VitarkaIdeRoute = VitarkaIdeRouteImport.update({
+  id: '/vitarka-ide',
+  path: '/vitarka-ide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VitarkaAiRoute = VitarkaAiRouteImport.update({
@@ -236,6 +243,11 @@ const UUsernameRoute = UUsernameRouteImport.update({
 const StudentWeeklyTaskRoute = StudentWeeklyTaskRouteImport.update({
   id: '/weekly-task',
   path: '/weekly-task',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentVitarkaIdeRoute = StudentVitarkaIdeRouteImport.update({
+  id: '/vitarka-ide',
+  path: '/vitarka-ide',
   getParentRoute: () => StudentRoute,
 } as any)
 const StudentResearchRoute = StudentResearchRouteImport.update({
@@ -610,6 +622,7 @@ export interface FileRoutesByFullPath {
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
   '/vitarka-ai': typeof VitarkaAiRoute
+  '/vitarka-ide': typeof VitarkaIdeRoute
   '/weekly-task': typeof WeeklyTaskRoute
   '/yuvrolabs': typeof YuvrolabsRoute
   '/yuvrolabs-pricing': typeof YuvrolabsPricingRoute
@@ -643,6 +656,7 @@ export interface FileRoutesByFullPath {
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
   '/student/research': typeof StudentResearchRoute
+  '/student/vitarka-ide': typeof StudentVitarkaIdeRoute
   '/student/weekly-task': typeof StudentWeeklyTaskRoute
   '/u/$username': typeof UUsernameRoute
   '/admin/': typeof AdminIndexRoute
@@ -702,6 +716,7 @@ export interface FileRoutesByTo {
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
   '/vitarka-ai': typeof VitarkaAiRoute
+  '/vitarka-ide': typeof VitarkaIdeRoute
   '/weekly-task': typeof WeeklyTaskRoute
   '/yuvrolabs': typeof YuvrolabsRoute
   '/yuvrolabs-pricing': typeof YuvrolabsPricingRoute
@@ -732,6 +747,7 @@ export interface FileRoutesByTo {
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
   '/student/research': typeof StudentResearchRoute
+  '/student/vitarka-ide': typeof StudentVitarkaIdeRoute
   '/student/weekly-task': typeof StudentWeeklyTaskRoute
   '/u/$username': typeof UUsernameRoute
   '/admin': typeof AdminIndexRoute
@@ -795,6 +811,7 @@ export interface FileRoutesById {
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
   '/vitarka-ai': typeof VitarkaAiRoute
+  '/vitarka-ide': typeof VitarkaIdeRoute
   '/weekly-task': typeof WeeklyTaskRoute
   '/yuvrolabs': typeof YuvrolabsRoute
   '/yuvrolabs-pricing': typeof YuvrolabsPricingRoute
@@ -828,6 +845,7 @@ export interface FileRoutesById {
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
   '/student/research': typeof StudentResearchRoute
+  '/student/vitarka-ide': typeof StudentVitarkaIdeRoute
   '/student/weekly-task': typeof StudentWeeklyTaskRoute
   '/u/$username': typeof UUsernameRoute
   '/admin/': typeof AdminIndexRoute
@@ -892,6 +910,7 @@ export interface FileRouteTypes {
     | '/student'
     | '/system-design-studio'
     | '/vitarka-ai'
+    | '/vitarka-ide'
     | '/weekly-task'
     | '/yuvrolabs'
     | '/yuvrolabs-pricing'
@@ -925,6 +944,7 @@ export interface FileRouteTypes {
     | '/student/leaderboard'
     | '/student/profile'
     | '/student/research'
+    | '/student/vitarka-ide'
     | '/student/weekly-task'
     | '/u/$username'
     | '/admin/'
@@ -984,6 +1004,7 @@ export interface FileRouteTypes {
     | '/student'
     | '/system-design-studio'
     | '/vitarka-ai'
+    | '/vitarka-ide'
     | '/weekly-task'
     | '/yuvrolabs'
     | '/yuvrolabs-pricing'
@@ -1014,6 +1035,7 @@ export interface FileRouteTypes {
     | '/student/leaderboard'
     | '/student/profile'
     | '/student/research'
+    | '/student/vitarka-ide'
     | '/student/weekly-task'
     | '/u/$username'
     | '/admin'
@@ -1076,6 +1098,7 @@ export interface FileRouteTypes {
     | '/student'
     | '/system-design-studio'
     | '/vitarka-ai'
+    | '/vitarka-ide'
     | '/weekly-task'
     | '/yuvrolabs'
     | '/yuvrolabs-pricing'
@@ -1109,6 +1132,7 @@ export interface FileRouteTypes {
     | '/student/leaderboard'
     | '/student/profile'
     | '/student/research'
+    | '/student/vitarka-ide'
     | '/student/weekly-task'
     | '/u/$username'
     | '/admin/'
@@ -1172,6 +1196,7 @@ export interface RootRouteChildren {
   StudentRoute: typeof StudentRouteWithChildren
   SystemDesignStudioRoute: typeof SystemDesignStudioRoute
   VitarkaAiRoute: typeof VitarkaAiRoute
+  VitarkaIdeRoute: typeof VitarkaIdeRoute
   WeeklyTaskRoute: typeof WeeklyTaskRoute
   YuvrolabsRoute: typeof YuvrolabsRoute
   YuvrolabsPricingRoute: typeof YuvrolabsPricingRoute
@@ -1206,6 +1231,13 @@ declare module '@tanstack/react-router' {
       path: '/weekly-task'
       fullPath: '/weekly-task'
       preLoaderRoute: typeof WeeklyTaskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vitarka-ide': {
+      id: '/vitarka-ide'
+      path: '/vitarka-ide'
+      fullPath: '/vitarka-ide'
+      preLoaderRoute: typeof VitarkaIdeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vitarka-ai': {
@@ -1374,6 +1406,13 @@ declare module '@tanstack/react-router' {
       path: '/weekly-task'
       fullPath: '/student/weekly-task'
       preLoaderRoute: typeof StudentWeeklyTaskRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/vitarka-ide': {
+      id: '/student/vitarka-ide'
+      path: '/vitarka-ide'
+      fullPath: '/student/vitarka-ide'
+      preLoaderRoute: typeof StudentVitarkaIdeRouteImport
       parentRoute: typeof StudentRoute
     }
     '/student/research': {
@@ -2107,6 +2146,7 @@ interface StudentRouteChildren {
   StudentLeaderboardRoute: typeof StudentLeaderboardRoute
   StudentProfileRoute: typeof StudentProfileRouteWithChildren
   StudentResearchRoute: typeof StudentResearchRoute
+  StudentVitarkaIdeRoute: typeof StudentVitarkaIdeRoute
   StudentWeeklyTaskRoute: typeof StudentWeeklyTaskRoute
   StudentLabSlugRoute: typeof StudentLabSlugRouteWithChildren
   StudentCollaborationSprintIdRoute: typeof StudentCollaborationSprintIdRouteWithChildren
@@ -2120,6 +2160,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentLeaderboardRoute: StudentLeaderboardRoute,
   StudentProfileRoute: StudentProfileRouteWithChildren,
   StudentResearchRoute: StudentResearchRoute,
+  StudentVitarkaIdeRoute: StudentVitarkaIdeRoute,
   StudentWeeklyTaskRoute: StudentWeeklyTaskRoute,
   StudentLabSlugRoute: StudentLabSlugRouteWithChildren,
   StudentCollaborationSprintIdRoute:
@@ -2149,6 +2190,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudentRoute: StudentRouteWithChildren,
   SystemDesignStudioRoute: SystemDesignStudioRoute,
   VitarkaAiRoute: VitarkaAiRoute,
+  VitarkaIdeRoute: VitarkaIdeRoute,
   WeeklyTaskRoute: WeeklyTaskRoute,
   YuvrolabsRoute: YuvrolabsRoute,
   YuvrolabsPricingRoute: YuvrolabsPricingRoute,

@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -315,6 +316,8 @@ export interface AIMentorProps {
   pendingTaskExecution?: { task: PlanTask; subtask?: PlanSubtask; ts: number } | null;
   requestedMode?: MentorMode | null;
   onTaskCompleted?: (taskNumber: string, subNumber?: string, taskId?: string, sessionId?: string) => void;
+  planFolder?: string;
+  onOpenBottomPanel?: () => void;
   checkpoints?: {
     id: string;
     name: string;
@@ -354,6 +357,8 @@ export function AIMentor({
   checkpoints,
   onDiscardChanges,
   onRestoreCheckpoint,
+  planFolder,
+  onOpenBottomPanel,
 }: AIMentorProps) {
   const [mentorMode, setMentorMode] = useState<MentorMode>("ask");
 
@@ -411,7 +416,7 @@ export function AIMentor({
   const [tagMenuOpen, setTagMenuOpen] = useState(false);
   const [tagQuery, setTagQuery] = useState("");
   const [tagSelectedIndex, setTagSelectedIndex] = useState(0);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const tagMenuRef = useRef<HTMLDivElement>(null);
 
   const fileList = useMemo(() => Object.keys(files || {}), [files]);
@@ -450,10 +455,16 @@ export function AIMentor({
     [input]
   );
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     const pos = e.target.selectionStart ?? val.length;
     setInput(val);
+
+    // Auto-resize textarea
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+      inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 120)}px`;
+    }
 
     const beforeCursor = val.slice(0, pos);
     const lastAt = beforeCursor.lastIndexOf("@");
@@ -461,7 +472,7 @@ export function AIMentor({
       const charBeforeAt = lastAt > 0 ? beforeCursor[lastAt - 1] : " ";
       const textAfterAt = beforeCursor.slice(lastAt + 1);
       // Valid @ tag if preceded by space/newline/start and contains no spaces
-      if ((charBeforeAt === " " || charBeforeAt === "\n" || lastAt === 0) && !textAfterAt.includes(" ")) {
+      if ((charBeforeAt === " " || charBeforeAt === "\n" || lastAt === 0) && !textAfterAt.includes(" ") && !textAfterAt.includes("\n")) {
         setTagQuery(textAfterAt);
         setTagSelectedIndex(0);
         setTagMenuOpen(true);
@@ -471,7 +482,7 @@ export function AIMentor({
     setTagMenuOpen(false);
   };
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (tagMenuOpen && matchingFiles.length > 0) {
       if (e.key === "ArrowDown") {
         e.preventDefault();
@@ -498,6 +509,9 @@ export function AIMentor({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       send();
+      if (inputRef.current) {
+        inputRef.current.style.height = "auto";
+      }
     }
   };
 
@@ -595,7 +609,18 @@ export function AIMentor({
       : "";
 
     switch (mode) {
-      case "plan":
+      case "plan": {
+        const isSystemDesign = activeFile?.endsWith(".json") || activeFile?.endsWith(".mmd") || activeFile?.endsWith(".dbml") || base.includes("System Design Lab");
+        if (isSystemDesign) {
+          return `${base}${filePaths}\n\n[MODE: PLAN - HIGH LEVEL DESIGN (HLD)]\n` +
+            `Generate a minimal, focused High Level Design (HLD) architecture implementation plan exclusively for High Level Design components and connections:\n` +
+            `## Task 1: High Level Architecture (HLD)\n` +
+            `- [ ] 1.1 Identify clients, load balancers, API gateways and backend services\n` +
+            `- [ ] 1.2 Configure distributed caching, persistent database storage, and messaging queues\n` +
+            `- [ ] 1.3 Connect communication edges with protocols (HTTPS, gRPC, TCP)\n\n` +
+            `OUTPUT FORMAT: Output ONLY the HLD tasks and subtasks markdown checklist without conversational filler, preamble or postscript.\n` +
+            `Ensure each subtask is actionable so the AI Agent can generate high_level_design.json with nodes and edges.`;
+        }
         return `${base}${filePaths}\n\n[MODE: PLAN]\n` +
           `Generate a MINIMAL, tightly focused implementation plan with ONLY the essential tasks and subtasks needed to accomplish the goal.\n` +
           `Rules:\n` +
@@ -604,6 +629,7 @@ export function AIMentor({
           `3. OUTPUT FORMAT: Output ONLY the tasks and subtasks markdown checklist without chatty introductions or conversational filler.\n` +
           `4. Keep each item actionable and self-contained so the developer or agent can execute it directly.\n` +
           `Do NOT write full code implementations yet.`;
+      }
 
       case "bugfix":
         return `${base}${filePaths}${failureContext}${testCasesDetail}${jsonContext}${consoleContext}
@@ -625,7 +651,36 @@ STRICT INSTRUCTIONS:
 \`\`\`
 3. SHOW ONLY DIFF CODE: Do NOT output unchanged code or entire file dumps. Provide only the short plain English description explaining why it fixes the bug, followed immediately by the SEARCH/REPLACE diff block.`;
 
-      case "agent":
+      case "agent": {
+        const isSystemDesign = activeFile?.endsWith(".json") || activeFile?.endsWith(".mmd") || activeFile?.endsWith(".dbml") || base.includes("System Design Lab");
+        if (isSystemDesign) {
+          return `${base}${filePaths}${failureContext}
+
+[MODE: AGENT - SYSTEM DESIGN STUDIO]
+You are an expert System Architect.
+Implement the system design artifact in the exact format required by System Design Studio:
+1. For HLD Architecture (high_level_design.json): Output valid JSON with \`nodes\` and \`edges\`. Each node must have \`id\`, \`label\`, \`icon\` (emoji or symbol), \`tag\` (e.g. CLIENT, LB, SERVICE, DB, CACHE, QUEUE), \`x\`, \`y\`. Each edge must have \`id\`, \`from\`, \`to\`, and optional \`label\`.
+\`\`\`json file="high_level_design.json"
+{
+  "nodes": [...],
+  "edges": [...]
+}
+\`\`\`
+2. For Sequence Diagrams (sequence_diagram.mmd): Output clean Mermaid \`sequenceDiagram\` syntax.
+\`\`\`mermaid file="sequence_diagram.mmd"
+sequenceDiagram
+...
+\`\`\`
+3. For Database Schema (db_schema.dbml): Output DBML syntax (e.g. \`Table users { id int [pk] ... }\`).
+\`\`\`dbml file="schema.dbml"
+...
+\`\`\`
+4. For REST APIs (rest_api.json): Output JSON array of endpoints: \`[{"id": "...", "method": "GET"|"POST"|..., "path": "/...", "description": "...", "requestBody": "...", "responseBody": "..."}]\`.
+\`\`\`json file="rest_api.json"
+[...]
+\`\`\`
+5. Provide clean, production-grade output in code blocks with clear file headers.`;
+        }
         return `${base}${filePaths}${failureContext}
 
 [MODE: AGENT]
@@ -634,6 +689,7 @@ Output rules:
 1. Output complete file content in code blocks.
 2. Implement all functionality without placeholders.
 3. Write a concise 1-sentence summary before code.`;
+      }
 
       default: // "ask" mode
         return `${base}${filePaths}${failureContext}${jsonContext}
@@ -655,6 +711,9 @@ Never output fragmented individual lines or disjoint blocks for the same file.
     }
   }, [contextGetter, activeFile, ticketTasks, evalResult, consoleOutput, outputJson, testResults]);
 
+  // Selected agent id state that syncs with user choice and mode
+  const selectedAgentIdForMode = modeAgents[mentorMode] || null;
+
   const {
     messages,
     setMessages,
@@ -675,21 +734,26 @@ Never output fragmented individual lines or disjoint blocks for the same file.
     chatTitle,
     persistenceKey,
     mode: mentorMode,
+    selectedAgentId: selectedAgentIdForMode,
   });
 
   // Determine current active agent for the current mentor mode
   const currentSelectedAgentId = useMemo(() => {
     if (modeAgents[mentorMode]) return modeAgents[mentorMode];
     if (agents.length === 0) return null;
+
+    // For Plan and Agent mode, prioritize configured DeepSeek model
+    const deepseekAgent =
+      agents.find((a) => a.provider === "deepseek" && (a.model_name === "deepseek-chat" || a.model_name === "deepseek-flash")) ||
+      agents.find((a) => a.provider === "deepseek");
+    const geminiAgent = agents.find((a) => a.name.toLowerCase().includes("gemini") || a.model_name?.toLowerCase().includes("gemini") || a.provider?.toLowerCase().includes("google"));
+    const claudeAgent = agents.find((a) => a.name.toLowerCase().includes("claude") || a.name.toLowerCase().includes("sonnet"));
+
     if (mentorMode === "agent" || mentorMode === "plan") {
-      const best =
-        agents.find((a) => a.name.toLowerCase().includes("claude") || a.name.toLowerCase().includes("sonnet")) ||
-        agents.find((a) => a.provider === "deepseek" && a.model_name === "deepseek-chat") ||
-        agents[0];
+      const best = deepseekAgent || geminiAgent || claudeAgent || agents[0];
       return best?.id || null;
     }
-    const defaultAgent =
-      agents.find((a) => a.provider === "deepseek" && a.model_name === "deepseek-chat") || agents[0];
+    const defaultAgent = deepseekAgent || geminiAgent || agents[0];
     return defaultAgent?.id || null;
   }, [modeAgents, mentorMode, agents]);
 
@@ -801,12 +865,20 @@ Never output fragmented individual lines or disjoint blocks for the same file.
         const rawTitle = chatTitle || "task";
         const slugTitle =
           rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 30) || "plan";
-        const filePath = activePlanFilePath || `.yuvro-developer/plan/plan-${slugTitle}.md`;
+        const baseFolder = planFolder || ".yuvro-developer/plan";
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10);
+        const timeStr = now.toTimeString().slice(0, 5).replace(":", "");
+        const filePath = activePlanFilePath || `${baseFolder}/plan-${dateStr}-${timeStr}.md`;
         setActivePlanFilePath(filePath);
 
         const planMarkdown = buildPlanMarkdown(chatTitle || "Implementation Plan", parsed);
         if (onSaveFile) {
           onSaveFile(filePath, planMarkdown);
+        }
+        // Auto-open AI Mentor bottom panel so user immediately sees the plan tasks
+        if (onOpenBottomPanel) {
+          onOpenBottomPanel();
         }
       }
     }
@@ -882,6 +954,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
     const targetTitle = subtask
       ? `${task.number}.${subtask.number}: ${subtask.text}`
       : `Task ${task.number}: ${task.title}`;
+    const assistantMsgId = `srv-${Date.now()}`;
 
     // Mark task/subtask as running (enabling parallel execution)
     setTaskStatuses((prev) => ({
@@ -944,12 +1017,16 @@ Never output fragmented individual lines or disjoint blocks for the same file.
         : `${baseUrl}/chat/quick_chat/`;
 
       const token = yhubApiAuthUtil.getAuthToken();
+      const isSystemDesign = activeFile?.endsWith(".json") || activeFile?.endsWith(".mmd") || activeFile?.endsWith(".dbml") || chatTitle?.includes("System Design");
+      const sdsFormatInstruction = isSystemDesign
+        ? `\n\nGenerate the artifact in the format expected by System Design Studio (File: high_level_design.json for HLD nodes & edges, File: sequence_diagram.mmd for Mermaid sequenceDiagram, File: db_schema.dbml for DBML, or File: rest_api.json for REST API JSON endpoints). Output full code in code blocks with clear file path headers.`
+        : `\n\nWrite the complete implementation. Output code in code blocks with clear file path headers (e.g. File: app.py or File: templates/index.html).`;
+
       const promptMessage = subtask
-        ? `Implement Subtask ${subtask.number}: "${subtask.text}" for Task "${task.title}".\n\nWrite the complete implementation. Output code in code blocks with clear file path headers (e.g. File: app.py or File: templates/index.html).`
-        : `Implement Task ${task.number}: "${task.title}".\n${task.subtasks.length > 0 ? "Subtasks:\n" + task.subtasks.map((s) => `- ${s.number}: ${s.text}`).join("\n") : ""}\n\nWrite the complete implementation. Output code in code blocks with clear file path headers (e.g. File: app.py or File: templates/index.html).`;
+        ? `Implement Subtask ${subtask.number}: "${subtask.text}" for Task "${task.title}".${sdsFormatInstruction}`
+        : `Implement Task ${task.number}: "${task.title}".\n${task.subtasks.length > 0 ? "Subtasks:\n" + task.subtasks.map((s) => `- ${s.number}: ${s.text}`).join("\n") : ""}${sdsFormatInstruction}`;
 
       const userMsgId = `user-${Date.now()}`;
-      const assistantMsgId = `srv-${Date.now()}`;
 
       // Show user execution prompt and initial streaming bubble in Agent chat window
       setMessages((prev) => [
@@ -984,7 +1061,12 @@ Never output fragmented individual lines or disjoint blocks for the same file.
       });
 
       if (!response.ok) {
-        throw new Error(`Execution request failed: ${response.statusText}`);
+        let errDetail = response.statusText;
+        try {
+          const errJson = await response.json();
+          errDetail = errJson.message || errJson.error || errJson.detail || response.statusText;
+        } catch {}
+        throw new Error(errDetail || `Execution request failed: ${response.status}`);
       }
 
       // Stream SSE response
@@ -993,14 +1075,20 @@ Never output fragmented individual lines or disjoint blocks for the same file.
       let fullContent = "";
 
       if (reader) {
+        let buffer = "";
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          for (const line of chunk.split("\n")) {
-            if (line.startsWith("data:")) {
+          buffer += decoder.decode(value, { stream: true });
+          let newlineIndex;
+          while ((newlineIndex = buffer.indexOf("\n\n")) >= 0) {
+            const rawMessage = buffer.slice(0, newlineIndex).trim();
+            buffer = buffer.slice(newlineIndex + 2);
+            if (rawMessage.startsWith("data:")) {
               try {
-                const data = JSON.parse(line.slice(5).trim());
+                const dataStr = rawMessage.replace(/^data:\s*/, "").trim();
+                if (dataStr === "[DONE]") continue;
+                const data = JSON.parse(dataStr);
                 const delta = data.chunk || data.delta || data.text || data.content || "";
                 if (delta) {
                   fullContent += delta;
@@ -1010,8 +1098,16 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                       msg.id === assistantMsgId ? { ...msg, content: fullContent } : msg
                     )
                   );
+                } else if (data.error || data.error_code) {
+                  const errorMsg = data.error || "Model execution error";
+                  fullContent += `\n\n*(Error: ${errorMsg})*`;
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === assistantMsgId ? { ...msg, content: fullContent } : msg
+                    )
+                  );
                 }
-              } catch { }
+              } catch {}
             }
           }
         }
@@ -1077,9 +1173,18 @@ Never output fragmented individual lines or disjoint blocks for the same file.
       onTaskCompleted?.(task.number, subtask?.number, targetId, sessionId || undefined);
     } catch (err: any) {
       console.error("Task execution error", err);
+      const errMsg = err?.message || "Execution error";
+      setActiveStream(null);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMsgId
+            ? { ...msg, content: msg.content ? `${msg.content}\n\n*(Error: ${errMsg})*` : `Failed to execute: ${errMsg}` }
+            : msg
+        )
+      );
       setTaskStatuses((prev) => ({
         ...prev,
-        [targetId]: { status: "error", message: err.message || "Execution error" },
+        [targetId]: { status: "error", message: errMsg },
       }));
     }
   };
@@ -1093,14 +1198,18 @@ Never output fragmented individual lines or disjoint blocks for the same file.
   const handleStartNewChat = () => {
     setShowHistory(false);
     startNewChat();
-    // User explicitly created new session: clear active plan task session linkages
-    setPlanTasks((prev) =>
-      prev.map((t) => ({
-        ...t,
-        sessionId: undefined,
-        subtasks: t.subtasks.map((s) => ({ ...s, sessionId: undefined })),
-      }))
-    );
+    setActivePlanFilePath(null);
+    setPlanTasks([]);
+    setInternalTaskStatuses({});
+    // Generate fresh session plan file name for new plan session
+    const baseFolder = planFolder || ".yuvro-developer/plan";
+    const newSessionId = `sess-${Date.now().toString(36)}`;
+    const newPlanPath = `${baseFolder}/plan-${newSessionId}.md`;
+    setActivePlanFilePath(newPlanPath);
+    if (onSaveFile) {
+      onSaveFile(newPlanPath, "# Implementation Plan\n\n## Task 1: High Level Architecture (HLD)\n- [ ] 1.1 Identify client and service nodes\n- [ ] 1.2 Define edge connections");
+    }
+    toast.success("Started new chat session & plan");
   };
 
   const send = async (text?: string) => {
@@ -1168,194 +1277,60 @@ Never output fragmented individual lines or disjoint blocks for the same file.
   };
 
   const renderPlanCard = (tasksToRender: PlanTask[], isCardStreaming?: boolean, key: string | number = "plan-card") => {
-    const rawTitle = chatTitle || "task";
-    const slugTitle =
-      rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 30) || "plan";
-    const planFilePath = activePlanFilePath || `.yuvro-developer/plan/plan-${slugTitle}.md`;
+    const baseFolder = planFolder || ".yuvro-developer/plan";
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    const timeStr = now.toTimeString().slice(0, 5).replace(":", "");
+    const planFilePath = activePlanFilePath || `${baseFolder}/plan-${dateStr}-${timeStr}.md`;
 
     return (
       <div key={key} className="w-full space-y-2">
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 space-y-3 text-left shadow-xs">
-          {/* Header with Generated Plan File */}
-          <div className="flex items-center justify-between pb-2 border-b border-primary/10">
+        <div className="rounded-xl border border-[#f7931e]/30 bg-[#f7931e]/5 p-3 space-y-2 text-left shadow-xs">
+          {/* Header with Generated Plan File with date time path */}
+          <div className="flex items-center justify-between pb-1.5 border-b border-[#f7931e]/15">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 font-bold shrink-0">
-                <Lightbulb size={13} />
+              <div className="w-6 h-6 rounded-md bg-[#f7931e]/10 text-[#f7931e] flex items-center justify-center border border-[#f7931e]/30 shrink-0">
+                <Lightbulb size={12} />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[12.5px] font-semibold text-foreground">
-                    Implementation Plan
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded text-[9.5px] font-mono font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                    {isCardStreaming ? "Generating..." : "Saved"}
-                  </span>
-                </div>
-                <div className="text-[10px] font-mono text-muted-foreground flex items-center gap-1 mt-0.5 truncate">
-                  <FileCode2 size={10} className="shrink-0" />
+                <div className="text-[11px] font-mono text-foreground font-semibold flex items-center gap-1.5 truncate">
+                  <FileCode2 size={11} className="shrink-0 text-[#f7931e]" />
                   <span className="truncate">{planFilePath}</span>
                 </div>
               </div>
             </div>
 
-            {onOpenFile && (
-              <button
-                type="button"
-                onClick={() => onOpenFile(planFilePath)}
-                className="shrink-0 px-2 py-1 rounded-md text-[10.5px] font-semibold bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 flex items-center gap-1 transition-all cursor-pointer"
-                title="Open plan in editor"
-              >
-                <span>Open file</span>
-                <ArrowLeft size={10} className="rotate-180" />
-              </button>
-            )}
-          </div>
-
-          {/* Only Tasks and Subtasks shown */}
-          <div className="space-y-2.5">
-            {tasksToRender.map((task) => {
-              const taskStatus = taskStatuses[task.id]?.status || (task.done ? "completed" : "idle");
-              const isTaskRunning = taskStatus === "running";
-              const isTaskDone = task.done || taskStatus === "completed";
-              const taskSessionId = taskStatuses[task.id]?.sessionId || task.sessionId;
-
-              return (
-                <div
-                  key={task.id}
-                  className="rounded-lg bg-background/80 border border-border/60 p-2 space-y-2 transition-all shadow-xs"
+            <div className="flex items-center gap-1.5 shrink-0">
+              {onOpenBottomPanel && (
+                <button
+                  type="button"
+                  onClick={onOpenBottomPanel}
+                  className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#f7931e] text-white hover:bg-[#e5820f] active:bg-[#d6750d] flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                  title="View plan in bottom panel"
                 >
-                  {/* Main Task Row */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div
-                      className="flex items-start gap-2 cursor-pointer flex-1 min-w-0"
-                      onClick={() => handleToggleTask(task.id)}
-                    >
-                      <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${isTaskDone ? "bg-primary border-primary" : "border-border hover:border-primary/60"}`}>
-                        {isTaskDone && <Check size={9} className="text-primary-foreground" />}
-                      </div>
-                      <span className={`text-[12px] leading-tight ${isTaskDone ? "line-through text-muted-foreground" : "text-foreground font-semibold"}`}>
-                        {task.number}. {task.title}
-                      </span>
-                    </div>
-
-                    {/* Task Level Action */}
-                    <div className="shrink-0 flex items-center gap-1">
-                      {isTaskRunning ? (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-1 shadow-xs">
-                          <Loader2 size={10} className="animate-spin" />
-                          <span>Running task...</span>
-                        </span>
-                      ) : isTaskDone ? (
-                        <div className="flex items-center gap-1">
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-0.5 shadow-xs">
-                            <Check size={10} />
-                            <span>Done</span>
-                          </span>
-                          {taskSessionId && (
-                            <button
-                              type="button"
-                              onClick={() => handleViewSession(taskSessionId)}
-                              className="px-1.5 py-0.5 rounded text-[10px] font-medium text-muted-foreground hover:text-foreground hover:underline transition-colors flex items-center gap-0.5 cursor-pointer"
-                              title="View session"
-                            >
-                              <Clock size={10} />
-                              <span>View session</span>
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleStartTask(task)}
-                          className="px-2 py-0.5 rounded text-[10px] font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs flex items-center gap-1 transition-all cursor-pointer"
-                          title="Trigger start task at task level"
-                        >
-                          <Play size={9} />
-                          <span>Start task</span>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Subtasks (if any) */}
-                  {task.subtasks.length > 0 && (
-                    <div className="pl-4 space-y-1.5 border-l-2 border-muted ml-2">
-                      {task.subtasks.map((sub) => {
-                        const subStatus = taskStatuses[sub.id]?.status || (sub.done ? "completed" : "idle");
-                        const isSubRunning = subStatus === "running";
-                        const isSubDone = sub.done || subStatus === "completed";
-                        const subSessionId = taskStatuses[sub.id]?.sessionId || sub.sessionId;
-
-                        return (
-                          <div
-                            key={sub.id}
-                            className="flex items-center justify-between gap-2 p-1 rounded hover:bg-muted/30 transition-colors"
-                          >
-                            <div
-                              className="flex items-start gap-1.5 cursor-pointer flex-1 min-w-0"
-                              onClick={() => handleToggleTask(task.id, sub.id)}
-                            >
-                              <div className={`mt-0.5 w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-all ${isSubDone ? "bg-primary/80 border-primary" : "border-border"}`}>
-                                {isSubDone && <Check size={8} className="text-primary-foreground" />}
-                              </div>
-                              <span className={`text-[11px] leading-tight ${isSubDone ? "line-through text-muted-foreground" : "text-foreground"}`}>
-                                <span className="font-mono text-[10px] text-muted-foreground mr-1">{sub.number}</span>
-                                {sub.text}
-                              </span>
-                            </div>
-
-                            <div className="shrink-0 flex items-center gap-1">
-                              {isSubRunning ? (
-                                <span className="px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-1">
-                                  <Loader2 size={9} className="animate-spin" />
-                                  <span>Running subtask...</span>
-                                </span>
-                              ) : isSubDone ? (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-[9.5px] text-emerald-500 font-medium flex items-center gap-0.5">
-                                    <Check size={9} />
-                                    <span>Done</span>
-                                  </span>
-                                  {subSessionId && (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleViewSession(subSessionId)}
-                                      className="text-[9.5px] text-muted-foreground hover:text-foreground hover:underline transition-colors flex items-center gap-0.5 cursor-pointer"
-                                      title="View session"
-                                    >
-                                      <Clock size={9} />
-                                      <span>View session</span>
-                                    </button>
-                                  )}
-                                </div>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => handleStartTask(task, sub)}
-                                  className="px-1.5 py-0.2 rounded text-[9.5px] font-medium bg-muted hover:bg-primary hover:text-primary-foreground text-foreground border border-border transition-all flex items-center gap-0.5 cursor-pointer"
-                                  title="Trigger start subtask at subtask level"
-                                >
-                                  <Play size={8} />
-                                  <span>Start subtask</span>
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                  <span>View in Panel</span>
+                </button>
+              )}
+              {onOpenFile && (
+                <button
+                  type="button"
+                  onClick={() => onOpenFile(planFilePath)}
+                  className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#f7931e]/10 hover:bg-[#f7931e]/20 text-[#f7931e] border border-[#f7931e]/30 flex items-center gap-0.5 transition-all cursor-pointer"
+                  title="Open file"
+                >
+                  <ArrowLeft size={10} className="rotate-180" />
+                </button>
+              )}
+            </div>
           </div>
 
-          {isCardStreaming && (
-            <div className="flex items-center gap-1.5 text-[11px] text-primary pt-1">
-              <Loader2 size={11} className="animate-spin" />
-              <span>Generating minimal tasks & subtasks...</span>
-            </div>
-          )}
+          {/* Minimal notification that plan is ready */}
+          <div className="text-[11px] text-muted-foreground flex items-center justify-between">
+            <span>{tasksToRender.length} main {tasksToRender.length === 1 ? "task" : "tasks"} created</span>
+            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium font-mono">
+              {isCardStreaming ? "Generating..." : "Saved & Synced ✓"}
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -1366,7 +1341,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
     const isStreaming = !!(activeStream && activeStream.id === m.id);
     const displayContent = isStreaming ? activeStream!.content : m.content;
 
-    // Plan Mode: Show ONLY tasks in chat window response and show plan md file generated
+    // Plan Mode: Show plan card if structured tasks are found or actively streaming
     if (!isUser && mentorMode === "plan") {
       const parsed = parsePlanStructure(displayContent);
       const isCardStreaming = isStreaming;
@@ -1374,6 +1349,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
       if (parsed.length > 0 || isCardStreaming) {
         return renderPlanCard(parsed, isCardStreaming, i);
       }
+      // If plan has textual content (such as error or explanation), fall through to normal bubble render!
     }
 
     // Agent mode: Multi-file review card
@@ -1443,7 +1419,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
       if (parsedDiffs.hasCode && parsedDiffs.files.length > 0) {
         return (
           <div key={i} className="flex items-start gap-1.5 flex-row w-full">
-            <div className="w-full text-[12.5px] leading-relaxed bg-muted/50 text-foreground px-3.5 py-3 rounded-xl rounded-bl-sm border border-border/40 shadow-2xs space-y-3">
+            <div className="w-full text-[12.5px] leading-relaxed bg-[#fffaf5] dark:bg-[#251f19] text-foreground px-3.5 py-3 rounded-xl rounded-bl-sm border border-[#f7931e]/20 shadow-2xs space-y-3">
               {/* Plain English explanation of the code changes */}
               {parsedDiffs.explanation && (
                 <div className="prose prose-sm max-w-none dark:prose-invert text-foreground text-[12.5px] leading-relaxed [&_p]:leading-relaxed [&_p]:mb-1.5 [&_p:last-child]:mb-0">
@@ -1651,9 +1627,32 @@ Never output fragmented individual lines or disjoint blocks for the same file.
       });
     };
 
+    // Error detection: server error, 503 unavailable, bad request, or uncaught exception
+    const isError = !isUser && (
+      displayContent.toLowerCase().includes("error") ||
+      displayContent.includes("503") ||
+      displayContent.includes("UNAVAILABLE") ||
+      displayContent.includes("Bad Request") ||
+      displayContent.includes("Internal Server Error") ||
+      m.id.startsWith("error-")
+    );
+
+    // If message is assistant, not streaming, and empty, render error or minimal fallback
+    if (!isUser && !isStreaming && !displayContent.trim()) {
+      return null;
+    }
+
     return (
       <div key={i} className={`flex items-end gap-1.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-        <div className={`max-w-[92%] text-[12.5px] leading-relaxed ${isUser ? "bg-primary text-primary-foreground px-3 py-2 rounded-xl rounded-br-sm shadow-sm" : "bg-muted/50 text-foreground px-3 py-2.5 rounded-xl rounded-bl-sm border border-border/40"}`}>
+        <div
+          className={`max-w-[92%] text-[12.5px] leading-relaxed ${
+            isUser
+              ? "bg-[#f7931e] text-white px-3 py-2 rounded-xl rounded-br-sm shadow-sm"
+              : isError
+              ? "bg-red-500/10 text-red-600 dark:text-red-400 px-3 py-2.5 rounded-xl rounded-bl-sm border border-red-500/30 font-medium"
+              : "bg-[#fffaf5] dark:bg-[#251f19] text-foreground px-3 py-2.5 rounded-xl rounded-bl-sm border border-[#f7931e]/20"
+          }`}
+        >
           {isUser ? (
             <div className="whitespace-pre-wrap">{renderUserMessageWithTags(m.content)}</div>
           ) : (
@@ -1668,7 +1667,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                     const isDiff = isDiffContent(codeString, match?.[1]);
 
                     if (inline) {
-                      return <code className="bg-primary/10 text-primary px-1 py-0.5 rounded font-mono text-[10.5px]" {...props}>{children}</code>;
+                      return <code className="bg-[#f7931e]/15 text-[#f7931e] px-1 py-0.5 rounded font-mono text-[10.5px]" {...props}>{children}</code>;
                     }
 
                     return (
@@ -1874,7 +1873,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                     onClick={() => {
                       setInput("Create a minimal, focused step-by-step implementation plan with 2-4 essential tasks and concise subtasks.");
                     }}
-                    className="px-3 py-1.5 text-[11px] font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1.5 shadow-sm cursor-pointer"
+                    className="px-3 py-1.5 text-[11px] font-semibold bg-[#f7931e] text-white rounded-lg hover:bg-[#e5820f] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
                   >
                     <Lightbulb size={12} /> Generate Minimal Plan in .yuvro-developer/plan/
                   </button>
@@ -1885,7 +1884,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                     onClick={() => {
                       setInput(`Write the complete implementation for ${activeFile || "the project"} to pass all requirements.`);
                     }}
-                    className="px-3 py-1.5 text-[11px] font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-1.5 shadow-sm cursor-pointer"
+                    className="px-3 py-1.5 text-[11px] font-semibold bg-[#f7931e] text-white rounded-lg hover:bg-[#e5820f] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
                   >
                     <Zap size={12} /> Generate Solution & Review
                   </button>
@@ -2001,16 +2000,27 @@ Never output fragmented individual lines or disjoint blocks for the same file.
             {/* Message list */}
             {messages.filter((m: any) => !(m.message_type === "assistant" && !m.content && isLoading && !(activeStream?.id === m.id))).map(renderMessage)}
 
-            {/* Loading */}
+            {/* Loading / Active Agent Activity */}
             {isLoading && !activeStream && (
               <div className="flex items-end gap-1.5">
-                <div className="bg-muted/50 text-muted-foreground px-3 py-2.5 rounded-xl rounded-bl-sm border border-border/40 flex items-center gap-2 text-[12px]">
-                  <div className="flex gap-0.5">
+                <div className="bg-muted/50 text-muted-foreground px-3 py-2.5 rounded-xl rounded-bl-sm border border-border/40 flex items-center gap-2.5 text-[12px] shadow-xs">
+                  <div className="flex gap-0.5 shrink-0">
                     {[0, 120, 240].map((d) => (
-                      <span key={d} className="w-1 h-1 rounded-full bg-primary/50 animate-bounce" style={{ animationDelay: `${d}ms` }} />
+                      <span key={d} className="w-1.5 h-1.5 rounded-full bg-[#f7931e] animate-bounce" style={{ animationDelay: `${d}ms` }} />
                     ))}
                   </div>
-                  <span className="text-[11.5px] font-medium">Thinking & analyzing...</span>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Loader2 size={12} className="animate-spin text-[#f7931e] shrink-0" />
+                    <span className="text-[11.5px] font-medium text-foreground">
+                      {mentorMode === "plan"
+                        ? "Synthesizing requirements & structuring implementation tasks..."
+                        : mentorMode === "agent"
+                        ? "Writing code & generating artifacts for System Design Studio..."
+                        : mentorMode === "bugfix"
+                        ? "Diagnosing errors & constructing unified diff patch..."
+                        : "Analyzing request & generating response..."}
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
@@ -2042,13 +2052,13 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                           }}
                           className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition-colors ${
                             isSelected
-                              ? "bg-primary text-primary-foreground font-medium shadow-xs"
+                              ? "bg-[#f7931e] text-white font-medium shadow-xs"
                               : "text-foreground hover:bg-accent"
                           }`}
                         >
-                          <FileCode2 size={13} className={isSelected ? "text-primary-foreground" : "text-primary"} />
+                          <FileCode2 size={13} className={isSelected ? "text-white" : "text-[#f7931e]"} />
                           <span className="font-mono truncate flex-1">{f}</span>
-                          <span className={`text-[10px] ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                          <span className={`text-[10px] ${isSelected ? "text-white/80" : "text-muted-foreground"}`}>
                             {files[f]?.split("\n").length || 0} lines
                           </span>
                         </div>
@@ -2058,22 +2068,22 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                 </div>
               )}
 
-              <input
+              <textarea
                 ref={inputRef}
-                type="text"
+                rows={1}
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleInputKeyDown}
                 placeholder={
                   mentorMode === "plan"
-                    ? "Generate plan with minimal tasks... (type @ to tag files)"
+                    ? "Generate plan with minimal tasks... (type @ to tag files, Enter to send, Shift+Enter for newline)"
                     : mentorMode === "agent"
-                      ? "Prompt agent to implement features... (type @ to tag files)"
+                      ? "Prompt agent to implement features... (type @ to tag files, Enter to send, Shift+Enter for newline)"
                       : mentorMode === "bugfix"
-                        ? "Describe error or fix console issues... (type @ to tag files)"
-                        : "Ask AI Mentor for hints or diffs... (type @ to tag files)"
+                        ? "Describe error or fix console issues... (type @ to tag files, Enter to send, Shift+Enter for newline)"
+                        : "Ask AI Mentor for hints or diffs... (type @ to tag files, Enter to send, Shift+Enter for newline)"
                 }
-                className="w-full pl-3 pr-22 py-2 text-[12px] bg-muted/40 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-[#f7931e] focus:border-[#f7931e] text-foreground placeholder:text-muted-foreground/60 transition-all"
+                className="w-full pl-3 pr-22 py-2 text-[12px] bg-muted/40 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-[#f7931e] focus:border-[#f7931e] text-foreground placeholder:text-muted-foreground/60 transition-all resize-none min-h-[38px] max-h-[120px] overflow-y-auto leading-relaxed"
                 disabled={isLoading}
               />
               <div className="absolute right-1.5 flex items-center gap-1">
@@ -2163,7 +2173,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                     {/* Header info */}
                     <div className="flex items-center justify-between text-[10px] px-1 text-muted-foreground border-b border-border/40 pb-1.5">
                       <span>Model for <strong className="text-foreground">{currentMode.label}</strong> mode:</span>
-                      <span className="text-primary font-medium">{currentMode.icon}</span>
+                      <span className="text-[#f7931e] font-medium">{currentMode.icon}</span>
                     </div>
 
                     {/* Model List for currently selected mode */}
@@ -2179,14 +2189,14 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                               setModelDropdownOpen(false);
                             }}
                             className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-[11px] transition-colors text-left cursor-pointer ${isSelected
-                              ? "bg-primary text-primary-foreground font-semibold"
+                              ? "bg-[#f7931e] text-white font-semibold"
                               : "hover:bg-accent text-foreground"
                               }`}
                           >
                             <div className="min-w-0 flex-1 pr-1.5">
                               <div className="truncate font-medium">{ag.name}</div>
                               {(ag.provider || ag.model_name) && (
-                                <div className={`text-[9.5px] truncate ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                                <div className={`text-[9.5px] truncate ${isSelected ? "text-white/80" : "text-muted-foreground"}`}>
                                   {ag.provider ? `${ag.provider} · ` : ""}{ag.model_name || ""}
                                 </div>
                               )}

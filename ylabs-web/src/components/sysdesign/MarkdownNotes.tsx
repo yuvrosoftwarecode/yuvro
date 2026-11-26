@@ -53,13 +53,27 @@ export function MarkdownPreview({ src, empty = "Nothing to preview yet." }: { sr
 }
 
 /** Collapsible markdown notes panel shown at the bottom of every studio tab. */
-export function NotesPanel({ value, onChange, title }: { value: string; onChange: (v: string) => void; title: string }) {
-  const [open, setOpen] = useState(true);
+export function NotesPanel({
+  value,
+  onChange,
+  title,
+  isOpen: controlledOpen,
+  onToggle,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  title: string;
+  isOpen?: boolean;
+  onToggle?: () => void;
+}) {
+  const [internalOpen, setInternalOpen] = useState(true);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const handleToggle = onToggle || (() => setInternalOpen((o) => !o));
   const [mode, setMode] = useState<"write" | "preview">("write");
   return (
     <div className={`flex flex-col border-t bg-card ${open ? "h-[220px]" : ""}`}>
       <div className="flex items-center gap-2 px-3 py-1.5 text-[11px]">
-        <button onClick={() => setOpen(o => !o)} className="inline-flex items-center gap-1 font-medium text-foreground">
+        <button onClick={handleToggle} className="inline-flex items-center gap-1 font-medium text-foreground cursor-pointer">
           {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}Solution notes · {title}
         </button>
         <span className="text-muted-foreground">Markdown — approach, trade-offs, assumptions</span>

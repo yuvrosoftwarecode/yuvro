@@ -28,10 +28,12 @@ export function requireStudentAuth(currentUrl?: string) {
             window.location.pathname.startsWith("/student/lab") ||
             window.location.pathname.startsWith("/student/weekly-task") ||
             window.location.pathname.startsWith("/student/dashboard") ||
+            window.location.pathname.startsWith("/student/vitarka-ide") ||
             (currentUrl &&
               (currentUrl.includes("/student/lab") ||
                 currentUrl.includes("/student/weekly-task") ||
-                currentUrl.includes("/student/dashboard")));
+                currentUrl.includes("/student/dashboard") ||
+                currentUrl.includes("/student/vitarka-ide")));
           if (!isAllowedForAdmin) {
             throw redirect({ to: "/admin" });
           }

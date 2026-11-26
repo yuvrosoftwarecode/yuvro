@@ -9,7 +9,8 @@ export const Route = createFileRoute("/student")({
   beforeLoad: ({ location }) => {
     if (
       location.pathname === "/student/dashboard" ||
-      location.pathname === "/student/weekly-task"
+      location.pathname === "/student/weekly-task" ||
+      location.pathname === "/student/vitarka-ide"
     )
       return;
     requireStudentAuth(location.href);
@@ -24,14 +25,16 @@ function StudentLayout() {
 
   const isWorkspace =
     (pathname.includes("/ticket/") && !pathname.includes("/review")) ||
-    (pathname.includes("/collaboration/") && pathname.includes("/workspace"));
+    (pathname.includes("/collaboration/") && pathname.includes("/workspace")) ||
+    pathname.includes("/vitarka-ide");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (
         window.location.pathname === "/student/dashboard" ||
         window.location.pathname === "/student/weekly-task" ||
-        window.location.pathname.startsWith("/student/lab")
+        window.location.pathname.startsWith("/student/lab") ||
+        window.location.pathname.startsWith("/student/vitarka-ide")
       )
         return;
       const token = localStorage.getItem("access");
