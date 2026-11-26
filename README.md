@@ -38,6 +38,9 @@ make db-reset
 # Deletes all data
 make clean
 
+# Topup ai credits
+docker exec yuvro-yhub-backend-1 python manage.py add_ai_credits admin@yuvro.com 500000
+
 ```
 
 # urls

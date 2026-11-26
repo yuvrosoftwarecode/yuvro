@@ -19,21 +19,63 @@ def _apply_page_content_grounding(
         user_name = kwargs.pop("user_name", "Student")
 
     if page_content and page_content != "mock_interview":
-        # Truncate aggressively to 2000 chars to minimize prompt size and latency
-        snippet = page_content if len(page_content) <= 2000 else page_content[:2000]
+        # Allow sufficient context for code files and mode instructions (up to 30000 chars)
+        snippet = page_content if len(page_content) <= 30000 else page_content[:30000]
         
         greeting_instruction = f"Address the student as '{user_name}'." if user_name != "Student" else "Address the user as 'Student'."
 
+        # Tailor instructions depending on the active AI Mentor mode
+        if "[MODE: PLAN]" in page_content:
+            mode_guidance = (
+                "CURRENT MODE: ARCHITECT / PLANNER\n"
+                "- Goal: Break down the ticket and solution into a clear, numbered step-by-step checklist (1., 2., 3., etc.).\n"
+                "- Keep each step concise, numbered, and actionable.\n"
+                "- Do NOT write full file implementation code in this mode; focus on the concrete architectural and code changes needed for each step.\n"
+                "- Mention which files will be created or modified in each step."
+            )
+        elif "[MODE: AGENT]" in page_content:
+            mode_guidance = (
+                "CURRENT MODE: AUTONOMOUS CODING AGENT\n"
+                "- Goal: Implement the COMPLETE, correct code solution for the ticket and target file.\n"
+                "- Start with a 1-sentence summary of the changes and solution.\n"
+                "- ALWAYS provide the full code in a standard markdown code block: ```<language>\n[complete code]\n```.\n"
+                "- Do NOT use placeholders, ellipsis (...), or TODO comments. Implement all required logic and imports.\n"
+                "- The user UI will parse the code block to directly apply it into the workspace editor."
+            )
+        elif "[MODE: BUG FIX]" in page_content:
+            mode_guidance = (
+                "CURRENT MODE: DEBUGGING EXPERT / BUG FIX\n"
+                "- Goal: Diagnose errors, failing test cases, or bugs in the current code.\n"
+                "- Clearly explain the root cause and why the failure occurred.\n"
+                "- Provide the exact corrected code in a markdown code block: ```<language>\n[corrected code]\n``` so the student can apply the fix.\n"
+                "- Highlight the specific lines or logic that changed."
+            )
+        else:
+            mode_guidance = (
+                "CURRENT MODE: AI CODE MENTOR (SOCRATIC & PRACTICAL)\n"
+                "- Guide the student with helpful hints, clear technical explanations, and step-by-step logic.\n"
+                "- If the student is stuck or asks for code examples, provide clean, correct code snippets in markdown code blocks: ```<language>\n[code]\n```.\n"
+                "- Explain why the code works and how it fits into the lab ticket."
+            )
+
+        console_guidance = ""
+        if "[EDITOR CONSOLE OUTPUT" in page_content:
+            console_guidance = (
+                "\n\nLIVE EDITOR CONSOLE OUTPUT DETECTED:\n"
+                "- The student has provided real execution output / errors from the editor console.\n"
+                "- Carefully examine stack traces, syntax errors, failed test assertions, or output mismatches.\n"
+                "- Prioritize diagnosing and resolving the exact error shown in the console."
+            )
+
         strict_prompt = (
-            f"You are a helpful AI Tutor focused on the content provided below (labeled SOURCE). {greeting_instruction}\n"
-            "Your goal is to help the student understand this specific topic and GUIDE them to the solution.\n"
-            "1. You MAY use your general knowledge to explain concepts related to this topic.\n"
-            "2. MISSION: While you should generally be Socratic and guide the student with hints, you MUST provide a full, correct code solution if the student explicitly asks for it or is stuck.\n"
-            "3. If providing code, ALWAYS wrap it in markdown code blocks: ```language [code] ```. This is critical as it enables the 'Insert' button in the UI.\n"
-            "4. If identifying errors, explain WHY they are wrong and provide the corrected lines in a code block.\n"
-            "5. If the user asks about a completely DIFFERENT topic, politely refuse.\n"
-            "6. Keep your responses SHORT and CONCISE. Use markdown for better readability.\n\n"
-            "SOURCE:\n" + snippet
+            f"You are an expert AI Engineering Mentor for Yuvro Labs. {greeting_instruction}\n"
+            f"{mode_guidance}"
+            f"{console_guidance}\n\n"
+            "RULES:\n"
+            "1. Ground your answers in the ticket details, current code, and lab requirements provided in the SOURCE below.\n"
+            "2. Whenever providing code, ALWAYS wrap it in markdown code blocks with the language tag (e.g. ```python ... ```, ```javascript ... ```). This enables the 'Apply' button in the IDE.\n"
+            "3. Keep your explanations concise, focused, and professional. Avoid conversational fluff.\n\n"
+            "SOURCE CONTEXT:\n" + snippet
         )
 
         # Prepend system message
@@ -310,21 +352,66 @@ class GeminiService(BaseAIService):
 
             from google.genai import types
             
-            # Use new SDK to generate content
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents=conversation_text,
-                config=types.GenerateContentConfig(
-                    temperature=temperature,
-                    max_output_tokens=max_tokens,
-                ),
-            )
-            
             if stream:
+                models_to_try = [self.model_name]
+                for fallback_candidate in ["gemini-3.5-flash", "gemini-3.5-flash-lite"]:
+                    if fallback_candidate not in models_to_try:
+                        models_to_try.append(fallback_candidate)
+
+                async def robust_stream_generator():
+                    for idx, m in enumerate(models_to_try):
+                        try:
+                            stream_resp = await self.client.aio.models.generate_content_stream(
+                                model=m,
+                                contents=conversation_text,
+                                config=types.GenerateContentConfig(
+                                    temperature=temperature,
+                                    max_output_tokens=max_tokens,
+                                ),
+                            )
+                            first_chunk = True
+                            async for chunk in stream_resp:
+                                first_chunk = False
+                                yield chunk
+                            return
+                        except Exception as e:
+                            err_str = str(e).lower()
+                            if first_chunk and ("503" in err_str or "unavailable" in err_str or "high demand" in err_str or "404" in err_str or "not found" in err_str) and idx < len(models_to_try) - 1:
+                                logger.warning(f"Gemini model {m} unavailable ({e}). Falling back to {models_to_try[idx + 1]}.")
+                                continue
+                            raise e
+
                 return {
-                    "stream": response,
+                    "stream": robust_stream_generator(),
                     "metadata": {"model": self.model_name},
                 }
+
+            # Use new SDK to generate content
+            models_to_try = [self.model_name]
+            for fallback_candidate in ["gemini-3.5-flash", "gemini-3.5-flash-lite"]:
+                if fallback_candidate not in models_to_try:
+                    models_to_try.append(fallback_candidate)
+
+            response = None
+            used_model = self.model_name
+            for idx, m in enumerate(models_to_try):
+                try:
+                    response = await self.client.aio.models.generate_content(
+                        model=m,
+                        contents=conversation_text,
+                        config=types.GenerateContentConfig(
+                            temperature=temperature,
+                            max_output_tokens=max_tokens,
+                        ),
+                    )
+                    used_model = m
+                    break
+                except Exception as gen_err:
+                    err_str = str(gen_err).lower()
+                    if ("503" in err_str or "unavailable" in err_str or "high demand" in err_str or "404" in err_str or "not found" in err_str) and idx < len(models_to_try) - 1:
+                        logger.warning(f"Gemini {m} failed ({gen_err}). Trying fallback model {models_to_try[idx + 1]}.")
+                        continue
+                    raise gen_err
 
             end_time = time.time()
             response_time_ms = int((end_time - start_time) * 1000)

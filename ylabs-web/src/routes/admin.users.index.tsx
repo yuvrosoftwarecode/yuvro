@@ -1,8 +1,9 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AdminShell, Badge, KpiCard } from "@/components/admin/AdminShell";
-import { Users, UserPlus, Download, Filter, Search } from "lucide-react";
+import { Users, UserPlus, Download, Filter, Search, Coins } from "lucide-react";
 import { useState, useEffect } from "react";
 import { restApiAuthUtil } from "@/utils/RestApiAuthUtil";
+import { AddAiCreditsModal, StudentCreditTarget } from "@/components/credits/AddAiCreditsModal";
 
 export const Route = createFileRoute("/admin/users/")({ component: UsersPage });
 
@@ -16,6 +17,8 @@ function UsersPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [stats, setStats] = useState({ total: 0, active: 0, admins: 0, suspended: 0 });
   const [loading, setLoading] = useState(true);
+  const [creditModalUser, setCreditModalUser] = useState<StudentCreditTarget | null>(null);
+  const [isCreditModalOpen, setIsCreditModalOpen] = useState(false);
   const pageSize = 20;
 
   useEffect(() => {
@@ -41,6 +44,7 @@ function UsersPage() {
 
           return {
             id: u.id,
+            username: u.username,
             name:
               u.first_name || u.last_name
                 ? `${u.first_name || ""} ${u.last_name || ""}`.trim()
@@ -200,13 +204,39 @@ function UsersPage() {
                     </Badge>
                   </td>
                   <td className="px-4 py-2.5">
-                    <Link
-                      to="/admin/users/$id"
-                      params={{ id: u.id }}
-                      className="text-xs text-primary hover:underline"
-                    >
-                      View &rarr;
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      {u.role === "Student" && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCreditModalUser(u);
+                            setIsCreditModalOpen(true);
+                          }}
+                          title="Add AI Credits"
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 transition-colors"
+                        >
+                          <Coins className="h-3.5 w-3.5" />
+                          <span className="hidden sm:inline">Add Credits</span>
+                        </button>
+                      )}
+                      {u.role === "Student" ? (
+                        <Link
+                          to="/u/$username"
+                          params={{ username: u.username }}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          View &rarr;
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/admin/users/$id"
+                          params={{ id: u.id }}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          View &rarr;
+                        </Link>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -235,6 +265,15 @@ function UsersPage() {
           </div>
         </div>
       </div>
+
+      <AddAiCreditsModal
+        isOpen={isCreditModalOpen}
+        onClose={() => {
+          setIsCreditModalOpen(false);
+          setCreditModalUser(null);
+        }}
+        user={creditModalUser}
+      />
     </AdminShell>
   );
 }

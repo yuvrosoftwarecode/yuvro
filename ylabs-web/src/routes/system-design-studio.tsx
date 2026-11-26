@@ -1,3 +1,11 @@
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { SystemDesignFileTree, InlineTreeAction } from "@/components/sysdesign/SystemDesignFileTree";
 import { getSystemDesignLab, getSystemDesignCriteria, SYSTEM_DESIGN_SPRINTS } from "@/lib/systemDesign";
 import { labs, tickets, type Status } from "@/lib/dummy";
 import { invalidateStudentStats } from "@/lib/studentStats";
@@ -28,6 +36,11 @@ import {
   Key,
   PanelLeftClose,
   PanelLeftOpen,
+  PanelRight,
+  Columns3,
+  Square,
+  Maximize2,
+  Minimize2,
   Clock,
   Zap,
   Send,
@@ -43,7 +56,18 @@ import {
   Unlock,
   Github,
   ExternalLink,
+  Search,
+  Folder,
+  FolderOpen,
+  FilePlus,
+  FolderPlus
+,
+  Eye,
+  Wand2,
+  Code2,
+  Copy
 } from "lucide-react";
+import { AIMentor } from "@/components/common/ai-buddy/AIMentor";
 import { useAuth } from "@/lib/auth";
 import {
   Dialog,
@@ -84,7 +108,11 @@ import { EvaluationResults } from "@/components/sysdesign/EvaluationResults";
 import { ApiDesigner, ApiDocs, type ApiEndpoint } from "@/components/sysdesign/ApiDesigner";
 import { ErdBoard } from "@/components/sysdesign/ErdBoard";
 import { NotesPanel, MarkdownPreview } from "@/components/sysdesign/MarkdownNotes";
-import { DiagramBoard, HldEditor, type SDNode, type SDEdge } from "@/components/sysdesign/DesignCanvas";
+import { DiagramBoard, HldEditor, type SDNode, type SDEdge, type Sel } from "@/components/sysdesign/DesignCanvas";
+import { SystemDesignBottomPanel } from "@/components/sysdesign/SystemDesignBottomPanel";
+import { WalletBalanceBadge } from "@/components/credits/WalletBalanceBadge";
+import { parsePlanStructure, buildPlanMarkdown, type PlanTask } from "@/components/common/ai-buddy/AIMentor";
+import { AdminShell } from "@/components/admin/AdminShell";
 
 export const Route = createFileRoute("/system-design-studio")({
   head: () => ({ meta: [{ title: "System Design Studio · Yuvro Labs" }] }),
@@ -219,15 +247,33 @@ function MermaidView({ code }: { code: string }) {
   );
 }
 
-function SplitEditor({ value, onChange, preview, hint }: { value: string; onChange: (v: string) => void; preview: React.ReactNode; hint: string }) {
+function SplitEditor({ value, onChange, preview, hint, onOpenExamples }: {
+  value: string;
+  onChange: (v: string) => void;
+  preview: React.ReactNode;
+  hint: string;
+  onOpenExamples?: () => void;
+}) {
   return (
     <div className="grid h-full grid-cols-1 md:grid-cols-[minmax(320px,40%)_1fr]">
-      <div className="flex min-h-0 flex-col border-r">
-        <div className="border-b px-3 py-1.5 text-[11px] text-muted-foreground">{hint}</div>
+      <div className="flex min-h-0 flex-col border-r bg-card">
+        <div className="border-b px-3 py-1.5 text-[11px] text-muted-foreground bg-muted/20 flex items-center justify-between gap-1">
+          <span className="truncate">{hint}</span>
+          {onOpenExamples && (
+            <button
+              type="button"
+              onClick={onOpenExamples}
+              className="p-1 rounded-md border border-border/70 hover:bg-[#f7931e]/10 text-muted-foreground hover:text-[#f7931e] transition-colors shrink-0 cursor-pointer"
+              title="View Examples"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-[#f7931e]" />
+            </button>
+          )}
+        </div>
         <textarea value={value} onChange={e => onChange(e.target.value)} spellCheck={false}
-          className="min-h-[300px] flex-1 resize-none bg-[#1E1E1E] p-3 font-mono text-[12.5px] leading-relaxed text-[#D4D4D4] outline-none" />
+          className="min-h-[300px] flex-1 resize-none bg-background p-3 font-mono text-[12.5px] leading-relaxed text-foreground outline-none" />
       </div>
-      <div className="min-h-0 bg-card">{preview}</div>
+      <div className="min-h-0 bg-background">{preview}</div>
     </div>
   );
 }
@@ -395,33 +441,35 @@ function ExamplesDialog({ tab, scenario, subject, onClose, onUseTab, onLoadAll }
   const code = tab === "sequence" ? d.seq : tab === "schema" ? d.schema : tab === "api" ? d.apis.map(a => `${a.method} ${a.path}${a.summary ? `  # ${a.summary}` : ""}${a.request ? `\nRequest:\n${a.request}` : ""}${a.response ? `\nResponse ${a.status ?? ""}:\n${a.response}` : ""}`).join("\n\n") : JSON.stringify({ components: d.nodes.map(x => x.label), connections: d.edges.map(x => `${d.nodes.find(y => y.id === x.from)?.label} → ${d.nodes.find(y => y.id === x.to)?.label}${x.label ? ` (${x.label})` : ""}`) }, null, 2);
   const label = { hld: "HLD · Architecture", sequence: "Sequence diagram", schema: "DB schema", api: "REST API" }[tab];
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-center bg-background/70 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="flex h-[85vh] w-full max-w-6xl flex-col overflow-hidden rounded-xl border bg-card shadow-2xl" onClick={ev => ev.stopPropagation()}>
-        <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <div className="text-sm font-semibold">Example · {label}</div>
-          <div className="ml-2 inline-flex rounded-md border p-0.5 text-xs">
-            <button onClick={() => setSrc("scenario")} className={`rounded px-2 py-1 ${src === "scenario" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{subject}</button>
-            <button onClick={() => setSrc("users")} className={`rounded px-2 py-1 ${src === "users" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>users & user_tasks</button>
+    <div className="fixed inset-0 z-[60] flex flex-col bg-background/95 backdrop-blur-md" onClick={onClose}>
+      <div className="flex h-full w-full flex-col overflow-hidden bg-card" onClick={ev => ev.stopPropagation()}>
+        <div className="flex flex-wrap items-center gap-3 border-b border-border/80 px-4 py-3 bg-muted/30">
+          <Sparkles className="h-4 w-4 text-[#f7931e]" />
+          <div className="text-sm font-semibold text-foreground">Example · {label}</div>
+          <div className="ml-2 inline-flex rounded-md border border-border/70 p-0.5 text-xs bg-background">
+            <button onClick={() => setSrc("scenario")} className={`rounded px-2.5 py-1 transition-colors ${src === "scenario" ? "bg-[#f7931e] text-white font-medium" : "text-muted-foreground hover:text-foreground"}`}>{subject}</button>
+            <button onClick={() => setSrc("users")} className={`rounded px-2.5 py-1 transition-colors ${src === "users" ? "bg-[#f7931e] text-white font-medium" : "text-muted-foreground hover:text-foreground"}`}>users & user_tasks</button>
           </div>
-          <button onClick={onClose} className="ml-auto rounded p-1 hover:bg-accent" aria-label="Close"><X className="h-4 w-4" /></button>
+          <button onClick={onClose} className="ml-auto rounded p-1 hover:bg-[#f7931e]/10 text-muted-foreground hover:text-foreground transition-colors" aria-label="Close"><X className="h-4 w-4" /></button>
         </div>
-        <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(300px,38%)_1fr]">
-          <div className="flex min-h-0 flex-col border-r">
-            <div className="border-b px-3 py-1.5 text-[11px] text-muted-foreground">{tab === "hld" ? "Components & connections" : "Code"}</div>
-            <pre className="min-h-0 flex-1 overflow-auto bg-[#1E1E1E] p-3 font-mono text-[12px] leading-relaxed text-[#D4D4D4]">{code}</pre>
+        <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(360px,35%)_1fr]">
+          <div className="flex min-h-0 flex-col border-r bg-card">
+            <div className="border-b px-3 py-1.5 text-[11px] text-muted-foreground bg-muted/20 font-medium">{tab === "hld" ? "Components & connections" : "Code"}</div>
+            <pre className="min-h-0 flex-1 overflow-auto bg-background p-3 font-mono text-[12px] leading-relaxed text-foreground">{code}</pre>
           </div>
-          <div className="min-h-0 bg-background">
+          <div className="min-h-0 bg-background flex flex-col">
             {tab === "hld" ? <DiagramBoard key={src} nodes={d.nodes} edges={d.edges} readOnly />
               : tab === "schema" ? <ErdBoard key={src} src={d.schema} />
               : tab === "api" ? <ApiDocs apis={d.apis} />
               : <MermaidView code={d.seq} />}
           </div>
-          {d.notes[tab] && <div className="max-h-40 overflow-auto border-t bg-card p-3 md:col-span-2"><div className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">Solution notes</div><MarkdownPreview src={d.notes[tab]!} /></div>}
+          {d.notes[tab] && <div className="max-h-40 overflow-auto border-t bg-card p-3 md:col-span-2"><div className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Solution notes</div><MarkdownPreview src={d.notes[tab]!} /></div>}
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-2 border-t px-4 py-3">
-          <Button variant="outline" size="sm" onClick={() => onUseTab(d)}>Use for this tab only</Button>
-          <Button size="sm" onClick={() => onLoadAll(d)}>{src === "users" ? <Users className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}Load full sample (all tabs)</Button>
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t px-4 py-3 bg-muted/20">
+          <Button size="sm" onClick={() => onUseTab(d)} className="bg-[#f7931e] hover:bg-[#e5820f] active:bg-[#d6750d] text-white transition-colors">
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+            Load in Editor
+          </Button>
         </div>
       </div>
     </div>
@@ -431,6 +479,19 @@ function ExamplesDialog({ tab, scenario, subject, onClose, onUseTab, onLoadAll }
 
 
 function Studio() {
+  const { user } = useAuth();
+  const isAdmin = user && (user.roles?.ylabs === "admin" || user.role === "admin");
+
+  if (isAdmin) {
+    return (
+      <AdminShell title="System Design Studio" fullBleed>
+        <div className="flex-1 min-h-0 w-full h-full flex flex-col overflow-hidden">
+          <SystemDesignStudio slug="systemdesign-url-shortener" isStandaloneStudio={true} />
+        </div>
+      </AdminShell>
+    );
+  }
+
   return <SystemDesignStudio slug="systemdesign-url-shortener" isStandaloneStudio={true} />;
 }
 
@@ -793,11 +854,404 @@ export function SystemDesignStudio({
 
   const timeStr = `${String(Math.floor(elapsed / 60)).padStart(2, "0")}:${String(elapsed % 60).padStart(2, "0")}`;
 
-  // Sidebar state (Problem, Hints, Solution)
+  // Sidebar state (Problem, Explorer, Search, Git)
+  type SidebarActivity = "problem" | "explorer" | "search" | "git" | null;
+  const [activeSidebarView, setActiveSidebarView] = useState<SidebarActivity>(null);
   type SidebarTab = "problem" | "hints" | "solution";
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("problem");
-  const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [leftWidth, setLeftWidth] = useState(360);
+  const [leftWidth, setLeftWidth] = useState(280);
+  const [searchInStudioQuery, setSearchInStudioQuery] = useState("");
+  const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({
+    ".yuvro-developer": true,
+    ".yuvro-developer/plan": true,
+    ".yuvro-developer/plan/hld": true,
+    ".yuvro-developer/plan/sequence-diagram": true,
+    ".yuvro-developer/plan/db-schema": true,
+    ".yuvro-developer/plan/rest-api": true,
+  });
+  const toggleFolder = (path: string) => setOpenFolders((prev) => ({ ...prev, [path]: !prev[path] }));
+
+  // AI Mentor & Solution Notes panel states
+  const isAiMentorAllowed = Boolean(user && !isLandingPage);
+  const [showAiMentor, setShowAiMentor] = useState(true);
+  const [showNotes, setShowNotes] = useState(true);
+  const [mentorWidth, setMentorWidth] = useState<number>(300);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Bottom Solution & Inspector panel state
+  const [isBottomPanelOpen, setIsBottomPanelOpen] = useState(true);
+  const [selectedElement, setSelectedElement] = useState<Sel>(null);
+  const [showClearBoardDialog, setShowClearBoardDialog] = useState(false);
+  const [planContent, setPlanContent] = useState<string>(() => {
+    return `# Implementation Plan: System Design Architecture
+
+## Tasks & Subtasks
+
+- [ ] Task 1: High Level Architecture (HLD)
+  - [ ] 1.1 Add client, load balancer, and API gateway nodes
+  - [ ] 1.2 Add backend microservices, database, cache, and messaging queue
+- [ ] Task 2: Sequence Diagrams
+  - [ ] 2.1 Map end-to-end user request flow and authentication
+  - [ ] 2.2 Define asynchronous background events and fallback paths
+- [ ] Task 3: Database Schema (DBML)
+  - [ ] 3.1 Design relational/document tables with primary and foreign keys
+  - [ ] 3.2 Define indexes, relationships and constraints
+- [ ] Task 4: REST API Endpoints
+  - [ ] 4.1 Define REST endpoints with request and response payloads
+`;
+  });
+  const [taskStatuses, setTaskStatuses] = useState<Record<string, { status: "idle" | "running" | "completed" | "error"; sessionId?: string }>>({});
+  const [pendingTaskExecution, setPendingTaskExecution] = useState<{ task: PlanTask; subtask?: any; ts: number } | null>(null);
+  const [requestedMentorMode, setRequestedMentorMode] = useState<any>(null);
+
+  const selNode = selectedElement?.type === "node" ? nodes.find((n) => n.id === selectedElement.id) : undefined;
+  const selEdge = selectedElement?.type === "edge" ? edges.find((e) => e.id === selectedElement.id) : undefined;
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
+  const startMentorResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = mentorWidth;
+    const onMouseMove = (ev: MouseEvent) => {
+      const newW = Math.max(260, Math.min(window.innerWidth * 0.6, startW - (ev.clientX - startX)));
+      setMentorWidth(newW);
+    };
+    const onMouseUp = () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  };
+
+  // Subfolder mapping for system design plans
+  const planFolderForTab = useMemo(() => {
+    if (tab === "hld") return ".yuvro-developer/plan/hld";
+    if (tab === "sequence") return ".yuvro-developer/plan/sequence-diagram";
+    if (tab === "schema") return ".yuvro-developer/plan/db-schema";
+    return ".yuvro-developer/plan/rest-api";
+  }, [tab]);
+
+  // Keep track of plan files and custom files in memory
+  const [customFiles, setCustomFiles] = useState<Record<string, string>>({});
+  const [sessionPlanFiles, setSessionPlanFiles] = useState<Record<string, string>>(() => {
+    return {
+      ".yuvro-developer/plan/hld/plan-hld.md": planContent,
+      ".yuvro-developer/plan/sequence-diagram/plan-sequence.md": `# Sequence Diagram Plan\n- [ ] 2.1 Map end-to-end user request flow\n- [ ] 2.2 Define cache hit vs cache miss redirect`,
+      ".yuvro-developer/plan/db-schema/plan-schema.md": `# Database Schema Plan\n- [ ] 3.1 Design urls and users tables in DBML\n- [ ] 3.2 Define indexes and foreign keys`,
+      ".yuvro-developer/plan/rest-api/plan-api.md": `# REST API Plan\n- [ ] 4.1 Define POST /urls and GET /{code} endpoints\n- [ ] 4.2 Document request & response JSON schemas`,
+    };
+  });
+
+  // State for file viewer/editor in System Design Studio
+  const [activeStudioFile, setActiveStudioFile] = useState<string | null>(null);
+  const [activeSelectedPlanPath, setActiveSelectedPlanPath] = useState<string>(".yuvro-developer/plan/hld/plan-hld.md");
+  const [fileViewMode, setFileViewMode] = useState<"raw" | "preview">("preview");
+  const [designFileMode, setDesignFileMode] = useState<Record<string, "design" | "raw">>({});
+  const [openStudioTabs, setOpenStudioTabs] = useState<string[]>([]);
+  const [inlineTreeAction, setInlineTreeAction] = useState<InlineTreeAction | null>(null);
+  const [openExplorerFolders, setOpenExplorerFolders] = useState<Record<string, boolean>>({
+    "": true,
+    "__root__": true,
+    ".yuvro-developer": true,
+    ".yuvro-developer/plan": true,
+    ".yuvro-developer/plan/hld": true,
+    ".yuvro-developer/plan/sequence-diagram": true,
+    ".yuvro-developer/plan/db-schema": true,
+    ".yuvro-developer/plan/rest-api": true,
+  });
+
+  const toggleExplorerFolder = (k: string) => setOpenExplorerFolders((o) => ({ ...o, [k]: !(o[k] ?? true) }));
+  const isExplorerFolderOpen = (k: string) => openExplorerFolders[k] ?? true;
+
+  // 4 Default files strictly required: high_level_design.json, sequence_diagram.mmd, db_schema.dbml, rest_api.json
+  const designFiles = useMemo<Record<string, string>>(() => {
+    return {
+      "high_level_design.json": JSON.stringify({ nodes, edges }, null, 2),
+      "sequence_diagram.mmd": seq || "",
+      "db_schema.dbml": schema || "",
+      "rest_api.json": JSON.stringify(apis, null, 2),
+      ...sessionPlanFiles,
+      ...customFiles,
+    };
+  }, [nodes, edges, seq, schema, apis, sessionPlanFiles, customFiles]);
+
+  const activeDesignFile = useMemo(() => {
+    return tab === "hld"
+      ? "high_level_design.json"
+      : tab === "sequence"
+      ? "sequence_diagram.mmd"
+      : tab === "schema"
+      ? "db_schema.dbml"
+      : "rest_api.json";
+  }, [tab]);
+
+  const handleApplyMentorCode = (code: string, targetFile?: string) => {
+    let file = targetFile || activeDesignFile;
+    const cleanCode = code.trim();
+
+    // Auto-detect artifact type if targetFile is generic or unknown
+    if (!targetFile || file.endsWith(".txt") || !file.includes(".")) {
+      if (cleanCode.startsWith("sequenceDiagram")) {
+        file = "sequence_diagram.mmd";
+      } else if (cleanCode.includes("Table ") || cleanCode.includes("Ref:")) {
+        file = "db_schema.dbml";
+      } else if (cleanCode.startsWith("{") || cleanCode.startsWith("[")) {
+        if (cleanCode.includes('"nodes"') || cleanCode.includes('"edges"')) {
+          file = "high_level_design.json";
+        } else if (cleanCode.includes('"method"') || cleanCode.includes('"path"')) {
+          file = "rest_api.json";
+        }
+      }
+    }
+
+    try {
+      if (file.endsWith("high_level_design.json") || file.endsWith("architecture.json") || file.includes("architecture") || file.includes("hld")) {
+        let parsed = JSON.parse(cleanCode);
+        if (parsed.tabs?.hld) parsed = parsed.tabs.hld;
+        if (parsed.architecture) parsed = parsed.architecture;
+
+        if (Array.isArray(parsed.nodes) || Array.isArray(parsed.edges)) {
+          if (Array.isArray(parsed.nodes)) setNodes(parsed.nodes);
+          if (Array.isArray(parsed.edges)) setEdges(parsed.edges);
+          setTab("hld");
+          toast.success(`Applied HLD Architecture changes (${parsed.nodes?.length || 0} nodes, ${parsed.edges?.length || 0} edges)`);
+        } else if (Array.isArray(parsed)) {
+          // If array of nodes was returned directly
+          setNodes(parsed);
+          setTab("hld");
+          toast.success(`Applied HLD Architecture changes (${parsed.length} nodes)`);
+        }
+      } else if (file.endsWith("sequence_diagram.mmd") || file.endsWith("sequence.mmd") || file.endsWith(".mmd") || file.includes("sequence")) {
+        setSeq(cleanCode);
+        setTab("sequence");
+        toast.success("Applied Sequence Diagram changes");
+      } else if (file.endsWith("db_schema.dbml") || file.endsWith("schema.dbml") || file.endsWith(".dbml") || file.includes("schema")) {
+        setSchema(cleanCode);
+        setTab("schema");
+        toast.success("Applied DBML Schema changes");
+      } else if (file.endsWith("rest_api.json") || file.endsWith("apis.json") || file.endsWith("api.json") || file.includes("api")) {
+        let parsed = JSON.parse(cleanCode);
+        if (parsed.tabs?.api?.endpoints) parsed = parsed.tabs.api.endpoints;
+        if (parsed.endpoints) parsed = parsed.endpoints;
+        if (parsed.apis) parsed = parsed.apis;
+
+        if (Array.isArray(parsed)) {
+          setApis(parsed);
+          setTab("api");
+          toast.success(`Applied REST API changes (${parsed.length} endpoints)`);
+        }
+      } else if (file.includes("plan") || file.endsWith(".md")) {
+        setPlanContent(cleanCode);
+        setSessionPlanFiles((prev) => ({ ...prev, [file]: cleanCode }));
+        toast.success("Updated System Design Plan");
+      } else {
+        // Save to custom files
+        setCustomFiles((prev) => ({ ...prev, [file]: cleanCode }));
+        toast.info("Saved file " + file);
+      }
+    } catch (e: any) {
+      console.error("Failed to parse and apply changes:", e, "Code was:", cleanCode);
+      toast.error("Failed to parse and apply changes: " + e.message);
+    }
+  };
+
+    const handleFormatStudioFile = (path: string) => {
+    const content = designFiles[path];
+    if (content == null) return;
+    try {
+      if (path.endsWith(".json")) {
+        const parsed = JSON.parse(content);
+        handleSaveStudioFileContent(path, JSON.stringify(parsed, null, 2));
+        toast.success("Formatted JSON file");
+      } else {
+        toast.info("Formatting not required for this file type");
+      }
+    } catch {
+      toast.error("Failed to parse and format JSON");
+    }
+  };
+
+  // CRUD operations for File Browser
+  const handleOpenStudioFile = (path: string) => {
+    if (!openStudioTabs.includes(path)) {
+      setOpenStudioTabs((prev) => [...prev, path]);
+    }
+    setActiveStudioFile(path);
+    // Sync top navigation bar tab when selecting corresponding design files
+    if (path === "high_level_design.json" || path.includes("hld")) {
+      setTab("hld");
+    } else if (path === "db_schema.dbml" || path.includes("schema")) {
+      setTab("schema");
+    } else if (path === "sequence_diagram.mmd" || path.includes("sequence")) {
+      setTab("sequence");
+    } else if (path === "rest_api.json" || path.includes("api")) {
+      setTab("api");
+    }
+  };
+
+  const handleCloseStudioTab = (path: string) => {
+    const nextTabs = openStudioTabs.filter((t) => t !== path);
+    setOpenStudioTabs(nextTabs);
+    if (activeStudioFile === path) {
+      setActiveStudioFile(nextTabs.length > 0 ? nextTabs[nextTabs.length - 1] : null);
+    }
+  };
+
+  const handleCreateStudioFile = (path: string, contents = "") => {
+    const trimmed = path.trim().replace(/^\/+/, "");
+    if (!trimmed) return;
+    if (designFiles[trimmed] !== undefined) {
+      toast.error("File already exists");
+      return;
+    }
+    if (trimmed.startsWith(".yuvro-developer/plan/")) {
+      setSessionPlanFiles((prev) => ({ ...prev, [trimmed]: contents }));
+    } else {
+      setCustomFiles((prev) => ({ ...prev, [trimmed]: contents }));
+    }
+    handleOpenStudioFile(trimmed);
+    toast.success(`Created file: ${trimmed}`);
+  };
+
+  const handleRenameStudioFile = (oldPath: string, newPath: string) => {
+    const trimmed = newPath.trim().replace(/^\/+/, "");
+    if (!trimmed || trimmed === oldPath) return;
+    if (designFiles[trimmed] !== undefined) {
+      toast.error("Target path already exists");
+      return;
+    }
+    const content = designFiles[oldPath] ?? "";
+    if (oldPath.startsWith(".yuvro-developer/plan/")) {
+      setSessionPlanFiles((prev) => {
+        const { [oldPath]: _, ...rest } = prev;
+        return { ...rest, [trimmed]: content };
+      });
+    } else {
+      setCustomFiles((prev) => {
+        const { [oldPath]: _, ...rest } = prev;
+        return { ...rest, [trimmed]: content };
+      });
+    }
+    setOpenStudioTabs((tabs) => tabs.map((t) => (t === oldPath ? trimmed : t)));
+    if (activeStudioFile === oldPath) setActiveStudioFile(trimmed);
+    toast.success(`Renamed to: ${trimmed}`);
+  };
+
+  const handleDeleteStudioFile = (path: string) => {
+    // Prevent deleting default core files
+    const coreFiles = ["high_level_design.json", "sequence_diagram.mmd", "db_schema.dbml", "rest_api.json"];
+    if (coreFiles.includes(path)) {
+      toast.error("Default core system design files cannot be deleted");
+      return;
+    }
+    if (path.startsWith(".yuvro-developer/plan/")) {
+      setSessionPlanFiles((prev) => {
+        const { [path]: _, ...rest } = prev;
+        return rest;
+      });
+    } else {
+      setCustomFiles((prev) => {
+        const { [path]: _, ...rest } = prev;
+        return rest;
+      });
+    }
+    handleCloseStudioTab(path);
+    toast.success(`Deleted: ${path}`);
+  };
+
+  const handleDeleteStudioFolder = (prefix: string) => {
+    const targets = Object.keys(designFiles).filter((p) => p === prefix || p.startsWith(prefix + "/"));
+    if (targets.length === 0) return;
+    targets.forEach((p) => {
+      handleDeleteStudioFile(p);
+    });
+  };
+
+  const handleSaveStudioFileContent = (path: string, newContent: string) => {
+    if (path === "high_level_design.json") {
+      try {
+        const parsed = JSON.parse(newContent);
+        if (Array.isArray(parsed.nodes)) setNodes(parsed.nodes);
+        if (Array.isArray(parsed.edges)) setEdges(parsed.edges);
+      } catch {}
+    } else if (path === "sequence_diagram.mmd") {
+      setSeq(newContent);
+    } else if (path === "db_schema.dbml") {
+      setSchema(newContent);
+    } else if (path === "rest_api.json") {
+      try {
+        const parsed = JSON.parse(newContent);
+        if (Array.isArray(parsed)) setApis(parsed);
+      } catch {}
+    } else if (path.startsWith(".yuvro-developer/plan/")) {
+      setSessionPlanFiles((prev) => ({ ...prev, [path]: newContent }));
+      if (path === planFolderForTab + "/" + Object.keys(sessionPlanFiles).find(k => k.startsWith(planFolderForTab))) {
+        setPlanContent(newContent);
+      }
+    } else {
+      setCustomFiles((prev) => ({ ...prev, [path]: newContent }));
+    }
+  };
+
+  const handleApplyMentorFiles = (filesMap: Record<string, string>) => {
+    for (const [fName, content] of Object.entries(filesMap)) {
+      handleApplyMentorCode(content, fName);
+    }
+  };
+
+  const handleSaveFile = (filePath: string, content: string) => {
+    setSessionPlanFiles((prev) => ({ ...prev, [filePath]: content }));
+    if (filePath.includes("plan") || filePath.endsWith(".md")) {
+      setPlanContent(content);
+    }
+  };
+
+  const handleStartPlanTask = (task: PlanTask, subtask?: any) => {
+    setPendingTaskExecution({ task, subtask, ts: Date.now() });
+    setShowAiMentor(true);
+  };
+
+  const handleTogglePlanCheckbox = (taskNum: string, subNum?: string) => {
+    setPlanContent((prevContent) => {
+      let updatedContent = prevContent;
+      if (subNum) {
+        const escapedSub = subNum.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        updatedContent = prevContent.replace(
+          new RegExp(`(-\\s*\\[)([ xX])(\\]\\s*${escapedSub})`),
+          (_, p1, mark, p3) => `${p1}${mark.toLowerCase() === "x" ? " " : "x"}${p3}`
+        );
+      } else {
+        const escapedNum = taskNum.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        updatedContent = prevContent.replace(
+          new RegExp(`(-\\s*\\[)([ xX])(\\]\\s*Task\\s*${escapedNum}[:.]?)`),
+          (_, p1, mark, p3) => `${p1}${mark.toLowerCase() === "x" ? " " : "x"}${p3}`
+        );
+      }
+      return updatedContent;
+    });
+  };
+
+  const handleRequestGeneratePlan = () => {
+    setShowAiMentor(true);
+    setRequestedMentorMode("plan");
+    toast.info("Switched AI Mentor to Plan mode to generate system design tasks");
+  };
 
   // Resize handler
   const startResize = (e: React.MouseEvent) => {
@@ -1457,36 +1911,41 @@ export function SystemDesignStudio({
   };
   const empty = (what: string) => <div className="grid h-full place-items-center p-6 text-center text-sm text-muted-foreground"><div>Nothing to preview yet.<br />Write {what} on the left, or click <b>Examples</b>.</div></div>;
 
-  const TABS: { id: Tab; label: string; icon: React.ReactNode; sub: string }[] = [
-    { id: "hld", label: "HLD · Architecture", icon: <Boxes className="h-3.5 w-3.5" />, sub: "Drag & drop" },
-    { id: "sequence", label: "Sequence", icon: <GitBranch className="h-3.5 w-3.5" />, sub: "Mermaid" },
-    { id: "schema", label: "DB Schema", icon: <Database className="h-3.5 w-3.5" />, sub: "DBML" },
-    { id: "api", label: "REST API", icon: <FileText className="h-3.5 w-3.5" />, sub: "Endpoints" },
+  const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    { id: "hld", label: "High Level Design", icon: <Boxes className="h-3.5 w-3.5 text-[#f7931e]" /> },
+    { id: "schema", label: "Database Schema", icon: <Database className="h-3.5 w-3.5 text-emerald-500" /> },
+    { id: "sequence", label: "Sequence Diagram", icon: <GitBranch className="h-3.5 w-3.5 text-blue-500" /> },
+    { id: "api", label: "REST API", icon: <FileText className="h-3.5 w-3.5 text-purple-500" /> },
   ];
 
   return (
     <div className={`flex flex-col bg-background ${isLandingPage ? "h-full w-full" : "h-screen"}`}>
       {/* Top Header */}
-      <header className="flex flex-wrap items-center gap-2 border-b px-3 py-1.5 bg-card shrink-0">
+      <header className="flex flex-wrap items-center gap-2 border-b px-3 py-2 bg-card shrink-0">
         {isStandaloneStudio ? (
           <div className="flex items-center gap-2.5">
             <Link
-              to="/"
-              className="inline-flex items-center transition-transform hover:scale-105 mr-1"
-              aria-label="Yuvro Labs Home"
+              to="/student/dashboard"
+              className="inline-flex items-center justify-center h-8 w-8 rounded-lg border hover:bg-[#f7931e]/10 text-muted-foreground hover:text-[#f7931e] transition-colors mr-0.5"
+              title="Back to Simulation Labs"
             >
-              <img src={YuvroLogo} alt="Yuvro Labs" className="h-7 w-auto object-contain" />
+              <ArrowLeft className="h-4 w-4" />
             </Link>
-            <span className="font-semibold text-xs text-foreground">
-              System Design Studio
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-sm tracking-tight text-foreground flex items-center gap-1.5">
+                <Boxes className="h-4 w-4 text-[#f7931e]" />
+                System Design Studio
+              </span>
+              
+            </div>
           </div>
         ) : isLandingPage ? (
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-xs text-foreground">
+            <span className="font-bold text-sm tracking-tight text-foreground flex items-center gap-1.5">
+              <Boxes className="h-4 w-4 text-[#f7931e]" />
               System Design Studio
             </span>
-            <span className="inline-flex items-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-medium font-mono uppercase tracking-wider">
+            <span className="inline-flex items-center rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold font-mono uppercase tracking-wider">
               Live Sandbox
             </span>
           </div>
@@ -1496,11 +1955,10 @@ export function SystemDesignStudio({
               <button
                 type="button"
                 onClick={() => {
+                  const returnUrl = typeof window !== "undefined" ? sessionStorage.getItem("weekly_task_return_url") : null;
                   const weeklyTaskId =
-                    (typeof window !== "undefined" && sessionStorage.getItem("weekly_task_id")) ||
-                    new URLSearchParams(
-                      (typeof window !== "undefined" && sessionStorage.getItem("weekly_task_return_url"))?.split("?")[1] || ""
-                    ).get("id") ||
+                    (typeof window !== "undefined" ? sessionStorage.getItem("weekly_task_id") : null) ||
+                    (returnUrl ? new URLSearchParams(returnUrl.split("?")[1] || "").get("id") : null) ||
                     undefined;
                   try {
                     sessionStorage.removeItem("from_weekly_task");
@@ -1528,15 +1986,21 @@ export function SystemDesignStudio({
                 Exit
               </Link>
             )}
+            <div className="flex items-center gap-1.5 mr-1 border-r border-border/60 pr-2.5">
+              <span className="font-bold text-sm tracking-tight text-foreground flex items-center gap-1.5">
+                <Boxes className="h-4 w-4 text-[#f7931e]" />
+                System Design Studio
+              </span>
+            </div>
             <button
-              onClick={() => setLeftCollapsed((v) => !v)}
-              title="Toggle panel"
-              className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-accent text-muted-foreground hover:text-foreground"
+              onClick={() => setActiveSidebarView((v) => (v ? null : "problem"))}
+              title="Toggle sidebar panel"
+              className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
             >
-              {leftCollapsed ? (
-                <PanelLeftOpen className="h-3 w-3" />
-              ) : (
+              {activeSidebarView ? (
                 <PanelLeftClose className="h-3 w-3" />
+              ) : (
+                <PanelLeftOpen className="h-3 w-3" />
               )}
             </button>
 
@@ -1566,7 +2030,45 @@ export function SystemDesignStudio({
           </>
         )}
 
-        <div className="ml-auto flex items-center gap-1.5 text-xs">
+        
+        {/* Main Navigation Tabs: High Level Design, Database Schema, Sequence Diagram, REST API */}
+        <div className="flex items-center gap-1 border-l border-border/60 pl-2.5 ml-1">
+          {TABS.map((t) => {
+            const isTabActive = tab === t.id;
+            return (
+              <Button
+                variant="ghost"
+                size="sm"
+                key={t.id}
+                onClick={() => {
+                  setTab(t.id);
+                  setActiveStudioFile(null);
+                  const defaultPlanForTab =
+                    t.id === "hld"
+                      ? ".yuvro-developer/plan/hld/plan-hld.md"
+                      : t.id === "schema"
+                      ? ".yuvro-developer/plan/db-schema/plan-schema.md"
+                      : t.id === "sequence"
+                      ? ".yuvro-developer/plan/sequence-diagram/plan-sequence.md"
+                      : ".yuvro-developer/plan/rest-api/plan-api.md";
+                  setActiveSelectedPlanPath(defaultPlanForTab);
+                  if (sessionPlanFiles[defaultPlanForTab]) {
+                    setPlanContent(sessionPlanFiles[defaultPlanForTab]);
+                  }
+                }}
+                className={`h-7 inline-flex items-center gap-1.5 px-2.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+                  isTabActive
+                    ? "bg-[#f7931e]/15 text-[#f7931e] font-semibold border border-[#f7931e]/30 shadow-2xs"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                }`}
+              >
+                {t.icon}
+                <span>{t.label}</span>
+              </Button>
+            );
+          })}
+        </div>
+<div className="ml-auto flex items-center gap-1.5 text-xs">
           {!isPureStudio && evaluation && (
             <button
               onClick={() => setIsDrawerOpen(true)}
@@ -1582,84 +2084,13 @@ export function SystemDesignStudio({
             </button>
           )}
 
-          {/* Hidden File Input for Import */}
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileImport}
-            className="hidden"
-          />
-
-          {/* Import Dropdown Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 text-xs border inline-flex items-center gap-1 font-medium"
-                title="Import system design files"
-              >
-                <Upload className="h-3.5 w-3.5" />
-                <span>Import</span>
-                <ChevronDown className="h-3 w-3 opacity-60" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-72">
-              <DropdownMenuLabel className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Import Options
-              </DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => triggerImport("all")}
-                className="cursor-pointer flex flex-col items-start py-2 focus:bg-primary/10"
-              >
-                <span className="font-semibold text-xs flex items-center gap-1.5 text-foreground">
-                  <Boxes className="h-3.5 w-3.5 text-primary" />
-                  Import All 4 Tabs at Once
-                </span>
-                <span className="text-[11px] text-muted-foreground mt-0.5">
-                  Loads HLD, Sequence, DBML & REST APIs simultaneously from a full design JSON
-                </span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => triggerImport("current")}
-                className="cursor-pointer flex flex-col items-start py-2"
-              >
-                <span className="font-medium text-xs flex items-center gap-1.5 text-foreground">
-                  <FileCode2 className="h-3.5 w-3.5 text-muted-foreground" />
-                  Import Active Tab Only ({tabLabel(tab)})
-                </span>
-                <span className="text-[11px] text-muted-foreground mt-0.5">
-                  Updates only {tabLabel(tab)}, leaves other 3 tabs untouched
-                </span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => triggerImport("hld")} className="text-xs cursor-pointer py-1.5">
-                <Boxes className="h-3.5 w-3.5 mr-2 text-amber-600" />
-                Import HLD Architecture (.json)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => triggerImport("sequence")} className="text-xs cursor-pointer py-1.5">
-                <GitBranch className="h-3.5 w-3.5 mr-2 text-blue-600" />
-                Import Sequence Diagram (.mmd, .txt)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => triggerImport("schema")} className="text-xs cursor-pointer py-1.5">
-                <Database className="h-3.5 w-3.5 mr-2 text-emerald-600" />
-                Import DB Schema (.dbml, .sql, .txt)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => triggerImport("api")} className="text-xs cursor-pointer py-1.5">
-                <FileText className="h-3.5 w-3.5 mr-2 text-purple-600" />
-                Import REST APIs (.json)
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           {/* Export Dropdown Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 text-xs border inline-flex items-center gap-1 font-medium"
+                className="h-7 text-xs border inline-flex items-center gap-1 font-medium hover:border-[#f7931e]/60"
                 title="Export system design files"
               >
                 <Download className="h-3.5 w-3.5" />
@@ -1673,10 +2104,10 @@ export function SystemDesignStudio({
               </DropdownMenuLabel>
               <DropdownMenuItem
                 onClick={exportAll4}
-                className="cursor-pointer flex flex-col items-start py-2 focus:bg-primary/10"
+                className="cursor-pointer flex flex-col items-start py-2 focus:bg-[#f7931e]/15 focus:text-foreground"
               >
                 <span className="font-semibold text-xs flex items-center gap-1.5 text-foreground">
-                  <Boxes className="h-3.5 w-3.5 text-primary" />
+                  <Boxes className="h-3.5 w-3.5 text-[#f7931e]" />
                   Export All 4 Tabs at Once
                 </span>
                 <span className="text-[11px] text-muted-foreground mt-0.5">
@@ -1686,10 +2117,10 @@ export function SystemDesignStudio({
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={exportCurrentTab}
-                className="cursor-pointer flex flex-col items-start py-2"
+                className="cursor-pointer flex flex-col items-start py-2 focus:bg-[#f7931e]/15 focus:text-foreground"
               >
                 <span className="font-medium text-xs flex items-center gap-1.5 text-foreground">
-                  <FileCode2 className="h-3.5 w-3.5 text-muted-foreground" />
+                  <FileCode2 className="h-3.5 w-3.5 text-[#f7931e]" />
                   Export Active Tab Only ({tabLabel(tab)})
                 </span>
                 <span className="text-[11px] text-muted-foreground mt-0.5">
@@ -1697,37 +2128,25 @@ export function SystemDesignStudio({
                 </span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={exportHld} className="text-xs cursor-pointer py-1.5">
-                <Boxes className="h-3.5 w-3.5 mr-2 text-amber-600" />
+              <DropdownMenuItem onClick={exportHld} className="text-xs cursor-pointer py-1.5 focus:bg-[#f7931e]/15 focus:text-foreground">
+                <Boxes className="h-3.5 w-3.5 mr-2 text-[#f7931e]" />
                 Export HLD Architecture (.json)
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={exportSequence} className="text-xs cursor-pointer py-1.5">
-                <GitBranch className="h-3.5 w-3.5 mr-2 text-blue-600" />
+              <DropdownMenuItem onClick={exportSequence} className="text-xs cursor-pointer py-1.5 focus:bg-[#f7931e]/15 focus:text-foreground">
+                <GitBranch className="h-3.5 w-3.5 mr-2 text-[#f7931e]" />
                 Export Sequence Diagram (.mmd)
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={exportSchema} className="text-xs cursor-pointer py-1.5">
-                <Database className="h-3.5 w-3.5 mr-2 text-emerald-600" />
+              <DropdownMenuItem onClick={exportSchema} className="text-xs cursor-pointer py-1.5 focus:bg-[#f7931e]/15 focus:text-foreground">
+                <Database className="h-3.5 w-3.5 mr-2 text-[#f7931e]" />
                 Export DB Schema (.dbml)
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={exportApis} className="text-xs cursor-pointer py-1.5">
-                <FileText className="h-3.5 w-3.5 mr-2 text-purple-600" />
+              <DropdownMenuItem onClick={exportApis} className="text-xs cursor-pointer py-1.5 focus:bg-[#f7931e]/15 focus:text-foreground">
+                <FileText className="h-3.5 w-3.5 mr-2 text-[#f7931e]" />
                 Export REST APIs (.json)
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setShowEx(true)}>
-            Examples
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowClearWorkspaceDialog(true)}
-            className="h-7 text-xs border"
-            title="Clear canvas"
-          >
-            Clear
-          </Button>
           {isLandingPage && (
             <Link
               to="/system-design-studio"
@@ -1736,15 +2155,6 @@ export function SystemDesignStudio({
             >
               <span>Full Screen</span>
               <ArrowRight className="h-3 w-3" />
-            </Link>
-          )}
-          {isStandaloneStudio && (
-            <Link
-              to="/student/dashboard"
-              className="h-7 text-xs border border-border rounded-md px-2.5 inline-flex items-center font-medium hover:bg-accent text-foreground transition-colors ml-1"
-              title="Practice in Yuvro Labs"
-            >
-              Practice in Yuvro Labs
             </Link>
           )}
           {!isPureStudio && (
@@ -1800,358 +2210,457 @@ export function SystemDesignStudio({
               </Button>
             </>
           )}
+
+          {/* View presets: system design only, system design + ai mentor, system design + ai mentor + solution notes */}
+          {isAiMentorAllowed && (
+            <>
+              <div className="h-4 w-px bg-border mx-1" />
+              <div className="flex items-center gap-0.5 bg-muted/40 p-0.5 rounded-md border border-border/60">
+                <button
+                  onClick={() => {
+                    setShowAiMentor(false);
+                    setIsBottomPanelOpen(false);
+                  }}
+                  title="System Design only"
+                  className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${
+                    !showAiMentor && !isBottomPanelOpen
+                      ? "bg-background text-foreground shadow-2xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                  }`}
+                >
+                  <Square className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAiMentor(true);
+                    setIsBottomPanelOpen(false);
+                  }}
+                  title="System Design + AI Mentor"
+                  className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${
+                    showAiMentor && !isBottomPanelOpen
+                      ? "bg-background text-foreground shadow-2xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                  }`}
+                >
+                  <PanelRight className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAiMentor(true);
+                    setIsBottomPanelOpen(true);
+                  }}
+                  title="System Design + AI Mentor + Solution Notes & Plan"
+                  className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${
+                    showAiMentor && isBottomPanelOpen
+                      ? "bg-background text-foreground shadow-2xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                  }`}
+                >
+                  <Columns3 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* Fullscreen Toggle */}
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen (Esc)" : "Fullscreen (F11)"}
+            className="grid h-7 w-7 place-items-center rounded border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
+            {isFullscreen ? (
+              <Minimize2 className="h-3.5 w-3.5" />
+            ) : (
+              <Maximize2 className="h-3.5 w-3.5" />
+            )}
+          </button>
         </div>
       </header>
 
-      {/* Main Body: Left Sidebar + Right Studio Area */}
+      {/* Main Body: Left Activity Bar + Left Sidebar + Right Studio Area */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        {/* Left Sidebar: Problem / Hints / Solution */}
-        {!isPureStudio && (
-          leftCollapsed ? (
-          <aside className="w-10 border-r bg-card flex flex-col items-center py-2 text-muted-foreground gap-1 shrink-0">
+        {/* Left Content Area (Activity Bar + Sidebar + Studio Canvas stacked above Bottom Panel) */}
+        <div className="flex flex-1 flex-col min-w-0 min-h-0 overflow-hidden">
+          <div className="flex flex-1 min-h-0 overflow-hidden">
+        {/* Activity Bar (VS Code style like Vitarka IDE) */}
+        {!isLandingPage && (
+          <div className="flex w-12 flex-col items-center gap-1 border-r border-border bg-card py-2 text-muted-foreground shrink-0 z-20">
+            {!isPureStudio && (
+              <button
+                onClick={() => setActiveSidebarView((v) => (v === "problem" ? null : "problem"))}
+                title={activeSidebarView === "problem" ? "Hide Problem Statement" : "Show Problem Statement"}
+                className={`grid h-9 w-9 place-items-center rounded transition-colors cursor-pointer ${
+                  activeSidebarView === "problem" ? "text-foreground bg-accent" : "hover:text-foreground hover:bg-accent/40"
+                }`}
+              >
+                <BookOpen className="h-4 w-4" />
+              </button>
+            )}
             <button
-              onClick={() => {
-                setLeftCollapsed(false);
-                setSidebarTab("problem");
-              }}
-              title="Problem Statement"
-              className={`grid h-8 w-8 place-items-center rounded hover:bg-accent hover:text-foreground ${
-                sidebarTab === "problem" ? "text-primary bg-primary/10" : ""
+              onClick={() => setActiveSidebarView((v) => (v === "explorer" ? null : "explorer"))}
+              title={activeSidebarView === "explorer" ? "Hide File Explorer (⌘⇧E)" : "Show File Explorer (⌘⇧E)"}
+              className={`grid h-9 w-9 place-items-center rounded transition-colors cursor-pointer ${
+                activeSidebarView === "explorer" ? "text-foreground bg-accent" : "hover:text-foreground hover:bg-accent/40"
               }`}
             >
-              <BookOpen className="h-4 w-4" />
+              <FileCode2 className="h-4 w-4" />
             </button>
             <button
-              onClick={() => {
-                setLeftCollapsed(false);
-                setSidebarTab("hints");
-              }}
-              title="Hints"
-              className={`grid h-8 w-8 place-items-center rounded hover:bg-accent hover:text-foreground ${
-                sidebarTab === "hints" ? "text-primary bg-primary/10" : ""
+              onClick={() => setActiveSidebarView((v) => (v === "search" ? null : "search"))}
+              title={activeSidebarView === "search" ? "Hide Search (⌘⇧F)" : "Search in Files (⌘⇧F)"}
+              className={`grid h-9 w-9 place-items-center rounded transition-colors cursor-pointer ${
+                activeSidebarView === "search" ? "text-foreground bg-accent" : "hover:text-foreground hover:bg-accent/40"
               }`}
             >
-              <Lightbulb className="h-4 w-4" />
+              <Search className="h-4 w-4" />
             </button>
             <button
-              onClick={() => {
-                setLeftCollapsed(false);
-                setSidebarTab("solution");
-              }}
-              title="Solution"
-              className={`grid h-8 w-8 place-items-center rounded hover:bg-accent hover:text-foreground ${
-                sidebarTab === "solution" ? "text-primary bg-primary/10" : ""
+              onClick={() => setActiveSidebarView((v) => (v === "git" ? null : "git"))}
+              title={activeSidebarView === "git" ? "Hide Source Control (⌘⇧G)" : "Source Control / Diff (⌘⇧G)"}
+              className={`grid h-9 w-9 place-items-center rounded transition-colors cursor-pointer ${
+                activeSidebarView === "git" ? "text-foreground bg-accent" : "hover:text-foreground hover:bg-accent/40"
               }`}
             >
-              <Key className="h-4 w-4" />
+              <GitBranch className="h-4 w-4" />
             </button>
-            <button
-              onClick={() => setLeftCollapsed(false)}
-              title="Expand panel"
-              className="mt-auto grid h-8 w-8 place-items-center rounded hover:bg-accent hover:text-foreground"
-            >
-              <PanelLeftOpen className="h-4 w-4" />
-            </button>
-          </aside>
-        ) : (
+          </div>
+        )}
+
+        {/* Sidebar Panel */}
+        {!isLandingPage && activeSidebarView !== null && (
           <>
             <aside
               style={{ width: `${leftWidth}px` }}
-              className="flex flex-col border-r bg-card shrink-0 min-w-[260px] max-w-[55vw]"
+              className="flex flex-col border-r bg-card shrink-0 min-w-[240px] max-w-[50vw]"
             >
-              {/* Sidebar Tabs */}
-              <div className="flex items-center border-b text-xs px-1 bg-muted/20">
-                <button
-                  onClick={() => setSidebarTab("problem")}
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 border-b-2 font-medium transition-colors ${
-                    sidebarTab === "problem"
-                      ? "border-primary text-foreground bg-card"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <BookOpen className="h-3.5 w-3.5" />
-                  Problem
-                </button>
-                <button
-                  onClick={() => setSidebarTab("hints")}
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 border-b-2 font-medium transition-colors ${
-                    sidebarTab === "hints"
-                      ? "border-primary text-foreground bg-card"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Lightbulb className="h-3.5 w-3.5" />
-                  Hints
-                  {hints.length > 0 && (
-                    <span className="rounded-full bg-muted px-1.5 py-0.2 text-[10px] text-muted-foreground font-mono">
-                      {hints.length}
-                    </span>
-                  )}
-                </button>
-                <button
-                  onClick={() => setSidebarTab("solution")}
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 border-b-2 font-medium transition-colors ${
-                    sidebarTab === "solution"
-                      ? "border-primary text-foreground bg-card"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Key className="h-3.5 w-3.5" />
-                  Solution
-                </button>
-                <button
-                  onClick={() => setLeftCollapsed(true)}
-                  title="Collapse panel"
-                  className="ml-auto mr-1 grid h-7 w-7 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
-                >
-                  <PanelLeftClose className="h-3.5 w-3.5" />
-                </button>
-              </div>
-
-              {/* Sidebar Body */}
-              <div className="flex-1 overflow-y-auto p-4 text-xs space-y-4">
-                {sidebarTab === "problem" && (
-                  <div className="space-y-4">
-                    <div>
-                      <span className="inline-block rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-                        {ticketData?.tag || "System Design"}
-                      </span>
-                      <h2 className="text-base font-semibold mt-1.5 text-foreground leading-snug">
-                        {taskTitle}
-                      </h2>
-                    </div>
-
-                    <div className="text-muted-foreground leading-relaxed prose prose-xs dark:prose-invert max-w-none [&>h3]:text-foreground [&>h3]:font-semibold [&>h3]:text-sm [&>h3]:mt-3 [&>h3]:mb-1 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:mb-2 [&>ol]:list-decimal [&>ol]:pl-4 [&>ol]:mb-2 [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[11px] [&_code]:font-mono">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {taskDescription || "Design a robust, scalable system fulfilling the architecture requirements."}
-                      </ReactMarkdown>
-                    </div>
-
-                    {/* Tasks / Acceptance Criteria */}
-                    {((Array.isArray(ticketData?.tasks) && ticketData.tasks.length > 0) || (evaluation?.checks && evaluation.checks.length > 0)) && (
-                      <div className="border-t pt-3 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            Acceptance Criteria & Tasks
-                          </div>
-                          {evaluation && (
-                            <span className="text-[10px] font-mono font-medium text-muted-foreground">
-                              {evaluation.passed}/{evaluation.checks.length} passed
-                            </span>
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          {(ticketData?.tasks?.length ? ticketData.tasks : (evaluation?.checks || [])).map((taskItem: any, idx: number) => {
-                            const tTitle =
-                              typeof taskItem === "string" ? taskItem : (taskItem.title || `Task ${idx + 1}`);
-                            const tDesc = typeof taskItem === "object" ? taskItem.description : null;
-                            const check = evaluation?.checks?.[idx];
-                            const isPassed = check?.status === "passed";
-
-                            return (
-                              <div
-                                key={idx}
-                                className={`rounded-md border p-2.5 transition-colors ${
-                                  check
-                                    ? isPassed
-                                      ? "border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-500/10"
-                                      : "border-border bg-muted/20"
-                                    : "border-border bg-muted/20"
-                                }`}
-                              >
-                                <div className="flex items-start gap-2">
-                                  <span
-                                    className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded text-[10px] font-bold ${
-                                      check
-                                        ? isPassed
-                                          ? "bg-emerald-500 text-white"
-                                          : "bg-muted text-muted-foreground"
-                                        : "bg-primary/10 text-primary"
-                                    }`}
-                                  >
-                                    {check && isPassed ? "✓" : idx + 1}
-                                  </span>
-                                  <div className="min-w-0 flex-1">
-                                    <div className="flex items-center justify-between gap-1">
-                                      <div className="font-medium text-foreground">{tTitle}</div>
-                                      {check && (
-                                        <span
-                                          className={`shrink-0 font-mono text-[10px] font-semibold px-1.5 py-0.2 rounded border ${
-                                            isPassed
-                                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                              : "border-muted bg-muted/40 text-muted-foreground"
-                                          }`}
-                                        >
-                                          {check.marks === null ? "Pending" : `${check.marks}/${check.maxMarks} pts`}
-                                        </span>
-                                      )}
-                                    </div>
-                                    {tDesc && (
-                                      <p className="mt-0.5 text-muted-foreground text-[11px] leading-relaxed">
-                                        {tDesc}
-                                      </p>
-                                    )}
-                                    {check && (
-                                      <p
-                                        className={`mt-1 text-[11px] font-mono leading-tight ${
-                                          isPassed
-                                            ? "text-emerald-600 dark:text-emerald-400"
-                                            : "text-amber-600 dark:text-amber-400"
-                                        }`}
-                                      >
-                                        {isPassed ? "✓ " : "• "}
-                                        {check.feedback}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Learning Objectives */}
-                    {Array.isArray(ticketData?.learning_objectives) && ticketData.learning_objectives.length > 0 && (
-                      <div className="border-t pt-3 space-y-1.5">
-                        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          🎯 Learning Objectives
-                        </div>
-                        <ul className="space-y-1 text-muted-foreground text-[11px]">
-                          {ticketData.learning_objectives.map((obj: any, idx: number) => (
-                            <li key={idx} className="flex items-start gap-1.5">
-                              <span className="text-success shrink-0 mt-0.5">✓</span>
-                              <span>{typeof obj === "string" ? obj : obj.title || JSON.stringify(obj)}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* Common Mistakes */}
-                    {Array.isArray(ticketData?.common_mistakes) && ticketData.common_mistakes.length > 0 && (
-                      <div className="border-t pt-3 space-y-1.5">
-                        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          ⚠️ Common Mistakes
-                        </div>
-                        <ul className="space-y-1 text-muted-foreground text-[11px]">
-                          {ticketData.common_mistakes.map((m: any, idx: number) => (
-                            <li key={idx} className="flex items-start gap-1.5">
-                              <span className="text-warning shrink-0 mt-0.5">•</span>
-                              <span>{typeof m === "string" ? m : m.description || m.title || JSON.stringify(m)}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+              {/* Problem / Hints / Solution View */}
+              {activeSidebarView === "problem" && (
+                <>
+                  <div className="flex items-center border-b text-xs px-1 bg-muted/20">
+                    <button
+                      onClick={() => setSidebarTab("problem")}
+                      className={`inline-flex items-center gap-1.5 px-3 py-2 border-b-2 font-medium transition-colors cursor-pointer ${
+                        sidebarTab === "problem"
+                          ? "border-primary text-foreground bg-card"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <BookOpen className="h-3.5 w-3.5" />
+                      Problem
+                    </button>
+                    <button
+                      onClick={() => setSidebarTab("hints")}
+                      className={`inline-flex items-center gap-1.5 px-3 py-2 border-b-2 font-medium transition-colors cursor-pointer ${
+                        sidebarTab === "hints"
+                          ? "border-primary text-foreground bg-card"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Lightbulb className="h-3.5 w-3.5" />
+                      Hints
+                      {hints.length > 0 && (
+                        <span className="rounded-full bg-muted px-1.5 py-0.2 text-[10px] text-muted-foreground font-mono">
+                          {hints.length}
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setSidebarTab("solution")}
+                      className={`inline-flex items-center gap-1.5 px-3 py-2 border-b-2 font-medium transition-colors cursor-pointer ${
+                        sidebarTab === "solution"
+                          ? "border-primary text-foreground bg-card"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Key className="h-3.5 w-3.5" />
+                      Solution
+                    </button>
+                    <button
+                      onClick={() => setActiveSidebarView(null)}
+                      title="Collapse panel"
+                      className="ml-auto mr-1 grid h-7 w-7 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      <PanelLeftClose className="h-3.5 w-3.5" />
+                    </button>
                   </div>
-                )}
 
-                {sidebarTab === "hints" && (
-                  <div className="space-y-3">
-                    {hints.length === 0 ? (
-                      <div className="text-center py-8 border rounded-md bg-muted/10">
-                        <Lightbulb className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-                        <h4 className="text-xs font-medium text-foreground mb-1">No Hints Available</h4>
-                        <p className="text-[11px] text-muted-foreground max-w-[200px] mx-auto">
-                          No hints have been added to this ticket yet.
-                        </p>
+                  <div className="flex-1 overflow-y-auto p-4 text-xs space-y-4">
+                    {sidebarTab === "problem" && (
+                      <div className="space-y-4">
+                        <div>
+                          <span className="inline-block rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                            {ticketData?.tag || "System Design"}
+                          </span>
+                          <h2 className="text-base font-semibold mt-1.5 text-foreground leading-snug">
+                            {taskTitle}
+                          </h2>
+                        </div>
+
+                        <div className="text-muted-foreground leading-relaxed prose prose-xs dark:prose-invert max-w-none [&>h3]:text-foreground [&>h3]:font-semibold [&>h3]:text-sm [&>h3]:mt-3 [&>h3]:mb-1 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:mb-2 [&>ol]:list-decimal [&>ol]:pl-4 [&>ol]:mb-2 [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[11px] [&_code]:font-mono">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {taskDescription || "Design a robust, scalable system fulfilling the architecture requirements."}
+                          </ReactMarkdown>
+                        </div>
                       </div>
-                    ) : (
-                      hints.map((hintText, idx) => {
-                        const isRevealed = revealedHints.includes(idx);
-                        return (
-                          <div key={idx} className="rounded-md border bg-card p-3 space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="font-semibold text-foreground inline-flex items-center gap-1.5 text-xs">
-                                <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
-                                Hint {idx + 1}
-                              </span>
-                              <span className="text-[10px] text-muted-foreground inline-flex items-center gap-1">
-                                {isRevealed ? <Unlock className="h-3 w-3 text-success" /> : <Lock className="h-3 w-3" />}
-                                {isRevealed ? "Revealed" : "Locked"}
-                              </span>
+                    )}
+
+                    {sidebarTab === "hints" && (
+                      <div className="space-y-3">
+                        <div className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                          💡 System Design Hints
+                        </div>
+                        {hints.length === 0 ? (
+                          <p className="text-muted-foreground italic text-xs">No hints available for this lab.</p>
+                        ) : (
+                          hints.map((h: string, idx: number) => (
+                            <div key={idx} className="rounded-md border p-3 bg-muted/20 space-y-1">
+                              <span className="font-semibold text-primary text-[11px]">Hint {idx + 1}</span>
+                              <p className="text-muted-foreground text-xs leading-relaxed">{h}</p>
                             </div>
-                            {isRevealed ? (
-                              <div className="rounded bg-muted/40 p-2 text-foreground font-mono text-[11px] whitespace-pre-wrap border border-border/50">
-                                {hintText}
+                          ))
+                        )}
+                      </div>
+                    )}
+
+                    {sidebarTab === "solution" && (
+                      <div>
+                        {!solutionRevealed ? (
+                          <div className="rounded-md border border-dashed p-4 text-center space-y-3">
+                            <Lock className="h-6 w-6 text-muted-foreground mx-auto" />
+                            <div>
+                              <div className="font-semibold text-foreground">Solution Hidden</div>
+                              <p className="text-muted-foreground text-[11px] mt-1">
+                                Attempt solving the design first. Revealing the solution will mark this ticket as referenced.
+                              </p>
+                            </div>
+                            <Button size="sm" onClick={() => setSolutionRevealed(true)} className="h-7 text-xs">
+                              Reveal Solution
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <div className="rounded-md border bg-muted/20 p-3 space-y-2">
+                              <div className="flex items-center justify-between border-b pb-2">
+                                <span className="font-semibold text-foreground inline-flex items-center gap-1.5">
+                                  <Key className="h-3.5 w-3.5 text-primary" />
+                                  Solution Architecture
+                                </span>
+                                <span className="text-[10px] text-success font-medium">Revealed</span>
                               </div>
-                            ) : (
+                              {solutionContent ? (
+                                <div className="prose prose-xs dark:prose-invert max-w-none text-muted-foreground text-[11px]">
+                                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {solutionContent}
+                                  </ReactMarkdown>
+                                </div>
+                              ) : (
+                                <div className="text-[11px] text-muted-foreground leading-relaxed">
+                                  Review the reference architecture nodes, database relationships, and sequence flows.
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="rounded-md border p-3 bg-card space-y-2">
+                              <div className="text-xs font-medium text-foreground">Reference Architecture</div>
+                              <p className="text-[11px] text-muted-foreground">
+                                Load the complete system design solution into the canvas tabs (HLD, Sequence, DBML, REST API).
+                              </p>
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => toggleRevealHint(idx)}
                                 className="w-full text-xs h-7"
+                                onClick={() => apply(referenceDesign ?? scenarioExample(slug))}
                               >
-                                Reveal Hint
+                                <Sparkles className="h-3 w-3 mr-1" />
+                                Load Reference Design
                               </Button>
-                            )}
+                            </div>
                           </div>
-                        );
-                      })
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
+                </>
+              )}
 
-                {sidebarTab === "solution" && (
-                  <div className="space-y-3">
-                    {!solutionRevealed ? (
-                      <div className="text-center py-8 border rounded-md bg-muted/10 p-4 space-y-3">
-                        <Key className="w-7 h-7 text-muted-foreground mx-auto" />
-                        <div>
-                          <h4 className="text-xs font-semibold text-foreground">Reference Solution</h4>
-                          <p className="text-[11px] text-muted-foreground mt-1">
-                            Reveal reference design rationale, component trade-offs and recommended architecture.
-                          </p>
-                        </div>
-                        <Button size="sm" onClick={() => setSolutionRevealed(true)} className="h-7 text-xs">
-                          Reveal Solution
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <div className="rounded-md border bg-muted/20 p-3 space-y-2">
-                          <div className="flex items-center justify-between border-b pb-2">
-                            <span className="font-semibold text-foreground inline-flex items-center gap-1.5">
-                              <Key className="h-3.5 w-3.5 text-primary" />
-                              Solution Architecture
-                            </span>
-                            <span className="text-[10px] text-success font-medium">Revealed</span>
-                          </div>
-                          {solutionContent ? (
-                            <div className="prose prose-xs dark:prose-invert max-w-none text-muted-foreground text-[11px]">
-                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {solutionContent}
-                              </ReactMarkdown>
-                            </div>
-                          ) : (
-                            <div className="text-[11px] text-muted-foreground leading-relaxed">
-                              Review the reference architecture nodes, database relationships, and sequence flows.
-                            </div>
-                          )}
-                        </div>
+              {/* File Browser (Explorer) */}
+              {activeSidebarView === "explorer" && (
+                <div className="flex flex-col h-full min-h-0">
+                  <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40 shrink-0">
+                    <span className="font-semibold">Explorer · System Design</span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        title="New File"
+                        onClick={() => {
+                          setInlineTreeAction({ type: "new-file", folderPath: "" });
+                          setOpenExplorerFolders((o) => ({ ...o, [""]: true, ["__root__"]: true }));
+                        }}
+                        className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
+                      >
+                        <FilePlus className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        title="New Folder"
+                        onClick={() => {
+                          setInlineTreeAction({ type: "new-folder", folderPath: "" });
+                          setOpenExplorerFolders((o) => ({ ...o, [""]: true, ["__root__"]: true }));
+                        }}
+                        className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
+                      >
+                        <FolderPlus className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        title="Refresh Workspace"
+                        onClick={() => {
+                          toast.success("Workspace files refreshed");
+                        }}
+                        className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer ml-0.5"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        title="Collapse Sidebar"
+                        onClick={() => setActiveSidebarView(null)}
+                        className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1 cursor-pointer"
+                      >
+                        <PanelLeftClose className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
 
-                        <div className="rounded-md border p-3 bg-card space-y-2">
-                          <div className="text-xs font-medium text-foreground">Reference Architecture</div>
-                          <p className="text-[11px] text-muted-foreground">
-                            Load the complete system design solution into the canvas tabs (HLD, Sequence, DBML, REST API).
-                          </p>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-full text-xs h-7"
-                            onClick={() => apply(referenceDesign ?? scenarioExample(slug))}
+                  <div className="flex-1 overflow-auto px-1 py-1 min-h-0 text-xs">
+                    <SystemDesignFileTree
+                      rootLabel="system-design"
+                      paths={Object.keys(designFiles)}
+                      activeFile={activeStudioFile || ""}
+                      dirty={{}}
+                      inlineAction={inlineTreeAction}
+                      setInlineAction={setInlineTreeAction}
+                      onOpenFile={(path) => handleOpenStudioFile(path)}
+                      onCreateFile={(path, contents) => handleCreateStudioFile(path, contents)}
+                      onRenameFile={(oldP, newP) => handleRenameStudioFile(oldP, newP)}
+                      onDeleteFile={(p) => handleDeleteStudioFile(p)}
+                      onDeleteFolder={(p) => handleDeleteStudioFolder(p)}
+                      onFormatFile={(p) => handleFormatStudioFile(p)}
+                      onCopyFilePath={(p) => {
+                        if (navigator?.clipboard?.writeText) {
+                          navigator.clipboard.writeText(p);
+                          toast.success(`Copied file path: ${p}`);
+                        }
+                      }}
+                      isFolderOpen={isExplorerFolderOpen}
+                      toggleFolder={toggleExplorerFolder}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Search in Files */}
+              {activeSidebarView === "search" && (
+                <div className="flex flex-col h-full min-h-0">
+                  <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
+                    <span className="font-semibold">Search in Files</span>
+                    <button
+                      title="Collapse Sidebar"
+                      onClick={() => setActiveSidebarView(null)}
+                      className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      <PanelLeftClose className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <div className="p-3 border-b border-border/40 space-y-2">
+                    <input
+                      type="text"
+                      value={searchInStudioQuery}
+                      onChange={(e) => setSearchInStudioQuery(e.target.value)}
+                      placeholder="Search architecture & plans..."
+                      className="w-full rounded bg-background px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground border border-border focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-2 text-xs space-y-1">
+                    {searchInStudioQuery.trim() ? (
+                      Object.entries(designFiles)
+                        .filter(([path, content]) =>
+                          path.toLowerCase().includes(searchInStudioQuery.toLowerCase()) ||
+                          content.toLowerCase().includes(searchInStudioQuery.toLowerCase())
+                        )
+                        .map(([path]) => (
+                          <div
+                            key={path}
+                            onClick={() => {
+                              if (path.includes("architecture")) setTab("hld");
+                              else if (path.includes("sequence")) setTab("sequence");
+                              else if (path.includes("schema")) setTab("schema");
+                              else if (path.includes("api")) setTab("api");
+                            }}
+                            className="p-2 rounded border border-border/60 hover:bg-accent cursor-pointer space-y-0.5"
                           >
-                            <Sparkles className="h-3 w-3 mr-1" />
-                            Load Reference Design
-                          </Button>
-                        </div>
+                            <div className="font-semibold text-foreground flex items-center gap-1.5">
+                              <FileCode2 className="h-3.5 w-3.5 text-[#f7931e]" />
+                              {path}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground truncate">
+                              Matched keyword "{searchInStudioQuery}"
+                            </div>
+                          </div>
+                        ))
+                    ) : (
+                      <div className="text-center text-muted-foreground/60 py-6 text-[11px]">
+                        Type to search components, endpoints, schema and plan markdown
                       </div>
                     )}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+
+              {/* Source Control (Git) */}
+              {activeSidebarView === "git" && (
+                <div className="flex flex-col h-full min-h-0">
+                  <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border/40">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold">Source Control</span>
+                      <span className="rounded bg-primary/10 text-primary px-1.5 py-0.2 text-[10px] font-semibold">
+                        git
+                      </span>
+                    </div>
+                    <button
+                      title="Collapse Sidebar"
+                      onClick={() => setActiveSidebarView(null)}
+                      className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      <PanelLeftClose className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <div className="p-3 border-b border-border/40 space-y-2">
+                    <button
+                      onClick={() => toast.success("All System Design changes staged and committed to git")}
+                      className="w-full flex items-center justify-center gap-1.5 rounded-md bg-[#f7931e] py-1.5 text-xs font-medium text-white hover:bg-[#e5820f] transition-colors cursor-pointer"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      Commit System Design
+                    </button>
+                  </div>
+                  <div className="p-3 text-xs space-y-2 overflow-y-auto">
+                    <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+                      Changes (4 tabs)
+                    </div>
+                    {[
+                      { file: "high_level_design.json", status: "M", label: `${nodes.length} nodes` },
+                      { file: "sequence_diagram.mmd", status: "M", label: "Mermaid sequence" },
+                      { file: "db_schema.dbml", status: "M", label: "DBML schema" },
+                      { file: "rest_api.json", status: "M", label: `${apis.length} endpoints` },
+                    ].map((item) => (
+                      <div key={item.file} className="flex items-center justify-between p-1.5 rounded hover:bg-accent text-foreground">
+                        <span className="truncate">{item.file}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-muted-foreground">{item.label}</span>
+                          <span className="text-amber-500 font-mono font-bold text-[10px]">M</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </aside>
 
             {/* Draggable resize handle */}
@@ -2161,64 +2670,401 @@ export function SystemDesignStudio({
               title="Drag to resize sidebar"
             />
           </>
-        )
-      )}
+        )}
 
         {/* Right side: Studio navigation and canvas/editors */}
         <div className="flex flex-1 flex-col min-w-0 min-h-0 overflow-hidden">
-          {/* Subnav */}
-          <nav className="flex flex-wrap gap-1 border-b px-3 bg-card shrink-0">
-            {TABS.map(t => (
-              <Button
-                variant="ghost"
-                size="sm"
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`-mb-px inline-flex items-center gap-1.5 rounded-none border-b-2 px-3 py-2 text-xs ${
-                  tab === t.id
-                    ? "border-primary text-foreground font-medium"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t.icon}
-                {t.label}
-                <span className="text-[10px] text-muted-foreground">· {t.sub}</span>
-              </Button>
-            ))}
-          </nav>
+          
 
-          {/* Active Tool Area */}
+          {/* Active Tool Area or File Editor */}
           <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-            <div className="min-h-0 flex-1">
-              {tab === "hld" && <HldEditor nodes={nodes} edges={edges} setNodes={setNodes} setEdges={setEdges} />}
-              {tab === "sequence" && (
-                <SplitEditor
-                  value={seq}
-                  onChange={setSeq}
-                  hint="Mermaid sequenceDiagram — live preview"
-                  preview={seq.trim() ? <MermaidView code={seq} /> : empty("a sequenceDiagram")}
-                />
-              )}
-              {tab === "schema" && (
-                <SplitEditor
-                  value={schema}
-                  onChange={setSchema}
-                  hint="dbdiagram.io-style DBML: Table name { col type [pk, unique, ref: > other.id] }"
-                  preview={schema.trim() ? <ErdBoard src={schema} /> : empty("tables in DBML")}
-                />
-              )}
-              {tab === "api" && (
-                <ApiDesigner
-                  key={apis.map(a => a.id).join() ? "has" : "none"}
-                  apis={apis}
-                  setApis={setApis}
-                />
+            {/* If a file tab is opened from Explorer, show file tabs bar */}
+            {openStudioTabs.length > 0 && (
+              <div className="flex items-center gap-1 border-b px-2 py-0.5 bg-muted/20 shrink-0 overflow-x-auto">
+                {openStudioTabs.map((fPath) => {
+                  const fName = fPath.split("/").pop() || fPath;
+                  const isActive = activeStudioFile === fPath;
+                  return (
+                    <ContextMenu key={fPath}>
+                      <ContextMenuTrigger asChild>
+                        <div
+                          onClick={() => setActiveStudioFile(fPath)}
+                          className={`group flex items-center gap-1.5 px-2.5 py-1 rounded text-xs cursor-pointer border transition-colors select-none ${
+                            isActive
+                              ? "bg-card border-border text-foreground font-medium shadow-2xs"
+                              : "border-transparent text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                          }`}
+                        >
+                          <FileCode2 className="h-3.5 w-3.5 text-[#f7931e]" />
+                          <span className="truncate max-w-[150px]">{fName}</span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCloseStudioTab(fPath);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-0.5 cursor-pointer"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </ContextMenuTrigger>
+                      <ContextMenuContent className="w-48 text-xs">
+                        <ContextMenuItem onSelect={() => setActiveStudioFile(fPath)}>
+                          Select Tab
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem onSelect={() => handleFormatStudioFile(fPath)}>
+                          <Wand2 className="mr-2 h-3.5 w-3.5 text-primary" />
+                          Format Document
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onSelect={() => {
+                            if (navigator?.clipboard?.writeText) {
+                              navigator.clipboard.writeText(fPath);
+                              toast.success(`Copied file path: ${fPath}`);
+                            }
+                          }}
+                        >
+                          <Copy className="mr-2 h-3.5 w-3.5" />
+                          Copy File Path
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem onSelect={() => handleCloseStudioTab(fPath)}>
+                          Close
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onSelect={() => {
+                            setOpenStudioTabs([fPath]);
+                            setActiveStudioFile(fPath);
+                          }}
+                        >
+                          Close Others
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onSelect={() => {
+                            const idx = openStudioTabs.indexOf(fPath);
+                            if (idx !== -1) {
+                              const remaining = openStudioTabs.slice(0, idx + 1);
+                              setOpenStudioTabs(remaining);
+                              if (!remaining.includes(activeStudioFile || "")) {
+                                setActiveStudioFile(fPath);
+                              }
+                            }
+                          }}
+                        >
+                          Close to the Right
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onSelect={() => {
+                            const idx = openStudioTabs.indexOf(fPath);
+                            if (idx !== -1) {
+                              const remaining = openStudioTabs.slice(idx);
+                              setOpenStudioTabs(remaining);
+                              if (!remaining.includes(activeStudioFile || "")) {
+                                setActiveStudioFile(fPath);
+                              }
+                            }
+                          }}
+                        >
+                          Close to the Left
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          onSelect={() => {
+                            setOpenStudioTabs([]);
+                            setActiveStudioFile(null);
+                          }}
+                        >
+                          Close All
+                        </ContextMenuItem>
+                      </ContextMenuContent>
+                    </ContextMenu>
+                  );
+                })}
+
+                {/* Right side tab controls: raw / preview or raw / design toggle icon */}
+                <div className="ml-auto flex items-center gap-1.5 pr-2">
+                  {/* For Markdown files: Toggle between Raw and Preview */}
+                  {activeStudioFile && activeStudioFile.endsWith(".md") && (
+                    <button
+                      onClick={() => setFileViewMode((m) => (m === "raw" ? "preview" : "raw"))}
+                      title={fileViewMode === "raw" ? "Switch to Preview" : "Switch to Raw Editor"}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border border-border/60 hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                    >
+                      {fileViewMode === "raw" ? (
+                        <>
+                          <Eye className="h-3 w-3 text-[#f7931e]" />
+                          <span>Preview</span>
+                        </>
+                      ) : (
+                        <>
+                          <Code2 className="h-3 w-3 text-[#f7931e]" />
+                          <span>Raw</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  {/* For HLD, DB Schema, Sequence Diagram, REST API files: Toggle between Raw and Design */}
+                  {activeStudioFile && ["high_level_design.json", "sequence_diagram.mmd", "db_schema.dbml", "rest_api.json"].includes(activeStudioFile) && (
+                    <button
+                      onClick={() => {
+                        if (activeStudioFile === "high_level_design.json") setTab("hld");
+                        else if (activeStudioFile === "sequence_diagram.mmd") setTab("sequence");
+                        else if (activeStudioFile === "db_schema.dbml") setTab("schema");
+                        else if (activeStudioFile === "rest_api.json") setTab("api");
+                        setActiveStudioFile(null);
+                      }}
+                      title="Switch to Visual Design mode"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border border-[#f7931e]/40 bg-[#f7931e]/10 hover:bg-[#f7931e]/20 text-[#f7931e] cursor-pointer transition-colors"
+                    >
+                      <Boxes className="h-3 w-3 text-[#f7931e]" />
+                      <span>Design Mode</span>
+                    </button>
+                  )}
+
+                  {/* When viewing visual design mode: Allow switching to Raw code mode */}
+                  {!activeStudioFile && (
+                    <button
+                      onClick={() => {
+                        handleOpenStudioFile(activeDesignFile);
+                      }}
+                      title="Switch to Raw file editor"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border border-border/60 hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                    >
+                      <Code2 className="h-3 w-3 text-[#f7931e]" />
+                      <span>Raw Mode</span>
+                    </button>
+                  )}
+
+                  {activeStudioFile && (
+                    <button
+                      onClick={() => handleCloseStudioTab(activeStudioFile)}
+                      title="Close file viewer"
+                      className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="min-h-0 flex-1 relative flex flex-col">
+              {activeStudioFile ? (
+                /* Raw text/code file editor/viewer for arbitrary files without rendering system design UI */
+                <div className="flex flex-col h-full bg-card min-h-0 overflow-hidden">
+                  <div className="flex-1 min-h-0 overflow-auto">
+                    {activeStudioFile.endsWith(".md") && fileViewMode === "preview" ? (
+                      <div className="p-6 prose prose-sm dark:prose-invert max-w-none leading-relaxed overflow-auto h-full">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {designFiles[activeStudioFile] ?? "(Empty markdown file)"}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <textarea
+                        value={designFiles[activeStudioFile] ?? ""}
+                        onChange={(e) => handleSaveStudioFileContent(activeStudioFile, e.target.value)}
+                        spellCheck={false}
+                        className="h-full w-full resize-none bg-background p-4 font-mono text-[13px] leading-relaxed text-foreground outline-none border-none"
+                        placeholder="Empty file..."
+                      />
+                    )}
+                  </div>
+
+                  
+                </div>
+              ) : (
+                /* Visual Studio tabs */
+                <>
+                  {tab === "hld" && (
+                    <HldEditor
+                      nodes={nodes}
+                      edges={edges}
+                      setNodes={setNodes}
+                      setEdges={setEdges}
+                      sel={selectedElement}
+                      setSel={setSelectedElement}
+                      onClearBoard={() => setShowClearBoardDialog(true)}
+                      onOpenExamples={() => setShowEx(true)}
+                    />
+                  )}
+                  {tab === "sequence" && (
+                    <SplitEditor
+                      value={seq}
+                      onChange={setSeq}
+                      hint="Mermaid sequenceDiagram — live preview"
+                      preview={seq.trim() ? <MermaidView code={seq} /> : empty("a sequenceDiagram")}
+                      onOpenExamples={() => setShowEx(true)}
+                    />
+                  )}
+                  {tab === "schema" && (
+                    <SplitEditor
+                      value={schema}
+                      onChange={setSchema}
+                      hint="dbdiagram.io-style DBML: Table name { col type [pk, unique, ref: > other.id] }"
+                      preview={schema.trim() ? <ErdBoard src={schema} /> : empty("tables in DBML")}
+                      onOpenExamples={() => setShowEx(true)}
+                    />
+                  )}
+                  {tab === "api" && (
+                    <ApiDesigner
+                      key={apis.map((a) => a.id).join() ? "has" : "none"}
+                      apis={apis}
+                      setApis={setApis}
+                      onOpenExamples={() => setShowEx(true)}
+                    />
+                  )}
+                </>
               )}
             </div>
-            <NotesPanel key={tab} value={notes[tab] ?? ""} onChange={setNote} title={TABS.find(t => t.id === tab)!.label} />
           </div>
         </div>
       </div>
+
+      {/* Bottom Collapsible Solution & AI Mentor Plan Panel (covers entire left area including activity bar & sidebar) */}
+      <SystemDesignBottomPanel
+        isOpen={isBottomPanelOpen}
+        onToggle={() => setIsBottomPanelOpen((v) => !v)}
+        activeTab={tab}
+        notes={notes}
+        onNotesChange={(noteTab, val) => setNotes((prev) => ({ ...prev, [noteTab]: val }))}
+        planContent={sessionPlanFiles[activeSelectedPlanPath] || planContent}
+        onPlanContentChange={(newC) => {
+          setPlanContent(newC);
+          setSessionPlanFiles((prev) => ({ ...prev, [activeSelectedPlanPath]: newC }));
+        }}
+        onStartPlanTask={handleStartPlanTask}
+        taskStatuses={taskStatuses}
+        onTogglePlanCheckbox={handleTogglePlanCheckbox}
+        onRequestGeneratePlan={handleRequestGeneratePlan}
+        planFiles={sessionPlanFiles}
+        activePlanFile={activeSelectedPlanPath}
+        onSelectPlanFile={(path) => {
+          setActiveSelectedPlanPath(path);
+          if (sessionPlanFiles[path]) setPlanContent(sessionPlanFiles[path]);
+          if (path.includes("hld")) setTab("hld");
+          else if (path.includes("sequence")) setTab("sequence");
+          else if (path.includes("schema")) setTab("schema");
+          else if (path.includes("api")) setTab("api");
+        }}
+      />
+    </div>
+
+        {/* AI Mentor side panel */}
+        {isAiMentorAllowed && showAiMentor && (
+          <>
+            <div
+              role="separator"
+              onMouseDown={startMentorResize}
+              className="w-[2px] cursor-col-resize bg-border/60 hover:bg-[#f7931e] transition-colors shrink-0"
+              title="Drag to resize AI Mentor"
+            />
+            <aside
+              className="flex flex-col bg-card border-l border-border/40 min-w-0 min-h-0 overflow-hidden"
+              style={{ flex: `0 0 ${mentorWidth}px` }}
+            >
+              <div className="flex-1 overflow-hidden p-0 min-w-0 min-h-0 flex flex-col">
+                <AIMentor
+                  chatTitle={`${taskTitle} - System Design`}
+                  persistenceKey={`sds-${slug}-${ticketId ?? "standalone"}`}
+                  planFolder={planFolderForTab}
+                  activeFile={activeDesignFile}
+                  tasks={Array.isArray(ticketData?.tasks) ? ticketData.tasks : []}
+                  contextGetter={() => {
+                    return `System Design Lab Ticket: ${taskTitle}\nSubject: ${subject}\nDescription: ${taskDescription || ""}\n\nActive Tab: ${tab.toUpperCase()} (${activeDesignFile})\n\nCurrent Architecture & Files:\n- HLD Nodes: ${nodes.length}, Edges: ${edges.length}\n- Sequence Diagram:\n\`\`\`mermaid\n${seq}\n\`\`\`\n\n- DBML Database Schema:\n\`\`\`dbml\n${schema}\n\`\`\`\n\n- REST APIs:\n${JSON.stringify(apis, null, 2)}\n\n- Notes:\n${JSON.stringify(notes, null, 2)}\n\n- Implementation Plan:\n${planContent}`.trim();
+                  }}
+                  evalResult={
+                    (evaluation as any)?.breakdown
+                      ? Object.fromEntries(
+                          (evaluation as any).breakdown.map((b: any) => [
+                            b.title,
+                            { passed: b.score >= b.maxScore, reason: b.feedback },
+                          ])
+                        )
+                      : undefined
+                  }
+                  files={designFiles}
+                  onApplyCode={handleApplyMentorCode}
+                  onApplyFiles={handleApplyMentorFiles}
+                  onSaveFile={handleSaveFile}
+                  taskStatuses={taskStatuses as any}
+                  onTaskStatusesChange={setTaskStatuses as any}
+                  pendingTaskExecution={pendingTaskExecution}
+                  requestedMode={requestedMentorMode}
+                  onOpenBottomPanel={() => setIsBottomPanelOpen(true)}
+                  onOpenFile={(filePath) => {
+                    if (filePath.includes("architecture") || filePath.includes("hld")) setTab("hld");
+                    else if (filePath.includes("sequence") || filePath.endsWith(".mmd")) setTab("sequence");
+                    else if (filePath.includes("schema") || filePath.endsWith(".dbml")) setTab("schema");
+                    else if (filePath.includes("api")) setTab("api");
+                  }}
+                  onClose={() => setShowAiMentor(false)}
+                />
+              </div>
+            </aside>
+          </>
+        )}
+      </div>
+
+      {/* Status Bar like Vitarka IDE */}
+      <div className="flex items-center gap-3.5 border-t bg-card px-3 py-1 text-[11px] text-muted-foreground select-none shrink-0">
+        <div className="flex items-center gap-3 font-mono text-[11px] select-none text-foreground">
+          <span className="font-medium text-[#f7931e] truncate max-w-[280px] inline-flex items-center gap-1.5" title={activeStudioFile || activeDesignFile}>
+            <FileCode2 className="h-3.5 w-3.5 text-[#f7931e]" />
+            {activeStudioFile || activeDesignFile}
+          </span>
+          <span className="text-muted-foreground border-l border-border/60 pl-3">
+            {tabLabel(tab)}
+          </span>
+          <span className="text-muted-foreground border-l border-border/60 pl-3">
+            {nodes.length} {nodes.length === 1 ? "component" : "components"}
+          </span>
+          <span className="text-muted-foreground">
+            {edges.length} {edges.length === 1 ? "connection" : "connections"}
+          </span>
+          <span className="text-muted-foreground border-l border-border/60 pl-3">
+            {apis.length} {apis.length === 1 ? "API endpoint" : "API endpoints"}
+          </span>
+          <span className="inline-flex items-center gap-1 text-muted-foreground border-l border-border/60 pl-3">
+            <GitBranch className="h-3 w-3 text-muted-foreground" /> main
+          </span>
+        </div>
+
+        {/* Right side: AI Credits positioned safely away from the floating Feedback button */}
+        <div className="ml-auto flex items-center pr-28 select-none text-[11px]">
+          <WalletBalanceBadge variant="minimal" className="!text-[11px] !text-[#f7931e] font-mono cursor-pointer" />
+        </div>
+      </div>
+
+      {/* Clear Architecture Board Dialog */}
+      <AlertDialog open={showClearBoardDialog} onOpenChange={setShowClearBoardDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Clear Architecture Canvas?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
+              This will remove all components and connections from the architecture board. Your Sequence diagrams, DBML schema, REST APIs, and Notes will not be affected.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setNodes(() => []);
+                setEdges(() => []);
+                setSelectedElement(null);
+                setShowClearBoardDialog(false);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Clear Board
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {showEx && <ExamplesDialog tab={tab} scenario={scenarioExample(slug)} subject={subject} onClose={() => setShowEx(false)}
         onUseTab={useTab} onLoadAll={d => { apply(d); setShowEx(false); }} />}
@@ -2352,28 +3198,23 @@ export function SystemDesignStudio({
               <div className="grid grid-cols-2 gap-1.5 font-mono text-[11px]">
                 <div className="flex items-center gap-1.5 text-foreground">
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
-                  <span className="truncate">architecture.json</span>
+                  <span className="truncate">high_level_design.json</span>
                   <span className="text-muted-foreground text-[10px]">(HLD)</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-foreground">
                   <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
-                  <span className="truncate">sequence.mmd</span>
+                  <span className="truncate">sequence_diagram.mmd</span>
                   <span className="text-muted-foreground text-[10px]">(Flow)</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-foreground">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
-                  <span className="truncate">schema.dbml</span>
+                  <span className="truncate">db_schema.dbml</span>
                   <span className="text-muted-foreground text-[10px]">(DBML)</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-foreground">
                   <span className="h-1.5 w-1.5 rounded-full bg-purple-500 shrink-0" />
-                  <span className="truncate">endpoints.json</span>
+                  <span className="truncate">rest_api.json</span>
                   <span className="text-muted-foreground text-[10px]">(REST)</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-foreground">
-                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 shrink-0" />
-                  <span className="truncate">system-design.json</span>
-                  <span className="text-muted-foreground text-[10px]">(All)</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-foreground">
                   <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />

@@ -15,6 +15,8 @@ import YuvroLogo from "@/assets/YuvroLogo.png";
 
 const primaryLinks = [
   { to: "/student/dashboard", label: "Simulation Labs" },
+  { to: "/vitarka-ide", label: "Vitarka IDE" },
+  { to: "/system-design-studio", label: "System Design Studio" },
   { to: "/mock-interviews", label: "Mock Interviews" },
   { to: "/research", label: "AI Research Papers" },
 ];
@@ -85,6 +87,16 @@ export function TopNav({
         activePath.startsWith("/student/lab")
       );
     }
+    if (to === "/vitarka-ide") {
+      return (
+        activePath.startsWith("/vitarka-ide") ||
+        activePath.startsWith("/student/vitarka-ide") ||
+        activePath.startsWith("/admin/vitarka-ide")
+      );
+    }
+    if (to === "/system-design-studio") {
+      return activePath.startsWith("/system-design-studio");
+    }
     if (to === "/mock-interviews") {
       return activePath.startsWith("/mock-interviews") || activePath.startsWith("/mock-interview");
     }
@@ -115,9 +127,13 @@ export function TopNav({
             const action =
               l.to === "/student/dashboard"
                 ? "nav_simulation_labs"
-                : l.to === "/mock-interviews"
-                  ? "nav_mock_interviews"
-                  : "nav_research";
+                : l.to === "/vitarka-ide"
+                  ? "nav_vitarka_ide"
+                  : l.to === "/system-design-studio"
+                    ? "nav_system_design_studio"
+                    : l.to === "/mock-interviews"
+                      ? "nav_mock_interviews"
+                      : "nav_research";
             return (
               <Link
                 key={l.to}

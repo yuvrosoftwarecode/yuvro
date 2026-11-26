@@ -15,9 +15,19 @@ import {
   Sparkles,
   CalendarDays,
   Gift,
+  Code2,
+  Layers,
+  LayoutDashboard,
+  Bot,
 } from "lucide-react";
 
 const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[] = [
+  {
+    group: "Overview",
+    items: [
+      { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    ],
+  },
   {
     group: "People",
     items: [
@@ -27,12 +37,25 @@ const NAV: { group: string; items: { to: string; label: string; icon: any }[] }[
     ],
   },
   {
-    group: "Content",
+    group: "Developer",
     items: [
       { to: "/admin/labs", label: "Labs", icon: FlaskConical },
+      { to: "/admin/mock-interviews", label: "Mock Interviews", icon: Bot },
       { to: "/admin/weekly-tasks", label: "Recurring Tasks", icon: CalendarDays },
-      { to: "/admin/questions", label: "Question Bank", icon: Database },
       { to: "/admin/research", label: "AI Research Papers", icon: Sparkles },
+    ],
+  },
+  {
+    group: "Recruiter",
+    items: [
+      { to: "/admin/questions", label: "Question Bank", icon: Database },
+    ],
+  },
+  {
+    group: "Developer Tools",
+    items: [
+      { to: "/admin/vitarka-ide", label: "Vitarka IDE", icon: Code2 },
+      { to: "/system-design-studio", label: "System Design Studio", icon: Layers },
     ],
   },
 ];
@@ -41,11 +64,15 @@ export function AdminShell({
   title,
   breadcrumb,
   right,
+  fullBleed = false,
+  hideHeader = false,
   children,
 }: {
   title: string;
   breadcrumb?: string[];
   right?: ReactNode;
+  fullBleed?: boolean;
+  hideHeader?: boolean;
   children: ReactNode;
 }) {
   const { user, logout } = useAuth();
@@ -94,30 +121,30 @@ export function AdminShell({
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-background text-foreground flex">
+    <div className="recruiter-theme h-screen overflow-hidden bg-white text-neutral-900 flex">
       {/* Mobile backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-xs md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       <aside
         className={`${
-          mobileOpen ? "fixed inset-y-0 left-0 z-50 flex w-60 shadow-2xl bg-card" : "hidden"
-        } md:flex md:static shrink-0 flex-col h-full border-r border-border bg-card/95 md:bg-card/30 backdrop-blur transition-[width] duration-200 ${
+          mobileOpen ? "fixed inset-y-0 left-0 z-50 flex w-60 shadow-2xl bg-white" : "hidden"
+        } md:flex md:static shrink-0 flex-col h-full border-r border-[#e5e5e5] bg-white transition-[width] duration-200 ${
           collapsed ? "md:w-14" : "md:w-60"
         }`}
       >
-        <div className="h-14 shrink-0 flex items-center gap-2 px-3 border-b border-border">
-          <div className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-gradient-to-br from-primary to-ui text-primary-foreground font-mono text-xs">
-            Y
+        <div className="h-14 shrink-0 flex items-center gap-2.5 px-3 border-b border-[#e5e5e5]">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-md">
+            <img src="/logo.png" alt="Yuvro" className="h-full w-full object-contain" />
           </div>
           {(!collapsed || mobileOpen) && (
             <div className="min-w-0">
-              <div className="text-sm font-semibold leading-tight truncate">Yuvro Labs</div>
-              <div className="text-[10px] text-muted-foreground truncate">Operations Console</div>
+              <div className="text-sm font-semibold leading-tight truncate text-neutral-900">Yuvro Admin</div>
+              <div className="text-[10px] text-neutral-500 truncate">Operations Console</div>
             </div>
           )}
           <button
@@ -129,7 +156,7 @@ export function AdminShell({
               }
             }}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="ml-auto grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="ml-auto grid h-7 w-7 place-items-center rounded-md text-neutral-400 hover:bg-neutral-100 hover:text-neutral-800 transition-colors"
           >
             {collapsed && !mobileOpen ? (
               <PanelLeftOpen className="h-4 w-4" />
@@ -142,7 +169,7 @@ export function AdminShell({
           {NAV.map((g) => (
             <div key={g.group}>
               {(!collapsed || mobileOpen) && (
-                <div className="px-2 mb-1 text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold">
+                <div className="px-2 mb-1 text-[10px] uppercase tracking-wider text-neutral-400 font-semibold">
                   {g.group}
                 </div>
               )}
@@ -158,9 +185,15 @@ export function AdminShell({
                       data-analytics-action={`admin_nav_${n.label.toLowerCase().replace(/\s+/g, "_")}`}
                       data-analytics-component="navigation"
                       data-analytics-category="admin"
-                      className={`w-full flex items-center gap-2.5 rounded-md ${collapsed && !mobileOpen ? "justify-center px-0 py-2" : "px-3 py-1.5"} transition ${active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      className={`w-full flex items-center gap-2.5 rounded-lg transition-colors ${
+                        collapsed && !mobileOpen ? "justify-center px-0 py-2" : "px-3 py-2 text-[14px]"
+                      } ${
+                        active
+                          ? "bg-[#ffebd1] text-[#171717] font-medium"
+                          : "text-neutral-600 hover:bg-[#fffbf6] hover:text-neutral-900"
+                      }`}
                     >
-                      <n.icon className="h-4 w-4 shrink-0" />{" "}
+                      <n.icon className={`h-4 w-4 shrink-0 ${active ? "text-[#f7931e]" : "text-neutral-500"}`} />
                       {(!collapsed || mobileOpen) && n.label}
                     </Link>
                   );
@@ -169,7 +202,7 @@ export function AdminShell({
             </div>
           ))}
         </nav>
-        <div className="p-2 border-t border-border shrink-0">
+        <div className="p-2 border-t border-[#e5e5e5] shrink-0">
           <button
             onClick={() => {
               logout();
@@ -179,7 +212,9 @@ export function AdminShell({
             data-analytics-component="button"
             data-analytics-category="admin"
             title="Sign out"
-            className={`w-full flex items-center gap-2.5 rounded-md ${collapsed && !mobileOpen ? "justify-center px-0 py-2" : "px-3 py-2"} text-sm text-muted-foreground hover:bg-accent hover:text-foreground`}
+            className={`w-full flex items-center gap-2.5 rounded-md ${
+              collapsed && !mobileOpen ? "justify-center px-0 py-2" : "px-3 py-2"
+            } text-sm text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 transition-colors`}
           >
             <LogOut className="h-4 w-4 shrink-0" /> {(!collapsed || mobileOpen) && "Sign out"}
           </button>
@@ -187,91 +222,30 @@ export function AdminShell({
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
-        <header className="h-14 shrink-0 border-b border-border bg-background/60 backdrop-blur z-30 flex items-center gap-4 px-6">
-          <button
-            onClick={() => setMobileOpen((o) => !o)}
-            className="md:hidden grid h-8 w-8 place-items-center rounded-md border text-muted-foreground hover:bg-accent"
-            title="Toggle sidebar"
-          >
-            {mobileOpen ? (
-              <PanelLeftClose className="h-4 w-4" />
-            ) : (
-              <PanelLeftOpen className="h-4 w-4" />
-            )}
-          </button>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <button
-              onClick={() => nav({ to: "/admin" as any })}
-              className="hover:text-foreground hover:underline transition-colors cursor-pointer"
-            >
-              Admin
-            </button>
-            {(breadcrumb ?? [title]).map((b, i) => {
-              const to = getBreadcrumbLink(b);
-              const isLast = i === (breadcrumb ?? [title]).length - 1;
-              return (
-                <span key={i} className="flex items-center gap-1.5">
-                  <ChevronRight className="h-3 w-3" />
-                  {to ? (
-                    <button
-                      onClick={() => nav({ to: to as any })}
-                      className={`hover:text-foreground transition-colors cursor-pointer ${isLast ? "text-foreground font-medium" : "hover:underline"}`}
-                    >
-                      {b}
-                    </button>
-                  ) : (
-                    <span
-                      className={isLast ? "text-foreground font-medium" : "hover:text-foreground"}
-                    >
-                      {b}
-                    </span>
-                  )}
-                </span>
-              );
-            })}
-          </div>
-          <div className="ml-auto flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 rounded-md border border-border bg-card/40 px-3 py-1.5 text-xs text-muted-foreground w-80">
-              <Search className="h-3.5 w-3.5" />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search users, labs, tickets, sprints…"
-                className="bg-transparent outline-none flex-1 text-foreground placeholder:text-muted-foreground"
-              />
-              <kbd className="text-[9px] border border-border px-1 rounded">⌘K</kbd>
-            </div>
-            <button
-              className="relative grid h-8 w-8 place-items-center rounded-md border hover:bg-accent text-muted-foreground"
-              title="AI insights"
-            >
-              <Sparkles className="h-4 w-4" />
-            </button>
-            <div className="flex items-center gap-2 text-sm">
-              <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-ui text-primary-foreground text-xs font-semibold">
-                {((user as any)?.name?.[0] || (user as any)?.first_name?.[0] || user?.username?.[0] || "A").toUpperCase()}
-              </div>
-              <div className="hidden sm:block">
-                <div className="text-xs font-medium leading-tight">
-                  {(user as any)?.name || (user as any)?.first_name || user?.username || "Admin"}
-                </div>
-                <div className="text-[10px] text-muted-foreground">Platform Admin</div>
-              </div>
-            </div>
-          </div>
-        </header>
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-[#FAFAF8] relative">
+        {/* Mobile menu trigger */}
+        <button
+          onClick={() => setMobileOpen((o) => !o)}
+          className="md:hidden fixed top-3 left-3 z-40 grid h-8 w-8 place-items-center rounded-md border border-[#e5e5e5] bg-white text-neutral-600 shadow-sm"
+          title="Toggle menu"
+        >
+          {mobileOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+        </button>
 
-        <main className="flex-1 overflow-y-auto min-h-0">
-          <div className="p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
-            <div className="flex items-end justify-between mb-6 gap-4 flex-wrap">
-              <div>
-                <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <main className={`flex-1 min-h-0 ${fullBleed ? "overflow-hidden flex flex-col" : "overflow-y-auto"}`}>
+          {fullBleed ? (
+            children
+          ) : (
+            <div className="p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
+              <div className="flex items-end justify-between mb-6 gap-4 flex-wrap">
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">{title}</h1>
+                </div>
+                {right}
               </div>
-              {right}
+              {children}
             </div>
-            {children}
-          </div>
+          )}
         </main>
       </div>
     </div>
@@ -297,14 +271,14 @@ export function KpiCard({
   icon?: any;
 }) {
   return (
-    <div className="rounded-xl border border-border/60 bg-card/40 backdrop-blur p-4">
+    <div className="rounded-xl border border-[#e5e5e5] bg-white p-4 shadow-xs">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] text-muted-foreground">{label}</span>
-        {Icon && <Icon className="h-4 w-4" style={{ color: `var(--${color})` }} />}
+        <span className="text-[12px] text-neutral-500">{label}</span>
+        {Icon && <Icon className="h-4 w-4 text-[#f7931e]" />}
       </div>
-      <div className="mt-2 text-xl font-semibold">{value}</div>
+      <div className="mt-2 text-xl font-semibold text-neutral-900">{value}</div>
       {delta && (
-        <div className="mt-0.5 text-[10px]" style={{ color: `var(--${color})` }}>
+        <div className="mt-0.5 text-[11px] text-[#f7931e] font-medium">
           {delta}
         </div>
       )}
@@ -322,9 +296,9 @@ export function Panel({
   action?: ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-border/60 bg-card/40 backdrop-blur p-5">
+    <div className="rounded-xl border border-[#e5e5e5] bg-white p-5 shadow-xs">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-sm">{title}</h3>
+        <h3 className="font-semibold text-sm text-neutral-900">{title}</h3>
         {action}
       </div>
       {children}
@@ -340,16 +314,16 @@ export function Badge({
   tone?: "muted" | "success" | "warning" | "destructive" | "primary" | "ui";
 }) {
   const map: Record<string, string> = {
-    muted: "bg-muted/40 text-muted-foreground",
-    success: "bg-success/15 text-success",
-    warning: "bg-warning/15 text-warning",
-    destructive: "bg-destructive/15 text-destructive",
-    primary: "bg-primary/15 text-primary",
-    ui: "bg-ui/15 text-ui",
+    muted: "bg-neutral-100 text-neutral-600",
+    success: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    warning: "bg-amber-50 text-amber-700 border border-amber-200",
+    destructive: "bg-rose-50 text-rose-700 border border-rose-200",
+    primary: "bg-[#ffebd1] text-[#171717] font-medium",
+    ui: "bg-blue-50 text-blue-700 border border-blue-200",
   };
   return (
     <span
-      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${map[tone]}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${map[tone]}`}
     >
       {children}
     </span>

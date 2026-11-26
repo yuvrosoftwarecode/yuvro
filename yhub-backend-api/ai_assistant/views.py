@@ -305,20 +305,20 @@ Rules:
                         stream=True,
                     )
                 except Exception as primary_err:
-                    if active_agent and active_agent.provider != "gemini":
+                    if active_agent and active_agent.provider != "deepseek":
                         logger.warning(
-                            f"Primary AI agent ({active_agent.provider}/{active_agent.model_name}) failed: {primary_err}. Attempting fallback to Gemini."
+                            f"Primary AI agent ({active_agent.provider}/{active_agent.model_name}) failed: {primary_err}. Attempting fallback to DeepSeek."
                         )
                         fallback_metadata = {
                             "fallback_from": f"{active_agent.provider}/{active_agent.model_name}"
                         }
-                        gemini_agent = await sync_to_async(
-                            lambda: AIAgent.objects.filter(provider="gemini", is_active=True).first()
+                        fallback_agent = await sync_to_async(
+                            lambda: AIAgent.objects.filter(provider="deepseek", is_active=True).first()
                         )()
-                        if gemini_agent:
-                            active_agent = gemini_agent
+                        if fallback_agent:
+                            active_agent = fallback_agent
                             ai_service = AIServiceFactory.create_service(
-                                gemini_agent.provider, gemini_agent.model_name
+                                fallback_agent.provider, fallback_agent.model_name
                             )
                             response_data = await ai_service.generate_response(
                                 messages=prepared_messages,
@@ -335,6 +335,9 @@ Rules:
 
                 if "stream" in response_data:
                     stream = response_data["stream"]
+                    buffer_chunk = ""
+                    is_first_chunk = True
+
                     async for chunk in stream:
                         text = None
                         # Gemini
@@ -347,11 +350,37 @@ Rules:
                         elif hasattr(chunk, 'type'):
                             if chunk.type == 'content_block_delta':
                                 text = chunk.delta.text
+                        # OpenAI / DeepSeek
+                        elif hasattr(chunk, 'choices') and chunk.choices:
+                            delta = getattr(chunk.choices[0], 'delta', None)
+                            if delta and hasattr(delta, 'content') and delta.content:
+                                text = delta.content
+
+                        if hasattr(chunk, 'usage') and chunk.usage:
+                            tokens_used = chunk.usage.total_tokens
 
                         if text:
                             full_response_text += text
-                            data = json.dumps({"chunk": text})
-                            yield f"data: {data}\n\n"
+                            buffer_chunk += text
+
+                            # Send optimized larger chunks (~50-90 chars) while preserving minimal TTFT for first chunk
+                            should_flush = (
+                                is_first_chunk
+                                or "\n" in buffer_chunk
+                                or (len(buffer_chunk) >= 50 and (buffer_chunk.endswith(" ") or buffer_chunk.endswith(",") or buffer_chunk.endswith(".")))
+                                or len(buffer_chunk) >= 90
+                            )
+                            if should_flush:
+                                is_first_chunk = False
+                                data = json.dumps({"chunk": buffer_chunk})
+                                yield f"data: {data}\n\n"
+                                buffer_chunk = ""
+
+                    # Flush any remaining text in buffer before closing stream
+                    if buffer_chunk:
+                        data = json.dumps({"chunk": buffer_chunk})
+                        yield f"data: {data}\n\n"
+                        buffer_chunk = ""
 
                     # Final usage update after loop
                     if hasattr(stream, "get_final_metadata"):
@@ -370,7 +399,8 @@ Rules:
 
             except Exception as e:
                 # Send error chunk
-                error_data = json.dumps({"error": str(e)})
+                logger.error(f"Error in stream_generator: {e}", exc_info=True)
+                error_data = json.dumps({"error": str(e), "done": True})
                 yield f"data: {error_data}\n\n"
             finally:
                 final_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
@@ -465,14 +495,45 @@ class ChatSessionViewSet(ChatServiceMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedUser, IsOwnerOrReadOnly]
 
     def get_queryset(self):
-        """Return chat sessions for the current user."""
-        return ChatSession.objects.filter(user=self.request.user)
+        """Return chat sessions for the current user, optionally filtered by mode."""
+        qs = ChatSession.objects.filter(user=self.request.user)
+        mode = self.request.query_params.get("mode")
+        if mode:
+            # Match mode in context JSON field
+            qs = qs.filter(context__mode=mode)
+        return qs
 
     def get_serializer_class(self):
         """Return appropriate serializer based on action."""
         if self.action == "retrieve":
             return ChatSessionSerializer
         return ChatSessionBasicSerializer
+
+    def create(self, request, *args, **kwargs):
+        """Create a chat session, resolving ai_agent if passed as ai_agent_id or defaulting to active agent."""
+        data = request.data.copy() if hasattr(request.data, "copy") else dict(request.data)
+        if "ai_agent" not in data or not data["ai_agent"]:
+            if "ai_agent_id" in data and data["ai_agent_id"]:
+                data["ai_agent"] = data["ai_agent_id"]
+            else:
+                default_agent = AIAgent.objects.filter(is_active=True).first()
+                if default_agent:
+                    deepseek = AIAgent.objects.filter(provider="deepseek", is_active=True).first()
+                    data["ai_agent"] = deepseek.id if deepseek else default_agent.id
+
+        # Preserve mentor mode in session context
+        mode = data.get("mode") or request.query_params.get("mode")
+        if mode:
+            ctx = data.get("context") or {}
+            if isinstance(ctx, dict):
+                ctx["mode"] = mode
+                data["context"] = ctx
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         """Set the user to the current user."""
@@ -519,7 +580,20 @@ class ChatSessionViewSet(ChatServiceMixin, viewsets.ModelViewSet):
         try:
             is_trigger = message_content == "The interview is starting now. Please introduce yourself and ask the first question."
 
-            ai_agent = await sync_to_async(lambda: chat_session.ai_agent)()
+            ai_agent_id = validated_data.get("ai_agent_id")
+            if ai_agent_id:
+                requested_agent = await sync_to_async(
+                    lambda: AIAgent.objects.filter(id=ai_agent_id, is_active=True).first()
+                )()
+                if requested_agent:
+                    ai_agent = requested_agent
+                    if chat_session.ai_agent_id != requested_agent.id:
+                        chat_session.ai_agent = requested_agent
+                        await sync_to_async(chat_session.save)(update_fields=["ai_agent"])
+                else:
+                    ai_agent = await sync_to_async(lambda: chat_session.ai_agent)()
+            else:
+                ai_agent = await sync_to_async(lambda: chat_session.ai_agent)()
             session_user = await sync_to_async(lambda: chat_session.user)()
 
             user_config = await sync_to_async(
@@ -855,11 +929,14 @@ class ChatViewSet(ChatServiceMixin, viewsets.ViewSet):
                 if not ai_agent_id:
                     is_deep = any(kw in message_content.lower() for kw in ["explain", "why", "deep", "how does"]) or len(message_content) > 500
 
-                    if is_deep:
-                        ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="anthropic", is_active=True).first())()
+                    # Default to DeepSeek Chat for all quick chats (fastest + cheapest)
+                    ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="deepseek", model_name="deepseek-chat", is_active=True).first())()
 
-                    if not is_deep or not ai_agent:
-                        ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="gemini", is_active=True).first())()
+                    if not ai_agent:
+                        ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="deepseek", is_active=True).first())()
+
+                    if not ai_agent and is_deep:
+                        ai_agent = await sync_to_async(lambda: AIAgent.objects.filter(provider="anthropic", is_active=True).first())()
 
                     if not ai_agent:
                         ai_agent = await sync_to_async(AIAgent.objects.first)()

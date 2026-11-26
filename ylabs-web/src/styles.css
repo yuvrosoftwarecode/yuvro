@@ -1266,5 +1266,27 @@
   }
 }
 
+/* CodeMirror - Hide orange vertical line after line numbers in code editor */
+.cm-editor .cm-gutters,
+.cm-editor .cm-gutters-before,
+.cm-editor .cm-gutters.cm-gutters-before,
+.cm-editor .cm-gutter,
+.cm-editor .cm-lineNumbers,
+.cm-editor .cm-foldGutter,
+.cm-editor .cm-gutterElement,
+.cm-editor .cm-activeLineGutter {
+  border: none !important;
+  border-width: 0 !important;
+  border-right: none !important;
+  border-right-width: 0 !important;
+  border-right-color: transparent !important;
+  border-left: none !important;
+  border-left-width: 0 !important;
+  border-left-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+
 
 

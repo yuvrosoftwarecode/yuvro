@@ -204,7 +204,7 @@ class ChatRequestSerializer(serializers.Serializer):
         required=False, validators=[MinValueValidator(1), MaxValueValidator(100000)]
     )
     page_content = serializers.CharField(
-        max_length=20000, required=False, allow_blank=True
+        max_length=100000, required=False, allow_blank=True
     )
     stream = serializers.BooleanField(required=False, default=False)
 
