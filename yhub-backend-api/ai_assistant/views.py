@@ -399,7 +399,8 @@ Rules:
 
             except Exception as e:
                 # Send error chunk
-                error_data = json.dumps({"error": str(e)})
+                logger.error(f"Error in stream_generator: {e}", exc_info=True)
+                error_data = json.dumps({"error": str(e), "done": True})
                 yield f"data: {error_data}\n\n"
             finally:
                 final_user = user or (await sync_to_async(lambda: chat_session.user)() if chat_session else None)
@@ -517,7 +518,8 @@ class ChatSessionViewSet(ChatServiceMixin, viewsets.ModelViewSet):
             else:
                 default_agent = AIAgent.objects.filter(is_active=True).first()
                 if default_agent:
-                    data["ai_agent"] = default_agent.id
+                    deepseek = AIAgent.objects.filter(provider="deepseek", is_active=True).first()
+                    data["ai_agent"] = deepseek.id if deepseek else default_agent.id
 
         # Preserve mentor mode in session context
         mode = data.get("mode") or request.query_params.get("mode")

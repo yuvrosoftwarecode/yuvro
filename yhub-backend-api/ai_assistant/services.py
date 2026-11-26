@@ -352,21 +352,66 @@ class GeminiService(BaseAIService):
 
             from google.genai import types
             
-            # Use new SDK to generate content
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents=conversation_text,
-                config=types.GenerateContentConfig(
-                    temperature=temperature,
-                    max_output_tokens=max_tokens,
-                ),
-            )
-            
             if stream:
+                models_to_try = [self.model_name]
+                for fallback_candidate in ["gemini-3.5-flash", "gemini-3.5-flash-lite"]:
+                    if fallback_candidate not in models_to_try:
+                        models_to_try.append(fallback_candidate)
+
+                async def robust_stream_generator():
+                    for idx, m in enumerate(models_to_try):
+                        try:
+                            stream_resp = await self.client.aio.models.generate_content_stream(
+                                model=m,
+                                contents=conversation_text,
+                                config=types.GenerateContentConfig(
+                                    temperature=temperature,
+                                    max_output_tokens=max_tokens,
+                                ),
+                            )
+                            first_chunk = True
+                            async for chunk in stream_resp:
+                                first_chunk = False
+                                yield chunk
+                            return
+                        except Exception as e:
+                            err_str = str(e).lower()
+                            if first_chunk and ("503" in err_str or "unavailable" in err_str or "high demand" in err_str or "404" in err_str or "not found" in err_str) and idx < len(models_to_try) - 1:
+                                logger.warning(f"Gemini model {m} unavailable ({e}). Falling back to {models_to_try[idx + 1]}.")
+                                continue
+                            raise e
+
                 return {
-                    "stream": response,
+                    "stream": robust_stream_generator(),
                     "metadata": {"model": self.model_name},
                 }
+
+            # Use new SDK to generate content
+            models_to_try = [self.model_name]
+            for fallback_candidate in ["gemini-3.5-flash", "gemini-3.5-flash-lite"]:
+                if fallback_candidate not in models_to_try:
+                    models_to_try.append(fallback_candidate)
+
+            response = None
+            used_model = self.model_name
+            for idx, m in enumerate(models_to_try):
+                try:
+                    response = await self.client.aio.models.generate_content(
+                        model=m,
+                        contents=conversation_text,
+                        config=types.GenerateContentConfig(
+                            temperature=temperature,
+                            max_output_tokens=max_tokens,
+                        ),
+                    )
+                    used_model = m
+                    break
+                except Exception as gen_err:
+                    err_str = str(gen_err).lower()
+                    if ("503" in err_str or "unavailable" in err_str or "high demand" in err_str or "404" in err_str or "not found" in err_str) and idx < len(models_to_try) - 1:
+                        logger.warning(f"Gemini {m} failed ({gen_err}). Trying fallback model {models_to_try[idx + 1]}.")
+                        continue
+                    raise gen_err
 
             end_time = time.time()
             response_time_ms = int((end_time - start_time) * 1000)

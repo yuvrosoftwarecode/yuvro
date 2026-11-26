@@ -15,13 +15,13 @@ export function parseSolutionPatch(patchStr: string | any) {
             if (parsed && (parsed.nodes || parsed.seq || parsed.schema || parsed.apis)) {
                 const sysFiles: Record<string, string> = {};
                 if (parsed.nodes || parsed.edges) {
-                    sysFiles["architecture.json"] = JSON.stringify({ nodes: parsed.nodes || [], edges: parsed.edges || [] }, null, 2);
+                    sysFiles["high_level_design.json"] = JSON.stringify({ nodes: parsed.nodes || [], edges: parsed.edges || [] }, null, 2);
                 }
                 if (parsed.seq) {
-                    sysFiles["sequence.mmd"] = String(parsed.seq);
+                    sysFiles["sequence_diagram.mmd"] = String(parsed.seq);
                 }
                 if (parsed.schema) {
-                    sysFiles["schema.dbml"] = String(parsed.schema);
+                    sysFiles["db_schema.dbml"] = String(parsed.schema);
                 }
                 if (parsed.apis) {
                     sysFiles["endpoints.json"] = JSON.stringify(parsed.apis, null, 2);
