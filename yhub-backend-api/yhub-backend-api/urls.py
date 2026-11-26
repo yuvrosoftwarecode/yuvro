@@ -34,6 +34,7 @@ urlpatterns = [
     path("api/", include("mockinterviews.urls")),
     path("api/payment/", include("payment.urls")),
     path("api/credits/", include("ai_credits.urls")),
+    path("api/referrals/", include("referrals.urls")),
     path("api/health/", health_check, name="health_check"),
     path("accounts/", include("allauth.urls")),
 ]

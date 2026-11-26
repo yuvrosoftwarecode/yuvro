@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { User, Sun, Moon, LogOut, X } from "lucide-react";
+import { User, Sun, Moon, LogOut, X, Share2 } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/lib/auth";
 import { useEffect, useRef, useState } from "react";
@@ -322,6 +322,15 @@ function ProfileMenu({
               <div className="text-[11px] text-muted-foreground truncate">{userEmail}</div>
             )}
           </div>
+          <Link
+            to="/student/referrals"
+            data-analytics-action="nav_referrals"
+            data-analytics-component="navigation"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/60"
+          >
+            <Share2 className="h-3.5 w-3.5" /> Referral
+          </Link>
           <Link
             to={username ? `/u/${username}` : "/student/profile"}
             data-analytics-action="nav_profile"

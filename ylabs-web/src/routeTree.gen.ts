@@ -17,6 +17,7 @@ import { Route as VitarkaAiRouteImport } from './routes/vitarka-ai'
 import { Route as SystemDesignStudioRouteImport } from './routes/system-design-studio'
 import { Route as StudentRouteImport } from './routes/student'
 import { Route as ResearchRouteImport } from './routes/research'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as RecruiterSignupRouteImport } from './routes/recruiter-signup'
 import { Route as RecruiterLoginRouteImport } from './routes/recruiter-login'
 import { Route as RecruiterRouteImport } from './routes/recruiter'
@@ -39,6 +40,7 @@ import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as StudentWeeklyTaskRouteImport } from './routes/student.weekly-task'
 import { Route as StudentVitarkaIdeRouteImport } from './routes/student.vitarka-ide'
 import { Route as StudentResearchRouteImport } from './routes/student.research'
+import { Route as StudentReferralsRouteImport } from './routes/student.referrals'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentLeaderboardRouteImport } from './routes/student.leaderboard'
 import { Route as StudentForumRouteImport } from './routes/student.forum'
@@ -64,6 +66,7 @@ import { Route as EvaluationCompleteRouteImport } from './routes/evaluation.comp
 import { Route as AdminWeeklyTasksRouteImport } from './routes/admin.weekly-tasks'
 import { Route as AdminVitarkaIdeRouteImport } from './routes/admin.vitarka-ide'
 import { Route as AdminResearchRouteImport } from './routes/admin.research'
+import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
 import { Route as AdminRecruitersRouteImport } from './routes/admin.recruiters'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminMockInterviewsRouteImport } from './routes/admin.mock-interviews'
@@ -143,6 +146,11 @@ const StudentRoute = StudentRouteImport.update({
 const ResearchRoute = ResearchRouteImport.update({
   id: '/research',
   path: '/research',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecruiterSignupRoute = RecruiterSignupRouteImport.update({
@@ -253,6 +261,11 @@ const StudentVitarkaIdeRoute = StudentVitarkaIdeRouteImport.update({
 const StudentResearchRoute = StudentResearchRouteImport.update({
   id: '/research',
   path: '/research',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentReferralsRoute = StudentReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
   getParentRoute: () => StudentRoute,
 } as any)
 const StudentProfileRoute = StudentProfileRouteImport.update({
@@ -378,6 +391,11 @@ const AdminVitarkaIdeRoute = AdminVitarkaIdeRouteImport.update({
 const AdminResearchRoute = AdminResearchRouteImport.update({
   id: '/research',
   path: '/research',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReferralsRoute = AdminReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminRecruitersRoute = AdminRecruitersRouteImport.update({
@@ -618,6 +636,7 @@ export interface FileRoutesByFullPath {
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
+  '/register': typeof RegisterRoute
   '/research': typeof ResearchRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
@@ -630,6 +649,7 @@ export interface FileRoutesByFullPath {
   '/admin/mock-interviews': typeof AdminMockInterviewsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
+  '/admin/referrals': typeof AdminReferralsRoute
   '/admin/research': typeof AdminResearchRoute
   '/admin/vitarka-ide': typeof AdminVitarkaIdeRoute
   '/admin/weekly-tasks': typeof AdminWeeklyTasksRouteWithChildren
@@ -655,6 +675,7 @@ export interface FileRoutesByFullPath {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
+  '/student/referrals': typeof StudentReferralsRoute
   '/student/research': typeof StudentResearchRoute
   '/student/vitarka-ide': typeof StudentVitarkaIdeRoute
   '/student/weekly-task': typeof StudentWeeklyTaskRoute
@@ -712,6 +733,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
+  '/register': typeof RegisterRoute
   '/research': typeof ResearchRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
@@ -722,6 +744,7 @@ export interface FileRoutesByTo {
   '/yuvrolabs-pricing': typeof YuvrolabsPricingRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
+  '/admin/referrals': typeof AdminReferralsRoute
   '/admin/research': typeof AdminResearchRoute
   '/admin/vitarka-ide': typeof AdminVitarkaIdeRoute
   '/evaluation/complete': typeof EvaluationCompleteRoute
@@ -746,6 +769,7 @@ export interface FileRoutesByTo {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
+  '/student/referrals': typeof StudentReferralsRoute
   '/student/research': typeof StudentResearchRoute
   '/student/vitarka-ide': typeof StudentVitarkaIdeRoute
   '/student/weekly-task': typeof StudentWeeklyTaskRoute
@@ -807,6 +831,7 @@ export interface FileRoutesById {
   '/recruiter': typeof RecruiterRouteWithChildren
   '/recruiter-login': typeof RecruiterLoginRoute
   '/recruiter-signup': typeof RecruiterSignupRoute
+  '/register': typeof RegisterRoute
   '/research': typeof ResearchRoute
   '/student': typeof StudentRouteWithChildren
   '/system-design-studio': typeof SystemDesignStudioRoute
@@ -819,6 +844,7 @@ export interface FileRoutesById {
   '/admin/mock-interviews': typeof AdminMockInterviewsRouteWithChildren
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/recruiters': typeof AdminRecruitersRoute
+  '/admin/referrals': typeof AdminReferralsRoute
   '/admin/research': typeof AdminResearchRoute
   '/admin/vitarka-ide': typeof AdminVitarkaIdeRoute
   '/admin/weekly-tasks': typeof AdminWeeklyTasksRouteWithChildren
@@ -844,6 +870,7 @@ export interface FileRoutesById {
   '/student/forum': typeof StudentForumRoute
   '/student/leaderboard': typeof StudentLeaderboardRoute
   '/student/profile': typeof StudentProfileRouteWithChildren
+  '/student/referrals': typeof StudentReferralsRoute
   '/student/research': typeof StudentResearchRoute
   '/student/vitarka-ide': typeof StudentVitarkaIdeRoute
   '/student/weekly-task': typeof StudentWeeklyTaskRoute
@@ -906,6 +933,7 @@ export interface FileRouteTypes {
     | '/recruiter'
     | '/recruiter-login'
     | '/recruiter-signup'
+    | '/register'
     | '/research'
     | '/student'
     | '/system-design-studio'
@@ -918,6 +946,7 @@ export interface FileRouteTypes {
     | '/admin/mock-interviews'
     | '/admin/questions'
     | '/admin/recruiters'
+    | '/admin/referrals'
     | '/admin/research'
     | '/admin/vitarka-ide'
     | '/admin/weekly-tasks'
@@ -943,6 +972,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/student/referrals'
     | '/student/research'
     | '/student/vitarka-ide'
     | '/student/weekly-task'
@@ -1000,6 +1030,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/recruiter-login'
     | '/recruiter-signup'
+    | '/register'
     | '/research'
     | '/student'
     | '/system-design-studio'
@@ -1010,6 +1041,7 @@ export interface FileRouteTypes {
     | '/yuvrolabs-pricing'
     | '/admin/questions'
     | '/admin/recruiters'
+    | '/admin/referrals'
     | '/admin/research'
     | '/admin/vitarka-ide'
     | '/evaluation/complete'
@@ -1034,6 +1066,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/student/referrals'
     | '/student/research'
     | '/student/vitarka-ide'
     | '/student/weekly-task'
@@ -1094,6 +1127,7 @@ export interface FileRouteTypes {
     | '/recruiter'
     | '/recruiter-login'
     | '/recruiter-signup'
+    | '/register'
     | '/research'
     | '/student'
     | '/system-design-studio'
@@ -1106,6 +1140,7 @@ export interface FileRouteTypes {
     | '/admin/mock-interviews'
     | '/admin/questions'
     | '/admin/recruiters'
+    | '/admin/referrals'
     | '/admin/research'
     | '/admin/vitarka-ide'
     | '/admin/weekly-tasks'
@@ -1131,6 +1166,7 @@ export interface FileRouteTypes {
     | '/student/forum'
     | '/student/leaderboard'
     | '/student/profile'
+    | '/student/referrals'
     | '/student/research'
     | '/student/vitarka-ide'
     | '/student/weekly-task'
@@ -1192,6 +1228,7 @@ export interface RootRouteChildren {
   RecruiterRoute: typeof RecruiterRouteWithChildren
   RecruiterLoginRoute: typeof RecruiterLoginRoute
   RecruiterSignupRoute: typeof RecruiterSignupRoute
+  RegisterRoute: typeof RegisterRoute
   ResearchRoute: typeof ResearchRoute
   StudentRoute: typeof StudentRouteWithChildren
   SystemDesignStudioRoute: typeof SystemDesignStudioRoute
@@ -1266,6 +1303,13 @@ declare module '@tanstack/react-router' {
       path: '/research'
       fullPath: '/research'
       preLoaderRoute: typeof ResearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recruiter-signup': {
@@ -1420,6 +1464,13 @@ declare module '@tanstack/react-router' {
       path: '/research'
       fullPath: '/student/research'
       preLoaderRoute: typeof StudentResearchRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/referrals': {
+      id: '/student/referrals'
+      path: '/referrals'
+      fullPath: '/student/referrals'
+      preLoaderRoute: typeof StudentReferralsRouteImport
       parentRoute: typeof StudentRoute
     }
     '/student/profile': {
@@ -1595,6 +1646,13 @@ declare module '@tanstack/react-router' {
       path: '/research'
       fullPath: '/admin/research'
       preLoaderRoute: typeof AdminResearchRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/referrals': {
+      id: '/admin/referrals'
+      path: '/referrals'
+      fullPath: '/admin/referrals'
+      preLoaderRoute: typeof AdminReferralsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/recruiters': {
@@ -1973,6 +2031,7 @@ interface AdminRouteChildren {
   AdminMockInterviewsRoute: typeof AdminMockInterviewsRouteWithChildren
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminRecruitersRoute: typeof AdminRecruitersRoute
+  AdminReferralsRoute: typeof AdminReferralsRoute
   AdminResearchRoute: typeof AdminResearchRoute
   AdminVitarkaIdeRoute: typeof AdminVitarkaIdeRoute
   AdminWeeklyTasksRoute: typeof AdminWeeklyTasksRouteWithChildren
@@ -1987,6 +2046,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMockInterviewsRoute: AdminMockInterviewsRouteWithChildren,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminRecruitersRoute: AdminRecruitersRoute,
+  AdminReferralsRoute: AdminReferralsRoute,
   AdminResearchRoute: AdminResearchRoute,
   AdminVitarkaIdeRoute: AdminVitarkaIdeRoute,
   AdminWeeklyTasksRoute: AdminWeeklyTasksRouteWithChildren,
@@ -2145,6 +2205,7 @@ interface StudentRouteChildren {
   StudentForumRoute: typeof StudentForumRoute
   StudentLeaderboardRoute: typeof StudentLeaderboardRoute
   StudentProfileRoute: typeof StudentProfileRouteWithChildren
+  StudentReferralsRoute: typeof StudentReferralsRoute
   StudentResearchRoute: typeof StudentResearchRoute
   StudentVitarkaIdeRoute: typeof StudentVitarkaIdeRoute
   StudentWeeklyTaskRoute: typeof StudentWeeklyTaskRoute
@@ -2159,6 +2220,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentForumRoute: StudentForumRoute,
   StudentLeaderboardRoute: StudentLeaderboardRoute,
   StudentProfileRoute: StudentProfileRouteWithChildren,
+  StudentReferralsRoute: StudentReferralsRoute,
   StudentResearchRoute: StudentResearchRoute,
   StudentVitarkaIdeRoute: StudentVitarkaIdeRoute,
   StudentWeeklyTaskRoute: StudentWeeklyTaskRoute,
@@ -2186,6 +2248,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecruiterRoute: RecruiterRouteWithChildren,
   RecruiterLoginRoute: RecruiterLoginRoute,
   RecruiterSignupRoute: RecruiterSignupRoute,
+  RegisterRoute: RegisterRoute,
   ResearchRoute: ResearchRoute,
   StudentRoute: StudentRouteWithChildren,
   SystemDesignStudioRoute: SystemDesignStudioRoute,
