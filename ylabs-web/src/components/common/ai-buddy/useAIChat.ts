@@ -107,6 +107,14 @@ const useAIChat = (config?: {
 
     const prompts: string[] = [];
 
+    if (context.includes("configure automated yuvro scoring rules") || context.includes("role: you are helping a recruiter")) {
+      prompts.push("Create scoring rules for this task");
+      prompts.push("Add edge-case assertions");
+      prompts.push("Refine test & error messages");
+      setSuggestedPrompts(prompts);
+      return;
+    }
+
     // Only show general contextual prompts (exclude repetitive test prompt actions)
     if (context.includes("code") || context.includes("function") || context.includes("class")) {
       prompts.push("Complete this code");
@@ -119,7 +127,6 @@ const useAIChat = (config?: {
       prompts.push("Create a plan");
       prompts.push("Guide next steps");
     }
-
     setSuggestedPrompts(Array.from(new Set(prompts)).slice(0, 3));
   }, []);
 

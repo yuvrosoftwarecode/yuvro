@@ -1,9 +1,15 @@
+import difflib
 import json
 import logging
+from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional
 from ..scoring.llm_client import ScoringLLMClient
-from .prompts import SCORING_RULES_SYSTEM_PROMPT
+from .prompts import (
+    SCORING_RULES_SYSTEM_PROMPT,
+    PASS_SOLUTION_SYSTEM_PROMPT,
+    REPAIR_SCORING_RULES_SYSTEM_PROMPT,
+)
 from .task_engine import _clean_json_response
 
 logger = logging.getLogger(__name__)
@@ -111,16 +117,21 @@ module.exports = {{ evaluate }};
         django_setup = ""
         if is_django:
             django_setup = """import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "eval_project.settings")
+if not os.environ.get("DJANGO_SETTINGS_MODULE"):
+    for root, dirs, files in os.walk(os.getcwd()):
+        if "settings.py" in files and "yuvro_scoring_rules" not in root and ".venv" not in root:
+            mod = os.path.relpath(root, os.getcwd()).replace(os.path.sep, ".").strip(".")
+            os.environ["DJANGO_SETTINGS_MODULE"] = f"{mod}.settings" if mod else "settings"
+            break
 try:
     import django
     django.setup()
 except Exception:
     pass
 """
-        imports = [f"import test{i+1}" for i in range(len(tasks))]
         runs = [
             f"""    try:
+        import test{i+1}
         res{i+1} = test{i+1}.evaluate()
         results['task{i+1}'] = res{i+1}
         total_score += res{i+1}.get('score', 0)
@@ -137,7 +148,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.getcwd())
 
 {django_setup}
-{chr(10).join(imports)}
 
 def main():
     results = {{}}
@@ -153,6 +163,7 @@ def main():
     }}
 
     print(json.dumps(output, indent=2))
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
@@ -214,8 +225,9 @@ class ScoringRulesSynthesizer:
         self,
         lab_context: Dict[str, Any],
         tasks: List[Dict[str, Any]],
+        repo_files: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
-        """Synthesizes complete yuvro_scoring_rules files based on lab tech stack and tasks."""
+        """Synthesizes complete yuvro_scoring_rules files based on lab tech stack, real repo files, and tasks."""
         if not tasks:
             raise ValueError("Cannot generate scoring rules without tasks.")
 
@@ -249,6 +261,19 @@ class ScoringRulesSynthesizer:
 
         total_marks = sum(int(t.get("marks") or 10) for t in tasks)
 
+        effective_repo_files = repo_files or lab_context.get("repo_files") or {}
+        repo_context_block = ""
+        if isinstance(effective_repo_files, dict) and effective_repo_files:
+            chunks = []
+            used = 0
+            for path, content in effective_repo_files.items():
+                if used >= 12000:
+                    break
+                snippet = f"--- {path} ---\n{str(content)[:3000]}"
+                chunks.append(snippet)
+                used += len(snippet)
+            repo_context_block = "\nSTARTER REPOSITORY CODEBASE (use exact imports, module paths, and models from these files):\n" + "\n\n".join(chunks) + "\n"
+
         prompt = f"""ENGINEERING LAB DETAILS:
 Title: {lab_context.get('title', 'Challenge')}
 Overview: {lab_context.get('description', '')}
@@ -258,7 +283,7 @@ Backend Frameworks: {', '.join(frameworks) or 'Django / DRF'}
 Databases: {', '.join(lab_context.get('databases', []) or ['SQLite'])}
 Target Primary Language: {primary_lang}
 Total Max Score: {total_marks}
-
+{repo_context_block}
 TASKS TO EVALUATE:
 {tasks_text}
 
@@ -267,7 +292,9 @@ Generate the complete, executable `yuvro_scoring_rules` test harness files:
 2. One test file per task (test1, test2, etc.) each with `evaluate()` returning {{"result": "passed"|"failed", "score": N, "message": "..."}}
 3. `readme.md` documentation
 
-Ensure the test files compile cleanly, catch all errors, and output the required combined JSON on stdout."""
+CRITICAL:
+- The starter codebase currently does NOT have the tasks solved; your tests MUST FAIL on the unmodified starter codebase (total_score = 0) and PASS when the tasks are properly implemented!
+- Ensure the test files compile cleanly, catch all errors, and output ONLY the required combined JSON on stdout."""
 
         data: Dict[str, Any] = {}
         provider_used = self.provider
@@ -294,7 +321,7 @@ Ensure the test files compile cleanly, catch all errors, and output the required
                 if md_files:
                     data = {
                         "language": primary_lang,
-                        "runner_command": f"python yuvro_scoring_rules/main_test.py" if primary_lang == "python" else "node yuvro_scoring_rules/main_test.js",
+                        "runner_command": "python yuvro_scoring_rules/main_test.py" if primary_lang == "python" else "node yuvro_scoring_rules/main_test.js",
                         "files": md_files,
                     }
         except Exception as llm_err:
@@ -305,14 +332,186 @@ Ensure the test files compile cleanly, catch all errors, and output the required
             logger.info("Using synthesized fallback scoring rules harness.")
             data = _build_fallback_rules(lab_context, tasks, primary_lang)
 
-        # Ensure default runner command
-        if not data.get("runner_command"):
-            if primary_lang == "python":
-                data["runner_command"] = "python yuvro_scoring_rules/main_test.py"
-            elif primary_lang in ("javascript", "typescript"):
-                data["runner_command"] = "node yuvro_scoring_rules/main_test.js"
-            else:
-                data["runner_command"] = f"python yuvro_scoring_rules/main_test.py"
+        # Automated evaluation in Yuvro always executes via yuvro_scoring_rules test harness
+        if primary_lang in ("javascript", "typescript"):
+            expected_runner = "node yuvro_scoring_rules/main_test.js"
+        else:
+            expected_runner = "python yuvro_scoring_rules/main_test.py"
 
+        data["runner_command"] = expected_runner
+        data["test_command"] = expected_runner
         data["provider"] = provider_used
         return data
+
+    async def generate_pass_solution(
+        self,
+        lab_context: Dict[str, Any],
+        tasks: List[Dict[str, Any]],
+        scoring_files: Dict[str, str],
+        repo_files: Dict[str, str],
+    ) -> Dict[str, Any]:
+        """Generates complete runnable workspace file patches that satisfy all tasks & scoring rules for Pass Case testing."""
+        tasks_detail = "\n".join(
+            f"### Task {i+1}: {t.get('title', '')} ({t.get('marks', 10)} marks)\n"
+            f"Description: {t.get('description', '')}\n"
+            f"Reference Solution Notes: {t.get('solution', 'N/A')}\n"
+            for i, t in enumerate(tasks)
+        )
+
+        repo_chunks = []
+        used = 0
+        for path, content in (repo_files or {}).items():
+            if used >= 14000:
+                break
+            piece = f"--- {path} ---\n{str(content)[:3500]}"
+            repo_chunks.append(piece)
+            used += len(piece)
+
+        scoring_chunks = []
+        used_s = 0
+        for path, content in (scoring_files or {}).items():
+            if path.lower().endswith("readme.md") or used_s >= 10000:
+                continue
+            piece = f"--- {path} ---\n{str(content)[:3000]}"
+            scoring_chunks.append(piece)
+            used_s += len(piece)
+
+        prompt = f"""LAB TITLE: {lab_context.get('title', 'Engineering Lab')}
+LAB DESCRIPTION: {lab_context.get('description', '')}
+
+TASKS TO SOLVE:
+{tasks_detail}
+
+STARTER REPOSITORY FILES:
+{chr(10).join(repo_chunks) or 'No starter files provided; create clean target source files.'}
+
+SCORING RULES TO SATISFY (yuvro_scoring_rules):
+{chr(10).join(scoring_chunks) if scoring_chunks else 'None provided yet; satisfy the task requirements and objectives directly in the starter repository source files.'}
+
+Produce complete, runnable `solution_files` for the workspace so that executing the scoring rules passes ALL tasks with 100% score."""
+
+        res = await self.client.agenerate(
+            prompt=prompt,
+            system_prompt=PASS_SOLUTION_SYSTEM_PROMPT,
+            temperature=0.2,
+            max_tokens=6000,
+        )
+        parsed = _clean_json_response(res.get("content", ""))
+        solution_files = parsed.get("solution_files", {}) if isinstance(parsed, dict) else {}
+        if not isinstance(solution_files, dict) or not solution_files:
+            raise ValueError("AI could not synthesize pass-case solution files.")
+
+        # Strip any accidental edits to yuvro_scoring_rules and AI-generated report/markdown files
+        clean_solution_files = {}
+        all_task_text = " ".join(f"{t.get('title', '')} {t.get('description', '')}" for t in tasks)
+        for k, v in solution_files.items():
+            norm_k = str(k).lstrip("/")
+            if norm_k.startswith("yuvro_scoring_rules/"):
+                continue
+            # Drop AI-hallucinated doc/report files (like AUTH_BUG_REPORT.md) if not explicitly requested
+            if norm_k.endswith(".md") and norm_k not in (repo_files or {}):
+                fname = Path(norm_k).name
+                if fname not in all_task_text and "readme" not in fname.lower():
+                    continue
+            clean_solution_files[k] = v
+
+        # Compute exact, clean unified diffs against the starter codebase files
+        diffs_by_file: Dict[str, str] = {}
+        for file_path, new_content in clean_solution_files.items():
+            old_content = (repo_files or {}).get(file_path, "")
+            old_lines = old_content.splitlines(keepends=True)
+            new_lines = str(new_content).splitlines(keepends=True)
+            diff_lines = list(difflib.unified_diff(
+                old_lines,
+                new_lines,
+                fromfile=f"a/{file_path}",
+                tofile=f"b/{file_path}",
+            ))
+            if diff_lines:
+                diffs_by_file[file_path] = f"diff --git a/{file_path} b/{file_path}\n" + "".join(diff_lines)
+            elif not old_content and new_content:
+                diffs_by_file[file_path] = f"diff --git a/{file_path} b/{file_path}\nnew file mode 100644\n--- /dev/null\n+++ b/{file_path}\n" + "".join(f"+{line}" for line in new_lines)
+
+        full_diff = "\n".join(diffs_by_file.values())
+
+        return {
+            "summary": parsed.get("summary", "Generated reference solution patches for all tasks."),
+            "solution_files": clean_solution_files,
+            "solution_diff": full_diff,
+            "diffs_by_file": diffs_by_file,
+            "provider": res.get("provider", self.provider),
+        }
+
+    async def repair_rules(
+        self,
+        lab_context: Dict[str, Any],
+        tasks: List[Dict[str, Any]],
+        scoring_files: Dict[str, str],
+        repo_files: Optional[Dict[str, str]] = None,
+        fail_case_output: Optional[Dict[str, Any]] = None,
+        pass_case_output: Optional[Dict[str, Any]] = None,
+        feedback: str = "",
+    ) -> Dict[str, Any]:
+        """Repairs yuvro_scoring_rules using real live Fail Case and Pass Case execution output."""
+        tasks_detail = "\n".join(
+            f"- Task {i+1}: {t.get('title', '')} ({t.get('marks', 10)} marks): {(t.get('description') or '')[:400]}"
+            for i, t in enumerate(tasks)
+        )
+
+        rules_text = "\n\n".join(
+            f"--- {p} ---\n{str(c)[:3000]}" for p, c in (scoring_files or {}).items()
+        )
+
+        repo_chunks = []
+        used = 0
+        for p, c in (repo_files or {}).items():
+            if used >= 10000:
+                break
+            piece = f"--- {p} ---\n{str(c)[:2500]}"
+            repo_chunks.append(piece)
+            used += len(piece)
+
+        fail_str = json.dumps(fail_case_output, indent=2)[:4000] if fail_case_output else "Not run"
+        pass_str = json.dumps(pass_case_output, indent=2)[:4000] if pass_case_output else "Not run"
+
+        prompt = f"""LAB: {lab_context.get('title', '')}
+TASKS:
+{tasks_detail}
+
+STARTER REPO FILES:
+{chr(10).join(repo_chunks) or 'N/A'}
+
+CURRENT yuvro_scoring_rules:
+{rules_text}
+
+LIVE FAIL CASE EXECUTION RESULT (unmodified starter repo — MUST FAIL all tasks with score 0):
+{fail_str}
+
+LIVE PASS CASE EXECUTION RESULT (with reference solution — MUST PASS all tasks with full score):
+{pass_str}
+
+RECRUITER FEEDBACK:
+{feedback or 'Fix any runtime errors, import issues, JSON contract issues, or assertion bugs so Fail Case fails cleanly and Pass Case passes cleanly.'}
+
+Return the complete fixed `yuvro_scoring_rules` JSON."""
+
+        res = await self.client.agenerate(
+            prompt=prompt,
+            system_prompt=REPAIR_SCORING_RULES_SYSTEM_PROMPT,
+            temperature=0.2,
+            max_tokens=6000,
+        )
+        parsed = _clean_json_response(res.get("content", ""))
+        if not isinstance(parsed, dict) or not parsed.get("files"):
+            raise ValueError("AI could not produce repaired scoring rules files.")
+
+        lang = str(parsed.get("language", "python")).lower()
+        runner_cmd = "node yuvro_scoring_rules/main_test.js" if lang in ("javascript", "typescript") else "python yuvro_scoring_rules/main_test.py"
+        return {
+            "diagnosis": parsed.get("diagnosis", "Updated scoring rules based on live execution diagnostics."),
+            "language": parsed.get("language", "python"),
+            "runner_command": runner_cmd,
+            "test_command": runner_cmd,
+            "files": parsed["files"],
+            "provider": res.get("provider", self.provider),
+        }

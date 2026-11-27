@@ -9,6 +9,8 @@ from .prompts import (
     BULK_TASKS_SYSTEM_PROMPT,
     ESTIMATE_DURATION_SYSTEM_PROMPT,
     LIFECYCLE_COMMANDS_SYSTEM_PROMPT,
+    TASK_CHAT_SYSTEM_PROMPT,
+    STARTER_CODEBASE_GENERATOR_SYSTEM_PROMPT,
 )
 
 logger = logging.getLogger(__name__)
@@ -146,6 +148,7 @@ Please generate the next logical engineering task for this lab."""
             temperature=0.3,
         )
         task_data = _clean_json_response(res.get("content", ""))
+        task_data["solution"] = ""
         task_data["provider"] = res.get("provider", self.provider)
         return task_data
 
@@ -178,6 +181,7 @@ Please standardize this into a professional, clear, production-grade hiring task
             temperature=0.2,
         )
         standardized = _clean_json_response(res.get("content", ""))
+        standardized["solution"] = ""
         standardized["provider"] = res.get("provider", self.provider)
         return standardized
 
@@ -222,6 +226,10 @@ Generate exactly {count} ordered tasks in JSON format following the development 
         tasks = parsed.get("tasks", []) if isinstance(parsed, dict) else parsed
         if not isinstance(tasks, list):
             tasks = [tasks]
+
+        for t in tasks:
+            if isinstance(t, dict):
+                t["solution"] = ""
 
         total_marks_sum = sum(int(t.get("marks") or 10) for t in tasks if isinstance(t, dict))
         total_duration_sum = sum(int(t.get("duration_minutes") or 15) for t in tasks if isinstance(t, dict))
@@ -294,37 +302,232 @@ Please generate the optimal `startup_command` and `test_command` for this lab.""
         except Exception:
             data = {}
 
-        # Heuristic fallback if LLM response did not provide commands
-        if not data.get("startup_command") or not data.get("test_command"):
-            backend_fw = [str(f).lower() for f in (lab_context.get("backend_frameworks", []) or [])]
-            languages = [str(l).lower() for l in (lab_context.get("programming_languages", []) or [])]
+        backend_fw = [str(f).lower() for f in (lab_context.get("backend_frameworks", []) or [])]
+        languages = [str(l).lower() for l in (lab_context.get("programming_languages", []) or [])]
 
-            default_startup = "npm start"
-            default_test = "npm test"
+        default_startup = "npm start"
+        default_test = "node yuvro_scoring_rules/main_test.js" if any(l in ("javascript", "typescript") for l in languages) else "python yuvro_scoring_rules/main_test.py"
 
-            if any("django" in f for f in backend_fw):
-                default_startup = "python manage.py runserver 0.0.0.0:8000"
-                default_test = "python manage.py test"
-            elif any("fastapi" in f for f in backend_fw):
-                default_startup = "uvicorn main:app --host 0.0.0.0 --port 8000"
-                default_test = "pytest"
-            elif any("flask" in f for f in backend_fw):
-                default_startup = "flask run --host=0.0.0.0 --port=8000"
-                default_test = "pytest"
-            elif any("spring" in f for f in backend_fw) or any("java" in l for l in languages):
-                default_startup = "./mvnw spring-boot:run"
-                default_test = "./mvnw test"
-            elif any("go" in l for l in languages):
-                default_startup = "go run ."
-                default_test = "go test ./..."
-            elif any("python" in l for l in languages):
-                default_startup = "python main.py"
-                default_test = "pytest"
+        if any("django" in f for f in backend_fw):
+            default_startup = "python manage.py runserver 0.0.0.0:8000"
+            default_test = "python yuvro_scoring_rules/main_test.py"
+        elif any("fastapi" in f for f in backend_fw):
+            default_startup = "uvicorn main:app --host 0.0.0.0 --port 8000"
+            default_test = "python yuvro_scoring_rules/main_test.py"
+        elif any("flask" in f for f in backend_fw):
+            default_startup = "flask run --host=0.0.0.0 --port=8000"
+            default_test = "python yuvro_scoring_rules/main_test.py"
+        elif any("spring" in f for f in backend_fw) or any("java" in l for l in languages):
+            default_startup = "./mvnw spring-boot:run"
+            default_test = "python yuvro_scoring_rules/main_test.py"
+        elif any("go" in l for l in languages):
+            default_startup = "go run ."
+            default_test = "python yuvro_scoring_rules/main_test.py"
+        elif any("python" in l for l in languages):
+            default_startup = "python main.py"
+            default_test = "python yuvro_scoring_rules/main_test.py"
 
-            data.setdefault("startup_command", default_startup)
-            data.setdefault("test_command", default_test)
-            data.setdefault("rationale", "Generated using framework conventions.")
+        data.setdefault("startup_command", default_startup)
+        # Automated evaluation in Yuvro always runs through yuvro_scoring_rules harness
+        data["test_command"] = default_test
+        data.setdefault("rationale", "Generated using Yuvro scoring harness conventions.")
 
+        languages = [str(l).lower() for l in (lab_context.get("programming_languages", []) or [])]
+        expected_test = "node yuvro_scoring_rules/main_test.js" if any(l in ("javascript", "typescript") for l in languages) else "python yuvro_scoring_rules/main_test.py"
+        data["test_command"] = expected_test
+        data["tasks"] = []
         data["provider"] = self.provider
         return data
+
+    async def generate_starter_codebase(
+        self,
+        lab_context: Dict[str, Any],
+        tasks: Optional[List[Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
+        """Generates a complete, functional starter codebase (with README and requirements) matching the lab scenario and tasks."""
+        tasks_list = tasks or []
+        tasks_summary = "\n".join(
+            f"- Task {i+1}: {t.get('title', 'Untitled')}\n  Description: {t.get('description', '')}\n  Solution: {t.get('solution', '') or t.get('ref', '')}"
+            for i, t in enumerate(tasks_list)
+        ) or "No specific tasks provided yet. Generate standard starter boilerplate for this tech stack."
+
+        prompt = f"""ENGINEERING LAB CONTEXT:
+Title: {lab_context.get('title', 'Untitled Lab')}
+Description: {lab_context.get('description', '')}
+Scenario: {lab_context.get('scenario', '')}
+Domain: {lab_context.get('domain', '')}
+Difficulty: {lab_context.get('difficulty', 'MEDIUM')}
+Programming Languages: {', '.join(lab_context.get('programming_languages', []) or [])}
+Backend Frameworks: {', '.join(lab_context.get('backend_frameworks', []) or [])}
+Frontend Frameworks: {', '.join(lab_context.get('frontend_frameworks', []) or [])}
+Databases: {', '.join(lab_context.get('databases', []) or [])}
+
+LAB TASKS:
+{tasks_summary}
+
+Please generate the complete, production-ready starter codebase files that candidates will see in their repository."""
+
+        try:
+            res = await self.client.agenerate(
+                prompt=prompt,
+                system_prompt=STARTER_CODEBASE_GENERATOR_SYSTEM_PROMPT,
+                temperature=0.25,
+            )
+            data = _clean_json_response(res.get("content", ""))
+        except Exception as e:
+            logger.error(f"Starter codebase generation error: {e}", exc_info=True)
+            data = {}
+
+        if not isinstance(data, dict):
+            data = {}
+
+        # Fallback minimal starter if LLM returned empty or invalid files
+        files = data.get("files")
+        if not isinstance(files, dict) or not files:
+            backend_fw = [str(f).lower() for f in (lab_context.get("backend_frameworks", []) or [])]
+            title = lab_context.get("title", "Engineering Lab Assessment")
+            desc = lab_context.get("description", "Solve the assigned tasks in this workspace.")
+
+            if any("django" in f for f in backend_fw):
+                data["startup_command"] = "python manage.py runserver 0.0.0.0:8000"
+                data["test_command"] = "python yuvro_scoring_rules/main_test.py"
+                data["files"] = {
+                    "README.md": f"# {title}\n\n{desc}\n\n## Getting Started\n```bash\npip install -r requirements.txt\npython manage.py migrate\npython manage.py runserver\n```\n",
+                    "requirements.txt": "Django>=5.0,<5.2\ndjangorestframework>=3.14.0\npytest>=8.0.0\n",
+                    ".gitignore": "db.sqlite3\n__pycache__/\n*.pyc\n.env\n",
+                }
+            else:
+                data["startup_command"] = "npm start"
+                data["test_command"] = "python yuvro_scoring_rules/main_test.py"
+                data["files"] = {
+                    "README.md": f"# {title}\n\n{desc}\n\n## Getting Started\n```bash\nnpm install\nnpm start\n```\n",
+                    "package.json": json.dumps({"name": "starter-lab", "version": "1.0.0", "scripts": {"start": "node server.js"}}, indent=2),
+                    ".gitignore": "node_modules/\n.env\n",
+                }
+
+        languages = [str(l).lower() for l in (lab_context.get("programming_languages", []) or [])]
+        expected_test = "node yuvro_scoring_rules/main_test.js" if any(l in ("javascript", "typescript") for l in languages) else "python yuvro_scoring_rules/main_test.py"
+        data["test_command"] = expected_test
+        data["tasks"] = []
+        data["provider"] = self.provider
+        return data
+
+    async def chat_tasks(
+        self,
+        lab_context: Dict[str, Any],
+        current_tasks: Optional[List[Dict[str, Any]]] = None,
+        messages: Optional[List[Dict[str, str]]] = None,
+        user_message: str = "",
+    ) -> Dict[str, Any]:
+        """Conversational AI Task Architect for Step 4 with structured task actions and next-action suggestions."""
+        tasks_list = current_tasks or []
+        history = (messages or [])[-8:]
+
+        repo_files = lab_context.get("repo_files") or {}
+        repo_tree = lab_context.get("repo_tree") or []
+        repo_block = ""
+        if repo_tree:
+            repo_block += f"\nStarter Repo Files ({len(repo_tree)} total): {', '.join(repo_tree[:60])}\n"
+        if isinstance(repo_files, dict) and repo_files:
+            snippets = []
+            used = 0
+            for path, content in repo_files.items():
+                if used >= 9000:
+                    break
+                piece = f"--- {path} ---\n{str(content)[:2500]}"
+                snippets.append(piece)
+                used += len(piece)
+            repo_block += "\nKEY REPOSITORY FILES:\n" + "\n\n".join(snippets)
+
+        current_tasks_text = "None added yet."
+        if tasks_list:
+            lines = []
+            for idx, t in enumerate(tasks_list):
+                lines.append(
+                    f"Task {idx + 1}: {t.get('title') or 'Untitled'} "
+                    f"[{t.get('difficulty', 'MEDIUM')}, {t.get('marks', 0)} marks, {t.get('duration_minutes', 15)} min]\n"
+                    f"  Description: {(t.get('description') or '')[:400]}\n"
+                    f"  Solution: {str(t.get('solution') or '')[:250]}"
+                )
+            current_tasks_text = "\n".join(lines)
+
+        history_text = ""
+        if history:
+            history_lines = [
+                f"{str(m.get('role', 'user')).upper()}: {str(m.get('content', ''))[:800]}"
+                for m in history
+            ]
+            history_text = "\nCONVERSATION HISTORY:\n" + "\n".join(history_lines) + "\n"
+
+        prompt = f"""LAB CONTEXT:
+Title: {lab_context.get('title', 'Engineering Lab')}
+Description: {lab_context.get('description', '')}
+Domain: {lab_context.get('domain', 'BACKEND')}
+Lab Type: {lab_context.get('type', 'BACKEND')}
+Scenario: {lab_context.get('scenario', 'FEATURE_DEVELOPMENT')}
+Difficulty: {lab_context.get('difficulty', 'MEDIUM')}
+Total Lab Marks: {lab_context.get('marks', 100)}
+Total Lab Duration: {lab_context.get('duration_minutes', 45)} minutes
+Programming Languages: {', '.join(lab_context.get('programming_languages', []) or ['Not specified'])}
+Backend Frameworks: {', '.join(lab_context.get('backend_frameworks', []) or ['Not specified'])}
+Frontend Frameworks: {', '.join(lab_context.get('frontend_frameworks', []) or ['Not specified'])}
+Databases: {', '.join(lab_context.get('databases', []) or ['Not specified'])}
+Starter Repo URL: {lab_context.get('git_repo_starter_url', 'Not configured')}
+Startup Command: {lab_context.get('startup_command', 'Not set')}
+Test Command: {lab_context.get('test_command', 'Not set')}
+{repo_block}
+
+CURRENT LAB TASKS ({len(tasks_list)}):
+{current_tasks_text}
+{history_text}
+RECRUITER MESSAGE:
+{user_message}
+
+Respond with clean JSON containing `reply`, `proposed_action`, and `next_actions`."""
+
+        res = await self.client.agenerate(
+            prompt=prompt,
+            system_prompt=TASK_CHAT_SYSTEM_PROMPT,
+            temperature=0.3,
+            max_tokens=4500,
+        )
+        parsed = _clean_json_response(res.get("content", ""))
+        if not isinstance(parsed, dict):
+            parsed = {"reply": str(parsed)}
+
+        proposed = parsed.get("proposed_action")
+        if not isinstance(proposed, dict):
+            proposed = {"type": "none", "label": "", "task_index": None, "tasks": []}
+        else:
+            proposed.setdefault("type", "none")
+            proposed.setdefault("label", "Apply changes")
+            proposed.setdefault("task_index", None)
+            if not isinstance(proposed.get("tasks"), list):
+                proposed["tasks"] = []
+            else:
+                for t in proposed["tasks"]:
+                    if isinstance(t, dict):
+                        t["solution"] = ""
+
+        next_actions = parsed.get("next_actions")
+        if not isinstance(next_actions, list) or len(next_actions) == 0:
+            if len(tasks_list) == 0 and len(proposed.get("tasks", [])) == 0:
+                next_actions = [
+                    {"label": "Generate 3 progressive tasks", "prompt": "Generate 3 progressive tasks matching the lab description and repository."},
+                    {"label": "Suggest 1 starter task", "prompt": "Suggest 1 focused starter task based on the repository."},
+                    {"label": "Generate 2 tasks", "prompt": "Generate 2 concise tasks covering core implementation and edge cases."},
+                ]
+            else:
+                next_actions = [
+                    {"label": "Standardize all tasks", "prompt": "Standardize all tasks with clear requirements, edge cases, and reference solutions."},
+                    {"label": "Estimate durations", "prompt": "Review and calibrate realistic completion durations in minutes for every task."},
+                    {"label": "Proceed to Scoring & Testing", "action": "next_step"},
+                ]
+
+        return {
+            "reply": parsed.get("reply") or "Here is my recommendation based on your lab setup.",
+            "proposed_action": proposed,
+            "next_actions": next_actions[:4],
+            "provider": res.get("provider", self.provider),
+        }
 

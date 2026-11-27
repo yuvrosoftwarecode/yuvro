@@ -904,7 +904,6 @@ export function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
     tag === "Linux Services"
   )
     return LINUX_KIT_DEFAULT;
-
   if (s.includes("flask") || t.includes("flask")) {
     return {
       name: "python",

@@ -18,6 +18,24 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+def _clean_token(raw_token: Optional[str]) -> Optional[str]:
+    """Cleans a GitHub token, decoding base64 if needed."""
+    if not raw_token:
+        return None
+    raw = str(raw_token).strip().strip("'\"")
+    if not raw:
+        return None
+    # If base64 encoded (e.g. Z2hvX... -> gho_...)
+    if raw.startswith("Z2h") or (len(raw) > 30 and re.match(r"^[A-Za-z0-9+/=]+$", raw) and not raw.startswith("gh")):
+        try:
+            decoded = base64.b64decode(raw).decode("utf-8").strip()
+            if decoded.startswith("gh") or decoded.startswith("github_pat"):
+                return decoded
+        except Exception:
+            pass
+    return raw
+
+
 def _parse_repo_owner_name(repo_identifier: str) -> tuple[Optional[str], Optional[str]]:
     """Extracts (owner, repo_name) from URL or full name."""
     clean = (repo_identifier or "").strip().rstrip(".git")
@@ -233,23 +251,31 @@ class GitHubScoringRulesPusher:
         if not owner or not repo:
             raise ValueError(f"Could not parse GitHub repository owner/name from '{repo_identifier}'")
 
-        token = custom_token
+        token = None
 
-        # 1. Try provided recruiter installation_id if passed
-        if not token and installation_id:
-            try:
-                token = self.get_installation_token(str(installation_id))
-            except Exception as e:
-                logger.warning(f"Could not get installation token for id '{installation_id}': {e}")
+        # 1. Try recruiter's GitHub App installation_id if passed (numeric GitHub App installation ID)
+        if installation_id:
+            clean_inst = str(installation_id).strip()
+            if clean_inst.isdigit():
+                try:
+                    token = self.get_installation_token(clean_inst)
+                except Exception as e:
+                    logger.warning(f"push_scoring_rules: Could not get installation token for id '{clean_inst}': {e}")
 
-        # 2. Try auto-detecting recruiter repository installation via GitHub App
+        # 2. Try auto-detecting recruiter repository installation via GitHub App credentials
         if not token and self.has_app_credentials():
             try:
                 token = self.get_repo_installation_token(owner, repo)
             except Exception as e:
-                logger.warning(f"Failed auto-resolving repo installation token: {e}")
+                logger.warning(f"push_scoring_rules: Failed auto-resolving repo installation token: {e}")
 
-        # 3. Only use system PAT for internal system starter templates if explicitly enabled
+        # 3. Try custom token if provided
+        if not token and custom_token:
+            cleaned = _clean_token(custom_token)
+            if cleaned:
+                token = cleaned
+
+        # 4. Only use system PAT for internal system starter templates if explicitly enabled
         if not token and allow_system_pat and self.system_pat:
             token = self.system_pat
 
@@ -268,6 +294,18 @@ class GitHubScoringRulesPusher:
         # 1. Get branch reference SHA (with master/main fallback)
         ref_url = f"https://api.github.com/repos/{owner}/{repo}/git/ref/heads/{branch}"
         ref_res = requests.get(ref_url, headers=headers, timeout=15)
+
+        # If custom token failed with 401/403, retry with auto-detected GitHub App token
+        if ref_res.status_code in (401, 403) and self.has_app_credentials():
+            try:
+                app_tok = self.get_repo_installation_token(owner, repo)
+                if app_tok and app_tok != token:
+                    logger.info(f"Retrying push_scoring_rules with GitHub App token for {owner}/{repo}")
+                    token = app_tok
+                    headers["Authorization"] = f"token {token}"
+                    ref_res = requests.get(ref_url, headers=headers, timeout=15)
+            except Exception as e:
+                logger.warning(f"Fallback to GitHub App token during push failed: {e}")
         if ref_res.status_code == 404 and branch in ("main", "master"):
             alt_branch = "master" if branch == "main" else "main"
             alt_url = f"https://api.github.com/repos/{owner}/{repo}/git/ref/heads/{alt_branch}"
@@ -385,3 +423,200 @@ class GitHubScoringRulesPusher:
             "commit_url": commit_html_url,
             "files_pushed": list(files.keys()),
         }
+
+    def inspect_repository(
+        self,
+        repo_identifier: str,
+        branch: str = "main",
+        installation_id: Optional[str] = None,
+        custom_token: Optional[str] = None,
+        include_clone_token: bool = False,
+        max_bytes: int = 16000,
+    ) -> Dict[str, Any]:
+        """
+        Inspects a starter GitHub repository to extract metadata, file tree, and key source/config files
+        for AI task design, scoring rules synthesis, and live verification workspaces.
+        """
+        owner, repo = _parse_repo_owner_name(repo_identifier)
+        if not owner or not repo:
+            raise ValueError(f"Could not parse GitHub repository owner/name from '{repo_identifier}'")
+
+        token = None
+
+        # 1. Try recruiter's GitHub App installation_id if explicitly provided (numeric GitHub App installation ID)
+        if installation_id:
+            clean_inst = str(installation_id).strip()
+            if clean_inst.isdigit():
+                try:
+                    token = self.get_installation_token(clean_inst)
+                except Exception as e:
+                    logger.warning(f"inspect_repository: installation token failed for '{clean_inst}': {e}")
+
+        # 2. Try auto-detecting recruiter repository installation via GitHub App credentials
+        if not token and self.has_app_credentials():
+            try:
+                token = self.get_repo_installation_token(owner, repo)
+            except Exception as e:
+                logger.warning(f"inspect_repository: auto-resolve repo installation failed: {e}")
+
+        # 3. Try custom token (e.g. personal access token) if GitHub App token was not resolved
+        if not token and custom_token:
+            cleaned = _clean_token(custom_token)
+            if cleaned:
+                token = cleaned
+
+        # 4. Try system PAT if configured
+        if not token and self.system_pat:
+            token = self.system_pat
+
+        def _make_headers(tok: Optional[str]) -> Dict[str, str]:
+            h = {"Accept": "application/vnd.github.v3+json"}
+            if tok:
+                h["Authorization"] = f"token {tok}"
+            return h
+
+        headers = _make_headers(token)
+        meta_res = requests.get(f"https://api.github.com/repos/{owner}/{repo}", headers=headers, timeout=15)
+
+        # Handle 401 / 403 with automatic fallback:
+        if meta_res.status_code in (401, 403):
+            # Fallback 1: If we used custom token or PAT, try GitHub App auto-token
+            if self.has_app_credentials():
+                try:
+                    app_tok = self.get_repo_installation_token(owner, repo)
+                    if app_tok and app_tok != token:
+                        logger.info(f"Retrying repository inspection with GitHub App token for {owner}/{repo}")
+                        token = app_tok
+                        headers = _make_headers(token)
+                        meta_res = requests.get(f"https://api.github.com/repos/{owner}/{repo}", headers=headers, timeout=15)
+                except Exception as e:
+                    logger.warning(f"Fallback to GitHub App token failed: {e}")
+
+            # Fallback 2: If still 401/403, try unauthenticated (succeeds for public repositories)
+            if meta_res.status_code in (401, 403) and token:
+                logger.info(f"Retrying repository inspection unauthenticated for {owner}/{repo}")
+                unauth_headers = _make_headers(None)
+                unauth_res = requests.get(f"https://api.github.com/repos/{owner}/{repo}", headers=unauth_headers, timeout=15)
+                if unauth_res.status_code == 200:
+                    meta_res = unauth_res
+                    token = None
+                    headers = unauth_headers
+
+        if meta_res.status_code == 404:
+            raise RuntimeError(
+                f"Repository '{owner}/{repo}' not found. "
+                "If it is a private repository, please ensure the GitHub App is installed on your account "
+                "and granted access to this repository."
+            )
+        if meta_res.status_code != 200:
+            raise RuntimeError(f"Could not access repository '{owner}/{repo}' (HTTP {meta_res.status_code}).")
+
+        meta = meta_res.json()
+        resolved_branch = branch or meta.get("default_branch") or "main"
+
+        # Fetch git tree recursively
+        tree_res = requests.get(
+            f"https://api.github.com/repos/{owner}/{repo}/git/trees/{resolved_branch}?recursive=1",
+            headers=headers,
+            timeout=15,
+        )
+        if tree_res.status_code in (401, 403) and token:
+            unauth_headers = _make_headers(None)
+            unauth_tree = requests.get(
+                f"https://api.github.com/repos/{owner}/{repo}/git/trees/{resolved_branch}?recursive=1",
+                headers=unauth_headers,
+                timeout=15,
+            )
+            if unauth_tree.status_code == 200:
+                tree_res = unauth_tree
+                token = None
+                headers = unauth_headers
+
+        if tree_res.status_code != 200 and meta.get("default_branch") and resolved_branch != meta.get("default_branch"):
+            resolved_branch = meta.get("default_branch")
+            tree_res = requests.get(
+                f"https://api.github.com/repos/{owner}/{repo}/git/trees/{resolved_branch}?recursive=1",
+                headers=headers,
+                timeout=15,
+            )
+
+        ignored_parts = {"node_modules", "__pycache__", ".git", ".venv", "venv", "dist", "build", "yuvro_scoring_rules"}
+        file_paths = []
+        if tree_res.status_code == 200:
+            for entry in tree_res.json().get("tree", []):
+                if entry.get("type") != "blob":
+                    continue
+                p = entry.get("path", "")
+                if any(part in ignored_parts for part in p.split("/")):
+                    continue
+                if p.endswith(".pyc") or p.endswith(".png") or p.endswith(".jpg") or p.endswith(".ico"):
+                    continue
+                file_paths.append(p)
+
+        priority_names = {
+            "readme.md", "requirements.txt", "package.json", "manage.py", "settings.py",
+            "urls.py", "models.py", "views.py", "serializers.py", "app.py", "main.py",
+            "index.js", "server.js", "app.js", "index.ts", "server.ts", "go.mod", "pom.xml",
+        }
+        code_exts = {".py", ".js", ".ts", ".jsx", ".tsx", ".go", ".java", ".sql", ".json", ".md", ".txt", ".yml", ".yaml"}
+
+        ranked = []
+        for p in file_paths:
+            lower = p.lower()
+            base = lower.rsplit("/", 1)[-1]
+            ext = "." + base.rsplit(".", 1)[-1] if "." in base else ""
+            if base in priority_names:
+                ranked.append((0, len(p), p))
+            elif ext in code_exts:
+                ranked.append((1, len(p), p))
+        ranked.sort()
+
+        key_files: Dict[str, str] = {}
+        used = 0
+        for _, _, p in ranked[:14]:
+            if used >= max_bytes:
+                break
+            try:
+                fres = requests.get(
+                    f"https://api.github.com/repos/{owner}/{repo}/contents/{p}?ref={resolved_branch}",
+                    headers=headers,
+                    timeout=10,
+                )
+                if fres.status_code in (401, 403) and "Authorization" in headers:
+                    fres = requests.get(
+                        f"https://api.github.com/repos/{owner}/{repo}/contents/{p}?ref={resolved_branch}",
+                        headers={"Accept": "application/vnd.github.v3+json"},
+                        timeout=10,
+                    )
+                if fres.status_code != 200:
+                    continue
+                fjson = fres.json()
+                if fjson.get("encoding") == "base64" and fjson.get("content"):
+                    decoded = base64.b64decode(fjson["content"]).decode("utf-8", errors="replace")
+                    if used + len(decoded) > max_bytes:
+                        rem = max_bytes - used
+                        if rem > 400:
+                            key_files[p] = decoded[:rem] + "\n# ... (truncated)"
+                            used = max_bytes
+                        break
+                    key_files[p] = decoded
+                    used += len(decoded)
+            except Exception:
+                continue
+
+        result: Dict[str, Any] = {
+            "owner": owner,
+            "repo": repo,
+            "full_name": f"{owner}/{repo}",
+            "description": meta.get("description") or "",
+            "default_branch": resolved_branch,
+            "language": meta.get("language") or "",
+            "private": bool(meta.get("private")),
+            "files": file_paths[:250],
+            "file_count": len(file_paths),
+            "key_files": key_files,
+            "readme": key_files.get("README.md") or key_files.get("readme.md") or "",
+        }
+        if include_clone_token and token:
+            result["clone_token"] = token
+        return result

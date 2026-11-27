@@ -12,6 +12,11 @@ from .serializers import (
     GenerateScoringRulesSerializer,
     PushScoringRulesSerializer,
     GenerateLifecycleCommandsSerializer,
+    InspectRepoSerializer,
+    TaskChatSerializer,
+    GeneratePassSolutionSerializer,
+    RepairScoringRulesSerializer,
+    GenerateStarterCodebaseSerializer,
 )
 from .task_engine import LabTaskAIEngine
 from .scoring_synthesizer import ScoringRulesSynthesizer
@@ -136,6 +141,7 @@ class LabTaskAIViewSet(viewsets.ViewSet):
                 synthesizer.generate_rules(
                     lab_context=data["lab_context"],
                     tasks=data["tasks"],
+                    repo_files=data.get("repo_files") or None,
                 )
             )
             return Response(result, status=status.HTTP_200_OK)
@@ -194,5 +200,131 @@ class LabTaskAIViewSet(viewsets.ViewSet):
             return Response(result, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Failed to generate lifecycle commands: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=["post"], url_path="generate-starter-codebase")
+    def generate_starter_codebase(self, request):
+        serializer = GenerateStarterCodebaseSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        engine = LabTaskAIEngine(
+            provider=data.get("provider", "deepseek"),
+            model_name=data.get("model_name"),
+        )
+        try:
+            result = asyncio.run(
+                engine.generate_starter_codebase(
+                    lab_context=data["lab_context"],
+                    tasks=data.get("tasks", []),
+                )
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Failed to generate starter codebase: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=["post"], url_path="inspect-repo")
+    def inspect_repo(self, request):
+        serializer = InspectRepoSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        user_github_token = None
+        try:
+            if request.user and request.user.is_authenticated:
+                conn = getattr(request.user, "github_connection", None)
+                if conn and conn.access_token:
+                    user_github_token = conn.access_token
+        except Exception:
+            pass
+
+        pusher = GitHubScoringRulesPusher()
+        try:
+            result = pusher.inspect_repository(
+                repo_identifier=data["repo_identifier"],
+                branch=data.get("branch") or "main",
+                installation_id=data.get("installation_id"),
+                custom_token=user_github_token,
+                include_clone_token=bool(data.get("include_clone_token")),
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Failed to inspect repository: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=["post"], url_path="task-chat")
+    def task_chat(self, request):
+        serializer = TaskChatSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        engine = LabTaskAIEngine(
+            provider=data.get("provider", "deepseek"),
+            model_name=data.get("model_name"),
+        )
+        try:
+            result = asyncio.run(
+                engine.chat_tasks(
+                    lab_context=data["lab_context"],
+                    current_tasks=data.get("current_tasks", []),
+                    messages=data.get("messages", []),
+                    user_message=data["user_message"],
+                )
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Failed in task chat: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=["post"], url_path="generate-pass-solution")
+    def generate_pass_solution(self, request):
+        serializer = GeneratePassSolutionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        synthesizer = ScoringRulesSynthesizer(
+            provider=data.get("provider", "deepseek"),
+            model_name=data.get("model_name"),
+        )
+        try:
+            result = asyncio.run(
+                synthesizer.generate_pass_solution(
+                    lab_context=data["lab_context"],
+                    tasks=data["tasks"],
+                    scoring_files=data["scoring_files"],
+                    repo_files=data.get("repo_files", {}),
+                )
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Failed to generate pass-case solution: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=["post"], url_path="repair-scoring-rules")
+    def repair_scoring_rules(self, request):
+        serializer = RepairScoringRulesSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        synthesizer = ScoringRulesSynthesizer(
+            provider=data.get("provider", "deepseek"),
+            model_name=data.get("model_name"),
+        )
+        try:
+            result = asyncio.run(
+                synthesizer.repair_rules(
+                    lab_context=data["lab_context"],
+                    tasks=data["tasks"],
+                    scoring_files=data["scoring_files"],
+                    repo_files=data.get("repo_files", {}),
+                    fail_case_output=data.get("fail_case_output"),
+                    pass_case_output=data.get("pass_case_output"),
+                    feedback=data.get("feedback", ""),
+                )
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Failed to repair scoring rules: {e}", exc_info=True)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

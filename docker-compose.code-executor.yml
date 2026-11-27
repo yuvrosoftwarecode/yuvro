@@ -19,6 +19,7 @@ services:
       - WORKSPACES_ROOT=/workspaces
       - YLABS_BACKEND_URL=http://ylabs-backend:8000
     volumes:
+      - ./ycode-executor-api:/app
       - ./workspaces:/workspaces
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8009/health"]

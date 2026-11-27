@@ -402,7 +402,6 @@ export function parseConsolidatedFileDiffs(
         }
       }
     }
-
     if (!filePath) {
       if (cleanDefaultFile) {
         filePath = normalizeFilePath(cleanDefaultFile);

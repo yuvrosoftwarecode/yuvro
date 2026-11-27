@@ -328,6 +328,7 @@ export interface AIMentorProps {
   }[];
   onDiscardChanges?: () => void;
   onRestoreCheckpoint?: (checkpointId: string) => void;
+  disableDiffApply?: boolean;
 }
 
 export function AIMentor({
@@ -359,6 +360,7 @@ export function AIMentor({
   onRestoreCheckpoint,
   planFolder,
   onOpenBottomPanel,
+  disableDiffApply = false,
 }: AIMentorProps) {
   const [mentorMode, setMentorMode] = useState<MentorMode>("ask");
 
@@ -1413,7 +1415,7 @@ Never output fragmented individual lines or disjoint blocks for the same file.
     }
 
     // Bug Fix & Ask mode (and Agent fallback): Exactly 1 consolidated diff per file with Apply Diff button
-    if (!isUser && !isStreaming && (mentorMode === "bugfix" || mentorMode === "ask")) {
+    if (!isUser && !isStreaming && !disableDiffApply && (mentorMode === "bugfix" || mentorMode === "ask")) {
       const parsedDiffs = parseConsolidatedFileDiffs(displayContent, activeFile, files);
 
       if (parsedDiffs.hasCode && parsedDiffs.files.length > 0) {
@@ -2081,6 +2083,8 @@ Never output fragmented individual lines or disjoint blocks for the same file.
                       ? "Prompt agent to implement features... (type @ to tag files, Enter to send, Shift+Enter for newline)"
                       : mentorMode === "bugfix"
                         ? "Describe error or fix console issues... (type @ to tag files, Enter to send, Shift+Enter for newline)"
+                        : persistenceKey?.startsWith("recruiter-")
+                        ? "Ask Vitarka AI to create or refine scoring rules... (type @ to tag files, Enter to send, Shift+Enter for newline)"
                         : "Ask AI Mentor for hints or diffs... (type @ to tag files, Enter to send, Shift+Enter for newline)"
                 }
                 className="w-full pl-3 pr-22 py-2 text-[12px] bg-muted/40 border border-border rounded-xl focus:outline-none focus:ring-1 focus:ring-[#f7931e] focus:border-[#f7931e] text-foreground placeholder:text-muted-foreground/60 transition-all resize-none min-h-[38px] max-h-[120px] overflow-y-auto leading-relaxed"

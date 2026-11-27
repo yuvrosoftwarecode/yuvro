@@ -77,7 +77,10 @@ export function ScoringRulesModal({
     try {
       const context = buildLabContext();
       const res = await labTaskAIService.generateScoringRules(context, labFormData.tasks, undefined, "deepseek");
-      setGeneratedRules(res);
+      setGeneratedRules({
+        ...res,
+        test_command: res.test_command || res.runner_command || "",
+      });
       const fileNames = Object.keys(res.files || {});
       if (fileNames.length > 0) {
         // Prefer main_test or readme or first file
