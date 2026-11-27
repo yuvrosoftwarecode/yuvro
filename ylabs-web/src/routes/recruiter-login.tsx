@@ -6,6 +6,9 @@ import authService from "@/services/authService";
 import { analytics, GA4_EVENTS } from "@/services/analytics";
 
 export const Route = createFileRoute("/recruiter-login")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: (search.redirect as string) || undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Recruiter Login — Yuvro Labs" },
@@ -20,6 +23,7 @@ export const Route = createFileRoute("/recruiter-login")({
 function RecruiterLoginPage() {
   const { login } = useAuth();
   const nav = useNavigate();
+  const search = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
@@ -38,7 +42,8 @@ function RecruiterLoginPage() {
       const response = await authService.login(email, password);
       analytics.trackEvent(GA4_EVENTS.LOGIN, { method: "recruiter", role: "recruiter" });
       login(response.user, response.access);
-      nav({ to: "/recruiter" });
+      const target = search?.redirect && !search.redirect.includes("/recruiter-login") ? search.redirect : "/recruiter";
+      nav({ to: target });
     } catch (err: any) {
       setError(err?.message || "Invalid credentials. Please try again.");
     } finally {

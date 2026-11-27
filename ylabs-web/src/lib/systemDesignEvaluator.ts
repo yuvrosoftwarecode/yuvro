@@ -365,11 +365,7 @@ export function evaluateSystemDesign(
   const passedCount = taskEvaluations.filter((t) => t.passed).length;
 
   const summary: string[] = [];
-  if (percentage >= 70) {
-    summary.push(`Ready to submit! ${passedCount}/${totalTasks} tasks passed (${percentage}%).`);
-  } else {
-    summary.push(`Keep going: ${passedCount}/${totalTasks} tasks passed (${percentage}%).`);
-  }
+  summary.push(`${passedCount} of ${totalTasks} specifications satisfied · ${totalScore}/${maxPossibleScore} marks (${percentage}%).`);
 
   return {
     totalScore: percentage,

@@ -82,14 +82,14 @@ export function requireAdminAuth(currentUrl?: string) {
 
 export function requireRecruiterAuth(currentUrl?: string) {
   if (typeof window !== "undefined") {
-    const searchParams: any = { tab: "signin" };
-    if (currentUrl && currentUrl !== "/" && !currentUrl.includes("/auth")) {
+    const searchParams: any = {};
+    if (currentUrl && currentUrl !== "/" && !currentUrl.includes("/recruiter-login")) {
       searchParams.redirect = currentUrl;
     }
 
     const token = localStorage.getItem("access");
     if (!token) {
-      throw redirect({ to: "/auth", search: searchParams });
+      throw redirect({ to: "/recruiter-login", search: searchParams });
     }
     const userStr = localStorage.getItem("user");
     if (userStr) {
@@ -97,7 +97,7 @@ export function requireRecruiterAuth(currentUrl?: string) {
       try {
         user = JSON.parse(userStr);
       } catch (e) {
-        throw redirect({ to: "/auth", search: searchParams });
+        throw redirect({ to: "/recruiter-login", search: searchParams });
       }
 
       if (user) {
@@ -108,7 +108,7 @@ export function requireRecruiterAuth(currentUrl?: string) {
         }
       }
     } else {
-      throw redirect({ to: "/auth", search: searchParams });
+      throw redirect({ to: "/recruiter-login", search: searchParams });
     }
   }
 }

@@ -277,8 +277,10 @@ export function getCandidates(
     const name = fullName || pick(r, REAL_NAMES);
     const email = candEmail || `${name.toLowerCase().replace(/[^a-z0-9]/g, '.')}${Math.floor(r() * 900) + 100}@example.com`;
     const phone = sub.phone || sub.phone_number || sub.candidate_phone || user.phone || user.phone_number || "";
-    const experience = sub.experience != null ? Number(sub.experience) : (user.experience != null ? Number(user.experience) : Math.floor(r() * 12));
     const college = sub.college || sub.education || sub.candidate_college || user.college || user.education || pick(r, COLLEGES);
+    const isStudentOrFresher = Boolean(user.is_student || user.role === "student" || sub.is_student || (!sub.company && !user.company && (user.college || sub.college)));
+    const defaultExp = isStudentOrFresher ? 0 : Math.floor(r() * 4);
+    const experience = sub.experience != null ? Number(sub.experience) : (user.experience != null ? Number(user.experience) : defaultExp);
     const company = sub.company || sub.current_company || sub.candidate_company || user.company || user.current_company || (experience === 0 ? "Fresher" : pick(r, COMPANIES.filter((c) => c !== "Fresher")));
     const isDemo = evaluationId.startsWith("7700") || evaluationId.startsWith("demo");
     let labs = 0;
@@ -298,7 +300,7 @@ export function getCandidates(
       vit = hasVitarkaSec ? Math.round(35 + r() * 65) : 0;
       sd = hasSystemDesignSec ? Math.round(35 + r() * 65) : 0;
       totalEarned = labs + assess + vit + sd;
-      eci = totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : Math.round(labs * 0.35 + assess * 0.2 + vit * 0.2 + sd * 0.25);
+      eci = Math.max(0, Math.min(100, totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : Math.round(labs * 0.35 + assess * 0.2 + vit * 0.2 + sd * 0.25)));
       rec = eci >= 70 ? "Strong Hire" : eci >= 50 ? "Hire" : eci >= 35 ? "Maybe" : "Reject";
       
       const statusRoll = r();
@@ -422,7 +424,7 @@ export function getCandidates(
       }
       
       totalEarned = Number((labs + assess + vit + (hasSystemDesignSec ? sd : 0)).toFixed(1));
-      eci = totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25);
+      eci = Math.max(0, Math.min(100, totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : Math.round(labs * 0.45 + assess * 0.3 + vit * 0.25)));
 
       const labsPct = labsMaxScore > 0 ? (labs / labsMaxScore) * 10 : (labs > 0 ? 10 : 0);
       const assessPct = assessmentMaxScore > 0 ? (assess / assessmentMaxScore) * 10 : (assess > 0 ? 10 : 0);
@@ -460,9 +462,9 @@ export function getCandidates(
         else if (s.includes("not") || s.includes("reject")) rec = score10 >= 5.0 ? "Hire" : "Reject";
       }
       
-      // Determine real status
+      // Determine real status - completed_at indicates submitted candidate for recruiter funnel (B-06)
       if (sub.completed_at) {
-        status = "Completed";
+        status = "Submitted";
       } else if (sub.id || labSubs.length > 0 || knowSubs.length > 0 || vitSub || sub.general_events?.length > 0) {
         status = "In Progress";
       } else {
@@ -472,7 +474,9 @@ export function getCandidates(
     }
     const submittedAt = sub.completed_at ? new Date(sub.completed_at).getTime() : new Date(sub.created_at || now).getTime();
     const startedAt = sub.created_at ? new Date(sub.created_at).getTime() : (sub.completed_at ? new Date(sub.completed_at).getTime() : now);
-    const completionMinutes = sub.duration ? Math.round(sub.duration / 60) : 25 + Math.floor(r() * 110);
+    const evMaxMinutes = ev ? (ev.sections || []).reduce((sum: number, s: any) => sum + (s.duration || (s.labs || []).reduce((ls: number, l: any) => ls + (l.duration_minutes || 30), 0) || 30), 0) || 90 : 90;
+    const rawMinutes = sub.duration ? Math.round(sub.duration / 60) : Math.min(evMaxMinutes, 25 + Math.floor(r() * Math.max(10, evMaxMinutes - 25)));
+    const completionMinutes = Math.min(evMaxMinutes, Math.max(1, rawMinutes));
     const skills = Array.from(
       new Set(Array.from({ length: 3 + Math.floor(r() * 4) }, () => pick(r, SKILL_POOL))),
     );
@@ -600,7 +604,7 @@ export function getCandidates(
           events: timelineEvents,
           sections: sectionsMap,
         },
-        resumeUrl: user.resume_url,
+        resumeUrl: user.resume_url || user.resume || sub.resume_url || sub.resume || sub.rawSubmission?.resume_url || "",
         rawSubmission: { ...sub, vitarka_submission: vitSub },
         hasVitarkaSubmission: !!vitSub,
       });

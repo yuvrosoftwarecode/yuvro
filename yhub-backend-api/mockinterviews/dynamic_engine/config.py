@@ -16,7 +16,7 @@ class Settings(BaseModel):
     openai_model: str = Field(default="gpt-4o-mini")
     llm_enabled: bool = Field(default=True)
     llm_timeout_seconds: float = Field(default=20.0)
-    max_followups_per_topic: int = Field(default=3, ge=1)
+    max_followups_per_topic: int = Field(default=2, ge=1)
     rubric_version: str = Field(default="engineering_manager_v1.2")
 
 
@@ -50,6 +50,6 @@ def get_settings() -> Settings:
         openai_model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
         llm_enabled=_bool_env(os.getenv("LLM_ENABLED"), default=True),
         llm_timeout_seconds=float(os.getenv("LLM_TIMEOUT_SECONDS", "20")),
-        max_followups_per_topic=_int_env(os.getenv("MAX_FOLLOWUPS_PER_TOPIC"), default=3),
+        max_followups_per_topic=_int_env(os.getenv("MAX_FOLLOWUPS_PER_TOPIC"), default=2),
         rubric_version=os.getenv("RUBRIC_VERSION", "engineering_manager_v1.2"),
     )

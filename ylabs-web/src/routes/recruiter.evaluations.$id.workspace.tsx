@@ -197,7 +197,7 @@ function Workspace() {
         "Total",
         "Labs",
         "Assessment",
-        "Vitarka",
+        "AI Interview",
         "Status",
         "Hiring",
         "Submitted",
@@ -840,11 +840,11 @@ function OverviewTab({
   const stats = useMemo(() => {
     // 1. Funnel
     const invited = ev.candidatesTotal; 
-    const submitted = candidates.filter((c) => c.status === "Submitted").length;
-    const completed = candidates.filter((c) => c.status === "Completed").length;
+    const submitted = candidates.filter((c) => c.status === "Submitted" || c.status === "Completed").length;
+    const completed = submitted;
     const inProgress = candidates.filter((c) => c.status === "In Progress").length;
     const expired = candidates.filter((c) => c.status === "Expired").length;
-    const notStarted = Math.max(0, invited - (submitted + completed + inProgress + expired));
+    const notStarted = Math.max(0, invited - (submitted + inProgress + expired));
 
     // 2. Hiring Status from candidates (from submissions)
     const pending = candidates.filter((c) => c.hiringStatus === "Pending Review").length;
@@ -859,10 +859,11 @@ function OverviewTab({
     const avgEci = submittedList.length
       ? Math.round(submittedList.reduce((a, c) => a + c.eci, 0) / submittedList.length)
       : 0;
+    const evDuration = (ev.sections || []).reduce((sum: number, s: any) => sum + (s.duration || (s.labs || []).reduce((ls: number, l: any) => ls + (l.duration_minutes || 30), 0) || 30), 0) || 90;
     const avgTime = submittedList.length
-      ? Math.round(
+      ? Math.min(evDuration, Math.round(
           submittedList.reduce((a, c) => a + c.completionMinutes, 0) / submittedList.length,
-        )
+        ))
       : 0;
     return {
       invited,
@@ -936,15 +937,21 @@ function OverviewTab({
         <div className="lg:col-span-2">
           <SectionTitle>Recent activity</SectionTitle>
           <div className="mt-3 divide-y divide-white/5 overflow-hidden rounded-xl border border-white/5">
-            {activity.slice(0, 10).map((a) => (
-              <div key={a.id} className="flex items-center gap-3 px-4 py-3">
-                <CircleDot
-                  className={`h-3 w-3 ${a.tone === "good" ? "text-emerald-400" : a.tone === "warn" ? "text-amber-400" : a.tone === "bad" ? "text-red-400" : "text-neutral-500"}`}
-                />
-                <div className="flex-1 text-[13px] text-neutral-200">{a.text}</div>
-                <div className="text-[11px] text-neutral-500">{a.time}</div>
+            {activity.length === 0 ? (
+              <div className="px-4 py-8 text-center text-[13px] text-neutral-500">
+                No recent candidate activity recorded yet.
               </div>
-            ))}
+            ) : (
+              activity.slice(0, 10).map((a) => (
+                <div key={a.id} className="flex items-center gap-3 px-4 py-3">
+                  <CircleDot
+                    className={`h-3 w-3 ${a.tone === "good" ? "text-emerald-400" : a.tone === "warn" ? "text-amber-400" : a.tone === "bad" ? "text-red-400" : "text-neutral-500"}`}
+                  />
+                  <div className="flex-1 text-[13px] text-neutral-200">{a.text}</div>
+                  <div className="text-[11px] text-neutral-500">{a.time}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
         <div>
@@ -1675,7 +1682,7 @@ function ExportMenu({
         "Total",
         "Labs",
         "Assessment",
-        "Vitarka",
+        "AI Interview",
         "Status",
         "Hiring",
         "Submitted",
@@ -1800,7 +1807,7 @@ function CandidateTable({
   const sections: { key: ColKey; label: string; max: (c: Candidate) => number | undefined; val: (c: Candidate) => number }[] = [];
   if (show("labs")) sections.push({ key: "labs", label: "Eng. labs", max: (c) => c.labsMaxScore, val: (c) => c.labsScore });
   if (show("assessment")) sections.push({ key: "assessment", label: "Knowledge", max: (c) => c.assessmentMaxScore, val: (c) => c.assessmentScore });
-  if (show("vitarka")) sections.push({ key: "vitarka", label: "Vitarka", max: (c) => c.discussionMaxScore, val: (c) => c.vitarkaScore });
+  if (show("vitarka")) sections.push({ key: "vitarka", label: "AI Interview", max: (c) => c.discussionMaxScore, val: (c) => c.vitarkaScore });
   if (show("system_design")) sections.push({ key: "system_design", label: "Sys. design", max: (c) => c.systemDesignMaxScore, val: (c) => c.systemDesignScore || 0 });
   const maxOf = (fn: (c: Candidate) => number | undefined) => {
     const m = rows.reduce((acc, c) => Math.max(acc, fn(c) || 0), 0);
@@ -1988,7 +1995,7 @@ function CandidateCard({
         <div className="mt-4 flex flex-wrap gap-1.5">
           {hasLabs && <MiniScore label="Labs" v={c.labsScore} />}
           {hasAssessment && <MiniScore label="Assess" v={c.assessmentScore} />}
-          {hasVitarka && <MiniScore label="Vitarka" v={c.vitarkaScore} />}
+          {hasVitarka && <MiniScore label="AI Interview" v={c.vitarkaScore} />}
           {hasSystemDesign && <MiniScore label="Sys Design" v={c.systemDesignScore || 0} />}
           <MiniScore label="Total" v={c.totalEarned != null ? c.totalEarned : c.eci} highlight />
         </div>
@@ -2193,7 +2200,7 @@ function AdvancedFiltersDrawer({
               onChange={(v) => setL({ assessMin: v })}
             />
             <div className="mt-3 text-[11px] uppercase tracking-widest text-neutral-500">
-              Vitarka Discussion
+              AI Technical Interview (Vitarka)
             </div>
             <div className="mt-1">
               <CheckGrid
@@ -2581,7 +2588,7 @@ function SortMenu({ value, onChange }: { value: SortKey; onChange: (v: SortKey) 
     ["eci_asc", "Lowest Total"],
     ["labs_desc", "Highest Labs"],
     ["assess_desc", "Highest Assessment"],
-    ["vit_desc", "Highest Vitarka"],
+    ["vit_desc", "Highest AI Interview"],
     ["fastest", "Fastest completion"],
     ["slowest", "Slowest completion"],
     ["name_asc", "A → Z"],
@@ -2687,7 +2694,7 @@ function PreviewPanel({
         <div className="mt-4 flex flex-wrap gap-2">
           {c.labsMaxScore ? <ScoreBlock label="Labs" v={c.labsScore} big /> : null}
           {c.assessmentMaxScore ? <ScoreBlock label="Assessment" v={c.assessmentScore} big /> : null}
-          {c.discussionMaxScore ? <ScoreBlock label="Vitarka" v={c.vitarkaScore} big /> : null}
+          {c.discussionMaxScore ? <ScoreBlock label="AI Interview" v={c.vitarkaScore} big /> : null}
         </div>
 
         <div className="mt-6">
@@ -3069,7 +3076,7 @@ function buildActivity(candidates: Candidate[]) {
   }[] = [];
   const recent = [...candidates].sort((a, b) => b.submittedAt - a.submittedAt).slice(0, 40);
   for (const c of recent) {
-    if (c.status === "Submitted")
+    if (c.status === "Submitted" || c.status === "Completed")
       items.push({
         id: c.id + "s",
         text: `${c.name} submitted the evaluation`,

@@ -146,7 +146,7 @@ function EvaluationsList() {
             {plural(totalCount, "evaluation")} · {publishedCount} live
           </p>
         </div>
-        <Button onClick={onCreate} className="rec-btn shrink-0">
+        <Button onClick={onCreate} className="rec-btn shrink-0 whitespace-nowrap min-w-max">
           Create evaluation
         </Button>
       </header>

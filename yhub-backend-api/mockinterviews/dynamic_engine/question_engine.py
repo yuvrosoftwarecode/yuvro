@@ -66,6 +66,29 @@ STOP_WORDS = {
 }
 
 
+PHONETIC_TECH_CORRECTIONS = [
+    (r"\b(?:radius|red\s+is)\b", "Redis"),
+    (r"\b(?:post\s*gress?|post\s+grass)\b", "PostgreSQL"),
+    (r"\b(?:mango\s*db)\b", "MongoDB"),
+    (r"\b(?:kube\s*control|cube\s*ctl)\b", "kubectl"),
+    (r"\b(?:engine\s*x|n\s*jinx)\b", "NGINX"),
+    (r"\b(?:cough\s*ka)\b", "Kafka"),
+    (r"\b(?:dockers)\b", "Docker"),
+    (r"\b(?:rabbit\s*mq|rabbit\s+m\s+q)\b", "RabbitMQ"),
+    (r"\b(?:graph\s+q\s+l)\b", "GraphQL"),
+    (r"\b(?:fast\s+api)\b", "FastAPI"),
+]
+
+
+def correct_phonetic_transcription(text: str) -> str:
+    if not text:
+        return ""
+    result = text
+    for pattern, replacement in PHONETIC_TECH_CORRECTIONS:
+        result = re.sub(pattern, replacement, result, flags=re.IGNORECASE)
+    return result
+
+
 UNKNOWN_ANSWER_PATTERNS = {
     "dont know",
     "don't know",
@@ -724,7 +747,8 @@ class DynamicQuestionEngine:
             raise ValueError(f"question_id {question_id!r} does not belong to session {session.id}")
 
         answer_metadata = dict(metadata or {})
-        quality = self._classify_answer(answer_text)
+        normalized_answer = correct_phonetic_transcription(answer_text)
+        quality = self._classify_answer(normalized_answer)
         answer_metadata.setdefault("answer_quality", quality)
 
         question = next((q for q in session.questions if q.id == question_id), None)
@@ -735,19 +759,19 @@ class DynamicQuestionEngine:
             is_intro = True
         elif len(session.answers) == 0 and not quality.startswith("skip"):
             is_intro = True
-        elif re.match(r"^(hello|hi|hey)?\s*(i am|i'm|my name is)\b", answer_text.strip(), re.IGNORECASE):
+        elif re.match(r"^(hello|hi|hey)?\s*(i am|i'm|my name is)\b", normalized_answer.strip(), re.IGNORECASE):
             is_intro = True
 
         if is_intro:
             quality = "intro"
             answer_metadata["answer_quality"] = quality
-            extracted_name = extract_candidate_name(answer_text)
+            extracted_name = extract_candidate_name(normalized_answer)
             if extracted_name:
                 session.candidate.metadata["name"] = extracted_name
 
         answer = CandidateAnswer(
             question_id=question_id,
-            answer_text=answer_text,
+            answer_text=normalized_answer,
             confidence=confidence,
             metadata=answer_metadata,
         )

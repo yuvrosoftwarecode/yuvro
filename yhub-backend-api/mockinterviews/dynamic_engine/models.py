@@ -298,6 +298,7 @@ class EvaluationEvidence(BaseModel):
 class CompetencyScore(BaseModel):
     competency: Competency
     score: int = Field(..., ge=0, le=10)
+    observed: bool = Field(default=True)
     evidence: list[EvaluationEvidence] = Field(default_factory=list)
     guidance: str
 

@@ -24,6 +24,7 @@ interface ProctoringConfig {
     onViolation?: (type: string, data?: any) => void;
     onAutoSubmit?: () => void;
     pauseFullscreenChecks?: () => boolean;
+    pauseAudioChecks?: () => boolean;
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -40,6 +41,7 @@ export const useProctoring = ({
     onViolation,
     onAutoSubmit,
     pauseFullscreenChecks,
+    pauseAudioChecks,
 }: ProctoringConfig) => {
 
     // Refs so callbacks never go stale
@@ -55,6 +57,9 @@ export const useProctoring = ({
     
     const pauseFsRef = useRef(pauseFullscreenChecks);
     useEffect(() => { pauseFsRef.current = pauseFullscreenChecks; }, [pauseFullscreenChecks]);
+
+    const pauseAudioRef = useRef(pauseAudioChecks);
+    useEffect(() => { pauseAudioRef.current = pauseAudioChecks; }, [pauseAudioChecks]);
 
     const shortcutAttemptRef = useRef<string | null>(null);
     const captureFrameRef = useRef<(() => Promise<Blob | null>) | null>(null);
@@ -755,6 +760,12 @@ export const useProctoring = ({
                         micStream.getTracks().forEach(t => t.stop());
                         return;
                     }
+                    // Skip audio anomaly logging if audio checks are paused (e.g. during active Vitarka discussion)
+                    if (pauseAudioRef.current?.()) {
+                        anomalyCount = 0;
+                        return;
+                    }
+
                     analyser.getByteFrequencyData(dataArray);
                     const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
                     // Threshold: avg > 60 indicates elevated/suspicious audio

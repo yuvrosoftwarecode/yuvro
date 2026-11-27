@@ -70,7 +70,7 @@ export function buildEvaluationSummary(
   }
   if (hasVitarka) {
     blocks.push({
-      title: "Vitarka AI",
+      title: "AI Technical Interview",
       score: candidate.vitarkaScore,
       summary: candidate.vitarkaScore === 0
         ? `${first} did not provide responses during the Vitarka AI technical discussion.`

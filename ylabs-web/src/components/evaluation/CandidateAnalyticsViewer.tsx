@@ -199,6 +199,32 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
+const VIOLATION_CATEGORIES = [
+    { id: 'all', label: 'All Violations' },
+    { id: 'tab_focus', label: 'Tab & Focus' },
+    { id: 'clipboard', label: 'Clipboard' },
+    { id: 'webcam_face', label: 'Webcam & Face' },
+    { id: 'audio_noise', label: 'Audio Noise' },
+    { id: 'system_environment', label: 'System & Screen' },
+] as const;
+
+const getViolationCategory = (activityType: string = ''): 'tab_focus' | 'clipboard' | 'webcam_face' | 'audio_noise' | 'system_environment' => {
+    const t = activityType.toLowerCase();
+    if (t.includes('tab') || t.includes('focus') || t.includes('window') || t.includes('devtools') || t.includes('fullscreen')) {
+        return 'tab_focus';
+    }
+    if (t.includes('copy') || t.includes('paste') || t.includes('cut') || t.includes('select_all') || t.includes('clipboard') || t.includes('right_click') || t.includes('keyboard')) {
+        return 'clipboard';
+    }
+    if (t.includes('face') || t.includes('camera') || t.includes('snapshot') || t.includes('movement') || t.includes('eye')) {
+        return 'webcam_face';
+    }
+    if (t.includes('audio') || t.includes('mic') || t.includes('noise') || t.includes('sound') || t.includes('db_level')) {
+        return 'audio_noise';
+    }
+    return 'system_environment';
+};
+
 const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: propVitarkaSubmission }: { candidate: any, evaluation: any, vitarkaSubmission?: any }) => {
     const [submission, setSubmission] = useState<any>(candidate.submission || candidate.rawSubmission);
     if (!submission) return <div className="p-6 text-neutral-500">No raw submission data available for this candidate.</div>;
@@ -206,6 +232,8 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
     const [activeLightboxImg, setActiveLightboxImg] = useState<string | null>(null);
     const [frozenLog, setFrozenLog] = useState<any>(null);
     const [vitarkaQuestions, setVitarkaQuestions] = useState<any[]>([]);
+    const [violationCategoryFilter, setViolationCategoryFilter] = useState<string>('all');
+    const [violationDisplayLimit, setViolationDisplayLimit] = useState<number>(15);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -443,6 +471,35 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
         };
     }, [submission]);
 
+    const categorizedViolations = React.useMemo(() => {
+        const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
+        
+        const counts: Record<string, { total: number; critical: number }> = {
+            all: { total: riskAnalysis.violations.length, critical: 0 },
+            tab_focus: { total: 0, critical: 0 },
+            clipboard: { total: 0, critical: 0 },
+            webcam_face: { total: 0, critical: 0 },
+            audio_noise: { total: 0, critical: 0 },
+            system_environment: { total: 0, critical: 0 }
+        };
+        
+        riskAnalysis.violations.forEach(v => {
+            const cat = getViolationCategory(v.activity_type);
+            const isCrit = criticalTypes.some(ct => v.activity_type?.includes(ct));
+            if (isCrit) {
+                counts.all.critical += 1;
+                counts[cat].critical += 1;
+            }
+            counts[cat].total += 1;
+        });
+        
+        const filtered = violationCategoryFilter === 'all'
+            ? riskAnalysis.violations
+            : riskAnalysis.violations.filter(v => getViolationCategory(v.activity_type) === violationCategoryFilter);
+
+        return { counts, filtered };
+    }, [riskAnalysis.violations, violationCategoryFilter]);
+
     const allImages = React.useMemo(() => {
         const allSnapshots: ProctoringEvent[] = [];
         if (submission?.proctoring_events) allSnapshots.push(...submission.proctoring_events);
@@ -649,7 +706,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                 </CardTitle>
                                 <div className="flex items-center gap-4 text-xs">
                                     <div className="flex items-center gap-1.5 bg-slate-100/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Normal</div>
-                                    <div className="flex items-center gap-1.5 bg-slate-100/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-amber-500"></div> General</div>
+                                    <div className="flex items-center gap-1.5 bg-slate-100/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-amber-500"></div> Advisory / General</div>
                                     <div className="flex items-center gap-1.5 bg-slate-100/50 px-2 py-1 rounded"><div className="w-2 h-2 rounded-full bg-rose-500"></div> Critical</div>
                                 </div>
                             </div>
@@ -674,7 +731,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                         setFrozenLog(null);
                                                     }
                                                 }}
-                                                data={riskAnalysis.uniqueEvents.map((log) => {
+                                                data={riskAnalysis.uniqueEvents.map((log, idx, allEvents) => {
                                                     const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
                                                     const generalTypes = ['copy_detected', 'paste_detected', 'cut_detected', 'select_all_detected', 'right_click_detected', 'keyboard_shortcut', 'screenshot_detected', 'screen_share_started', 'screen_share_ended', 'suspicious_movement', 'audio_anomaly', 'network_disconnection', 'network_reconnection', 'violation_warning', 'fullscreen_exit', 'passport_photo_captured', 'initial_screenshot_captured'];
                                                     
@@ -685,11 +742,15 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                     const severity = isC ? 2 : (isG || isV) ? 1 : 0;
                                                     const isPureSnapshot = isS && (!log.activity_type || log.activity_type === 'snapshot');
                                                     
+                                                    const timeStr = formatEventTime(log.timestamp);
+                                                    const prevTimeStr = idx > 0 ? formatEventTime(allEvents[idx - 1].timestamp) : null;
+                                                    const displayLabel = log.question_no ? log.question_no : (timeStr === prevTimeStr ? '' : timeStr);
+
                                                     return {
-                                                        name: log.question_no || formatEventTime(log.timestamp),
-                                                        time: formatEventTime(log.timestamp),
+                                                        name: displayLabel,
+                                                        time: timeStr,
                                                         severity: severity,
-                                                        severityName: isPureSnapshot ? 'Snapshot' : severity === 2 ? 'Critical' : severity === 1 ? 'General' : 'Normal',
+                                                        severityName: isPureSnapshot ? 'Snapshot' : severity === 2 ? 'Critical' : severity === 1 ? 'Advisory' : 'Normal',
                                                         log: log,
                                                         isSnapshot: isS
                                                     };
@@ -708,11 +769,11 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                                         <stop offset="100%" stopColor="#f43f5e" stopOpacity={1}/>
                                                     </linearGradient>
                                                 </defs>
-                                                <XAxis dataKey="name" tick={{ fontSize: 10 }} tickMargin={15} stroke="#888888" />
+                                                <XAxis dataKey="name" tick={{ fontSize: 10 }} tickMargin={15} stroke="#888888" interval="preserveStartEnd" />
                                                 <YAxis 
                                                     domain={[0, 2.2]} 
                                                     ticks={[0, 1, 2]} 
-                                                    tickFormatter={(value) => value === 0 ? 'Normal' : value === 1 ? 'General' : value === 2 ? 'Critical' : ''}
+                                                    tickFormatter={(value) => value === 0 ? 'Normal' : value === 1 ? 'Advisory' : value === 2 ? 'Critical' : ''}
                                                     tick={{ fontSize: 10, fontWeight: 600 }}
                                                     width={60}
                                                     stroke="none"
@@ -1249,7 +1310,7 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                 </TabsContent>
 
                 {/* 3. Violations Tab */}
-                <TabsContent value="violations" className="space-y-6">
+                <TabsContent value="violations" className="space-y-6 outline-none focus-visible:ring-1 focus-visible:ring-blue-500">
                     <Card className="border border-neutral-200 dark:border-white/10 rounded-2xl bg-slate-50/40 dark:bg-white/5 shadow-none p-2 text-slate-900 dark:text-white">
                         <CardHeader>
                             <CardTitle className="text-[10px] uppercase tracking-widest text-rose-600 flex items-center gap-2 font-bold">
@@ -1258,15 +1319,55 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
+                            {/* Category Filter Pills */}
+                            <div className="flex flex-wrap gap-2 mb-6">
+                                {VIOLATION_CATEGORIES.map(cat => {
+                                    const data = categorizedViolations.counts[cat.id] || { total: 0, critical: 0 };
+                                    const isActive = violationCategoryFilter === cat.id;
+                                    return (
+                                        <button
+                                            key={cat.id}
+                                            type="button"
+                                            onClick={() => {
+                                                setViolationCategoryFilter(cat.id);
+                                                setViolationDisplayLimit(15);
+                                            }}
+                                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                                                isActive 
+                                                    ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-700 dark:text-blue-300 shadow-sm'
+                                                    : 'bg-white dark:bg-[#121215] border-neutral-200 dark:border-white/10 text-slate-600 dark:text-neutral-400 hover:bg-slate-50 dark:hover:bg-white/5'
+                                            }`}
+                                        >
+                                            <span>{cat.label}</span>
+                                            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                                                isActive ? 'bg-blue-200/60 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200' : 'bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-neutral-300'
+                                            }`}>
+                                                {data.total}
+                                            </span>
+                                            {data.critical > 0 && (
+                                                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300">
+                                                    {data.critical} crit
+                                                </span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
                             {totalViolations === 0 ? (
                                 <div className="text-center py-12 text-emerald-600  flex flex-col items-center justify-center gap-3 bg-emerald-50/20  border border-dashed border-neutral-200 dark:border-white/10 border-emerald-200  rounded-lg">
                                     <ShieldCheck className="h-10 w-10 text-emerald-500" />
                                     <div className="font-semibold text-base">Perfect Session Integrity!</div>
                                     <p className="text-xs text-slate-500 dark:text-neutral-400">The student did not trigger any proctoring flags during the assessment.</p>
                                 </div>
+                            ) : categorizedViolations.filtered.length === 0 ? (
+                                <div className="text-center py-8 text-slate-500 dark:text-neutral-400 text-xs italic">
+                                    No violations in this category.
+                                </div>
                             ) : (
+                                <>
                                 <div className="relative border-l border-neutral-200 dark:border-white/10 pl-6 ml-3 space-y-6">
-                                    {riskAnalysis.violations.map((event, idx) => {
+                                    {categorizedViolations.filtered.slice(0, violationDisplayLimit).map((event, idx) => {
                                         const criticalTypes = ['tab_switched', 'focus_lost', 'window_blur', 'devtools_opened', 'new_tab_detected', 'new_window_detected', 'face_not_detected', 'multiple_faces_detected', 'face_recognition_failed', 'violation_critical', 'suspicious_activity', 'device_change', 'external_monitor', 'forbidden_platform_detected', 'screen_share_stopped', 'camera_stopped', 'mic_stopped', 'repeated_permission_loss'];
                                         const isCritical = criticalTypes.some(vt => event.activity_type.includes(vt));
 
@@ -1413,6 +1514,47 @@ const CandidateAnalyticsViewer = ({ candidate, evaluation, vitarkaSubmission: pr
                                         );
                                     })}
                                 </div>
+                                {categorizedViolations.filtered.length > violationDisplayLimit && (
+                                    <div className="pt-4 flex items-center justify-between border-t border-neutral-200 dark:border-white/10 mt-6">
+                                        <span className="text-xs text-slate-500 dark:text-neutral-400">
+                                            Showing {violationDisplayLimit} of {categorizedViolations.filtered.length} events
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm"
+                                                onClick={() => setViolationDisplayLimit(prev => prev + 20)}
+                                                className="text-xs h-8"
+                                            >
+                                                Show next 20 events
+                                            </Button>
+                                            <Button 
+                                                variant="secondary" 
+                                                size="sm"
+                                                onClick={() => setViolationDisplayLimit(categorizedViolations.filtered.length)}
+                                                className="text-xs h-8"
+                                            >
+                                                Show all {categorizedViolations.filtered.length} events
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                                {violationDisplayLimit >= categorizedViolations.filtered.length && categorizedViolations.filtered.length > 15 && (
+                                    <div className="pt-4 flex items-center justify-between border-t border-neutral-200 dark:border-white/10 mt-6">
+                                        <span className="text-xs text-slate-500 dark:text-neutral-400">
+                                            Showing all {categorizedViolations.filtered.length} events
+                                        </span>
+                                        <Button 
+                                            variant="ghost" 
+                                            size="sm"
+                                            onClick={() => setViolationDisplayLimit(15)}
+                                            className="text-xs h-8 text-slate-500"
+                                        >
+                                            Show less
+                                        </Button>
+                                    </div>
+                                )}
+                                </>
                             )}
                         </CardContent>
                     </Card>
