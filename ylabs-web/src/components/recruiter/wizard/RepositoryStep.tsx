@@ -15,7 +15,7 @@ export function RepositoryStep() {
   const [currentStage, setCurrentStage] = useState(0);
   const [scanError, setScanError] = useState<string | null>(null);
 
-  const isScanned = Boolean(state.scan.files && state.scan.files.length > 0);
+  const isScanned = Array.isArray(state.scan.files);
   const isScanning = state.scan.scanning;
   const targetRepo = state.f.url || state.f.repo;
 
@@ -45,11 +45,13 @@ export function RepositoryStep() {
         ...prev,
         reached: Math.max(prev.reached, 2),
         scan: {
+          ...prev.scan,
           scanning: false,
           stageIndex: 2,
           files: res.files,
           fileCount: res.fileCount,
           keyFiles: res.keyFiles,
+          cloneToken: res.cloneToken || prev.scan.cloneToken,
         },
       }));
     } catch (err: any) {
@@ -189,7 +191,15 @@ export function RepositoryStep() {
                 <div style={{ marginTop: 16 }}>
                   <div className="lr" style={{ alignItems: "center" }}>
                     <p className="rp" style={{ margin: 0 }}>
-                      Indexed <b>{state.scan.fileCount} files</b> from {state.f.repo || state.f.url} ({state.f.branch || "main"}). Ready for task generation.
+                      {state.scan.fileCount > 0 ? (
+                        <>
+                          Indexed <b>{state.scan.fileCount} files</b> from {state.f.repo || state.f.url} ({state.f.branch || "main"}). Ready for task generation.
+                        </>
+                      ) : (
+                        <>
+                          Repository <b>{state.f.repo || state.f.url}</b> ({state.f.branch || "main"}) is empty (0 files). You can still continue to create tasks.
+                        </>
+                      )}
                     </p>
                     <button type="button" className="lk" onClick={handleStartScan}>
                       Scan again

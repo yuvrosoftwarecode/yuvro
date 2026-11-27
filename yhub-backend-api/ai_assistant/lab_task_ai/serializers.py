@@ -52,6 +52,13 @@ class GenerateLifecycleCommandsSerializer(serializers.Serializer):
     model_name = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
 
+class GenerateStarterCodebaseSerializer(serializers.Serializer):
+    lab_context = serializers.DictField(required=True)
+    tasks = serializers.ListField(child=serializers.DictField(), required=False, default=list)
+    provider = serializers.CharField(required=False, default="deepseek")
+    model_name = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
+
 class InspectRepoSerializer(serializers.Serializer):
     repo_identifier = serializers.CharField(required=True)
     branch = serializers.CharField(required=False, default="main", allow_blank=True)

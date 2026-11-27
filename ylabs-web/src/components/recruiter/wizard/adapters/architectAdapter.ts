@@ -92,7 +92,7 @@ export async function chatArchitect(payload: {
       id: genUid(),
       title: t.title,
       desc: t.description || "",
-      ref: t.solution || "",
+      ref: "",
       diff: (t.difficulty === "HARD" ? "Hard" : t.difficulty === "MEDIUM" ? "Medium" : "Easy") as any,
       marks: Number(t.marks) || marksAllocated[idx] || 3,
       min: Number(t.duration_minutes) || minsAllocated[idx] || 10,
@@ -129,7 +129,7 @@ export async function standardizeTaskWithAI(task: TaskItem, labContext: any): Pr
       title: res.title || task.title,
       desc: res.description || task.desc,
       diff: (res.difficulty === "HARD" ? "Hard" : res.difficulty === "MEDIUM" ? "Medium" : "Easy") as any,
-      ref: res.solution || res.solution_code || task.ref,
+      ref: "",
       marks: res.marks || task.marks,
       min: res.duration_minutes || res.estimated_minutes || task.min,
     };

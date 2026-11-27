@@ -16,6 +16,9 @@ export async function runVerificationStages(payload: {
   solutionFiles?: Record<string, string>;
   labContext?: any;
   repoFiles?: Record<string, string>;
+  workspaceId?: string | null;
+  recruiterUuid?: string;
+  questionUuid?: string;
 }): Promise<{
   logs: string[];
   statuses: string[];
@@ -29,25 +32,38 @@ export async function runVerificationStages(payload: {
   // Two visible stages: [0] Fail case (Starter), [1] Pass case (Solution)
   const logs: string[] = ["", ""];
   const statuses: string[] = ["", ""];
-  let wsId: string | null = null;
+  let wsId: string | null = payload.workspaceId || null;
   let activeSolutionFiles = payload.solutionFiles ? { ...payload.solutionFiles } : {};
   let failResult: any = null;
   let passResult: any = null;
 
-  // --- STAGE 0: Setup Evaluation Workspace & Run Fail Case ---
-  payload.onProgress(0, "Cloning evaluation workspace...", "Cloning starter repository and initializing evaluation workspace...\n");
-  try {
-    const ws = await labTaskAIService.createTempWorkspace({
-      repo_url: payload.repoUrl,
-      branch: payload.branch,
-      scoring_files: payload.scoringFiles,
-    });
-    wsId = ws.temp_workspace_id;
-  } catch (err: any) {
-    logs[0] = `Failed to clone evaluation workspace:\n${err?.response?.data?.detail || err?.message || err}`;
-    statuses[0] = "Failed";
-    payload.onProgress(0, statuses[0], logs[0]);
-    return { logs, statuses, success: false };
+  const langList = payload.labContext?.stack?.languages || [];
+  const isPy =
+    langList.some((l: string) => l.toLowerCase().includes("python")) ||
+    !langList.some((l: string) => l.toLowerCase().includes("javascript") || l.toLowerCase().includes("typescript"));
+  const defaultTestCmd = isPy ? "python yuvro_scoring_rules/main_test.py" : "node yuvro_scoring_rules/main_test.js";
+  const effectiveTestCmd = (payload.testCommand && payload.testCommand.includes("yuvro_scoring_rules"))
+    ? payload.testCommand
+    : defaultTestCmd;
+
+  // --- STAGE 0: Setup Evaluation Workspace (reuse existing recruiter workspace if already cloned) & Run Fail Case ---
+  if (!wsId) {
+    payload.onProgress(0, "Cloning evaluation workspace...", "Cloning starter repository into recruiter workspace...\n");
+    try {
+      const ws = await labTaskAIService.createTempWorkspace({
+        repo_url: payload.repoUrl,
+        branch: payload.branch,
+        scoring_files: payload.scoringFiles,
+        recruiter_uuid: payload.recruiterUuid,
+        question_uuid: payload.questionUuid,
+      });
+      wsId = ws.temp_workspace_id;
+    } catch (err: any) {
+      logs[0] = `Failed to clone evaluation workspace:\n${err?.response?.data?.detail || err?.message || err}`;
+      statuses[0] = "Failed";
+      payload.onProgress(0, statuses[0], logs[0]);
+      return { logs, statuses, success: false };
+    }
   }
 
   payload.onProgress(0, "Running fail case...", "Executing test runner on unmodified starter code...\n");
@@ -56,18 +72,27 @@ export async function runVerificationStages(payload: {
 
     const res = await labTaskAIService.runTempScoring({
       temp_workspace_id: wsId,
-      test_command: payload.testCommand,
+      test_command: effectiveTestCmd,
       scoring_files: payload.scoringFiles,
       mode: "fail_case",
     });
     failResult = res;
 
-    const output =
-      (res as any)?.stdout ||
-      (res as any)?.output ||
-      (res as any)?.raw_output ||
-      `Executed test command: ${payload.testCommand}\nExit code: ${(res as any)?.exit_code ?? 0}`;
-    logs[0] = output;
+    const installedFail: string[] = (res as any)?.auto_installed_packages || [];
+    const installNoteFail = installedFail.length > 0 ? `[Auto-installed missing libraries: ${installedFail.join(", ")}]\n` : "";
+    const stdout = String((res as any)?.stdout || (res as any)?.output || (res as any)?.raw_output || "").trim();
+    const stderr = String((res as any)?.stderr || "").trim();
+    let bodyText = "";
+    if (stdout && stderr) {
+      bodyText = `${stdout}\n\n[Errors / Diagnostics]:\n${stderr}`;
+    } else if (stdout) {
+      bodyText = stdout;
+    } else if (stderr) {
+      bodyText = `[Errors / Diagnostics]:\n${stderr}\n\nExecuted test command: ${payload.testCommand}\nExit code: ${(res as any)?.exit_code ?? 0}`;
+    } else {
+      bodyText = `Executed test command: ${payload.testCommand}\nExit code: ${(res as any)?.exit_code ?? 0}`;
+    }
+    logs[0] = `${installNoteFail}${bodyText}`;
     const failScore = (res as any)?.total_score ?? 0;
     statuses[0] = `Verified (${failScore}/${payload.totalMarks})`;
     payload.onProgress(0, statuses[0], logs[0]);
@@ -123,23 +148,45 @@ export async function runVerificationStages(payload: {
 
     const res = await labTaskAIService.runTempScoring({
       temp_workspace_id: wsId,
-      test_command: payload.testCommand,
+      test_command: effectiveTestCmd,
       scoring_files: payload.scoringFiles,
       mode: "pass_case",
       solution_files: activeSolutionFiles,
     });
     passResult = res;
 
-    const output =
-      (res as any)?.stdout ||
-      (res as any)?.output ||
-      (res as any)?.raw_output ||
-      `Executed pass case with reference solutions.\nExit code: ${(res as any)?.exit_code ?? 0}`;
-    logs[1] = output;
+    const installedPass: string[] = (res as any)?.auto_installed_packages || [];
+    const installNotePass = installedPass.length > 0 ? `[Auto-installed missing libraries: ${installedPass.join(", ")}]\n` : "";
+    const stdout = String((res as any)?.stdout || (res as any)?.output || (res as any)?.raw_output || "").trim();
+    const stderr = String((res as any)?.stderr || "").trim();
+    let bodyText = "";
+    if (stdout && stderr) {
+      bodyText = `${stdout}\n\n[Errors / Diagnostics]:\n${stderr}`;
+    } else if (stdout) {
+      bodyText = stdout;
+    } else if (stderr) {
+      bodyText = `[Errors / Diagnostics]:\n${stderr}\n\nExecuted pass case with reference solutions.\nExit code: ${(res as any)?.exit_code ?? 0}`;
+    } else {
+      bodyText = `Executed pass case with reference solutions.\nExit code: ${(res as any)?.exit_code ?? 0}`;
+    }
+    logs[1] = `${installNotePass}${bodyText}`;
+    const hasExplicitVerification = typeof (res as any)?.verified === "boolean";
     const passScore = (res as any)?.total_score ?? ((res as any)?.exit_code === 0 ? payload.totalMarks : 0);
-    const passed = (res as any)?.verified || (res as any)?.exit_code === 0 || passScore >= payload.totalMarks;
-    statuses[1] = passed ? `Passed, score ${passScore} of ${payload.totalMarks}` : `Pass case: score ${passScore} of ${payload.totalMarks}`;
+    const passed = hasExplicitVerification
+      ? Boolean((res as any).verified)
+      : ((res as any)?.exit_code === 0 && passScore >= payload.totalMarks);
+    statuses[1] = passed ? `Passed, score ${passScore} of ${payload.totalMarks}` : `Failed, score ${passScore} of ${payload.totalMarks}`;
     payload.onProgress(1, statuses[1], logs[1]);
+
+    // Ensure workspace is reset back to pristine baseline (buggy starter code)
+    try {
+      if (wsId) {
+        await labTaskAIService.resetTempWorkspace(wsId);
+      }
+    } catch (resetErr) {
+      console.warn("Could not reset temp workspace after pass case run:", resetErr);
+    }
+
     return {
       logs,
       statuses,
@@ -148,6 +195,15 @@ export async function runVerificationStages(payload: {
       rawResults: { failCase: failResult, passCase: passResult },
     };
   } catch (err: any) {
+    // Ensure workspace is reset back to pristine baseline even if pass case fails
+    try {
+      if (wsId) {
+        await labTaskAIService.resetTempWorkspace(wsId);
+      }
+    } catch (resetErr) {
+      console.warn("Could not reset temp workspace after pass case error:", resetErr);
+    }
+
     logs[1] = `Error executing pass case test runner:\n${err?.response?.data?.detail || err?.message || err}`;
     statuses[1] = "Failed";
     payload.onProgress(1, statuses[1], logs[1]);

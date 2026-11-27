@@ -9,7 +9,7 @@ export async function runScanRepository(payload: {
   branch: string;
   installationId?: string | null;
   onProgress: ScanProgressCallback;
-}): Promise<{ files: string[]; fileCount: number; keyFiles: Record<string, string> }> {
+}): Promise<{ files: string[]; fileCount: number; keyFiles: Record<string, string>; cloneToken?: string }> {
   if (!payload.repoIdentifier.trim()) {
     throw new Error("Repository identifier or URL is required to scan.");
   }
@@ -22,19 +22,20 @@ export async function runScanRepository(payload: {
     repo_identifier: payload.repoIdentifier,
     branch: payload.branch || "main",
     installation_id: payload.installationId || undefined,
-    include_clone_token: false,
+    include_clone_token: true,
   });
 
   payload.onProgress(2); // Detecting dependencies
   await new Promise((r) => setTimeout(r, 400));
 
-  if (apiRes && Array.isArray(apiRes.files) && apiRes.files.length > 0) {
+  if (apiRes && Array.isArray(apiRes.files)) {
     return {
       files: apiRes.files,
-      fileCount: apiRes.file_count || apiRes.files.length,
+      fileCount: apiRes.file_count ?? apiRes.files.length,
       keyFiles: apiRes.key_files || {},
+      cloneToken: apiRes.clone_token,
     };
   }
 
-  throw new Error("No files found in repository. Please check the repository permissions and branch name.");
+  throw new Error("Could not inspect repository. Please check the repository permissions and branch name.");
 }

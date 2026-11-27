@@ -10,6 +10,8 @@ export interface QuestionBuilderProps {
   initialCategory?: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE";
   category?: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE";
   onCategoryChange?: (category: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE") => void;
+  step?: number;
+  onStepChange?: (step: number) => void;
   editingId?: string | null;
   initialData?: any;
   courses?: { id: string; name: string }[];
@@ -21,6 +23,8 @@ export function QuestionBuilder({
   initialCategory = "LAB",
   category = "LAB",
   onCategoryChange,
+  step,
+  onStepChange,
   editingId,
   initialData,
   onClose,
@@ -318,6 +322,8 @@ export function QuestionBuilder({
       onCategoryChange={onCategoryChange}
       editingId={editingId}
       initialData={initialData}
+      initialStep={step}
+      onStepChange={onStepChange}
     >
       <WizardShell
         onCancel={onClose}

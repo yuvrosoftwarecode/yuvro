@@ -16,6 +16,7 @@ from .serializers import (
     TaskChatSerializer,
     GeneratePassSolutionSerializer,
     RepairScoringRulesSerializer,
+    GenerateStarterCodebaseSerializer,
 )
 from .task_engine import LabTaskAIEngine
 from .scoring_synthesizer import ScoringRulesSynthesizer
@@ -199,6 +200,28 @@ class LabTaskAIViewSet(viewsets.ViewSet):
             return Response(result, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Failed to generate lifecycle commands: {e}", exc_info=True)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=["post"], url_path="generate-starter-codebase")
+    def generate_starter_codebase(self, request):
+        serializer = GenerateStarterCodebaseSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        engine = LabTaskAIEngine(
+            provider=data.get("provider", "deepseek"),
+            model_name=data.get("model_name"),
+        )
+        try:
+            result = asyncio.run(
+                engine.generate_starter_codebase(
+                    lab_context=data["lab_context"],
+                    tasks=data.get("tasks", []),
+                )
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Failed to generate starter codebase: {e}", exc_info=True)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=["post"], url_path="inspect-repo")

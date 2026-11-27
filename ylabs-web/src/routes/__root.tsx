@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
 } from "@tanstack/react-router";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -88,6 +89,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+  const location = useLocation();
+  const hideSupportFeedback =
+    location.pathname === "/recruiter-login" ||
+    location.pathname.startsWith("/recruiter-login/");
 
   const app = (
     <QueryClientProvider client={queryClient}>
@@ -96,7 +101,7 @@ function RootComponent() {
           <AnalyticsProvider>
             <HeadContent />
             <Outlet />
-            <SupportFeedbackButton />
+            {!hideSupportFeedback && <SupportFeedbackButton />}
             <Toaster position="top-right" />
           </AnalyticsProvider>
         </CreditWalletProvider>

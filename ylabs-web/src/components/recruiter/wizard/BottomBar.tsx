@@ -9,7 +9,7 @@ export function BottomBar({
   onPublish?: () => void;
   isPublishing?: boolean;
 }) {
-  const { state, prevStep, nextStep, lockMsg, warnMsg, canPublish, publishBlockReason } = useWizard();
+  const { state, prevStep, nextStep, lockMsg, warnMsg, canPublish, publishBlockReason, isCloningWorkspace } = useWizard();
 
   const steps = getStepsForCategory(state.type);
   const totalSteps = steps.length;
@@ -18,7 +18,9 @@ export function BottomBar({
 
   // Bottom hint text
   let hint = `Step ${state.step} of ${totalSteps}`;
-  if (isLastStep) {
+  if (isCloningWorkspace) {
+    hint = state.step === 3 ? "Generating starter codebase with AI…" : "Cloning repository to workspace…";
+  } else if (isLastStep) {
     hint = publishBlockReason || "Ready to publish";
   } else if (lockMsg) {
     hint = lockMsg;
@@ -26,14 +28,14 @@ export function BottomBar({
     hint = warnMsg;
   }
 
-  const isContinueDisabled = Boolean(lockMsg) || (isLastStep && !canPublish) || isPublishing;
+  const isContinueDisabled = Boolean(lockMsg) || (isLastStep && !canPublish) || isPublishing || isCloningWorkspace;
 
   return (
     <footer className="bar" id="bar">
       <span className="sm mut">{hint}</span>
       <div className="row">
         {!isFirstStep && (
-          <button type="button" className="lk" onClick={prevStep} disabled={isPublishing}>
+          <button type="button" className="lk" onClick={prevStep} disabled={isPublishing || isCloningWorkspace}>
             Back
           </button>
         )}
@@ -53,7 +55,7 @@ export function BottomBar({
             onClick={nextStep}
             disabled={isContinueDisabled}
           >
-            Continue
+            {isCloningWorkspace ? "Cloning…" : "Continue"}
           </button>
         )}
       </div>

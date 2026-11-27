@@ -1,4 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
+import { labTaskAIService } from "@/services/labTaskAIService";
 import {
   WizardState,
   QuestionCategory,
@@ -12,7 +15,15 @@ import {
 } from "./types";
 import { splitDistribution } from "./adapters/architectAdapter";
 
+const generateQuestionUuid = (): string => {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `q_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+};
+
 export const getDefaultWizardState = (): WizardState => ({
+  questionUuid: generateQuestionUuid(),
   step: 1,
   reached: 1,
   type: "lab",
@@ -116,8 +127,12 @@ export interface WizardContextType {
   warnMsg: string;
   canPublish: boolean;
   publishBlockReason: string;
+  isCloningWorkspace: boolean;
+  markPublished: () => void;
+  cleanupWorkspace: () => void;
+  cleanupDraft: () => void;
   normalizeMarksAndTime: () => void;
-  nextStep: () => void;
+  nextStep: () => void | Promise<void>;
   prevStep: () => void;
 }
 
@@ -129,23 +144,27 @@ export function WizardProvider({
   onCategoryChange,
   editingId,
   initialData,
+  initialStep,
+  onStepChange,
 }: {
   children: React.ReactNode;
   initialCategory?: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE";
   onCategoryChange?: (category: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE") => void;
   editingId?: string | null;
   initialData?: any;
+  initialStep?: number;
+  onStepChange?: (step: number) => void;
 }) {
-  // Purge any stale wizard drafts from localStorage so creating questions always starts fresh
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.removeItem("yuvro_wizard_draft_v2");
-      localStorage.removeItem("yuvro_wizard_draft_new");
-      localStorage.removeItem("yuvro_wizard_draft");
-    } catch {
-      // ignore
-    }
-  }
+  const { user } = useAuth();
+  const [isCloningWorkspace, setIsCloningWorkspace] = useState(false);
+  const isPublishedRef = useRef(false);
+  const workspaceIdRef = useRef<string | null>(null);
+
+  const storageKey = useMemo(() => {
+    if (editingId) return `yuvro_wizard_edit_${editingId}`;
+    const cat = (initialCategory || "LAB").toLowerCase();
+    return `yuvro_wizard_draft_${cat}`;
+  }, [editingId, initialCategory]);
 
   const [state, setState] = useState<WizardState>(() => {
     const base = getDefaultWizardState();
@@ -155,8 +174,51 @@ export function WizardProvider({
       else base.type = "lab";
     }
 
-    // If editing existing question from database, populate with initialData
-    if (initialData) {
+    // Attempt to restore saved draft from localStorage
+    let savedDraft: any = null;
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (raw) {
+          savedDraft = JSON.parse(raw);
+        }
+      } catch (e) {
+        console.warn("Failed to parse wizard draft from localStorage", e);
+      }
+    }
+
+    if (savedDraft) {
+      if (savedDraft.questionUuid) base.questionUuid = savedDraft.questionUuid;
+      if (savedDraft.f) base.f = { ...base.f, ...savedDraft.f };
+      if (savedDraft.stack) base.stack = { ...base.stack, ...savedDraft.stack };
+      if (savedDraft.custom) base.custom = { ...base.custom, ...savedDraft.custom };
+      if (savedDraft.scan) base.scan = { ...base.scan, ...savedDraft.scan };
+      if (savedDraft.t) {
+        base.t = {
+          ...base.t,
+          ...savedDraft.t,
+          tasks: savedDraft.t.tasks || base.t.tasks,
+          msgs: savedDraft.t.msgs || base.t.msgs,
+          runs: savedDraft.t.runs || base.t.runs,
+          chats: savedDraft.t.chats || base.t.chats,
+        };
+      }
+      if (savedDraft.sc) {
+        base.sc = {
+          ...base.sc,
+          ...savedDraft.sc,
+        };
+      }
+      if (typeof savedDraft.reached === "number") {
+        base.reached = savedDraft.reached;
+      }
+      if (typeof savedDraft.step === "number") {
+        base.step = savedDraft.step;
+      }
+    }
+
+    // If editing existing question from database, populate with initialData if not already in draft
+    if (initialData && !savedDraft) {
       base.f.title = initialData.title || base.f.title;
       base.f.desc = initialData.description || base.f.desc;
       base.f.marks = initialData.marks || base.f.marks;
@@ -185,21 +247,101 @@ export function WizardProvider({
       }
     }
 
+    // Determine target step: URL search param, initialStep, or savedDraft.step
+    const urlStep = typeof window !== "undefined" ? (() => {
+      const sp = new URLSearchParams(window.location.search).get("step");
+      const n = sp ? parseInt(sp, 10) : NaN;
+      return n >= 1 && n <= 4 ? n : undefined;
+    })() : undefined;
+
+    const targetStep = initialStep || urlStep || (savedDraft ? savedDraft.step : undefined);
+    if (targetStep && targetStep >= 1 && targetStep <= 4) {
+      base.step = targetStep;
+      base.reached = Math.max(base.reached, targetStep);
+    }
+
     return base;
   });
 
-  // Ensure localStorage is kept clean of any wizard drafts
+  // Keep URL in sync on initial render if step parameter is missing
   useEffect(() => {
     if (typeof window !== "undefined") {
-      try {
-        localStorage.removeItem("yuvro_wizard_draft_v2");
-        localStorage.removeItem("yuvro_wizard_draft_new");
-        localStorage.removeItem("yuvro_wizard_draft");
-      } catch {
-        // ignore
+      const url = new URL(window.location.href);
+      if (!url.searchParams.get("step")) {
+        url.searchParams.set("step", String(state.step));
+        window.history.replaceState({}, "", url.toString());
       }
     }
+  }, [state.step]);
+
+  // Sync initialStep prop if changed externally
+  useEffect(() => {
+    if (initialStep && initialStep !== state.step && initialStep >= 1 && initialStep <= 4) {
+      setState((prev) => ({
+        ...prev,
+        step: initialStep,
+        reached: Math.max(prev.reached, initialStep),
+      }));
+    }
+  }, [initialStep]);
+
+  // Listen to popstate (browser back / forward button)
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window === "undefined") return;
+      const sp = new URLSearchParams(window.location.search).get("step");
+      const n = sp ? parseInt(sp, 10) : NaN;
+      if (n >= 1 && n <= 4) {
+        setState((prev) => ({
+          ...prev,
+          step: n,
+          reached: Math.max(prev.reached, n),
+        }));
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
+
+  // Auto-save draft to localStorage whenever relevant state changes
+  useEffect(() => {
+    if (typeof window === "undefined" || isPublishedRef.current) return;
+    try {
+      const draftData = {
+        questionUuid: state.questionUuid,
+        step: state.step,
+        reached: state.reached,
+        type: state.type,
+        f: state.f,
+        stack: state.stack,
+        custom: state.custom,
+        scan: {
+          ...state.scan,
+          scanning: false,
+          stageIndex: 0,
+        },
+        t: {
+          tasks: state.t.tasks,
+          msgs: state.t.msgs,
+          runs: state.t.runs,
+          chats: state.t.chats,
+          draft: state.t.draft,
+          sel: state.t.sel,
+          tab: state.t.tab,
+        },
+        sc: {
+          startup: state.sc.startup,
+          test: state.sc.test,
+          allow: state.sc.allow,
+          rules: state.sc.rules,
+          open: state.sc.open,
+        },
+      };
+      localStorage.setItem(storageKey, JSON.stringify(draftData));
+    } catch (e) {
+      console.warn("Failed to auto-save wizard draft to localStorage:", e);
+    }
+  }, [state, storageKey]);
 
   // Sync category changes from route/parent
   useEffect(() => {
@@ -240,7 +382,15 @@ export function WizardProvider({
       reached: Math.max(prev.reached, step),
       menu: false,
     }));
-  }, []);
+
+    if (onStepChange) {
+      onStepChange(step);
+    } else if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("step", String(step));
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, [onStepChange]);
 
   const setField = useCallback((key: keyof WizardState["f"], val: any) => {
     setState((prev) => {
@@ -397,7 +547,7 @@ export function WizardProvider({
       return "Generate scoring rules before publishing";
     }
     const ver = state.sc.ver;
-    if ((ver.st !== "done" && ver.st !== "passed") || !ver.done[1] || !ver.done[2]) {
+    if ((ver.st !== "done" && ver.st !== "passed") || !ver.done[0] || !ver.done[1]) {
       return "Run full verification before publishing";
     }
     if (!state.sc.pushed) {
@@ -418,7 +568,9 @@ export function WizardProvider({
       }
       if (state.step === 3) {
         if (state.t.busy) return "The architect is working…";
-        if (state.t.ed) return "Save or cancel your edit to continue";
+        if (state.t.ed && (state.t.tasks.some((x) => x.id === state.t.ed!.id) || !state.t.ed.id)) {
+          return "Save or cancel your edit to continue";
+        }
         if (!state.t.tasks.length) return "Add tasks to continue";
       }
       if (state.step === 4) {
@@ -478,7 +630,7 @@ export function WizardProvider({
     });
   }, []);
 
-  const nextStep = useCallback(() => {
+  const nextStep = useCallback(async () => {
     if (state.type === "lab") {
       if (state.step === 1) {
         // Step 1: Repository and scan
@@ -493,6 +645,63 @@ export function WizardProvider({
           setState((prev) => ({ ...prev, e }));
           return;
         }
+
+        const targetUrl = state.f.url.trim();
+        const targetBranch = state.f.branch.trim() || "main";
+        const alreadyCloned =
+          Boolean(state.scan.workspaceId) &&
+          state.scan.clonedRepoUrl === targetUrl &&
+          state.scan.clonedBranch === targetBranch;
+
+        if (!alreadyCloned) {
+          setIsCloningWorkspace(true);
+          try {
+            const recruiterUuid = String((user as any)?.uuid || (user as any)?.id || "recruiter");
+            const questionUuid = state.questionUuid || editingId || generateQuestionUuid();
+            let authToken = state.scan.cloneToken;
+            if (!authToken && targetUrl) {
+              try {
+                const targetRepo = state.f.url || state.f.repo;
+                const inspected = await labTaskAIService.inspectRepo({
+                  repo_identifier: targetRepo,
+                  branch: targetBranch,
+                  installation_id: state.f.github_installation_id || state.f.github_app_installation || null,
+                  include_clone_token: true,
+                });
+                authToken = inspected.clone_token;
+              } catch (tokErr) {
+                console.warn("Could not retrieve clone token prior to workspace clone:", tokErr);
+              }
+            }
+            const ws = await labTaskAIService.createTempWorkspace({
+              repo_url: targetUrl,
+              branch: targetBranch,
+              auth_token: authToken,
+              recruiter_uuid: recruiterUuid,
+              question_uuid: questionUuid,
+              scoring_files: state.sc.rules?.files || undefined,
+            });
+            setState((prev) => ({
+              ...prev,
+              questionUuid,
+              scan: {
+                ...prev.scan,
+                workspaceId: ws.temp_workspace_id,
+                clonedRepoUrl: targetUrl,
+                clonedBranch: targetBranch,
+                files: prev.scan.files && prev.scan.files.length > 0 ? prev.scan.files : (ws.files || []),
+                fileCount: prev.scan.fileCount > 0 ? prev.scan.fileCount : (ws.file_count || 0),
+                keyFiles: { ...(ws.key_files || {}), ...(prev.scan.keyFiles || {}) },
+              },
+            }));
+          } catch (err: any) {
+            toast.error(err?.message || "Failed to clone repository into recruiter workspace");
+            return;
+          } finally {
+            setIsCloningWorkspace(false);
+          }
+        }
+
         setStep(2);
       } else if (state.step === 2) {
         // Step 2: Basics
@@ -509,7 +718,73 @@ export function WizardProvider({
       } else if (state.step === 3) {
         // Step 3: Tasks
         if (!state.t.tasks.length || state.t.busy || state.t.ed) return;
+
+        // Transition immediately to Step 4 page
         setStep(4);
+
+        // If the starter repo was empty (0 files), auto-scaffold a real starter codebase with README & requirements
+        const wsId = state.scan.workspaceId;
+        const isRepoEmpty = (!state.scan.files || state.scan.files.length === 0) || state.scan.fileCount === 0;
+
+        if (wsId && isRepoEmpty) {
+          setIsCloningWorkspace(true);
+          try {
+            const labCtx = {
+              title: state.f.title,
+              description: state.f.desc,
+              scenario: state.f.scenario,
+              domain: state.f.domain,
+              difficulty: state.f.difficulty,
+              programming_languages: state.stack.lang || [],
+              backend_frameworks: state.stack.be || [],
+              frontend_frameworks: state.stack.fe || [],
+              databases: state.stack.db || [],
+            };
+
+            const scaffold = await labTaskAIService.generateStarterCodebase({
+              lab_context: labCtx,
+              tasks: state.t.tasks,
+            });
+
+            if (scaffold && scaffold.files && Object.keys(scaffold.files).length > 0) {
+              const writeRes = await labTaskAIService.writeWorkspaceFiles({
+                temp_workspace_id: wsId,
+                files: scaffold.files,
+                update_baseline: true,
+              });
+
+              setState((prev) => {
+                const updatedFiles = writeRes.files && writeRes.files.length > 0 ? writeRes.files : Object.keys(scaffold.files);
+                const updatedKeyFiles = writeRes.key_files || scaffold.files;
+
+                return {
+                  ...prev,
+                  scan: {
+                    ...prev.scan,
+                    files: updatedFiles,
+                    fileCount: updatedFiles.length,
+                    keyFiles: {
+                      ...(prev.scan.keyFiles || {}),
+                      ...updatedKeyFiles,
+                    },
+                  },
+                  sc: {
+                    ...prev.sc,
+                    startup: prev.sc.startup || scaffold.startup_command || "",
+                    test: (prev.sc.test && prev.sc.test.includes("yuvro_scoring_rules"))
+                      ? prev.sc.test
+                      : (scaffold.test_command || "python yuvro_scoring_rules/main_test.py"),
+                  },
+                };
+              });
+              toast.success(`Scaffolded starter codebase (${Object.keys(scaffold.files).length} files created)`);
+            }
+          } catch (scaffoldErr: any) {
+            console.warn("Auto-scaffold starter codebase error:", scaffoldErr);
+          } finally {
+            setIsCloningWorkspace(false);
+          }
+        }
       }
     } else if (state.type === "design") {
       if (state.step === 1) {
@@ -526,13 +801,39 @@ export function WizardProvider({
         setStep(2);
       }
     }
-  }, [state.step, state.type, state.f, state.scan.files, state.t, setStep]);
+  }, [state.step, state.type, state.f, state.scan, state.sc.rules, state.questionUuid, state.t, user, setStep]);
 
   const prevStep = useCallback(() => {
     if (state.step > 1) {
       setStep(state.step - 1);
     }
   }, [state.step, setStep]);
+
+  const markPublished = useCallback(() => {
+    isPublishedRef.current = true;
+  }, []);
+
+  const cleanupDraft = useCallback(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(storageKey);
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [storageKey]);
+
+  const cleanupWorkspace = useCallback(() => {
+    const wsId = workspaceIdRef.current;
+    if (wsId && !isPublishedRef.current) {
+      workspaceIdRef.current = null;
+      labTaskAIService.deleteTempWorkspace(wsId);
+    }
+  }, []);
+
+  useEffect(() => {
+    workspaceIdRef.current = state.scan.workspaceId || null;
+  }, [state.scan.workspaceId]);
 
   return (
     <WizardContext.Provider
@@ -556,6 +857,10 @@ export function WizardProvider({
         warnMsg,
         canPublish,
         publishBlockReason,
+        isCloningWorkspace,
+        markPublished,
+        cleanupWorkspace,
+        cleanupDraft,
         normalizeMarksAndTime,
         nextStep,
         prevStep,

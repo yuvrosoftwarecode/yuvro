@@ -162,6 +162,14 @@ export interface PassSolutionResponse {
   provider?: string;
 }
 
+export interface StarterCodebaseResponse {
+  summary?: string;
+  startup_command?: string;
+  test_command?: string;
+  files: Record<string, string>;
+  provider?: string;
+}
+
 export interface TempWorkspaceCreateResponse {
   temp_workspace_id: string;
   branch: string;
@@ -330,6 +338,21 @@ export const labTaskAIService = {
     );
   },
 
+  async generateStarterCodebase(payload: {
+    lab_context: LabContext;
+    tasks?: any[];
+    provider?: string;
+  }): Promise<StarterCodebaseResponse> {
+    return await yhubApiAuthUtil.post<StarterCodebaseResponse>(
+      "/lab-task-ai/generate-starter-codebase/",
+      {
+        lab_context: payload.lab_context,
+        tasks: payload.tasks || [],
+        provider: payload.provider || "deepseek",
+      }
+    );
+  },
+
   async repairScoringRules(payload: {
     lab_context: LabContext;
     tasks: any[];
@@ -364,6 +387,8 @@ export const labTaskAIService = {
     seed_files?: Record<string, string>;
     scoring_files?: Record<string, string>;
     setup_command?: string;
+    recruiter_uuid?: string;
+    question_uuid?: string;
   }): Promise<TempWorkspaceCreateResponse> {
     const res = await fetch(`${EXECUTOR_BASE}/workspace/temp/create`, {
       method: "POST",
@@ -409,6 +434,37 @@ export const labTaskAIService = {
     return await res.json();
   },
 
+  async readWorkspaceFile(payload: {
+    temp_workspace_id: string;
+    path: string;
+  }): Promise<{ path: string; content: string }> {
+    const res = await fetch(`${EXECUTOR_BASE}/workspace/temp/read-file`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to read workspace file (${res.status})`);
+    }
+    return await res.json();
+  },
+
+  async writeWorkspaceFiles(payload: {
+    temp_workspace_id: string;
+    files: Record<string, string>;
+    update_baseline?: boolean;
+  }): Promise<{ success: boolean; written: string[]; file_count?: number; files?: string[]; key_files?: Record<string, string> }> {
+    const res = await fetch(`${EXECUTOR_BASE}/workspace/temp/write-files`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to write workspace files (${res.status})`);
+    }
+    return await res.json();
+  },
+
   async resetTempWorkspace(tempWorkspaceId: string): Promise<{ success: boolean }> {
     const res = await fetch(`${EXECUTOR_BASE}/workspace/temp/reset`, {
       method: "POST",
@@ -420,8 +476,10 @@ export const labTaskAIService = {
   },
 
   async deleteTempWorkspace(tempWorkspaceId: string): Promise<void> {
+    if (!tempWorkspaceId) return;
     await fetch(`${EXECUTOR_BASE}/workspace/temp/${encodeURIComponent(tempWorkspaceId)}`, {
       method: "DELETE",
+      keepalive: true,
     }).catch(() => {});
   },
 };

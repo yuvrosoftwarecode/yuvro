@@ -20,7 +20,19 @@ export const WizardShell: React.FC<WizardShellProps> = ({
   onPublish,
   isPublishing = false,
 }) => {
-  const { state } = useWizard();
+  const { state, markPublished, cleanupWorkspace, cleanupDraft } = useWizard();
+
+  const handleCancel = () => {
+    cleanupWorkspace();
+    cleanupDraft();
+    onCancel();
+  };
+
+  const handlePublish = () => {
+    markPublished();
+    cleanupDraft();
+    onPublish(state);
+  };
 
   // Full-screen chat workspace for tasks (Step 3 for Lab, Step 2 for System Design)
   const isTasksWorkspace =
@@ -42,8 +54,8 @@ export const WizardShell: React.FC<WizardShellProps> = ({
         }}
       >
         <TasksWorkspace
-          onCancel={onCancel}
-          onPublish={() => onPublish(state)}
+          onCancel={handleCancel}
+          onPublish={handlePublish}
           isPublishing={isPublishing}
         />
       </div>
@@ -64,8 +76,8 @@ export const WizardShell: React.FC<WizardShellProps> = ({
         }}
       >
         <TopBar
-          onCancel={onCancel}
-          onPublish={() => onPublish(state)}
+          onCancel={handleCancel}
+          onPublish={handlePublish}
           isPublishing={isPublishing}
         />
         <div
@@ -77,7 +89,7 @@ export const WizardShell: React.FC<WizardShellProps> = ({
             overflow: "hidden",
           }}
         >
-          <ScoringStep isIDE />
+          <ScoringStep isIDE onPublish={handlePublish} isPublishing={isPublishing} />
         </div>
       </div>
     );
@@ -105,7 +117,7 @@ export const WizardShell: React.FC<WizardShellProps> = ({
                 <button
                   type="button"
                   className="lk"
-                  onClick={onCancel}
+                  onClick={handleCancel}
                   style={{ textDecoration: "underline", fontSize: "15px" }}
                 >
                   Question bank
@@ -118,7 +130,7 @@ export const WizardShell: React.FC<WizardShellProps> = ({
               <button
                 type="button"
                 className="lk"
-                onClick={onCancel}
+                onClick={handleCancel}
                 style={{ textDecoration: "underline", fontSize: "15px" }}
               >
                 Cancel
@@ -139,7 +151,7 @@ export const WizardShell: React.FC<WizardShellProps> = ({
         </div>
 
         {/* Bottom Bar: hint on left, Back link & Continue/Publish on right */}
-        <BottomBar onPublish={() => onPublish(state)} isPublishing={isPublishing} />
+        <BottomBar onPublish={handlePublish} isPublishing={isPublishing} />
       </div>
     </div>
   );

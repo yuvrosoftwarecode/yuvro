@@ -106,6 +106,7 @@ export interface ChatMessage {
   t: string;
   snap?: boolean;
   muted?: boolean;
+  isError?: boolean;
 }
 
 export interface ChatHistoryItem {
@@ -203,9 +204,14 @@ export interface ScanState {
   files: string[] | null;
   fileCount: number;
   keyFiles: Record<string, string>;
+  cloneToken?: string;
+  workspaceId?: string | null;
+  clonedRepoUrl?: string;
+  clonedBranch?: string;
 }
 
 export interface WizardState {
+  questionUuid?: string;
   step: number;
   reached: number;
   type: QuestionCategory;

@@ -39,11 +39,13 @@ export function ScanStep() {
         ...prev,
         reached: Math.max(prev.reached, 3),
         scan: {
+          ...prev.scan,
           scanning: false,
           stageIndex: 2,
           files: res.files,
           fileCount: res.fileCount,
           keyFiles: res.keyFiles,
+          cloneToken: res.cloneToken || prev.scan.cloneToken,
         },
       }));
     } catch (err: any) {

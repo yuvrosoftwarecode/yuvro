@@ -2,8 +2,9 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, APIRouter, WebSock
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 import subprocess
+import sys
 from database_evaluator import DatabaseEvaluatorFactory
 import tempfile
 import os
@@ -17,7 +18,10 @@ import signal
 from pathlib import Path
 from observability import setup_telemetry, instrument_fastapi_app, get_tracer, record_code_execution
 import re as _re
+import logging
 from database_evaluator.factory import DatabaseEvaluatorFactory
+
+logger = logging.getLogger(__name__)
 
 # Patch asyncio.subprocess.Process._feed_stdin to gracefully handle uvloop's
 # WriteUnixTransport closed RuntimeError when a subprocess terminates early.
@@ -2467,6 +2471,19 @@ class TempWorkspaceCreateRequest(BaseModel):
     seed_files: Optional[Dict[str, str]] = None
     scoring_files: Optional[Dict[str, str]] = None
     setup_command: Optional[str] = None
+    recruiter_uuid: Optional[str] = None
+    question_uuid: Optional[str] = None
+
+
+class TempWorkspaceReadFileRequest(BaseModel):
+    temp_workspace_id: str
+    path: str
+
+
+class TempWorkspaceWriteFilesRequest(BaseModel):
+    temp_workspace_id: str
+    files: Dict[str, str]
+    update_baseline: bool = False
 
 
 class TempRunScoringRequest(BaseModel):
@@ -2488,8 +2505,24 @@ def _temp_verify_root() -> Path:
     return root
 
 
+def _recruiter_question_workspace_dir(recruiter_uuid: str, question_uuid: str) -> Path:
+    if not _re.match(r"^[a-zA-Z0-9_-]{2,80}$", recruiter_uuid or ""):
+        raise HTTPException(status_code=400, detail="Invalid recruiter_uuid")
+    if not _re.match(r"^[a-zA-Z0-9_-]{2,80}$", question_uuid or ""):
+        raise HTTPException(status_code=400, detail="Invalid question_uuid")
+    base = (WORKSPACES_ROOT / "recruiter").resolve()
+    ws = (base / recruiter_uuid / "questions" / question_uuid).resolve()
+    if not str(ws).startswith(str(base)):
+        raise HTTPException(status_code=400, detail="Invalid recruiter workspace path")
+    return ws
+
+
 def _temp_workspace_dir(temp_id: str) -> Path:
-    if not _re.match(r"^[a-zA-Z0-9_-]{4,80}$", temp_id or ""):
+    if temp_id and temp_id.startswith("rq__"):
+        parts = temp_id.split("__", 2)
+        if len(parts) == 3:
+            return _recruiter_question_workspace_dir(parts[1], parts[2])
+    if not _re.match(r"^[a-zA-Z0-9_-]{4,160}$", temp_id or ""):
         raise HTTPException(status_code=400, detail="Invalid temp_workspace_id")
     ws = (_temp_verify_root() / temp_id).resolve()
     if not str(ws).startswith(str(_temp_verify_root().resolve())):
@@ -2577,10 +2610,365 @@ def _reset_temp_to_pristine(ws: Path) -> None:
             capture_output=True,
         )
         subprocess.run(
-            ["git", "-c", "safe.directory=*", "clean", "-fd"],
+            ["git", "-c", "safe.directory=*", "clean", "-fd", "-e", ".venv", "-e", "venv", "-e", "node_modules", "-e", "yuvro_scoring_rules"],
             cwd=str(ws),
             capture_output=True,
         )
+
+
+_PY_IMPORT_TO_PKG = {
+    "rest_framework": "djangorestframework",
+    "PIL": "Pillow",
+    "cv2": "opencv-python",
+    "bs4": "beautifulsoup4",
+    "yaml": "PyYAML",
+    "dotenv": "python-dotenv",
+    "jwt": "PyJWT",
+    "corsheaders": "django-cors-headers",
+    "sklearn": "scikit-learn",
+    "psycopg2": "psycopg2-binary",
+    "MySQLdb": "mysqlclient",
+    "dateutil": "python-dateutil",
+    "magic": "python-magic",
+    "multipart": "python-multipart",
+    "jose": "python-jose",
+    "slugify": "python-slugify",
+}
+
+_NODE_BUILTINS = {
+    "fs", "path", "http", "https", "crypto", "url", "os", "util", "stream",
+    "events", "child_process", "assert", "buffer", "querystring", "zlib",
+    "net", "tls", "dns", "readline", "timers", "perf_hooks", "worker_threads",
+    "cluster", "module", "process",
+}
+
+
+def _get_ws_env(ws: Path) -> Dict[str, str]:
+    env = os.environ.copy()
+    venv_bin = ws / ".venv" / "bin"
+    if venv_bin.exists():
+        env["VIRTUAL_ENV"] = str(ws / ".venv")
+        env["PATH"] = f"{venv_bin}{os.pathsep}{env.get('PATH', '')}"
+    else:
+        py_dir = str(Path(sys.executable).parent)
+        if py_dir and py_dir not in env.get("PATH", ""):
+            env["PATH"] = f"{py_dir}{os.pathsep}{env.get('PATH', '')}"
+
+    # Ensure workspace root and any Django app directories are in PYTHONPATH
+    existing_py_path = env.get("PYTHONPATH", "")
+    ws_str = str(ws)
+    if ws_str not in existing_py_path:
+        env["PYTHONPATH"] = f"{ws_str}{os.pathsep}{existing_py_path}" if existing_py_path else ws_str
+
+    # Auto-detect DJANGO_SETTINGS_MODULE
+    if "DJANGO_SETTINGS_MODULE" not in env:
+        for manage_py in ws.rglob("manage.py"):
+            if ".venv" not in manage_py.parts and "venv" not in manage_py.parts:
+                try:
+                    content = manage_py.read_text(encoding="utf-8")
+                    m = _re.search(r"DJANGO_SETTINGS_MODULE['\"]\s*,\s*['\"]([^'\"]+)['\"]", content)
+                    if m:
+                        env["DJANGO_SETTINGS_MODULE"] = m.group(1)
+                        manage_dir = str(manage_py.parent)
+                        if manage_dir not in env["PYTHONPATH"]:
+                            env["PYTHONPATH"] = f"{manage_dir}{os.pathsep}{env['PYTHONPATH']}"
+                        break
+                except Exception:
+                    pass
+        if "DJANGO_SETTINGS_MODULE" not in env:
+            for settings_file in ws.rglob("settings.py"):
+                if ".venv" not in settings_file.parts and "venv" not in settings_file.parts and "yuvro_scoring_rules" not in settings_file.parts:
+                    rel = settings_file.parent.relative_to(ws)
+                    mod = str(rel).replace(os.path.sep, ".").strip(".")
+                    env["DJANGO_SETTINGS_MODULE"] = f"{mod}.settings" if mod else "settings"
+                    break
+    return env
+
+
+async def _ensure_ws_venv(ws: Path) -> Path:
+    venv_dir = ws / ".venv"
+    venv_py = venv_dir / "bin" / "python"
+    if not venv_py.exists():
+        proc = await asyncio.create_subprocess_exec(
+            sys.executable, "-m", "venv", str(venv_dir),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=str(ws),
+        )
+        await asyncio.wait_for(proc.communicate(), timeout=60.0)
+    return venv_py
+
+
+def _extract_missing_packages(ws: Path, output_text: str) -> Tuple[List[str], List[str]]:
+    """Extracts missing Python (pip) and Node (npm) package names from command output."""
+    py_pkgs: List[str] = []
+    node_pkgs: List[str] = []
+    seen_py = set()
+    seen_node = set()
+
+    stdlib_names = getattr(sys, "stdlib_module_names", set())
+
+    for match in _re.finditer(r"No module named ['\"]([a-zA-Z0-9_\-\.]+)['\"]|ModuleNotFoundError:\s*No module named\s+([a-zA-Z0-9_\-\.]+)", output_text or ""):
+        raw_mod = match.group(1) or match.group(2)
+        if not raw_mod:
+            continue
+        top_mod = raw_mod.split(".")[0].strip()
+        if not top_mod or top_mod in stdlib_names or top_mod == "yuvro_scoring_rules":
+            continue
+        if (ws / top_mod).is_dir() or (ws / f"{top_mod}.py").is_file():
+            continue
+        pkg = _PY_IMPORT_TO_PKG.get(top_mod, top_mod)
+        if pkg not in seen_py:
+            seen_py.add(pkg)
+            py_pkgs.append(pkg)
+
+    for match in _re.finditer(r"Cannot find module ['\"]([^'\"./][^'\"]*)['\"]", output_text or ""):
+        raw_mod = match.group(1).strip()
+        if not raw_mod or raw_mod.startswith("node:"):
+            continue
+        parts = raw_mod.split("/")
+        pkg = f"{parts[0]}/{parts[1]}" if raw_mod.startswith("@") and len(parts) >= 2 else parts[0]
+        if pkg in _NODE_BUILTINS:
+            continue
+        if pkg not in seen_node:
+            seen_node.add(pkg)
+            node_pkgs.append(pkg)
+
+    return py_pkgs, node_pkgs
+
+
+async def _install_missing_dependencies(
+    ws: Path,
+    py_pkgs: List[str],
+    node_pkgs: List[str],
+    include_manifests: bool = False,
+) -> Tuple[List[str], str]:
+    """Installs missing Python and/or Node dependencies into workspace-local .venv / node_modules."""
+    installed: List[str] = []
+    logs: List[str] = []
+
+    has_req = (ws / "requirements.txt").exists()
+    if py_pkgs or (include_manifests and has_req):
+        await _ensure_ws_venv(ws)
+        pip_bin = str(ws / ".venv" / "bin" / "pip")
+        if not Path(pip_bin).exists():
+            pip_bin = str(ws / ".venv" / "bin" / "pip3")
+
+        if include_manifests and has_req:
+            try:
+                proc = await asyncio.create_subprocess_exec(
+                    pip_bin, "install", "--disable-pip-version-check", "-r", "requirements.txt",
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    cwd=str(ws),
+                )
+                out, err = await asyncio.wait_for(proc.communicate(), timeout=90.0)
+                if proc.returncode == 0:
+                    installed.append("requirements.txt")
+                logs.append(f"[pip install -r requirements.txt] exit={proc.returncode}\n{(out + err).decode(errors='replace')[-600:]}")
+            except Exception as exc:
+                logs.append(f"[pip install -r requirements.txt] failed: {exc}")
+
+        if py_pkgs:
+            try:
+                proc = await asyncio.create_subprocess_exec(
+                    pip_bin, "install", "--disable-pip-version-check", *py_pkgs,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    cwd=str(ws),
+                )
+                out, err = await asyncio.wait_for(proc.communicate(), timeout=90.0)
+                if proc.returncode == 0:
+                    installed.extend(py_pkgs)
+                logs.append(f"[pip install {' '.join(py_pkgs)}] exit={proc.returncode}\n{(out + err).decode(errors='replace')[-600:]}")
+            except Exception as exc:
+                logs.append(f"[pip install {' '.join(py_pkgs)}] failed: {exc}")
+
+    has_pkg_json = (ws / "package.json").exists()
+    if node_pkgs or (include_manifests and has_pkg_json and not (ws / "node_modules").exists()):
+        if include_manifests and has_pkg_json and not (ws / "node_modules").exists():
+            try:
+                proc = await asyncio.create_subprocess_exec(
+                    "npm", "install", "--no-audit", "--no-fund",
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    cwd=str(ws),
+                )
+                out, err = await asyncio.wait_for(proc.communicate(), timeout=90.0)
+                if proc.returncode == 0:
+                    installed.append("package.json")
+                logs.append(f"[npm install] exit={proc.returncode}\n{(out + err).decode(errors='replace')[-600:]}")
+            except Exception as exc:
+                logs.append(f"[npm install] failed: {exc}")
+
+        if node_pkgs:
+            try:
+                proc = await asyncio.create_subprocess_exec(
+                    "npm", "install", "--no-audit", "--no-fund", *node_pkgs,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    cwd=str(ws),
+                )
+                out, err = await asyncio.wait_for(proc.communicate(), timeout=90.0)
+                if proc.returncode == 0:
+                    installed.extend(node_pkgs)
+                logs.append(f"[npm install {' '.join(node_pkgs)}] exit={proc.returncode}\n{(out + err).decode(errors='replace')[-600:]}")
+            except Exception as exc:
+                logs.append(f"[npm install {' '.join(node_pkgs)}] failed: {exc}")
+
+    return installed, "\n".join(logs)
+
+
+async def _auto_setup_database(ws: Path, ws_env: Dict[str, str]) -> List[str]:
+    """
+    Intelligently discovers and applies database migrations / schema synchronization
+    across different frameworks and languages:
+    - Django: ensures migrations package exists for all local model apps, runs makemigrations & migrate --run-syncdb.
+    - Python (Alembic): runs alembic upgrade head.
+    - Node.js (Prisma, Drizzle, Knex): pushes schema / runs migrations.
+    """
+    logs: List[str] = []
+
+    # 1. Django projects
+    manage_candidates = [
+        p for p in ws.rglob("manage.py")
+        if ".venv" not in p.parts and "venv" not in p.parts and "node_modules" not in p.parts
+    ]
+    for manage_py in manage_candidates:
+        manage_dir = manage_py.parent
+        app_dirs = [
+            p.parent for p in manage_dir.rglob("models.py")
+            if ".venv" not in p.parts and "venv" not in p.parts and "node_modules" not in p.parts
+        ]
+        for app_dir in app_dirs:
+            mig_dir = app_dir / "migrations"
+            mig_dir.mkdir(parents=True, exist_ok=True)
+            init_file = mig_dir / "__init__.py"
+            if not init_file.exists():
+                init_file.touch()
+
+            app_label = app_dir.name
+            try:
+                proc = await asyncio.create_subprocess_exec(
+                    "python", "manage.py", "makemigrations", app_label, "--noinput",
+                    cwd=str(manage_dir),
+                    env=ws_env,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                )
+                await asyncio.wait_for(proc.communicate(), timeout=15.0)
+            except Exception:
+                pass
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "python", "manage.py", "makemigrations", "--noinput",
+                cwd=str(manage_dir),
+                env=ws_env,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            await asyncio.wait_for(proc.communicate(), timeout=15.0)
+        except Exception:
+            pass
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "python", "manage.py", "migrate", "--noinput", "--run-syncdb",
+                cwd=str(manage_dir),
+                env=ws_env,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            await asyncio.wait_for(proc.communicate(), timeout=25.0)
+            logs.append(f"Django migrations applied with --run-syncdb in {manage_dir.name or '.'}")
+        except Exception:
+            try:
+                proc = await asyncio.create_subprocess_exec(
+                    "python", "manage.py", "migrate", "--noinput",
+                    cwd=str(manage_dir),
+                    env=ws_env,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                )
+                await asyncio.wait_for(proc.communicate(), timeout=25.0)
+                logs.append(f"Django migrations applied in {manage_dir.name or '.'}")
+            except Exception as mig_err:
+                logger.warning(f"Django migrate failed in {manage_dir}: {mig_err}")
+
+    # 2. Python Alembic
+    for ini in ws.rglob("alembic.ini"):
+        if ".venv" in ini.parts or "venv" in ini.parts:
+            continue
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "alembic", "upgrade", "head",
+                cwd=str(ini.parent),
+                env=ws_env,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            await asyncio.wait_for(proc.communicate(), timeout=20.0)
+            logs.append("Alembic upgrade head completed")
+        except Exception as e:
+            logger.warning(f"Alembic upgrade failed: {e}")
+
+    # 3. Node.js (Prisma, Drizzle, Knex, package.json scripts)
+    for prisma in ws.rglob("schema.prisma"):
+        if "node_modules" in prisma.parts:
+            continue
+        try:
+            cwd = str(prisma.parent.parent) if prisma.parent.name == "prisma" else str(prisma.parent)
+            proc = await asyncio.create_subprocess_exec(
+                "npx", "prisma", "db", "push", "--skip-generate", "--accept-data-loss",
+                cwd=cwd,
+                env=ws_env,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            await asyncio.wait_for(proc.communicate(), timeout=30.0)
+            logs.append("Prisma schema pushed")
+        except Exception as e:
+            logger.warning(f"Prisma push failed: {e}")
+
+    for knex in ws.rglob("knexfile.*"):
+        if "node_modules" in knex.parts:
+            continue
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "npx", "knex", "migrate:latest",
+                cwd=str(knex.parent),
+                env=ws_env,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            await asyncio.wait_for(proc.communicate(), timeout=20.0)
+            logs.append("Knex migrate:latest completed")
+        except Exception as e:
+            logger.warning(f"Knex migrate failed: {e}")
+
+    for pkg_json in ws.rglob("package.json"):
+        if "node_modules" in pkg_json.parts:
+            continue
+        try:
+            pkg_data = json.loads(pkg_json.read_text(encoding="utf-8"))
+            scripts = pkg_data.get("scripts", {})
+            for script_name in ["db:migrate", "migrate", "db:push"]:
+                if script_name in scripts:
+                    proc = await asyncio.create_subprocess_exec(
+                        "npm", "run", script_name,
+                        cwd=str(pkg_json.parent),
+                        env=ws_env,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                    )
+                    await asyncio.wait_for(proc.communicate(), timeout=30.0)
+                    logs.append(f"npm run {script_name} completed")
+                    break
+        except Exception:
+            pass
+
+    return logs
 
 
 def _is_long_running_server_cmd(cmd: str) -> bool:
@@ -2594,12 +2982,21 @@ def _is_long_running_server_cmd(cmd: str) -> bool:
 
 @workspace_router.post("/temp/create")
 async def create_temp_workspace_endpoint(body: TempWorkspaceCreateRequest):
-    """Creates an isolated temporary workspace from a starter repo for live scoring rule verification."""
+    """Creates/clones a workspace from a starter repo (into workspaces/recruiter/<recruiter_uuid>/questions/<question_uuid> when provided)."""
     _cleanup_stale_temp_workspaces()
 
-    temp_id = f"tmp_{_uuid.uuid4().hex[:14]}"
-    ws = _temp_workspace_dir(temp_id)
-    ws.mkdir(parents=True, exist_ok=True)
+    if body.recruiter_uuid or body.question_uuid:
+        rec_id = _re.sub(r"[^a-zA-Z0-9_-]", "_", (body.recruiter_uuid or "recruiter").strip()) or "recruiter"
+        q_id = _re.sub(r"[^a-zA-Z0-9_-]", "_", (body.question_uuid or _uuid.uuid4().hex[:14]).strip())
+        temp_id = f"rq__{rec_id}__{q_id}"
+        ws = _recruiter_question_workspace_dir(rec_id, q_id)
+        if ws.exists():
+            shutil.rmtree(ws, ignore_errors=True)
+        ws.mkdir(parents=True, exist_ok=True)
+    else:
+        temp_id = f"tmp_{_uuid.uuid4().hex[:14]}"
+        ws = _temp_workspace_dir(temp_id)
+        ws.mkdir(parents=True, exist_ok=True)
 
     clone_log = ""
     setup_log = ""
@@ -2690,6 +3087,7 @@ async def create_temp_workspace_endpoint(body: TempWorkspaceCreateRequest):
                         stdout=asyncio.subprocess.PIPE,
                         stderr=asyncio.subprocess.PIPE,
                         cwd=str(ws),
+                        env=_get_ws_env(ws),
                     )
                     sout, serr = await asyncio.wait_for(sproc.communicate(), timeout=45.0)
                     setup_log = (sout.decode(errors="replace") + "\n" + serr.decode(errors="replace")).strip()
@@ -2699,6 +3097,17 @@ async def create_temp_workspace_endpoint(body: TempWorkspaceCreateRequest):
                     except Exception:
                         pass
                     setup_log = "Setup command timed out (45s); continuing with workspace."
+
+        # Pre-install project dependencies (requirements.txt / package.json) into workspace-local venv/node_modules
+        try:
+            is_python_repo = (ws / "requirements.txt").exists() or (ws / "manage.py").exists() or any(ws.glob("*.py"))
+            if is_python_repo:
+                await _ensure_ws_venv(ws)
+            installed_init, init_dep_log = await _install_missing_dependencies(ws, [], [], include_manifests=True)
+            if init_dep_log:
+                setup_log = f"{setup_log}\n{init_dep_log}".strip()
+        except Exception as dep_err:
+            logger.warning(f"Initial workspace dependency setup skipped/error: {dep_err}")
 
         # Snapshot files before mounting scoring_files
         file_list, key_files = _collect_temp_workspace_snapshot(ws)
@@ -2800,26 +3209,17 @@ async def run_temp_scoring_endpoint(body: TempRunScoringRequest):
                     target.write_text(content_str, encoding="utf-8")
                     applied_files.append(rel_path)
 
-            # Auto-apply database migrations for Django projects so tables exist for tests
-            if (ws / "manage.py").exists():
-                try:
-                    make_migs = await asyncio.create_subprocess_exec(
-                        "python", "manage.py", "makemigrations",
-                        cwd=str(ws),
-                        stdout=asyncio.subprocess.PIPE,
-                        stderr=asyncio.subprocess.PIPE,
-                    )
-                    await asyncio.wait_for(make_migs.communicate(), timeout=20.0)
-
-                    mig = await asyncio.create_subprocess_exec(
-                        "python", "manage.py", "migrate", "--noinput",
-                        cwd=str(ws),
-                        stdout=asyncio.subprocess.PIPE,
-                        stderr=asyncio.subprocess.PIPE,
-                    )
-                    await asyncio.wait_for(mig.communicate(), timeout=20.0)
-                except Exception as mig_err:
-                    logger.warning(f"Pass case auto-migration skipped or error: {mig_err}")
+            # Auto-apply database migrations / schema sync across frameworks
+            try:
+                await _auto_setup_database(ws, _get_ws_env(ws))
+            except Exception as mig_err:
+                logger.warning(f"Initial auto-migration skipped or error: {mig_err}")
+        else:
+            # Also ensure fail_case has database tables prepared
+            try:
+                await _auto_setup_database(ws, _get_ws_env(ws))
+            except Exception as mig_err:
+                logger.warning(f"Fail case auto-migration error: {mig_err}")
 
         # Write latest scoring rules files
         rules_dir = ws / "yuvro_scoring_rules"
@@ -2830,19 +3230,39 @@ async def run_temp_scoring_endpoint(body: TempRunScoringRequest):
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(content, encoding="utf-8")
 
-        proc = await asyncio.create_subprocess_shell(
-            body.test_command,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=str(ws),
-        )
-        try:
-            stdout_bytes, stderr_bytes = await asyncio.wait_for(proc.communicate(), timeout=45.0)
-        except asyncio.TimeoutError:
+        # Ensure test command executes the Yuvro scoring rules runner
+        test_cmd = (body.test_command or "").strip()
+        if not test_cmd or "yuvro_scoring_rules" not in test_cmd:
+            if (ws / "yuvro_scoring_rules" / "main_test.js").exists():
+                test_cmd = "node yuvro_scoring_rules/main_test.js"
+            else:
+                test_cmd = "python yuvro_scoring_rules/main_test.py"
+
+        async def _exec_test_cmd() -> Tuple[int, str, str, bool]:
+            proc = await asyncio.create_subprocess_shell(
+                test_cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=str(ws),
+                env=_get_ws_env(ws),
+            )
             try:
-                kill_process_tree(proc.pid)
-            except Exception:
-                pass
+                stdout_b, stderr_b = await asyncio.wait_for(proc.communicate(), timeout=45.0)
+                return (
+                    proc.returncode if proc.returncode is not None else -1,
+                    stdout_b.decode(errors="replace"),
+                    stderr_b.decode(errors="replace"),
+                    False,
+                )
+            except asyncio.TimeoutError:
+                try:
+                    kill_process_tree(proc.pid)
+                except Exception:
+                    pass
+                return -1, "", "Test command timed out (45s limit exceeded).", True
+
+        exit_code, stdout, stderr, timed_out = await _exec_test_cmd()
+        if timed_out:
             return {
                 "mode": body.mode,
                 "verified": False,
@@ -2850,7 +3270,7 @@ async def run_temp_scoring_endpoint(body: TempRunScoringRequest):
                 "exit_code": -1,
                 "duration_ms": int((time.time() - started) * 1000),
                 "stdout": "",
-                "stderr": "Test command timed out (45s limit exceeded).",
+                "stderr": stderr,
                 "data": None,
                 "total_score": 0,
                 "max_possible_score": 100,
@@ -2859,10 +3279,60 @@ async def run_temp_scoring_endpoint(body: TempRunScoringRequest):
                 "verdict_reason": "Execution timed out.",
             }
 
+        # Auto-install missing libraries and retry if import/module errors occurred
+        auto_installed_packages: List[str] = []
+        install_logs: List[str] = []
+        attempted_pkgs = set()
+        manifest_checked = (ws / ".venv").exists()
+
+        for _retry in range(2):
+            py_missing, node_missing = _extract_missing_packages(ws, f"{stdout}\n{stderr}")
+            new_py = [p for p in py_missing if p not in attempted_pkgs]
+            new_node = [p for p in node_missing if p not in attempted_pkgs]
+            if not new_py and not new_node:
+                break
+
+            attempted_pkgs.update(new_py)
+            attempted_pkgs.update(new_node)
+
+            installed_now, dep_log = await _install_missing_dependencies(
+                ws, new_py, new_node, include_manifests=not manifest_checked
+            )
+            manifest_checked = True
+            if dep_log:
+                install_logs.append(dep_log)
+            if not installed_now:
+                break
+            auto_installed_packages.extend(installed_now)
+
+            # Re-run database setup/migrations once dependencies are installed
+            try:
+                await _auto_setup_database(ws, _get_ws_env(ws))
+            except Exception as mig_err:
+                logger.warning(f"Post-install auto-migration error: {mig_err}")
+
+            exit_code, stdout, stderr, timed_out = await _exec_test_cmd()
+            if timed_out:
+                return {
+                    "mode": body.mode,
+                    "verified": False,
+                    "valid_json": False,
+                    "exit_code": -1,
+                    "duration_ms": int((time.time() - started) * 1000),
+                    "stdout": "",
+                    "stderr": stderr,
+                    "data": None,
+                    "total_score": 0,
+                    "max_possible_score": 100,
+                    "percentage": 0,
+                    "applied_files": applied_files,
+                    "auto_installed_packages": auto_installed_packages,
+                    "install_log": "\n".join(install_logs),
+                    "verdict_reason": "Execution timed out after installing missing dependencies.",
+                }
+
         duration_ms = int((time.time() - started) * 1000)
-        stdout = stdout_bytes.decode(errors="replace")
-        stderr = stderr_bytes.decode(errors="replace")
-        exit_code = proc.returncode
+        logger.info(f"[run_temp_scoring] mode={body.mode} test_cmd='{test_cmd}' exit_code={exit_code} stdout_len={len(stdout)} stderr='{stderr[:400]}'")
 
         parsed_data = None
         try:
@@ -2922,14 +3392,53 @@ async def run_temp_scoring_endpoint(body: TempRunScoringRequest):
             "max_possible_score": max_possible_score,
             "percentage": percentage,
             "applied_files": applied_files,
+            "auto_installed_packages": auto_installed_packages,
+            "install_log": "\n".join(install_logs),
             "verdict_reason": verdict_reason,
         }
     finally:
-        if body.restore_after:
+        if body.restore_after or body.mode == "pass_case":
             try:
                 _reset_temp_to_pristine(ws)
-            except Exception:
-                pass
+            except Exception as reset_err:
+                logger.warning(f"Failed to reset temp workspace to pristine baseline: {reset_err}")
+
+
+@workspace_router.post("/temp/read-file")
+async def read_temp_workspace_file_endpoint(body: TempWorkspaceReadFileRequest):
+    """Reads a file directly from the cloned workspace on disk (no real-time GitHub fetch)."""
+    ws = _temp_workspace_dir(body.temp_workspace_id)
+    if not ws.exists():
+        raise HTTPException(status_code=404, detail="Workspace not found.")
+    target = _safe_path(ws, body.path)
+    if not target.exists() or not target.is_file():
+        raise HTTPException(status_code=404, detail=f"File not found in workspace: {body.path}")
+    return {
+        "path": body.path,
+        "content": target.read_text(encoding="utf-8", errors="replace"),
+    }
+
+
+@workspace_router.post("/temp/write-files")
+async def write_temp_workspace_files_endpoint(body: TempWorkspaceWriteFilesRequest):
+    """Writes files (such as scoring rules or scaffolded starter files) directly into the cloned workspace on disk."""
+    ws = _temp_workspace_dir(body.temp_workspace_id)
+    if not ws.exists():
+        raise HTTPException(status_code=404, detail="Workspace not found.")
+    written: List[str] = []
+    for rel_path, content in (body.files or {}).items():
+        target = _safe_path(ws, rel_path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
+        written.append(rel_path)
+
+    if body.update_baseline and (ws / ".git").exists():
+        subprocess.run(["git", "-c", "safe.directory=*", "add", "-A"], cwd=str(ws), capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "commit", "--allow-empty", "-m", "Scaffold starter codebase"], cwd=str(ws), capture_output=True)
+        subprocess.run(["git", "-c", "safe.directory=*", "tag", "-f", "yuvro-pristine-baseline"], cwd=str(ws), capture_output=True)
+
+    file_list, key_files = _collect_temp_workspace_snapshot(ws)
+    return {"success": True, "written": written, "file_count": len(file_list), "files": file_list, "key_files": key_files}
 
 
 @workspace_router.post("/temp/reset")

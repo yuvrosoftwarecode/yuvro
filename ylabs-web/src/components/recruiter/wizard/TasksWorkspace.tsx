@@ -75,16 +75,35 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
     ? `${sp.a3 * 100}% ${sp.b3 * 100}% ${(1 - sp.a3 - sp.b3) * 100}%`
     : `${sp.a2 * 100}% ${(1 - sp.a2) * 100}%`;
 
+  const toEditPayload = (task: TaskItem) => ({
+    id: task.id,
+    d: {
+      title: task.title,
+      diff: task.diff,
+      marks: task.marks,
+      min: task.min,
+      dep: task.dep || "",
+      desc: task.desc,
+      ref: task.ref,
+    },
+    e: {},
+  });
+
   // Task selection
   const handleSelectTask = (id: string) => {
-    setState((prev) => ({
-      ...prev,
-      t: {
-        ...prev.t,
-        sel: id,
-        ed: null,
-      },
-    }));
+    setState((prev) => {
+      const inGenRun = prev.t.runs.flatMap((r) => r.items).find((x) => x.id === id);
+      const isInSavedTasks = prev.t.tasks.some((x) => x.id === id);
+      const shouldAutoEdit = prev.t.tab === "gen" && inGenRun && !isInSavedTasks;
+      return {
+        ...prev,
+        t: {
+          ...prev.t,
+          sel: id,
+          ed: shouldAutoEdit ? toEditPayload(inGenRun) : null,
+        },
+      };
+    });
   };
 
   // Close detail column
@@ -134,7 +153,7 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
         ...prev,
         t: {
           ...prev.t,
-          tasks: [...prev.t.tasks, task],
+          tasks: [...prev.t.tasks, { ...task, ref: "" }],
           tab: "lab",
           sel: task.id,
         },
@@ -152,7 +171,9 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
   const handleAddRun = (run: RunItem) => {
     setState((prev) => {
       const existingIds = new Set(prev.t.tasks.map((x) => x.id));
-      const newItems = run.items.filter((x) => !existingIds.has(x.id));
+      const newItems = run.items
+        .filter((x) => !existingIds.has(x.id))
+        .map((x) => ({ ...x, ref: "" }));
       return {
         ...prev,
         t: {
@@ -246,6 +267,7 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
         let nextRuns = prev.t.runs;
         let nextSel = prev.t.sel;
         let nextTab = prev.t.tab;
+        let nextEd = prev.t.ed;
 
         if (response.tasks && response.tasks.length > 0) {
           const runId = `run_${Date.now()}`;
@@ -259,6 +281,9 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
           nextRuns = [...prev.t.runs, newRun];
           nextSel = response.tasks[0]?.id || nextSel;
           nextTab = "gen";
+          if (response.tasks[0]) {
+            nextEd = toEditPayload(response.tasks[0]);
+          }
         }
 
         return {
@@ -271,6 +296,7 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
             run: prev.t.run + (response.tasks?.length ? 1 : 0),
             sel: nextSel,
             tab: nextTab,
+            ed: nextEd,
           },
         };
       });
@@ -291,6 +317,7 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
         const errorMsg =
           err?.response?.data?.error ||
           err?.response?.data?.message ||
+          err?.response?.data?.detail ||
           err?.message ||
           "Sorry, an error occurred while connecting to the AI task architect.";
         setState((prev) => ({
@@ -304,6 +331,7 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
                 r: "a",
                 t: errorMsg,
                 muted: true,
+                isError: true,
               },
             ],
           },
@@ -346,10 +374,20 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
               type="button"
               className={`tbn${t.tab === "gen" ? " on" : ""}`}
               onClick={() =>
-                setState((prev) => ({
-                  ...prev,
-                  t: { ...prev.t, tab: "gen" },
-                }))
+                setState((prev) => {
+                  const allGen = prev.t.runs.flatMap((r) => r.items);
+                  const selectedGen = allGen.find((x) => x.id === prev.t.sel) || allGen[0] || null;
+                  const isInSaved = selectedGen ? prev.t.tasks.some((x) => x.id === selectedGen.id) : false;
+                  return {
+                    ...prev,
+                    t: {
+                      ...prev.t,
+                      tab: "gen",
+                      sel: selectedGen ? selectedGen.id : prev.t.sel,
+                      ed: selectedGen && !isInSaved ? toEditPayload(selectedGen) : null,
+                    },
+                  };
+                })
               }
             >
               Generated ({gcount})
@@ -360,7 +398,7 @@ export const TasksWorkspace: React.FC<TasksWorkspaceProps> = ({
               onClick={() =>
                 setState((prev) => ({
                   ...prev,
-                  t: { ...prev.t, tab: "lab" },
+                  t: { ...prev.t, tab: "lab", ed: null },
                 }))
               }
             >

@@ -1,5 +1,7 @@
+import difflib
 import json
 import logging
+from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional
 from ..scoring.llm_client import ScoringLLMClient
@@ -115,16 +117,21 @@ module.exports = {{ evaluate }};
         django_setup = ""
         if is_django:
             django_setup = """import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "eval_project.settings")
+if not os.environ.get("DJANGO_SETTINGS_MODULE"):
+    for root, dirs, files in os.walk(os.getcwd()):
+        if "settings.py" in files and "yuvro_scoring_rules" not in root and ".venv" not in root:
+            mod = os.path.relpath(root, os.getcwd()).replace(os.path.sep, ".").strip(".")
+            os.environ["DJANGO_SETTINGS_MODULE"] = f"{mod}.settings" if mod else "settings"
+            break
 try:
     import django
     django.setup()
 except Exception:
     pass
 """
-        imports = [f"import test{i+1}" for i in range(len(tasks))]
         runs = [
             f"""    try:
+        import test{i+1}
         res{i+1} = test{i+1}.evaluate()
         results['task{i+1}'] = res{i+1}
         total_score += res{i+1}.get('score', 0)
@@ -141,7 +148,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.getcwd())
 
 {django_setup}
-{chr(10).join(imports)}
 
 def main():
     results = {{}}
@@ -157,6 +163,7 @@ def main():
     }}
 
     print(json.dumps(output, indent=2))
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
@@ -325,16 +332,14 @@ CRITICAL:
             logger.info("Using synthesized fallback scoring rules harness.")
             data = _build_fallback_rules(lab_context, tasks, primary_lang)
 
-        # Ensure default runner_command and test_command alias
-        if not data.get("runner_command"):
-            if primary_lang == "python":
-                data["runner_command"] = "python yuvro_scoring_rules/main_test.py"
-            elif primary_lang in ("javascript", "typescript"):
-                data["runner_command"] = "node yuvro_scoring_rules/main_test.js"
-            else:
-                data["runner_command"] = "python yuvro_scoring_rules/main_test.py"
+        # Automated evaluation in Yuvro always executes via yuvro_scoring_rules test harness
+        if primary_lang in ("javascript", "typescript"):
+            expected_runner = "node yuvro_scoring_rules/main_test.js"
+        else:
+            expected_runner = "python yuvro_scoring_rules/main_test.py"
 
-        data["test_command"] = data["runner_command"]
+        data["runner_command"] = expected_runner
+        data["test_command"] = expected_runner
         data["provider"] = provider_used
         return data
 
@@ -381,7 +386,7 @@ STARTER REPOSITORY FILES:
 {chr(10).join(repo_chunks) or 'No starter files provided; create clean target source files.'}
 
 SCORING RULES TO SATISFY (yuvro_scoring_rules):
-{chr(10).join(scoring_chunks)}
+{chr(10).join(scoring_chunks) if scoring_chunks else 'None provided yet; satisfy the task requirements and objectives directly in the starter repository source files.'}
 
 Produce complete, runnable `solution_files` for the workspace so that executing the scoring rules passes ALL tasks with 100% score."""
 
@@ -396,15 +401,44 @@ Produce complete, runnable `solution_files` for the workspace so that executing 
         if not isinstance(solution_files, dict) or not solution_files:
             raise ValueError("AI could not synthesize pass-case solution files.")
 
-        # Strip any accidental edits to yuvro_scoring_rules
-        clean_solution_files = {
-            k: v for k, v in solution_files.items()
-            if not str(k).lstrip("/").startswith("yuvro_scoring_rules/")
-        }
+        # Strip any accidental edits to yuvro_scoring_rules and AI-generated report/markdown files
+        clean_solution_files = {}
+        all_task_text = " ".join(f"{t.get('title', '')} {t.get('description', '')}" for t in tasks)
+        for k, v in solution_files.items():
+            norm_k = str(k).lstrip("/")
+            if norm_k.startswith("yuvro_scoring_rules/"):
+                continue
+            # Drop AI-hallucinated doc/report files (like AUTH_BUG_REPORT.md) if not explicitly requested
+            if norm_k.endswith(".md") and norm_k not in (repo_files or {}):
+                fname = Path(norm_k).name
+                if fname not in all_task_text and "readme" not in fname.lower():
+                    continue
+            clean_solution_files[k] = v
+
+        # Compute exact, clean unified diffs against the starter codebase files
+        diffs_by_file: Dict[str, str] = {}
+        for file_path, new_content in clean_solution_files.items():
+            old_content = (repo_files or {}).get(file_path, "")
+            old_lines = old_content.splitlines(keepends=True)
+            new_lines = str(new_content).splitlines(keepends=True)
+            diff_lines = list(difflib.unified_diff(
+                old_lines,
+                new_lines,
+                fromfile=f"a/{file_path}",
+                tofile=f"b/{file_path}",
+            ))
+            if diff_lines:
+                diffs_by_file[file_path] = f"diff --git a/{file_path} b/{file_path}\n" + "".join(diff_lines)
+            elif not old_content and new_content:
+                diffs_by_file[file_path] = f"diff --git a/{file_path} b/{file_path}\nnew file mode 100644\n--- /dev/null\n+++ b/{file_path}\n" + "".join(f"+{line}" for line in new_lines)
+
+        full_diff = "\n".join(diffs_by_file.values())
 
         return {
             "summary": parsed.get("summary", "Generated reference solution patches for all tasks."),
             "solution_files": clean_solution_files,
+            "solution_diff": full_diff,
+            "diffs_by_file": diffs_by_file,
             "provider": res.get("provider", self.provider),
         }
 
@@ -471,7 +505,8 @@ Return the complete fixed `yuvro_scoring_rules` JSON."""
         if not isinstance(parsed, dict) or not parsed.get("files"):
             raise ValueError("AI could not produce repaired scoring rules files.")
 
-        runner_cmd = parsed.get("runner_command") or "python yuvro_scoring_rules/main_test.py"
+        lang = str(parsed.get("language", "python")).lower()
+        runner_cmd = "node yuvro_scoring_rules/main_test.js" if lang in ("javascript", "typescript") else "python yuvro_scoring_rules/main_test.py"
         return {
             "diagnosis": parsed.get("diagnosis", "Updated scoring rules based on live execution diagnostics."),
             "language": parsed.get("language", "python"),

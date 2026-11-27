@@ -219,22 +219,68 @@ export function TaskDetail({
   // 1. EDIT MODE
   if (isEditing && editData) {
     const otherTasks = t.tasks.filter((tk) => tk.id !== t.ed?.id);
+    const isGeneratedPreview = Boolean(selectedInfo && !selectedInfo.lab);
+
+    const handleSaveAndAdd = () => {
+      const e: Record<string, string> = {};
+      if (!editData.title.trim()) e.title = "Title is required";
+      if (Number(editData.marks) < 0) e.marks = "Marks cannot be negative";
+      if (Number(editData.min) <= 0) e.min = "Minutes must be greater than 0";
+      if (Object.keys(e).length > 0) {
+        setState((prev) => ({
+          ...prev,
+          t: {
+            ...prev.t,
+            ed: { id: prev.t.ed!.id, d: editData, e },
+          },
+        }));
+        return;
+      }
+
+      const updatedTask: TaskItem = {
+        id: selectedInfo!.x.id,
+        title: editData.title,
+        diff: editData.diff,
+        marks: Number(editData.marks),
+        min: Number(editData.min),
+        dep: editData.dep || "",
+        desc: editData.desc,
+        ref: editData.ref,
+      };
+      setState((prev) => ({
+        ...prev,
+        t: {
+          ...prev.t,
+          runs: prev.t.runs.map((r) => ({
+            ...r,
+            items: r.items.map((tk) => (tk.id === updatedTask.id ? updatedTask : tk)),
+          })),
+          ed: null,
+        },
+      }));
+      onAddOne(updatedTask);
+    };
 
     return (
       <>
         <div className="dh">
           <div className="dti">
             <p className="mut sm" style={{ margin: 0 }}>
-              {t.ed?.id ? "Editing task" : "New task"}
+              {isGeneratedPreview ? "Generated task · Edit before adding" : t.ed?.id ? "Editing task" : "New task"}
             </p>
           </div>
           <div className="dact">
-            <button type="button" className="lk" onClick={handleCancelEdit}>
-              Cancel
+            <button type="button" className="lk" onClick={isGeneratedPreview ? onClose : handleCancelEdit}>
+              {isGeneratedPreview ? "Close" : "Cancel"}
             </button>
-            <button type="button" className="btn" onClick={handleSaveEdit}>
-              Save task
+            <button type="button" className={isGeneratedPreview ? "lk" : "btn"} onClick={handleSaveEdit}>
+              {isGeneratedPreview ? "Save" : "Save task"}
             </button>
+            {isGeneratedPreview && (
+              <button type="button" className="btn" onClick={handleSaveAndAdd}>
+                Add to tasks
+              </button>
+            )}
           </div>
         </div>
 
@@ -436,30 +482,32 @@ export function TaskDetail({
             />
           </div>
 
-          <div className="fg grow">
-            <label className="lab" htmlFor="te-ref">
-              Reference solution
-            </label>
-            <textarea
-              id="te-ref"
-              className="ctl mono"
-              spellCheck={false}
-              value={editData.ref}
-              onChange={(e) =>
-                setState((prev) => ({
-                  ...prev,
-                  t: {
-                    ...prev.t,
-                    ed: {
-                      id: prev.t.ed!.id,
-                      d: { ...prev.t.ed!.d, ref: e.target.value },
-                      e: prev.t.ed!.e,
+          {Boolean(editData.ref && editData.ref.trim()) && (
+            <div className="fg grow">
+              <label className="lab" htmlFor="te-ref">
+                Reference solution
+              </label>
+              <textarea
+                id="te-ref"
+                className="ctl mono"
+                spellCheck={false}
+                value={editData.ref}
+                onChange={(e) =>
+                  setState((prev) => ({
+                    ...prev,
+                    t: {
+                      ...prev.t,
+                      ed: {
+                        id: prev.t.ed!.id,
+                        d: { ...prev.t.ed!.d, ref: e.target.value },
+                        e: prev.t.ed!.e,
+                      },
                     },
-                  },
-                }))
-              }
-            />
-          </div>
+                  }))
+                }
+              />
+            </div>
+          )}
         </div>
       </>
     );
@@ -534,8 +582,12 @@ export function TaskDetail({
           </ReactMarkdown>
         </div>
 
-        <h4 className="h4">Reference solution</h4>
-        <DiffViewer diff={x.ref} />
+        {Boolean(x.ref && x.ref.trim()) && (
+          <>
+            <h4 className="h4">Reference solution</h4>
+            <DiffViewer diff={x.ref} />
+          </>
+        )}
 
         <h4 className="h4">Linked task</h4>
         <p style={{ margin: 0 }}>

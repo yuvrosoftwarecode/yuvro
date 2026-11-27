@@ -13,9 +13,17 @@ export const Route = createFileRoute("/recruiter/questions/new")({
     const raw = typeof search.category === "string" ? search.category.toUpperCase() : "LAB";
     const category: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE" =
       raw === "SYSTEM_DESIGN" || raw === "KNOWLEDGE" ? raw : "LAB";
+    const rawStep =
+      typeof search.step === "number"
+        ? search.step
+        : typeof search.step === "string" && !isNaN(Number(search.step))
+        ? parseInt(search.step, 10)
+        : undefined;
+    const step = rawStep && rawStep >= 1 && rawStep <= 4 ? rawStep : undefined;
     return {
       category,
       edit: typeof search.edit === "string" ? search.edit : undefined,
+      step,
     };
   },
   head: () => ({
@@ -36,6 +44,12 @@ function RecruiterNewQuestionPage() {
   const category: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE" =
     rawCat === "SYSTEM_DESIGN" || rawCat === "KNOWLEDGE" ? rawCat : "LAB";
   const edit = search?.edit || urlParams?.get("edit") || undefined;
+  const rawStep =
+    search?.step ||
+    (urlParams?.get("step") && !isNaN(Number(urlParams.get("step")))
+      ? parseInt(urlParams.get("step")!, 10)
+      : undefined);
+  const step = rawStep && rawStep >= 1 && rawStep <= 4 ? rawStep : undefined;
 
   const handleCategoryChange = (newCat: "LAB" | "SYSTEM_DESIGN" | "KNOWLEDGE") => {
     navigate({
@@ -43,6 +57,18 @@ function RecruiterNewQuestionPage() {
       search: (prev: any) => ({
         ...prev,
         category: newCat,
+        step: 1,
+      }),
+      replace: true,
+    });
+  };
+
+  const handleStepChange = (newStep: number) => {
+    navigate({
+      to: "/recruiter/questions/new",
+      search: (prev: any) => ({
+        ...prev,
+        step: newStep,
       }),
       replace: true,
     });
@@ -161,6 +187,8 @@ function RecruiterNewQuestionPage() {
       category={category}
       initialCategory={category}
       onCategoryChange={handleCategoryChange}
+      step={step}
+      onStepChange={handleStepChange}
       editingId={edit || null}
       initialData={initialData}
       courses={courses}

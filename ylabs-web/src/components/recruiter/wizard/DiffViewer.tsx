@@ -3,26 +3,87 @@ import { diffLines, Change } from "diff";
 
 interface DiffViewerProps {
   filename: string;
-  oldContent: string;
-  newContent: string;
+  oldContent?: string;
+  newContent?: string;
+  patchText?: string;
 }
 
-export function DiffViewer({ filename, oldContent, newContent }: DiffViewerProps) {
+export function DiffViewer({ filename, oldContent = "", newContent = "", patchText }: DiffViewerProps) {
   const [viewMode, setViewMode] = useState<"unified" | "split">("unified");
 
   const { lines, addedCount, removedCount } = useMemo(() => {
-    const changes: Change[] = diffLines(oldContent || "", newContent || "");
-    let oldLine = 1;
-    let newLine = 1;
-    let addCount = 0;
-    let delCount = 0;
-
     const formattedLines: Array<{
       type: "normal" | "add" | "del";
       oldNum?: number;
       newNum?: number;
       text: string;
     }> = [];
+    let addCount = 0;
+    let delCount = 0;
+
+    if (patchText !== undefined) {
+      let oldLine = 1;
+      let newLine = 1;
+      const rawLines = (patchText || "")
+        .replace(/^```(?:diff|patch|[a-z0-9_-]+)?\n?/i, "")
+        .replace(/\n?```\s*$/i, "")
+        .split("\n");
+
+      for (const line of rawLines) {
+        if (
+          line.startsWith("diff --git ") ||
+          line.startsWith("index ") ||
+          line.startsWith("--- ") ||
+          line.startsWith("+++ ") ||
+          line.startsWith("new file mode ") ||
+          line.startsWith("deleted file mode ") ||
+          line.startsWith("similarity index ") ||
+          line.startsWith("rename from ") ||
+          line.startsWith("rename to ") ||
+          line.startsWith("\\ No newline")
+        ) {
+          continue;
+        }
+        const hunkMatch = line.match(/^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+        if (hunkMatch) {
+          oldLine = Number(hunkMatch[1]);
+          newLine = Number(hunkMatch[2]);
+          continue;
+        }
+        if (line.startsWith("+")) {
+          addCount++;
+          formattedLines.push({
+            type: "add",
+            newNum: newLine++,
+            text: line.slice(1),
+          });
+        } else if (line.startsWith("-")) {
+          delCount++;
+          formattedLines.push({
+            type: "del",
+            oldNum: oldLine++,
+            text: line.slice(1),
+          });
+        } else {
+          formattedLines.push({
+            type: "normal",
+            oldNum: oldLine++,
+            newNum: newLine++,
+            text: line.startsWith(" ") ? line.slice(1) : line,
+          });
+        }
+      }
+
+      return {
+        lines: formattedLines,
+        addedCount: addCount,
+        removedCount: delCount,
+      };
+    }
+
+    const changes: Change[] = diffLines(oldContent || "", newContent || "");
+    let oldLine = 1;
+    let newLine = 1;
 
     changes.forEach((part) => {
       const partLines = part.value.replace(/\n$/, "").split("\n");
@@ -61,7 +122,7 @@ export function DiffViewer({ filename, oldContent, newContent }: DiffViewerProps
       addedCount: addCount,
       removedCount: delCount,
     };
-  }, [oldContent, newContent]);
+  }, [oldContent, newContent, patchText, filename]);
 
   return (
     <div

@@ -6,15 +6,18 @@ export async function generateCommandsWithAI(
   tasks: TaskItem[]
 ): Promise<{ startup: string; test: string }> {
   const res = await labTaskAIService.generateLifecycleCommands(labContext, tasks);
-  if (res && res.startup_command && res.test_command) {
-    return {
-      startup: res.startup_command,
-      test: res.test_command,
-    };
-  }
+  const langList = labContext?.stack?.languages || [];
+  const isPy =
+    langList.some((l: string) => l.toLowerCase().includes("python")) ||
+    !langList.some((l: string) => l.toLowerCase().includes("javascript") || l.toLowerCase().includes("typescript"));
+  const defaultTest = isPy ? "python yuvro_scoring_rules/main_test.py" : "node yuvro_scoring_rules/main_test.js";
+  const testCmd = (res?.test_command && res.test_command.includes("yuvro_scoring_rules"))
+    ? res.test_command
+    : defaultTest;
+
   return {
     startup: res?.startup_command || "",
-    test: res?.test_command || "",
+    test: testCmd,
   };
 }
 
@@ -60,11 +63,20 @@ export async function generateRulesWithAI(
       };
     });
 
+    const langList = labContext?.stack?.languages || [];
+    const isPy =
+      langList.some((l: string) => l.toLowerCase().includes("python")) ||
+      !langList.some((l: string) => l.toLowerCase().includes("javascript") || l.toLowerCase().includes("typescript"));
+    const defaultTest = isPy ? "python yuvro_scoring_rules/main_test.py" : "node yuvro_scoring_rules/main_test.js";
+    const testCmd = (res.test_command && res.test_command.includes("yuvro_scoring_rules"))
+      ? res.test_command
+      : defaultTest;
+
     return {
       files: res.files,
       fileRules,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      test_command: res.test_command || "python yuvro_scoring_rules/main_test.py",
+      test_command: testCmd,
     };
   }
 
