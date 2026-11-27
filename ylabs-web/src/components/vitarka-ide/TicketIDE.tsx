@@ -5850,7 +5850,7 @@ function DjangoTodoApp() {
   );
 }
 
-function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCommandRun, isVisible }: { wsUrl: string | null; theme: "dark" | "light" | "system"; onCommandRun?: () => void; startupCommand?: string; onStartupCommandRun?: () => void; isVisible?: boolean; }) {
+function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCommandRun, isVisible }: { wsUrl: string | null; theme: "dark" | "light"; onCommandRun?: () => void; startupCommand?: string; onStartupCommandRun?: () => void; isVisible?: boolean; }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const startupCommandRunRef = useRef(false);
   const termRef = useRef<any>(null);
@@ -5878,7 +5878,7 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
     onCommandRunRef.current = onCommandRun;
   }, [onCommandRun]);
 
-  const isDark = theme === "dark" || (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const isDark = theme === "dark";
 
   const getThemeConfig = useCallback(() => {
     return {
