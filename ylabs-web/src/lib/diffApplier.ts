@@ -387,6 +387,21 @@ export function parseConsolidatedFileDiffs(
       }
     }
 
+    // Heuristics for System Design Studio artifacts when filename is omitted
+    if (!filePath) {
+      const langLower = (m.lang || "").toLowerCase();
+      if (langLower === "mermaid" || rawCode.startsWith("sequenceDiagram")) {
+        filePath = "sequence_diagram.mmd";
+      } else if (langLower === "dbml" || rawCode.includes("Table ") || rawCode.includes("Ref:")) {
+        filePath = "db_schema.dbml";
+      } else if (langLower === "json" || rawCode.startsWith("{") || rawCode.startsWith("[")) {
+        if (rawCode.includes('"nodes"') || rawCode.includes('"edges"')) {
+          filePath = "high_level_design.json";
+        } else if (rawCode.includes('"method"') || rawCode.includes('"path"') || rawCode.includes('"endpoints"')) {
+          filePath = "rest_api.json";
+        }
+      }
+    }
     if (!filePath) {
       if (cleanDefaultFile) {
         filePath = normalizeFilePath(cleanDefaultFile);

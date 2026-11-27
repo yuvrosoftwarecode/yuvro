@@ -432,6 +432,14 @@ export function SignUpFlow({ redirectUrl, onNavigateTab }: SignUpFlowProps) {
       const firstName = names.shift() || "";
       const lastName = names.join(" ");
 
+      let referralCode: string | undefined = undefined;
+      try {
+        referralCode =
+          localStorage.getItem("ylabs_referral_code") ||
+          sessionStorage.getItem("ylabs_referral_code") ||
+          undefined;
+      } catch {}
+
       const loginResponse = await authService.register({
         email: email.trim(),
         username: username.trim(),
@@ -442,7 +450,15 @@ export function SignUpFlow({ redirectUrl, onNavigateTab }: SignUpFlowProps) {
         phone: `${countryCode} ${phone.replace(/\D/g, "")}`,
         country_code: countryCode,
         roles: { ylabs: "student" },
+        referral_code: referralCode,
       });
+
+      if (referralCode) {
+        try {
+          localStorage.removeItem("ylabs_referral_code");
+          sessionStorage.removeItem("ylabs_referral_code");
+        } catch {}
+      }
 
       if (loginResponse?.user) {
         analytics.trackEvent(GA4_EVENTS.SIGN_UP, { method: "email", role: "student" });

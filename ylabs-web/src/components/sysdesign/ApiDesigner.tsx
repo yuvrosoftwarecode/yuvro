@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export type ApiEndpoint = { id: string; method: string; path: string; summary?: string; request?: string; status?: string; response?: string };
@@ -34,19 +34,36 @@ export function ApiDocs({ apis }: { apis: ApiEndpoint[] }) {
   );
 }
 
-export function ApiDesigner({ apis, setApis }: { apis: ApiEndpoint[]; setApis: (f: (a: ApiEndpoint[]) => ApiEndpoint[]) => void }) {
+export function ApiDesigner({ apis, setApis, onOpenExamples }: {
+  apis: ApiEndpoint[];
+  setApis: (f: (a: ApiEndpoint[]) => ApiEndpoint[]) => void;
+  onOpenExamples?: () => void;
+}) {
   const [selId, setSelId] = useState<string | null>(apis[0]?.id ?? null);
   const sel = apis.find(a => a.id === selId) ?? apis[0];
   const upd = (patch: Partial<ApiEndpoint>) => sel && setApis(as => as.map(a => a.id === sel.id ? { ...a, ...patch } : a));
   const add = () => { const id = `api${Date.now()}`; setApis(as => [...as, { id, method: "GET", path: "/api/v1/", summary: "", status: "200 OK" }]); setSelId(id); };
   const field = "w-full rounded-md border bg-transparent px-2 py-1.5 text-xs outline-none focus:border-primary";
-  const code = "min-h-[120px] w-full flex-1 resize-none rounded-md border bg-[#1E1E1E] p-2 font-mono text-[12px] text-[#D4D4D4] outline-none focus:border-primary";
+  const code = "min-h-[120px] w-full flex-1 resize-none rounded-md border bg-background p-2 font-mono text-[12px] text-foreground outline-none focus:border-primary";
 
   return (
     <div className="grid h-full grid-cols-[220px_minmax(0,1fr)]">
       <aside className="flex min-h-0 flex-col border-r">
-        <div className="flex items-center justify-between border-b px-3 py-2 text-[11px] text-muted-foreground">{apis.length} endpoints
-          <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={add}><Plus className="h-3 w-3" />Add</Button>
+        <div className="flex items-center justify-between border-b px-3 py-2 text-[11px] text-muted-foreground gap-1">
+          <span>{apis.length} endpoints</span>
+          <div className="flex items-center gap-1">
+            {onOpenExamples && (
+              <button
+                type="button"
+                onClick={onOpenExamples}
+                className="p-1 rounded-md border border-border/70 hover:bg-[#f7931e]/10 text-muted-foreground hover:text-[#f7931e] transition-colors cursor-pointer"
+                title="View Examples"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-[#f7931e]" />
+              </button>
+            )}
+            <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={add}><Plus className="h-3 w-3" />Add</Button>
+          </div>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto p-2">
           {!apis.length && <p className="p-2 text-xs text-muted-foreground">No endpoints. Click <b>Add</b>, or open <b>Examples</b>.</p>}

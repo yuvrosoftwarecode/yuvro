@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { User, Sun, Moon, LogOut, X } from "lucide-react";
+import { User, Sun, Moon, LogOut, X, Share2 } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth } from "@/lib/auth";
 import { useEffect, useRef, useState } from "react";
@@ -15,6 +15,8 @@ import YuvroLogo from "@/assets/YuvroLogo.png";
 
 const primaryLinks = [
   { to: "/student/dashboard", label: "Simulation Labs" },
+  { to: "/vitarka-ide", label: "Vitarka IDE" },
+  { to: "/system-design-studio", label: "System Design Studio" },
   { to: "/mock-interviews", label: "Mock Interviews" },
   { to: "/research", label: "AI Research Papers" },
 ];
@@ -85,6 +87,16 @@ export function TopNav({
         activePath.startsWith("/student/lab")
       );
     }
+    if (to === "/vitarka-ide") {
+      return (
+        activePath.startsWith("/vitarka-ide") ||
+        activePath.startsWith("/student/vitarka-ide") ||
+        activePath.startsWith("/admin/vitarka-ide")
+      );
+    }
+    if (to === "/system-design-studio") {
+      return activePath.startsWith("/system-design-studio");
+    }
     if (to === "/mock-interviews") {
       return activePath.startsWith("/mock-interviews") || activePath.startsWith("/mock-interview");
     }
@@ -115,9 +127,13 @@ export function TopNav({
             const action =
               l.to === "/student/dashboard"
                 ? "nav_simulation_labs"
-                : l.to === "/mock-interviews"
-                  ? "nav_mock_interviews"
-                  : "nav_research";
+                : l.to === "/vitarka-ide"
+                  ? "nav_vitarka_ide"
+                  : l.to === "/system-design-studio"
+                    ? "nav_system_design_studio"
+                    : l.to === "/mock-interviews"
+                      ? "nav_mock_interviews"
+                      : "nav_research";
             return (
               <Link
                 key={l.to}
@@ -306,6 +322,15 @@ function ProfileMenu({
               <div className="text-[11px] text-muted-foreground truncate">{userEmail}</div>
             )}
           </div>
+          <Link
+            to="/student/referrals"
+            data-analytics-action="nav_referrals"
+            data-analytics-component="navigation"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/60"
+          >
+            <Share2 className="h-3.5 w-3.5" /> Referral
+          </Link>
           <Link
             to={username ? `/u/${username}` : "/student/profile"}
             data-analytics-action="nav_profile"

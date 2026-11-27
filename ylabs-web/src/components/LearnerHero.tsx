@@ -220,12 +220,14 @@ export default function LearnerHero({
   isFirstLogin = false,
   continueLabel = "Continue Java Lab",
   onContinue,
+  onRefer,
   previewAs,
 }: {
   userName?: string;
   isFirstLogin?: boolean;
   continueLabel?: string;
   onContinue?: () => void;
+  onRefer?: () => void;
   previewAs?: Bucket;
 }) {
   const q = useRef<HTMLParagraphElement>(null);
@@ -303,17 +305,47 @@ export default function LearnerHero({
             </div>
           </div>
 
-          <button
-            className="lh-cta"
-            onClick={onContinue}
-            data-analytics-action="hero_continue_lab"
-            data-analytics-component="button"
-          >
-            {continueLabel}
-            <svg viewBox="0 0 24 24">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              className="lh-cta"
+              onClick={onContinue}
+              data-analytics-action="hero_continue_lab"
+              data-analytics-component="button"
+            >
+              {continueLabel}
+              <svg viewBox="0 0 24 24">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </button>
+            {onRefer && (
+              <button
+                type="button"
+                onClick={onRefer}
+                data-analytics-action="refer_a_friend_click"
+                data-analytics-component="button"
+                className="inline-flex items-center gap-2 font-medium text-xs rounded-xl border border-border/80 bg-card hover:bg-accent/60 text-foreground px-4 py-3 transition shadow-sm cursor-pointer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-primary"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <line x1="19" x2="19" y1="8" y2="14" />
+                  <line x1="22" x2="16" y1="11" y2="11" />
+                </svg>
+                <span>Refer a Friend</span>
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="lh-scene" aria-hidden="true">

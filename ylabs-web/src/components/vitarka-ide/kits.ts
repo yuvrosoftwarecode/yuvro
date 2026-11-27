@@ -904,20 +904,60 @@ export function getKit(slug: string, tag: string, isAlgo?: boolean): Kit {
     tag === "Linux Services"
   )
     return LINUX_KIT_DEFAULT;
+  if (s.includes("flask") || t.includes("flask")) {
+    return {
+      name: "python",
+      rootLabel: "flask-app",
+      primary: "app.py",
+      runtime: "Python 3.12 · Flask",
+      fileList: ["app.py", "requirements.txt", "README.md"],
+      files: {},
+    };
+  }
+
+  if (s.includes("fastapi") || t.includes("fastapi")) {
+    return {
+      name: "python",
+      rootLabel: "fastapi-app",
+      primary: "main.py",
+      runtime: "Python 3.12 · FastAPI",
+      fileList: ["main.py", "requirements.txt", "README.md"],
+      files: {},
+    };
+  }
+
+  if (s.includes("django") || t.includes("django")) {
+    return {
+      name: "django",
+      rootLabel: "django-app",
+      primary: "manage.py",
+      runtime: "Python 3.12 · Django 5",
+      fileList: ["manage.py", "requirements.txt", "README.md"],
+      files: {},
+    };
+  }
+
+  if (s.includes("vitarka") || s === "empty" || t.includes("vitarka") || t === "project" || t === "python") {
+    return {
+      name: "python",
+      rootLabel: "project",
+      primary: "main.py",
+      runtime: "Python 3.12",
+      fileList: ["README.md"],
+      files: {},
+    };
+  }
+
   return {
-    name: "java",
-    rootLabel: "java-101",
-    primary: "Main.java",
-    runtime: "Java 17",
-    fileList: [...FILE_LIST],
-    files: {
-      "Main.java": STARTER_MAIN,
-      "MainTest.java": STARTER_TEST,
-      "README.md": STARTER_README,
-    },
+    name: "project",
+    rootLabel: "project",
+    primary: "README.md",
+    runtime: "Python 3.12",
+    fileList: ["README.md"],
+    files: {},
   };
 }
 
 export type TestResult = { name: string; pass: boolean; time: string; expected?: string; got?: string; is_hidden?: boolean };
-export type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff" | "testcases";
+export type BottomTab = "output" | "errors" | "tests" | "quality" | "preview" | "terminal" | "uidiff" | "testcases" | "mentor" | "plan";
 

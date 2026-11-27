@@ -1,3 +1,4 @@
+import { SystemDesignBottomPanel } from "@/components/sysdesign/SystemDesignBottomPanel";
 import {
   createFileRoute,
   Link,
@@ -53,6 +54,7 @@ import {
   FilePlus, FolderPlus, Pencil, Trash2, X, FlaskConical, Key, Shield, Download,
   Mic, Paperclip, ChevronUp, Code, LayoutList, Loader2, History, CheckSquare,
   Columns3, PanelRight, PanelLeft, Square, Maximize2, Minimize2, Code2,
+  ListTodo,
 } from "lucide-react";
 
 import CodeMirror from "@uiw/react-codemirror";
@@ -152,9 +154,9 @@ export function TicketIDE({
   };
 
   const isAlgo = !ticket.tag?.toLowerCase().includes("sql") && !ticket.tag?.toLowerCase().includes("mysql") && !ticket.tag?.toLowerCase().includes("postgres") && !ticket.tag?.toLowerCase().includes("mongo") && (
-    slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" || 
+    slug === "programming" || slug === "datastructures" || slug === "data_structures_lab" ||
     isDsaLabMatch(slug) || isDsaLabMatch(ticket?.title) ||
-    ticket.ticket_type === "algo" || ticket.type === "algo" || ticket.lab_type === "algo" || 
+    ticket.ticket_type === "algo" || ticket.type === "algo" || ticket.lab_type === "algo" ||
     ticket.ticket_type === "ALGO" || ticket.type === "ALGO" || ticket.lab_type === "ALGO" ||
     (ticket.tasks && ticket.tasks.some((t: any) => t.input !== undefined && t.input !== "" && t.input !== null))
   );
@@ -229,7 +231,7 @@ export function TicketIDE({
         const cand = JSON.parse(localStorage.getItem("yuvro-eval-candidate") || "{}");
         if (cand?.id) return String(cand.id);
         if (cand?.userId) return String(cand.userId);
-      } catch {}
+      } catch { }
     }
     return isVitarka ? "admin" : "anon";
   }, [userId, evaluationId, isVitarka]);
@@ -331,12 +333,12 @@ export function TicketIDE({
 
   const defaultStarterCode = useMemo(() => {
     const fileExt = (defaultPrimaryFile || "").split(".").pop()?.toLowerCase();
-    const effectiveLang: ProgLang = fileExt === "py" ? "python" 
-      : fileExt === "java" ? "java" 
-      : fileExt === "c" ? "c" 
-      : (fileExt === "cpp" || fileExt === "cc") ? "cpp" 
-      : (fileExt === "js" || fileExt === "ts") ? "js" 
-      : defaultLang;
+    const effectiveLang: ProgLang = fileExt === "py" ? "python"
+      : fileExt === "java" ? "java"
+        : fileExt === "c" ? "c"
+          : (fileExt === "cpp" || fileExt === "cc") ? "cpp"
+            : (fileExt === "js" || fileExt === "ts") ? "js"
+              : defaultLang;
 
     const startersByLang: Record<string, string> = {
       python: "# Write your solution here\n",
@@ -391,7 +393,7 @@ export function TicketIDE({
     return s;
   }, [initialFiles, isReal, slug, defaultPrimaryFile, defaultStarterCode, kit, ticket.title, ticket.description, previewOverride]);
   const primaryFile = defaultPrimaryFile || kit.primary;
-  
+
   const [files, setFiles] = useState<Record<string, string>>(starters);
   const [dirty, setDirty] = useState<Record<string, boolean>>({});
 
@@ -419,7 +421,7 @@ export function TicketIDE({
     });
     return Array.from(set);
   }, [fileList, files]);
-  
+
   const [activeFile, setActiveFile] = useState<FileName>(() => {
     if (initialFiles) {
       const keys = Object.keys(initialFiles).filter(k => k !== "README.md");
@@ -427,7 +429,7 @@ export function TicketIDE({
     }
     return defaultPrimaryFile || (isReal && slug !== "knowledge" ? "" : initialFileList[0]);
   });
-  
+
   const [openTabs, setOpenTabs] = useState<string[]>(() => {
     if (initialFiles) return Object.keys(initialFiles).filter(k => Boolean(k && k.trim()));
     if (defaultPrimaryFile) return [defaultPrimaryFile];
@@ -515,7 +517,7 @@ export function TicketIDE({
     isOpen: false,
     title: "",
     description: "",
-    onConfirm: () => {},
+    onConfirm: () => { },
   });
 
   function openFile(path: string) {
@@ -550,7 +552,7 @@ export function TicketIDE({
       } else {
         try {
           const labEndpoint = isEvaluationMode
-            ? `/skill_evaluation/lab-questions/${labId}/` 
+            ? `/skill_evaluation/lab-questions/${labId}/`
             : `/lab/labs/${labId}/`;
           const { default: api } = await import("@/utils/RestApiAuthUtil");
           const realLab = await api.get<any>(labEndpoint);
@@ -725,7 +727,7 @@ export function TicketIDE({
   const isFolderOpen = (k: string) => openFolders[k] ?? true;
   const [sidePanel, setSidePanel] = useState<null | "preview" | "mentor">("mentor");
   const [previewDevice, setPreviewDevice] = useState<"Mobile" | "Tablet" | "Desktop">("Desktop");
-  const [sideWidth, setSideWidth] = useState<number | null>(420);
+  const [sideWidth, setSideWidth] = useState<number | null>(340);
   const [bottomHeight, setBottomHeight] = useState<number>(240);
   const [quickSwitcherOpen, setQuickSwitcherOpen] = useState(false);
   const [quickSearchQuery, setQuickSearchQuery] = useState("");
@@ -744,9 +746,9 @@ export function TicketIDE({
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
+      document.documentElement.requestFullscreen().catch(() => { });
     } else {
-      document.exitFullscreen().catch(() => {});
+      document.exitFullscreen().catch(() => { });
     }
   };
 
@@ -891,7 +893,7 @@ export function TicketIDE({
     const startHeight = bottomHeight;
     const onMove = (ev: MouseEvent) => {
       const next = startHeight - (ev.clientY - startY);
-      setBottomHeight(Math.min(600, Math.max(140, next)));
+      setBottomHeight(Math.max(100, next));
     };
     const onUp = () => {
       window.removeEventListener("mousemove", onMove);
@@ -954,7 +956,7 @@ export function TicketIDE({
   const [initialRevealedHints, setInitialRevealedHints] = useState<number[]>([]);
   const [initialSolutionRevealed, setInitialSolutionRevealed] = useState(false);
   const creatingSubmissionRef = useRef(false);
-  
+
   useEffect(() => {
     if (previewOverride || isVitarka) {
       if (isVitarka) {
@@ -966,19 +968,19 @@ export function TicketIDE({
     const RECENT_LAB_KEY = "ylabs-recent-lab";
     if (labId !== "knowledge" && slug !== "knowledge") {
       const labEndpoint = isEvaluationMode
-            ? `/skill_evaluation/lab-questions/${labId}/` 
-            : `/lab/labs/${labId}/`;
+        ? `/skill_evaluation/lab-questions/${labId}/`
+        : `/lab/labs/${labId}/`;
       import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
         api.get<any>(labEndpoint)
           .then((realLab) => {
-            try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.data?.title || realLab.data?.name })); } catch {}
+            try { localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: realLab.data?.title || realLab.data?.name })); } catch { }
           })
           .catch(() => {
             const labName = labs.find((l) => l.slug === slug)?.name ?? slug;
             setLabTitle(labName);
             try {
               localStorage.setItem(RECENT_LAB_KEY, JSON.stringify({ id: slug, name: labName }));
-            } catch {}
+            } catch { }
           });
       });
     }
@@ -1030,7 +1032,7 @@ export function TicketIDE({
               setInitialSolutionRevealed(true);
             }
             if (sub.ticket_status === "backlog") {
-              await api.patch(`${submissionsEndpoint}${ sub.id }/`, {
+              await api.patch(`${submissionsEndpoint}${sub.id}/`, {
                 [submissionsStatusField]: "in_progress",
               });
             }
@@ -1214,11 +1216,11 @@ export function TicketIDE({
       })
       .catch(err => console.warn("Failed to fetch executor languages", err));
   }, []);
-  
+
   useEffect(() => {
     if (isReal && ticket.tasks?.length) {
       setTests(ticket.tasks.map((t: any, i: number) => ({
-        name: `Test ${i+1} · ${t.title || 'Validation'}`,
+        name: `Test ${i + 1} · ${t.title || 'Validation'}`,
         pass: false,
         time: "—"
       })));
@@ -1242,7 +1244,7 @@ export function TicketIDE({
     if (!autoSave) return;
     const dirtyPaths = Object.keys(dirty).filter(k => dirty[k]);
     if (dirtyPaths.length === 0) return;
-    
+
     const timer = setTimeout(() => {
       handleSave(true);
     }, 1000);
@@ -1256,7 +1258,7 @@ export function TicketIDE({
         const next = e + 1;
         try {
           localStorage.setItem(`elapsed_${ticket.id}`, String(next));
-        } catch {}
+        } catch { }
         return next;
       });
     }, 1000);
@@ -1565,14 +1567,14 @@ export function TicketIDE({
             if (parsed && typeof parsed === "object") {
               parsedData = parsed;
             }
-          } catch {}
+          } catch { }
         }
 
         if (parsedData && typeof parsedData === "object") {
           setTaskExecutionData(parsedData);
           const tasksData = parsedData.tasks || {};
           const taskKeys = Object.keys(tasksData);
-          
+
           const newEvalResult: Record<string, { passed: boolean; reason: string }> = {};
           const nextTests: TestResult[] = [];
           const ticketTasks: any[] = Array.isArray(ticket?.tasks) && ticket.tasks.length > 0 ? ticket.tasks : [];
@@ -1823,15 +1825,15 @@ export function TicketIDE({
       let task = null;
       let activeTaskIndex = 0;
       if (activeFile.startsWith("task")) {
-         const numMatch = activeFile.match(/task(\d+)\.(sql|js)/);
-         if (numMatch) {
-            const idx = parseInt(numMatch[1], 10) - 1;
-            activeTaskIndex = Math.max(0, idx);
-            if (tTasks[idx]) task = tTasks[idx];
-         }
+        const numMatch = activeFile.match(/task(\d+)\.(sql|js)/);
+        if (numMatch) {
+          const idx = parseInt(numMatch[1], 10) - 1;
+          activeTaskIndex = Math.max(0, idx);
+          if (tTasks[idx]) task = tTasks[idx];
+        }
       }
       if (!task && tTasks.length > 0) {
-          task = tTasks[0];
+        task = tTasks[0];
       }
 
       let sRules: any = undefined;
@@ -1849,7 +1851,7 @@ export function TicketIDE({
         sysQ = sRules?.system_query;
         expR = sRules?.expected_result;
       }
-      
+
       if (!expQ || expQ.trim() === "") {
         expQ = sysQ;
       }
@@ -1859,7 +1861,7 @@ export function TicketIDE({
           ? (connectionUrl ? `-- Executing MongoDB query on connection URL\n…running…` : `-- Executing MongoDB query\n…running…`)
           : (connectionUrl ? `-- Executing query on ${dbEngine} database\n…running…` : `-- Executing query on ${dbFile || "none"}\n…running…`)
       );
-      
+
       const executeSql = async () => {
         try {
           const { runCommand, runDatabaseQuery } = await import("@/services/workspaceService");
@@ -1895,7 +1897,7 @@ export function TicketIDE({
           if (res.stdout) outText += `${res.stdout}\n`;
           if (res.stderr) outText += `Error:\n${res.stderr}\n`;
           outText += `\n✓ Process finished with exit code ${res.exit_code}`;
-          
+
           if (res.evaluation) {
             const finalPct = res.evaluation.final_score_pct || 0;
             const points = finalPct * 10;
@@ -1906,21 +1908,21 @@ export function TicketIDE({
             outText += `\n- Output Match: ${res.evaluation.output_matches ? "2.5" : "0"} / 2.5`;
             if (sysQ) outText += `\n- System Validation: ${res.evaluation.system_matches ? "5.0" : "0"} / 5.0`;
             outText += `\nTotal Points: ${points} / 10`;
-            
+
             if (!passed && sysQ) outText += `\n\nCheck failed. Ensure you followed the instructions exactly.`;
             setTicketScore({ passed: points, total: 10 });
             setTestsRan(true);
             setTests([{ name: "Ticket Check", pass: passed, time: "0ms" }]);
-            
+
             const targetTaskSlug = task && typeof task === "object" && task.task_slug ? task.task_slug : `task-${activeTaskIndex}`;
             const targetFallbackSlug = `task-${activeTaskIndex}`;
-            setEvalResult(prev => ({ 
-              ...prev, 
+            setEvalResult(prev => ({
+              ...prev,
               [targetTaskSlug]: { passed, reason: passed ? "" : (sysQ ? "Check failed." : "Failed") },
-              [targetFallbackSlug]: { passed, reason: passed ? "" : (sysQ ? "Check failed." : "Failed") } 
+              [targetFallbackSlug]: { passed, reason: passed ? "" : (sysQ ? "Check failed." : "Failed") }
             }));
           }
-          
+
           setOutput(outText);
           setExecutionOutput(outText);
           setBottomTab("preview");
@@ -1946,7 +1948,7 @@ export function TicketIDE({
           lab_id: labId,   // lab UUID — lets executor resolve starter repo path
         }).then((res: any) => {
           setRunning(false);
-          
+
           // Create a clean object to show in the console without flooding it with base64 images
           // The user requested ui_score, js_score, and checks
           const resultJson: any = {
@@ -1954,25 +1956,25 @@ export function TicketIDE({
             js_score: res.js_score ?? 0,
             checks: res.checks ?? []
           };
-          
+
           // Only remove js_score for the first 2 sprints of the HTML/CSS/JS lab
           if (ticket.ticket_slug?.startsWith("s1-") || ticket.ticket_slug?.startsWith("s2-")) {
             delete resultJson.js_score;
           }
-          
+
           setOutput(JSON.stringify(resultJson, null, 2));
           setBottomTab("preview");
-          
+
           if (isReal && submissionId) {
-             const uiScore = res.ui_score ?? 0;
-             const structScore = res.structural_score ?? 0;
-             const isPass = uiScore >= 75 && structScore >= 75;
-             const uiPct = isPass ? 100 : 0;
-             api.patch(`${submissionsEndpoint}${ submissionId }/`, {
-               [submissionsStatusField]: isPass ? "done" : "in_progress",
-               solution: JSON.stringify(getFilesToSave()),
-               solution_output: JSON.stringify({ percentage: uiPct, total_score: uiPct }),
-             }).catch(console.error);
+            const uiScore = res.ui_score ?? 0;
+            const structScore = res.structural_score ?? 0;
+            const isPass = uiScore >= 75 && structScore >= 75;
+            const uiPct = isPass ? 100 : 0;
+            api.patch(`${submissionsEndpoint}${submissionId}/`, {
+              [submissionsStatusField]: isPass ? "done" : "in_progress",
+              solution: JSON.stringify(getFilesToSave()),
+              solution_output: JSON.stringify({ percentage: uiPct, total_score: uiPct }),
+            }).catch(console.error);
           }
         }).catch((err: any) => {
           console.error(err);
@@ -2042,7 +2044,7 @@ export function TicketIDE({
       const gitOutput = JSON.stringify({ percentage: gitPct, total_score: gitPct });
       if (isReal && submissionId) {
         import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-          api.patch(`${submissionsEndpoint}${ submissionId }/`, {
+          api.patch(`${submissionsEndpoint}${submissionId}/`, {
             [submissionsStatusField]: passedCount === tasks.length ? "done" : "in_progress",
             solution: JSON.stringify(getFilesToSave()),
             solution_output: gitOutput,
@@ -2185,7 +2187,7 @@ export function TicketIDE({
         const kanban = localKanbanStr ? JSON.parse(localKanbanStr) : {};
         kanban[ticket.id] = status;
         localStorage.setItem(`kanban_${slug}`, JSON.stringify(kanban));
-      } catch (e) {}
+      } catch (e) { }
       invalidateStudentStats();
       analytics.trackEvent(GA4_EVENTS.TASK_SUBMITTED, {
         lab_id: slug,
@@ -2618,7 +2620,7 @@ export function TicketIDE({
       const safeName = gitName.replace(/"/g, '\\"');
       const safeEmail = gitEmail.replace(/"/g, '\\"');
       const cmd = `git config user.name "${safeName}" && git config user.email "${safeEmail}" && git add . && git commit -m "${formattedMessage.replace(/"/g, '\\"')}" --author="${safeName} <${safeEmail}>" && git push`;
-      
+
       const { runCommand } = await import("@/services/workspaceService");
       const res = await runCommand(effectiveUserId, labId, sprintId, cmd, evaluationId);
       if (res.exit_code === 0) {
@@ -2701,7 +2703,7 @@ export function TicketIDE({
       if (slug !== "knowledge") {
         if (submissionId) {
           import("@/utils/RestApiAuthUtil").then(({ default: api }) => {
-            api.patch(`${submissionsEndpoint}${ submissionId }/`, {
+            api.patch(`${submissionsEndpoint}${submissionId}/`, {
               solution: JSON.stringify(getFilesToSave()),
             }).catch(console.error);
           });
@@ -2713,7 +2715,7 @@ export function TicketIDE({
               [submissionsStatusField]: "in_progress",
               solution: JSON.stringify(getFilesToSave()),
             }).then((res: any) => {
-               setSubmissionId(res.data.id);
+              setSubmissionId(res.data.id);
             }).catch(console.error);
           });
         }
@@ -2826,7 +2828,7 @@ export function TicketIDE({
           setEvalResult({});
           try {
             localStorage.removeItem(`elapsed_${ticket.id}`);
-          } catch {}
+          } catch { }
           window.location.reload();
         } catch (e: any) {
           showToast("Failed to reset progress: " + e.message);
@@ -2848,64 +2850,74 @@ export function TicketIDE({
     <div className="h-screen flex-1 min-h-0 flex flex-col bg-background overflow-hidden">
       {/* Top sub-bar (no global nav — full-page editor) */}
       <div className="h-11 shrink-0 flex items-center gap-2.5 border-b bg-card/60 px-3 text-xs whitespace-nowrap min-w-0 select-none overflow-x-auto">
-        {!previewOverride && !isEvaluationMode && !isAdminRoute && (
-          isFromWeeklyTask ? (
-            <button
-              type="button"
-              onClick={() => {
-                const returnUrl = typeof window !== "undefined" ? sessionStorage.getItem("weekly_task_return_url") : null;
-                const weeklyTaskId =
-                  (typeof window !== "undefined" && sessionStorage.getItem("weekly_task_id")) ||
-                  new URLSearchParams(
-                    (returnUrl && typeof returnUrl === "string" ? returnUrl.split("?")[1] : "") || ""
-                  ).get("id") ||
-                  undefined;
-                try {
-                  sessionStorage.removeItem("from_weekly_task");
-                  sessionStorage.removeItem("weekly_task_return_url");
-                  sessionStorage.removeItem("weekly_task_id");
-                } catch {}
-                navigate({
-                  to: "/student/weekly-task",
-                  search: weeklyTaskId ? { id: weeklyTaskId } : undefined,
-                });
-              }}
-              className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              title="Back to Weekly Task"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Exit</span>
-            </button>
-          ) : ((ticket as any)?.sprint_id || (ticket as any)?.sprint || (typeof window !== "undefined" ? sessionStorage.getItem(`last_sprint_${slug}`) : null)) ? (
+        {!previewOverride && !isEvaluationMode && (
+          isVitarka ? (
             <Link
-              to="/student/lab/$slug/sprint/$sprintId"
-              params={{
-                slug,
-                sprintId: String((ticket as any)?.sprint_id || (ticket as any)?.sprint || (typeof window !== "undefined" ? sessionStorage.getItem(`last_sprint_${slug}`) : "")),
-              }}
+              to="/student/dashboard"
               className="inline-flex items-center justify-center h-7 w-7 rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
-              title="Back"
+              title="Back to Simulation Labs"
             >
               <ArrowLeft className="h-4 w-4" />
             </Link>
-          ) : (
-            <Link
-              to="/student/lab/$slug"
-              params={{ slug }}
-              className="inline-flex items-center justify-center h-7 w-7 rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
-              title="Back"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
+          ) : !isAdminRoute && (
+            isFromWeeklyTask ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const returnUrl = typeof window !== "undefined" ? sessionStorage.getItem("weekly_task_return_url") : null;
+                  const weeklyTaskId =
+                    (typeof window !== "undefined" && sessionStorage.getItem("weekly_task_id")) ||
+                    new URLSearchParams(
+                      (returnUrl && typeof returnUrl === "string" ? returnUrl.split("?")[1] : "") || ""
+                    ).get("id") ||
+                    undefined;
+                  try {
+                    sessionStorage.removeItem("from_weekly_task");
+                    sessionStorage.removeItem("weekly_task_return_url");
+                    sessionStorage.removeItem("weekly_task_id");
+                  } catch { }
+                  navigate({
+                    to: "/student/weekly-task",
+                    search: weeklyTaskId ? { id: weeklyTaskId } : undefined,
+                  });
+                }}
+                className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                title="Back to Weekly Task"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>Exit</span>
+              </button>
+            ) : ((ticket as any)?.sprint_id || (ticket as any)?.sprint || (typeof window !== "undefined" ? sessionStorage.getItem(`last_sprint_${slug}`) : null)) ? (
+              <Link
+                to="/student/lab/$slug/sprint/$sprintId"
+                params={{
+                  slug,
+                  sprintId: String((ticket as any)?.sprint_id || (ticket as any)?.sprint || (typeof window !== "undefined" ? sessionStorage.getItem(`last_sprint_${slug}`) : "")),
+                }}
+                className="inline-flex items-center justify-center h-7 w-7 rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+                title="Back"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            ) : (
+              <Link
+                to="/student/lab/$slug"
+                params={{ slug }}
+                className="inline-flex items-center justify-center h-7 w-7 rounded-md border hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+                title="Back"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            )
           )
         )}
 
         {/* System Design Studio / Vitarka IDE branding */}
         <div className="flex items-center gap-2 mr-1">
-          <div className="grid h-6 w-6 place-items-center rounded bg-primary/10 text-primary">
-            <Code2 className="h-3.5 w-3.5" />
+          <div className="w-5 h-5 rounded-md bg-[#f7931e]/15 text-[#f7931e] flex items-center justify-center font-bold">
+            <Sparkles className="w-3.5 h-3.5" />
           </div>
-          <span className="font-semibold text-xs text-foreground tracking-tight whitespace-nowrap">
+          <span className="font-bold text-[13px] text-foreground tracking-tight whitespace-nowrap">
             Vitarka IDE
           </span>
         </div>
@@ -2913,47 +2925,20 @@ export function TicketIDE({
         {/* Next option: New Project */}
         {newProjectButton}
 
-        {/* Checkpoints dropdown - left aligned */}
-        {checkpoints.length > 0 && (
-          <div className="relative inline-flex items-center">
-            <select
-              value=""
-              onChange={(e) => {
-                if (e.target.value === "discard") {
-                  handleDiscardChanges();
-                } else if (e.target.value) {
-                  handleRestoreCheckpoint(e.target.value);
-                }
-              }}
-              className="text-[11px] font-medium h-7 rounded-md border border-border/70 bg-muted/30 px-2 pr-6 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer appearance-none outline-none"
-              title="Restore code to a previous checkpoint"
-            >
-              <option value="" disabled>
-                Checkpoints ({checkpoints.length})...
-              </option>
-              <option value="discard">↶ Discard changes (latest checkpoint)</option>
-              {checkpoints.map((cp, idx) => (
-                <option key={cp.id} value={cp.id}>
-                  {idx + 1}. {cp.name} ({new Date(cp.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })})
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="h-3 w-3 text-muted-foreground pointer-events-none absolute right-2" />
-          </div>
-        )}
-
-        {/* Find files - left aligned */}
+        {/* Find files - left aligned (increased width) */}
         <button
           onClick={() => {
             setQuickSwitcherOpen(true);
             setQuickSearchSelectedIndex(0);
           }}
-          className="hidden md:inline-flex items-center gap-2 rounded-md border border-border/70 bg-muted/30 px-2.5 py-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
+          className="hidden md:inline-flex items-center justify-between w-64 rounded-md border border-border/70 bg-muted/40 px-3 py-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer text-xs"
           title="Quick open file (⌘P)"
         >
-          <Search className="h-3 w-3" />
-          <span>Find files...</span>
-          <kbd className="rounded bg-muted px-1.5 py-0.2 text-[9px] font-mono text-muted-foreground border">
+          <div className="flex items-center gap-2">
+            <Search className="h-3.5 w-3.5" />
+            <span>Find files...</span>
+          </div>
+          <kbd className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-mono text-muted-foreground border">
             ⌘P
           </kbd>
         </button>
@@ -3025,11 +3010,10 @@ export function TicketIDE({
                 setSidePanel("mentor");
               }}
               title="All panels (File Browser, Editor, AI Mentor)"
-              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${
-                activeSidebarView !== null && sidePanel === "mentor"
+              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${activeSidebarView !== null && sidePanel === "mentor"
                   ? "bg-background text-foreground shadow-2xs font-semibold"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
-              }`}
+                }`}
             >
               <Columns3 className="h-3.5 w-3.5" />
             </button>
@@ -3039,11 +3023,10 @@ export function TicketIDE({
                 setSidePanel("mentor");
               }}
               title="Code Editor & AI Mentor"
-              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${
-                activeSidebarView === null && sidePanel === "mentor"
+              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${activeSidebarView === null && sidePanel === "mentor"
                   ? "bg-background text-foreground shadow-2xs font-semibold"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
-              }`}
+                }`}
             >
               <PanelRight className="h-3.5 w-3.5" />
             </button>
@@ -3053,11 +3036,10 @@ export function TicketIDE({
                 setSidePanel(null);
               }}
               title="File Browser & Code Editor"
-              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${
-                activeSidebarView !== null && sidePanel === null
+              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${activeSidebarView !== null && sidePanel === null
                   ? "bg-background text-foreground shadow-2xs font-semibold"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
-              }`}
+                }`}
             >
               <PanelLeft className="h-3.5 w-3.5" />
             </button>
@@ -3067,11 +3049,10 @@ export function TicketIDE({
                 setSidePanel(null);
               }}
               title="Only Code Editor"
-              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${
-                activeSidebarView === null && sidePanel === null
+              className={`grid h-7 w-7 place-items-center rounded transition-colors cursor-pointer ${activeSidebarView === null && sidePanel === null
                   ? "bg-background text-foreground shadow-2xs font-semibold"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
-              }`}
+                }`}
             >
               <Square className="h-3.5 w-3.5" />
             </button>
@@ -3095,11 +3076,10 @@ export function TicketIDE({
           <button
             onClick={() => setActiveSidebarView((v) => (v === "problem" ? null : "problem"))}
             title={activeSidebarView === "problem" ? "Hide Problem (⌘B)" : "Show Problem (⌘B)"}
-            className={`grid h-9 w-9 place-items-center rounded transition-colors ${
-              activeSidebarView === "problem"
+            className={`grid h-9 w-9 place-items-center rounded transition-colors ${activeSidebarView === "problem"
                 ? "text-foreground bg-accent"
                 : "hover:text-foreground hover:bg-accent/40"
-            }`}
+              }`}
           >
             <BookOpen className="h-4 w-4" />
           </button>
@@ -3108,42 +3088,25 @@ export function TicketIDE({
           <button
             onClick={() => setActiveSidebarView((v) => (v === "explorer" ? null : "explorer"))}
             title={activeSidebarView === "explorer" ? "Hide Explorer (⌘⇧E)" : "Show Explorer (⌘⇧E)"}
-            className={`grid h-9 w-9 place-items-center rounded transition-colors ${
-              activeSidebarView === "explorer"
+            className={`grid h-9 w-9 place-items-center rounded transition-colors ${activeSidebarView === "explorer"
                 ? "text-foreground bg-accent"
                 : "hover:text-foreground hover:bg-accent/40"
-            }`}
+              }`}
           >
             <FileCode2 className="h-4 w-4" />
-          </button>
-
-          {/* Plan mode button */}
-          <button
-            onClick={handleOpenPlanMode}
-            title="Plan & Tasks (Preview Plan UI)"
-            className={`grid h-9 w-9 place-items-center rounded transition-colors ${
-              (activeFile?.endsWith(".md") || activeFile?.includes("plan")) && planViewMode === "ui"
-                ? "text-primary bg-primary/15"
-                : "hover:text-foreground hover:bg-accent/40"
-            }`}
-          >
-            <LayoutList className="h-4 w-4" />
           </button>
           {[
             { id: "search", icon: Search, label: "Search in Files (⌘⇧F)" },
             { id: "git", icon: GitBranch, label: "Source Control / Diff (⌘⇧G)" },
-            { id: "debug", icon: Bug, label: "Run & Debug (⌘⇧D)" },
-            { id: "containers", icon: Package, label: "Containers & Environment (⌘⇧X)" },
           ].map((act) => (
             <button
               key={act.id}
               onClick={() => setActiveSidebarView((v) => (v === act.id ? null : (act.id as any)))}
               title={act.label}
-              className={`grid h-9 w-9 place-items-center rounded transition-colors ${
-                activeSidebarView === act.id
+              className={`grid h-9 w-9 place-items-center rounded transition-colors ${activeSidebarView === act.id
                   ? "text-foreground bg-accent"
                   : "hover:text-foreground hover:bg-accent/40"
-              }`}
+                }`}
             >
               <act.icon className="h-4 w-4" />
             </button>
@@ -3192,342 +3155,342 @@ export function TicketIDE({
                       <PanelLeftClose className="h-3.5 w-3.5" />
                     </button>
                   </div>
-              <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
-                {tab === "problem" && (
-                  <ProblemPanel 
-                    ticket={ticket} 
-                    slug={slug} 
-                    labName={labTitle}
-                    isAlgo={isMultiLang}
-                    isReal={!tickets.some(t => t.id === ticket.id)} 
-                    evaluating={evaluating}
-                    evalResult={evalResult}
-                    ticketScore={ticketScore}
-                    onEvaluate={handleEvaluate}
-                  />
-                )}
-                {tab === "solution" && (
-                  <SolutionPanel
-                    ticket={ticket}
-                    isPreview={isRecruiterPreview}
-                    initialSolutionRevealed={initialSolutionRevealed}
-                    onLoadIntoEditor={(code, language, targetFilePath) => {
-                      const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
-                      const ext = langMap[language?.toLowerCase() || ""] || "py";
-                      const fallbackFile = (ticket as any).starter_path || (ticket as any).starterPath || ticket.scoring_rules?.starter_path || ticket.target_file || ticket.targeted_file || activeFile || `solution.${ext}`;
-                      const targetFile = targetFilePath || fallbackFile;
-                      setFiles(prev => ({ ...prev, [targetFile]: code }));
-                      setDirty(prev => ({ ...prev, [targetFile]: true }));
-                      loadedFiles.current.add(targetFile);
-                      setOpenTabs(prev => prev.includes(targetFile) ? prev : [...prev, targetFile]);
-                      setActiveFile(targetFile);
-                      if (isReal) {
-                        wsWriteFile(effectiveUserId, labId, sprintId, targetFile, code, evaluationId)
-                          .catch(() => showToast(`⚠️ Could not write ${targetFile}`));
-                      }
-                      showToast(`Loaded ${targetFile} into editor`);
-                    }}
-                    onLoadAllIntoEditor={(fileMap) => {
-                      setFiles(prev => ({ ...prev, ...fileMap }));
-                      setDirty(prev => {
-                        const next = { ...prev };
-                        Object.keys(fileMap).forEach(k => { next[k] = true; });
-                        return next;
-                      });
-                      const fileKeys = Object.keys(fileMap);
-                      fileKeys.forEach(k => loadedFiles.current.add(k));
-                      setOpenTabs(prev => {
-                        const set = new Set(prev);
-                        fileKeys.forEach(k => set.add(k));
-                        return Array.from(set);
-                      });
-                      if (fileKeys.length > 0) {
-                        setActiveFile(fileKeys[0]);
-                      }
-                      if (isReal) {
-                        Promise.all(fileKeys.map(k => wsWriteFile(effectiveUserId, labId, sprintId, k, fileMap[k], evaluationId)))
-                          .catch(() => showToast(`⚠️ Could not write all files`));
-                      }
-                      showToast(`Loaded ${fileKeys.length} solution file(s) into editor`);
-                    }}
-                  />
-                )}
-                {tab === "hints" && (
-                  <HintsPanel
-                    ticket={ticket}
-                    elapsed={elapsed}
-                    initialRevealedHints={initialRevealedHints}
-                    isPreview={isRecruiterPreview}
-                    onUnlock={(n, c) => showToast(`Hint ${n} revealed`)}
-                  />
-                )}
-                {/* {tab === "discuss" && <DiscussPanel />} */}
-              </div>
-            </>
-          )}
-
-          {activeSidebarView === "explorer" && (
-                    <>
-                      <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-                        <span>Explorer</span>
-                  <div className="flex items-center gap-1 normal-case">
-                    <button
-                      title="New File"
-                      onClick={() => {
-                        setInlineAction({ type: "new-file", folderPath: "" });
-                        setOpenFolders(o => ({ ...o, [""]: true, ["__root__"]: true }));
-                      }}
-                      className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
-                    >
-                      <FilePlus className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      title="New Folder"
-                      onClick={() => {
-                        setInlineAction({ type: "new-folder", folderPath: "" });
-                        setOpenFolders(o => ({ ...o, [""]: true, ["__root__"]: true }));
-                      }}
-                      className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
-                    >
-                      <FolderPlus className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      title="Refresh Workspace"
-                      onClick={() => loadWorkspaceFiles(true)}
-                      className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1 cursor-pointer"
-                    >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                        <path d="M3 3v5h5" />
-                      </svg>
-                    </button>
-                    <button
-                      title="Collapse Sidebar"
-                      onClick={() => setActiveSidebarView(null)}
-                      className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1 cursor-pointer"
-                    >
-                      <PanelLeftClose className="h-3.5 w-3.5" />
-                    </button>
+                  <div className="flex-1 overflow-auto scrollbar-thin p-4 text-sm space-y-3">
+                    {tab === "problem" && (
+                      <ProblemPanel
+                        ticket={ticket}
+                        slug={slug}
+                        labName={labTitle}
+                        isAlgo={isMultiLang}
+                        isReal={!tickets.some(t => t.id === ticket.id)}
+                        evaluating={evaluating}
+                        evalResult={evalResult}
+                        ticketScore={ticketScore}
+                        onEvaluate={handleEvaluate}
+                      />
+                    )}
+                    {tab === "solution" && (
+                      <SolutionPanel
+                        ticket={ticket}
+                        isPreview={isRecruiterPreview}
+                        initialSolutionRevealed={initialSolutionRevealed}
+                        onLoadIntoEditor={(code, language, targetFilePath) => {
+                          const langMap: Record<string, string> = { python: "py", cpp: "cpp", "c++": "cpp", c: "c", java: "java", javascript: "js" };
+                          const ext = langMap[language?.toLowerCase() || ""] || "py";
+                          const fallbackFile = (ticket as any).starter_path || (ticket as any).starterPath || ticket.scoring_rules?.starter_path || ticket.target_file || ticket.targeted_file || activeFile || `solution.${ext}`;
+                          const targetFile = targetFilePath || fallbackFile;
+                          setFiles(prev => ({ ...prev, [targetFile]: code }));
+                          setDirty(prev => ({ ...prev, [targetFile]: true }));
+                          loadedFiles.current.add(targetFile);
+                          setOpenTabs(prev => prev.includes(targetFile) ? prev : [...prev, targetFile]);
+                          setActiveFile(targetFile);
+                          if (isReal) {
+                            wsWriteFile(effectiveUserId, labId, sprintId, targetFile, code, evaluationId)
+                              .catch(() => showToast(`⚠️ Could not write ${targetFile}`));
+                          }
+                          showToast(`Loaded ${targetFile} into editor`);
+                        }}
+                        onLoadAllIntoEditor={(fileMap) => {
+                          setFiles(prev => ({ ...prev, ...fileMap }));
+                          setDirty(prev => {
+                            const next = { ...prev };
+                            Object.keys(fileMap).forEach(k => { next[k] = true; });
+                            return next;
+                          });
+                          const fileKeys = Object.keys(fileMap);
+                          fileKeys.forEach(k => loadedFiles.current.add(k));
+                          setOpenTabs(prev => {
+                            const set = new Set(prev);
+                            fileKeys.forEach(k => set.add(k));
+                            return Array.from(set);
+                          });
+                          if (fileKeys.length > 0) {
+                            setActiveFile(fileKeys[0]);
+                          }
+                          if (isReal) {
+                            Promise.all(fileKeys.map(k => wsWriteFile(effectiveUserId, labId, sprintId, k, fileMap[k], evaluationId)))
+                              .catch(() => showToast(`⚠️ Could not write all files`));
+                          }
+                          showToast(`Loaded ${fileKeys.length} solution file(s) into editor`);
+                        }}
+                      />
+                    )}
+                    {tab === "hints" && (
+                      <HintsPanel
+                        ticket={ticket}
+                        elapsed={elapsed}
+                        initialRevealedHints={initialRevealedHints}
+                        isPreview={isRecruiterPreview}
+                        onUnlock={(n, c) => showToast(`Hint ${n} revealed`)}
+                      />
+                    )}
+                    {/* {tab === "discuss" && <DiscussPanel />} */}
                   </div>
-                </div>
-                <div className="flex-1 overflow-auto px-1 pb-2 min-h-0">
-                  <FileTree
-                    rootLabel={isAlgo ? (ticket.title || kit.rootLabel || "Project") : (kit.rootLabel || "todo-app")}
-                    paths={fileList}
-                    activeFile={activeFile}
-                    dirty={dirty}
-                    inlineAction={inlineAction}
-                    setInlineAction={setInlineAction}
-                    onOpenFile={openFile}
-                    onCreateFile={createFile}
-                    onRenameFile={renameFile}
-                    onDeleteFile={deleteFile}
-                    onDeleteFolder={deleteFolder}
-                    onFormatFile={handleFormatCode}
-                    onCopyFilePath={handleCopyFilePath}
-                    isFolderOpen={isFolderOpen}
-                    toggleFolder={toggleFolder}
-                  />
-                </div>
-                {isDbEditor && (
-                  <div className="flex-1 overflow-auto border-t flex flex-col min-h-0 bg-editor-panel">
-                    <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-                      <span>DB Explorer</span>
+                </>
+              )}
+
+              {activeSidebarView === "explorer" && (
+                <>
+                  <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+                    <span>Explorer</span>
+                    <div className="flex items-center gap-1 normal-case">
                       <button
-                        onClick={() => refreshSchema()}
-                        title="Refresh Live Schema"
-                        className="p-0.5 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
+                        title="New File"
+                        onClick={() => {
+                          setInlineAction({ type: "new-file", folderPath: "" });
+                          setOpenFolders(o => ({ ...o, [""]: true, ["__root__"]: true }));
+                        }}
+                        className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
                       >
-                        <RotateCcw className={`h-3 w-3 ${dbSchemasLoading ? "animate-spin text-primary" : ""}`} />
+                        <FilePlus className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        title="New Folder"
+                        onClick={() => {
+                          setInlineAction({ type: "new-folder", folderPath: "" });
+                          setOpenFolders(o => ({ ...o, [""]: true, ["__root__"]: true }));
+                        }}
+                        className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground"
+                      >
+                        <FolderPlus className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        title="Refresh Workspace"
+                        onClick={() => loadWorkspaceFiles(true)}
+                        className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1 cursor-pointer"
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                          <path d="M3 3v5h5" />
+                        </svg>
+                      </button>
+                      <button
+                        title="Collapse Sidebar"
+                        onClick={() => setActiveSidebarView(null)}
+                        className="grid h-5 w-5 place-items-center rounded hover:bg-accent text-muted-foreground hover:text-foreground ml-1 cursor-pointer"
+                      >
+                        <PanelLeftClose className="h-3.5 w-3.5" />
                       </button>
                     </div>
-                    {dbSchemasLoading && (
-                      <div className="px-3 py-2 text-xs text-muted-foreground italic animate-pulse">
-                        Inspecting live database...
-                      </div>
-                    )}
-                    {!dbSchemasLoading && !hasDbConnection && (
-                      <div className="px-3 py-3 text-xs text-muted-foreground">
-                        <div className="font-medium text-foreground/80 mb-1">No Connection Configured</div>
-                        <p className="text-[11px] leading-relaxed opacity-70">
-                          Add a connection URI in the Results tab to view live tables and schema.
-                        </p>
-                      </div>
-                    )}
-                    {!dbSchemasLoading && hasDbConnection && dbSchemas.length === 0 && (
-                      <div className="px-3 py-2 text-xs text-muted-foreground italic">
-                        No tables found in database
-                      </div>
-                    )}
-                    {!dbSchemasLoading && dbSchemas.map((schema) => (
-                      <React.Fragment key={schema.name}>
-                        <div className="px-3 py-1 flex items-center gap-1.5 text-xs text-foreground font-medium mt-2 first:mt-0">
-                          <svg
-                            className="h-3.5 w-3.5 text-primary"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-                          </svg>
-                          {schema.name}
-                        </div>
-                        {(schema.tables || []).length > 0 ? (
-                          <>
-                            <div className="px-5 py-1 text-[11px] text-muted-foreground uppercase mt-1">
-                              Tables
-                            </div>
-                            {(schema.tables || []).map((t) => (
-                              <button
-                                key={t.name}
-                                onClick={() => {
-                                  if (!openTabs.includes(`schema:${schema.name}.${t.name}`))
-                                    setOpenTabs([...openTabs, `schema:${schema.name}.${t.name}`]);
-                                  setActiveFile(`schema:${schema.name}.${t.name}`);
-                                }}
-                                className={`w-full flex items-center gap-2 px-5 py-1 text-xs text-left ${activeFile === `schema:${schema.name}.${t.name}` ? "bg-accent/50 text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                              >
-                                <svg
-                                  className="h-3 w-3"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                >
-                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                  <line x1="3" y1="9" x2="21" y2="9"></line>
-                                  <line x1="9" y1="21" x2="9" y2="9"></line>
-                                </svg>
-                                {t.name}
-                                <span className="ml-auto text-[10px] opacity-50">
-                                  {(t.columns || []).length} cols
-                                </span>
-                              </button>
-                            ))}
-                          </>
-                        ) : (
-                          <div className="px-5 py-1 text-[11px] text-muted-foreground italic">
-                            0 tables
-                          </div>
-                        )}
-                      </React.Fragment>
-                    ))}
-                    {(isMysql || isPostgres) && !isEvaluationMode && !ticket.connection_url && (
-                      <div className="px-4 py-3 mt-4 border-t border-border">
-                        <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2">
-                          Need a free database?
-                        </div>
-                        <ul className="text-xs text-muted-foreground space-y-1.5 pl-3 list-disc">
-                          {isPostgres && (
-                            <li>
-                              <a
-                                href="https://supabase.com"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-primary hover:underline font-medium"
-                              >
-                                Supabase
-                              </a>{" "}
-                              (Postgres)
-                            </li>
-                          )}
-                          {isPostgres && (
-                            <li>
-                              <a
-                                href="https://neon.tech"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-primary hover:underline font-medium"
-                              >
-                                Neon
-                              </a>{" "}
-                              (Postgres)
-                            </li>
-                          )}
-                          {isPostgres && (
-                            <li>
-                              <a
-                                href="https://render.com"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-primary hover:underline font-medium"
-                              >
-                                Render
-                              </a>{" "}
-                              (Postgres)
-                            </li>
-                          )}
-                          {isMysql && (
-                            <li>
-                              <a
-                                href="https://planetscale.com"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-primary hover:underline font-medium"
-                              >
-                                PlanetScale
-                              </a>{" "}
-                              (MySQL)
-                            </li>
-                          )}
-                          {isMysql && (
-                            <li>
-                              <a
-                                href="https://aiven.io/mysql"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-primary hover:underline font-medium"
-                              >
-                                Aiven
-                              </a>{" "}
-                              (MySQL)
-                            </li>
-                          )}
-                          {isMysql && (
-                            <li>
-                              <a
-                                href="https://tidbcloud.com"
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-primary hover:underline font-medium"
-                              >
-                                TiDB Cloud
-                              </a>{" "}
-                              (MySQL)
-                            </li>
-                          )}
-                          <li>
-                            <a
-                              href="https://railway.app"
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-primary hover:underline font-medium"
-                            >
-                              Railway
-                            </a>{" "}
-                            (Both)
-                          </li>
-                        </ul>
-                      </div>
-                    )}
                   </div>
-                )}
+                  <div className="flex-1 overflow-auto px-1 pb-2 min-h-0">
+                    <FileTree
+                      rootLabel={isVitarka ? (ticket.title || "Project") : isAlgo ? (ticket.title || kit.rootLabel || "Project") : (kit.rootLabel || "todo-app")}
+                      paths={fileList}
+                      activeFile={activeFile}
+                      dirty={dirty}
+                      inlineAction={inlineAction}
+                      setInlineAction={setInlineAction}
+                      onOpenFile={openFile}
+                      onCreateFile={createFile}
+                      onRenameFile={renameFile}
+                      onDeleteFile={deleteFile}
+                      onDeleteFolder={deleteFolder}
+                      onFormatFile={handleFormatCode}
+                      onCopyFilePath={handleCopyFilePath}
+                      isFolderOpen={isFolderOpen}
+                      toggleFolder={toggleFolder}
+                    />
+                  </div>
+                  {isDbEditor && (
+                    <div className="flex-1 overflow-auto border-t flex flex-col min-h-0 bg-editor-panel">
+                      <div className="flex items-center justify-between px-3 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+                        <span>DB Explorer</span>
+                        <button
+                          onClick={() => refreshSchema()}
+                          title="Refresh Live Schema"
+                          className="p-0.5 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <RotateCcw className={`h-3 w-3 ${dbSchemasLoading ? "animate-spin text-primary" : ""}`} />
+                        </button>
+                      </div>
+                      {dbSchemasLoading && (
+                        <div className="px-3 py-2 text-xs text-muted-foreground italic animate-pulse">
+                          Inspecting live database...
+                        </div>
+                      )}
+                      {!dbSchemasLoading && !hasDbConnection && (
+                        <div className="px-3 py-3 text-xs text-muted-foreground">
+                          <div className="font-medium text-foreground/80 mb-1">No Connection Configured</div>
+                          <p className="text-[11px] leading-relaxed opacity-70">
+                            Add a connection URI in the Results tab to view live tables and schema.
+                          </p>
+                        </div>
+                      )}
+                      {!dbSchemasLoading && hasDbConnection && dbSchemas.length === 0 && (
+                        <div className="px-3 py-2 text-xs text-muted-foreground italic">
+                          No tables found in database
+                        </div>
+                      )}
+                      {!dbSchemasLoading && dbSchemas.map((schema) => (
+                        <React.Fragment key={schema.name}>
+                          <div className="px-3 py-1 flex items-center gap-1.5 text-xs text-foreground font-medium mt-2 first:mt-0">
+                            <svg
+                              className="h-3.5 w-3.5 text-primary"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                            </svg>
+                            {schema.name}
+                          </div>
+                          {(schema.tables || []).length > 0 ? (
+                            <>
+                              <div className="px-5 py-1 text-[11px] text-muted-foreground uppercase mt-1">
+                                Tables
+                              </div>
+                              {(schema.tables || []).map((t) => (
+                                <button
+                                  key={t.name}
+                                  onClick={() => {
+                                    if (!openTabs.includes(`schema:${schema.name}.${t.name}`))
+                                      setOpenTabs([...openTabs, `schema:${schema.name}.${t.name}`]);
+                                    setActiveFile(`schema:${schema.name}.${t.name}`);
+                                  }}
+                                  className={`w-full flex items-center gap-2 px-5 py-1 text-xs text-left ${activeFile === `schema:${schema.name}.${t.name}` ? "bg-accent/50 text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                                >
+                                  <svg
+                                    className="h-3 w-3"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                                  </svg>
+                                  {t.name}
+                                  <span className="ml-auto text-[10px] opacity-50">
+                                    {(t.columns || []).length} cols
+                                  </span>
+                                </button>
+                              ))}
+                            </>
+                          ) : (
+                            <div className="px-5 py-1 text-[11px] text-muted-foreground italic">
+                              0 tables
+                            </div>
+                          )}
+                        </React.Fragment>
+                      ))}
+                      {(isMysql || isPostgres) && !isEvaluationMode && !ticket.connection_url && (
+                        <div className="px-4 py-3 mt-4 border-t border-border">
+                          <div className="text-[10px] font-semibold uppercase text-muted-foreground mb-2">
+                            Need a free database?
+                          </div>
+                          <ul className="text-xs text-muted-foreground space-y-1.5 pl-3 list-disc">
+                            {isPostgres && (
+                              <li>
+                                <a
+                                  href="https://supabase.com"
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-primary hover:underline font-medium"
+                                >
+                                  Supabase
+                                </a>{" "}
+                                (Postgres)
+                              </li>
+                            )}
+                            {isPostgres && (
+                              <li>
+                                <a
+                                  href="https://neon.tech"
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-primary hover:underline font-medium"
+                                >
+                                  Neon
+                                </a>{" "}
+                                (Postgres)
+                              </li>
+                            )}
+                            {isPostgres && (
+                              <li>
+                                <a
+                                  href="https://render.com"
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-primary hover:underline font-medium"
+                                >
+                                  Render
+                                </a>{" "}
+                                (Postgres)
+                              </li>
+                            )}
+                            {isMysql && (
+                              <li>
+                                <a
+                                  href="https://planetscale.com"
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-primary hover:underline font-medium"
+                                >
+                                  PlanetScale
+                                </a>{" "}
+                                (MySQL)
+                              </li>
+                            )}
+                            {isMysql && (
+                              <li>
+                                <a
+                                  href="https://aiven.io/mysql"
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-primary hover:underline font-medium"
+                                >
+                                  Aiven
+                                </a>{" "}
+                                (MySQL)
+                              </li>
+                            )}
+                            {isMysql && (
+                              <li>
+                                <a
+                                  href="https://tidbcloud.com"
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-primary hover:underline font-medium"
+                                >
+                                  TiDB Cloud
+                                </a>{" "}
+                                (MySQL)
+                              </li>
+                            )}
+                            <li>
+                              <a
+                                href="https://railway.app"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary hover:underline font-medium"
+                              >
+                                Railway
+                              </a>{" "}
+                              (Both)
+                            </li>
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="mt-auto border-t px-3 py-2 text-[11px] text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <GitBranch className="h-3 w-3" /> main
@@ -4057,7 +4020,7 @@ export function TicketIDE({
                 )}
               </div>
 
-              {/* Bottom panel (resizable) */}
+              {/* Bottom panel (resizable to any height) */}
               <div
                 role="separator"
                 onMouseDown={startBottomResize}
@@ -4074,6 +4037,7 @@ export function TicketIDE({
                     ...(isAlgo ? [{ k: "testcases", label: "Test Cases", icon: FlaskConical }] : []),
                     { k: "preview", label: "Results", icon: CheckCircle2 },
                     { k: "output", label: "Console", icon: TerminalIcon },
+                    { k: "plan", label: "AI Mentor Plan", icon: ListTodo },
                   ].map((t) => (
                     <button
                       key={t.k}
@@ -4091,6 +4055,54 @@ export function TicketIDE({
                   )}
                 </div>
                 <div className={`flex-1 min-h-0 ${bottomTab === "terminal" ? "p-0 overflow-hidden flex flex-col" : "overflow-auto scrollbar-thin p-3 text-xs"}`}>
+                  {bottomTab === "plan" && (() => {
+                    const codePlanPath = Object.keys(files).find(
+                      (p) => p.startsWith(".yuvro-developer/plan/") || (p.endsWith(".md") && p.includes("plan"))
+                    ) || ".yuvro-developer/plan/code/plan-code.md";
+                    const codePlanContent = files[codePlanPath] || "# Code Implementation Plan\n- [ ] 1.1 Analyze ticket requirements\n- [ ] 1.2 Implement core functionality";
+
+                    return (
+                      <div className="flex-1 min-h-0 h-full flex flex-col overflow-hidden bg-card -m-3">
+                        <SystemDesignBottomPanel
+                          isOpen={true}
+                          onToggle={() => {}}
+                          activeTab="code"
+                          notes={{}}
+                          onNotesChange={() => {}}
+                          planContent={codePlanContent}
+                          showTabsInPlanOrder={true}
+                          defaultSubTab="plan"
+                          onPlanContentChange={(newContent) => {
+                            setFiles((prev) => ({ ...prev, [codePlanPath]: newContent }));
+                            if (effectiveUserId) {
+                              wsWriteFile(effectiveUserId, labId, sprintId, codePlanPath, newContent, evaluationId).catch(console.error);
+                            }
+                          }}
+                          onStartPlanTask={(task, subtask) => {
+                            setPendingTaskExecution({ task, subtask, ts: Date.now() });
+                            setSidePanel("mentor");
+                          }}
+                          taskStatuses={taskStatuses}
+                          onTogglePlanCheckbox={(taskNum, subNum) => {
+                            const esc = (subNum || taskNum).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                            const regex = new RegExp("(-\\s*\\[)([ xX])(\\]\\s*" + esc + ")");
+                            const updated = codePlanContent.replace(
+                              regex,
+                              (_, p1, mark, p3) => p1 + (mark.toLowerCase() === "x" ? " " : "x") + p3
+                            );
+                            setFiles((prev) => ({ ...prev, [codePlanPath]: updated }));
+                            if (effectiveUserId) {
+                              wsWriteFile(effectiveUserId, labId, sprintId, codePlanPath, updated, evaluationId).catch(console.error);
+                            }
+                          }}
+                          onRequestGeneratePlan={() => {
+                            setRequestedMentorMode("plan");
+                            setSidePanel("mentor");
+                          }}
+                        />
+                      </div>
+                    );
+                  })()}
                   {bottomTab === "output" && (
                     <ExecutionOutputView
                       output={output}
@@ -4143,16 +4155,16 @@ export function TicketIDE({
                     />
                   )}
                   <div style={{ display: bottomTab === "terminal" ? "flex" : "none" }} className="min-h-0 flex-1 flex-col h-full w-full">
-                      <TerminalView
-                        theme={theme}
-                        isVisible={bottomTab === "terminal"}
-                        wsUrl={isReal && !isLoading && effectiveUserId ? getTerminalWsUrl(effectiveUserId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other", evaluationId) : null}
-                        onCommandRun={() => loadWorkspaceFiles(true)}
-                        startupCommand={(isExternalDb || ticket.connection_url) ? undefined : computedStartupCommand}
-                        onStartupCommandRun={() => {
-                          setTimeout(() => setBottomTab("preview"), 2000);
-                        }}
-                      />
+                    <TerminalView
+                      theme={theme}
+                      isVisible={bottomTab === "terminal"}
+                      wsUrl={isReal && !isLoading && effectiveUserId ? getTerminalWsUrl(effectiveUserId, labId, sprintId, labTitle === "SQLite Lab" ? "sqlite" : "other", evaluationId) : null}
+                      onCommandRun={() => loadWorkspaceFiles(true)}
+                      startupCommand={(isExternalDb || ticket.connection_url) ? undefined : computedStartupCommand}
+                      onStartupCommandRun={() => {
+                        setTimeout(() => setBottomTab("preview"), 2000);
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -4173,7 +4185,7 @@ export function TicketIDE({
                   flex:
                     sideWidth != null
                       ? `0 0 ${sideWidth}px`
-                      : `0 0 ${sidePanel === "preview" ? "clamp(360px, 44%, 680px)" : "clamp(320px, 36%, 540px)"}`,
+                      : `0 0 ${sidePanel === "preview" ? "clamp(360px, 44%, 680px)" : "clamp(280px, 28%, 420px)"}`,
                 }}
               >
                 {sidePanel === "preview" && (
@@ -4217,117 +4229,121 @@ export function TicketIDE({
                   {sidePanel === "preview"
                     ? <div className="p-3 h-full"><SidePreview device={previewDevice} kit={kit} files={files} activeFile={activeFile} startupCommand={computedStartupCommand} previewPort={previewPort} ticket={ticket} isEvaluationMode={isEvaluationMode} effectiveUserId={effectiveUserId} labId={labId} sprintId={sprintId} evaluationId={evaluationId} isMysql={isMysql} isPostgres={isPostgres} isSql={isSql} /></div>
                     : <AIMentor
-                        chatTitle={`${labTitle} - Sprint ${sprintNo} - Ticket ${ticketNo}`}
-                        persistenceKey={`ticket-${ticket.id}`}
-                        contextGetter={() => {
-                          const fileEntries = Object.entries(files);
-                          let codeStr = "";
-                          let skillContext = "";
+                      chatTitle={`${labTitle} - Sprint ${sprintNo} - Ticket ${ticketNo}`}
+                      persistenceKey={`ticket-${ticket.id}`}
+                      planFolder=".yuvro-developer/plan/code"
+                      contextGetter={() => {
+                        const fileEntries = Object.entries(files);
+                        let codeStr = "";
+                        let skillContext = "";
 
-                          // Inject active skills from .yuvro-developer/skills/
-                          for (const [name, content] of fileEntries) {
-                            if (name.includes(".yuvro-developer/skills/") && name.endsWith(".md")) {
-                              skillContext += `[ACTIVE PROJECT SKILL: ${name}]\n${content}\n\n`;
+                        // Inject active skills from .yuvro-developer/skills/
+                        for (const [name, content] of fileEntries) {
+                          if (name.includes(".yuvro-developer/skills/") && name.endsWith(".md")) {
+                            skillContext += `[ACTIVE PROJECT SKILL: ${name}]\n${content}\n\n`;
+                          }
+                        }
+
+                        if (activeFile && files[activeFile] !== undefined) {
+                          codeStr += `File: ${activeFile}\n${files[activeFile]}\n\n`;
+                        }
+                        for (const [name, content] of fileEntries) {
+                          if (name !== activeFile && !name.includes(".yuvro-developer/skills/")) {
+                            if ((codeStr + content).length < 25000) {
+                              codeStr += `File: ${name}\n${content}\n\n`;
+                            } else {
+                              codeStr += `File: ${name} (omitted due to length)\n\n`;
                             }
                           }
+                        }
 
-                          if (activeFile && files[activeFile] !== undefined) {
-                            codeStr += `File: ${activeFile}\n${files[activeFile]}\n\n`;
+                        return `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\n${skillContext}Current Code:\n${codeStr}`.trim();
+                      }}
+                      activeFile={activeFile || defaultPrimaryFile}
+                      tasks={ticket.tasks || []}
+                      evalResult={evalResult}
+                      consoleOutput={(executionOutput || output || "").trim()}
+                      outputJson={taskExecutionData || testResults || undefined}
+                      testResults={testResults}
+                      onExecuteRun={handleRun}
+                      isExecutingRun={running}
+                      files={files}
+                      taskStatuses={taskStatuses}
+                      onTaskStatusesChange={setTaskStatuses}
+                      pendingTaskExecution={pendingTaskExecution}
+                      requestedMode={requestedMentorMode}
+                      onTaskCompleted={handleTaskCompleted}
+                      activeSessionId={activeAiSessionId}
+                      checkpoints={checkpoints}
+                      onDiscardChanges={handleDiscardChanges}
+                      onRestoreCheckpoint={handleRestoreCheckpoint}
+                      onOpenFile={(filePath) => {
+                        if (!openTabs.includes(filePath)) {
+                          setOpenTabs((prev) => [...prev, filePath]);
+                        }
+                        setActiveFile(filePath);
+                      }}
+                      onApplyCode={(code, target) => {
+                        const targetFile = target || activeFile || defaultPrimaryFile;
+                        createCheckpoint(`Before editing ${targetFile || "file"}`, files, "agent");
+                        if (targetFile) {
+                          if (!openTabs.includes(targetFile)) {
+                            setOpenTabs((prev) => [...prev, targetFile]);
                           }
-                          for (const [name, content] of fileEntries) {
-                            if (name !== activeFile && !name.includes(".yuvro-developer/skills/")) {
-                              if ((codeStr + content).length < 25000) {
-                                codeStr += `File: ${name}\n${content}\n\n`;
-                              } else {
-                                codeStr += `File: ${name} (omitted due to length)\n\n`;
-                              }
-                            }
+                          setActiveFile(targetFile);
+                          setFiles((prev) => ({ ...prev, [targetFile]: code }));
+                          setDirty((prev) => ({ ...prev, [targetFile]: true }));
+                        }
+                        if (targetFile === activeFile || !target) {
+                          updateCode(code);
+                        }
+                        if (targetFile && effectiveUserId) {
+                          wsWriteFile(effectiveUserId, labId, sprintId, targetFile, code, evaluationId).catch(console.error);
+                        }
+                        showToast(`Applied code to ${targetFile || "file"}`);
+                      }}
+                      onApplyFiles={(filesMap) => {
+                        const filteredMap: Record<string, string> = {};
+                        for (const [k, v] of Object.entries(filesMap)) {
+                          // Never overwrite plan markdown files from review changes
+                          if (!k.includes(".yuvro-developer/plan/") && !k.endsWith(".md")) {
+                            filteredMap[k] = v;
                           }
+                        }
+                        const changedCount = Object.keys(filteredMap).length;
+                        createCheckpoint(`Before editing ${changedCount} files`, files, "agent");
+                        setFiles((prev) => ({ ...prev, ...filteredMap }));
 
-                          return `Lab Ticket: ${ticket.title}\nDescription: ${ticket.description}\n\n${skillContext}Current Code:\n${codeStr}`.trim();
-                        }}
-                        activeFile={activeFile || defaultPrimaryFile}
-                        tasks={ticket.tasks || []}
-                        evalResult={evalResult}
-                        consoleOutput={(executionOutput || output || "").trim()}
-                        outputJson={taskExecutionData || testResults || undefined}
-                        testResults={testResults}
-                        onExecuteRun={handleRun}
-                        isExecutingRun={running}
-                        files={files}
-                        taskStatuses={taskStatuses}
-                        onTaskStatusesChange={setTaskStatuses}
-                        pendingTaskExecution={pendingTaskExecution}
-                        requestedMode={requestedMentorMode}
-                        onTaskCompleted={handleTaskCompleted}
-                        activeSessionId={activeAiSessionId}
-                        checkpoints={checkpoints}
-                        onDiscardChanges={handleDiscardChanges}
-                        onRestoreCheckpoint={handleRestoreCheckpoint}
-                        onOpenFile={(filePath) => {
-                          if (!openTabs.includes(filePath)) {
-                            setOpenTabs((prev) => [...prev, filePath]);
+                        const targetKeys = Object.keys(filteredMap);
+                        const firstFile = targetKeys[0];
+                        if (firstFile) {
+                          if (!openTabs.includes(firstFile)) {
+                            setOpenTabs((prev) => [...prev, firstFile]);
                           }
-                          setActiveFile(filePath);
-                        }}
-                        onApplyCode={(code, target) => {
-                          const targetFile = target || activeFile || defaultPrimaryFile;
-                          createCheckpoint(`Before editing ${targetFile || "file"}`, files, "agent");
-                          if (targetFile) {
-                            if (!openTabs.includes(targetFile)) {
-                              setOpenTabs((prev) => [...prev, targetFile]);
-                            }
-                            setActiveFile(targetFile);
-                            setFiles((prev) => ({ ...prev, [targetFile]: code }));
-                            setDirty((prev) => ({ ...prev, [targetFile]: true }));
-                          }
-                          if (targetFile === activeFile || !target) {
-                            updateCode(code);
-                          }
-                          if (targetFile && effectiveUserId) {
+                          setActiveFile(firstFile);
+                          updateCode(filteredMap[firstFile]);
+                        } else if (activeFile && filteredMap[activeFile] !== undefined) {
+                          updateCode(filteredMap[activeFile]);
+                        }
+
+                        Object.entries(filteredMap).forEach(([targetFile, code]) => {
+                          if (effectiveUserId) {
                             wsWriteFile(effectiveUserId, labId, sprintId, targetFile, code, evaluationId).catch(console.error);
                           }
-                          showToast(`Applied code to ${targetFile || "file"}`);
-                        }}
-                        onApplyFiles={(filesMap) => {
-                          const filteredMap: Record<string, string> = {};
-                          for (const [k, v] of Object.entries(filesMap)) {
-                            // Never overwrite plan markdown files from review changes
-                            if (!k.includes(".yuvro-developer/plan/") && !k.endsWith(".md")) {
-                              filteredMap[k] = v;
-                            }
-                          }
-                          const changedCount = Object.keys(filteredMap).length;
-                          createCheckpoint(`Before editing ${changedCount} files`, files, "agent");
-                          setFiles((prev) => ({ ...prev, ...filteredMap }));
-
-                          const targetKeys = Object.keys(filteredMap);
-                          const firstFile = targetKeys[0];
-                          if (firstFile) {
-                            if (!openTabs.includes(firstFile)) {
-                              setOpenTabs((prev) => [...prev, firstFile]);
-                            }
-                            setActiveFile(firstFile);
-                            updateCode(filteredMap[firstFile]);
-                          } else if (activeFile && filteredMap[activeFile] !== undefined) {
-                            updateCode(filteredMap[activeFile]);
-                          }
-
-                          Object.entries(filteredMap).forEach(([targetFile, code]) => {
-                            if (effectiveUserId) {
-                              wsWriteFile(effectiveUserId, labId, sprintId, targetFile, code, evaluationId).catch(console.error);
-                            }
-                          });
-                          showToast(`Applied changes to ${changedCount} files`);
-                        }}
-                        onSaveFile={(filePath, content) => {
-                          setFiles((prev) => ({ ...prev, [filePath]: content }));
-                          if (effectiveUserId) {
-                            wsWriteFile(effectiveUserId, labId, sprintId, filePath, content, evaluationId).catch(console.error);
-                          }
-                        }}
-                        onClose={() => setSidePanel(null)}
-                      />}
+                        });
+                        showToast(`Applied changes to ${changedCount} files`);
+                      }}
+                      onSaveFile={(filePath, content) => {
+                        setFiles((prev) => ({ ...prev, [filePath]: content }));
+                        if (effectiveUserId) {
+                          wsWriteFile(effectiveUserId, labId, sprintId, filePath, content, evaluationId).catch(console.error);
+                        }
+                      }}
+                      onOpenBottomPanel={() => {
+                        setBottomTab("plan");
+                      }}
+                      onClose={() => setSidePanel(null)}
+                    />}
                 </div>
               </aside>
             )}
@@ -4355,24 +4371,24 @@ export function TicketIDE({
             {activeFile.endsWith(".py")
               ? "Python"
               : activeFile.endsWith(".js") || activeFile.endsWith(".jsx")
-              ? "JavaScript"
-              : activeFile.endsWith(".ts") || activeFile.endsWith(".tsx")
-              ? "TypeScript"
-              : activeFile.endsWith(".html")
-              ? "HTML"
-              : activeFile.endsWith(".css")
-              ? "CSS"
-              : activeFile.endsWith(".java")
-              ? "Java"
-              : activeFile.endsWith(".cpp")
-              ? "C++"
-              : activeFile.endsWith(".c")
-              ? "C"
-              : activeFile.endsWith(".sql")
-              ? "SQL"
-              : activeFile.endsWith(".md")
-              ? "Markdown"
-              : kit.runtime || "Python"}
+                ? "JavaScript"
+                : activeFile.endsWith(".ts") || activeFile.endsWith(".tsx")
+                  ? "TypeScript"
+                  : activeFile.endsWith(".html")
+                    ? "HTML"
+                    : activeFile.endsWith(".css")
+                      ? "CSS"
+                      : activeFile.endsWith(".java")
+                        ? "Java"
+                        : activeFile.endsWith(".cpp")
+                          ? "C++"
+                          : activeFile.endsWith(".c")
+                            ? "C"
+                            : activeFile.endsWith(".sql")
+                              ? "SQL"
+                              : activeFile.endsWith(".md")
+                                ? "Markdown"
+                                : kit.runtime || "Python"}
           </span>
           {isJava && (
             <span className="inline-flex items-center gap-1">
@@ -4556,13 +4572,12 @@ export function TicketIDE({
                       setQuickSwitcherOpen(false);
                       setQuickSearchQuery("");
                     }}
-                    className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs transition-colors ${
-                      isSelected
+                    className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs transition-colors ${isSelected
                         ? "bg-accent text-foreground border-l-2 border-primary"
                         : isCurrent
-                        ? "bg-primary/10 text-primary font-medium"
-                        : "text-foreground hover:bg-accent/60"
-                    }`}
+                          ? "bg-primary/10 text-primary font-medium"
+                          : "text-foreground hover:bg-accent/60"
+                      }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <FileCode2 className="h-3.5 w-3.5 shrink-0 text-info" />
@@ -4734,15 +4749,15 @@ function CodeEditor({
   const taskLensConfigRef = useRef<TaskLensConfig>({
     enabled: isMarkdown,
     taskStatuses,
-    onStartTask: onStartTask || (() => {}),
-    onViewSession: onViewSession || (() => {}),
+    onStartTask: onStartTask || (() => { }),
+    onViewSession: onViewSession || (() => { }),
   });
 
   taskLensConfigRef.current = {
     enabled: isMarkdown,
     taskStatuses,
-    onStartTask: onStartTask || (() => {}),
-    onViewSession: onViewSession || (() => {}),
+    onStartTask: onStartTask || (() => { }),
+    onViewSession: onViewSession || (() => { }),
   };
 
   const taskLensExtension = useMemo(() => {
@@ -4947,7 +4962,7 @@ function extractTasksReport(
         if (jsonMatch) {
           try {
             parsedJson = JSON.parse(jsonMatch[0]);
-          } catch {}
+          } catch { }
         }
       }
     }
@@ -5303,14 +5318,14 @@ function FormattedResultsView({
               const cardBorder = !isEvaluated
                 ? "border-border bg-card/60"
                 : isPassed
-                ? "border-success/30 bg-success/5"
-                : "border-destructive/30 bg-destructive/5";
+                  ? "border-success/30 bg-success/5"
+                  : "border-destructive/30 bg-destructive/5";
 
               const badgeCls = !isEvaluated
                 ? "bg-muted text-muted-foreground border border-border"
                 : isPassed
-                ? "bg-success/20 text-success border border-success/30"
-                : "bg-destructive/20 text-destructive border border-destructive/30";
+                  ? "bg-success/20 text-success border border-success/30"
+                  : "bg-destructive/20 text-destructive border border-destructive/30";
 
               const badgeText = !isEvaluated ? "PENDING" : isPassed ? "PASSED" : "FAILED";
 
@@ -5835,7 +5850,7 @@ function DjangoTodoApp() {
   );
 }
 
-function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCommandRun, isVisible }: { wsUrl: string | null; theme: "dark" | "light"; onCommandRun?: () => void; startupCommand?: string; onStartupCommandRun?: () => void; isVisible?: boolean; }) {
+function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCommandRun, isVisible }: { wsUrl: string | null; theme: "dark" | "light" | "system"; onCommandRun?: () => void; startupCommand?: string; onStartupCommandRun?: () => void; isVisible?: boolean; }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const startupCommandRunRef = useRef(false);
   const termRef = useRef<any>(null);
@@ -5863,7 +5878,7 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
     onCommandRunRef.current = onCommandRun;
   }, [onCommandRun]);
 
-  const isDark = theme === "dark";
+  const isDark = theme === "dark" || (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   const getThemeConfig = useCallback(() => {
     return {
@@ -5927,10 +5942,10 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
         if (core?._renderService?.dimensions) {
           core._renderService.dimensions.reset?.();
         }
-      } catch {}
+      } catch { }
       try {
         fitAddon.fit();
-      } catch {}
+      } catch { }
     };
 
     // Initial fit
@@ -5982,10 +5997,10 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
           if (core?._renderService?.dimensions) {
             core._renderService.dimensions.reset?.();
           }
-        } catch {}
+        } catch { }
         try {
           fitRef.current?.fit();
-        } catch {}
+        } catch { }
       };
 
       runFit();
@@ -6022,7 +6037,7 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
       setError(null);
       termRef.current?.writeln("\x1b[32m✓ Connected\x1b[0m\r\n");
       try { fitRef.current?.fit(); } catch { /* ignore */ }
-      
+
       if (startupCommand && !startupCommandRunRef.current) {
         startupCommandRunRef.current = true;
         setTimeout(() => {
@@ -6086,23 +6101,20 @@ function TerminalView({ wsUrl, theme, onCommandRun, startupCommand, onStartupCom
 
   return (
     <div
-      className={`flex flex-col h-full w-full overflow-hidden ${
-        isDark ? "bg-[#0d1117] text-white" : "bg-[#fafaf7] text-neutral-800"
-      }`}
+      className={`flex flex-col h-full w-full overflow-hidden ${isDark ? "bg-[#0d1117] text-white" : "bg-[#fafaf7] text-neutral-800"
+        }`}
     >
       {/* Sleek Terminal Header */}
       <div
-        className={`flex items-center justify-between h-7 px-3 border-b text-[11px] font-mono select-none flex-shrink-0 ${
-          isDark
+        className={`flex items-center justify-between h-7 px-3 border-b text-[11px] font-mono select-none flex-shrink-0 ${isDark
             ? "bg-[#161b22] border-white/10 text-neutral-400"
             : "bg-neutral-100 border-neutral-200 text-neutral-600"
-        }`}
+          }`}
       >
         <div className="flex items-center gap-2">
           <span
-            className={`h-2 w-2 rounded-full flex-shrink-0 transition-colors ${
-              connected ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]" : "bg-rose-500"
-            }`}
+            className={`h-2 w-2 rounded-full flex-shrink-0 transition-colors ${connected ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]" : "bg-rose-500"
+              }`}
           />
           <span className="font-semibold tracking-wider text-[10px] uppercase text-foreground">
             Terminal
@@ -6201,19 +6213,19 @@ function Minimap({ code }: { code: string }) {
   );
 }
 
-function ProblemPanel({ 
-  ticket, 
-  isReal, 
-  slug, 
+function ProblemPanel({
+  ticket,
+  isReal,
+  slug,
   labName,
   isAlgo,
-  evaluating, 
-  evalResult, 
-  ticketScore, 
-  onEvaluate 
-}: { 
-  ticket: any; 
-  isReal?: boolean; 
+  evaluating,
+  evalResult,
+  ticketScore,
+  onEvaluate
+}: {
+  ticket: any;
+  isReal?: boolean;
   slug: string;
   labName?: string;
   isAlgo?: boolean;
@@ -6302,7 +6314,7 @@ function ProblemPanel({
                   const taskMethod = typeof task === "object" ? task.method : null;
                   const isDS = isAlgo;
                   const isHidden = typeof task === "object" && (taskTitle.toLowerCase().includes("hidden") || task.is_hidden === true);
-                  
+
                   return (
                     <div
                       key={idx}
@@ -6312,9 +6324,9 @@ function ProblemPanel({
                         <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary/10 border border-primary/20 text-[11px] text-primary font-bold">
                           {idx + 1}
                         </span>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
-                            {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">{taskDesc}</p>}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-foreground text-sm">{taskTitle}</div>
+                          {taskDesc && <p className="mt-1 text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">{taskDesc}</p>}
                           {(task.input !== undefined || (task.expected_output !== undefined && ((typeof task.expected_output === 'object' && Object.keys(task.expected_output || {}).length > 0) || (typeof task.expected_output === 'string' && task.expected_output.trim().length > 0)))) && (
                             <div className="mt-2.5 text-xs bg-muted/40 rounded-md p-2.5">
                               {task.input !== undefined && (
@@ -6342,11 +6354,10 @@ function ProblemPanel({
                             const item = evalResult[task.task_slug] || evalResult[`task-${originalIdx}`] || evalResult[`task-${idx}`] || (task.id ? evalResult[String(task.id)] : undefined);
                             if (!item) return null;
                             return (
-                              <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${
-                                item.passed 
-                                  ? "border-success/20 bg-success/10 text-success" 
+                              <div className={`mt-3 rounded-md border px-3 py-2 text-xs font-medium ${item.passed
+                                  ? "border-success/20 bg-success/10 text-success"
                                   : "border-destructive/20 bg-destructive/10 text-destructive"
-                              }`}>
+                                }`}>
                                 {item.passed ? "✅ Passed: " : "❌ Failed: "}
                                 {item.reason}
                               </div>
@@ -6497,14 +6508,14 @@ function ScorePenaltyWarningDialog({
           {description}
         </DialogDescription>
         <DialogFooter>
-          <button 
-            className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-accent" 
+          <button
+            className="px-4 py-2 border rounded-md text-sm font-medium hover:bg-accent"
             onClick={() => onOpenChange(false)}
           >
             Cancel
           </button>
-          <button 
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium" 
+          <button
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium"
             onClick={() => { onOpenChange(false); onAcknowledge(); }}
           >
             Acknowledge & Reveal
@@ -6624,10 +6635,10 @@ function HintsPanel({
           }}
         />
       )}
-      
+
       {hints.map((hint: string, index: number) => {
         const isRevealed = revealedHints.includes(index);
-        
+
         return (
           <div key={index} className="rounded-md border bg-editor-bg p-3">
             <div className="flex items-center justify-between mb-2">
@@ -6644,7 +6655,7 @@ function HintsPanel({
                 {isRevealed ? "Revealed" : "Locked"}
               </span>
             </div>
-            
+
             {isRevealed ? (
               <pre className="mt-2 whitespace-pre-wrap text-xs text-foreground font-mono bg-background/50 p-3 rounded border border-border/50">
                 {hint}
@@ -7181,9 +7192,8 @@ function TreeFileNode({
         <button
           onClick={() => onOpenFile(node.path)}
           style={pad}
-          className={`flex w-full items-center gap-1.5 rounded py-0.5 pr-1 text-left ${
-            active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
-          }`}
+          className={`flex w-full items-center gap-1.5 rounded py-0.5 pr-1 text-left ${active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60"
+            }`}
         >
           <span className="w-3" />
           <FileCode2 className="h-3 w-3 shrink-0" />
@@ -7904,22 +7914,22 @@ function MongoResultsView({
 function UiPreview({ files, fullHeight }: { files: Record<string, string>; fullHeight?: boolean }) {
   const srcDoc = useMemo(() => {
     const html = files["index.html"] ?? "<!doctype html><html><body><p>No index.html</p></body></html>";
-    
+
     // Dynamically find any CSS or JS file instead of hardcoding names
     const cssFileName = Object.keys(files).find(f => f.endsWith('.css'));
     const jsFileName = Object.keys(files).find(f => f.endsWith('.js'));
-    
+
     const cssText = cssFileName ? files[cssFileName] : "";
     const jsText = jsFileName ? files[jsFileName] : "";
-    
+
     const cssTag = `<style>${cssText}</style>`;
     const jsTag = `<script>\ntry { ${jsText} } catch (e) { document.body.insertAdjacentHTML('beforeend', '<pre style="color:#b00">'+(e && e.message || e)+'</pre>'); }\n<\/script>`;
-    
+
     // Strip any external <link rel=stylesheet> and <script src="..."> then inject inline.
     let out = html
       .replace(/<link[^>]*rel=["']stylesheet["'][^>]*>/i, cssTag)
       .replace(/<script[^>]*src=[^>]*><\/script>/i, jsTag);
-      
+
     if (!out.includes("<style>")) out = out.replace(/<\/head>/i, `${cssTag}</head>`);
     if (!out.includes("<script>")) out = out.replace(/<\/body>/i, `${jsTag}</body>`);
     return out;
@@ -8398,8 +8408,8 @@ export function SolutionPanel({
   }
 
   const sol = solutionsForApproach.find((s: any) => (selectedId && s.id === selectedId)) ||
-              solutionsForApproach.find((s: any) => s.language === selectedLanguage) ||
-              solutionsForApproach[0];
+    solutionsForApproach.find((s: any) => s.language === selectedLanguage) ||
+    solutionsForApproach[0];
 
   const fileMap: Record<string, string> = {};
   effectiveSolutions.forEach((s: any) => {
@@ -8428,11 +8438,10 @@ export function SolutionPanel({
                   setSelectedLanguage(nextMatch.language || "python");
                 }
               }}
-              className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors ${
-                selectedApproach === approach
+              className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-colors ${selectedApproach === approach
                   ? "border-primary text-foreground"
                   : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
             >
               {getApproachLabel(approach)}
             </button>
@@ -8449,11 +8458,10 @@ export function SolutionPanel({
                 if (s.id) setSelectedId(s.id);
                 if (s.language) setSelectedLanguage(s.language);
               }}
-              className={`px-3 py-1.5 rounded-full font-medium transition-colors border ${
-                (sol && (sol.id === s.id || (sol.filePath && sol.filePath === s.filePath) || sol.language === s.language))
+              className={`px-3 py-1.5 rounded-full font-medium transition-colors border ${(sol && (sol.id === s.id || (sol.filePath && sol.filePath === s.filePath) || sol.language === s.language))
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-editor-bg text-muted-foreground border-border hover:border-muted-foreground/30"
-              }`}
+                }`}
             >
               {s.title || (s.filePath || s.file_path) || s.language?.toUpperCase() || "SOLUTION"}
             </button>
@@ -8555,22 +8563,20 @@ function PlanTasksPreviewPanel({
           <div className="flex items-center gap-1 bg-muted/60 p-0.5 rounded-lg border border-border/80">
             <button
               onClick={() => onSwitchView("markdown")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
-                planViewMode === "markdown"
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${planViewMode === "markdown"
                   ? "bg-background text-foreground shadow-xs font-semibold"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
               title="Switch to Markdown source"
             >
               Markdown
             </button>
             <button
               onClick={() => onSwitchView("ui")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
-                planViewMode === "ui"
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${planViewMode === "ui"
                   ? "bg-background text-foreground shadow-xs font-semibold"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
               title="Switch to Tasks UI view"
             >
               Tasks UI
@@ -8631,13 +8637,12 @@ function PlanTasksPreviewPanel({
                     <button
                       onClick={() => onStartTask(task)}
                       disabled={isTaskRunning}
-                      className={`px-2.5 py-1 rounded-md text-[11px] font-medium inline-flex items-center gap-1.5 transition-all shadow-xs cursor-pointer ${
-                        isTaskDone
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-medium inline-flex items-center gap-1.5 transition-all shadow-xs cursor-pointer ${isTaskDone
                           ? "bg-muted text-muted-foreground hover:bg-muted/80"
                           : isTaskRunning
                             ? "bg-amber-500/10 text-amber-500 border border-amber-500/30"
                             : "bg-primary text-primary-foreground hover:opacity-90"
-                      }`}
+                        }`}
                       title={isTaskDone ? "Re-run task in Agent mode" : "Execute task in Agent mode"}
                     >
                       {isTaskRunning ? (

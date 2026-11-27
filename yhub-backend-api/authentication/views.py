@@ -286,6 +286,15 @@ class UserRegistrationView(generics.CreateAPIView):
         except Exception as e:
             logger.error(f"Failed to award free mock interview to new user {user.id}: {e}", exc_info=True)
 
+        # Process referral attribution if referral code is provided
+        referral_code = request.data.get("referral_code") or request.query_params.get("ref")
+        if referral_code:
+            try:
+                from referrals.services import ReferralService
+                ReferralService.process_registration(user, referral_code)
+            except Exception as e:
+                logger.error(f"Failed to record referral attribution for user {user.id} with code {referral_code}: {e}", exc_info=True)
+
         try:
             from core.email_service import EmailService
             EmailService.send_welcome_email(
